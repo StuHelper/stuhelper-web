@@ -1,5 +1,6 @@
 .PHONY: check build dev generate
 check:
+	pnpm exec stuhelper-check release
 	pnpm run check
 	pnpm exec stuhelper-check workflows
 build:
