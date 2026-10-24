@@ -28,8 +28,8 @@ importers:
         specifier: 4.5.1
         version: 4.5.1(eslint@10.13.0)(jsonc-eslint-parser@3.3.0)(vue-eslint-parser@10.4.1(eslint@10.13.0))(yaml-eslint-parser@2.1.0)
       '@stuhelper/engineering-tools':
-        specifier: git+https://github.com/StuHelper/stuhelper-next.git#tooling-v0.1.2
-        version: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/240fd6e2dedad40aac8f211f6097dfef681c6cfa
+        specifier: git+https://github.com/StuHelper/stuhelper-next.git#tooling-v0.1.3
+        version: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/bf954bc87a9f6a0d3a39f5a29402eb1dc9c51081
       '@tsconfig/node24':
         specifier: 24.0.5
         version: 24.0.5
@@ -353,9 +353,9 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/240fd6e2dedad40aac8f211f6097dfef681c6cfa':
-    resolution: {gitHosted: true, integrity: sha512-uzYPkw4TVY+kiwbNvx+Alyq7Ramh3Jwx7Lgs8m4YBH9bMk5T4w14vlxN+xDlJAeMYIr/wEm6t5ulJgRl0GQISw==, tarball: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/240fd6e2dedad40aac8f211f6097dfef681c6cfa}
-    version: 0.1.2
+  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/bf954bc87a9f6a0d3a39f5a29402eb1dc9c51081':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/bf954bc87a9f6a0d3a39f5a29402eb1dc9c51081}
+    version: 0.1.3
     engines: {node: 24.22.1, pnpm: 10.33.4}
     hasBin: true
 
@@ -1894,7 +1894,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/240fd6e2dedad40aac8f211f6097dfef681c6cfa':
+  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/bf954bc87a9f6a0d3a39f5a29402eb1dc9c51081':
     dependencies:
       github-slugger: 2.0.0
       markdown-it: 15.0.3
