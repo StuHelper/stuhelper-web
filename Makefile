@@ -1,12 +1,13 @@
 .PHONY: check build dev generate
 check:
-	npm run check
+	pnpm run check
+	pnpm exec stuhelper-check workflows
 build:
-	npm run build
+	pnpm run build
 dev:
-	npm run dev
+	pnpm run dev
 generate:
-	npm run generate
+	pnpm run generate
 
 setup:
-	npm ci --ignore-scripts
+	pnpm install --frozen-lockfile
