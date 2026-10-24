@@ -28,8 +28,8 @@ importers:
         specifier: 4.5.1
         version: 4.5.1(eslint@10.13.0)(jsonc-eslint-parser@3.3.0)(vue-eslint-parser@10.4.1(eslint@10.13.0))(yaml-eslint-parser@2.1.0)
       '@stuhelper/engineering-tools':
-        specifier: git+https://github.com/StuHelper/stuhelper-next.git#tooling-v0.1.4
-        version: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/e270c3f2e803bc5613133c78e2b2dd4379bfd573
+        specifier: git+https://github.com/StuHelper/stuhelper-next.git#tooling-v0.1.5
+        version: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/c6f0914645650f3c9f615e979d8fe5ead1e1360c
       '@tsconfig/node24':
         specifier: 24.0.5
         version: 24.0.5
@@ -353,9 +353,9 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
-  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/e270c3f2e803bc5613133c78e2b2dd4379bfd573':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/e270c3f2e803bc5613133c78e2b2dd4379bfd573}
-    version: 0.1.4
+  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/c6f0914645650f3c9f615e979d8fe5ead1e1360c':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/c6f0914645650f3c9f615e979d8fe5ead1e1360c}
+    version: 0.1.5
     engines: {node: 24.22.1, pnpm: 10.33.4}
     hasBin: true
 
@@ -1894,7 +1894,7 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
-  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/e270c3f2e803bc5613133c78e2b2dd4379bfd573':
+  '@stuhelper/engineering-tools@https://codeload.github.com/StuHelper/stuhelper-next/tar.gz/c6f0914645650f3c9f615e979d8fe5ead1e1360c':
     dependencies:
       github-slugger: 2.0.0
       markdown-it: 15.0.3
