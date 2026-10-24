@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 </script>
 
 <template>
   <section>
     <p class="eyebrow">
-      404
+      {{ t('notFound.code') }}
     </p>
-    <h1>这个页面暂不可用</h1>
+    <h1>{{ t('notFound.title') }}</h1>
     <p class="description">
-      地址可能有误，或对应功能尚未开放。
+      {{ t('notFound.description') }}
     </p>
     <RouterLink
       class="home-link"
       to="/"
     >
-      返回首页
+      {{ t('notFound.home') }}
     </RouterLink>
   </section>
 </template>

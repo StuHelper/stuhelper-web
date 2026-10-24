@@ -1,0 +1,47 @@
+{
+  "brand": {
+    "name": "StuHelper",
+    "home": "StuHelper home",
+    "context": "Campus space"
+  },
+  "language": {
+    "label": "Language",
+    "chinese": "简体中文",
+    "english": "English"
+  },
+  "shell": {
+    "skip": "Skip to main content",
+    "preview": "Development preview",
+    "footer": "The next release is in preparation"
+  },
+  "home": {
+    "eyebrow": "YOUR CAMPUS, CONNECTED",
+    "title": "A place for every campus service.",
+    "description": "Courses, reviews and learning resources will come together here. Campus features will open as they become available.",
+    "note": "This page provides a development preview."
+  },
+  "connection": {
+    "label": "Service connection status",
+    "loading": "Connecting to the service…",
+    "ready": "Service connected",
+    "adminReady": "Administration service connected",
+    "retry": "Reconnect",
+    "errors": {
+      "network": "Unable to connect. Please try again later.",
+      "incompatible": "This service version is incompatible. Refresh the page and try again.",
+      "identity": "Administrator identity service is not connected yet.",
+      "unauthenticated": "Sign in to access the administration workspace.",
+      "forbidden": "This account cannot access the administration workspace.",
+      "unavailable": "The service is temporarily unavailable. Please try again later."
+    }
+  },
+  "notFound": {
+    "code": "404",
+    "title": "This page is unavailable",
+    "description": "The address may be incorrect, or the feature is not available yet.",
+    "home": "Return home"
+  },
+  "format": {
+    "items": "{count} item | {count} items"
+  }
+}

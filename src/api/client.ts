@@ -40,5 +40,7 @@ export async function getModules(signal: AbortSignal, fetcher: typeof fetch = fe
   if (!Array.isArray(value) || !value.every((item: unknown) => typeof item === 'object' && item !== null && 'id' in item && typeof item.id === 'string' && 'state' in item && typeof item.state === 'string' && states.has(item.state))) {
     throw new PlatformError('incompatible')
   }
+  const health = new Set(['available', 'disabled', 'unavailable'])
+  if (value.some((item: Record<string, unknown>) => item.health !== undefined && (typeof item.health !== 'string' || !health.has(item.health)))) throw new PlatformError('incompatible')
   return value as ModuleStatus[]
 }

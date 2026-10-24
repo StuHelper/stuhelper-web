@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import type { PlatformError } from '../api/client'
 
 const props = defineProps<{ state: 'loading' | 'ready' | 'error'; error: PlatformError['code'] | null; admin: boolean }>()
 const emit = defineEmits<{ retry: [] }>()
+const { t } = useI18n()
+const errorKeys = {
+  network: 'connection.errors.network', incompatible: 'connection.errors.incompatible',
+  identity: 'connection.errors.identity', unauthenticated: 'connection.errors.unauthenticated',
+  forbidden: 'connection.errors.forbidden', unavailable: 'connection.errors.unavailable',
+} as const
 const message = computed(() => {
-  if (props.state === 'loading') return '正在连接服务…'
-  if (props.state === 'ready') return props.admin ? '管理服务已连接' : '服务已连接'
-  const messages = {
-    network: '暂时无法连接服务，请稍后重试。',
-    incompatible: '服务版本暂不兼容，请更新页面后重试。',
-    identity: '管理员身份服务尚未接入。',
-    unauthenticated: '请先登录后访问管理工作台。',
-    forbidden: '当前账号没有访问管理工作台的权限。',
-    unavailable: '服务暂时不可用，请稍后重试。',
-  }
-  return messages[props.error ?? 'unavailable']
+  if (props.state === 'loading') return t('connection.loading')
+  if (props.state === 'ready') return props.admin ? t('connection.adminReady') : t('connection.ready')
+  return t(errorKeys[props.error ?? 'unavailable'])
 })
 </script>
 
@@ -23,7 +22,7 @@ const message = computed(() => {
   <section
     class="connection"
     :class="`connection-${state}`"
-    aria-label="服务连接状态"
+    :aria-label="t('connection.label')"
     :aria-busy="state === 'loading'"
   >
     <div
@@ -43,7 +42,7 @@ const message = computed(() => {
       type="button"
       @click="emit('retry')"
     >
-      重新连接
+      {{ t('connection.retry') }}
     </button>
   </section>
 </template>

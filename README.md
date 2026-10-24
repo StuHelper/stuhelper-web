@@ -4,7 +4,7 @@ StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。�
 
 ## 本地开发
 
-需要 Node.js 24。
+需要 Node.js 24.22.1。
 
 ```bash
 make setup

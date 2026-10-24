@@ -1,0 +1,47 @@
+{
+  "brand": {
+    "name": "StuHelper",
+    "home": "StuHelper 首页",
+    "context": "校园空间"
+  },
+  "language": {
+    "label": "语言",
+    "chinese": "简体中文",
+    "english": "English"
+  },
+  "shell": {
+    "skip": "跳至主要内容",
+    "preview": "开发预览",
+    "footer": "当前版本正在准备中"
+  },
+  "home": {
+    "eyebrow": "连接校园生活",
+    "title": "为校园服务，留好每一个位置。",
+    "description": "课程、评价与学习资料将在这里相遇。校园功能会在完成后逐步开放。",
+    "note": "当前提供开发预览页面。"
+  },
+  "connection": {
+    "label": "服务连接状态",
+    "loading": "正在连接服务…",
+    "ready": "服务已连接",
+    "adminReady": "管理服务已连接",
+    "retry": "重新连接",
+    "errors": {
+      "network": "暂时无法连接服务，请稍后重试。",
+      "incompatible": "服务版本暂不兼容，请更新页面后重试。",
+      "identity": "管理员身份服务尚未接入。",
+      "unauthenticated": "请先登录后访问管理工作台。",
+      "forbidden": "当前账号没有访问管理工作台的权限。",
+      "unavailable": "服务暂时不可用，请稍后重试。"
+    }
+  },
+  "notFound": {
+    "code": "404",
+    "title": "这个页面暂不可用",
+    "description": "地址可能有误，或对应功能尚未开放。",
+    "home": "返回首页"
+  },
+  "format": {
+    "items": "{count} 项"
+  }
+}

@@ -1,20 +1,22 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import ConnectionStatus from '../components/ConnectionStatus.vue'
 import { usePlatform } from '../composables/usePlatform'
 
+const { t } = useI18n()
 const { state, error, reload } = usePlatform({ admin: false })
 </script>
 
 <template>
   <div class="home-view">
     <p class="eyebrow">
-      YOUR CAMPUS, CONNECTED
+      {{ t('home.eyebrow') }}
     </p>
     <h1 class="page-title">
-      为校园服务，留好每一个位置。
+      {{ t('home.title') }}
     </h1>
     <p class="page-description">
-      课程、评价与学习资料将在这里相遇。当前提供应用基础页面，校园功能会在完成后逐步开放。
+      {{ t('home.description') }}
     </p>
     <ConnectionStatus
       class="service-status"
@@ -28,7 +30,7 @@ const { state, error, reload } = usePlatform({ admin: false })
         class="note-index"
         aria-hidden="true"
       >01 /</span>
-      <p>当前为开发预览。页面暂不提供登录、评价发布或资料购买。</p>
+      <p>{{ t('home.note') }}</p>
     </div>
   </div>
 </template>
