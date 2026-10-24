@@ -1,18 +1,22 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import { setLocale, localeOptions, type Locale } from '../i18n'
+const { t, locale } = useI18n()
+function changeLocale(event: Event) { setLocale((event.target as HTMLSelectElement).value as Locale) }
 </script>
 
 <template>
   <a
     class="skip-link"
     href="#main-content"
-  >跳至主要内容</a>
+  >{{ t('shell.skip') }}</a>
   <div class="app-shell ">
     <header class="app-header">
       <RouterLink
         class="brand"
         to="/"
-        aria-label="StuHelper 首页"
+        :aria-label="t('brand.home')"
       >
         <img
           class="brand-mark"
@@ -21,9 +25,23 @@ import { RouterLink } from 'vue-router'
           width="44"
           height="44"
         >
-        <span>StuHelper<span class="brand-context">校园空间</span></span>
+        <span>{{ t('brand.name') }}<span class="brand-context">{{ t('brand.context') }}</span></span>
       </RouterLink>
-      <span class="stage-label">开发预览</span>
+      <div class="header-controls">
+        <span class="stage-label">{{ t('shell.preview') }}</span><select
+          :aria-label="t('language.label')"
+          :value="locale"
+          @change="changeLocale"
+        >
+          <option
+            v-for="option in localeOptions"
+            :key="option.value"
+            :value="option.value"
+          >
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
     </header>
     <main
       id="main-content"
@@ -33,13 +51,15 @@ import { RouterLink } from 'vue-router'
       <slot />
     </main>
     <footer class="app-footer">
-      <span>StuHelper</span>
-      <span>当前版本正在准备中</span>
+      <span>{{ t('brand.name') }}</span>
+      <span>{{ t('shell.footer') }}</span>
     </footer>
   </div>
 </template>
 
 <style scoped>
+.header-controls { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; justify-content: end; }
+.header-controls select { min-height: 36px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
 .app-shell { min-height: 100dvh; display: flex; flex-direction: column; }
 .app-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem clamp(1.25rem, 5vw, 5rem); border-bottom: 1px solid var(--border); background: var(--surface); }
 .brand { display: inline-flex; align-items: center; gap: .7rem; color: var(--text); text-decoration: none; font-size: 1.15rem; font-weight: 700; letter-spacing: -.025em; }

@@ -1,0 +1,47 @@
+{
+  "brand": {
+    "name": "StuHelper",
+    "home": "Accueil StuHelper",
+    "context": "Espace campus"
+  },
+  "language": {
+    "label": "Langue",
+    "chinese": "简体中文",
+    "english": "English"
+  },
+  "shell": {
+    "skip": "Aller au contenu principal",
+    "preview": "Aperçu de développement",
+    "footer": "La prochaine version est en préparation"
+  },
+  "home": {
+    "eyebrow": "LA VIE DU CAMPUS, CONNECTÉE",
+    "title": "Une place pour chaque service du campus.",
+    "description": "Cours, avis et ressources pédagogiques se réuniront ici. Les services seront ouverts à mesure de leur disponibilité.",
+    "note": "Cette page présente un aperçu de développement."
+  },
+  "connection": {
+    "label": "État de la connexion au service",
+    "loading": "Connexion au service…",
+    "ready": "Service connecté",
+    "adminReady": "Service d’administration connecté",
+    "retry": "Reconnecter",
+    "errors": {
+      "network": "Connexion impossible. Réessayez ultérieurement.",
+      "incompatible": "Cette version du service est incompatible. Actualisez la page et réessayez.",
+      "identity": "Le service d’identification des administrateurs n’est pas encore connecté.",
+      "unauthenticated": "Connectez-vous pour accéder à l’espace d’administration.",
+      "forbidden": "Ce compte n’a pas accès à l’espace d’administration.",
+      "unavailable": "Le service est temporairement indisponible. Réessayez ultérieurement."
+    }
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Cette page est indisponible",
+    "description": "L’adresse est peut-être incorrecte ou la fonctionnalité n’est pas encore disponible.",
+    "home": "Retour à l’accueil"
+  },
+  "format": {
+    "items": "{count} élément | {count} éléments | {count} éléments"
+  }
+}
