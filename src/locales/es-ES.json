@@ -1,0 +1,47 @@
+{
+  "brand": {
+    "name": "StuHelper",
+    "home": "Inicio de StuHelper",
+    "context": "Espacio del campus"
+  },
+  "language": {
+    "label": "Idioma",
+    "chinese": "简体中文",
+    "english": "English"
+  },
+  "shell": {
+    "skip": "Ir al contenido principal",
+    "preview": "Vista previa de desarrollo",
+    "footer": "La próxima versión está en preparación"
+  },
+  "home": {
+    "eyebrow": "TU CAMPUS, CONECTADO",
+    "title": "Un lugar para cada servicio del campus.",
+    "description": "Aquí se reunirán cursos, reseñas y recursos de aprendizaje. Las funciones se abrirán a medida que estén disponibles.",
+    "note": "Esta página ofrece una vista previa de desarrollo."
+  },
+  "connection": {
+    "label": "Estado de conexión del servicio",
+    "loading": "Conectando con el servicio…",
+    "ready": "Servicio conectado",
+    "adminReady": "Servicio de administración conectado",
+    "retry": "Volver a conectar",
+    "errors": {
+      "network": "No se puede conectar. Inténtalo de nuevo más tarde.",
+      "incompatible": "Esta versión del servicio es incompatible. Actualiza la página e inténtalo de nuevo.",
+      "identity": "El servicio de identidad de administradores aún no está conectado.",
+      "unauthenticated": "Inicia sesión para acceder al panel de administración.",
+      "forbidden": "Esta cuenta no tiene acceso al panel de administración.",
+      "unavailable": "El servicio no está disponible temporalmente. Inténtalo de nuevo más tarde."
+    }
+  },
+  "notFound": {
+    "code": "404",
+    "title": "Esta página no está disponible",
+    "description": "La dirección puede ser incorrecta o la función aún no está disponible.",
+    "home": "Volver al inicio"
+  },
+  "format": {
+    "items": "{count} elemento | {count} elementos | {count} elementos"
+  }
+}
