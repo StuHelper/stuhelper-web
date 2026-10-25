@@ -1,6 +1,6 @@
 .PHONY: check build dev generate
 check:
-	pnpm exec stuhelper-check release
+	pnpm exec stuhelper-check repository
 	pnpm run check
 	pnpm exec stuhelper-check workflows
 build:
@@ -11,4 +11,4 @@ generate:
 	pnpm run generate
 
 setup:
-	pnpm install --frozen-lockfile
+	LEFTHOOK=0 pnpm install --frozen-lockfile

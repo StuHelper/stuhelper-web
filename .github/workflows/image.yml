@@ -1,0 +1,24 @@
+name: Application release image
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing annotated version tag on main
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  image:
+    uses: StuHelper/stuhelper-tooling/.github/workflows/image.yml@v0.1.1
+    with:
+      application: web
+      version: ${{ inputs.version || github.ref_name }}
+    secrets:
+      registry-user: ${{ secrets.OCI_REGISTRY_USER }}
+      registry-password: ${{ secrets.OCI_REGISTRY_PASSWORD }}
