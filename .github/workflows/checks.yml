@@ -15,3 +15,22 @@ jobs:
     uses: StuHelper/stuhelper-tooling/.github/workflows/node-checks.yml@v0.1.0
     with:
       name: Web checks
+  contribution-browser:
+    name: Contribution browser checks
+    runs-on: ubuntu-26.04
+    timeout-minutes: 25
+    env:
+      LEFTHOOK: '0'
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: StuHelper/stuhelper-tooling/actions/setup@v0.1.0
+      - run: make setup
+      - name: Record source combination
+        run: |
+          git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
+          cat contracts/contribution.source.json >> "$GITHUB_STEP_SUMMARY"
+      - run: make build
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm browser

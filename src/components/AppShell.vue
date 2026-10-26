@@ -28,7 +28,9 @@ function changeLocale(event: Event) { setLocale((event.target as HTMLSelectEleme
         <span>{{ t('brand.name') }}<span class="brand-context">{{ t('brand.context') }}</span></span>
       </RouterLink>
       <div class="header-controls">
-        <span class="stage-label">{{ t('shell.preview') }}</span><select
+        <RouterLink to="/contributions">
+          {{ t('contribution.title') }}
+        </RouterLink><span class="stage-label">{{ t('shell.preview') }}</span><select
           :aria-label="t('language.label')"
           :value="locale"
           @change="changeLocale"
