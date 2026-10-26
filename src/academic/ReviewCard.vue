@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { AcademicError, Mutation, object, type Result, type Review } from './api'
 import { useLoad } from './useLoad'
+import RatingBands from './RatingBands.vue'
 const props = defineProps<{ review: Review; standalone?: boolean }>()
 const emit = defineEmits<{ changed: [] }>()
 const { t, n, d } = useI18n(), router = useRouter()
@@ -41,6 +42,11 @@ async function action(action: string, vote = 0) {
     <p class="review-body">
       {{ review.body }}
     </p>
+    <RatingBands
+      v-if="review.kind === 'course' && !review.preview"
+      :dimensions="review.ratings.map(level => ({ level, samples:1, courses:1 }))"
+      :show-samples="false"
+    />
     <p
       v-if="review.preview"
       class="academic-muted"
