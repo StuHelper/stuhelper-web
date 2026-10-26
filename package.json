@@ -14,10 +14,11 @@
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "preview": "vite preview --port 5173",
-    "generate": "openapi-typescript contracts/platform.openapi.yaml -o src/api/platform.gen.ts",
-    "check": "pnpm run check:i18n && pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build",
+    "generate": "openapi-typescript contracts/platform.openapi.yaml -o src/api/platform.gen.ts && node scripts/generate-academic.mjs",
+    "check": "pnpm run check:academic && pnpm run check:i18n && pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build",
     "check:i18n": "stuhelper-check i18n",
-    "hooks": "lefthook install"
+    "hooks": "lefthook install",
+    "check:academic": "node scripts/check-academic-contracts.mjs"
   },
   "dependencies": {
     "vue": "3.5.44",

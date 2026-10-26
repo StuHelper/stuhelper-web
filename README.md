@@ -1,6 +1,6 @@
 # StuHelper Web
 
-StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供基础布局、真实平台接口状态、错误重试与未开放页面提示。业务功能尚未实现。
+StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供课程目录、教师主页、课程评价、导师评论、讨论、举报、收藏与个人草稿。页面通过同源业务 API 读取数据，业务身份和可信选课事实由后端提供。
 
 ## 本地开发
 
@@ -16,7 +16,7 @@ make dev
 
 ## 结构
 
-App 只组装布局和路由。usePlatform 负责请求生命周期、取消与重试；client.ts 校验接口版本并映射错误。页面仅显示后端真实返回的状态，不提供演示登录或虚构业务数据。
+App 只组装布局和路由。usePlatform 负责请求生命周期、取消与重试；client.ts 校验接口版本并映射错误。页面仅显示后端真实返回的数据。课程列表按学院、类别和性质筛选，不展示学期。评课编辑器绑定学期，教师候选随本人该学期选课记录变化。
 
 contracts/platform.openapi.yaml 是平台接口快照，src/api/platform.gen.ts 由 openapi-typescript 生成。接口更新先修改提供方，重新生成后同步快照，不能手改类型。生成工具单独固定兼容的 TypeScript 5.9.3。
 
@@ -26,4 +26,6 @@ contracts/platform.openapi.yaml 是平台接口快照，src/api/platform.gen.ts 
 
 工程配置参考官方 create-vue 3.24.0 的 TypeScript、Router、Vitest 和 ESLint 模板。TypeScript 使用 `@vue/tsconfig` 与 `@tsconfig/node24`，ESLint 使用 `@vue/eslint-config-typescript`。应用、Node 工具与测试分别维护编译配置。
 
-现有 Vue、Vite、Vue Router 与接口依赖继续使用已验证版本，页面和国际化逻辑由本仓库维护。跨仓浏览器联调放在架构仓库，项目的格式、语言和契约规则由共享工程工具与现成检查器执行。
+现有 Vue、Vite、Vue Router 与接口依赖继续使用已验证版本，页面和国际化逻辑由本仓库维护。课程与评价 OpenAPI 快照及生成类型位于 contracts 与 src/api。所有响应按随包 schema 校验，未知写入结果重试同一幂等键，失败保留输入。
+
+跨仓浏览器联调放在架构仓库，项目的格式、语言和契约规则由共享工程工具与现成检查器执行。

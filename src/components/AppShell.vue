@@ -28,6 +28,18 @@ function changeLocale(event: Event) { setLocale((event.target as HTMLSelectEleme
         <span>{{ t('brand.name') }}<span class="brand-context">{{ t('brand.context') }}</span></span>
       </RouterLink>
       <div class="header-controls">
+        <nav
+          class="academic-nav"
+          :aria-label="t('academic.community')"
+        >
+          <RouterLink to="/courses">
+            {{ t('academic.courses') }}
+          </RouterLink><RouterLink to="/teachers">
+            {{ t('academic.teachers') }}
+          </RouterLink><RouterLink to="/community/me">
+            {{ t('academic.myCommunity') }}
+          </RouterLink>
+        </nav>
         <span class="stage-label">{{ t('shell.preview') }}</span><select
           :aria-label="t('language.label')"
           :value="locale"
