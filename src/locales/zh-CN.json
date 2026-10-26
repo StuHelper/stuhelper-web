@@ -139,5 +139,53 @@
       "unauthenticated": "请先通过平台登录。",
       "unavailable": "服务暂不可用，请稍后重试。"
     }
+  },
+  "custody": {
+    "title": "存储账号",
+    "adminTitle": "存储托管管理",
+    "description": "先接入存储账号，再单独选择贡献容量和期限。更新凭据会保留原专用目录和贡献条件。",
+    "adminDescription": "查看托管申请并恢复原操作。管理员不能替用户同意托管，也不能读取账号密码。",
+    "navigation": "存储账号导航",
+    "refresh": "刷新",
+    "sending": "正在验证账号，请稍候…",
+    "loading": "正在加载…",
+    "uncertain": "提交结果尚未确认。密码已从表单清除，请查询原申请，不要重复创建。",
+    "recover": "查询原申请",
+    "reauthorize": "更新凭据与授权",
+    "connect": "接入存储账号",
+    "credentials": "BHpan 登录信息",
+    "mode": "登录方式",
+    "local": "BHpan 独立账号",
+    "sso": "北航统一认证",
+    "username": "账号",
+    "password": "密码",
+    "until": "托管截止时间（{zone}）",
+    "ssoNotice": "选择统一认证时，你授权平台仅为 BHpan 重新登录托管学校密码。密码会加密保存至授权到期、撤销或替换。",
+    "terms": "阅读托管说明（{version}）",
+    "consent": "我同意按上述用途与截止时间托管凭据。贡献容量需要另行确认。",
+    "invalid": "请检查账号、密码、截止时间和托管同意。",
+    "submit": "同意并提交",
+    "cancel": "取消编辑",
+    "accounts": "已接入账号与申请",
+    "empty": "尚未接入存储账号。",
+    "requestUntil": "申请的托管截止时间：{time}",
+    "resume": "恢复原操作",
+    "next": "下一页",
+    "states": {
+      "pending": "等待处理",
+      "ready": "已接入",
+      "blocked": "等待恢复",
+      "credentials_required": "需要重新输入凭据"
+    },
+    "reasons": {
+      "authorization_rejected": "供应商拒绝授权，请检查凭据或验证要求。",
+      "dependency_unavailable": "供应商或依赖服务暂不可用。",
+      "result_unknown": "远端结果尚未确认，只能核对原专用目录。",
+      "conflict": "账号已登记或记录发生变化，请刷新后核对。",
+      "attempts_exhausted": "已达到重试上限，需要管理员处理。",
+      "credentials_required": "未保存可恢复的凭据，请重新提交。"
+    },
+    "adminUncertain": "原操作结果尚未确认。请恢复原申请，用户的授权条件保持不变。",
+    "retryRecovery": "重试原恢复操作"
   }
 }

@@ -139,5 +139,53 @@
       "unauthenticated": "Primero inicie sesión a través de la plataforma.",
       "unavailable": "Servicio no disponible temporalmente. Reintente más tarde."
     }
+  },
+  "custody": {
+    "title": "Cuentas de almacenamiento",
+    "adminTitle": "Custodia de credenciales",
+    "description": "Conecta una cuenta y luego elige por separado la capacidad y el plazo de aportación. Actualizar las credenciales conserva la carpeta dedicada y las condiciones.",
+    "adminDescription": "Revisa solicitudes y reanuda operaciones existentes. Los administradores no pueden consentir por el usuario ni leer contraseñas.",
+    "navigation": "Navegación de cuentas",
+    "refresh": "Actualizar",
+    "sending": "Verificando la cuenta…",
+    "loading": "Cargando…",
+    "uncertain": "El resultado del envío es incierto. Se borró la contraseña del formulario. Consulta la solicitud original antes de crear otra.",
+    "recover": "Consultar solicitud original",
+    "reauthorize": "Actualizar credenciales y consentimiento",
+    "connect": "Conectar una cuenta",
+    "credentials": "Datos de acceso a BHpan",
+    "mode": "Método de acceso",
+    "local": "Cuenta local de BHpan",
+    "sso": "Inicio de sesión único de BUAA",
+    "username": "Cuenta",
+    "password": "Contraseña",
+    "until": "Fin de la custodia ({zone})",
+    "ssoNotice": "Con el inicio de sesión único autorizas guardar la contraseña universitaria solo para volver a acceder a BHpan. Se cifra hasta el vencimiento, la revocación o su sustitución.",
+    "terms": "Leer condiciones de custodia ({version})",
+    "consent": "Autorizo la custodia de las credenciales para este fin y plazo. La aportación de almacenamiento requiere otro consentimiento.",
+    "invalid": "Comprueba la cuenta, la contraseña, el plazo y el consentimiento.",
+    "submit": "Aceptar y enviar",
+    "cancel": "Cancelar edición",
+    "accounts": "Cuentas y solicitudes",
+    "empty": "Aún no hay cuentas conectadas.",
+    "requestUntil": "Fin solicitado de custodia: {time}",
+    "resume": "Reanudar la operación original",
+    "next": "Página siguiente",
+    "states": {
+      "pending": "Pendiente",
+      "ready": "Conectada",
+      "blocked": "Requiere recuperación",
+      "credentials_required": "Se necesitan credenciales"
+    },
+    "reasons": {
+      "authorization_rejected": "Autorización rechazada. Revisa las credenciales o los requisitos de verificación.",
+      "dependency_unavailable": "El proveedor o un servicio necesario no está disponible.",
+      "result_unknown": "Se desconoce el resultado remoto. Solo se puede comprobar la carpeta dedicada original.",
+      "conflict": "La cuenta ya está registrada o cambió el registro. Actualiza y revisa.",
+      "attempts_exhausted": "Se alcanzó el límite de intentos. Se requiere la intervención de un administrador.",
+      "credentials_required": "No se guardaron credenciales recuperables. Vuelve a enviarlas."
+    },
+    "adminUncertain": "El resultado es incierto. Reanuda la solicitud original con el mismo consentimiento y las mismas condiciones.",
+    "retryRecovery": "Reintentar la recuperación original"
   }
 }

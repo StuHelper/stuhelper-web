@@ -139,5 +139,53 @@
       "unauthenticated": "Sign in through the platform first.",
       "unavailable": "Service temporarily unavailable. Try again later."
     }
+  },
+  "custody": {
+    "title": "Storage accounts",
+    "adminTitle": "Storage custody",
+    "description": "Connect an account, then choose contribution capacity and duration separately. Credential updates preserve the dedicated folder and contribution conditions.",
+    "adminDescription": "Review custody requests and resume existing operations. Administrators cannot consent for users or read passwords.",
+    "navigation": "Storage account navigation",
+    "refresh": "Refresh",
+    "sending": "Verifying the account…",
+    "loading": "Loading…",
+    "uncertain": "The submission result is uncertain. The password was cleared from the form. Look up the original request before creating another.",
+    "recover": "Look up original request",
+    "reauthorize": "Update credentials and consent",
+    "connect": "Connect a storage account",
+    "credentials": "BHpan sign-in details",
+    "mode": "Sign-in method",
+    "local": "BHpan local account",
+    "sso": "BUAA single sign-on",
+    "username": "Account",
+    "password": "Password",
+    "until": "Custody expires ({zone})",
+    "ssoNotice": "For single sign-on, you authorize custody of your university password solely to sign in to BHpan again. It is encrypted until consent expires, is revoked, or the credential is replaced.",
+    "terms": "Read custody terms ({version})",
+    "consent": "I consent to credential custody for this purpose and expiry. Storage contribution needs separate consent.",
+    "invalid": "Check the account, password, expiry and custody consent.",
+    "submit": "Consent and submit",
+    "cancel": "Cancel editing",
+    "accounts": "Connected accounts and requests",
+    "empty": "No storage accounts connected yet.",
+    "requestUntil": "Requested custody expiry: {time}",
+    "resume": "Resume original operation",
+    "next": "Next page",
+    "states": {
+      "pending": "Pending",
+      "ready": "Connected",
+      "blocked": "Recovery required",
+      "credentials_required": "Credentials required"
+    },
+    "reasons": {
+      "authorization_rejected": "Authorization was rejected. Check credentials or verification requirements.",
+      "dependency_unavailable": "The provider or a required service is unavailable.",
+      "result_unknown": "The remote result is unknown. Only the original dedicated folder may be reconciled.",
+      "conflict": "The account is already registered or the record changed. Refresh and review.",
+      "attempts_exhausted": "The retry limit was reached. Administrator action is required.",
+      "credentials_required": "No recoverable credential was saved. Submit credentials again."
+    },
+    "adminUncertain": "The operation result is uncertain. Resume the original request with the same consent and conditions.",
+    "retryRecovery": "Retry original recovery"
   }
 }

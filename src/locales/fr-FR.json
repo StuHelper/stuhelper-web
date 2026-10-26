@@ -139,5 +139,53 @@
       "unauthenticated": "Connectez-vous d’abord via la plateforme.",
       "unavailable": "Service temporairement indisponible. Réessayez plus tard."
     }
+  },
+  "custody": {
+    "title": "Comptes de stockage",
+    "adminTitle": "Gestion des identifiants",
+    "description": "Connectez un compte, puis choisissez séparément la capacité et la durée de contribution. La mise à jour conserve le dossier dédié et les conditions.",
+    "adminDescription": "Consultez les demandes et reprenez les opérations existantes. Les administrateurs ne peuvent ni consentir à la place des utilisateurs ni lire les mots de passe.",
+    "navigation": "Navigation des comptes",
+    "refresh": "Actualiser",
+    "sending": "Vérification du compte…",
+    "loading": "Chargement…",
+    "uncertain": "Le résultat est incertain. Le mot de passe a été effacé du formulaire. Recherchez la demande initiale avant de recommencer.",
+    "recover": "Rechercher la demande initiale",
+    "reauthorize": "Mettre à jour les identifiants",
+    "connect": "Connecter un compte",
+    "credentials": "Identifiants BHpan",
+    "mode": "Mode de connexion",
+    "local": "Compte local BHpan",
+    "sso": "Authentification unique BUAA",
+    "username": "Compte",
+    "password": "Mot de passe",
+    "until": "Fin de conservation ({zone})",
+    "ssoNotice": "Avec l’authentification unique, vous autorisez la conservation du mot de passe universitaire uniquement pour reconnecter BHpan. Il reste chiffré jusqu’à expiration, révocation ou remplacement.",
+    "terms": "Lire les conditions ({version})",
+    "consent": "J’autorise la conservation des identifiants pour cet usage et cette durée. La contribution nécessite un accord distinct.",
+    "invalid": "Vérifiez le compte, le mot de passe, la date et le consentement.",
+    "submit": "Accepter et envoyer",
+    "cancel": "Annuler la modification",
+    "accounts": "Comptes et demandes",
+    "empty": "Aucun compte connecté.",
+    "requestUntil": "Fin de conservation demandée : {time}",
+    "resume": "Reprendre l’opération initiale",
+    "next": "Page suivante",
+    "states": {
+      "pending": "En attente",
+      "ready": "Connecté",
+      "blocked": "Reprise nécessaire",
+      "credentials_required": "Identifiants requis"
+    },
+    "reasons": {
+      "authorization_rejected": "Autorisation refusée. Vérifiez les identifiants ou les exigences de vérification.",
+      "dependency_unavailable": "Le fournisseur ou un service requis est indisponible.",
+      "result_unknown": "Le résultat distant est inconnu. Seul le dossier dédié initial peut être vérifié.",
+      "conflict": "Le compte est déjà enregistré ou les données ont changé. Actualisez et vérifiez.",
+      "attempts_exhausted": "La limite de tentatives est atteinte. Un administrateur doit intervenir.",
+      "credentials_required": "Aucun identifiant récupérable n’a été enregistré. Soumettez-les à nouveau."
+    },
+    "adminUncertain": "Le résultat est incertain. Reprenez la demande initiale avec le même consentement et les mêmes conditions.",
+    "retryRecovery": "Réessayer la reprise initiale"
   }
 }
