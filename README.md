@@ -1,6 +1,6 @@
 # StuHelper Web
 
-StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供基础布局、真实平台接口状态、错误重试与未开放页面提示。业务功能尚未实现。
+StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供基础布局、平台接口状态、错误恢复、学生认证和手机拍摄候选。真实身份与学校服务由后端接入后联合验收。
 
 ## 本地开发
 
@@ -27,3 +27,9 @@ contracts/platform.openapi.yaml 是平台接口快照，src/api/platform.gen.ts 
 工程配置参考官方 create-vue 3.24.0 的 TypeScript、Router、Vitest 和 ESLint 模板。TypeScript 使用 `@vue/tsconfig` 与 `@tsconfig/node24`，ESLint 使用 `@vue/eslint-config-typescript`。应用、Node 工具与测试分别维护编译配置。
 
 现有 Vue、Vite、Vue Router 与接口依赖继续使用已验证版本，页面和国际化逻辑由本仓库维护。跨仓浏览器联调放在架构仓库，项目的格式、语言和契约规则由共享工程工具与现成检查器执行。
+
+## 学生认证候选
+
+认证页面、接口快照与八语言消息已加入候选。Web 提供个人认证和手机拍摄，Admin 提供学校范围的审核与管理。真实登录和学校服务由后端接入，页面不能自行授予资格。
+
+`check:verification` 验证本地接口摘要、生成类型和来源记录，客户端测试执行提供方共享样例。私有提供方源码的逐字核对在获准的私有组合检查中执行，公开 CI 不读取私有源码。

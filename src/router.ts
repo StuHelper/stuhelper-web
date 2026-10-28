@@ -6,6 +6,8 @@ export const router = createRouter({
   history: createWebHistory(),
   routes: [
     { path: '/', component: HomeView },
+    { path: '/verification', component: () => import('./views/VerificationView.vue') },
+    { path: '/verification/capture', component: () => import('./views/VerificationCaptureView.vue') },
     { path: '/:pathMatch(.*)*', component: NotFoundView },
   ],
   scrollBehavior: () => ({ top: 0 }),
