@@ -1,7 +1,8 @@
 import { onMounted, onScopeDispose, readonly, shallowRef } from 'vue';
+import { useHostFetch } from '../api/host';
 import { custodyAPI, CustodyError, parseCustodyBinding, type CustodyBinding, type CustodyPage, type CustodyPolicy, type CustodyRequest } from '../api/custody';
 
-export function useCustody(admin = false, api = custodyAPI()) {
+export function useCustody(admin = false, api = custodyAPI(useHostFetch())) {
   const data = shallowRef<CustodyPage | null>(null), policy = shallowRef<CustodyPolicy | null>(null);
   const loading = shallowRef(false), sending = shallowRef(false), error = shallowRef<CustodyError['code'] | null>(null);
   const recovery = shallowRef<{ key: string; item?: CustodyBinding } | null>(null);
