@@ -32,6 +32,9 @@ function changeLocale(event: Event) { setLocale((event.target as HTMLSelectEleme
           class="academic-nav"
           :aria-label="t('academic.community')"
         >
+          <RouterLink to="/community">
+            {{ t('academic.community') }}
+          </RouterLink>
           <RouterLink to="/courses">
             {{ t('academic.courses') }}
           </RouterLink><RouterLink to="/teachers">

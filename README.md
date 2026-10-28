@@ -1,6 +1,6 @@
 # StuHelper Web
 
-StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供课程目录、教师主页、课程评价、导师评论、讨论、举报、收藏与个人草稿。页面通过同源业务 API 读取数据，业务身份和可信选课事实由后端提供。
+StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供社区首页、课程与教师主页、开课与教学班、课程评价、导师评论、讨论和个人内容。页面通过同源业务 API 读取数据，业务身份和可信选课事实由后端提供。
 
 ## 本地开发
 
@@ -21,6 +21,10 @@ App 只组装布局和路由。usePlatform 负责请求生命周期、取消与�
 contracts/platform.openapi.yaml 是平台接口快照，src/api/platform.gen.ts 由 openapi-typescript 生成。接口更新先修改提供方，重新生成后同步快照，不能手改类型。生成工具单独固定兼容的 TypeScript 5.9.3。
 
 纸飞机图标沿用项目负责人已确认的 StuHelper 品牌资产。业务规格和多仓库入口见 [StuHelper Next](https://github.com/StuHelper/stuhelper-next)。
+
+社区入口为 `/community`。课程与教师主页提供基本信息、评分、评价筛选和历次开课，教学班保留本班教师及课表。个人内容入口为 `/community/me`，包括评价、草稿、收藏、投票和申请状态。
+
+编辑器显示服务端当前资格和讨论身份。普通草稿发布后移出草稿箱；版本冲突由用户选择保留哪一版。撤回草稿保留原到期时间，保存失败与未知结果重试均保留输入。
 
 ## 工程配置来源
 

@@ -7,6 +7,8 @@ import type { components as Moderation } from '../api/moderation.gen'
 
 export type AcademicObject = Catalog['schemas']['Object']
 export type ObjectPage = Catalog['schemas']['Page']
+export type ObjectSummary = Catalog['schemas']['Summary']
+export type Composer = Reviews['schemas']['Composer']
 export type Enrollment = Catalog['schemas']['Enrollment']
 export type Review = Reviews['schemas']['View']
 export type ReviewInput = Reviews['schemas']['Input']
@@ -67,6 +69,14 @@ export async function call<T>(module: Module, path: string, schema: string, opti
 export function query(values: Record<string, string | undefined>) { return '?' + new URLSearchParams(Object.entries(values).filter((entry): entry is [string, string] => !!entry[1])).toString() }
 export const objects = (values: Record<string, string | undefined>, signal?: AbortSignal) => call<ObjectPage>('catalog', '/objects' + query(values), 'Page', { signal })
 export const object = (id: string, signal?: AbortSignal) => call<AcademicObject>('catalog', '/objects/' + encodeURIComponent(id), 'Object', { signal })
+export const summary = (id:string,signal?:AbortSignal) => call<ObjectSummary>('catalog',`/objects/${encodeURIComponent(id)}/summary`,'Summary',{signal})
+export async function lookupObjects(ids: (string | undefined)[],signal?:AbortSignal): Promise<Map<string,AcademicObject>> {
+  const unique=[...new Set(ids.filter((id):id is string=>!!id))]
+  if(unique.length===0)return new Map()
+  if(unique.length>100)throw new AcademicError('invalid_input')
+  const result=await call<Catalog['schemas']['Lookup']>('catalog','/objects/lookup'+query({ids:unique.join(',')}),'Lookup',{signal})
+  return new Map(result.items.map(item=>[item.id,item]))
+}
 
 // Selection lists must not silently drop options after the first server page.
 export async function objectOptions(values: Record<string, string | undefined>, signal?: AbortSignal): Promise<ObjectPage> {
@@ -84,12 +94,26 @@ export async function objectOptions(values: Record<string, string | undefined>, 
   throw new AcademicError('unavailable')
 }
 
+// Copy JSON payloads recursively because Vue may wrap nested arrays in proxies.
+// structuredClone rejects those proxies; unsupported objects are not request data.
+function snapshotBody(value:unknown,depth=0):unknown {
+  if(depth>24)throw new AcademicError('invalid_input')
+  if(value===null||typeof value==='string'||typeof value==='boolean')return value
+  if(typeof value==='number'&&Number.isFinite(value))return value
+  if(Array.isArray(value)){
+    if(value.length>1000)throw new AcademicError('invalid_input')
+    return value.map(item=>snapshotBody(item,depth+1))
+  }
+  if(record(value)&&(Object.getPrototypeOf(value)===Object.prototype||Object.getPrototypeOf(value)===null))return Object.fromEntries(Object.entries(value).filter(([,item])=>item!==undefined).map(([key,item])=>[key,snapshotBody(item,depth+1)]))
+  throw new AcademicError('invalid_input')
+}
+
 // A retry after an unknown response must send the exact same body and key.
 export class Mutation {
   private pending?: { module: Module; path: string; schema: string; body: unknown; key: string; method?: string }
   get uncertain() { return this.pending !== undefined }
   async run<T>(module: Module, path: string, schema: string, body: unknown, method?: string): Promise<T> {
-    if (!this.pending) this.pending = { module, path, schema, body: JSON.parse(JSON.stringify(body)) as unknown, key: crypto.randomUUID(), method }
+    if (!this.pending) this.pending = { module, path, schema, body: snapshotBody(body), key: crypto.randomUUID(), method }
     const request = this.pending
     try {
       const value = await call<T>(request.module, request.path, request.schema, request)
