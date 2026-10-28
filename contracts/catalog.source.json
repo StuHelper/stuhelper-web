@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-catalog",
-  "revision": "e48c85c061e64a85bfab03821c55ec5fbd26eb7b",
+  "revision": "2359594610ba547bcbefa5003b1358da099796b8",
   "version": "0.1.0",
   "files": {
     "contracts/catalog.openapi.json": "contracts/catalog.openapi.json",
