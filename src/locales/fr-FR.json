@@ -70,7 +70,7 @@
     "samples": "Cours : {courses} · Avis : {samples}",
     "writeReview": "Évaluer le cours",
     "writeMentor": "Commenter l’encadrement",
-    "identityHint": "Anonyme par défaut. La signature utilise votre pseudonyme ; votre nom réel reste privé.",
+    "identityHint": "Votre pseudonyme est privé par défaut. Les informations vérifiées choisies ci-dessous sont publiées séparément.",
     "reviewTerm": "Semestre évalué",
     "taughtBy": "Équipe enseignante",
     "choose": "Choisir",
@@ -144,7 +144,8 @@
       "conflict": "Le contenu a changé ou la requête est en conflit. Actualisez et vérifiez.",
       "not_found": "Ce contenu est absent, supprimé ou actuellement inaccessible.",
       "invalid_input": "Vérifiez les champs requis, le semestre et les évaluations.",
-      "unavailable": "Le service ou une dépendance nécessaire est indisponible. Réessayez plus tard."
+      "unavailable": "Le service ou une dépendance nécessaire est indisponible. Réessayez plus tard.",
+      "disclosure_required": "Le nom réel ou la certification autorisée manque. Vous ne pouvez pas répondre à votre cours."
     },
     "mentorTemplate": "Style d’encadrement\n\nAttentes envers les doctorants\n\nAttentes envers les étudiants de master\n\nFinancement et soutien\n\nRecherche\n\nAmbiance du laboratoire",
     "ratings": {
@@ -233,7 +234,7 @@
     "chooseReviewTerm": "Choisissez un semestre pour vérifier vos inscriptions.",
     "readyToPublish": "Vous remplissez les conditions de publication.",
     "identityFixedSigned": "Cette discussion conserve votre pseudonyme public.",
-    "identityFixedAnonymous": "Cette discussion conserve votre identité anonyme.",
+    "identityFixedAnonymous": "Votre pseudonyme reste privé dans cette discussion. Les informations vérifiées sélectionnées restent publiques.",
     "draftConflict": "Une version plus récente a été enregistrée ailleurs. Comparez les brouillons avant de choisir.",
     "loadLatestDraft": "Voir la version enregistrée",
     "useLatestDraft": "Utiliser la version enregistrée",
@@ -268,7 +269,67 @@
       "report": "Signalement",
       "edit_request": "Demande de modification",
       "delete_request": "Demande de suppression",
-      "review": "Examen du contenu"
+      "review": "Examen du contenu",
+      "appeal": "Réexamen de décision"
+    },
+    "disclosureTitle": "Informations vérifiées à afficher",
+    "disclosureHint": "Seules les données autorisées de sources fiables sont proposées. Les éléments choisis seront publiés avec ce contenu.",
+    "teacherRequired": "Vous avez enseigné ce cours. Votre réponse doit afficher votre nom réel et votre certification d’enseignant.",
+    "disclosureNone": "Aucune information vérifiée ne peut être publiée.",
+    "labels": {
+      "gender": "Genre",
+      "department": "Faculté",
+      "enrollment": "Inscription au cours",
+      "real_name": "Nom réel",
+      "teacher": "Enseignant vérifié",
+      "organization": "Établissement"
+    },
+    "labelValues": {
+      "enrolled": "Inscrit à ce cours",
+      "not_enrolled": "Non inscrit à ce cours"
+    },
+    "featured": "Contenu de qualité",
+    "inactive": "Désactivé. L’historique est conservé.",
+    "mergeTitle": "Fusionner les doublons",
+    "mergeTarget": "Fusionner vers",
+    "previewMerge": "Aperçu de fusion",
+    "confirmMerge": "Confirmer la fusion",
+    "mergeHint": "Les liens et références sont conservés. Vérifiez que les deux fiches décrivent le même objet.",
+    "disableObject": "Désactiver",
+    "enableObject": "Réactiver",
+    "importTitle": "Import du catalogue",
+    "importFile": "Fichier normalisé du catalogue (JSON)",
+    "previewImport": "Prévisualiser les changements",
+    "confirmImport": "Confirmer l’import",
+    "appeal": "Demander un réexamen",
+    "objectHistory": "Historique de ce contenu",
+    "fromTime": "Début",
+    "untilTime": "Fin",
+    "batchTitle": "Traitement groupé",
+    "previewBatch": "Prévisualiser chaque élément",
+    "applyBatch": "Envoyer les décisions",
+    "presentationTitle": "Affichage des avis",
+    "guestPreview": "Limite de caractères invités",
+    "memberPreview": "Limite de caractères membres",
+    "previewRatio": "Proportion du texte visible",
+    "ratingTextLanguage": "Langue des libellés",
+    "previewAttribution": "Vérifier l’attribution actuelle",
+    "actions": {
+      "feature": "Marquer comme contenu de qualité",
+      "unfeature": "Retirer la distinction",
+      "reassign": "Corriger l’attribution"
+    },
+    "operationStates": {
+      "new": "Nouveau",
+      "updated": "Modifié",
+      "unchanged": "Inchangé",
+      "preserved": "Corrections manuelles conservées",
+      "conflict": "Conflit",
+      "unlinked": "Référence manquante",
+      "ready": "Prêt",
+      "rejected": "Refusé",
+      "decided": "Décision enregistrée",
+      "applied": "Appliqué"
     }
   }
 }

@@ -70,7 +70,7 @@
     "samples": "강의 {courses}개 · 평가 {samples}개",
     "writeReview": "강의 평가 작성",
     "writeMentor": "지도교수 후기 작성",
-    "identityHint": "기본은 익명입니다. 서명에는 플랫폼 닉네임만 사용하며 실명은 공개하지 않습니다.",
+    "identityHint": "플랫폼 닉네임은 기본적으로 비공개입니다. 아래에서 선택한 인증 정보는 별도로 공개됩니다.",
     "reviewTerm": "평가 대상 학기",
     "taughtBy": "담당 교원",
     "choose": "선택하세요",
@@ -144,7 +144,8 @@
       "conflict": "내용이 변경되었거나 요청이 충돌했습니다. 새로고침 후 확인하세요.",
       "not_found": "내용이 없거나 삭제되었거나 현재 볼 수 없습니다.",
       "invalid_input": "필수 내용, 학기 및 평점 선택을 확인하세요.",
-      "unavailable": "서비스 또는 필요한 연결 서비스가 일시적으로 불가합니다. 나중에 다시 시도하세요."
+      "unavailable": "서비스 또는 필요한 연결 서비스가 일시적으로 불가합니다. 나중에 다시 시도하세요.",
+      "disclosure_required": "공개가 허용된 실명 또는 교원 인증 정보가 없어 담당 과목에 답글을 달 수 없습니다."
     },
     "mentorTemplate": "지도 방식\n\n박사과정 학생에게 요구하는 사항\n\n석사과정 학생에게 요구하는 사항\n\n연구비와 지원\n\n연구\n\n연구실 분위기",
     "ratings": {
@@ -233,7 +234,7 @@
     "chooseReviewTerm": "학기를 선택하면 본인의 수강 기록을 확인합니다.",
     "readyToPublish": "현재 게시 조건을 충족합니다.",
     "identityFixedSigned": "이 토론에서는 기존 공개 닉네임을 유지합니다.",
-    "identityFixedAnonymous": "이 토론에서는 기존 익명 표시를 유지합니다.",
+    "identityFixedAnonymous": "이 토론에서 플랫폼 닉네임은 계속 비공개로 유지됩니다. 선택한 인증 정보는 공개됩니다.",
     "draftConflict": "다른 곳에서 새 버전이 저장되었습니다. 내용을 비교한 뒤 선택하세요.",
     "loadLatestDraft": "저장된 버전 보기",
     "useLatestDraft": "저장된 버전 사용",
@@ -268,7 +269,67 @@
       "report": "신고",
       "edit_request": "수정 신청",
       "delete_request": "삭제 신청",
-      "review": "콘텐츠 검토"
+      "review": "콘텐츠 검토",
+      "appeal": "처리 재검토"
+    },
+    "disclosureTitle": "공개할 인증 정보",
+    "disclosureHint": "신뢰할 수 있는 출처에서 확인되고 공개가 허용된 정보만 선택할 수 있습니다. 선택한 항목은 이 글과 함께 공개됩니다.",
+    "teacherRequired": "이 과목을 가르친 이력이 있어 답글에 실명과 교원 인증 표시가 필요합니다.",
+    "disclosureNone": "현재 공개할 수 있는 인증 정보가 없습니다.",
+    "labels": {
+      "gender": "성별",
+      "department": "소속 단과대학",
+      "enrollment": "수강 여부",
+      "real_name": "실명",
+      "teacher": "인증된 교원",
+      "organization": "소속 기관"
+    },
+    "labelValues": {
+      "enrolled": "이 과목 수강",
+      "not_enrolled": "이 과목 미수강"
+    },
+    "featured": "우수 콘텐츠",
+    "inactive": "비활성 상태입니다. 기존 내용은 보존됩니다.",
+    "mergeTitle": "중복 항목 병합",
+    "mergeTarget": "병합 대상",
+    "previewMerge": "병합 미리보기",
+    "confirmMerge": "병합 확인",
+    "mergeHint": "기존 링크와 콘텐츠 연결은 유지됩니다. 두 기록이 같은 대상인지 확인하세요.",
+    "disableObject": "비활성화",
+    "enableObject": "다시 활성화",
+    "importTitle": "목록 가져오기",
+    "importFile": "정규화된 목록 파일 (JSON)",
+    "previewImport": "가져오기 변경 미리보기",
+    "confirmImport": "가져오기 확인",
+    "appeal": "재검토 요청",
+    "objectHistory": "이 콘텐츠의 처리 기록",
+    "fromTime": "시작 시간",
+    "untilTime": "종료 시간",
+    "batchTitle": "일괄 처리",
+    "previewBatch": "항목별 결과 미리보기",
+    "applyBatch": "일괄 결정 제출",
+    "presentationTitle": "평가 표시 설정",
+    "guestPreview": "비회원 미리보기 글자 수",
+    "memberPreview": "회원 미리보기 글자 수",
+    "previewRatio": "본문 미리보기 비율",
+    "ratingTextLanguage": "평가 문구 언어",
+    "previewAttribution": "최신 담당 교원 확인",
+    "actions": {
+      "feature": "우수 콘텐츠 지정",
+      "unfeature": "우수 지정 취소",
+      "reassign": "담당 교원 연결 수정"
+    },
+    "operationStates": {
+      "new": "신규",
+      "updated": "수정",
+      "unchanged": "변경 없음",
+      "preserved": "수동 수정 유지",
+      "conflict": "충돌",
+      "unlinked": "연결 누락",
+      "ready": "제출 가능",
+      "rejected": "거부",
+      "decided": "결정 저장됨",
+      "applied": "실행됨"
     }
   }
 }

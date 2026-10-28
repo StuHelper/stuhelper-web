@@ -2,13 +2,15 @@
 import { computed,nextTick,onBeforeUnmount,onMounted,ref,watch } from 'vue'
 import { onBeforeRouteLeave,onBeforeRouteUpdate } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { AcademicError,call,lookupObjects,Mutation,objectOptions,query,type Composer,type Draft,type Result,type ReviewInput } from './api'
+import { AcademicError,call,lookupObjects,Mutation,objectOptions,query,type Composer,type Draft,type Result,type ReviewInput,type DisclosureKey,loadPresentation } from './api'
 import { useLoad } from './useLoad'
 import LoadState from './LoadState.vue'
 const props=defineProps<{kind:'course'|'mentor'|'reply';targetId:string;schoolId:string;parentId?:string;draft?:Draft;blocked?:boolean}>()
 const emit=defineEmits<{submitted:[result:Result];cancel:[]}>()
-const {t}=useI18n()
+const {t,locale}=useI18n()
 const original=props.draft?.input
+const disclosures=ref<DisclosureKey[]>(original?.disclosures?.slice()??[])
+const presentation=useLoad(()=>loadPresentation(props.schoolId));void presentation.load()
 const title=ref(original?.title??''),body=ref(original?.body??(props.kind==='mentor'?t('academic.mentorTemplate'):''))
 const term=ref(original?.term_id??''),teacher=ref(original?.teacher_id??''),signed=ref(original?.signed??false)
 const ratings=ref(original?.ratings.slice()??[0,0,0,0,0]),draftId=ref(props.draft?.id??''),revision=ref(props.draft?.revision??0)
@@ -27,7 +29,9 @@ let restoring=false
 watch(term,()=>{if(!props.draft?.withdrawn&&!restoring)teacher.value=''})
 watch(()=>[props.kind,props.targetId,props.parentId,term.value],()=>{void context.load()},{immediate:true})
 watch(()=>context.data.value?.composer.identity,mode=>{if(!props.draft?.withdrawn&&mode&&mode!=='choice')signed.value=mode==='signed'})
-function input():ReviewInput{return {kind:props.kind,target_id:props.targetId,title:title.value,body:body.value,ratings:ratings.value.slice(),signed:signed.value,...(props.kind==='course'?{term_id:term.value,teacher_id:teacher.value}:{})}}
+watch(()=>context.data.value?.composer.disclosures,options=>{if(!options)return;disclosures.value=[...new Set([...disclosures.value.filter(key=>options.some(option=>option.key===key)),...options.filter(option=>option.required).map(option=>option.key)])]})
+function ratingText(index:number,level:number){return presentation.data.value?.effective.rating_texts[locale.value]?.[index]?.[level]??t(level===0?`academic.ratings.${names[index]}.label`:`academic.ratings.${names[index]}.level${level}`)}
+function input():ReviewInput{return {kind:props.kind,target_id:props.targetId,title:title.value,body:body.value,ratings:ratings.value.slice(),signed:signed.value,...(disclosures.value.length?{disclosures:disclosures.value.slice()}:{}),...(props.kind==='course'?{term_id:term.value,teacher_id:teacher.value}:{})}}
 const baseline=ref(JSON.stringify(input())),dirty=computed(()=>JSON.stringify(input())!==baseline.value)
 const remaining=computed(()=>{if(!expires.value)return '';const minutes=Math.max(0,Math.ceil((new Date(expires.value).getTime()-clock.value)/60000));return `${Math.floor(minutes/60)}:${String(minutes%60).padStart(2,'0')}`})
 function confirmLeave(){return !(dirty.value||busy.value||uncertain.value)||window.confirm(t(uncertain.value?'academic.uncertain':'academic.unsavedChanges'))}
@@ -64,7 +68,7 @@ async function loadLatest(){
 }
 async function useLatest(){
   const data=latest.value;if(!data)return
-  restoring=true;title.value=data.input.title;body.value=data.input.body;term.value=data.input.term_id??'';teacher.value=data.input.teacher_id??'';signed.value=data.input.signed;ratings.value=data.input.ratings.slice();revision.value=data.revision;expires.value=data.expires_at
+  restoring=true;title.value=data.input.title;body.value=data.input.body;term.value=data.input.term_id??'';teacher.value=data.input.teacher_id??'';signed.value=data.input.signed;ratings.value=data.input.ratings.slice();disclosures.value=data.input.disclosures?.slice()??[];revision.value=data.revision;expires.value=data.expires_at
   baseline.value=JSON.stringify(input());error.value='';latest.value=undefined;await nextTick();restoring=false
 }
 function keepMine(){if(!latest.value)return;revision.value=latest.value.revision;expires.value=latest.value.expires_at;error.value='';latest.value=undefined}
@@ -148,7 +152,7 @@ function keepMine(){if(!latest.value)return;revision.value=latest.value.revision
           <label
             v-for="(name,index) in names"
             :key="name"
-          >{{ t(`academic.ratings.${name}.label`) }}<select
+          >{{ ratingText(index,0) }}<select
             v-model.number="ratings[index]"
             required
           ><option
@@ -158,7 +162,7 @@ function keepMine(){if(!latest.value)return;revision.value=latest.value.revision
             v-for="level in 5"
             :key="level"
             :value="level"
-          >{{ t(`academic.ratings.${name}.level${level}`) }}</option></select></label>
+          >{{ ratingText(index,level) }}</option></select></label>
         </div>
       </template>
       <label v-if="kind!=='reply'">{{ t('academic.title') }}<input
@@ -181,6 +185,27 @@ function keepMine(){if(!latest.value)return;revision.value=latest.value.revision
       >{{ t('academic.signed') }}</label><p v-else>
         {{ t(identityMode==='signed'?'academic.identityFixedSigned':'academic.identityFixedAnonymous') }}
       </p>
+    </fieldset>
+    <fieldset
+      v-if="context.data.value"
+      :disabled="busy||uncertain"
+    >
+      <legend>{{ t('academic.disclosureTitle') }}</legend><p>{{ t('academic.disclosureHint') }}</p><p v-if="context.data.value.composer.teacher_reply">
+        {{ t('academic.teacherRequired') }}
+      </p>
+      <p v-if="!context.data.value.composer.disclosures?.length">
+        {{ t('academic.disclosureNone') }}
+      </p>
+      <label
+        v-for="option in context.data.value.composer.disclosures"
+        :key="option.key"
+        class="academic-checkbox"
+      ><input
+        v-model="disclosures"
+        type="checkbox"
+        :value="option.key"
+        :disabled="option.required"
+      >{{ t(`academic.labels.${option.key}`) }}<span v-if="option.key!=='teacher'"> {{ option.key==='enrollment'?t(`academic.labelValues.${option.value}`):option.value }}</span></label>
     </fieldset>
     <p
       v-if="error"

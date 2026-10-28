@@ -70,7 +70,7 @@
     "samples": "Cursos: {courses} · Reseñas: {samples}",
     "writeReview": "Escribir una reseña",
     "writeMentor": "Comentar la supervisión",
-    "identityHint": "Anónimo por defecto. La firma usa tu apodo de la plataforma; tu nombre real permanece privado.",
+    "identityHint": "Tu alias es privado por defecto. Los datos verificados elegidos abajo se publican por separado.",
     "reviewTerm": "Semestre evaluado",
     "taughtBy": "Docentes del curso",
     "choose": "Seleccionar",
@@ -144,7 +144,8 @@
       "conflict": "El contenido cambió o la solicitud entra en conflicto. Actualiza y comprueba.",
       "not_found": "El contenido no existe, se eliminó o no está disponible.",
       "invalid_input": "Comprueba los campos obligatorios, el semestre y las valoraciones.",
-      "unavailable": "El servicio o una dependencia necesaria no está disponible. Inténtalo más tarde."
+      "unavailable": "El servicio o una dependencia necesaria no está disponible. Inténtalo más tarde.",
+      "disclosure_required": "Falta el nombre real o la acreditación autorizada. Aún no puedes responder sobre tu curso."
     },
     "mentorTemplate": "Estilo de supervisión\n\nExpectativas para doctorandos\n\nExpectativas para estudiantes de máster\n\nFinanciación y apoyo\n\nInvestigación\n\nAmbiente del laboratorio",
     "ratings": {
@@ -233,7 +234,7 @@
     "chooseReviewTerm": "Elige un semestre para comprobar tu matrícula.",
     "readyToPublish": "Actualmente cumples los requisitos para publicar.",
     "identityFixedSigned": "Esta conversación conserva tu apodo público.",
-    "identityFixedAnonymous": "Esta conversación conserva tu identidad anónima.",
+    "identityFixedAnonymous": "Su apodo de la plataforma permanece privado en esta conversación. Los datos verificados seleccionados se hacen públicos.",
     "draftConflict": "Se guardó una versión más reciente en otro lugar. Compara los borradores antes de elegir.",
     "loadLatestDraft": "Ver versión guardada",
     "useLatestDraft": "Usar la versión guardada",
@@ -268,7 +269,67 @@
       "report": "Denuncia",
       "edit_request": "Solicitud de edición",
       "delete_request": "Solicitud de eliminación",
-      "review": "Revisión de contenido"
+      "review": "Revisión de contenido",
+      "appeal": "Revisión de decisión"
+    },
+    "disclosureTitle": "Información verificada que se mostrará",
+    "disclosureHint": "Solo se ofrecen datos autorizados de fuentes fiables. Los elementos elegidos serán públicos con este contenido.",
+    "teacherRequired": "Has impartido este curso. Tu respuesta debe mostrar tu nombre real y la acreditación docente.",
+    "disclosureNone": "No hay información verificada disponible para publicar.",
+    "labels": {
+      "gender": "Género",
+      "department": "Facultad",
+      "enrollment": "Matrícula",
+      "real_name": "Nombre real",
+      "teacher": "Docente verificado",
+      "organization": "Institución"
+    },
+    "labelValues": {
+      "enrolled": "Matriculado en este curso",
+      "not_enrolled": "No matriculado en este curso"
+    },
+    "featured": "Contenido destacado",
+    "inactive": "Inactivo. Se conserva el contenido histórico.",
+    "mergeTitle": "Fusionar duplicados",
+    "mergeTarget": "Fusionar en",
+    "previewMerge": "Vista previa de fusión",
+    "confirmMerge": "Confirmar fusión",
+    "mergeHint": "Se conservan enlaces y referencias. Confirma que ambos registros describen el mismo objeto.",
+    "disableObject": "Desactivar",
+    "enableObject": "Reactivar",
+    "importTitle": "Importar catálogo",
+    "importFile": "Archivo normalizado del catálogo (JSON)",
+    "previewImport": "Ver cambios de importación",
+    "confirmImport": "Confirmar importación",
+    "appeal": "Solicitar revisión",
+    "objectHistory": "Historial de este contenido",
+    "fromTime": "Inicio",
+    "untilTime": "Fin",
+    "batchTitle": "Decisiones en lote",
+    "previewBatch": "Previsualizar cada elemento",
+    "applyBatch": "Enviar decisiones en lote",
+    "presentationTitle": "Presentación de reseñas",
+    "guestPreview": "Límite de caracteres para invitados",
+    "memberPreview": "Límite de caracteres para usuarios",
+    "previewRatio": "Proporción visible del texto",
+    "ratingTextLanguage": "Idioma de las etiquetas",
+    "previewAttribution": "Comprobar atribución docente",
+    "actions": {
+      "feature": "Marcar como destacado",
+      "unfeature": "Quitar destacado",
+      "reassign": "Corregir atribución docente"
+    },
+    "operationStates": {
+      "new": "Nuevo",
+      "updated": "Actualizado",
+      "unchanged": "Sin cambios",
+      "preserved": "Correcciones manuales conservadas",
+      "conflict": "Conflicto",
+      "unlinked": "Referencia ausente",
+      "ready": "Listo",
+      "rejected": "Rechazado",
+      "decided": "Decisión guardada",
+      "applied": "Aplicado"
     }
   }
 }

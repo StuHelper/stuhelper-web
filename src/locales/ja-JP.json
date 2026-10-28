@@ -70,7 +70,7 @@
     "samples": "{courses} 科目 · {samples} 件のレビュー",
     "writeReview": "授業をレビュー",
     "writeMentor": "指導教員へコメント",
-    "identityHint": "既定では匿名です。署名にはプラットフォームのニックネームのみを使用し、本名は表示しません。",
+    "identityHint": "プラットフォームのニックネームは既定で非公開です。下で選んだ認証情報は別途公開されます。",
     "reviewTerm": "レビュー対象学期",
     "taughtBy": "担当教員",
     "choose": "選択してください",
@@ -144,7 +144,8 @@
       "conflict": "内容が変更されたか、リクエストが競合しています。再読み込みして確認してください。",
       "not_found": "内容が存在しないか、削除済み、または現在閲覧できません。",
       "invalid_input": "必須項目、学期、評価の選択を確認してください。",
-      "unavailable": "サービスまたは必要な依存先が利用できません。後でもう一度お試しください。"
+      "unavailable": "サービスまたは必要な依存先が利用できません。後でもう一度お試しください。",
+      "disclosure_required": "公開可能な実名または教員認証情報がないため、担当科目には返信できません。"
     },
     "mentorTemplate": "指導スタイル\n\n博士課程の学生への要求\n\n修士課程の学生への要求\n\n研究費と支援\n\n研究\n\n研究室の雰囲気",
     "ratings": {
@@ -233,7 +234,7 @@
     "chooseReviewTerm": "学期を選ぶと本人の履修記録を確認します。",
     "readyToPublish": "現在、投稿条件を満たしています。",
     "identityFixedSigned": "このスレッドでは公開ニックネームを引き継ぎます。",
-    "identityFixedAnonymous": "このスレッドでは匿名の表示を引き継ぎます。",
+    "identityFixedAnonymous": "このスレッドではプラットフォームのニックネームを引き続き非公開にします。選択した認証情報は公開されます。",
     "draftConflict": "別の場所で新しい版が保存されました。比較して残す内容を選んでください。",
     "loadLatestDraft": "保存済みの版を見る",
     "useLatestDraft": "保存済みの版を使用",
@@ -268,7 +269,67 @@
       "report": "通報",
       "edit_request": "修正申請",
       "delete_request": "削除申請",
-      "review": "コンテンツ審査"
+      "review": "コンテンツ審査",
+      "appeal": "判断の再審査"
+    },
+    "disclosureTitle": "公開する認証情報",
+    "disclosureHint": "信頼できる情報源から取得し、公開を許可された情報のみ選べます。選択した項目はこの投稿と共に公開されます。",
+    "teacherRequired": "この科目を担当したことがあるため、返信には実名と教員認証マークが必要です。",
+    "disclosureNone": "現在公開できる認証情報はありません。",
+    "labels": {
+      "gender": "性別",
+      "department": "所属学部",
+      "enrollment": "履修状況",
+      "real_name": "実名",
+      "teacher": "認証済み教員",
+      "organization": "所属組織"
+    },
+    "labelValues": {
+      "enrolled": "この科目を履修済み",
+      "not_enrolled": "この科目は未履修"
+    },
+    "featured": "おすすめの投稿",
+    "inactive": "無効です。過去の内容は保持されています。",
+    "mergeTitle": "重複を統合",
+    "mergeTarget": "統合先",
+    "previewMerge": "統合を確認",
+    "confirmMerge": "統合を確定",
+    "mergeHint": "既存のリンクと関連は保持されます。同じ対象の重複であることを確認してください。",
+    "disableObject": "無効にする",
+    "enableObject": "再度有効にする",
+    "importTitle": "カタログのインポート",
+    "importFile": "正規化カタログファイル（JSON）",
+    "previewImport": "差分を確認",
+    "confirmImport": "インポートを確定",
+    "appeal": "再審査を申請",
+    "objectHistory": "この投稿の処理履歴",
+    "fromTime": "開始日時",
+    "untilTime": "終了日時",
+    "batchTitle": "一括処理",
+    "previewBatch": "各項目を確認",
+    "applyBatch": "一括判断を送信",
+    "presentationTitle": "評価の表示設定",
+    "guestPreview": "ゲストの文字数上限",
+    "memberPreview": "ログイン利用者の文字数上限",
+    "previewRatio": "本文プレビュー比率",
+    "ratingTextLanguage": "評価文の言語",
+    "previewAttribution": "最新の担当関係を確認",
+    "actions": {
+      "feature": "おすすめに指定",
+      "unfeature": "おすすめを解除",
+      "reassign": "担当教員の関連を修正"
+    },
+    "operationStates": {
+      "new": "新規",
+      "updated": "更新",
+      "unchanged": "変更なし",
+      "preserved": "手動修正を保持",
+      "conflict": "競合",
+      "unlinked": "関連なし",
+      "ready": "送信可能",
+      "rejected": "拒否",
+      "decided": "判断を保存済み",
+      "applied": "適用済み"
     }
   }
 }

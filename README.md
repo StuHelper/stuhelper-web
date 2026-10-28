@@ -26,6 +26,8 @@ contracts/platform.openapi.yaml 是平台接口快照，src/api/platform.gen.ts 
 
 编辑器显示服务端当前资格和讨论身份。普通草稿发布后移出草稿箱；版本冲突由用户选择保留哪一版。撤回草稿保留原到期时间，保存失败与未知结果重试均保留输入。
 
+编辑器逐项展示可公开的权威标签和实际值，未授权字段不出现。学生可以选择真实姓名；教师回复曾任教课程时，姓名和认证标识预先选中且不能取消。其他回复中的姓名与认证标识独立选择。个人内容页面提供处置复核入口。
+
 ## 工程配置来源
 
 工程配置参考官方 create-vue 3.24.0 的 TypeScript、Router、Vitest 和 ESLint 模板。TypeScript 使用 `@vue/tsconfig` 与 `@tsconfig/node24`，ESLint 使用 `@vue/eslint-config-typescript`。应用、Node 工具与测试分别维护编译配置。

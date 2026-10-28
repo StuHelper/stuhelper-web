@@ -6,7 +6,7 @@ import { call,lookupObjects,query,type Statistics } from './api'
 import { useLoad } from './useLoad'
 import LoadState from './LoadState.vue'
 import RatingBands from './RatingBands.vue'
-const props=defineProps<{kind:'course'|'teacher';targetId:string}>()
+const props=defineProps<{kind:'course'|'teacher';targetId:string;schoolId?:string}>()
 const {t,d}=useI18n()
 const range=ref('all'),after=ref(''),from=ref(''),until=ref('')
 const data=useLoad(async signal=>{
@@ -45,6 +45,7 @@ defineExpose({refresh})
     <RatingBands
       v-if="data.data.value"
       :dimensions="data.data.value.stats.dimensions"
+      :school-id="schoolId"
     />
     <template v-if="kind==='teacher' && data.data.value?.stats.courses.length">
       <h3>{{ t('academic.ratedCourses') }}</h3>
@@ -55,7 +56,10 @@ defineExpose({refresh})
       >
         <RouterLink :to="`/courses/${encodeURIComponent(row.course_id)}`">
           {{ data.data.value.references.get(row.course_id)?.name??t('academic.viewCourse') }}
-        </RouterLink><RatingBands :dimensions="row.dimensions" />
+        </RouterLink><RatingBands
+          :school-id="schoolId"
+          :dimensions="row.dimensions"
+        />
       </article>
       <div class="academic-actions">
         <button

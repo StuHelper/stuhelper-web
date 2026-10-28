@@ -29,13 +29,13 @@ export function validates(value: unknown, schema: unknown, schemas: Record<strin
   if (Array.isArray(schema.enum) && !schema.enum.includes(value)) return false
   if (schema.type === 'string') return typeof value === 'string' && (typeof schema.maxLength !== 'number' || [...value].length <= schema.maxLength)
   if (schema.type === 'boolean') return typeof value === 'boolean'
-  if (schema.type === 'integer' || schema.type === 'number') return typeof value === 'number' && Number.isFinite(value) && (schema.type !== 'integer' || Number.isInteger(value)) && (typeof schema.minimum !== 'number' || value >= schema.minimum) && (typeof schema.maximum !== 'number' || value <= schema.maximum)
+  if (schema.type === 'integer' || schema.type === 'number') return typeof value === 'number' && Number.isFinite(value) && (schema.type !== 'integer' || Number.isInteger(value)) && (typeof schema.minimum !== 'number' || value >= schema.minimum) && (typeof schema.maximum !== 'number' || value <= schema.maximum) && (schema.exclusiveMinimum!==true||typeof schema.minimum!=='number'||value>schema.minimum) && (schema.exclusiveMaximum!==true||typeof schema.maximum!=='number'||value<schema.maximum)
   if (schema.type === 'array') return Array.isArray(value) && value.length <= 1000 && (typeof schema.minItems !== 'number' || value.length >= schema.minItems) && (typeof schema.maxItems !== 'number' || value.length <= schema.maxItems) && value.every(item => validates(item, schema.items, schemas, depth + 1))
   if (schema.type === 'object') {
-    if (!record(value) || !record(schema.properties)) return false
-    const properties = schema.properties
+    if (!record(value) || Object.keys(value).length>1000 || schema.properties!==undefined&&!record(schema.properties)) return false
+    const properties = record(schema.properties)?schema.properties:{}
     if (Array.isArray(schema.required) && schema.required.some(key => typeof key !== 'string' || !(key in value))) return false
-    return Object.entries(value).every(([key, item]) => key in properties ? validates(item, properties[key], schemas, depth + 1) : schema.additionalProperties !== false)
+    return Object.entries(value).every(([key, item]) => key in properties ? validates(item, properties[key], schemas, depth + 1) : record(schema.additionalProperties)?validates(item,schema.additionalProperties,schemas,depth+1):schema.additionalProperties !== false)
   }
   return false
 }
@@ -124,4 +124,24 @@ export class Mutation {
       throw error
     }
   }
+}
+
+export type DisclosureKey = NonNullable<ReviewInput['disclosures']>[number]
+export type PresentationView = Reviews['schemas']['PresentationView']
+export type Presentation = Reviews['schemas']['Presentation']
+export type AttributionPreview = Reviews['schemas']['AttributionPreview']
+export type MergePreview = Catalog['schemas']['MergePreview']
+export type ImportPreview = Catalog['schemas']['ImportPreview']
+export type CatalogImport = Catalog['schemas']['Import']
+export type BatchRequest = Moderation['schemas']['BatchRequest']
+export type BatchPreview = Moderation['schemas']['BatchPreview']
+
+// Share only an in-flight public lookup; completed responses are not cached.
+const pendingPresentations=new Map<string,Promise<PresentationView>>()
+export function loadPresentation(school:string):Promise<PresentationView>{
+ const current=pendingPresentations.get(school);if(current)return current
+ const request=call<PresentationView>('reviews','/presentation'+query({school_id:school}),'PresentationView')
+ if(pendingPresentations.size<100)pendingPresentations.set(school,request)
+ void request.finally(()=>{if(pendingPresentations.get(school)===request)pendingPresentations.delete(school)}).catch(()=>{})
+ return request
 }

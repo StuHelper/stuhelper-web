@@ -12,6 +12,10 @@ const tabs=['entries','drafts','bookmarks','votes','reports'] as const
 const tab=computed(()=>tabs.find(value=>value===route.query.tab)??'entries')
 const after=ref(''),next=ref(''),history=ref<string[]>([]),editing=ref<Draft>(),error=ref(''),busy=ref(false),uncertain=ref(false)
 const mutation=new Mutation()
+const appealTask=ref<Task>(),appealReason=ref(''),appealBusy=ref(false),appealUncertain=ref(false),appealError=ref('')
+const appealMutation=new Mutation()
+async function appeal(){if(!appealTask.value||appealBusy.value)return;appealBusy.value=true;appealError.value='';try{await appealMutation.run('moderation','/tasks','TaskView',{object_id:appealTask.value.submission.object_id,previous_task_id:appealTask.value.id,kind:'appeal',reason:appealReason.value,evidence:[]});appealTask.value=undefined;appealReason.value='';await data.load()}catch(e){appealError.value=e instanceof AcademicError?e.code:'unavailable'}finally{appealBusy.value=false;appealUncertain.value=appealMutation.uncertain}}
+
 type PersonalData={entries?:Review[];drafts?:Draft[];bookmarks?:{id:string;target?:AcademicObject}[];reports?:Task[];references:Map<string,AcademicObject>}
 const data=useLoad<PersonalData>(async signal=>{
   const suffix=query({after:after.value,limit:'20',...(tab.value==='entries'?{sort:'newest'}:{})})
@@ -155,8 +159,41 @@ function previous(){after.value=history.value.pop()??'';next.value='';void data.
         {{ task.decision.reason }}
       </p><RouterLink :to="`/reviews/${encodeURIComponent(task.submission.object_id)}`">
         {{ t('academic.viewDetails') }}
-      </RouterLink>
+      </RouterLink><button
+        v-if="task.can_appeal"
+        :disabled="appealBusy||appealUncertain"
+        @click="appealTask=task;appealReason='';appealError=''"
+      >
+        {{ t('academic.appeal') }}
+      </button>
     </article>
+    <form
+      v-if="appealTask"
+      class="academic-editor"
+      @submit.prevent="appeal"
+    >
+      <h2>{{ t('academic.appeal') }}</h2><label>{{ t('academic.reason') }}<textarea
+        v-model="appealReason"
+        required
+        maxlength="2000"
+        :disabled="appealBusy||appealUncertain"
+      /></label><p
+        v-if="appealError"
+        role="alert"
+      >
+        {{ t(`academic.errors.${appealError}`) }}
+      </p><p v-if="appealUncertain">
+        {{ t('academic.uncertain') }}
+      </p><button :disabled="appealBusy">
+        {{ t(appealUncertain?'academic.retry':'academic.confirm') }}
+      </button><button
+        type="button"
+        :disabled="appealBusy||appealUncertain"
+        @click="appealTask=undefined"
+      >
+        {{ t('academic.cancel') }}
+      </button>
+    </form>
     <div
       v-if="!editing"
       class="academic-actions"

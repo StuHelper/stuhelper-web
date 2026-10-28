@@ -14,7 +14,7 @@ const metadata=useLoad(signal=>lookupObjects([props.review.target_id,props.revie
 watch(()=>[props.review.id,props.references],()=>{if(!props.references)void metadata.load()},{immediate:true})
 const references=computed(()=>props.references??metadata.data.value)
 const target=computed(()=>references.value?.get(props.review.target_id))
-const author=computed(()=>props.review.author.anonymous?(props.review.author.handle==='author'?t('academic.anonymous'):t('academic.anonymousHandle',{handle:props.review.author.handle.slice(0,6)})):props.review.author.profile?.name??t('academic.unknown'))
+const author=computed(()=>props.review.author.disclosures?.find(option=>option.key==='real_name')?.value??(props.review.author.anonymous?(props.review.author.handle==='author'?t('academic.anonymous'):t('academic.anonymousHandle',{handle:props.review.author.handle.slice(0,6)})):props.review.author.profile?.name??t('academic.unknown')))
 const avatar=computed(()=>{const value=props.review.author.profile?.avatar;if(!value)return '';try{const url=new URL(value,location.origin);return ['https:','http:'].includes(url.protocol)?url.href:''}catch{return ''}})
 async function action(action: string, vote = 0) {
   if (busy.value) return
@@ -54,7 +54,10 @@ async function action(action: string, vote = 0) {
           loading="lazy"
           referrerpolicy="no-referrer"
         >
-        <span>{{ author }}</span><span v-if="review.parent_id && review.author.handle==='author'">{{ t('academic.author') }}</span><span v-if="review.published_at">{{ d(new Date(review.published_at),'dateTime') }}</span><span v-if="review.term_id">{{ references?.get(review.term_id)?.name ?? t('academic.reviewTerm') }}</span><span v-if="review.mine">{{ t(`academic.states.${review.state}`) }}</span>
+        <span>{{ author }}</span><span
+          v-if="review.featured"
+          class="academic-tag"
+        >{{ t('academic.featured') }}</span><span v-if="review.parent_id && review.author.handle==='author'">{{ t('academic.author') }}</span><span v-if="review.published_at">{{ d(new Date(review.published_at),'dateTime') }}</span><span v-if="review.term_id">{{ references?.get(review.term_id)?.name ?? t('academic.reviewTerm') }}</span><span v-if="review.mine">{{ t(`academic.states.${review.state}`) }}</span>
       </p><h3 v-if="review.title">
         <span v-if="standalone">{{ review.title }}</span><RouterLink
           v-else
@@ -71,7 +74,21 @@ async function action(action: string, vote = 0) {
       v-if="review.kind === 'course' && !review.preview"
       :dimensions="review.ratings.map(level => ({ level, samples:1, courses:1 }))"
       :show-samples="false"
+      :school-id="review.school_id"
     />
+    <ul
+      v-if="review.author.disclosures?.length"
+      class="disclosure-tags"
+    >
+      <li
+        v-for="option in review.author.disclosures"
+        :key="option.key"
+      >
+        {{ t(`academic.labels.${option.key}`) }}<template v-if="option.key!=='teacher'">
+          {{ option.key==='enrollment'?t(`academic.labelValues.${option.value}`):option.value }}
+        </template>
+      </li>
+    </ul>
     <p
       v-if="review.preview"
       class="academic-muted"

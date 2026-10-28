@@ -35,7 +35,12 @@ async function bookmark(){
       @retry="entry.load"
     />
     <template v-if="entry.data.value">
-      <header class="academic-profile-header">
+      <p
+        v-if="entry.data.value.object.inactive"
+        role="status"
+      >
+        {{ t('academic.inactive') }}
+      </p><header class="academic-profile-header">
         <p class="eyebrow">
           {{ t(kind==='course'?'academic.courseHome':'academic.teacherHome') }}
         </p><h1>{{ entry.data.value.object.name }}</h1><p class="academic-muted">
@@ -43,7 +48,7 @@ async function bookmark(){
         </p>
         <div class="academic-actions">
           <button
-            v-if="!composing"
+            v-if="!composing&&!entry.data.value.object.inactive"
             @click="composing=true"
           >
             {{ t(kind==='course'?'academic.writeReview':'academic.writeMentor') }}
@@ -120,6 +125,7 @@ async function bookmark(){
       </section>
       <StatisticsSection
         ref="statistics"
+        :school-id="entry.data.value.school.id"
         :kind="kind"
         :target-id="id"
       />

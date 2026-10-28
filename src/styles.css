@@ -81,3 +81,5 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .academic-page summary { cursor:pointer; color:var(--accent); }
 .academic-page blockquote { margin-inline:0; border-inline-start:3px solid var(--border); padding-inline-start:1rem; overflow-wrap:anywhere; }
 @media(max-width:640px) { .app-header { flex-wrap:wrap; gap:1rem; } .header-controls { justify-content:start; } .academic-page {gap:1.5rem;} .academic-card,.academic-editor {padding:1rem;} }
+
+.disclosure-tags{display:flex;flex-wrap:wrap;gap:.4rem;list-style:none;padding:0}.disclosure-tags li{border:1px solid #94adc4;border-radius:1rem;padding:.2rem .65rem;font-size:.85rem;overflow-wrap:anywhere}.academic-editor fieldset legend{font-weight:600;padding-inline:.25rem}
