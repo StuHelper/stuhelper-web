@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SessionControls from './SessionControls.vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { setLocale, localeOptions, type Locale } from '../i18n'
@@ -28,10 +29,14 @@ function changeLocale(event: Event) { setLocale((event.target as HTMLSelectEleme
         <span>{{ t('brand.name') }}<span class="brand-context">{{ t('brand.context') }}</span></span>
       </RouterLink>
       <div class="header-controls">
+        <SessionControls />
         <nav
           class="academic-nav"
           :aria-label="t('academic.community')"
         >
+          <RouterLink to="/verification">
+            {{ t('verification.title') }}
+          </RouterLink>
           <RouterLink to="/community">
             {{ t('academic.community') }}
           </RouterLink>

@@ -1,3 +1,4 @@
+import { sessionFetch } from '../api/session';
 import catalogContract from '../../contracts/catalog.openapi.json'
 import reviewContract from '../../contracts/reviews.openapi.json'
 import moderationContract from '../../contracts/moderation.openapi.json'
@@ -41,7 +42,7 @@ export function validates(value: unknown, schema: unknown, schemas: Record<strin
 }
 const contracts = { catalog: catalogContract, reviews: reviewContract, moderation: moderationContract }
 type Module = keyof typeof contracts
-export async function call<T>(module: Module, path: string, schema: string, options: { signal?: AbortSignal; body?: unknown; key?: string; method?: string; array?: boolean } = {}, fetcher: typeof fetch = fetch): Promise<T> {
+export async function call<T>(module: Module, path: string, schema: string, options: { signal?: AbortSignal; body?: unknown; key?: string; method?: string; array?: boolean } = {}, fetcher: typeof fetch = sessionFetch): Promise<T> {
   const controller = new AbortController()
   const signal = options.signal ? AbortSignal.any([options.signal, controller.signal]) : controller.signal
   const timeout = setTimeout(() => controller.abort(), 20000)

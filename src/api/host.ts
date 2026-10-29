@@ -1,3 +1,4 @@
+import { sessionFetch } from './session';
 import { inject, type InjectionKey } from 'vue';
 
 // The application supplies its authenticated transport at bootstrap. Each
@@ -6,5 +7,5 @@ import { inject, type InjectionKey } from 'vue';
 export const hostFetchKey: InjectionKey<typeof fetch> = Symbol('hostFetch');
 
 export function useHostFetch(): typeof fetch {
-  return inject(hostFetchKey, fetch);
+  return inject(hostFetchKey, sessionFetch);
 }
