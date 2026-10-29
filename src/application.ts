@@ -1,0 +1,9 @@
+import { createApp } from 'vue';
+import App from './App.vue';
+import { hostFetchKey } from './api/host';
+import { i18n } from './i18n';
+import { router } from './router';
+
+export function createApplication(fetcher: typeof fetch = fetch) {
+  return createApp(App).provide(hostFetchKey, fetcher).use(i18n).use(router);
+}

@@ -17,7 +17,8 @@
     "generate": "openapi-typescript contracts/platform.openapi.yaml -o src/api/platform.gen.ts",
     "check": "pnpm run check:i18n && pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build",
     "check:i18n": "stuhelper-check i18n",
-    "hooks": "lefthook install"
+    "hooks": "lefthook install",
+    "browser": "playwright test"
   },
   "dependencies": {
     "vue": "3.5.44",
@@ -42,7 +43,9 @@
     "vitest": "5.0.5",
     "vue-tsc": "3.3.13",
     "@stuhelper/engineering-tools": "git+https://github.com/StuHelper/stuhelper-tooling.git#v0.1.0",
-    "lefthook": "2.2.2"
+    "lefthook": "2.2.2",
+    "playwright": "1.64.1",
+    "happy-dom": "20.9.0"
   },
   "packageManager": "pnpm@10.33.4",
   "pnpm": {
