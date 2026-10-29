@@ -17,18 +17,24 @@ const link = ref('')
 const expires = ref('')
 let stream: MediaStream | undefined
 let photo: Blob | undefined
-function stop() { stream?.getTracks().forEach(track => track.stop()); stream = undefined; active.value = false }
+let cameraGeneration = 0
+function stop() { cameraGeneration++; stream?.getTracks().forEach(track => track.stop()); stream = undefined; active.value = false }
 function clearPreview() { if (preview.value) URL.revokeObjectURL(preview.value); preview.value = ''; photo = undefined }
 async function start() {
-  error.value = ''
+  if (busy.value) return
+  busy.value = true; error.value = ''; stop()
+  const generation = cameraGeneration
   try {
-    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
-    if (!video.value) { stop(); return }
+    const acquired = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
+    if (generation !== cameraGeneration || !video.value) { acquired.getTracks().forEach(track => track.stop()); return }
+    stream = acquired
     video.value.srcObject = stream
     await video.value.play()
+    if (generation !== cameraGeneration) return
     active.value = true
     clearPreview()
-  } catch { stop(); error.value = 'camera_unavailable' }
+  } catch { if (generation === cameraGeneration) { stop(); error.value = 'camera_unavailable' } }
+  finally { busy.value = false }
 }
 async function take() {
   if (!video.value?.videoWidth || busy.value) return
