@@ -1,3 +1,4 @@
+import { sessionFetch } from './session';
 import type { components } from './verification.gen'
 
 type Schemas = components['schemas']
@@ -54,7 +55,7 @@ export function parseEntity<K extends Entity>(kind: K, value: unknown): Schemas[
 
 export class VerificationClient {
   private keys = new Map<string, string>()
-  constructor(private readonly fetcher: typeof fetch = fetch) {}
+  constructor(private readonly fetcher: typeof fetch = sessionFetch) {}
   private async response(path: string, init: RequestInit = {}): Promise<Response> {
     if (!path.startsWith('/api/v1/verification/') && !path.startsWith('/api/v1/admin/verification/')) throw new VerificationError('invalid_input')
     try {

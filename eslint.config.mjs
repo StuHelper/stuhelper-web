@@ -5,7 +5,7 @@ import jsonc from 'eslint-plugin-jsonc'
 import i18n from '@intlify/eslint-plugin-vue-i18n'
 
 export default defineConfigWithVueTs(
-  { ignores: ['dist/**', 'src/api/platform.gen.ts', 'coverage/**'] },
+  { ignores: ['dist/**', 'src/api/*.gen.ts', 'src/api/contribution.ts', 'src/api/custody.ts', 'test-results/**', 'coverage/**'] },
   js.configs.recommended,
   ...vue.configs['flat/recommended'],
   vueTsConfigs.recommended,

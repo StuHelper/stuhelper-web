@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SessionControls from './SessionControls.vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { setLocale, localeOptions, type Locale } from '../i18n'
@@ -28,9 +29,34 @@ function changeLocale(event: Event) { setLocale((event.target as HTMLSelectEleme
         <span>{{ t('brand.name') }}<span class="brand-context">{{ t('brand.context') }}</span></span>
       </RouterLink>
       <div class="header-controls">
-        <RouterLink to="/verification">
-          {{ t('verification.title') }}
-        </RouterLink>
+        <SessionControls />
+        <nav
+          class="academic-nav"
+          :aria-label="t('academic.community')"
+        >
+          <RouterLink to="/verification">
+            {{ t('verification.title') }}
+          </RouterLink>
+          <RouterLink to="/community">
+            {{ t('academic.community') }}
+          </RouterLink>
+          <RouterLink to="/courses">
+            {{ t('academic.courses') }}
+          </RouterLink><RouterLink to="/teachers">
+            {{ t('academic.teachers') }}
+          </RouterLink><RouterLink to="/community/me">
+            {{ t('academic.myCommunity') }}
+          </RouterLink>
+          <RouterLink to="/storage-accounts">
+            {{ t('custody.title') }}
+          </RouterLink>
+          <RouterLink to="/contributions">
+            {{ t('contribution.title') }}
+          </RouterLink>
+          <RouterLink to="/resources">
+            {{ t('resources.title') }}
+          </RouterLink>
+        </nav>
         <span class="stage-label">{{ t('shell.preview') }}</span><select
           :aria-label="t('language.label')"
           :value="locale"

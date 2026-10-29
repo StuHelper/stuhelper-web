@@ -1,0 +1,129 @@
+.resources-page {
+  display: grid;
+  gap: 1.25rem;
+  color: var(--text, #25323b);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.resource-card {
+  border: 1px solid var(--border, #d7dde3);
+  border-radius: 0.65rem;
+  padding: 1.2rem;
+  background: var(--surface, #fff);
+}
+.resource-grid {
+  display: grid;
+  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 1rem;
+}
+.resource-field {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.resources-page input,
+.resources-page select,
+.resources-page textarea {
+  width: 100%;
+  min-height: 2.6rem;
+  border: 1px solid var(--border, #a8b5be);
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+  background: var(--surface, #fff);
+  color: inherit;
+}
+.resources-page input[type='checkbox'] {
+  width: auto;
+  min-height: auto;
+}
+.resources-page button,
+.resources-page .resource-button {
+  min-height: 2.6rem;
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--border, #8fa4af);
+  border-radius: 0.3rem;
+  background: var(--surface, #fff);
+  color: inherit;
+  cursor: pointer;
+}
+.resources-page button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.resources-page :focus-visible {
+  outline: 3px solid #4c87bc;
+  outline-offset: 2px;
+}
+.resource-actions {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.resource-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+.resource-muted {
+  color: var(--muted, #596e7a);
+}
+.resource-state {
+  font-size: 0.85rem;
+  border: 1px solid var(--border, #a8b5be);
+  padding: 0.15rem 0.5rem;
+  border-radius: 0.3rem;
+}
+.resource-meta {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+}
+.resource-form {
+  display: grid;
+  gap: 1rem;
+}
+.resource-form fieldset {
+  border: 1px solid var(--border, #d7dde3);
+  padding: 1rem;
+  min-width: 0;
+}
+.resource-form legend {
+  padding: 0 0.3rem;
+}
+.resource-form textarea {
+  min-height: 6rem;
+}
+.resource-inline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.resource-card h2,
+.resource-card h3 {
+  margin-top: 0;
+}
+.resource-details {
+  white-space: pre-wrap;
+}
+.resource-editor-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(14rem, 1fr);
+  gap: 1rem;
+}
+@media (max-width: 700px) {
+  .resource-editor-grid {
+    grid-template-columns: 1fr;
+  }
+  .resources-page {
+    gap: 0.8rem;
+  }
+  .resource-card {
+    padding: 0.8rem;
+  }
+}
