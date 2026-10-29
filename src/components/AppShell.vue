@@ -42,6 +42,12 @@ function changeLocale(event: Event) { setLocale((event.target as HTMLSelectEleme
           </RouterLink><RouterLink to="/community/me">
             {{ t('academic.myCommunity') }}
           </RouterLink>
+          <RouterLink to="/storage-accounts">
+            {{ t('custody.title') }}
+          </RouterLink>
+          <RouterLink to="/contributions">
+            {{ t('contribution.title') }}
+          </RouterLink>
         </nav>
         <span class="stage-label">{{ t('shell.preview') }}</span><select
           :aria-label="t('language.label')"

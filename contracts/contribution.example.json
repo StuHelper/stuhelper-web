@@ -1,0 +1,77 @@
+{
+  "policy": {
+    "terms": {
+      "version": "fixture-v1",
+      "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "url": "https://fixture.invalid/terms"
+    },
+    "adapters": [
+      "fixture"
+    ],
+    "min_bytes": 1000000000,
+    "max_bytes": 1000000000000,
+    "min_term_seconds": 60,
+    "max_term_seconds": 31536000,
+    "exit_target_seconds": 86400,
+    "max_per_owner": 5,
+    "observation_max_age_seconds": 3600
+  },
+  "page": {
+    "items": [
+      {
+        "id": "fixture-contribution",
+        "adapter": "fixture",
+        "revision": 1,
+        "applied_revision": 1,
+        "desired_state": "active",
+        "state": "active",
+        "reason": "",
+        "conditions": {
+          "limit_bytes": 10000000000,
+          "personal_reserve": 1000000000,
+          "until": "2030-01-01T00:00:00Z"
+        },
+        "consent": {
+          "version": "fixture-v1",
+          "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "url": "https://fixture.invalid/terms"
+        },
+        "accepted_at": "2030-01-01T00:00:00Z",
+        "created_at": "2030-01-01T00:00:00Z",
+        "updated_at": "2030-01-01T00:00:00Z",
+        "observation": {
+          "observed_at": "2030-01-01T00:00:00Z",
+          "authorization_expires_at": "2030-01-01T00:00:00Z",
+          "quota_expires_at": "2030-01-01T00:00:00Z",
+          "authorized": true,
+          "used_bytes": 1000000000,
+          "reserved_bytes": 0,
+          "available_bytes": 9000000000,
+          "remaining_replicas": 3
+        }
+      }
+    ],
+    "next_cursor": "fixture-next"
+  },
+  "options": {
+    "items": [
+      {
+        "id": "fixture-storage",
+        "adapter": "fixture",
+        "available_bytes": 100000000000,
+        "authorization_expires_at": "2030-01-01T00:00:00Z"
+      }
+    ],
+    "next_cursor": "fixture-option-next"
+  },
+  "statistics": {
+    "declared_bytes": 10000000000,
+    "available_bytes": 9000000000,
+    "used_bytes": 1000000000,
+    "reserved_bytes": 0,
+    "contributions": 1,
+    "fresh_observations": 1,
+    "status": "current",
+    "generated_at": "2030-01-01T00:00:00Z"
+  }
+}

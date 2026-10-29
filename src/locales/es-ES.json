@@ -1,49 +1,4 @@
 {
-  "brand": {
-    "name": "StuHelper",
-    "home": "Inicio de StuHelper",
-    "context": "Espacio del campus"
-  },
-  "language": {
-    "label": "Idioma",
-    "chinese": "简体中文",
-    "english": "English"
-  },
-  "shell": {
-    "skip": "Ir al contenido principal",
-    "preview": "Vista previa de desarrollo",
-    "footer": "La próxima versión está en preparación"
-  },
-  "home": {
-    "eyebrow": "TU CAMPUS, CONECTADO",
-    "title": "Un lugar para cada servicio del campus.",
-    "description": "Aquí se reunirán cursos, reseñas y recursos de aprendizaje. Las funciones se abrirán a medida que estén disponibles.",
-    "note": "Esta página ofrece una vista previa de desarrollo."
-  },
-  "connection": {
-    "label": "Estado de conexión del servicio",
-    "loading": "Conectando con el servicio…",
-    "ready": "Servicio conectado",
-    "adminReady": "Servicio de administración conectado",
-    "retry": "Volver a conectar",
-    "errors": {
-      "network": "No se puede conectar. Inténtalo de nuevo más tarde.",
-      "incompatible": "Esta versión del servicio es incompatible. Actualiza la página e inténtalo de nuevo.",
-      "identity": "El servicio de identidad de administradores aún no está conectado.",
-      "unauthenticated": "Inicia sesión para acceder al panel de administración.",
-      "forbidden": "Esta cuenta no tiene acceso al panel de administración.",
-      "unavailable": "El servicio no está disponible temporalmente. Inténtalo de nuevo más tarde."
-    }
-  },
-  "notFound": {
-    "code": "404",
-    "title": "Esta página no está disponible",
-    "description": "La dirección puede ser incorrecta o la función aún no está disponible.",
-    "home": "Volver al inicio"
-  },
-  "format": {
-    "items": "{count} elemento | {count} elementos | {count} elementos"
-  },
   "academic": {
     "community": "Comunidad de cursos",
     "courses": "Cursos",
@@ -331,5 +286,194 @@
       "decided": "Decisión guardada",
       "applied": "Aplicado"
     }
+  },
+  "contribution": {
+    "eyebrow": "ALMACENAMIENTO COMPARTIDO",
+    "title": "Mis aportes de almacenamiento",
+    "description": "Elige el espacio y el plazo que quieres compartir. Consulta su uso y solicita una pausa o salida.",
+    "adminTitle": "Gestión de aportes de almacenamiento",
+    "adminDescription": "Consulta el estado, la capacidad y la migración. Reintenta las tareas bloqueadas.",
+    "refresh": "Actualizar",
+    "first": "Primera página",
+    "loading": "Cargando aportes…",
+    "accepted": "Solicitud aceptada, pendiente de confirmación del almacenamiento. Actualiza para ver el estado real.",
+    "summary": "Capacidad compartida",
+    "declared": "Capacidad declarada",
+    "available": "Disponible para escritura",
+    "used": "Usado",
+    "reserved": "Reservado",
+    "current": "Los totales usan observaciones vigentes.",
+    "partial": "Las observaciones caducadas se excluyen de la capacidad disponible.",
+    "observed": "Observado: {time}",
+    "create": "Añadir aporte",
+    "noOptions": "No hay almacenamiento para seleccionar. Aparecerá aquí tras autorizarlo; esta página no acepta contraseñas.",
+    "storage": "Almacenamiento autorizado",
+    "select": "Seleccionar",
+    "option": "{adapter} · {id} · disponible {capacity}",
+    "limit": "Cuota compartida (GB)",
+    "reserve": "Reserva personal (GB)",
+    "range": "Cuota: de {min} a {max}. 1 GB = 1.000.000.000 bytes.",
+    "untilInput": "Compartir hasta ({zone})",
+    "termRange": "Plazo: de {min} a {max} horas desde ahora. La renovación debe ampliar el plazo actual.",
+    "agree": "He leído y acepto",
+    "terms": "Condiciones del aporte ({version})",
+    "invalidForm": "Revisa la capacidad, la reserva y las fechas, y acepta las condiciones actuales.",
+    "review": "Revisar solicitud",
+    "cancel": "Cancelar",
+    "moreOptions": "Más almacenamientos",
+    "mine": "Mis aportes",
+    "empty": "No hay registros en esta página.",
+    "requested": "Estado solicitado",
+    "actual": "Estado de procesamiento",
+    "quota": "Cuota compartida",
+    "personal": "Reserva personal",
+    "until": "Fin del aporte: {time}",
+    "remaining": "Réplicas por limpiar: {count}",
+    "exitTarget": "Objetivo de salida: {time}",
+    "next": "Página siguiente",
+    "confirm": "Confirmar: {action}",
+    "confirmHint": "El servidor verifica permisos y condiciones. Los cambios se aplican tras la confirmación del almacenamiento.",
+    "exitHint": "La salida no se puede cancelar. Los archivos se migran y solo se completa al limpiar todas las réplicas y reservas.",
+    "revokeHint": "La revocación solicita dejar de usar el almacenamiento. Las réplicas pendientes impiden confirmar la limpieza; recuperar requiere autorizar de nuevo.",
+    "reviewConditions": "Compartir {limit}, reservar {reserve}, hasta {until}.",
+    "adminHint": "El reintento conserva la cuota, el plazo, el consentimiento y el estado solicitado.",
+    "uncertain": "Resultado sin confirmar. Reintenta la solicitud original para evitar duplicados.",
+    "retryOriginal": "Reintentar solicitud original",
+    "confirmButton": "Enviar solicitud",
+    "bytes": "{value} bytes",
+    "unknown": "Estado no disponible. Actualiza o contacta con administración.",
+    "actions": {
+      "create": "Añadir aporte",
+      "pause": "Pausar escritura",
+      "resume": "Reanudar escritura",
+      "exit": "Retirar aporte",
+      "revoke": "Revocar autorización",
+      "configure": "Ajustar cuota",
+      "renew": "Renovar",
+      "retry": "Reintentar procesamiento"
+    },
+    "states": {
+      "pending": "Pendiente",
+      "active": "Activo",
+      "paused": "Escritura pausada",
+      "exiting": "Migrando para salir",
+      "blocked": "Bloqueado",
+      "exited": "Retirado",
+      "revoked": "Revocado"
+    },
+    "reasons": {
+      "observation_stale": "Observaciones caducadas; esperando actualización.",
+      "consent_expired": "Aporte caducado; salida pendiente.",
+      "storage_unavailable": "Servicio de almacenamiento no disponible.",
+      "authorization_required": "El almacenamiento requiere nueva autorización.",
+      "storage_conflict": "Conflicto de estado. Actualiza y revisa.",
+      "binding_unavailable": "Vinculación no disponible; requiere revisión administrativa.",
+      "cleanup_unconfirmed": "Quedan réplicas; limpieza sin confirmar.",
+      "storage_writes_disabled": "El almacenamiento no acepta archivos nuevos.",
+      "capacity_unknown": "Capacidad desconocida; esperando actualización.",
+      "exit_overdue": "Plazo de salida superado; la migración sigue pendiente."
+    },
+    "errors": {
+      "conflict": "El estado cambió o no se cumplen las condiciones. Actualice y reintente.",
+      "forbidden": "Su cuenta no tiene permiso para esta operación.",
+      "incompatible": "Formato de datos incompatible. Actualice y reintente.",
+      "invalid": "Solicitud inválida. Revise los datos introducidos.",
+      "network": "Error de conexión. Reintente.",
+      "unauthenticated": "Primero inicie sesión a través de la plataforma.",
+      "unavailable": "Servicio no disponible temporalmente. Reintente más tarde."
+    }
+  },
+  "shell": {
+    "footer": "La próxima versión está en preparación",
+    "skip": "Ir al contenido principal",
+    "preview": "Vista previa de desarrollo"
+  },
+  "connection": {
+    "errors": {
+      "incompatible": "Esta versión del servicio es incompatible. Actualiza la página e inténtalo de nuevo.",
+      "forbidden": "Esta cuenta no tiene acceso al panel de administración.",
+      "identity": "El servicio de identidad de administradores aún no está conectado.",
+      "unauthenticated": "Inicia sesión para acceder al panel de administración.",
+      "network": "No se puede conectar. Inténtalo de nuevo más tarde.",
+      "unavailable": "El servicio no está disponible temporalmente. Inténtalo de nuevo más tarde."
+    },
+    "adminReady": "Servicio de administración conectado",
+    "ready": "Servicio conectado",
+    "label": "Estado de conexión del servicio",
+    "loading": "Conectando con el servicio…",
+    "retry": "Volver a conectar"
+  },
+  "notFound": {
+    "description": "La dirección puede ser incorrecta o la función aún no está disponible.",
+    "home": "Volver al inicio",
+    "title": "Esta página no está disponible",
+    "code": "404"
+  },
+  "brand": {
+    "home": "Inicio de StuHelper",
+    "context": "Espacio del campus",
+    "name": "StuHelper"
+  },
+  "home": {
+    "eyebrow": "TU CAMPUS, CONECTADO",
+    "note": "Esta página ofrece una vista previa de desarrollo.",
+    "description": "Aquí se reunirán cursos, reseñas y recursos de aprendizaje. Las funciones se abrirán a medida que estén disponibles.",
+    "title": "Un lugar para cada servicio del campus."
+  },
+  "custody": {
+    "title": "Cuentas de almacenamiento",
+    "adminTitle": "Custodia de credenciales",
+    "description": "Conecta una cuenta y luego elige por separado la capacidad y el plazo de aportación. Actualizar las credenciales conserva la carpeta dedicada y las condiciones.",
+    "adminDescription": "Revisa solicitudes y reanuda operaciones existentes. Los administradores no pueden consentir por el usuario ni leer contraseñas.",
+    "navigation": "Navegación de cuentas",
+    "refresh": "Actualizar",
+    "sending": "Verificando la cuenta…",
+    "loading": "Cargando…",
+    "uncertain": "El resultado del envío es incierto. Se borró la contraseña del formulario. Consulta la solicitud original antes de crear otra.",
+    "recover": "Consultar solicitud original",
+    "reauthorize": "Actualizar credenciales y consentimiento",
+    "connect": "Conectar una cuenta",
+    "credentials": "Datos de acceso a BHpan",
+    "mode": "Método de acceso",
+    "local": "Cuenta local de BHpan",
+    "sso": "Inicio de sesión único de BUAA",
+    "username": "Cuenta",
+    "password": "Contraseña",
+    "until": "Fin de la custodia ({zone})",
+    "ssoNotice": "Con el inicio de sesión único autorizas guardar la contraseña universitaria solo para volver a acceder a BHpan. Se cifra hasta el vencimiento, la revocación o su sustitución.",
+    "terms": "Leer condiciones de custodia ({version})",
+    "consent": "Autorizo la custodia de las credenciales para este fin y plazo. La aportación de almacenamiento requiere otro consentimiento.",
+    "invalid": "Comprueba la cuenta, la contraseña, el plazo y el consentimiento.",
+    "submit": "Aceptar y enviar",
+    "cancel": "Cancelar edición",
+    "accounts": "Cuentas y solicitudes",
+    "empty": "Aún no hay cuentas conectadas.",
+    "requestUntil": "Fin solicitado de custodia: {time}",
+    "resume": "Reanudar la operación original",
+    "next": "Página siguiente",
+    "states": {
+      "pending": "Pendiente",
+      "ready": "Conectada",
+      "blocked": "Requiere recuperación",
+      "credentials_required": "Se necesitan credenciales"
+    },
+    "reasons": {
+      "authorization_rejected": "Autorización rechazada. Revisa las credenciales o los requisitos de verificación.",
+      "dependency_unavailable": "El proveedor o un servicio necesario no está disponible.",
+      "result_unknown": "Se desconoce el resultado remoto. Solo se puede comprobar la carpeta dedicada original.",
+      "conflict": "La cuenta ya está registrada o cambió el registro. Actualiza y revisa.",
+      "attempts_exhausted": "Se alcanzó el límite de intentos. Se requiere la intervención de un administrador.",
+      "credentials_required": "No se guardaron credenciales recuperables. Vuelve a enviarlas."
+    },
+    "adminUncertain": "El resultado es incierto. Reanuda la solicitud original con el mismo consentimiento y las mismas condiciones.",
+    "retryRecovery": "Reintentar la recuperación original"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "简体中文",
+    "label": "Idioma"
+  },
+  "format": {
+    "items": "{count} elemento | {count} elementos | {count} elementos"
   }
 }

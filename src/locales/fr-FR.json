@@ -1,49 +1,4 @@
 {
-  "brand": {
-    "name": "StuHelper",
-    "home": "Accueil StuHelper",
-    "context": "Espace campus"
-  },
-  "language": {
-    "label": "Langue",
-    "chinese": "简体中文",
-    "english": "English"
-  },
-  "shell": {
-    "skip": "Aller au contenu principal",
-    "preview": "Aperçu de développement",
-    "footer": "La prochaine version est en préparation"
-  },
-  "home": {
-    "eyebrow": "LA VIE DU CAMPUS, CONNECTÉE",
-    "title": "Une place pour chaque service du campus.",
-    "description": "Cours, avis et ressources pédagogiques se réuniront ici. Les services seront ouverts à mesure de leur disponibilité.",
-    "note": "Cette page présente un aperçu de développement."
-  },
-  "connection": {
-    "label": "État de la connexion au service",
-    "loading": "Connexion au service…",
-    "ready": "Service connecté",
-    "adminReady": "Service d’administration connecté",
-    "retry": "Reconnecter",
-    "errors": {
-      "network": "Connexion impossible. Réessayez ultérieurement.",
-      "incompatible": "Cette version du service est incompatible. Actualisez la page et réessayez.",
-      "identity": "Le service d’identification des administrateurs n’est pas encore connecté.",
-      "unauthenticated": "Connectez-vous pour accéder à l’espace d’administration.",
-      "forbidden": "Ce compte n’a pas accès à l’espace d’administration.",
-      "unavailable": "Le service est temporairement indisponible. Réessayez ultérieurement."
-    }
-  },
-  "notFound": {
-    "code": "404",
-    "title": "Cette page est indisponible",
-    "description": "L’adresse est peut-être incorrecte ou la fonctionnalité n’est pas encore disponible.",
-    "home": "Retour à l’accueil"
-  },
-  "format": {
-    "items": "{count} élément | {count} éléments | {count} éléments"
-  },
   "academic": {
     "community": "Communauté des cours",
     "courses": "Cours",
@@ -331,5 +286,194 @@
       "decided": "Décision enregistrée",
       "applied": "Appliqué"
     }
+  },
+  "contribution": {
+    "eyebrow": "STOCKAGE PARTAGÉ",
+    "title": "Mes contributions de stockage",
+    "description": "Choisissez l’espace à partager et sa durée. Suivez son utilisation et demandez une pause ou un retrait.",
+    "adminTitle": "Gestion des contributions",
+    "adminDescription": "Consultez l’état, la capacité et la migration. Relancez les tâches bloquées.",
+    "refresh": "Actualiser",
+    "first": "Première page",
+    "loading": "Chargement des contributions…",
+    "accepted": "Demande reçue, en attente de confirmation du stockage. Actualisez pour vérifier l’état réel.",
+    "summary": "Capacité partagée",
+    "declared": "Capacité déclarée",
+    "available": "Disponible en écriture",
+    "used": "Utilisé",
+    "reserved": "Réservé",
+    "current": "Totaux fondés sur des observations valides.",
+    "partial": "Les observations périmées sont exclues de la capacité disponible.",
+    "observed": "Observation : {time}",
+    "create": "Ajouter une contribution",
+    "noOptions": "Aucun stockage à sélectionner. Les stockages autorisés apparaîtront ici. Aucun mot de passe n’est demandé sur cette page.",
+    "storage": "Stockage autorisé",
+    "select": "Sélectionner",
+    "option": "{adapter} · {id} · disponible {capacity}",
+    "limit": "Quota partagé (Go)",
+    "reserve": "Réserve personnelle (Go)",
+    "range": "Quota : de {min} à {max}. 1 Go = 1 000 000 000 octets.",
+    "untilInput": "Partager jusqu’au ({zone})",
+    "termRange": "Durée : de {min} à {max} heures à partir de maintenant. Le renouvellement doit prolonger la date actuelle.",
+    "agree": "J’ai lu et j’accepte",
+    "terms": "Conditions de contribution ({version})",
+    "invalidForm": "Vérifiez les capacités et les dates, puis acceptez les conditions actuelles.",
+    "review": "Vérifier la demande",
+    "cancel": "Annuler",
+    "moreOptions": "Autres stockages",
+    "mine": "Mes contributions",
+    "empty": "Aucun résultat sur cette page.",
+    "requested": "État demandé",
+    "actual": "État du traitement",
+    "quota": "Quota partagé",
+    "personal": "Réserve personnelle",
+    "until": "Fin de contribution : {time}",
+    "remaining": "Répliques à nettoyer : {count}",
+    "exitTarget": "Objectif de retrait : {time}",
+    "next": "Page suivante",
+    "confirm": "Confirmer : {action}",
+    "confirmHint": "Le serveur vérifie les droits et les conditions. Les changements s’appliquent après confirmation du stockage.",
+    "exitHint": "Le retrait est irréversible. Les fichiers migrent ; toutes les répliques et réservations doivent être supprimées avant la fin.",
+    "revokeHint": "La révocation demande l’arrêt du stockage. Les répliques restantes empêchent de confirmer le nettoyage ; une nouvelle autorisation sera nécessaire.",
+    "reviewConditions": "Partager {limit}, réserver {reserve}, jusqu’au {until}.",
+    "adminHint": "La relance conserve le quota, la durée, le consentement et l’état demandé.",
+    "uncertain": "Résultat non confirmé. Relancez la demande initiale pour éviter les doublons.",
+    "retryOriginal": "Relancer la demande initiale",
+    "confirmButton": "Envoyer la demande",
+    "bytes": "{value} octets",
+    "unknown": "État indisponible. Actualisez ou contactez l’administration.",
+    "actions": {
+      "create": "Ajouter",
+      "pause": "Suspendre l’écriture",
+      "resume": "Reprendre l’écriture",
+      "exit": "Retirer la contribution",
+      "revoke": "Révoquer l’autorisation",
+      "configure": "Modifier le quota",
+      "renew": "Renouveler",
+      "retry": "Relancer le traitement"
+    },
+    "states": {
+      "pending": "En attente",
+      "active": "Actif",
+      "paused": "Écriture suspendue",
+      "exiting": "Migration avant retrait",
+      "blocked": "Bloqué",
+      "exited": "Retiré",
+      "revoked": "Révoqué"
+    },
+    "reasons": {
+      "observation_stale": "Observations périmées ; actualisation attendue.",
+      "consent_expired": "Contribution expirée ; retrait en attente.",
+      "storage_unavailable": "Service de stockage indisponible.",
+      "authorization_required": "Le stockage nécessite une nouvelle autorisation.",
+      "storage_conflict": "Conflit d’état du stockage. Actualisez et vérifiez.",
+      "binding_unavailable": "Liaison de stockage indisponible ; vérification administrative nécessaire.",
+      "cleanup_unconfirmed": "Des répliques subsistent ; nettoyage non confirmé.",
+      "storage_writes_disabled": "Le stockage n’accepte pas de nouveaux fichiers.",
+      "capacity_unknown": "Capacité inconnue ; actualisation attendue.",
+      "exit_overdue": "Objectif de retrait dépassé ; migration en cours."
+    },
+    "errors": {
+      "conflict": "L’état a changé ou les conditions ne sont pas réunies. Actualisez puis réessayez.",
+      "forbidden": "Votre compte n’a pas le droit d’effectuer cette opération.",
+      "incompatible": "Format des données incompatible. Mettez à jour puis réessayez.",
+      "invalid": "Requête invalide. Vérifiez les valeurs saisies.",
+      "network": "Échec de connexion. Réessayez.",
+      "unauthenticated": "Connectez-vous d’abord via la plateforme.",
+      "unavailable": "Service temporairement indisponible. Réessayez plus tard."
+    }
+  },
+  "shell": {
+    "footer": "La prochaine version est en préparation",
+    "skip": "Aller au contenu principal",
+    "preview": "Aperçu de développement"
+  },
+  "connection": {
+    "errors": {
+      "incompatible": "Cette version du service est incompatible. Actualisez la page et réessayez.",
+      "forbidden": "Ce compte n’a pas accès à l’espace d’administration.",
+      "identity": "Le service d’identification des administrateurs n’est pas encore connecté.",
+      "unauthenticated": "Connectez-vous pour accéder à l’espace d’administration.",
+      "network": "Connexion impossible. Réessayez ultérieurement.",
+      "unavailable": "Le service est temporairement indisponible. Réessayez ultérieurement."
+    },
+    "adminReady": "Service d’administration connecté",
+    "ready": "Service connecté",
+    "label": "État de la connexion au service",
+    "loading": "Connexion au service…",
+    "retry": "Reconnecter"
+  },
+  "notFound": {
+    "description": "L’adresse est peut-être incorrecte ou la fonctionnalité n’est pas encore disponible.",
+    "home": "Retour à l’accueil",
+    "title": "Cette page est indisponible",
+    "code": "404"
+  },
+  "brand": {
+    "home": "Accueil StuHelper",
+    "context": "Espace campus",
+    "name": "StuHelper"
+  },
+  "home": {
+    "eyebrow": "LA VIE DU CAMPUS, CONNECTÉE",
+    "note": "Cette page présente un aperçu de développement.",
+    "description": "Cours, avis et ressources pédagogiques se réuniront ici. Les services seront ouverts à mesure de leur disponibilité.",
+    "title": "Une place pour chaque service du campus."
+  },
+  "custody": {
+    "title": "Comptes de stockage",
+    "adminTitle": "Gestion des identifiants",
+    "description": "Connectez un compte, puis choisissez séparément la capacité et la durée de contribution. La mise à jour conserve le dossier dédié et les conditions.",
+    "adminDescription": "Consultez les demandes et reprenez les opérations existantes. Les administrateurs ne peuvent ni consentir à la place des utilisateurs ni lire les mots de passe.",
+    "navigation": "Navigation des comptes",
+    "refresh": "Actualiser",
+    "sending": "Vérification du compte…",
+    "loading": "Chargement…",
+    "uncertain": "Le résultat est incertain. Le mot de passe a été effacé du formulaire. Recherchez la demande initiale avant de recommencer.",
+    "recover": "Rechercher la demande initiale",
+    "reauthorize": "Mettre à jour les identifiants",
+    "connect": "Connecter un compte",
+    "credentials": "Identifiants BHpan",
+    "mode": "Mode de connexion",
+    "local": "Compte local BHpan",
+    "sso": "Authentification unique BUAA",
+    "username": "Compte",
+    "password": "Mot de passe",
+    "until": "Fin de conservation ({zone})",
+    "ssoNotice": "Avec l’authentification unique, vous autorisez la conservation du mot de passe universitaire uniquement pour reconnecter BHpan. Il reste chiffré jusqu’à expiration, révocation ou remplacement.",
+    "terms": "Lire les conditions ({version})",
+    "consent": "J’autorise la conservation des identifiants pour cet usage et cette durée. La contribution nécessite un accord distinct.",
+    "invalid": "Vérifiez le compte, le mot de passe, la date et le consentement.",
+    "submit": "Accepter et envoyer",
+    "cancel": "Annuler la modification",
+    "accounts": "Comptes et demandes",
+    "empty": "Aucun compte connecté.",
+    "requestUntil": "Fin de conservation demandée : {time}",
+    "resume": "Reprendre l’opération initiale",
+    "next": "Page suivante",
+    "states": {
+      "pending": "En attente",
+      "ready": "Connecté",
+      "blocked": "Reprise nécessaire",
+      "credentials_required": "Identifiants requis"
+    },
+    "reasons": {
+      "authorization_rejected": "Autorisation refusée. Vérifiez les identifiants ou les exigences de vérification.",
+      "dependency_unavailable": "Le fournisseur ou un service requis est indisponible.",
+      "result_unknown": "Le résultat distant est inconnu. Seul le dossier dédié initial peut être vérifié.",
+      "conflict": "Le compte est déjà enregistré ou les données ont changé. Actualisez et vérifiez.",
+      "attempts_exhausted": "La limite de tentatives est atteinte. Un administrateur doit intervenir.",
+      "credentials_required": "Aucun identifiant récupérable n’a été enregistré. Soumettez-les à nouveau."
+    },
+    "adminUncertain": "Le résultat est incertain. Reprenez la demande initiale avec le même consentement et les mêmes conditions.",
+    "retryRecovery": "Réessayer la reprise initiale"
+  },
+  "language": {
+    "english": "English",
+    "chinese": "简体中文",
+    "label": "Langue"
+  },
+  "format": {
+    "items": "{count} élément | {count} éléments | {count} éléments"
   }
 }
