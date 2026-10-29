@@ -14,7 +14,7 @@ const after=ref(''),next=ref(''),history=ref<string[]>([]),editing=ref<Draft>(),
 const mutation=new Mutation()
 const appealTask=ref<Task>(),appealReason=ref(''),appealBusy=ref(false),appealUncertain=ref(false),appealError=ref('')
 const appealMutation=new Mutation()
-async function appeal(){if(!appealTask.value||appealBusy.value)return;appealBusy.value=true;appealError.value='';try{await appealMutation.run('moderation','/tasks','TaskView',{object_id:appealTask.value.submission.object_id,previous_task_id:appealTask.value.id,kind:'appeal',reason:appealReason.value,evidence:[]} satisfies Submission satisfies Submission);appealTask.value=undefined;appealReason.value='';await data.load()}catch(e){appealError.value=e instanceof AcademicError?e.code:'unavailable'}finally{appealBusy.value=false;appealUncertain.value=appealMutation.uncertain}}
+async function appeal(){if(!appealTask.value||appealBusy.value)return;appealBusy.value=true;appealError.value='';try{await appealMutation.run('moderation','/tasks','TaskView',{object_id:appealTask.value.submission.object_id,previous_task_id:appealTask.value.id,kind:'appeal',reason:appealReason.value,evidence:[]} satisfies Submission);appealTask.value=undefined;appealReason.value='';await data.load()}catch(e){appealError.value=e instanceof AcademicError?e.code:'unavailable'}finally{appealBusy.value=false;appealUncertain.value=appealMutation.uncertain}}
 
 type PersonalData={entries?:Review[];drafts?:Draft[];bookmarks?:{id:string;target?:AcademicObject}[];reports?:Task[];references:Map<string,AcademicObject>}
 const data=useLoad<PersonalData>(async signal=>{
