@@ -15,6 +15,7 @@ const smsCode = ref('')
 let schoolTimer: ReturnType<typeof setTimeout> | undefined
 let schoolPollCount = 0
 let schoolPollId = ''
+let schoolCursor = ''
 const hasMore = reactive({ schools: false, applications: false, credentials: false, requests: false })
 const mode = ref<'student' | 'identity'>('student')
 const selectedSchool = ref(''), selectedMethod = ref<Schemas['Method']>('manual_material_review')
@@ -41,7 +42,7 @@ async function reload() {
       verification.list('RemovalRequest', '/api/v1/verification/requests?limit=25', controller.signal),
       verification.get('Summary', '/api/v1/verification/summary', controller.signal),
     ])
-    schools.value = s; applications.value = a; credentials.value = c; requests.value = r; summary.value = state
+    schools.value = [...new Map([...schools.value, ...s].map(row => [row.id, row])).values()]; schoolCursor = s.at(-1)?.id ?? ''; applications.value = a; credentials.value = c; requests.value = r; summary.value = state
     hasMore.schools = s.length === 100; hasMore.applications = a.length === 25; hasMore.credentials = c.length === 25; hasMore.requests = r.length === 25
     if (!selectedSchool.value && s[0]) { selectedSchool.value = s[0].id; selectSchool() }
   } catch (e) { if (!controller.signal.aborted) failure(e) } finally { loading.value = false }
@@ -63,6 +64,9 @@ async function start() {
 }
 async function resume(application: Schemas['Application']) {
   await action(async () => {
+    mode.value = 'student'
+    for (let page = 0; !schools.value.some(row => row.id === application.school_id) && hasMore.schools && page < 20; page++) await moreSchools()
+    if (!schools.value.some(row => row.id === application.school_id)) throw new VerificationError('method_unavailable')
     selectedSchool.value = application.school_id; selectedMethod.value = application.method; stage.value = application.stage; kind.value = application.kind; active.value = application; consent.value = true
     materials.value = await verification.list('Material', `/api/v1/verification/applications/${application.id}/materials`)
     form.material_type = school.value?.material_types[0] ?? ''
@@ -110,9 +114,14 @@ async function refreshApplication() {
     await reload()
   })
 }
+async function moreSchools() {
+  const rows = await verification.list('School', `/api/v1/verification/schools?limit=100&after=${encodeURIComponent(schoolCursor)}`, controller.signal)
+  schools.value = [...new Map([...schools.value, ...rows].map(row => [row.id, row])).values()]
+  schoolCursor = rows.at(-1)?.id ?? schoolCursor; hasMore.schools = rows.length === 100
+}
 async function loadMore(section: keyof typeof hasMore) {
   await action(async () => {
-    if (section === 'schools') { const rows = await verification.list('School', `/api/v1/verification/schools?limit=100&after=${encodeURIComponent(schools.value.at(-1)?.id ?? '')}`); schools.value.push(...rows); hasMore.schools = rows.length === 100 }
+    if (section === 'schools') await moreSchools()
     if (section === 'applications') { const rows = await verification.list('Application', `/api/v1/verification/applications?limit=25&after=${encodeURIComponent(applications.value.at(-1)?.id ?? '')}`); applications.value.push(...rows); hasMore.applications = rows.length === 25 }
     if (section === 'credentials') { const rows = await verification.list('Credential', `/api/v1/verification/credentials?limit=25&after=${encodeURIComponent(credentials.value.at(-1)?.id ?? '')}`); credentials.value.push(...rows); hasMore.credentials = rows.length === 25 }
     if (section === 'requests') { const rows = await verification.list('RemovalRequest', `/api/v1/verification/requests?limit=25&after=${encodeURIComponent(requests.value.at(-1)?.id ?? '')}`); requests.value.push(...rows); hasMore.requests = rows.length === 25 }
@@ -153,6 +162,7 @@ async function pollSchool() {
   try {
     const updated = await schoolOperation(current, 'poll')
     if (active.value?.id !== current.id || active.value?.school_challenge?.id !== current.school_challenge?.id) return
+    if (busy.value || active.value.revision !== current.revision) { scheduleSchoolPoll(); return }
     active.value = updated
     if (updated.state === 'approved') { notice.value = 'verified'; await reload() }
     else scheduleSchoolPoll()
