@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed,ref,watch } from 'vue'
-import { RouterLink,useRoute } from 'vue-router'
+import { RouterLink,useRoute,onBeforeRouteUpdate,onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { AcademicError,Mutation,objects,summary,type Result } from './api'
 import { useLoad } from './useLoad'
@@ -14,6 +14,9 @@ const id=computed(()=>String(route.params.id)),kind=computed(()=>route.path.star
 const composing=ref(false),message=ref(''),mutationError=ref(''),mutationBusy=ref(false),uncertain=ref(false),relatedAfter=ref('')
 const courseFeed=ref<InstanceType<typeof ReviewFeed>>(),mentorFeed=ref<InstanceType<typeof ReviewFeed>>(),statistics=ref<InstanceType<typeof StatisticsSection>>()
 const mutation=new Mutation()
+// Resolve an unknown bookmark result before changing the object shown by this component.
+const canNavigate=()=>!mutationBusy.value&&!mutation.uncertain
+onBeforeRouteUpdate(canNavigate);onBeforeRouteLeave(canNavigate)
 const entry=useLoad(async signal=>{const data=await summary(id.value,signal);if(data.object.kind!==kind.value)throw new AcademicError('not_found');return data})
 const related=useLoad(signal=>objects(kind.value==='course'?{kind:'teacher',course_id:id.value,after:relatedAfter.value}:{kind:'course',teacher_id:id.value,after:relatedAfter.value},signal))
 watch(id,()=>{composing.value=false;message.value='';relatedAfter.value='';void entry.load();void related.load()},{immediate:true})

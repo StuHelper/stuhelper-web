@@ -164,9 +164,11 @@ watch(category, () => {
 watch(school, () => {
   course.value = '';
   parents.value = [];
+  dirAfter.value = ''; dirNext.value = ''; after.value = '';
 });
 watch(course, () => {
   parents.value = [];
+  dirAfter.value = ''; dirNext.value = ''; after.value = '';
 });
 watch(
   () => route.path,

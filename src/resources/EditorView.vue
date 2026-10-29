@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { snapshot } from './api';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import {
@@ -28,6 +28,7 @@ const entry = ref<Resource>(),
   uploadState = ref(''),
   reusedFile = ref(false),
   saved = ref(false),
+  unsaved = ref(false),
   tagText = ref(''),
   consent = ref(false);
 let upload: Upload | undefined;
@@ -51,7 +52,7 @@ const state = useResources(() => {
   selected.value = undefined;
   metadata.value.title = '';
   metadata.value.description = '';
-});
+}, () => unsaved.value, () => window.confirm(t('academic.unsavedChanges')));
 const { busy, error, uncertain } = state;
 const category = computed(() =>
     categories.value.find((x) => x.id === metadata.value.category_id),
@@ -73,15 +74,15 @@ const dirty = computed(() => !saved.value),
 watch(
   metadata,
   () => {
-    saved.value = false;
+    saved.value = false; unsaved.value = true;
   },
   { deep: true },
 );
 watch(tagText, () => {
-  saved.value = false;
+  saved.value = false; unsaved.value = true;
 });
 watch(consent, () => {
-  saved.value = false;
+  saved.value = false; unsaved.value = true;
 });
 async function load() {
   await state.run(async () => {
@@ -118,6 +119,7 @@ async function load() {
     }
     if (!metadata.value.category_id)
       metadata.value.category_id = categories.value[0]?.id ?? '';
+    await nextTick(); unsaved.value = false;
   });
 }
 function changeCategory() {
@@ -149,7 +151,7 @@ async function save() {
       { revision: entry.value?.revision ?? 0, metadata: body },
       id ? 'PUT' : 'POST',
     );
-    saved.value = true;
+    saved.value = true; unsaved.value = false;
   });
 }
 function chooseFile(event: Event) {
@@ -239,7 +241,7 @@ void load();
           ></label><label class="resource-field">{{ t('resources.description')
           }}<textarea
             v-model="metadata.description"
-            maxlength="10000"
+            maxlength="8000"
           />
           </label>
           <div class="resource-grid">

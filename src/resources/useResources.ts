@@ -2,7 +2,7 @@ import { onUnmounted, ref } from 'vue';
 import { onBeforeRouteUpdate, onBeforeRouteLeave } from 'vue-router';
 import { useHostFetch } from '../api/host';
 import { Client, errorCode, Mutation } from './api';
-export function useResources(clear: () => void = () => {}) {
+export function useResources(clear: () => void = () => {}, unsaved: () => boolean = () => false, confirmDiscard: () => boolean = () => false) {
   const busy = ref(false),
     error = ref(''),
     uncertain = ref(false);
@@ -25,9 +25,13 @@ export function useResources(clear: () => void = () => {}) {
       uncertain.value = mutation.uncertain;
     }
   }
-  onBeforeRouteUpdate(() => !busy.value && !uncertain.value);
-  onBeforeRouteLeave(() => !busy.value && !uncertain.value);
+  const canNavigate = () => !busy.value && !uncertain.value && (!unsaved() || confirmDiscard());
+  onBeforeRouteUpdate(canNavigate);
+  onBeforeRouteLeave(canNavigate);
+  const beforeUnload = (event: BeforeUnloadEvent) => { if (busy.value || uncertain.value || unsaved()) { event.preventDefault(); event.returnValue = ''; } };
+  window.addEventListener('beforeunload', beforeUnload);
   onUnmounted(() => {
+    window.removeEventListener('beforeunload', beforeUnload);
     alive = false;
     lifetime.abort();
   });
