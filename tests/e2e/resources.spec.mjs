@@ -2,7 +2,7 @@ import process from 'node:process';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Buffer } from 'node:buffer';
-import { expect, test } from 'playwright/test';
+import { expect, test } from '../session-fixture.mjs';
 import { fixture, routes } from './resource-fixture.mjs';
 async function setup(
   page,

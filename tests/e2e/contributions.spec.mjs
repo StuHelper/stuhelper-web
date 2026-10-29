@@ -1,7 +1,7 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { expect, test } from 'playwright/test';
+import { expect, test } from '../session-fixture.mjs';
 const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
 function messages(info) { return JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8')).contribution; }
 async function setup(page, info, empty = false) {
