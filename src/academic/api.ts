@@ -16,6 +16,7 @@ export type ReviewPage = Reviews['schemas']['Page']
 export type Statistics = Reviews['schemas']['Statistics']
 export type Draft = Reviews['schemas']['DraftView']
 export type Result = Reviews['schemas']['Result']
+export type Submission = Moderation['schemas']['Submission']
 export type Task = Moderation['schemas']['TaskView']
 export class AcademicError extends Error {
   constructor(public readonly code: string, public readonly uncertain = false) { super(code) }

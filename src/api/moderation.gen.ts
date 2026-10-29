@@ -123,14 +123,16 @@ export interface components {
         Error: {
             code: string;
         };
-        /** @description Reports and author requests require an authenticated user; review tasks may only be opened by a moderator in the object school. */
+        /** @description Reports and author requests require an authenticated user; review tasks may only be opened by a moderator in the object school. Appeals require the content owner and a previous applied task; the service verifies the relationship and current eligibility. */
         Submission: {
             object_id: string;
             /** @enum {string} */
-            kind: "report" | "edit_request" | "delete_request" | "review";
+            kind: "report" | "edit_request" | "delete_request" | "review" | "appeal";
             reason: string;
             evidence: string[];
             proposed_body?: string;
+            /** @description Required for appeal; identifies the original applied task. Other request kinds must omit it. */
+            previous_task_id?: string;
         };
         Decision: {
             id: string;
@@ -149,6 +151,7 @@ export interface components {
         };
         Policy: {
             school_id: string;
+            /** @description Content kind: course, mentor, reply, or resource. Resources default to pending review. */
             kind: string;
             /** @enum {string} */
             mode: "published" | "pending" | "review";
@@ -177,6 +180,7 @@ export interface components {
             updated_at: string;
             decision?: components["schemas"]["Decision"];
             error_code?: string;
+            /** @description Owning content type, including resource for learning materials. */
             content_kind?: string;
             previous_task_id?: string;
             can_appeal?: boolean;
@@ -236,6 +240,7 @@ export interface operations {
                 after?: string;
                 limit?: number;
                 admin?: string;
+                /** @description Filter by course, mentor, reply, or resource. */
                 content_kind?: string;
                 kind?: string;
                 object_id?: string;
