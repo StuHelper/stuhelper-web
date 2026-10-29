@@ -1,0 +1,10 @@
+{
+  "repository": "StuHelper/stuhelper-backend",
+  "revision": "06f512eda691488941eac9468e4415e63ebb1acf",
+  "version": "0.1.0",
+  "sha256": "4f20da448cc2d16ec59931fb343a2905336345adcd803ef870731066a7a28c9f",
+  "files": {
+    "contracts/session.openapi.json": "contracts/session.openapi.json"
+  },
+  "generator": "openapi-typescript@7.13.0"
+}

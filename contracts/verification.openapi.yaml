@@ -1,0 +1,958 @@
+openapi: 3.0.3
+info:
+  title: StuHelper Verification
+  version: 0.2.0
+  description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/verification/applications/{id}/school-challenge:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: continueSchoolChallenge
+      description: Poll the current bound school session, submit its SMS code once, or cancel it. Poll finalization is idempotent by application and never resends an SMS.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchoolChallengeInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/credentials/{id}/profile:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getOwnStudentProfile
+      description: Read the caller's current school profile; sensitive reads are audited. Imported academic data is resolved through its source provider, never copied into credentials.
+      responses:
+        '200':
+          description: Current data with its actual completeness and provenance.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentProfile' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/credentials/{id}/profile:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getStudentProfile
+      description: School-scoped profile access. Complete identity fields, document fields and raw business data each require their own authorization. Audit must commit before returning fields.
+      parameters:
+        - in: query
+          name: full
+          schema: { type: boolean, default: false }
+        - in: query
+          name: document
+          schema: { type: boolean, default: false }
+        - in: query
+          name: raw
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: Authorized current fields with provenance.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentProfile' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/schools:
+    get:
+      operationId: listSchools
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Only currently usable methods are returned.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/School' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications:
+    get:
+      operationId: listApplications
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The caller's applications, ordered by ID.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Application' }
+        default: { $ref: '#/components/responses/Problem' }
+    post:
+      operationId: createApplication
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateApplication' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getApplication
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/verify:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: verifyApplication
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerifyInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/email:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getEmailChallenge
+      responses:
+        '200':
+          description: Current challenge status and an active inbound destination.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailChallenge' }
+        default: { $ref: '#/components/responses/Problem' }
+    post:
+      operationId: createEmailChallenge
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailInput' }
+      responses:
+        '200':
+          description: Email challenge; outgoing delivery is queued durably.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailChallenge' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/email/confirm:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: confirmEmail
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [code]
+              properties:
+                code: { type: string, pattern: '^[0-9]{6}$' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/capture:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: createCaptureSession
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: One-use camera ticket valid for 15 minutes. The QR page keeps the ticket in its fragment.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CaptureSession' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/capture:
+    post:
+      operationId: uploadCapture
+      security:
+        - captureToken: []
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema: { type: string, format: binary }
+          image/png:
+            schema: { type: string, format: binary }
+      responses:
+        '200':
+          description: Captured material reference. Maximum 1 MiB and 16 million pixels per image, five images per application.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Material' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/materials:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: listMaterials
+      responses:
+        '200':
+          description: Material metadata for this application.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Material' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/materials/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    delete:
+      operationId: removeDraftMaterial
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Removed draft material. Approved or pending-review materials cannot be changed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Material' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+    get:
+      operationId: readMaterial
+      responses:
+        '200':
+          description: Private image, authorized at read time; access is audited.
+          content:
+            image/jpeg:
+              schema: { type: string, format: binary }
+            image/png:
+              schema: { type: string, format: binary }
+            application/pdf:
+              schema: { type: string, format: binary, description: Historical imported attachment only. }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/form:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getOwnManualForm
+      responses:
+        '200':
+          description: The applicant's submitted form for resuming a supplement. Access is audited.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ManualInput' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/manual:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: submitManual
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ManualInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/credentials:
+    get:
+      operationId: listCredentials
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Independent study experiences, including revoked or expired records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Credential' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/summary:
+    get:
+      operationId: getSummary
+      parameters:
+        - name: school_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Current student eligibility and independent identity status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Summary' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/identity:
+    post:
+      operationId: verifyIdentity
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/IdentityInput' }
+      responses:
+        '200':
+          description: Independent identity result; this entry does not create a student credential.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Summary' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/credentials/{id}/requests:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: requestRemoval
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RemovalInput' }
+      responses:
+        '200':
+          description: Pending request. Eligibility is unchanged until approval.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RemovalRequest' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/requests:
+    get:
+      operationId: listRemovalRequests
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: The caller's removal requests.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RemovalRequest' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/suggestions:
+    post:
+      operationId: suggestSchool
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SuggestionInput' }
+      responses:
+        '200':
+          description: A school suggestion for administrators.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Suggestion' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/operations/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getOperation
+      responses:
+        '200':
+          description: The caller's durable operation status. Repeat the original request to obtain its exact completed response.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Operation' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/schools/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getSchoolConfiguration
+      responses:
+        '200':
+          description: Stored school configuration.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/School' }
+        default: { $ref: '#/components/responses/Problem' }
+    put:
+      operationId: configureSchool
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/School' }
+      responses:
+        '200':
+          description: New configuration revision; revision zero creates a school.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/School' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/schools/{id}/applications:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: listReviewQueue
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: School-scoped review queue, ordered by ID.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Application' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/applications/{id}/form:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: readManualForm
+      responses:
+        '200':
+          description: School-scoped sensitive form access, audited.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ManualInput' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/applications/{id}/review:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: reviewApplication
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ReviewInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/schools/{id}/requests:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: listRemovalQueue
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: School-scoped pending requests.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RemovalRequest' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/requests/{id}/review:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: reviewRemoval
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionInput' }
+      responses:
+        '200':
+          description: Reviewed request; approved deletion never removes independent identity status.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RemovalRequest' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/credentials/{id}/revoke:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: revokeCredential
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionInput' }
+      responses:
+        '200':
+          description: Revoked credential with preserved history.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Credential' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/credentials/{id}/graduate:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: graduateCredential
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionInput' }
+      responses:
+        '200':
+          description: Alumni status preserves eligibility and the original study experience.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Credential' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/suggestions:
+    get:
+      operationId: listSuggestions
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Pending suggestions, platform administrator only.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Suggestion' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/suggestions/{id}/review:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: reviewSuggestion
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionInput' }
+      responses:
+        '200':
+          description: Reviewed suggestion. School configuration is a separate explicit action.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Suggestion' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/access:
+    get:
+      operationId: checkConsoleAccess
+      responses:
+        '200':
+          description: The current principal has access to the verification console. Each object remains school-scoped.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [allowed]
+                properties:
+                  allowed: { type: boolean, enum: [true] }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/credentials/{id}:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getAdminCredential
+      responses:
+        '200':
+          description: Authorized credential metadata.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Credential' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/jobs:
+    get:
+      operationId: listJobs
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+        - name: school_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Outstanding delivery jobs in the authorized school scope.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Job' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/jobs/{id}/retry:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: retryJob
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Retry a failed manual-queue job with its original external idempotency identity.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Job' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
+    captureToken: { type: apiKey, in: header, name: X-Capture-Token }
+  parameters:
+    ID:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 128 }
+    After:
+      name: after
+      in: query
+      schema: { type: string, maxLength: 128 }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[ -~]+$' }
+  responses:
+    Application:
+      description: Application state.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Application' }
+    Processing:
+      description: An identical operation is still running. Follow Location, then replay the original request.
+      headers:
+        Location:
+          schema: { type: string }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Problem:
+      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Problem' }
+  schemas:
+    Method:
+      type: string
+      enum: [real_name_identity_check, school_sso, student_email_outbound_otp, student_email_inbound_challenge, manual_material_review]
+    Stage:
+      type: string
+      enum: [bachelor, master, doctor, other, unknown]
+    Kind:
+      type: string
+      enum: [student, alumni, newcomer, unknown]
+    School:
+      type: object
+      additionalProperties: false
+      required: [id, name, enabled, methods, notice_version, opening_date, newcomer_days, email_domain, material_types, revision]
+      properties:
+        profile_schema: { type: string, readOnly: true, description: Data schema advertised by the school adapter; independent from the selected authentication method. }
+        id: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 100 }
+        enabled: { type: boolean }
+        methods:
+          type: array
+          maxItems: 5
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Method' }
+        notice_version: { type: string, minLength: 1, maxLength: 64 }
+        opening_date: { type: string, description: 'YYYY-MM-DD in Asia/Shanghai, or empty when newcomer applications are disabled.' }
+        newcomer_days: { type: integer, minimum: 1, maximum: 366, default: 90 }
+        email_domain: { type: string, maxLength: 253 }
+        material_types:
+          type: array
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          items: { type: string, maxLength: 64 }
+        revision: { type: integer, format: int64, minimum: 0 }
+    CreateApplication:
+      type: object
+      additionalProperties: false
+      required: [school_id, method, stage, kind, notice_version, consent]
+      properties:
+        school_id: { type: string, maxLength: 64 }
+        method: { $ref: '#/components/schemas/Method' }
+        stage: { $ref: '#/components/schemas/Stage' }
+        kind: { $ref: '#/components/schemas/Kind' }
+        notice_version: { type: string, maxLength: 64 }
+        consent: { type: boolean, enum: [true] }
+    Application:
+      type: object
+      required: [id, school_id, method, stage, kind, state, revision, created_at, updated_at, expires_at, credential_id, result_code]
+      properties:
+        id: { type: string }
+        school_id: { type: string }
+        method: { $ref: '#/components/schemas/Method' }
+        stage: { $ref: '#/components/schemas/Stage' }
+        kind: { $ref: '#/components/schemas/Kind' }
+        state: { type: string, enum: [in_progress, pending_review, supplement_required, approved, rejected, expired, deleted] }
+        revision: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
+        credential_id: { type: string }
+        result_code: { type: string }
+        review_note: { type: string }
+        school_challenge: { $ref: '#/components/schemas/SchoolChallenge' }
+        qualification_expires_at: { type: string, format: date-time, nullable: true }
+    VerifyInput:
+      type: object
+      additionalProperties: false
+      required: [student_id, name, document_number, password]
+      properties:
+        student_id: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, maxLength: 100 }
+        document_number: { type: string, maxLength: 32, description: Required only for real-name matching; never persisted. }
+        password: { type: string, maxLength: 256, format: password, description: Required only for school SSO; never persisted. }
+    IdentityInput:
+      type: object
+      additionalProperties: false
+      required: [student_id, name, document_number, password, school_id, notice_version, consent]
+      properties:
+        student_id: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 100 }
+        document_number: { type: string, minLength: 1, maxLength: 32 }
+        password: { type: string, maxLength: 0 }
+        school_id: { type: string, maxLength: 64 }
+        notice_version: { type: string, maxLength: 64 }
+        consent: { type: boolean, enum: [true] }
+    EmailInput:
+      type: object
+      additionalProperties: false
+      required: [student_id, name]
+      properties:
+        student_id: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 100 }
+    EmailChallenge:
+      type: object
+      required: [id, application_id, expires_at, state, masked_email, target_address]
+      properties:
+        id: { type: string }
+        application_id: { type: string }
+        expires_at: { type: string, format: date-time }
+        state: { type: string, enum: [queued, waiting, delivered, used, failed] }
+        masked_email: { type: string }
+        target_address: { type: string, description: Only inbound challenges expose a random one-use destination. }
+    CaptureSession:
+      type: object
+      required: [token, expires_at]
+      properties:
+        token: { type: string }
+        expires_at: { type: string, format: date-time }
+    Material:
+      type: object
+      required: [id, application_id, content_type, size, created_at]
+      properties:
+        id: { type: string }
+        application_id: { type: string }
+        content_type: { type: string, enum: [image/jpeg, image/png, application/pdf], description: 'PDF is retained only for imported historical materials.' }
+        size: { type: integer }
+        created_at: { type: string, format: date-time }
+    ManualInput:
+      type: object
+      additionalProperties: false
+      required: [student_id, name, department, email, material_type, material_ids, revision]
+      properties:
+        student_id: { type: string, minLength: 1, maxLength: 64 }
+        name: { type: string, minLength: 1, maxLength: 100 }
+        department: { type: string, minLength: 1, maxLength: 100 }
+        email: { type: string, format: email, maxLength: 254 }
+        material_type: { type: string, maxLength: 64 }
+        material_ids:
+          type: array
+          minItems: 1
+          maxItems: 5
+          uniqueItems: true
+          items: { type: string }
+        revision: { type: integer, format: int64, minimum: 1 }
+    ReviewInput:
+      type: object
+      additionalProperties: false
+      required: [decision, note, revision]
+      properties:
+        decision: { type: string, enum: [approve, reject, supplement] }
+        note: { type: string, minLength: 1, maxLength: 500 }
+        revision: { type: integer, format: int64, minimum: 1 }
+        expires_at: { type: string, format: date-time, nullable: true, description: 'Optional reviewer override, only for newcomers.' }
+    Credential:
+      type: object
+      required: [id, school_id, method, stage, kind, state, student_display, revision, verified_at, expires_at]
+      properties:
+        id: { type: string }
+        school_id: { type: string }
+        method: { $ref: '#/components/schemas/Method' }
+        stage: { $ref: '#/components/schemas/Stage' }
+        kind: { $ref: '#/components/schemas/Kind' }
+        state: { type: string, enum: [active, revoked, expired, deleted] }
+        student_display: { type: string }
+        revision: { type: integer, format: int64 }
+        verified_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time, nullable: true }
+    Summary:
+      type: object
+      required: [campus_eligibility, identity_verified, evaluated_at, revision, next_evaluation_at]
+      properties:
+        campus_eligibility: { type: boolean }
+        identity_verified: { type: boolean }
+        evaluated_at: { type: string, format: date-time }
+        revision: { type: integer, format: int64 }
+        next_evaluation_at: { type: string, format: date-time, nullable: true }
+    RemovalInput:
+      type: object
+      additionalProperties: false
+      required: [kind, reason]
+      properties:
+        kind: { type: string, enum: [revoke, delete] }
+        reason: { type: string, minLength: 1, maxLength: 500 }
+    RemovalRequest:
+      type: object
+      required: [id, credential_id, school_id, kind, state, reason, note, revision, created_at]
+      properties:
+        id: { type: string }
+        credential_id: { type: string }
+        school_id: { type: string }
+        kind: { type: string, enum: [revoke, delete] }
+        state: { type: string, enum: [pending, approved, rejected] }
+        reason: { type: string }
+        note: { type: string }
+        revision: { type: integer, format: int64 }
+        created_at: { type: string, format: date-time }
+    DecisionInput:
+      type: object
+      additionalProperties: false
+      required: [approve, note, revision]
+      properties:
+        approve: { type: boolean }
+        note: { type: string, minLength: 1, maxLength: 500 }
+        revision: { type: integer, format: int64, minimum: 1 }
+    SuggestionInput:
+      type: object
+      additionalProperties: false
+      required: [name, website]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 100 }
+        website: { type: string, format: uri, maxLength: 500 }
+    Suggestion:
+      type: object
+      required: [id, name, website, state, note, revision]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        website: { type: string }
+        state: { type: string, enum: [pending, approved, rejected] }
+        note: { type: string }
+        revision: { type: integer, format: int64 }
+    Operation:
+      type: object
+      required: [id, state, code, expires_at]
+      properties:
+        id: { type: string }
+        state: { type: string, enum: [processing, completed, failed] }
+        code: { type: string }
+        expires_at: { type: string, format: date-time }
+    Job:
+      type: object
+      required: [id, school_id, kind, state, attempts, code]
+      properties:
+        id: { type: string }
+        school_id: { type: string }
+        kind: { type: string, enum: [mail, event] }
+        state: { type: string, enum: [pending, running, manual, done] }
+        attempts: { type: integer }
+        code: { type: string }
+    Problem:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string }
+        operation_id: { type: string }
+    SchoolChallenge:
+      type: object
+      additionalProperties: false
+      required: [id, state, code, masked_phone, expires_at]
+      properties:
+        id: { type: string }
+        state: { type: string, enum: [processing, waiting_sms, authenticated, failed, cancelled, expired] }
+        code: { type: string }
+        masked_phone: { type: string }
+        expires_at: { type: string, format: date-time }
+    SchoolChallengeInput:
+      type: object
+      additionalProperties: false
+      required: [action, challenge_id, revision]
+      properties:
+        action: { type: string, enum: [poll, submit_sms, cancel] }
+        challenge_id: { type: string, minLength: 1, maxLength: 128 }
+        revision: { type: integer, format: int64, minimum: 1 }
+        code: { type: string, maxLength: 8, description: School SMS code; used once and never persisted. }
+    StudentProfile:
+      type: object
+      additionalProperties: false
+      required: [school_id, data_status, schema, revision, collected_at, fields, field_sources, source_revision]
+      properties:
+        school_id: { type: string }
+        data_status: { type: string, enum: [complete, partial, reference_only, unavailable] }
+        schema: { type: string }
+        revision: { type: integer, format: int64, minimum: 0 }
+        collected_at: { type: string, format: date-time, nullable: true }
+        source_revision: { type: string }
+        fields:
+          type: object
+          maxProperties: 64
+          additionalProperties: true
+          description: School-specific business fields; absent and explicit null remain distinct. Exact decimal quantities use decimal strings and known timestamps use RFC 3339. Sensitive fields are masked or omitted according to current authorization.
+        field_sources:
+          type: object
+          additionalProperties: { type: string }
+        raw_data: { type: string, maxLength: 1048576, description: Classified business JSON only; omitted without explicit raw-data authorization. }
