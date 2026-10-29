@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
-import { expect, test } from 'playwright/test';
+import { expect, test } from '../session-fixture.mjs';
 
 async function setup(page, info) {
   const messages = JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
