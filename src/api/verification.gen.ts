@@ -885,7 +885,7 @@ export interface components {
             /** Format: date-time */
             collected_at: string | null;
             source_revision: string;
-            /** @description School-specific business fields; absent and explicit null remain distinct. Sensitive fields are masked or omitted according to current authorization. */
+            /** @description School-specific business fields; absent and explicit null remain distinct. Exact decimal quantities use decimal strings and known timestamps use RFC 3339. Sensitive fields are masked or omitted according to current authorization. */
             fields: {
                 [key: string]: unknown;
             };

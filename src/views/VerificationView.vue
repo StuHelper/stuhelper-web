@@ -161,7 +161,11 @@ async function pollSchool() {
 function scheduleSchoolPoll() { stopSchoolPolling(); if (schoolPending.value && schoolPollCount < 100) schoolTimer = setTimeout(() => { void pollSchool() }, 3000) }
 watch(() => active.value?.school_challenge, challenge => { if (challenge?.id !== schoolPollId) { schoolPollId = challenge?.id ?? ''; schoolPollCount = 0 }; scheduleSchoolPoll() })
 async function showProfile(id: string) { await action(async () => { profile.value = await verification.get('StudentProfile', `/api/v1/verification/credentials/${id}/profile`, controller.signal) }) }
-function profileValue(value: unknown) { return value === null ? t('verification.notProvided') : typeof value === 'string' ? value : JSON.stringify(value) }
+function profileValue(value: unknown, field: string | number) {
+  if (value === null) return t('verification.notProvided')
+  if (field === 'identity_valid_until' && typeof value === 'string' && Number.isFinite(Date.parse(value))) return d(new Date(value), 'dateTime')
+  return typeof value === 'string' ? value : JSON.stringify(value)
+}
 onMounted(reload)
 onBeforeUnmount(() => { stopSchoolPolling(); cancelDetachedSchoolFlow(active.value); controller.abort() })
 </script>
@@ -566,7 +570,7 @@ onBeforeUnmount(() => { stopSchoolPolling(); cancelDetachedSchoolFlow(active.val
           v-for="(value, field) in profile.fields"
           :key="field"
         >
-          <dt>{{ t(`verification.profileFields.${field}`) }}<small v-if="profile.field_sources[field]"> {{ t(`verification.profileSources.${profile.field_sources[field]}`) }}</small></dt><dd>{{ profileValue(value) }}</dd>
+          <dt>{{ t(`verification.profileFields.${field}`) }}<small v-if="profile.field_sources[field]"> {{ t(`verification.profileSources.${profile.field_sources[field]}`) }}</small></dt><dd>{{ profileValue(value, field) }}</dd>
         </template>
       </dl>
       <button @click="profile = undefined">
