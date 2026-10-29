@@ -26,6 +26,7 @@ const entry = ref<Resource>(),
   capabilities = ref<Schema['Capabilities']>(),
   selected = ref<File>(),
   uploadState = ref(''),
+  reusedFile = ref(false),
   saved = ref(false),
   tagText = ref(''),
   consent = ref(false);
@@ -46,6 +47,7 @@ const metadata = ref<Metadata>({
 });
 const state = useResources(() => {
   entry.value = undefined;
+ reusedFile.value=false;
   selected.value = undefined;
   metadata.value.title = '';
   metadata.value.description = '';
@@ -155,7 +157,7 @@ function chooseFile(event: Event) {
   if (input instanceof HTMLInputElement) {
     selected.value = input.files?.[0];
     upload = undefined;
-    uploadState.value = '';
+    uploadState.value = '';reusedFile.value=false;
   }
 }
 async function sendFile() {
@@ -172,7 +174,7 @@ async function sendFile() {
       throw new ResourceError('invalid_input');
     if (!upload) upload = new Upload(state.client, file, purpose);
     const version = await upload.run();
-    uploadState.value = version.state;
+    uploadState.value = version.state;reusedFile.value=version.reused===true;
     if (['awaiting_approval', 'approved'].includes(version.state)) {
       entry.value = await state.mutation.run(
         '/items/' + segment(entry.value.id) + '/file',
@@ -385,6 +387,12 @@ void load();
             role="status"
           >
             {{ t(`resources.uploadStates.${uploadState}`) }}
+          </p>
+          <p
+            v-if="reusedFile"
+            role="status"
+          >
+            {{ t('resources.reusedFile') }}
           </p>
           <p v-if="dirty">
             {{ t('resources.saveBeforeFile') }}

@@ -200,3 +200,15 @@ it('uses configured fields without category-name branches and preserves missing 
     x: { value: 3 },
   });
 });
+
+it('requests safe reuse and never sends bytes for reused or still pending content', async () => {
+ vi.stubGlobal('crypto',webcrypto);const methods:string[]=[];let done=false;let payload:unknown;
+ const client=new Client(async(_input,init)=>{
+  methods.push(init?.method??'GET');if(init?.method==='POST')payload=JSON.parse(String(init.body));
+  const version={...media,reused:true,state:done?'awaiting_approval':'verifying'};
+  return Response.json(init?.method==='POST'?version:{...version,healthy:done?1:0,desired:3,storage_state:'pending'});
+ });
+ const upload=new Upload(client,new File(['hello'],'lecture.txt',{type:'text/plain'}),'purpose');
+ await expect(upload.run()).rejects.toMatchObject({code:'reuse_pending',uncertain:false});
+ expect(payload).toMatchObject({reuse_existing:true});done=true;const result=await upload.run();expect(result.reused).toBe(true);expect(methods).toEqual(['POST','GET','GET']);
+});

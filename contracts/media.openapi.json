@@ -2227,10 +2227,15 @@
             "format": "date-time"
           },
           "cleanup_complete": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "This version has released its storage handle. Shared bytes remain while other handles use them. If this is the final handle, true requires physical cleanup to finish."
           },
           "error_code": {
             "type": "string"
+          },
+          "reused": {
+            "type": "boolean",
+            "description": "True when this independent version uses a verified prior upload without sending client file bytes. It still requires its own business approval. While verifying, query the upload status and do not send file bytes."
           }
         }
       },
@@ -2303,7 +2308,8 @@
             "format": "date-time"
           },
           "cleanup_complete": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "This version has released its storage handle. Shared bytes remain while other handles use them. If this is the final handle, true requires physical cleanup to finish."
           },
           "error_code": {
             "type": "string"
@@ -2318,6 +2324,10 @@
           "desired": {
             "type": "integer",
             "format": "int64"
+          },
+          "reused": {
+            "type": "boolean",
+            "description": "True when this independent version uses a verified prior upload without sending client file bytes. It still requires its own business approval. While verifying, query the upload status and do not send file bytes."
           }
         }
       },
@@ -2430,6 +2440,11 @@
           "sha256": {
             "type": "string",
             "pattern": "^[a-f0-9]{64}$"
+          },
+          "reuse_existing": {
+            "type": "boolean",
+            "default": false,
+            "description": "Attempt to reuse a completed upload owned by the current user with the same purpose, configured protection, content type, size and SHA-256. A different user digest alone never skips upload."
           }
         }
       },

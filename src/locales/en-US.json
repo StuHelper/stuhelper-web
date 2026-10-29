@@ -601,7 +601,8 @@
       "capacity_exceeded": "Configured capacity or count limit reached.",
       "incompatible": "Unexpected server response. Retry or contact an administrator.",
       "cancel_pending": "Cancellation is unconfirmed. Check again or retry cancellation before uploading again.",
-      "retry_required": "Retry the request with unknown outcome before another change."
+      "retry_required": "Retry the request with unknown outcome before another change.",
+      "reuse_pending": "File reuse is still in progress. Please retry shortly."
     },
     "adminTitle": "Resource management",
     "content": "Resources",
@@ -647,6 +648,7 @@
     "savePolicy": "Save review policy",
     "policy": "Review policy",
     "manualReview": "Require manual review",
-    "reload": "Refresh state"
+    "reload": "Refresh state",
+    "reusedFile": "Your existing file was reused without uploading it again. Submit the new resource for its own review."
   }
 }

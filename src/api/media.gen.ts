@@ -255,8 +255,11 @@ export interface components {
             upload_expires_at: string;
             /** Format: date-time */
             retain_until: string;
+            /** @description This version has released its storage handle. Shared bytes remain while other handles use them. If this is the final handle, true requires physical cleanup to finish. */
             cleanup_complete: boolean;
             error_code: string;
+            /** @description True when this independent version uses a verified prior upload without sending client file bytes. It still requires its own business approval. While verifying, query the upload status and do not send file bytes. */
+            reused?: boolean;
         };
         VersionView: {
             id: string;
@@ -277,6 +280,7 @@ export interface components {
             upload_expires_at: string;
             /** Format: date-time */
             retain_until: string;
+            /** @description This version has released its storage handle. Shared bytes remain while other handles use them. If this is the final handle, true requires physical cleanup to finish. */
             cleanup_complete: boolean;
             error_code: string;
             storage_state: string;
@@ -284,6 +288,8 @@ export interface components {
             healthy: number;
             /** Format: int64 */
             desired: number;
+            /** @description True when this independent version uses a verified prior upload without sending client file bytes. It still requires its own business approval. While verifying, query the upload status and do not send file bytes. */
+            reused?: boolean;
         };
         FileView: {
             id: string;
@@ -314,6 +320,11 @@ export interface components {
             /** Format: int64 */
             size: number;
             sha256: string;
+            /**
+             * @description Attempt to reuse a completed upload owned by the current user with the same purpose, configured protection, content type, size and SHA-256. A different user digest alone never skips upload.
+             * @default false
+             */
+            reuse_existing: boolean;
         };
         Binding: {
             module: string;

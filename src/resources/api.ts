@@ -317,6 +317,7 @@ export class Upload {
         await this.file.arrayBuffer(),
       );
       this.request = {
+        reuse_existing: true,
         purpose: this.purpose,
         filename: this.file.name,
         content_type: this.file.type || 'application/octet-stream',
@@ -344,6 +345,7 @@ export class Upload {
       )
     )
       throw new ResourceError('invalid_input');
+    if (this.version.reused) throw new ResourceError('reuse_pending');
     this.version = await this.client.media(
       '/uploads/' + segment(this.version.upload_id) + '/content',
       {

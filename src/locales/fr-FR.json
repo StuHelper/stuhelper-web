@@ -601,7 +601,8 @@
       "capacity_exceeded": "Limite de capacité ou de nombre atteinte.",
       "incompatible": "Réponse serveur inattendue. Réessayez ou contactez un administrateur.",
       "cancel_pending": "Annulation non confirmée. Vérifiez ou réessayez avant un nouveau dépôt.",
-      "retry_required": "Réessayez la demande au résultat inconnu avant une autre modification."
+      "retry_required": "Réessayez la demande au résultat inconnu avant une autre modification.",
+      "reuse_pending": "La réutilisation du fichier est en cours. Réessayez dans un instant."
     },
     "adminTitle": "Gestion des ressources",
     "content": "Ressources",
@@ -647,6 +648,7 @@
     "savePolicy": "Enregistrer la politique",
     "policy": "Politique d’examen",
     "manualReview": "Examen manuel requis",
-    "reload": "Actualiser l’état"
+    "reload": "Actualiser l’état",
+    "reusedFile": "Votre fichier existant a été réutilisé sans nouvel envoi. Soumettez la nouvelle ressource à une validation distincte."
   }
 }

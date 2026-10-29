@@ -601,7 +601,8 @@
       "capacity_exceeded": "Se alcanzó el límite de capacidad o cantidad.",
       "incompatible": "Respuesta inesperada. Reintenta o contacta al administrador.",
       "cancel_pending": "Cancelación sin confirmar. Consulta o reintenta antes de volver a subir.",
-      "retry_required": "Reintenta la solicitud de resultado desconocido antes de otro cambio."
+      "retry_required": "Reintenta la solicitud de resultado desconocido antes de otro cambio.",
+      "reuse_pending": "La reutilización del archivo sigue en curso. Vuelve a intentarlo en unos instantes."
     },
     "adminTitle": "Gestión de materiales",
     "content": "Materiales",
@@ -647,6 +648,7 @@
     "savePolicy": "Guardar política de revisión",
     "policy": "Política de revisión",
     "manualReview": "Revisión manual obligatoria",
-    "reload": "Actualizar estado"
+    "reload": "Actualizar estado",
+    "reusedFile": "Se ha reutilizado tu archivo existente sin volver a subirlo. Envía el nuevo recurso para su propia revisión."
   }
 }

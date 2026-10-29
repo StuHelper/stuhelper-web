@@ -206,3 +206,10 @@ test('folder packages list every part and allow individual retry', async ({
   });
   await layout(page, errors, locale);
 });
+
+test('owned file reuse avoids content transfer and keeps separate review',async({page},info)=>{
+ const {m,s,errors,locale}=await setup(page,info,'/resources/new?school_id=school&course_id=course');
+ await page.getByLabel(m.resourceTitle,{exact:true}).fill('Reused lecture');await page.getByRole('combobox',{name:m.origin,exact:true}).selectOption('original');await page.getByLabel(m.acceptTerms,{exact:true}).check();await page.getByRole('button',{name:m.save,exact:true}).click();await expect(page.getByText(m.saved,{exact:true})).toBeVisible();
+ s.media.reused=true;s.media.state='verifying';await page.getByLabel(m.chooseFile,{exact:true}).setInputFiles({name:'lecture.txt',mimeType:'text/plain',buffer:Buffer.from('hello')});await page.getByRole('button',{name:m.uploadFile,exact:true}).click();await expect(page.getByText(m.errors.reuse_pending,{exact:true})).toBeVisible();
+ expect(s.calls.filter(x=>x.path?.startsWith('/api/v1/media')&&x.method==='PUT')).toHaveLength(0);s.media.state='awaiting_approval';await page.getByRole('button',{name:m.uploadFile,exact:true}).click();await expect(page.getByText(m.reusedFile,{exact:true})).toBeVisible();await expect(page.getByText(m.uploadStates.attached,{exact:true})).toBeVisible();expect(s.calls.filter(x=>x.path==='/api/v1/media/uploads')).toHaveLength(1);expect(s.calls.find(x=>x.path==='/api/v1/media/uploads').body.reuse_existing).toBe(true);expect(s.calls.filter(x=>x.path?.startsWith('/api/v1/media')&&x.method==='PUT')).toHaveLength(0);await page.getByRole('button',{name:m.submit,exact:true}).click();await expect(page.getByText(m.states.pending,{exact:true})).toBeVisible();await layout(page,errors,locale);
+});

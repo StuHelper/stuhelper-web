@@ -1,10 +1,10 @@
 {
   "repository": "StuHelper/stuhelper-media",
-  "revision": "e7deac84aae95d8dc3bde6ae292b6f4242fc2871",
+  "revision": "b0e61e51d1a5171768612c5b0a386680c0ccf9c9",
   "version": "1.0.0",
   "sha256": {
-    "contracts/media.openapi.json": "c0aedc0fd233998d14ac7cd9717ddb394843cf07778da1a32f3981594adbb6c0",
-    "src/api/media.gen.ts": "1e8e5cc0e15ba9fe965922bbbd35544c1ce9eba3868125e90e232c74d06de62b"
+    "contracts/media.openapi.json": "824d2b900f40f8219563381816f622c4b5fa8e5ded7b995f9e69dd23c23a7293",
+    "src/api/media.gen.ts": "348adb41e537c9b4a870f00b06433455c08c3c11a4a1741a92df1736c13400ed"
   },
   "files": {
     "contracts/media.openapi.json": "contracts/media.openapi.json",

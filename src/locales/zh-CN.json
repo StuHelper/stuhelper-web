@@ -601,7 +601,8 @@
       "capacity_exceeded": "已达到当前配置的容量或数量上限。",
       "incompatible": "服务器响应格式异常，请重试或联系管理员。",
       "cancel_pending": "取消尚未确认。请再次查询或重试取消，不要重新上传。",
-      "retry_required": "先重试结果未知的原请求，再执行其他更改。"
+      "retry_required": "先重试结果未知的原请求，再执行其他更改。",
+      "reuse_pending": "文件复用正在处理中，请稍后重试。"
     },
     "adminTitle": "资料管理",
     "content": "资料列表",
@@ -647,6 +648,7 @@
     "savePolicy": "保存审核策略",
     "policy": "审核策略",
     "manualReview": "提交后进入人工审核",
-    "reload": "刷新当前状态"
+    "reload": "刷新当前状态",
+    "reusedFile": "已复用本人已有文件，无需重复上传。新资料仍需单独提交审核。"
   }
 }

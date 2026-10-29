@@ -36,6 +36,10 @@
     ],
     "RES-CLIENT-06": [
       "tests/e2e/resources.spec.mjs#folder packages list every part and allow individual retry"
+    ],
+    "RES-CLIENT-07": [
+      "src/resources/api.test.ts#requests safe reuse and never sends bytes for reused or still pending content",
+      "tests/e2e/resources.spec.mjs#owned file reuse avoids content transfer and keeps separate review"
     ]
   }
 }
