@@ -129,12 +129,14 @@
       "bachelor": "Bachelor’s degree",
       "master": "Master’s degree",
       "doctor": "Doctoral degree",
-      "other": "Other study level"
+      "other": "Other study level",
+      "unknown": "Not provided"
     },
     "kinds": {
       "student": "Current student",
       "alumni": "Alumnus or alumna",
-      "newcomer": "Temporary newcomer"
+      "newcomer": "Temporary newcomer",
+      "unknown": "Not provided"
     },
     "states": {
       "in_progress": "In progress",
@@ -210,6 +212,95 @@
     "eventJob": "Eligibility change event",
     "loadMore": "Load more",
     "legacyMaterial": "View historical material",
-    "newcomerReminder": "Check the newcomer expiry date and complete regular verification in time."
+    "newcomerReminder": "Check the newcomer expiry date and complete regular verification in time.",
+    "schoolFacts": "Study level and enrollment status come from school evidence. Missing facts remain unknown; student IDs are not used to guess them.",
+    "bitPrivacy": "BIT sign-in reads and checks the name, student ID, college and major, class and grade, identity document, school contact details, and study plans supplied by the school. Personal data is stored encrypted by school. Passwords, SMS codes, and school sessions are not stored.",
+    "schoolProgress": "School verification progress",
+    "schoolSMS": "School SMS code",
+    "schoolSMSHelp": "Enter the code sent by the school to {phone}. Each session accepts one submission; restart after an incorrect or expired code.",
+    "cancelSchool": "Cancel school verification",
+    "viewProfile": "View school profile",
+    "profileTitle": "School profile",
+    "collectedAt": "Collected at",
+    "notProvided": "Not provided",
+    "closeProfile": "Close profile",
+    "fullProfile": "View full identity fields",
+    "documentProfile": "View document fields",
+    "rawProfile": "View source business data",
+    "schoolStates": {
+      "processing": "School verification in progress",
+      "waiting_sms": "Waiting for the school SMS code",
+      "authenticated": "School verification completed",
+      "failed": "School verification failed; please restart",
+      "cancelled": "School verification cancelled",
+      "expired": "School verification expired; please restart"
+    },
+    "profileStatus": {
+      "complete": "Supported school data collected",
+      "partial": "Partial data; missing fields are not inferred",
+      "reference_only": "Data belongs to the separately imported academic source; only the link is stored here",
+      "unavailable": "No profile data is currently available"
+    },
+    "profileFields": {
+      "student_id": "Student ID",
+      "name": "Name",
+      "department": "Department",
+      "contact_email": "Contact email",
+      "authentication_stage": "Verification stage",
+      "gender_code": "Gender code",
+      "gender_name": "Gender",
+      "birth_date": "Original birth date",
+      "country_region": "Country or region",
+      "student_category_code": "Identity category code",
+      "student_category_name": "Identity category",
+      "document_type_code": "Document type code",
+      "document_number": "Document number",
+      "school_phone": "School-registered phone",
+      "cltel": "Original CLTEL",
+      "recovery_email": "School recovery email",
+      "organization_info": "Organization information",
+      "college_code": "College code",
+      "college_name": "College",
+      "major_code": "Major code",
+      "major_name": "Major",
+      "class_code": "Class code",
+      "class_name": "Class",
+      "grade_code": "Grade code",
+      "grade_name": "Grade",
+      "training_plan_code": "Study plan code",
+      "training_plan_name": "Study plan",
+      "study_type_code": "Study type code",
+      "study_type_name": "Study type",
+      "zsyqxf": "Original ZSYQXF",
+      "ywcxf": "Original YWCXF",
+      "zsyqxfxsz": "Original ZSYQXFXSZ",
+      "study_plan_status": "Original XSFAZT",
+      "undergraduate_status": "Original BKSZT",
+      "person_status": "Original RYZT",
+      "person_subtype": "Original RYXFLX",
+      "identity_valid_until": "School identity valid until"
+    },
+    "profileSources": {
+      "school_account": "School account",
+      "sso_profile": "School SSO profile",
+      "sso_document": "School document query",
+      "academic_profile": "School academic data",
+      "manual_review": "Manual review",
+      "mailbox_verification": "Mailbox ownership",
+      "self_reported": "User supplied",
+      "legacy_credential": "Historical verification",
+      "synthetic": "Synthetic test data"
+    },
+    "schoolErrors": {
+      "credentials_rejected": "The school rejected the account or password.",
+      "captcha_required": "The school requires additional interactive verification; use another available method.",
+      "sms_rejected": "The school SMS code is incorrect or expired; restart verification.",
+      "identity_mismatch": "School identity sources disagree; verification was not completed.",
+      "identity_missing": "The school did not provide the required student data.",
+      "login_rejected": "The school rejected this sign-in; please restart.",
+      "protocol_error": "The school response format changed; please retry later.",
+      "unavailable": "The school service is temporarily unavailable.",
+      "expired": "The school session expired; please restart."
+    }
   }
 }

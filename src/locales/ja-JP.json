@@ -129,12 +129,14 @@
       "bachelor": "学部",
       "master": "修士",
       "doctor": "博士",
-      "other": "その他の課程"
+      "other": "その他の課程",
+      "unknown": "未提供"
     },
     "kinds": {
       "student": "在学生",
       "alumni": "卒業生",
-      "newcomer": "新入生の仮資格"
+      "newcomer": "新入生の仮資格",
+      "unknown": "未提供"
     },
     "states": {
       "in_progress": "入力中",
@@ -210,6 +212,95 @@
     "eventJob": "資格変更の通知",
     "loadMore": "さらに読み込む",
     "legacyMaterial": "過去の資料を表示",
-    "newcomerReminder": "新入生資格の有効期限を確認し、期限までに通常の認証を完了してください。"
+    "newcomerReminder": "新入生資格の有効期限を確認し、期限までに通常の認証を完了してください。",
+    "schoolFacts": "学習段階と在籍状態は学校の証拠に基づいて記録します。提供されていない情報は不明のままとし、学籍番号から推測しません。",
+    "bitPrivacy": "北京理工大学のアカウント認証では、学校が提供する氏名、学籍番号、学部・専攻、クラス・学年、本人確認書類、登録連絡先、履修計画を取得して照合します。個人情報は学校別に暗号化して保存します。パスワード、SMSコード、学校のログインセッションは保存しません。",
+    "schoolProgress": "学校認証の進行状況",
+    "schoolSMS": "学校からのSMSコード",
+    "schoolSMSHelp": "学校が {phone} に送信したコードを入力してください。各セッションで送信できるコードは一度のみです。誤りや期限切れの場合はやり直してください。",
+    "cancelSchool": "学校認証をキャンセル",
+    "viewProfile": "学校の情報を表示",
+    "profileTitle": "学校の個人情報",
+    "collectedAt": "取得日時",
+    "notProvided": "未提供",
+    "closeProfile": "情報を閉じる",
+    "fullProfile": "完全な本人情報を表示",
+    "documentProfile": "本人確認書類の項目を表示",
+    "rawProfile": "元の業務データを表示",
+    "schoolStates": {
+      "processing": "学校で確認中",
+      "waiting_sms": "SMSコードを待機中",
+      "authenticated": "学校での確認が完了しました",
+      "failed": "確認に失敗しました。やり直してください",
+      "cancelled": "学校認証をキャンセルしました",
+      "expired": "期限が切れました。やり直してください"
+    },
+    "profileStatus": {
+      "complete": "学校が対応する情報を取得済み",
+      "partial": "一部の情報のみ。欠けた項目は推測していません",
+      "reference_only": "情報は別途取り込まれた教務データにあります。ここでは関連付けのみを保存します",
+      "unavailable": "現在利用できる情報はありません"
+    },
+    "profileFields": {
+      "student_id": "学籍番号",
+      "name": "氏名",
+      "department": "所属部門",
+      "contact_email": "連絡先メール",
+      "authentication_stage": "確認段階",
+      "gender_code": "性別コード",
+      "gender_name": "性別",
+      "birth_date": "元の生年月日",
+      "country_region": "国・地域",
+      "student_category_code": "身分類型コード",
+      "student_category_name": "身分類型",
+      "document_type_code": "書類種別コード",
+      "document_number": "書類番号",
+      "school_phone": "学校登録電話番号",
+      "cltel": "CLTEL原値",
+      "recovery_email": "学校の復旧用メール",
+      "organization_info": "組織情報",
+      "college_code": "学部コード",
+      "college_name": "学部",
+      "major_code": "専攻コード",
+      "major_name": "専攻",
+      "class_code": "クラスコード",
+      "class_name": "クラス",
+      "grade_code": "学年コード",
+      "grade_name": "学年",
+      "training_plan_code": "履修計画コード",
+      "training_plan_name": "履修計画",
+      "study_type_code": "履修区分コード",
+      "study_type_name": "履修区分",
+      "zsyqxf": "ZSYQXF原値",
+      "ywcxf": "YWCXF原値",
+      "zsyqxfxsz": "ZSYQXFXSZ原値",
+      "study_plan_status": "XSFAZT原値",
+      "undergraduate_status": "BKSZT原値",
+      "person_status": "RYZT原値",
+      "person_subtype": "RYXFLX原値",
+      "identity_valid_until": "学校身分の有効期限"
+    },
+    "profileSources": {
+      "school_account": "学校アカウント",
+      "sso_profile": "学校SSO情報",
+      "sso_document": "学校の書類照会",
+      "academic_profile": "学校の教務情報",
+      "manual_review": "手動審査",
+      "mailbox_verification": "メール所有確認",
+      "self_reported": "ユーザー入力",
+      "legacy_credential": "過去の認証情報",
+      "synthetic": "合成テスト情報"
+    },
+    "schoolErrors": {
+      "credentials_rejected": "学校のアカウントまたはパスワードが拒否されました。",
+      "captcha_required": "追加の対話認証が必要です。利用可能な別の方法を選んでください。",
+      "sms_rejected": "SMSコードが誤っているか期限切れです。やり直してください。",
+      "identity_mismatch": "学校の情報源間で本人情報が一致しないため認証できません。",
+      "identity_missing": "必要な本人の学生情報が提供されませんでした。",
+      "login_rejected": "学校でログインが拒否されました。やり直してください。",
+      "protocol_error": "学校の応答形式が変わりました。後でもう一度お試しください。",
+      "unavailable": "学校のサービスを一時的に利用できません。",
+      "expired": "学校のセッションが切れました。やり直してください。"
+    }
   }
 }

@@ -129,12 +129,14 @@
       "bachelor": "البكالوريوس",
       "master": "الماجستير",
       "doctor": "الدكتوراه",
-      "other": "مرحلة أخرى"
+      "other": "مرحلة أخرى",
+      "unknown": "غير مقدم"
     },
     "kinds": {
       "student": "طالب حالي",
       "alumni": "خريج",
-      "newcomer": "طالب جديد بصفة مؤقتة"
+      "newcomer": "طالب جديد بصفة مؤقتة",
+      "unknown": "غير مقدم"
     },
     "states": {
       "in_progress": "قيد الإعداد",
@@ -210,6 +212,95 @@
     "eventJob": "إشعار تغيير الأهلية",
     "loadMore": "تحميل المزيد",
     "legacyMaterial": "عرض المستند التاريخي",
-    "newcomerReminder": "تحقق من موعد انتهاء صفة الطالب الجديد وأكمل التحقق العادي في الوقت المناسب."
+    "newcomerReminder": "تحقق من موعد انتهاء صفة الطالب الجديد وأكمل التحقق العادي في الوقت المناسب.",
+    "schoolFacts": "تُسجّل المرحلة الدراسية وحالة القيد وفق أدلة المؤسسة. تظل المعلومات غير المقدمة مجهولة ولا تُستنتج من رقم الطالب.",
+    "bitPrivacy": "يقرأ تسجيل الدخول إلى معهد بكين للتكنولوجيا الاسم ورقم الطالب والكلية والتخصص والفصل والدفعة ووثيقة الهوية وبيانات الاتصال والخطط الدراسية المقدمة من المؤسسة ويطابقها. تُحفظ البيانات الشخصية مشفرة حسب المؤسسة. لا تُحفظ كلمات المرور أو رموز الرسائل أو جلسات تسجيل الدخول.",
+    "schoolProgress": "تقدم تحقق المؤسسة",
+    "schoolSMS": "رمز رسالة المؤسسة",
+    "schoolSMSHelp": "أدخل الرمز الذي أرسلته المؤسسة إلى {phone}. يُسمح بإرسال الرمز مرة واحدة في كل جلسة؛ أعد البدء إذا كان خاطئًا أو منتهي الصلاحية.",
+    "cancelSchool": "إلغاء تحقق المؤسسة",
+    "viewProfile": "عرض بيانات المؤسسة",
+    "profileTitle": "البيانات الشخصية بالمؤسسة",
+    "collectedAt": "وقت جمع البيانات",
+    "notProvided": "غير مقدم",
+    "closeProfile": "إغلاق البيانات",
+    "fullProfile": "عرض حقول الهوية كاملة",
+    "documentProfile": "عرض حقول الوثيقة",
+    "rawProfile": "عرض بيانات المصدر",
+    "schoolStates": {
+      "processing": "التحقق جارٍ لدى المؤسسة",
+      "waiting_sms": "في انتظار رمز الرسالة",
+      "authenticated": "اكتمل تحقق المؤسسة",
+      "failed": "لم يكتمل التحقق؛ أعد البدء",
+      "cancelled": "أُلغي تحقق المؤسسة",
+      "expired": "انتهت صلاحية التحقق؛ أعد البدء"
+    },
+    "profileStatus": {
+      "complete": "جُمعت البيانات التي تدعمها المؤسسة",
+      "partial": "البيانات جزئية ولا تُخمن الحقول الناقصة",
+      "reference_only": "البيانات في مصدر أكاديمي مستورد بشكل مستقل؛ يُحفظ الربط فقط هنا",
+      "unavailable": "لا توجد بيانات متاحة حاليًا"
+    },
+    "profileFields": {
+      "student_id": "رقم الطالب",
+      "name": "الاسم",
+      "department": "القسم",
+      "contact_email": "بريد الاتصال",
+      "authentication_stage": "مرحلة التحقق",
+      "gender_code": "رمز النوع",
+      "gender_name": "النوع",
+      "birth_date": "تاريخ الميلاد الأصلي",
+      "country_region": "الدولة أو المنطقة",
+      "student_category_code": "رمز فئة الهوية",
+      "student_category_name": "فئة الهوية",
+      "document_type_code": "رمز نوع الوثيقة",
+      "document_number": "رقم الوثيقة",
+      "school_phone": "الهاتف المسجل بالمؤسسة",
+      "cltel": "قيمة CLTEL الأصلية",
+      "recovery_email": "بريد الاسترداد بالمؤسسة",
+      "organization_info": "بيانات المؤسسة التنظيمية",
+      "college_code": "رمز الكلية",
+      "college_name": "الكلية",
+      "major_code": "رمز التخصص",
+      "major_name": "التخصص",
+      "class_code": "رمز الفصل",
+      "class_name": "الفصل",
+      "grade_code": "رمز الدفعة",
+      "grade_name": "الدفعة",
+      "training_plan_code": "رمز الخطة الدراسية",
+      "training_plan_name": "الخطة الدراسية",
+      "study_type_code": "رمز نوع الدراسة",
+      "study_type_name": "نوع الدراسة",
+      "zsyqxf": "قيمة ZSYQXF الأصلية",
+      "ywcxf": "قيمة YWCXF الأصلية",
+      "zsyqxfxsz": "قيمة ZSYQXFXSZ الأصلية",
+      "study_plan_status": "قيمة XSFAZT الأصلية",
+      "undergraduate_status": "قيمة BKSZT الأصلية",
+      "person_status": "قيمة RYZT الأصلية",
+      "person_subtype": "قيمة RYXFLX الأصلية",
+      "identity_valid_until": "صلاحية هوية المؤسسة"
+    },
+    "profileSources": {
+      "school_account": "حساب المؤسسة",
+      "sso_profile": "بيانات الدخول الموحد",
+      "sso_document": "استعلام وثيقة المؤسسة",
+      "academic_profile": "البيانات الأكاديمية",
+      "manual_review": "مراجعة يدوية",
+      "mailbox_verification": "ملكية البريد",
+      "self_reported": "إدخال المستخدم",
+      "legacy_credential": "بيانات تحقق سابقة",
+      "synthetic": "بيانات اختبار اصطناعية"
+    },
+    "schoolErrors": {
+      "credentials_rejected": "رفضت المؤسسة الحساب أو كلمة المرور.",
+      "captcha_required": "تطلب المؤسسة تحققًا تفاعليًا إضافيًا؛ استخدم طريقة أخرى متاحة.",
+      "sms_rejected": "رمز الرسالة خاطئ أو منتهي الصلاحية؛ أعد البدء.",
+      "identity_mismatch": "بيانات الهوية غير متطابقة بين المصادر؛ لم يكتمل التحقق.",
+      "identity_missing": "لم تقدم المؤسسة بيانات الطالب المطلوبة.",
+      "login_rejected": "رفضت المؤسسة تسجيل الدخول؛ أعد البدء.",
+      "protocol_error": "تغير تنسيق رد المؤسسة؛ حاول لاحقًا.",
+      "unavailable": "خدمة المؤسسة غير متاحة مؤقتًا.",
+      "expired": "انتهت جلسة المؤسسة؛ أعد البدء."
+    }
   }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import '../verification.css'
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import CameraCapture from '../components/CameraCapture.vue'
 import { verification, VerificationError, kinds, stages, type Schemas } from '../api/verification'
@@ -10,6 +10,11 @@ const controller = new AbortController()
 const loading = ref(false), busy = ref(false), error = ref(''), notice = ref('')
 const schools = ref<Schemas['School'][]>([]), applications = ref<Schemas['Application'][]>([]), credentials = ref<Schemas['Credential'][]>([]), requests = ref<Schemas['RemovalRequest'][]>([])
 const summary = ref<Schemas['Summary']>()
+const profile = ref<Schemas['StudentProfile']>()
+const smsCode = ref('')
+let schoolTimer: ReturnType<typeof setTimeout> | undefined
+let schoolPollCount = 0
+let schoolPollId = ''
 const hasMore = reactive({ schools: false, applications: false, credentials: false, requests: false })
 const mode = ref<'student' | 'identity'>('student')
 const selectedSchool = ref(''), selectedMethod = ref<Schemas['Method']>('manual_material_review')
@@ -22,10 +27,12 @@ const school = computed(() => schools.value.find(s => s.id === selectedSchool.va
 const availableMethods = computed(() => school.value?.methods ?? [])
 const manual = computed(() => selectedMethod.value === 'manual_material_review')
 const emailMethod = computed(() => selectedMethod.value === 'student_email_outbound_otp' || selectedMethod.value === 'student_email_inbound_challenge')
-const writable = computed(() => active.value && ['in_progress', 'supplement_required'].includes(active.value.state))
+const schoolPending = computed(() => !!active.value?.school_challenge && ['processing', 'waiting_sms'].includes(active.value.school_challenge.state))
+const chooseStudy = computed(() => manual.value || school.value?.profile_schema === 'buaa.imported.v1' || !school.value?.profile_schema)
+const writable = computed(() => active.value && ['in_progress', 'supplement_required'].includes(active.value.state) && !schoolPending.value)
 function failure(e: unknown) { error.value = e instanceof VerificationError ? e.code : 'network' }
 async function reload() {
-  loading.value = true; error.value = ''
+  loading.value = true; error.value = ''; profile.value = undefined
   try {
     const [s, a, c, r, state] = await Promise.all([
       verification.list('School', '/api/v1/verification/schools?limit=100', controller.signal),
@@ -39,7 +46,7 @@ async function reload() {
     if (!selectedSchool.value && s[0]) { selectedSchool.value = s[0].id; selectSchool() }
   } catch (e) { if (!controller.signal.aborted) failure(e) } finally { loading.value = false }
 }
-function reset() { active.value = undefined; email.value = undefined; materials.value = []; form.password = ''; form.document_number = ''; consent.value = false; notice.value = '' }
+function reset() { stopSchoolPolling(); cancelDetachedSchoolFlow(active.value); smsCode.value = ''; active.value = undefined; email.value = undefined; materials.value = []; form.password = ''; form.document_number = ''; consent.value = false; notice.value = '' }
 function selectSchool() { reset(); selectedMethod.value = availableMethods.value[0] ?? 'manual_material_review'; form.material_type = school.value?.material_types[0] ?? ''; kind.value = 'student' }
 function selectMethod() { reset(); if (!manual.value) kind.value = 'student' }
 async function action(fn: () => Promise<void>) {
@@ -50,7 +57,7 @@ async function action(fn: () => Promise<void>) {
 async function start() {
   await action(async () => {
     if (!school.value || !consent.value) throw new VerificationError('invalid_input')
-    active.value = await verification.write('Application', '/api/v1/verification/applications', { school_id: school.value.id, method: selectedMethod.value, stage: stage.value, kind: kind.value, consent: consent.value, notice_version: school.value.notice_version } satisfies Schemas['CreateApplication'])
+    active.value = await verification.write('Application', '/api/v1/verification/applications', { school_id: school.value.id, method: selectedMethod.value, stage: chooseStudy.value ? stage.value : 'unknown', kind: chooseStudy.value ? kind.value : 'unknown', consent: consent.value, notice_version: school.value.notice_version } satisfies Schemas['CreateApplication'])
     await reload()
   })
 }
@@ -82,7 +89,7 @@ async function submit() {
       email.value = await verification.write('EmailChallenge', `${path}/email`, { student_id: form.student_id, name: form.name } satisfies Schemas['EmailInput'])
     } else {
       active.value = await verification.write('Application', `${path}/verify`, { student_id: form.student_id, name: selectedMethod.value === 'school_sso' ? '' : form.name, document_number: form.document_number, password: form.password } satisfies Schemas['VerifyInput'])
-      form.document_number = ''; notice.value = 'verified'
+      form.document_number = ''; notice.value = active.value.state === 'approved' ? 'verified' : 'schoolProgress'
     }
     await reload()
   })
@@ -97,7 +104,7 @@ async function confirmEmail() {
 async function refreshApplication() {
   await action(async () => {
     if (!active.value) return
-    active.value = await verification.get('Application', `/api/v1/verification/applications/${active.value.id}`)
+    active.value = active.value.school_challenge ? await schoolOperation(active.value, 'poll') : await verification.get('Application', `/api/v1/verification/applications/${active.value.id}`)
     materials.value = await verification.list('Material', `/api/v1/verification/applications/${active.value.id}/materials`)
     if (email.value) email.value = await verification.get('EmailChallenge', `/api/v1/verification/applications/${active.value.id}/email`)
     await reload()
@@ -116,8 +123,47 @@ async function removeMaterial(id: string) { await action(async () => { await ver
 async function requestRemoval() { await action(async () => { await verification.write('RemovalRequest', `/api/v1/verification/credentials/${removal.id}/requests`, { kind: removal.kind, reason: removal.reason } satisfies Schemas['RemovalInput']); removal.id = ''; removal.reason = ''; notice.value = 'requested'; await reload() }) }
 async function suggest() { await action(async () => { await verification.write('Suggestion', '/api/v1/verification/suggestions', suggestion satisfies Schemas['SuggestionInput']); suggestion.name = ''; suggestion.website = ''; notice.value = 'suggested' }) }
 function name(id: string) { return schools.value.find(s => s.id === id)?.name ?? id }
+function stopSchoolPolling() { if (schoolTimer) clearTimeout(schoolTimer); schoolTimer = undefined }
+async function schoolOperation(application: Schemas['Application'], actionName: 'poll' | 'submit_sms' | 'cancel') {
+  const challenge = application.school_challenge
+  if (!challenge) throw new VerificationError('conflict')
+  return verification.write('Application', `/api/v1/verification/applications/${application.id}/school-challenge`, { action: actionName, challenge_id: challenge.id, revision: application.revision, code: actionName === 'submit_sms' ? smsCode.value : '' } satisfies Schemas['SchoolChallengeInput'], 'POST', controller.signal)
+}
+function cancelDetachedSchoolFlow(application?: Schemas['Application']) {
+  if (!application?.school_challenge || !['processing', 'waiting_sms'].includes(application.school_challenge.state)) return
+  const challenge = application.school_challenge
+  void verification.write('Application', `/api/v1/verification/applications/${application.id}/school-challenge`, { action: 'cancel', challenge_id: challenge.id, revision: application.revision, code: '' } satisfies Schemas['SchoolChallengeInput']).catch(() => {
+    // Navigation may interrupt cleanup; the bounded server session expires on its own.
+    if (!controller.signal.aborted) error.value = 'network'
+    else console.warn('School login cancellation unconfirmed; the short-lived session will expire.')
+  })
+}
+async function continueSchool(actionName: 'submit_sms' | 'cancel') {
+  await action(async () => {
+    if (!active.value) return
+    active.value = await schoolOperation(active.value, actionName); smsCode.value = ''
+    if (active.value.state === 'approved') { notice.value = 'verified'; await reload() }
+  })
+}
+async function pollSchool() {
+  schoolTimer = undefined
+  if (!active.value || !schoolPending.value || controller.signal.aborted || schoolPollCount >= 100) return
+  if (busy.value) { scheduleSchoolPoll(); return }
+  const current = active.value; schoolPollCount++
+  try {
+    const updated = await schoolOperation(current, 'poll')
+    if (active.value?.id !== current.id || active.value?.school_challenge?.id !== current.school_challenge?.id) return
+    active.value = updated
+    if (updated.state === 'approved') { notice.value = 'verified'; await reload() }
+    else scheduleSchoolPoll()
+  } catch (e) { if (!controller.signal.aborted) failure(e) }
+}
+function scheduleSchoolPoll() { stopSchoolPolling(); if (schoolPending.value && schoolPollCount < 100) schoolTimer = setTimeout(() => { void pollSchool() }, 3000) }
+watch(() => active.value?.school_challenge, challenge => { if (challenge?.id !== schoolPollId) { schoolPollId = challenge?.id ?? ''; schoolPollCount = 0 }; scheduleSchoolPoll() })
+async function showProfile(id: string) { await action(async () => { profile.value = await verification.get('StudentProfile', `/api/v1/verification/credentials/${id}/profile`, controller.signal) }) }
+function profileValue(value: unknown) { return value === null ? t('verification.notProvided') : typeof value === 'string' ? value : JSON.stringify(value) }
 onMounted(reload)
-onBeforeUnmount(() => controller.abort())
+onBeforeUnmount(() => { stopSchoolPolling(); cancelDetachedSchoolFlow(active.value); controller.abort() })
 </script>
 
 <template>
@@ -225,7 +271,7 @@ onBeforeUnmount(() => controller.abort())
             :key="m"
             :value="m"
           >{{ t(`verification.methods.${m}`) }}</option></select></label>
-          <label>{{ t('verification.stage') }}<select
+          <label v-if="chooseStudy">{{ t('verification.stage') }}<select
             v-model="stage"
             :aria-label="t('verification.stage')"
             :disabled="!!active || busy"
@@ -234,7 +280,7 @@ onBeforeUnmount(() => controller.abort())
             :key="s"
             :value="s"
           >{{ t(`verification.stages.${s}`) }}</option></select></label>
-          <label>{{ t('verification.kind') }}<select
+          <label v-if="chooseStudy">{{ t('verification.kind') }}<select
             v-model="kind"
             :aria-label="t('verification.kind')"
             :disabled="!!active || busy"
@@ -249,6 +295,18 @@ onBeforeUnmount(() => controller.abort())
           class="full-width"
         >
           {{ t('verification.errors.method_unavailable') }}
+        </p>
+        <p
+          v-if="!chooseStudy && mode === 'student'"
+          class="full-width"
+        >
+          {{ t('verification.schoolFacts') }}
+        </p>
+        <p
+          v-if="school?.profile_schema === 'bit.v1' && selectedMethod === 'school_sso'"
+          class="full-width privacy-note"
+        >
+          {{ t('verification.bitPrivacy') }}
         </p>
         <p class="full-width privacy-note">
           {{ t('verification.privacy') }}
@@ -356,6 +414,45 @@ onBeforeUnmount(() => controller.abort())
           </button>
         </div>
       </form>
+      <section
+        v-if="active?.school_challenge"
+        class="email-challenge"
+        aria-live="polite"
+      >
+        <h3>{{ t('verification.schoolProgress') }}</h3>
+        <p>{{ t(`verification.schoolStates.${active.school_challenge.state}`) }}</p>
+        <p v-if="active.school_challenge.code">
+          {{ t(`verification.schoolErrors.${active.school_challenge.code}`) }}
+        </p>
+        <p>{{ t('verification.expires') }} {{ d(new Date(active.school_challenge.expires_at), 'dateTime') }}</p>
+        <form
+          v-if="active.school_challenge.state === 'waiting_sms'"
+          class="verification-actions"
+          @submit.prevent="continueSchool('submit_sms')"
+        >
+          <p>{{ t('verification.schoolSMSHelp', { phone: active.school_challenge.masked_phone }) }}</p>
+          <label>{{ t('verification.schoolSMS') }}<input
+            v-model="smsCode"
+            inputmode="numeric"
+            autocomplete="one-time-code"
+            pattern="[0-9]{4,8}"
+            maxlength="8"
+            required
+            :disabled="busy"
+          ></label>
+          <button :disabled="busy">
+            {{ t('verification.confirm') }}
+          </button>
+        </form>
+        <button
+          v-if="schoolPending"
+          type="button"
+          :disabled="busy"
+          @click="continueSchool('cancel')"
+        >
+          {{ t('verification.cancelSchool') }}
+        </button>
+      </section>
       <div
         v-if="active"
         class="application-status"
@@ -409,6 +506,12 @@ onBeforeUnmount(() => controller.abort())
             class="verification-actions"
           >
             <button
+              :disabled="busy"
+              @click="showProfile(c.id)"
+            >
+              {{ t('verification.viewProfile') }}
+            </button>
+            <button
               v-if="c.state === 'active'"
               @click="removal.id = c.id; removal.kind = 'revoke'"
             >
@@ -448,6 +551,27 @@ onBeforeUnmount(() => controller.abort())
           </button>
         </div>
       </form>
+    </section>
+    <section
+      v-if="profile"
+      class="verification-card student-profile"
+    >
+      <h2>{{ t('verification.profileTitle') }}</h2>
+      <p>{{ t(`verification.profileStatus.${profile.data_status}`) }}</p>
+      <p v-if="profile.collected_at">
+        {{ t('verification.collectedAt') }} {{ d(new Date(profile.collected_at), 'dateTime') }}
+      </p>
+      <dl>
+        <template
+          v-for="(value, field) in profile.fields"
+          :key="field"
+        >
+          <dt>{{ t(`verification.profileFields.${field}`) }}<small v-if="profile.field_sources[field]"> {{ t(`verification.profileSources.${profile.field_sources[field]}`) }}</small></dt><dd>{{ profileValue(value) }}</dd>
+        </template>
+      </dl>
+      <button @click="profile = undefined">
+        {{ t('verification.closeProfile') }}
+      </button>
     </section>
     <section class="verification-card">
       <h2>{{ t('verification.applications') }}</h2><p v-if="!applications.length">

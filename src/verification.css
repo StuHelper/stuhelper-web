@@ -29,3 +29,8 @@
 .verification-list li { display: flex; gap: 1rem; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-block: 1rem; }
 .verification-list p { margin: .35rem 0 0; overflow-wrap: anywhere; }
 @media(max-width: 600px) { .verification-form { grid-template-columns: 1fr; } .verification-heading { flex-direction: column; } .verification-list li { align-items: start; flex-wrap: wrap; } }
+
+.student-profile dl { display: grid; grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr); gap: .65rem; }
+.student-profile dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.student-profile small { display: block; color: #64748b; }
+@media(max-width:600px) { .student-profile dl { grid-template-columns: 1fr; } }

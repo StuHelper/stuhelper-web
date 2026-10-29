@@ -4,6 +4,63 @@
  */
 
 export interface paths {
+    "/api/v1/verification/applications/{id}/school-challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Poll the current bound school session, submit its SMS code once, or cancel it. Poll finalization is idempotent by application and never resends an SMS. */
+        post: operations["continueSchoolChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/credentials/{id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description Read the caller's current school profile; sensitive reads are audited. Imported academic data is resolved through its source provider, never copied into credentials. */
+        get: operations["getOwnStudentProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verification/credentials/{id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description School-scoped profile access. Complete identity fields, document fields and raw business data each require their own authorization. Audit must commit before returning fields. */
+        get: operations["getStudentProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/verification/schools": {
         parameters: {
             query?: never;
@@ -583,10 +640,12 @@ export interface components {
         /** @enum {string} */
         Method: "real_name_identity_check" | "school_sso" | "student_email_outbound_otp" | "student_email_inbound_challenge" | "manual_material_review";
         /** @enum {string} */
-        Stage: "bachelor" | "master" | "doctor" | "other";
+        Stage: "bachelor" | "master" | "doctor" | "other" | "unknown";
         /** @enum {string} */
-        Kind: "student" | "alumni" | "newcomer";
+        Kind: "student" | "alumni" | "newcomer" | "unknown";
         School: {
+            /** @description Data schema advertised by the school adapter; independent from the selected authentication method. */
+            readonly profile_schema?: string;
             id: string;
             name: string;
             enabled: boolean;
@@ -629,6 +688,7 @@ export interface components {
             credential_id: string;
             result_code: string;
             review_note?: string;
+            school_challenge?: components["schemas"]["SchoolChallenge"];
             /** Format: date-time */
             qualification_expires_at?: string | null;
         };
@@ -797,6 +857,44 @@ export interface components {
             code: string;
             operation_id?: string;
         };
+        SchoolChallenge: {
+            id: string;
+            /** @enum {string} */
+            state: "processing" | "waiting_sms" | "authenticated" | "failed" | "cancelled" | "expired";
+            code: string;
+            masked_phone: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        SchoolChallengeInput: {
+            /** @enum {string} */
+            action: "poll" | "submit_sms" | "cancel";
+            challenge_id: string;
+            /** Format: int64 */
+            revision: number;
+            /** @description School SMS code; used once and never persisted. */
+            code?: string;
+        };
+        StudentProfile: {
+            school_id: string;
+            /** @enum {string} */
+            data_status: "complete" | "partial" | "reference_only" | "unavailable";
+            schema: string;
+            /** Format: int64 */
+            revision: number;
+            /** Format: date-time */
+            collected_at: string | null;
+            source_revision: string;
+            /** @description School-specific business fields; absent and explicit null remain distinct. Sensitive fields are masked or omitted according to current authorization. */
+            fields: {
+                [key: string]: unknown;
+            };
+            field_sources: {
+                [key: string]: string;
+            };
+            /** @description Classified business JSON only; omitted without explicit raw-data authorization. */
+            raw_data?: string;
+        };
     };
     responses: {
         /** @description Application state. */
@@ -840,6 +938,78 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    continueSchoolChallenge: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolChallengeInput"];
+            };
+        };
+        responses: {
+            200: components["responses"]["Application"];
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    getOwnStudentProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current data with its actual completeness and provenance. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentProfile"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getStudentProfile: {
+        parameters: {
+            query?: {
+                full?: boolean;
+                document?: boolean;
+                raw?: boolean;
+            };
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Authorized current fields with provenance. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentProfile"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     listSchools: {
         parameters: {
             query?: {

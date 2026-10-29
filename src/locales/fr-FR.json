@@ -129,12 +129,14 @@
       "bachelor": "Licence",
       "master": "Master universitaire",
       "doctor": "Doctorat",
-      "other": "Autre niveau d’études"
+      "other": "Autre niveau d’études",
+      "unknown": "Non fourni"
     },
     "kinds": {
       "student": "Étudiant inscrit",
       "alumni": "Ancien étudiant",
-      "newcomer": "Nouvel étudiant temporaire"
+      "newcomer": "Nouvel étudiant temporaire",
+      "unknown": "Non fourni"
     },
     "states": {
       "in_progress": "En cours",
@@ -210,6 +212,95 @@
     "eventJob": "Événement de changement de statut",
     "loadMore": "Afficher la suite",
     "legacyMaterial": "Consulter la pièce historique",
-    "newcomerReminder": "Vérifiez la date d’expiration du nouveau statut et terminez la vérification ordinaire à temps."
+    "newcomerReminder": "Vérifiez la date d’expiration du nouveau statut et terminez la vérification ordinaire à temps.",
+    "schoolFacts": "Le niveau d’études et le statut proviennent des preuves de l’établissement. Les informations absentes restent inconnues et ne sont pas déduites du numéro étudiant.",
+    "bitPrivacy": "La connexion à BIT consulte et vérifie le nom, le numéro étudiant, la faculté, la spécialité, la classe, la promotion, les pièces d’identité, les coordonnées enregistrées et les programmes d’études fournis par l’établissement. Les données personnelles sont chiffrées par établissement. Les mots de passe, codes SMS et sessions ne sont pas conservés.",
+    "schoolProgress": "Progression de la vérification",
+    "schoolSMS": "Code SMS de l’établissement",
+    "schoolSMSHelp": "Saisissez le code envoyé par l’établissement au {phone}. Une seule saisie est acceptée par session ; recommencez si le code est incorrect ou expiré.",
+    "cancelSchool": "Annuler la vérification",
+    "viewProfile": "Voir les données scolaires",
+    "profileTitle": "Données personnelles scolaires",
+    "collectedAt": "Date de collecte",
+    "notProvided": "Non fourni",
+    "closeProfile": "Fermer les données",
+    "fullProfile": "Voir les champs d’identité complets",
+    "documentProfile": "Voir les champs du document",
+    "rawProfile": "Voir les données source",
+    "schoolStates": {
+      "processing": "Vérification en cours",
+      "waiting_sms": "En attente du code SMS",
+      "authenticated": "Vérification terminée",
+      "failed": "Échec de la vérification ; recommencez",
+      "cancelled": "Vérification annulée",
+      "expired": "Vérification expirée ; recommencez"
+    },
+    "profileStatus": {
+      "complete": "Données prises en charge recueillies",
+      "partial": "Données partielles ; les champs absents ne sont pas déduits",
+      "reference_only": "Les données proviennent d’une source académique importée séparément ; seul le lien est conservé ici",
+      "unavailable": "Aucune donnée disponible actuellement"
+    },
+    "profileFields": {
+      "student_id": "Numéro étudiant",
+      "name": "Nom",
+      "department": "Département",
+      "contact_email": "Courriel de contact",
+      "authentication_stage": "Étape de vérification",
+      "gender_code": "Code de genre",
+      "gender_name": "Genre",
+      "birth_date": "Date de naissance originale",
+      "country_region": "Pays ou région",
+      "student_category_code": "Code de catégorie d’identité",
+      "student_category_name": "Catégorie d’identité",
+      "document_type_code": "Code du type de document",
+      "document_number": "Numéro du document",
+      "school_phone": "Téléphone enregistré",
+      "cltel": "CLTEL original",
+      "recovery_email": "Courriel de récupération",
+      "organization_info": "Informations d’organisation",
+      "college_code": "Code de faculté",
+      "college_name": "Faculté",
+      "major_code": "Code de spécialité",
+      "major_name": "Spécialité",
+      "class_code": "Code de classe",
+      "class_name": "Classe",
+      "grade_code": "Code de promotion",
+      "grade_name": "Promotion",
+      "training_plan_code": "Code du programme",
+      "training_plan_name": "Programme d’études",
+      "study_type_code": "Code du type d’études",
+      "study_type_name": "Type d’études",
+      "zsyqxf": "ZSYQXF original",
+      "ywcxf": "YWCXF original",
+      "zsyqxfxsz": "ZSYQXFXSZ original",
+      "study_plan_status": "XSFAZT original",
+      "undergraduate_status": "BKSZT original",
+      "person_status": "RYZT original",
+      "person_subtype": "RYXFLX original",
+      "identity_valid_until": "Validité de l’identité scolaire"
+    },
+    "profileSources": {
+      "school_account": "Compte scolaire",
+      "sso_profile": "Profil SSO scolaire",
+      "sso_document": "Document de l’établissement",
+      "academic_profile": "Données académiques",
+      "manual_review": "Examen manuel",
+      "mailbox_verification": "Propriété du courriel",
+      "self_reported": "Saisi par l’utilisateur",
+      "legacy_credential": "Vérification historique",
+      "synthetic": "Données de test synthétiques"
+    },
+    "schoolErrors": {
+      "credentials_rejected": "Compte ou mot de passe refusé.",
+      "captcha_required": "Une vérification interactive supplémentaire est nécessaire ; utilisez une autre méthode disponible.",
+      "sms_rejected": "Code SMS incorrect ou expiré ; recommencez.",
+      "identity_mismatch": "Les sources d’identité divergent ; la vérification n’est pas terminée.",
+      "identity_missing": "Les données étudiantes nécessaires sont absentes.",
+      "login_rejected": "Connexion refusée ; recommencez.",
+      "protocol_error": "Le format de réponse a changé ; réessayez plus tard.",
+      "unavailable": "Service scolaire temporairement indisponible.",
+      "expired": "Session expirée ; recommencez."
+    }
   }
 }

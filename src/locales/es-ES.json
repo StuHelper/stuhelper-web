@@ -129,12 +129,14 @@
       "bachelor": "Grado universitario",
       "master": "Máster",
       "doctor": "Doctorado",
-      "other": "Otro nivel"
+      "other": "Otro nivel",
+      "unknown": "No proporcionado"
     },
     "kinds": {
       "student": "Estudiante actual",
       "alumni": "Graduado",
-      "newcomer": "Nuevo estudiante temporal"
+      "newcomer": "Nuevo estudiante temporal",
+      "unknown": "No proporcionado"
     },
     "states": {
       "in_progress": "En curso",
@@ -210,6 +212,95 @@
     "eventJob": "Evento de cambio de elegibilidad",
     "loadMore": "Cargar más",
     "legacyMaterial": "Ver documento histórico",
-    "newcomerReminder": "Consulta la caducidad del nuevo estudiante y completa la verificación ordinaria a tiempo."
+    "newcomerReminder": "Consulta la caducidad del nuevo estudiante y completa la verificación ordinaria a tiempo.",
+    "schoolFacts": "El nivel de estudios y el estado de matrícula se registran según las pruebas de la institución. La información ausente queda como desconocida y no se deduce del número de estudiante.",
+    "bitPrivacy": "El acceso a BIT consulta y contrasta el nombre, número de estudiante, facultad, especialidad, clase, promoción, documento de identidad, contactos registrados y planes de estudio. Los datos personales se guardan cifrados por institución. No se guardan contraseñas, códigos SMS ni sesiones de acceso.",
+    "schoolProgress": "Progreso de la verificación",
+    "schoolSMS": "Código SMS de la institución",
+    "schoolSMSHelp": "Introduce el código enviado por la institución a {phone}. Cada sesión permite un solo envío; reinicia si el código es incorrecto o ha caducado.",
+    "cancelSchool": "Cancelar la verificación",
+    "viewProfile": "Ver datos de la institución",
+    "profileTitle": "Datos personales académicos",
+    "collectedAt": "Fecha de recopilación",
+    "notProvided": "No proporcionado",
+    "closeProfile": "Cerrar datos",
+    "fullProfile": "Ver identidad completa",
+    "documentProfile": "Ver campos del documento",
+    "rawProfile": "Ver datos de origen",
+    "schoolStates": {
+      "processing": "Verificación en curso",
+      "waiting_sms": "Esperando el código SMS",
+      "authenticated": "Verificación completada",
+      "failed": "La verificación ha fallado; reinicia",
+      "cancelled": "Verificación cancelada",
+      "expired": "La verificación ha caducado; reinicia"
+    },
+    "profileStatus": {
+      "complete": "Se han recopilado los datos disponibles",
+      "partial": "Datos parciales; no se deducen los campos ausentes",
+      "reference_only": "Los datos pertenecen a una fuente académica importada por separado; aquí solo se guarda el vínculo",
+      "unavailable": "No hay datos disponibles actualmente"
+    },
+    "profileFields": {
+      "student_id": "Número de estudiante",
+      "name": "Nombre",
+      "department": "Departamento",
+      "contact_email": "Correo de contacto",
+      "authentication_stage": "Etapa de verificación",
+      "gender_code": "Código de género",
+      "gender_name": "Género",
+      "birth_date": "Fecha de nacimiento original",
+      "country_region": "País o región",
+      "student_category_code": "Código de categoría de identidad",
+      "student_category_name": "Categoría de identidad",
+      "document_type_code": "Código del tipo de documento",
+      "document_number": "Número de documento",
+      "school_phone": "Teléfono registrado",
+      "cltel": "CLTEL original",
+      "recovery_email": "Correo de recuperación",
+      "organization_info": "Información de organización",
+      "college_code": "Código de facultad",
+      "college_name": "Facultad",
+      "major_code": "Código de especialidad",
+      "major_name": "Especialidad",
+      "class_code": "Código de clase",
+      "class_name": "Clase",
+      "grade_code": "Código de promoción",
+      "grade_name": "Promoción",
+      "training_plan_code": "Código del plan",
+      "training_plan_name": "Plan de estudios",
+      "study_type_code": "Código del tipo de estudios",
+      "study_type_name": "Tipo de estudios",
+      "zsyqxf": "ZSYQXF original",
+      "ywcxf": "YWCXF original",
+      "zsyqxfxsz": "ZSYQXFXSZ original",
+      "study_plan_status": "XSFAZT original",
+      "undergraduate_status": "BKSZT original",
+      "person_status": "RYZT original",
+      "person_subtype": "RYXFLX original",
+      "identity_valid_until": "Validez de la identidad académica"
+    },
+    "profileSources": {
+      "school_account": "Cuenta académica",
+      "sso_profile": "Perfil SSO académico",
+      "sso_document": "Documento de la institución",
+      "academic_profile": "Datos académicos",
+      "manual_review": "Revisión manual",
+      "mailbox_verification": "Titularidad del correo",
+      "self_reported": "Aportado por el usuario",
+      "legacy_credential": "Verificación histórica",
+      "synthetic": "Datos de prueba sintéticos"
+    },
+    "schoolErrors": {
+      "credentials_rejected": "La institución rechazó la cuenta o contraseña.",
+      "captcha_required": "Se requiere otra verificación interactiva; usa otro método disponible.",
+      "sms_rejected": "El código SMS es incorrecto o ha caducado; reinicia.",
+      "identity_mismatch": "Las fuentes de identidad no coinciden; no se completó la verificación.",
+      "identity_missing": "Faltan los datos del estudiante necesarios.",
+      "login_rejected": "La institución rechazó el acceso; reinicia.",
+      "protocol_error": "El formato de respuesta ha cambiado; inténtalo más tarde.",
+      "unavailable": "El servicio de la institución no está disponible temporalmente.",
+      "expired": "La sesión ha caducado; reinicia."
+    }
   }
 }

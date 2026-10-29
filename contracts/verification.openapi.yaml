@@ -1,13 +1,66 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.1.0
+  version: 0.2.0
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
 security:
   - bearerAuth: []
 paths:
+  /api/v1/verification/applications/{id}/school-challenge:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: continueSchoolChallenge
+      description: Poll the current bound school session, submit its SMS code once, or cancel it. Poll finalization is idempotent by application and never resends an SMS.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchoolChallengeInput' }
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/credentials/{id}/profile:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getOwnStudentProfile
+      description: Read the caller's current school profile; sensitive reads are audited. Imported academic data is resolved through its source provider, never copied into credentials.
+      responses:
+        '200':
+          description: Current data with its actual completeness and provenance.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentProfile' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/credentials/{id}/profile:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: getStudentProfile
+      description: School-scoped profile access. Complete identity fields, document fields and raw business data each require their own authorization. Audit must commit before returning fields.
+      parameters:
+        - in: query
+          name: full
+          schema: { type: boolean, default: false }
+        - in: query
+          name: document
+          schema: { type: boolean, default: false }
+        - in: query
+          name: raw
+          schema: { type: boolean, default: false }
+      responses:
+        '200':
+          description: Authorized current fields with provenance.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudentProfile' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/schools:
     get:
       operationId: listSchools
@@ -634,15 +687,16 @@ components:
       enum: [real_name_identity_check, school_sso, student_email_outbound_otp, student_email_inbound_challenge, manual_material_review]
     Stage:
       type: string
-      enum: [bachelor, master, doctor, other]
+      enum: [bachelor, master, doctor, other, unknown]
     Kind:
       type: string
-      enum: [student, alumni, newcomer]
+      enum: [student, alumni, newcomer, unknown]
     School:
       type: object
       additionalProperties: false
       required: [id, name, enabled, methods, notice_version, opening_date, newcomer_days, email_domain, material_types, revision]
       properties:
+        profile_schema: { type: string, readOnly: true, description: Data schema advertised by the school adapter; independent from the selected authentication method. }
         id: { type: string, minLength: 1, maxLength: 64 }
         name: { type: string, minLength: 1, maxLength: 100 }
         enabled: { type: boolean }
@@ -690,6 +744,7 @@ components:
         credential_id: { type: string }
         result_code: { type: string }
         review_note: { type: string }
+        school_challenge: { $ref: '#/components/schemas/SchoolChallenge' }
         qualification_expires_at: { type: string, format: date-time, nullable: true }
     VerifyInput:
       type: object
@@ -862,3 +917,42 @@ components:
       properties:
         code: { type: string }
         operation_id: { type: string }
+    SchoolChallenge:
+      type: object
+      additionalProperties: false
+      required: [id, state, code, masked_phone, expires_at]
+      properties:
+        id: { type: string }
+        state: { type: string, enum: [processing, waiting_sms, authenticated, failed, cancelled, expired] }
+        code: { type: string }
+        masked_phone: { type: string }
+        expires_at: { type: string, format: date-time }
+    SchoolChallengeInput:
+      type: object
+      additionalProperties: false
+      required: [action, challenge_id, revision]
+      properties:
+        action: { type: string, enum: [poll, submit_sms, cancel] }
+        challenge_id: { type: string, minLength: 1, maxLength: 128 }
+        revision: { type: integer, format: int64, minimum: 1 }
+        code: { type: string, maxLength: 8, description: School SMS code; used once and never persisted. }
+    StudentProfile:
+      type: object
+      additionalProperties: false
+      required: [school_id, data_status, schema, revision, collected_at, fields, field_sources, source_revision]
+      properties:
+        school_id: { type: string }
+        data_status: { type: string, enum: [complete, partial, reference_only, unavailable] }
+        schema: { type: string }
+        revision: { type: integer, format: int64, minimum: 0 }
+        collected_at: { type: string, format: date-time, nullable: true }
+        source_revision: { type: string }
+        fields:
+          type: object
+          maxProperties: 64
+          additionalProperties: true
+          description: School-specific business fields; absent and explicit null remain distinct. Sensitive fields are masked or omitted according to current authorization.
+        field_sources:
+          type: object
+          additionalProperties: { type: string }
+        raw_data: { type: string, maxLength: 1048576, description: Classified business JSON only; omitted without explicit raw-data authorization. }

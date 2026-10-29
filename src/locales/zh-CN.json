@@ -129,12 +129,14 @@
       "bachelor": "本科",
       "master": "硕士",
       "doctor": "博士",
-      "other": "其他阶段"
+      "other": "其他阶段",
+      "unknown": "未提供"
     },
     "kinds": {
       "student": "在校学生",
       "alumni": "校友",
-      "newcomer": "临时新生"
+      "newcomer": "临时新生",
+      "unknown": "未提供"
     },
     "states": {
       "in_progress": "填写中",
@@ -210,6 +212,95 @@
     "eventJob": "资格变更通知",
     "loadMore": "加载更多",
     "legacyMaterial": "查看历史材料",
-    "newcomerReminder": "请留意新生资格到期日，并及时完成普通认证。"
+    "newcomerReminder": "请留意新生资格到期日，并及时完成普通认证。",
+    "schoolFacts": "学习阶段和学籍状态按学校证据记录。学校未提供的信息保持未知，不根据学号猜测。",
+    "bitPrivacy": "北理工账号认证将读取并核对学校提供的姓名、学号、学院专业、班级年级、证件信息、学校登记联系方式和培养方案。取得的个人资料按学校加密保存，密码、验证码和校方登录会话不保存。",
+    "schoolProgress": "学校验证进度",
+    "schoolSMS": "学校短信验证码",
+    "schoolSMSHelp": "请输入学校发往 {phone} 的验证码。本次会话只提交一次验证码；错误或过期后请重新开始。",
+    "cancelSchool": "取消学校验证",
+    "viewProfile": "查看学校资料",
+    "profileTitle": "学校个人资料",
+    "collectedAt": "资料采集时间",
+    "notProvided": "未提供",
+    "closeProfile": "关闭资料",
+    "fullProfile": "查看完整身份字段",
+    "documentProfile": "查看证件字段",
+    "rawProfile": "查看业务原文",
+    "schoolStates": {
+      "processing": "学校正在核验",
+      "waiting_sms": "等待学校短信验证码",
+      "authenticated": "学校核验已完成",
+      "failed": "学校核验未完成，请重新开始",
+      "cancelled": "学校验证已取消",
+      "expired": "学校验证已过期，请重新开始"
+    },
+    "profileStatus": {
+      "complete": "已取得该校支持的资料",
+      "partial": "仅有部分资料，缺失项未补造",
+      "reference_only": "资料由独立导入的教务来源提供，当前仅保存关联",
+      "unavailable": "当前没有可用资料"
+    },
+    "profileFields": {
+      "student_id": "学号",
+      "name": "姓名",
+      "department": "院系",
+      "contact_email": "联系邮箱",
+      "authentication_stage": "核验阶段",
+      "gender_code": "性别代码",
+      "gender_name": "性别",
+      "birth_date": "出生日期原值",
+      "country_region": "国家地区",
+      "student_category_code": "身份类别代码",
+      "student_category_name": "身份类别",
+      "document_type_code": "证件类型代码",
+      "document_number": "证件号码",
+      "school_phone": "学校登记手机号",
+      "cltel": "CLTEL 原值",
+      "recovery_email": "学校密保邮箱",
+      "organization_info": "组织信息",
+      "college_code": "学院代码",
+      "college_name": "学院",
+      "major_code": "专业代码",
+      "major_name": "专业",
+      "class_code": "班级代码",
+      "class_name": "班级",
+      "grade_code": "年级代码",
+      "grade_name": "年级",
+      "training_plan_code": "培养方案代码",
+      "training_plan_name": "培养方案",
+      "study_type_code": "修读类型代码",
+      "study_type_name": "修读类型",
+      "zsyqxf": "ZSYQXF 原值",
+      "ywcxf": "YWCXF 原值",
+      "zsyqxfxsz": "ZSYQXFXSZ 原值",
+      "study_plan_status": "XSFAZT 原值",
+      "undergraduate_status": "BKSZT 原值",
+      "person_status": "RYZT 原值",
+      "person_subtype": "RYXFLX 原值",
+      "identity_valid_until": "学校身份有效期"
+    },
+    "profileSources": {
+      "school_account": "学校账号",
+      "sso_profile": "学校统一认证资料",
+      "sso_document": "学校证件查询",
+      "academic_profile": "学校教务资料",
+      "manual_review": "人工审核",
+      "mailbox_verification": "邮箱归属验证",
+      "self_reported": "用户填写",
+      "legacy_credential": "历史认证资料",
+      "synthetic": "合成测试资料"
+    },
+    "schoolErrors": {
+      "credentials_rejected": "学校账号或密码未通过。",
+      "captcha_required": "学校要求额外交互验证，当前流程无法继续，请使用其他已开放方式。",
+      "sms_rejected": "学校短信验证码错误或已失效，请重新开始。",
+      "identity_mismatch": "学校各来源身份不一致，未完成认证。",
+      "identity_missing": "学校未提供必需的本人学生资料。",
+      "login_rejected": "学校未接受本次登录，请重新开始。",
+      "protocol_error": "学校返回格式发生变化，请稍后重试。",
+      "unavailable": "学校服务暂时不可用，请稍后重试。",
+      "expired": "学校会话已过期，请重新开始。"
+    }
   }
 }

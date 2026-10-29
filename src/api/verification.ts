@@ -1,7 +1,7 @@
 import type { components } from './verification.gen'
 
 type Schemas = components['schemas']
-type Entity = 'Application' | 'School' | 'Credential' | 'Summary' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'Job'
+type Entity = 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'Job'
 export type { Schemas }
 export class VerificationError extends Error {
   constructor(public readonly code: string, public readonly operationId?: string) { super(code) }
@@ -22,16 +22,20 @@ const expiry = (v: unknown): boolean => v === null || date(v)
 const one = (v: unknown, choices: readonly string[]): boolean => text(v) && choices.includes(v)
 const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(text)
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
-export const stages = ['bachelor', 'master', 'doctor', 'other'] as const
-export const kinds = ['student', 'alumni', 'newcomer'] as const
+export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
+export const kinds = ['student', 'alumni', 'newcomer', 'unknown'] as const
+
+const challenge = (v: unknown): boolean => object(v) && text(v.id) && one(v.state, ['processing', 'waiting_sms', 'authenticated', 'failed', 'cancelled', 'expired']) && text(v.code) && text(v.masked_phone) && date(v.expires_at)
+const fieldSources = (v: unknown): boolean => object(v) && Object.values(v).every(text)
 
 export function parseEntity<K extends Entity>(kind: K, value: unknown): Schemas[K] {
   if (!object(value)) throw new VerificationError('incompatible')
   const v = value
   let valid = false
   switch (kind) {
-    case 'School': valid = text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every(m => one(m, methods)) && text(v.notice_version) && text(v.opening_date) && number(v.newcomer_days) && text(v.email_domain) && strings(v.material_types) && number(v.revision); break
-    case 'Application': valid = text(v.id) && text(v.school_id) && one(v.method, methods) && one(v.stage, stages) && one(v.kind, kinds) && one(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'expired', 'deleted']) && number(v.revision) && date(v.created_at) && date(v.updated_at) && date(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || expiry(v.qualification_expires_at)); break
+    case 'StudentProfile': valid = text(v.school_id) && one(v.data_status, ['complete', 'partial', 'reference_only', 'unavailable']) && text(v.schema) && number(v.revision) && expiry(v.collected_at) && text(v.source_revision) && object(v.fields) && Object.keys(v.fields).length <= 64 && fieldSources(v.field_sources) && (v.raw_data === undefined || text(v.raw_data)); break
+    case 'School': valid = text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every(m => one(m, methods)) && text(v.notice_version) && text(v.opening_date) && number(v.newcomer_days) && text(v.email_domain) && strings(v.material_types) && number(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)); break
+    case 'Application': valid = text(v.id) && text(v.school_id) && one(v.method, methods) && one(v.stage, stages) && one(v.kind, kinds) && one(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'expired', 'deleted']) && number(v.revision) && date(v.created_at) && date(v.updated_at) && date(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || expiry(v.qualification_expires_at)) && (v.school_challenge === undefined || challenge(v.school_challenge)); break
     case 'Credential': valid = text(v.id) && text(v.school_id) && one(v.method, methods) && one(v.stage, stages) && one(v.kind, kinds) && one(v.state, ['active', 'revoked', 'expired', 'deleted']) && text(v.student_display) && number(v.revision) && date(v.verified_at) && expiry(v.expires_at); break
     case 'Summary': valid = typeof v.campus_eligibility === 'boolean' && typeof v.identity_verified === 'boolean' && date(v.evaluated_at) && number(v.revision) && expiry(v.next_evaluation_at); break
     case 'RemovalRequest': valid = text(v.id) && text(v.credential_id) && text(v.school_id) && one(v.kind, ['revoke', 'delete']) && one(v.state, ['pending', 'approved', 'rejected']) && text(v.reason) && text(v.note) && number(v.revision) && date(v.created_at); break
