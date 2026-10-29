@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 const temp=fs.mkdtempSync(path.join(os.tmpdir(),'stuhelper-web-academic-'));
 try{
-  for(const module of ['catalog','reviews','moderation']){
+  for(const module of ['catalog','reviews','moderation','resources','media']){
     const source=JSON.parse(fs.readFileSync(`contracts/${module}.source.json`,'utf8'));
     assert.equal(source.repository,`StuHelper/stuhelper-${module}`);
     assert.match(source.revision,/^[0-9a-f]{40}$/);

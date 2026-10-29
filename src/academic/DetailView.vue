@@ -47,6 +47,12 @@ async function bookmark(){
           {{ entry.data.value.school.name }}<span v-if="entry.data.value.department">{{ entry.data.value.department.name }}</span>
         </p>
         <div class="academic-actions">
+          <RouterLink
+            v-if="kind==='course'"
+            :to="{path:'/resources',query:{course_id:id,school_id:entry.data.value.object.school_id}}"
+          >
+            {{ t('resources.title') }}
+          </RouterLink>
           <button
             v-if="!composing&&!entry.data.value.object.inactive"
             @click="composing=true"

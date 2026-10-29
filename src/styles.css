@@ -17,8 +17,8 @@ body { margin: 0; min-width: 320px; }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; }
-.skip-link { position: fixed; top: -100px; left: 1rem; padding: .8rem 1rem; background: var(--surface); color: var(--accent); z-index: 5; }
-.skip-link:focus { top: .5rem; }
+.skip-link { position: fixed; inset-block-start: 0; inset-inline-start: 1rem; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); padding: .8rem 1rem; background: var(--surface); color: var(--accent); z-index: 5; }
+.skip-link:focus { inset-block-start: .5rem; width: auto; height: auto; overflow: visible; clip-path: none; }
 ::selection { background: #d6e9fc; }
 
 .academic-page { display:grid; gap:2rem; }
