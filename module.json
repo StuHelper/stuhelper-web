@@ -1,0 +1,41 @@
+{
+  "id": "web",
+  "implementation": "application",
+  "required": [
+    "platform"
+  ],
+  "optional": [
+    "catalog",
+    "reviews",
+    "moderation",
+    "storage",
+    "media",
+    "storage-contribution",
+    "resources"
+  ],
+  "specifications": [
+    "README.md"
+  ],
+  "scenario_tests": {
+    "RES-CLIENT-01": [
+      "src/resources/api.test.ts#retries unknown writes with the frozen nested payload and original key",
+      "src/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again"
+    ],
+    "RES-CLIENT-02": [
+      "src/resources/api.test.ts#passes current host credentials and cancellation on every request",
+      "src/resources/api.test.ts#releases a known rejected mutation and clears private state even for non-JSON denial"
+    ],
+    "RES-CLIENT-03": [
+      "tests/e2e/resources.spec.mjs#configured category field filters and grouping follow server configuration"
+    ],
+    "RES-CLIENT-04": [
+      "tests/e2e/resources.spec.mjs#upload uses current terms and retries the original metadata request"
+    ],
+    "RES-CLIENT-05": [
+      "tests/e2e/resources.spec.mjs#current denial clears resource data and request receipts survive navigation"
+    ],
+    "RES-CLIENT-06": [
+      "tests/e2e/resources.spec.mjs#folder packages list every part and allow individual retry"
+    ]
+  }
+}

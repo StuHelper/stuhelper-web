@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-media",
+  "revision": "e7deac84aae95d8dc3bde6ae292b6f4242fc2871",
+  "version": "1.0.0",
+  "sha256": {
+    "contracts/media.openapi.json": "c0aedc0fd233998d14ac7cd9717ddb394843cf07778da1a32f3981594adbb6c0",
+    "src/api/media.gen.ts": "1e8e5cc0e15ba9fe965922bbbd35544c1ce9eba3868125e90e232c74d06de62b"
+  },
+  "files": {
+    "contracts/media.openapi.json": "contracts/media.openapi.json",
+    "sdk/media.gen.ts": "src/api/media.gen.ts"
+  }
+}
