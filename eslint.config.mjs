@@ -12,7 +12,7 @@ export default defineConfigWithVueTs(
   ...jsonc.configs['flat/recommended-with-json'],
   ...i18n.configs['flat/recommended'],
   { settings: { 'vue-i18n': { localeDir: './src/locales/*.json', messageSyntaxVersion: '^11.0.0' } }, rules: {
-    '@intlify/vue-i18n/no-raw-text': ['error', { attributes: { '/.*/': ['title', 'aria-label', 'placeholder', 'alt'] }, ignorePattern: '^[0-9\\s/]*$' }],
+    '@intlify/vue-i18n/no-raw-text': ['error', { attributes: { '/.*/': ['title', 'aria-label', 'placeholder', 'alt'] }, ignorePattern: '^[0-9\\s/·]*$' }], // '·' separates translated values and is language-neutral.
     '@intlify/vue-i18n/no-missing-keys': 'error',
     '@intlify/vue-i18n/valid-message-syntax': 'error',
     'jsonc/no-dupe-keys': 'error',

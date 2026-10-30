@@ -1,11 +1,11 @@
 import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
-import { expect, test } from '../session-fixture.mjs';
+import { expect, memberTest as test } from '../session-fixture.mjs';
 const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
-function messages(info) { return JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8')).contribution; }
+const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 async function setup(page, info, empty = false) {
-  const m = messages(info), state = { item: structuredClone(example.page.items[0]), empty, reject: 0, failNext: false, requests: [], seen: new Map() };
+  const all = catalogue(info), m = all.contribution, c = all.common, state = { item: structuredClone(example.page.items[0]), empty, reject: 0, failNext: false, requests: [], seen: new Map() };
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', e => { if (/\[intlify\].*(Not found|Fall back)/i.test(e.text())) errors.push(e.text()); });
@@ -33,11 +33,11 @@ async function setup(page, info, empty = false) {
   await expect(page.getByRole('heading', { name: m.mine, exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
-  return { m, state, errors };
+  return { m, c, all, state, errors };
 }
 test('consent, creation, quota adjustment and renewal retain distinct request state', async ({ page }, info) => {
-  const { m, state, errors } = await setup(page, info, true);
-  await page.getByLabel(m.storage, { exact: true }).selectOption('fixture-storage');
+  const { m, c, state, errors } = await setup(page, info, true);
+  await page.getByRole('combobox', { name: m.storage, exact: true }).selectOption('fixture-storage');
   await page.getByLabel(m.limit, { exact: true }).fill('10'); await page.getByLabel(m.reserve, { exact: true }).fill('1');
   await page.locator('input[type=datetime-local]').fill('2030-01-02T00:00');
   await page.getByRole('button', { name: m.review, exact: true }).click();
@@ -45,7 +45,7 @@ test('consent, creation, quota adjustment and renewal retain distinct request st
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: m.review, exact: true }).focus(); await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog')).toBeVisible();
-  await page.getByRole('button', { name: m.confirmButton, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.locator('article')).toContainText(m.states.pending);
   expect(state.requests[0].body.consent).toEqual({ accepted: true, version: example.policy.terms.version, digest: example.policy.terms.digest });
   expect(state.requests[0].body.conditions.limit_bytes).toBe(10_000_000_000);
@@ -53,47 +53,48 @@ test('consent, creation, quota adjustment and renewal retain distinct request st
   await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
   await page.getByLabel(m.limit, { exact: true }).fill('12');
   await page.getByRole('button', { name: m.review, exact: true }).click();
-  await page.getByRole('button', { name: m.confirmButton, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[1].body.conditions.until).toBe(until); expect(state.requests[1].body.consent).toBeUndefined();
   await page.getByRole('button', { name: m.actions.renew, exact: true }).click();
   await page.locator('input[type=datetime-local]').fill('2030-02-01T00:00'); await page.getByRole('checkbox').check();
-  await page.getByRole('button', { name: m.review, exact: true }).click(); await page.getByRole('button', { name: m.confirmButton, exact: true }).click();
+  await page.getByRole('button', { name: m.review, exact: true }).click(); await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[2].body.action).toBe('renew'); expect(state.requests[2].body.consent.accepted).toBe(true); expect(errors).toEqual([]);
 });
 test('lost response retries original mutation, paginates and clears revoked data', async ({ page }, info) => {
-  const { m, state, errors } = await setup(page, info); state.failNext = true;
+  const { m, c, all, state, errors } = await setup(page, info); state.failNext = true;
   await page.getByRole('button', { name: m.actions.pause, exact: true }).focus(); await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: m.confirmButton, exact: true }).click();
-  await expect(page.getByRole('dialog')).toContainText(m.uncertain);
-  await expect(page.getByRole('button', { name: m.cancel, exact: true }).last()).toBeDisabled();
-  await page.getByRole('button', { name: m.retryOriginal, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(page.getByRole('dialog')).toContainText(c.uncertain);
+  await expect(page.getByRole('dialog').getByRole('button', { name: c.cancel, exact: true })).toHaveCount(0);
+  await page.getByRole('button', { name: c.retryOriginal, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0); expect(state.requests[1]).toEqual(state.requests[0]);
   await expect(page.locator('article')).toContainText(m.states.pending);
+  await page.route('**/api/v1/storage-contributions?*', route => route.fulfill({ json: { ...example.page, next_cursor: 'fixture-next' } }), { times: 1 });
+  await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
   const next = page.waitForRequest(r => r.method() === 'GET' && new URL(r.url()).searchParams.get('after') === 'fixture-next');
-  await page.getByRole('button', { name: m.next, exact: true }).click(); await next;
+  await page.getByRole('button', { name: c.loadMore, exact: true }).click(); await next;
   await expect(page.locator('article')).toHaveCount(1); expect(errors).toEqual([]);
   if (process.env.CONTRIBUTION_SCREENSHOTS) { fs.mkdirSync(process.env.CONTRIBUTION_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: path.join(process.env.CONTRIBUTION_SCREENSHOTS, `web-${info.project.name}.png`), fullPage: true }); }
-  state.reject = 403; await page.getByRole('button', { name: m.refresh, exact: true }).click();
-  await expect(page.getByRole('status')).toContainText(m.errors.forbidden); await expect(page.locator('article')).toHaveCount(0); await expect(page.locator('form')).toHaveCount(0);
+  state.reject = 403; await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
+  await expect(page.getByRole('alert')).toContainText(all.errors.forbidden); await expect(page.locator('article')).toHaveCount(0); await expect(page.locator('form')).toHaveCount(0);
 });
 test('exit remains pending while replicas remain', async ({ page }, info) => {
-  const { m, state } = await setup(page, info);
+  const { m, c, state } = await setup(page, info);
   await page.getByRole('button', { name: m.actions.exit, exact: true }).click(); await expect(page.getByRole('dialog')).toContainText(m.exitHint);
-  await page.getByRole('button', { name: m.confirmButton, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.locator('article')).toContainText(m.states.pending); await expect(page.locator('article')).toContainText(m.actions.exit);
   expect(state.item.observation.remaining_replicas).toBe(3); await expect(page.locator('article')).not.toContainText(m.states.exited);
 });
-
 test('login boundary keeps public statistics and recovers to empty contributions', async ({ page }, info) => {
-  const { m, state } = await setup(page, info);
+  const { m, c, state } = await setup(page, info);
   state.reject = 401;
-  await page.getByRole('button', { name: m.refresh, exact: true }).click();
-  await expect(page.getByRole('status')).toContainText(m.errors.unauthenticated);
+  await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
+  await expect(page.getByText(m.signInHint, { exact: true })).toBeVisible();
   await expect(page.locator('article')).toHaveCount(0);
   await expect(page.getByRole('heading', { name: m.summary, exact: true })).toBeVisible();
   state.reject = 0; state.empty = true;
-  await page.getByRole('button', { name: m.refresh, exact: true }).click();
+  await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
   await expect(page.getByText(m.empty, { exact: true })).toBeVisible();
 });
