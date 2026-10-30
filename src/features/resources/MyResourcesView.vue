@@ -106,6 +106,6 @@ function tone(state: Version['state']) {
 </template>
 
 <style scoped>
-.card-title { color: var(--text); text-decoration: none; }
+.card-title { color: var(--label); text-decoration: none; }
 .card-title:hover { color: var(--accent); }
 </style>

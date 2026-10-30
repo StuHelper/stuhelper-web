@@ -1,98 +1,95 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { CircleAlert, FileText, FolderOpen, ShieldCheck, UserRound } from 'lucide-vue-next'
+import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuSeparator, DropdownMenuTrigger } from 'reka-ui'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { useSession } from '../../shared/session'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const session = useSession()
-const route = useRoute()
-const open = ref(false)
-const root = ref<HTMLElement>()
-
-function close() { open.value = false }
-function outside(event: PointerEvent) { if (open.value && root.value && event.target instanceof Node && !root.value.contains(event.target)) close() }
-function escape(event: KeyboardEvent) { if (event.key === 'Escape' && open.value) { close(); root.value?.querySelector('button')?.focus() } }
-watch(() => route.fullPath, close)
-onMounted(() => { document.addEventListener('pointerdown', outside); document.addEventListener('keydown', escape) })
-onBeforeUnmount(() => { document.removeEventListener('pointerdown', outside); document.removeEventListener('keydown', escape) })
 </script>
 
 <template>
-  <div
-    ref="root"
-    class="account"
+  <DropdownMenuRoot
+    v-if="session.state.value === 'member' && session.session.value"
+    :modal="false"
+    :dir="locale === 'ar-EG' ? 'rtl' : 'ltr'"
   >
-    <template v-if="session.state.value === 'member' && session.session.value">
-      <button
-        class="btn btn-sm account-trigger"
-        type="button"
-        aria-haspopup="true"
-        :aria-expanded="open"
-        aria-controls="account-menu"
-        @click="open = !open"
-      >
-        <span
-          class="account-avatar"
-          aria-hidden="true"
-        >{{ [...session.session.value.profile.nickname][0] }}</span>
-        <span class="account-name truncate">{{ session.session.value.profile.nickname }}</span>
-      </button>
-      <nav
-        v-show="open"
-        id="account-menu"
-        class="account-menu"
-        :aria-label="t('nav.account')"
-      >
-        <RouterLink to="/me">
-          {{ t('me.title') }}
-        </RouterLink>
-        <RouterLink to="/me/reviews">
-          {{ t('me.reviews') }}
-        </RouterLink>
-        <RouterLink to="/me/resources">
-          {{ t('me.resources') }}
-        </RouterLink>
-        <RouterLink to="/me/verification">
-          {{ t('verification.title') }}
-        </RouterLink>
-      </nav>
-    </template>
-    <button
-      v-else-if="session.state.value === 'guest'"
-      class="btn btn-sm btn-primary"
-      type="button"
-      @click="session.signIn"
+    <DropdownMenuTrigger
+      class="avatar"
+      :aria-label="t('nav.account')"
     >
-      {{ t('account.signIn') }}
-    </button>
-    <span
-      v-else-if="session.state.value === 'error'"
-      class="account-error"
-    >
-      <span class="subtle">{{ t('account.unavailable') }}</span>
-      <button
-        class="btn btn-sm btn-ghost"
-        type="button"
-        @click="session.reload"
+      <span aria-hidden="true">{{ [...session.session.value.profile.nickname][0] }}</span>
+    </DropdownMenuTrigger>
+    <DropdownMenuPortal>
+      <DropdownMenuContent
+        class="menu"
+        align="end"
+        :side-offset="8"
       >
-        {{ t('common.retry') }}
-      </button>
-    </span>
-  </div>
+        <DropdownMenuLabel class="menu-label truncate">
+          {{ session.session.value.profile.nickname }}
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator class="menu-sep" />
+        <DropdownMenuItem as-child>
+          <RouterLink
+            class="menu-item"
+            to="/me"
+          >
+            <UserRound aria-hidden="true" />{{ t('me.title') }}
+          </RouterLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem as-child>
+          <RouterLink
+            class="menu-item"
+            to="/me/reviews"
+          >
+            <FileText aria-hidden="true" />{{ t('me.reviews') }}
+          </RouterLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem as-child>
+          <RouterLink
+            class="menu-item"
+            to="/me/resources"
+          >
+            <FolderOpen aria-hidden="true" />{{ t('me.resources') }}
+          </RouterLink>
+        </DropdownMenuItem>
+        <DropdownMenuItem as-child>
+          <RouterLink
+            class="menu-item"
+            to="/me/verification"
+          >
+            <ShieldCheck aria-hidden="true" />{{ t('verification.title') }}
+          </RouterLink>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenuPortal>
+  </DropdownMenuRoot>
+  <button
+    v-else-if="session.state.value === 'guest'"
+    class="btn btn-sm btn-primary"
+    type="button"
+    @click="session.signIn"
+  >
+    {{ t('account.signIn') }}
+  </button>
+  <button
+    v-else-if="session.state.value === 'error'"
+    class="btn btn-sm account-error"
+    type="button"
+    :aria-label="t('account.reload')"
+    :title="t('account.unavailable')"
+    @click="session.reload"
+  >
+    <CircleAlert aria-hidden="true" />
+    <span class="account-error-text">{{ t('account.reloadShort') }}</span>
+  </button>
 </template>
 
 <style scoped>
-.account { position: relative; }
-.account-trigger { max-width: 12rem; }
-.account-avatar { display: inline-grid; place-items: center; width: 1.45rem; height: 1.45rem; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-size: .78rem; font-weight: 700; }
-.account-menu { position: absolute; inset-inline-end: 0; top: calc(100% + .4rem); z-index: 30; display: grid; min-width: 12rem; padding: .35rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: 0 12px 30px rgb(0 0 0 / 14%); }
-.account-menu a { padding: .5rem .7rem; border-radius: var(--radius-sm); color: var(--text); text-decoration: none; }
-.account-menu a:hover, .account-menu a.router-link-exact-active { background: var(--accent-soft); color: var(--accent-strong); }
-.account-error { display: inline-flex; align-items: center; gap: .25rem; }
-</style>
-<style scoped>
-@media (max-width: 520px) {
-  .account-name { display: none; }
-}
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: linear-gradient(145deg, #5e9cff, #0071e3); color: #fff; font: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; transition: transform .3s var(--spring); }
+.avatar:active { transform: scale(.92); }
+.account-error svg { color: var(--warning); }
+@media (max-width: 480px) { .account-error-text { display: none; } }
 </style>

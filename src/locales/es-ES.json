@@ -10,13 +10,13 @@
   },
   "nav": {
     "primary": "Navegación principal",
-    "menu": "Menú",
     "account": "Menú de la cuenta",
     "home": "Inicio",
     "courses": "Cursos",
     "teachers": "Profesores",
     "resources": "Materiales",
-    "contributions": "Contribución de almacenamiento"
+    "contributions": "Contribución de almacenamiento",
+    "me": "Mi perfil"
   },
   "language": {
     "label": "Idioma"
@@ -44,7 +44,9 @@
     "remove": "Quitar",
     "unknown": "Desconocido",
     "notProvided": "No indicado",
-    "notSpecified": "Sin especificar"
+    "notSpecified": "Sin especificar",
+    "filters": "Filtros",
+    "filtersCount": "Filtros ({count})"
   },
   "errors": {
     "network": "La conexión falló o caducó. Se conservan los datos válidos; inténtalo de nuevo.",
@@ -85,9 +87,9 @@
     }
   },
   "home": {
-    "eyebrow": "Plataforma del campus StuHelper",
+    "eyebrow": "StuHelper · Universidad Beihang",
     "title": "Busca cursos, lee reseñas y encuentra materiales",
-    "description": "Reseñas de cursos, historial docente y materiales de otros estudiantes en un solo lugar. Tras la verificación de estudiante podrás leer reseñas completas, publicar y subir materiales.",
+    "description": "Reseñas de cursos, historial docente y recursos de Beihang. Disponible tras verificar tu condición de estudiante o profesor.",
     "searchLabel": "Buscar cursos o profesores",
     "searchPlaceholder": "Nombre o código del curso, o nombre del profesor",
     "searchCourses": "Buscar cursos",
@@ -97,7 +99,7 @@
     "entries": {
       "courses": {
         "title": "Cursos y reseñas",
-        "text": "Explora cursos por universidad, facultad y categoría, con ediciones y valoraciones en cinco aspectos."
+        "text": "Busca cursos por facultad y categoría, con ediciones anteriores y cinco valoraciones."
       },
       "teachers": {
         "title": "Páginas de profesores",
@@ -109,7 +111,7 @@
       },
       "verification": {
         "title": "Verificación de estudiante",
-        "text": "Demuestra tu acceso al campus para leer, publicar y descargar."
+        "text": "Demuestra tu condición en Beihang para acceder a cursos, reseñas y recursos."
       },
       "contributions": {
         "title": "Mis aportes de almacenamiento",
@@ -119,7 +121,14 @@
         "title": "Área personal",
         "text": "Gestiona tu perfil, verificación, reseñas, borradores y subidas."
       }
-    }
+    },
+    "workspaceFailed": "Algunas secciones no se cargaron. Lo demás sigue funcionando.",
+    "workspaceRetry": "Recargar estas secciones",
+    "myCourses": "Mis cursos",
+    "viewAll": "Ver todo",
+    "noCourses": "Aún no se han sincronizado matrículas.",
+    "recent": "Vistos recientemente",
+    "results": "Resultados de solicitudes"
   },
   "notFound": {
     "code": "404",
@@ -134,7 +143,9 @@
     "unavailable": "El estado de la cuenta no está disponible temporalmente.",
     "unavailableHint": "Inténtalo más tarde. El contenido personal volverá cuando el servicio se recupere.",
     "signInRequired": "Inicia sesión",
-    "signInHint": "El acceso usa el servicio de cuentas común. Después podrás gestionar tu contenido."
+    "signInHint": "El acceso usa el servicio de cuentas común. Después podrás gestionar tu contenido.",
+    "reload": "El estado de la cuenta no está disponible. Selecciona para comprobarlo de nuevo",
+    "reloadShort": "Cuenta desconocida"
   },
   "academic": {
     "course": "Curso",
@@ -167,7 +178,10 @@
       "courseIntro": "Explora cursos por facultad y categoría.",
       "teacherIntro": "Consulta la experiencia docente, reseñas y comentarios sobre la supervisión.",
       "empty": "El directorio aún no tiene registros.",
-      "noMatch": "No hay resultados. Ajusta los filtros."
+      "noMatch": "No hay resultados. Ajusta los filtros.",
+      "filtersRetry": "Recargar filtros",
+      "reloadCourses": "Recargar cursos",
+      "reloadTeachers": "Recargar profesores"
     },
     "subject": {
       "writeCourse": "Escribir una reseña",
@@ -192,7 +206,9 @@
       "creditsUnknown": "Créditos no indicados",
       "aliases": "Otros nombres",
       "biography": "Descripción",
-      "findCourses": "Cursos de este profesor"
+      "findCourses": "Cursos de este profesor",
+      "saved": "Guardado",
+      "bookmarkUnknown": "No se puede confirmar si está guardado."
     },
     "offerings": {
       "title": "Ediciones del curso",
@@ -406,6 +422,11 @@
       "decided": "Decisión pendiente de aplicar",
       "applied": "Completado",
       "failed": "Error; requiere revisión administrativa"
+    },
+    "requirementStep": {
+      "campus_eligibility": "Verificar",
+      "identity_verified": "Verificar identidad",
+      "course_enrollment": "Ver mis cursos"
     }
   },
   "me": {
@@ -462,7 +483,8 @@
       "resources": "Subidas, revisión y correcciones.",
       "requests": "Resultados de retiradas, quejas y recursos.",
       "storage": "Conecta cuentas en la nube y gestiona la autorización.",
-      "contributions": "Capacidad aportada, uso, renovaciones y salida."
+      "contributions": "Capacidad aportada, uso, renovaciones y salida.",
+      "courses": "Cursos, profesores y horarios por semestre."
     },
     "profile": {
       "title": "Perfil",
@@ -512,7 +534,16 @@
       "select": "Seleccionar «{title}»",
       "selected": "Seleccionados: {count}",
       "clearSelection": "Borrar selección",
-      "downloadSelected": "Agrupar materiales accesibles seleccionados"
+      "downloadSelected": "Agrupar materiales accesibles seleccionados",
+      "find": "Buscar recursos",
+      "placeholder": "Título, descripción o etiqueta",
+      "activeFilters": "Filtros actuales",
+      "removeFilter": "Quitar filtro: {name}",
+      "fieldCount": "{count} condiciones más",
+      "filtersFailed": "No se cargaron los filtros. Aún puedes buscar por palabra clave.",
+      "filtersRetry": "Recargar filtros",
+      "reload": "Recargar recursos",
+      "currentFolder": "Carpeta actual"
     },
     "package": {
       "title": "Paquetes de descarga",
@@ -526,20 +557,23 @@
     "picker": {
       "search": "Buscar en «{label}»",
       "placeholder": "Escribe un nombre",
-      "unavailable": "No se pudieron cargar las opciones."
+      "unavailable": "No se cargaron las opciones de {label}.",
+      "noMatch": "Sin coincidencias",
+      "retry": "Recargar opciones"
     },
     "detail": {
       "back": "Volver a materiales",
       "download": "Descargar archivo",
       "requestOwner": "Retirar o reclamar",
       "complain": "Denunciar infracción o contenido",
-      "accessRequired": "La descarga requiere cumplir los requisitos y tener permisos vigentes.",
+      "accessRequired": "Tu cuenta aún no tiene acceso a este recurso. Puedes enviar una solicitud si tienes dudas.",
       "pendingVersion": "Se está procesando una nueva versión. La publicada sigue disponible.",
       "noDescription": "Sin descripción.",
       "about": "Sobre el material",
       "file": "Archivo del material",
       "access": "Acceso",
-      "course": "Ver el curso relacionado"
+      "course": "Ver el curso relacionado",
+      "contact": "Enviar solicitud"
     },
     "access": {
       "allowed": "Puedes descargarlo.",
@@ -877,7 +911,10 @@
       "failed": "La verificación ha fallado; reinicia",
       "cancelled": "Verificación cancelada",
       "expired": "La verificación ha caducado; reinicia"
-    }
+    },
+    "continueReady": "Ya estás verificado y puedes volver a la página anterior.",
+    "continueNext": "Continuar",
+    "returnHint": "Volverás a la página que querías cuando la verificación surta efecto."
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -991,5 +1028,44 @@
       "attempts_exhausted": "Se alcanzó el límite de intentos. Se requiere la intervención de un administrador.",
       "credentials_required": "No se guardaron credenciales recuperables. Vuelve a enviarlas."
     }
+  },
+  "gate": {
+    "guest": {
+      "title": "Inicia sesión para continuar",
+      "text": "Los cursos, profesores, reseñas y recursos están abiertos a estudiantes y profesores verificados de Beihang.",
+      "action": "Iniciar sesión"
+    },
+    "unverified": {
+      "title": "Verifica tu condición en Beihang para continuar",
+      "text": "Tras la verificación volverás a la página que querías ver.",
+      "action": "Iniciar verificación"
+    },
+    "processing": {
+      "title": "Verificación en curso",
+      "text": "Podrás entrar cuando se apruebe. Si faltan materiales, continúa desde la página de progreso.",
+      "action": "Ver progreso"
+    },
+    "expired": {
+      "title": "La verificación ya no es válida",
+      "text": "Tu verificación caducó o se revocó. Vuelve a verificarte para continuar.",
+      "action": "Verificar de nuevo"
+    },
+    "unavailable": {
+      "title": "No se puede confirmar tu elegibilidad ahora",
+      "text": "El servicio de cuenta o de verificación no respondió. Esto no significa que tu verificación haya caducado.",
+      "action": "Comprobar de nuevo"
+    }
+  },
+  "courses": {
+    "title": "Mis cursos",
+    "intro": "Tus matrículas por semestre, con enlaces a cursos, profesores y recursos.",
+    "empty": "Aún no hay matrículas. Aparecerán cuando se sincronicen los datos.",
+    "reload": "Recargar mis cursos",
+    "timesFailed": "No se pudieron cargar horarios y aulas. La lista de cursos no se ve afectada.",
+    "timesRetry": "Recargar horarios y aulas",
+    "noTeacher": "Profesor no indicado",
+    "noTime": "Horario y aula no indicados",
+    "classLink": "Grupo",
+    "updated": "Actualizado {time}"
   }
 }

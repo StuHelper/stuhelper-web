@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine, Server } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
+import { forgetPages } from '../../shared/recent'
 import { useSession, type Profile } from '../../shared/session'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
@@ -39,12 +41,13 @@ onMounted(() => {
 })
 
 const links = [
-  { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews' },
-  { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts' },
-  { to: '/me/resources', title: 'me.resources', text: 'me.links.resources' },
-  { to: '/me/requests', title: 'me.requests', text: 'me.links.requests' },
-  { to: '/me/storage-accounts', title: 'custody.title', text: 'me.links.storage' },
-  { to: '/contributions', title: 'nav.contributions', text: 'me.links.contributions' },
+  { to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: '#ff3b30' },
+  { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews', icon: FileText, tile: '#0071e3' },
+  { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts', icon: PencilLine, tile: '#ff9500' },
+  { to: '/me/resources', title: 'me.resources', text: 'me.links.resources', icon: FolderOpen, tile: '#ffcc00' },
+  { to: '/me/requests', title: 'me.requests', text: 'me.links.requests', icon: Inbox, tile: '#5856d6' },
+  { to: '/me/storage-accounts', title: 'custody.title', text: 'me.links.storage', icon: Server, tile: '#32ade6' },
+  { to: '/contributions', title: 'nav.contributions', text: 'me.links.contributions', icon: HardDrive, tile: '#34c759' },
 ] as const
 
 function startEdit() {
@@ -107,6 +110,7 @@ async function signOut() {
   signOutBusy.value = true
   signOutError.value = ''
   try {
+    forgetPages()
     await session.signOut(signingOut.value === 'all')
   } catch (failure) {
     signOutError.value = errorCode(failure)
@@ -117,17 +121,31 @@ async function signOut() {
 </script>
 
 <template>
-  <MeLayout
-    :title="t('me.title')"
-    :description="t('me.intro')"
-  >
+  <MeLayout :title="t('me.title')">
     <div
       v-if="profile && session.session.value"
       class="stack-lg"
     >
-      <section class="card stack">
-        <div class="row-between">
-          <h2>{{ t('me.profile.title') }}</h2>
+      <section class="card profile">
+        <div class="profile-head">
+          <span
+            class="profile-avatar"
+            aria-hidden="true"
+          >{{ [...profile.nickname][0] }}</span>
+          <div class="profile-copy">
+            <h2 class="truncate">
+              {{ profile.nickname }}
+            </h2>
+            <p class="subtle">
+              {{ t('me.profile.sessionExpires') }} · {{ format.dateTime(session.session.value.expires_at) }}
+            </p>
+            <StatusTag
+              v-if="session.session.value.administrator"
+              tone="info"
+            >
+              {{ t('me.profile.administrator') }}
+            </StatusTag>
+          </div>
           <button
             v-if="!editing"
             class="btn btn-sm"
@@ -139,7 +157,7 @@ async function signOut() {
         </div>
         <form
           v-if="editing"
-          class="stack"
+          class="stack profile-form"
           @submit.prevent="submit"
         >
           <div class="field">
@@ -202,27 +220,6 @@ async function signOut() {
             </button>
           </div>
         </form>
-        <dl
-          v-else
-          class="facts"
-        >
-          <div>
-            <dt>{{ t('me.profile.nickname') }}</dt>
-            <dd>{{ profile.nickname }}</dd>
-          </div>
-          <div>
-            <dt>{{ t('me.profile.sessionExpires') }}</dt>
-            <dd>{{ format.dateTime(session.session.value.expires_at) }}</dd>
-          </div>
-          <div v-if="session.session.value.administrator">
-            <dt>{{ t('me.profile.role') }}</dt>
-            <dd>
-              <StatusTag tone="info">
-                {{ t('me.profile.administrator') }}
-              </StatusTag>
-            </dd>
-          </div>
-        </dl>
         <p
           v-if="saved"
           class="notice notice-success"
@@ -253,11 +250,9 @@ async function signOut() {
             {{ t('common.retry') }}
           </button>
         </p>
-        <div class="grid">
-          <article class="card stack-sm">
-            <h3 class="small muted">
-              {{ t('verification.campus') }}
-            </h3>
+        <div class="group">
+          <div class="group-row">
+            <span class="group-body group-title">{{ t('verification.campus') }}</span>
             <StatusTag
               v-if="summary.data.value"
               :tone="summary.data.value.campus_eligibility ? 'success' : 'neutral'"
@@ -268,11 +263,9 @@ async function signOut() {
               v-else
               class="subtle"
             >{{ t(summary.status.value === 'loading' ? 'common.loading' : 'me.status.unknown') }}</span>
-          </article>
-          <article class="card stack-sm">
-            <h3 class="small muted">
-              {{ t('verification.identity') }}
-            </h3>
+          </div>
+          <div class="group-row">
+            <span class="group-body group-title">{{ t('verification.identity') }}</span>
             <StatusTag
               v-if="summary.data.value"
               :tone="summary.data.value.identity_verified ? 'success' : 'neutral'"
@@ -283,58 +276,71 @@ async function signOut() {
               v-else
               class="subtle"
             >{{ t(summary.status.value === 'loading' ? 'common.loading' : 'me.status.unknown') }}</span>
-          </article>
-          <article class="card stack-sm">
-            <h3 class="small muted">
-              {{ t('verification.phone') }}
-            </h3>
+          </div>
+          <div class="group-row">
+            <span class="group-body">
+              <span class="group-title">{{ t('verification.phone') }}</span>
+              <span class="group-detail">{{ t('me.status.phoneHint') }}</span>
+            </span>
             <StatusTag :tone="session.session.value.phone_bound ? 'success' : 'neutral'">
               {{ t(session.session.value.phone_bound ? 'verification.phoneBound' : 'verification.phoneMissing') }}
             </StatusTag>
-            <span class="subtle">{{ t('me.status.phoneHint') }}</span>
-          </article>
+          </div>
         </div>
       </section>
 
       <section class="section">
         <h2>{{ t('me.content') }}</h2>
-        <ul class="grid shortcuts">
+        <ul class="group">
           <li
             v-for="link in links"
             :key="link.to"
           >
             <RouterLink
-              class="card card-link stack-sm"
+              class="group-row has-icon"
               :to="link.to"
             >
-              <span class="card-title">{{ t(link.title) }}</span>
-              <span class="small muted">{{ t(link.text) }}</span>
+              <span
+                class="icon-tile"
+                :style="{ '--tile': link.tile }"
+              ><component
+                :is="link.icon"
+                aria-hidden="true"
+              /></span>
+              <span class="group-body">
+                <span class="group-title">{{ t(link.title) }}</span>
+                <span class="group-detail">{{ t(link.text) }}</span>
+              </span>
+              <ChevronRight
+                class="chevron"
+                aria-hidden="true"
+              />
             </RouterLink>
           </li>
         </ul>
       </section>
 
-      <section class="card stack">
+      <section class="section">
         <h2>{{ t('me.sessions.title') }}</h2>
-        <p class="small muted">
-          {{ t('me.sessions.hint') }}
-        </p>
-        <div class="row">
+        <div class="group">
           <button
-            class="btn"
+            class="group-row sign-out"
             type="button"
             @click="signingOut = 'device'"
           >
             {{ t('account.signOut') }}
           </button>
           <button
-            class="btn btn-danger"
+            class="group-row sign-out danger"
             type="button"
             @click="signingOut = 'all'"
           >
             {{ t('account.signOutAll') }}
           </button>
         </div>
+        <p class="subtle">
+          {{ t('me.sessions.hint') }}
+        </p>
       </section>
     </div>
 
@@ -359,6 +365,11 @@ async function signOut() {
 </template>
 
 <style scoped>
-.shortcuts { list-style: none; }
-.shortcuts a { height: 100%; }
+.profile { display: grid; gap: 1rem; }
+.profile-head { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.profile-avatar { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(145deg, #5e9cff, #0071e3); color: #fff; font-size: 1.75rem; font-weight: 600; }
+.profile-copy { display: grid; flex: 1 1 12rem; justify-items: start; gap: .25rem; min-width: 0; }
+.profile-copy h2 { max-width: 100%; }
+.sign-out { justify-content: center; color: var(--accent); font-weight: 500; }
+.sign-out.danger { color: var(--danger); }
 </style>

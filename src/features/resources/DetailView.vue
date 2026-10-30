@@ -7,6 +7,7 @@ import { useAsync, useTask } from '../../shared/composables/async'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
+import { rememberPage } from '../../shared/recent'
 import { useErrorText } from '../../shared/ui/messages'
 import { attributeText, localName, useResourcesApi } from './api'
 import RequestForm from './RequestForm.vue'
@@ -36,6 +37,10 @@ async function save() {
   if (download.error.value === 'forbidden' || download.error.value === 'unauthenticated') entry.clear()
 }
 
+watch(version, (value) => {
+  if (value?.metadata.title) rememberPage({ path: `/resources/items/${encodeURIComponent(props.id)}`, title: value.metadata.title, kind: 'resource' })
+})
+
 function accessReason(code: string) {
   return te(`resources.access.${code}`) ? t(`resources.access.${code}`) : t('resources.detail.accessRequired')
 }
@@ -58,13 +63,10 @@ function accessReason(code: string) {
       v-if="entryValue && version"
       class="stack-lg"
     >
-      <p>
-        <RouterLink to="/resources">
-          {{ t('resources.detail.back') }}
-        </RouterLink>
-      </p>
       <PageHeader
         :eyebrow="localName(version.category.names ?? {}, locale)"
+        back="/resources"
+        :back-label="t('resources.detail.back')"
         :title="version.metadata.title ?? ''"
       >
         <div class="row">
@@ -105,7 +107,15 @@ function accessReason(code: string) {
         v-if="!entryValue.download_allowed"
         class="notice notice-info"
       >
-        {{ accessReason(entryValue.access_reason) }}
+        <span>{{ accessReason(entryValue.access_reason) }}</span>
+        <button
+          v-if="!entryValue.owned && entryValue.access_reason !== 'not_published'"
+          class="btn btn-sm"
+          type="button"
+          @click="requesting = true"
+        >
+          {{ t('resources.detail.contact') }}
+        </button>
       </p>
       <p
         v-if="entryValue.proposal && entryValue.current"

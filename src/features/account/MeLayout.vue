@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { CalendarDays, FileText, FolderOpen, HardDrive, Inbox, ShieldCheck, UserRound } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
+import { extras } from '../../shared/extras'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import RequireSignIn from './RequireSignIn.vue'
 
@@ -11,12 +13,13 @@ const { t } = useI18n()
 const route = useRoute()
 const current = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
 const links = [
-  { to: '/me', label: 'me.overview' },
-  { to: '/me/reviews', label: 'me.reviews' },
-  { to: '/me/resources', label: 'me.resources' },
-  { to: '/me/requests', label: 'me.requests' },
-  { to: '/me/verification', label: 'verification.title' },
-  { to: '/me/storage-accounts', label: 'custody.title' },
+  { to: '/me', label: 'me.overview', icon: UserRound, tile: '#8e8e93' },
+  { to: '/me/courses', label: 'courses.title', icon: CalendarDays, tile: '#ff3b30' },
+  { to: '/me/reviews', label: 'me.reviews', icon: FileText, tile: '#0071e3' },
+  { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: '#ff9500' },
+  { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: '#5856d6' },
+  { to: '/me/verification', label: 'verification.title', icon: ShieldCheck, tile: '#34c759' },
+  { to: '/me/storage-accounts', label: 'custody.title', icon: HardDrive, tile: '#32ade6' },
 ] as const
 </script>
 
@@ -33,16 +36,39 @@ const links = [
         v-for="link in links"
         :key="link.to"
         :to="link.to"
-        :class="{ active: current(link.to) }"
         :aria-current="current(link.to) ? 'page' : undefined"
       >
-        {{ t(link.label) }}
+        <span
+          class="icon-tile"
+          :style="{ '--tile': link.tile }"
+        ><component
+          :is="link.icon"
+          aria-hidden="true"
+        /></span>
+        <span class="truncate">{{ t(link.label) }}</span>
+      </RouterLink>
+      <RouterLink
+        v-for="link in extras.meLinks"
+        :key="link.to"
+        :to="link.to"
+        :aria-current="current(link.to) ? 'page' : undefined"
+      >
+        <span
+          class="icon-tile"
+          :style="{ '--tile': link.tile }"
+        ><component
+          :is="link.icon"
+          aria-hidden="true"
+        /></span>
+        <span class="truncate">{{ link.text }}</span>
       </RouterLink>
     </nav>
     <div class="stack-lg me-content">
       <PageHeader
         :title="title"
         :description="description"
+        :back="route.path === '/me' ? undefined : '/me'"
+        :back-label="t('me.title')"
       >
         <template
           v-if="$slots.actions"
@@ -60,16 +86,17 @@ const links = [
 </template>
 
 <style scoped>
-.me { display: grid; grid-template-columns: 13rem minmax(0, 1fr); gap: 2rem; align-items: start; }
-.me-nav { position: sticky; top: 76px; display: grid; gap: .15rem; }
-.me-nav-title { padding: .25rem .7rem .5rem; font-size: .8rem; font-weight: 650; color: var(--muted); }
-.me-nav a { padding: .5rem .7rem; border-radius: var(--radius-sm); color: var(--text); text-decoration: none; }
-.me-nav a:hover { background: var(--surface-muted); }
-.me-nav a.active { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
-@media (max-width: 860px) {
-  .me { grid-template-columns: minmax(0, 1fr); gap: 1rem; }
-  .me-nav { position: static; display: flex; overflow-x: auto; gap: .25rem; border-bottom: 1px solid var(--border); padding-bottom: .25rem; }
-  .me-nav-title { display: none; }
-  .me-nav a { flex: 0 0 auto; }
+.me { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
+.me-nav { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); display: grid; gap: 2px; }
+.me-nav-title { padding: 0 .625rem .625rem; color: var(--label-3); font-size: .8125rem; font-weight: 550; }
+.me-nav a { display: flex; align-items: center; gap: .625rem; min-height: 42px; padding: .375rem .625rem; border-radius: var(--radius-sm); color: var(--label); font-size: .9375rem; transition: background-color .15s; }
+.me-nav a:hover { background: var(--fill); text-decoration: none; }
+.me-nav a[aria-current="page"] { background: var(--fill-strong); font-weight: 550; }
+.me-nav .icon-tile { width: 26px; height: 26px; border-radius: 7px; }
+.me-nav .icon-tile svg { width: 16px; height: 16px; }
+/* On phones the overview page is the menu, as in iOS Settings. */
+@media (max-width: 760px) {
+  .me { grid-template-columns: minmax(0, 1fr); }
+  .me-nav { display: none; }
 }
 </style>

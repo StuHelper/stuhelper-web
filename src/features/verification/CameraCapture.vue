@@ -250,7 +250,7 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.camera { padding: 1rem; border: 1px dashed var(--border-strong); border-radius: var(--radius); }
-.camera video, .camera > img { display: block; width: 100%; max-height: 22rem; object-fit: contain; border-radius: var(--radius-sm); background: var(--surface-muted); }
-.phone-ticket img { border-radius: var(--radius-sm); background: #fff; }
+.camera { padding: 1rem; border-radius: var(--radius-lg); background: var(--fill); }
+.camera video, .camera > img { display: block; width: 100%; max-height: 24rem; border-radius: var(--radius); background: #000; object-fit: contain; }
+.phone-ticket img { border-radius: var(--radius); background: #fff; }
 </style>

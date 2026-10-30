@@ -1,47 +1,26 @@
 <script setup lang="ts">
-import { nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import SheetDialog from './SheetDialog.vue'
 
-// A modal confirmation that keeps keyboard focus inside the dialog and returns
-// focus to the opener when it closes.
 const props = withDefaults(defineProps<{ open: boolean; title: string; message?: string; confirmLabel?: string; danger?: boolean; busy?: boolean }>(), { message: '', confirmLabel: '', danger: false, busy: false })
 const emit = defineEmits<{ confirm: []; cancel: [] }>()
 const { t } = useI18n()
-const dialog = ref<HTMLDialogElement>()
-let opener: Element | null = null
-
-watch(() => props.open, async (open) => {
-  await nextTick()
-  if (!dialog.value) return
-  if (open && !dialog.value.open) {
-    opener = document.activeElement
-    dialog.value.showModal()
-  } else if (!open && dialog.value.open) {
-    dialog.value.close()
-    if (opener instanceof HTMLElement) opener.focus()
-  }
-}, { immediate: true })
+function close() {
+  if (!props.busy) emit('cancel')
+}
 </script>
 
 <template>
-  <dialog
-    ref="dialog"
-    class="dialog"
-    :aria-label="title"
-    @cancel.prevent="emit('cancel')"
+  <SheetDialog
+    :open="open"
+    :title="title"
+    :description="message"
+    @close="close"
   >
     <form
-      class="dialog-body"
-      method="dialog"
+      class="stack"
       @submit.prevent="emit('confirm')"
     >
-      <h2>{{ title }}</h2>
-      <p
-        v-if="message"
-        class="muted"
-      >
-        {{ message }}
-      </p>
       <slot />
       <div class="form-actions">
         <button
@@ -62,5 +41,5 @@ watch(() => props.open, async (open) => {
         </button>
       </div>
     </form>
-  </dialog>
+  </SheetDialog>
 </template>

@@ -10,13 +10,13 @@
   },
   "nav": {
     "primary": "メインナビゲーション",
-    "menu": "メニュー",
     "account": "アカウントメニュー",
     "home": "ホーム",
     "courses": "授業",
     "teachers": "教員",
     "resources": "学習資料",
-    "contributions": "ストレージ提供"
+    "contributions": "ストレージ提供",
+    "me": "マイページ"
   },
   "language": {
     "label": "言語"
@@ -44,7 +44,9 @@
     "remove": "削除",
     "unknown": "不明",
     "notProvided": "未提供",
-    "notSpecified": "指定しない"
+    "notSpecified": "指定しない",
+    "filters": "絞り込み",
+    "filtersCount": "絞り込み（{count}）"
   },
   "errors": {
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
@@ -85,9 +87,9 @@
     }
   },
   "home": {
-    "eyebrow": "StuHelper キャンパスプラットフォーム",
+    "eyebrow": "StuHelper · 北京航空航天大学",
     "title": "授業を探し、評価を読み、資料を見つける",
-    "description": "学生による授業評価、教員の開講記録、学習資料をまとめています。学生認証を完了すると、評価の全文閲覧、投稿、資料のアップロードができます。",
+    "description": "北京航空航天大学の授業評価、開講記録、学習資料。学生または教員の認証後に利用できます。",
     "searchLabel": "授業または教員を検索",
     "searchPlaceholder": "授業名、授業コード、教員名",
     "searchCourses": "授業を検索",
@@ -97,7 +99,7 @@
     "entries": {
       "courses": {
         "title": "授業と評価",
-        "text": "学校・学部・区分で授業を探し、開講履歴と5項目の評価を確認できます。"
+        "text": "学院と分類で授業を探し、過去の開講と5項目の評価を確認できます。"
       },
       "teachers": {
         "title": "教員ページ",
@@ -109,7 +111,7 @@
       },
       "verification": {
         "title": "学生認証",
-        "text": "キャンパス資格を証明し、評価の全文閲覧・投稿・ダウンロードを利用できます。"
+        "text": "北京航空航天大学の学生または教員であることを証明すると、授業・評価・資料を利用できます。"
       },
       "contributions": {
         "title": "自分のストレージ提供",
@@ -119,7 +121,14 @@
         "title": "マイページ",
         "text": "プロフィール、認証状態、評価、下書き、アップロードを管理します。"
       }
-    }
+    },
+    "workspaceFailed": "一部を読み込めませんでした。他の機能は利用できます。",
+    "workspaceRetry": "これらを再読み込み",
+    "myCourses": "マイ授業",
+    "viewAll": "すべて表示",
+    "noCourses": "履修記録はまだ同期されていません。",
+    "recent": "最近見たページ",
+    "results": "申請の結果"
   },
   "notFound": {
     "code": "404",
@@ -134,7 +143,9 @@
     "unavailable": "アカウントの状態を一時的に確認できません。",
     "unavailableHint": "しばらくして再試行してください。サービス復旧後に個人のコンテンツを利用できます。",
     "signInRequired": "ログインが必要です",
-    "signInHint": "ログインは共通アカウントサービスで行います。ログイン後、自分のコンテンツを管理できます。"
+    "signInHint": "ログインは共通アカウントサービスで行います。ログイン後、自分のコンテンツを管理できます。",
+    "reload": "アカウント状態を読み込めません。選択して再確認します",
+    "reloadShort": "アカウント状態不明"
   },
   "academic": {
     "course": "授業",
@@ -167,7 +178,10 @@
       "courseIntro": "開講学部や科目区分から授業を探しましょう。",
       "teacherIntro": "担当授業、授業レビュー、指導教員へのコメントを確認できます。",
       "empty": "まだ登録がありません。",
-      "noMatch": "条件に一致する結果はありません。条件を変更してください。"
+      "noMatch": "条件に一致する結果はありません。条件を変更してください。",
+      "filtersRetry": "絞り込みを再読み込み",
+      "reloadCourses": "授業を再読み込み",
+      "reloadTeachers": "教員を再読み込み"
     },
     "subject": {
       "writeCourse": "授業をレビュー",
@@ -192,7 +206,9 @@
       "creditsUnknown": "単位数は未提供",
       "aliases": "別名",
       "biography": "概要",
-      "findCourses": "この教員の授業"
+      "findCourses": "この教員の授業",
+      "saved": "保存済み",
+      "bookmarkUnknown": "保存状態を確認できません。"
     },
     "offerings": {
       "title": "開講履歴",
@@ -406,6 +422,11 @@
       "decided": "決定の適用待ち",
       "applied": "対応済み",
       "failed": "処理失敗。管理者の確認が必要です"
+    },
+    "requirementStep": {
+      "campus_eligibility": "認証する",
+      "identity_verified": "本人確認",
+      "course_enrollment": "マイ授業を見る"
     }
   },
   "me": {
@@ -462,7 +483,8 @@
       "resources": "アップロード結果、審査状況、修正。",
       "requests": "取り下げ・苦情・異議の結果。",
       "storage": "クラウドアカウントを接続し、預託の許可を管理。",
-      "contributions": "提供容量、使用量、更新、退出の進捗。"
+      "contributions": "提供容量、使用量、更新、退出の進捗。",
+      "courses": "学期ごとの授業、教員、時間割。"
     },
     "profile": {
       "title": "プロフィール",
@@ -512,7 +534,16 @@
       "select": "「{title}」を選択",
       "selected": "選択中：{count}",
       "clearSelection": "選択を解除",
-      "downloadSelected": "選択した閲覧可能な資料をまとめる"
+      "downloadSelected": "選択した閲覧可能な資料をまとめる",
+      "find": "資料を探す",
+      "placeholder": "タイトル、説明、タグ",
+      "activeFilters": "現在の絞り込み",
+      "removeFilter": "絞り込みを解除：{name}",
+      "fieldCount": "その他の条件 {count} 件",
+      "filtersFailed": "絞り込みを読み込めません。キーワード検索は利用できます。",
+      "filtersRetry": "絞り込みを再読み込み",
+      "reload": "資料を再読み込み",
+      "currentFolder": "現在のフォルダー"
     },
     "package": {
       "title": "ダウンロードパッケージ",
@@ -526,20 +557,23 @@
     "picker": {
       "search": "「{label}」を検索",
       "placeholder": "名前で検索",
-      "unavailable": "選択肢を読み込めませんでした。"
+      "unavailable": "{label} の選択肢を読み込めません。",
+      "noMatch": "一致する項目なし",
+      "retry": "選択肢を再読み込み"
     },
     "detail": {
       "back": "資料一覧に戻る",
       "download": "ファイルをダウンロード",
       "requestOwner": "取り下げ申請・苦情",
       "complain": "権利侵害・内容の苦情",
-      "accessRequired": "ダウンロードには現在の利用資格とアクセス権が必要です。",
+      "accessRequired": "このアカウントにはまだ資料へのアクセス権がありません。不明な点は申請してください。",
       "pendingVersion": "新しい版を処理中です。公開済みの版は引き続き利用できます。",
       "noDescription": "紹介はありません。",
       "about": "資料について",
       "file": "資料ファイル",
       "access": "アクセス",
-      "course": "関連する授業を見る"
+      "course": "関連する授業を見る",
+      "contact": "申請する"
     },
     "access": {
       "allowed": "ダウンロードできます。",
@@ -877,7 +911,10 @@
       "failed": "確認に失敗しました。やり直してください",
       "cancelled": "学校認証をキャンセルしました",
       "expired": "期限が切れました。やり直してください"
-    }
+    },
+    "continueReady": "認証が有効になりました。前のページに戻れます。",
+    "continueNext": "続行",
+    "returnHint": "認証が有効になると、開こうとしたページに自動で戻ります。"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
@@ -991,5 +1028,44 @@
       "attempts_exhausted": "再試行回数の上限に達しました。管理者による対応が必要です。",
       "credentials_required": "復旧可能な認証情報が保存されていません。再度入力してください。"
     }
+  },
+  "gate": {
+    "guest": {
+      "title": "ログインして続行",
+      "text": "授業、教員、評価、資料は認証済みの北京航空航天大学の学生と教員に公開されています。",
+      "action": "ログイン"
+    },
+    "unverified": {
+      "title": "北京航空航天大学の認証を完了して続行",
+      "text": "認証後、開こうとしたページに戻ります。",
+      "action": "認証を開始"
+    },
+    "processing": {
+      "title": "認証を処理中です",
+      "text": "承認後に利用できます。追加資料が必要な場合は進捗ページから続行してください。",
+      "action": "進捗を見る"
+    },
+    "expired": {
+      "title": "認証の有効期限が切れました",
+      "text": "認証が期限切れまたは取り消されました。再度認証すると続行できます。",
+      "action": "再認証"
+    },
+    "unavailable": {
+      "title": "現在、資格を確認できません",
+      "text": "アカウントまたは認証サービスが応答していません。認証が無効になったわけではありません。",
+      "action": "資格を再確認"
+    }
+  },
+  "courses": {
+    "title": "マイ授業",
+    "intro": "学期ごとの履修記録から授業、教員、資料へ移動できます。",
+    "empty": "履修記録はまだありません。データ同期後に表示されます。",
+    "reload": "マイ授業を再読み込み",
+    "timesFailed": "時間と場所を読み込めませんでした。授業一覧には影響しません。",
+    "timesRetry": "時間と場所を再読み込み",
+    "noTeacher": "教員情報なし",
+    "noTime": "時間と場所の情報なし",
+    "classLink": "クラス",
+    "updated": "更新日時 {time}"
   }
 }

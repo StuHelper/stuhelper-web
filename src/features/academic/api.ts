@@ -163,6 +163,19 @@ export class AcademicApi {
     return this.http.json('/api/v1/reviews/me/votes', parse.reviewList, { query, signal })
   }
 
+  /** The contract offers no single lookup, so read the bounded bookmark list. */
+  async isBookmarked(id: string, signal?: AbortSignal) {
+    let after = ''
+    for (let page = 0; page < 10; page++) {
+      const rows = await this.myBookmarks({ after, limit: 100 }, signal)
+      if (rows.includes(id)) return true
+      const last = rows.at(-1)
+      if (rows.length < 100 || last === undefined) return false
+      after = last
+    }
+    return false
+  }
+
   myTasks(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/moderation/tasks', parse.tasks, { query, signal })
   }

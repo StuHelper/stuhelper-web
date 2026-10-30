@@ -3,6 +3,7 @@ import contract from '../../contracts/session.openapi.json'
 import type { components } from '../api/session.gen'
 import { ApiError } from './api/errors'
 import { Http } from './api/http'
+import { extras } from './extras'
 import { schemaOf } from './api/schema'
 import { useHostFetch } from './api/transport'
 
@@ -50,6 +51,7 @@ export function createSessionStore(fetcher: typeof fetch) {
   }
 
   function signIn() {
+    if (extras.signIn) return extras.signIn()
     const target = window.location.href.split('#')[0] ?? window.location.origin
     window.location.assign(`/api/v1/auth/login?return_to=${encodeURIComponent(target)}`)
   }
@@ -77,6 +79,8 @@ export function createSessionStore(fetcher: typeof fetch) {
 
 export type SessionStore = ReturnType<typeof createSessionStore>
 export const sessionKey: InjectionKey<SessionStore> = Symbol('session')
+/** Runs after a business API refuses the account, so a lost qualification closes content pages. */
+export const deniedKey: InjectionKey<() => void> = Symbol('denied')
 
 export function useSession(): SessionStore {
   const store = inject(sessionKey)
@@ -88,5 +92,9 @@ export function useSession(): SessionStore {
 export function useHttp() {
   const fetcher = useHostFetch()
   const session = inject(sessionKey, undefined)
-  return new Http(fetcher, { onDenied: () => session?.revalidate() })
+  const recheck = inject(deniedKey, undefined)
+  return new Http(fetcher, { onDenied: () => {
+    session?.revalidate()
+    recheck?.()
+  } })
 }

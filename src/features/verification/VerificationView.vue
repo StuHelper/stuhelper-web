@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
+import { safeNext, useAccess } from '../account/access'
 import MeLayout from '../account/MeLayout.vue'
 import { kinds, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
@@ -14,8 +16,21 @@ const { t, te } = useI18n()
 const format = useFormat()
 const session = useSession()
 const flow = useVerificationFlow()
-const { form, removal, suggestion } = flow
+const { form, removal } = flow
 onMounted(flow.reload)
+
+// Back to the page that required verification, once and only on a real change.
+const route = useRoute()
+const router = useRouter()
+const access = useAccess()
+const next = computed(() => safeNext(route.query.next))
+let eligible: boolean | undefined
+watch(flow.summary, (value) => {
+  if (!value) return
+  void access.refresh()
+  if (eligible === false && value.campus_eligibility && next.value) void router.replace(next.value)
+  eligible = value.campus_eligibility
+})
 
 // Option labels come from provider-defined codes; an unknown code shows as-is
 // only where the provider documents it as a display value (material types).
@@ -48,6 +63,25 @@ function profileValue(value: unknown, field: string) {
     </template>
 
     <div class="stack-lg">
+      <div
+        v-if="next && flow.summary.value?.campus_eligibility"
+        class="notice notice-success"
+        role="status"
+      >
+        <span>{{ t('verification.continueReady') }}</span>
+        <RouterLink
+          class="btn btn-sm"
+          :to="next"
+        >
+          {{ t('verification.continueNext') }}
+        </RouterLink>
+      </div>
+      <p
+        v-else-if="next"
+        class="notice notice-info"
+      >
+        {{ t('verification.returnHint') }}
+      </p>
       <ErrorNotice
         v-if="flow.error.value"
         :code="flow.error.value"
@@ -143,22 +177,6 @@ function profileValue(value: unknown, field: string) {
           @submit.prevent="flow.mode.value === 'identity' || flow.active.value ? flow.submit() : flow.start()"
         >
           <div class="form-grid">
-            <label class="field">
-              <span class="field-label">{{ t('verification.school') }}</span>
-              <select
-                v-model="flow.selectedSchool.value"
-                class="select"
-                :disabled="flow.busy.value"
-                required
-                @change="flow.selectSchool"
-              >
-                <option
-                  v-for="item in flow.schools.value"
-                  :key="item.id"
-                  :value="item.id"
-                >{{ item.name }}</option>
-              </select>
-            </label>
             <template v-if="flow.mode.value === 'student'">
               <label class="field">
                 <span class="field-label">{{ t('verification.method') }}</span>
@@ -212,15 +230,6 @@ function profileValue(value: unknown, field: string) {
               </label>
             </template>
           </div>
-          <button
-            v-if="flow.cursors.schools"
-            class="btn btn-sm btn-ghost"
-            type="button"
-            :disabled="flow.busy.value"
-            @click="flow.loadMore('schools')"
-          >
-            {{ t('verification.moreSchools') }}
-          </button>
 
           <p
             v-if="flow.mode.value === 'identity' && !flow.availableMethods.value.includes('real_name_identity_check')"
@@ -741,47 +750,10 @@ function profileValue(value: unknown, field: string) {
           {{ t('common.loadMore') }}
         </button>
       </section>
-
-      <details class="card">
-        <summary>{{ t('verification.suggestSchool') }}</summary>
-        <form
-          class="form-grid suggest"
-          @submit.prevent="flow.suggest"
-        >
-          <label class="field">
-            <span class="field-label">{{ t('verification.schoolName') }}</span>
-            <input
-              v-model.trim="suggestion.name"
-              class="input"
-              maxlength="100"
-              required
-            >
-          </label>
-          <label class="field">
-            <span class="field-label">{{ t('verification.website') }}</span>
-            <input
-              v-model.trim="suggestion.website"
-              class="input"
-              type="url"
-              pattern="https://.*"
-              maxlength="500"
-              required
-            >
-          </label>
-          <button
-            class="btn btn-primary"
-            :disabled="flow.busy.value"
-          >
-            {{ t('common.submit') }}
-          </button>
-        </form>
-      </details>
     </div>
   </MeLayout>
 </template>
 
 <style scoped>
 .status-cards { grid-template-columns: repeat(auto-fill, minmax(min(100%, 13rem), 1fr)); }
-.suggest { margin-block-start: 1rem; }
-details summary { cursor: pointer; font-weight: 600; }
 </style>

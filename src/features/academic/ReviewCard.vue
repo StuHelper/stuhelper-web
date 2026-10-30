@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
@@ -210,7 +211,7 @@ async function retry() {
           :disabled="locked"
           @click="vote(1)"
         >
-          {{ t('academic.review.upvote', { count: format.number(review.upvotes) }) }}
+          <ThumbsUp aria-hidden="true" />{{ t('academic.review.upvote', { count: format.number(review.upvotes) }) }}
         </button>
         <button
           class="btn btn-sm"
@@ -219,7 +220,7 @@ async function retry() {
           :disabled="locked"
           @click="vote(-1)"
         >
-          {{ t('academic.review.downvote', { count: format.number(review.downvotes) }) }}
+          <ThumbsDown aria-hidden="true" />{{ t('academic.review.downvote', { count: format.number(review.downvotes) }) }}
         </button>
         <button
           v-if="replyEnabled"
@@ -228,7 +229,7 @@ async function retry() {
           :disabled="locked"
           @click="emit('reply', review)"
         >
-          {{ t('academic.review.reply') }}
+          <MessageCircle aria-hidden="true" />{{ t('academic.review.reply') }}
         </button>
         <RouterLink
           v-if="!standalone && isRoot"
@@ -362,18 +363,19 @@ async function retry() {
 </template>
 
 <style scoped>
-.review { display: grid; gap: .7rem; }
-.review.reply { background: var(--surface); border-inline-start: 3px solid var(--accent-soft); }
+.review { display: grid; gap: .75rem; }
+.review.reply { box-shadow: none; background: color-mix(in srgb, var(--surface) 60%, transparent); }
 .review-head { display: flex; align-items: flex-start; justify-content: space-between; gap: .75rem; }
-.review-author { display: flex; align-items: center; gap: .6rem; min-width: 0; }
-.review-author img, .review-avatar { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
-.review-avatar { display: grid; place-items: center; background: var(--surface-muted); color: var(--muted); font-weight: 700; }
+.review-author { display: flex; align-items: center; gap: .625rem; min-width: 0; }
+.review-author img, .review-avatar { flex: 0 0 36px; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+.review-avatar { display: grid; place-items: center; background: var(--fill-strong); color: var(--label-2); font-weight: 600; }
 .review-byline { gap: 0; }
-.review-name { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .35rem; font-weight: 620; }
-.review-title { font-size: 1.05rem; }
-.review-title a { color: inherit; text-decoration: none; }
-.review-title a:hover { color: var(--accent); }
-.review-body { color: var(--text); }
-.disclosures { list-style: none; }
-.review-panel { padding: .9rem; border-radius: var(--radius-sm); background: var(--surface-muted); }
+.review-name { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .375rem; font-size: .9375rem; font-weight: 600; }
+.review-title { font-size: 1.1875rem; font-weight: 650; letter-spacing: var(--tracking-title); }
+.review-title a { color: inherit; }
+.review-title a:hover { color: var(--accent); text-decoration: none; }
+.review-context { color: var(--label-2); }
+.review-actions { gap: .375rem; margin-block-start: .25rem; }
+.review-panel { padding: 1rem; border-radius: var(--radius); background: var(--fill); }
+.review-panel .input, .review-panel .textarea { background: var(--surface); }
 </style>

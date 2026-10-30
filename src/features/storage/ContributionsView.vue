@@ -7,6 +7,7 @@ import { useFormat } from '../../app/i18n'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
+import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import { conditions, gbInput, localDateInput } from './conditions'
@@ -31,8 +32,6 @@ const accepted = ref(false)
 const editing = ref<{ item: Contribution; mode: 'configure' | 'renew' } | null>(null)
 const invalid = ref(false)
 const formTitle = ref<HTMLElement>()
-const dialog = ref<HTMLDialogElement>()
-let returnFocus: HTMLElement | null = null
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const action = computed(() => (pending.value?.kind === 'command' ? pending.value.body.action : pending.value?.kind === 'retry' ? 'retry' : 'create'))
 const needsSignIn = computed(() => error.value === 'unauthenticated' || session.state.value === 'guest')
@@ -83,23 +82,11 @@ watch(error, (value) => {
 watch(completed, (value) => {
   if (value) reset()
 })
-watch(pending, async (value) => {
-  await nextTick()
-  if (value && !dialog.value?.open) {
-    returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    dialog.value?.showModal()
-  }
-  if (!value && dialog.value?.open) {
-    dialog.value.close()
-    if (returnFocus?.isConnected) returnFocus.focus()
-  }
-})
 </script>
 
 <template>
   <div class="stack-lg">
     <PageHeader
-      :eyebrow="t('contribution.eyebrow')"
       :title="t('nav.contributions')"
       :description="t('contribution.description')"
     >
@@ -513,19 +500,15 @@ watch(pending, async (value) => {
       </section>
     </template>
 
-    <dialog
-      ref="dialog"
-      class="dialog"
-      aria-labelledby="confirmation-title"
-      @cancel.prevent="cancel"
+    <SheetDialog
+      :open="!!pending"
+      :title="t('contribution.confirm', { action: t(`contribution.actions.${action}`) })"
+      @close="cancel"
     >
       <div
         v-if="pending"
-        class="dialog-body"
+        class="stack"
       >
-        <h2 id="confirmation-title">
-          {{ t('contribution.confirm', { action: t(`contribution.actions.${action}`) }) }}
-        </h2>
         <p
           v-if="pending.kind !== 'create'"
           class="mono subtle"
@@ -575,11 +558,11 @@ watch(pending, async (value) => {
           </button>
         </div>
       </div>
-    </dialog>
+    </SheetDialog>
   </div>
 </template>
 
 <style scoped>
-.metrics { grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); }
-.metrics dd { font-size: 1.25rem; }
+.metrics { gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
+.metrics dd { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem); font-weight: 700; line-height: 1.1; letter-spacing: var(--tracking-title); }
 </style>

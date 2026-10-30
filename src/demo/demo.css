@@ -1,0 +1,27 @@
+/* 原型页面共用样式，只使用全站设计变量。 */
+.d-grid { display: grid; gap: 1rem; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.d-span-8 { grid-column: span 8; } .d-span-7 { grid-column: span 7; } .d-span-6 { grid-column: span 6; } .d-span-5 { grid-column: span 5; } .d-span-4 { grid-column: span 4; } .d-span-12 { grid-column: span 12; }
+@media (max-width: 900px) { .d-span-8, .d-span-7, .d-span-6, .d-span-5, .d-span-4 { grid-column: span 12; } }
+.d-title { font-size: 1.0625rem; font-weight: 640; }
+.d-chips { display: flex; gap: .375rem; overflow-x: auto; padding-block: 2px; scrollbar-width: none; }
+.d-chips::-webkit-scrollbar { display: none; }
+.d-chip { flex: none; min-height: 34px; padding: .25rem .875rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label); font: inherit; font-size: .875rem; cursor: pointer; transition: background-color .2s, color .2s, transform .3s var(--spring); }
+.d-chip:hover { background: var(--fill-strong); }
+.d-chip:active { transform: scale(.95); }
+.d-chip[aria-pressed="true"] { background: var(--label); color: var(--bg); font-weight: 550; }
+.d-search { position: relative; display: flex; align-items: center; flex: 1 1 16rem; min-width: 0; }
+.d-search svg { position: absolute; inset-inline-start: .875rem; width: 1.0625rem; height: 1.0625rem; color: var(--label-3); pointer-events: none; }
+.d-search input { width: 100%; height: 42px; padding-inline: 2.5rem 1rem; border: 0; border-radius: var(--pill); background: var(--surface); box-shadow: var(--shadow-card); color: var(--label); font: inherit; }
+.d-search input:focus { outline: none; box-shadow: 0 0 0 1.5px var(--accent-fill), 0 0 0 5px var(--accent-soft); }
+.d-stat { font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.25rem); font-weight: 680; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.d-level { display: inline-flex; align-items: center; gap: .3125rem; font-size: .8125rem; font-weight: 550; color: var(--label); white-space: nowrap; }
+.d-dots { display: inline-flex; gap: 2px; }
+.d-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--fill-strong); }
+.d-dots i.on { background: var(--dot, var(--accent-fill)); }
+.d-toasts { position: fixed; inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + 1rem); inset-inline: 0; z-index: 90; display: grid; justify-items: center; gap: .5rem; pointer-events: none; }
+@media (min-width: 761px) { .d-toasts { inset-block-end: 1.5rem; } }
+.d-toast { padding: .625rem 1.125rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--shadow-float), inset 0 0 0 .5px var(--separator); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); font-size: .9375rem; font-weight: 500; animation: sheet-up-soft .42s var(--ease-out); }
+@keyframes sheet-up-soft { from { opacity: 0; transform: translateY(12px) scale(.96); } }
+.d-unread { position: absolute; inset-block-start: 3px; inset-inline-end: 3px; min-width: 16px; height: 16px; padding-inline: 4px; border-radius: var(--pill); background: #ff3b30; color: #fff; font-size: .625rem; font-weight: 700; line-height: 16px; text-align: center; box-shadow: 0 0 0 2px var(--bg); }
+.d-progress { height: 6px; border-radius: var(--pill); background: var(--fill); overflow: hidden; }
+.d-progress span { display: block; height: 100%; border-radius: inherit; background: var(--accent-fill); transition: width .6s var(--ease-out); }

@@ -10,13 +10,13 @@
   },
   "nav": {
     "primary": "Main navigation",
-    "menu": "Menu",
     "account": "Account menu",
     "home": "Home",
     "courses": "Courses",
     "teachers": "Teachers",
     "resources": "Resources",
-    "contributions": "Storage contribution"
+    "contributions": "Storage contribution",
+    "me": "Me"
   },
   "language": {
     "label": "Language"
@@ -44,7 +44,9 @@
     "remove": "Remove",
     "unknown": "Unknown",
     "notProvided": "Not provided",
-    "notSpecified": "Not specified"
+    "notSpecified": "Not specified",
+    "filters": "Filters",
+    "filtersCount": "Filters ({count})"
   },
   "errors": {
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
@@ -85,9 +87,9 @@
     }
   },
   "home": {
-    "eyebrow": "StuHelper campus platform",
+    "eyebrow": "StuHelper · Beihang University",
     "title": "Find courses, read reviews, get resources",
-    "description": "Course reviews, teaching records and learning resources from fellow students in one place. Complete student verification to read full reviews, post reviews and upload resources.",
+    "description": "Course reviews, teaching records and study resources for Beihang. Available after student or teacher verification.",
     "searchLabel": "Search courses or teachers",
     "searchPlaceholder": "Course name, course code or teacher name",
     "searchCourses": "Search courses",
@@ -97,7 +99,7 @@
     "entries": {
       "courses": {
         "title": "Courses and reviews",
-        "text": "Browse courses by school, college and category, with offerings and five-dimension ratings."
+        "text": "Find courses by college and category, with past offerings and five-part ratings."
       },
       "teachers": {
         "title": "Teacher pages",
@@ -109,7 +111,7 @@
       },
       "verification": {
         "title": "Student verification",
-        "text": "Prove campus eligibility to unlock full reviews, posting and downloads."
+        "text": "Prove you are a Beihang student or teacher to open courses, reviews and resources."
       },
       "contributions": {
         "title": "My storage contributions",
@@ -119,7 +121,14 @@
         "title": "Personal center",
         "text": "Manage your profile, verification status, reviews, drafts and uploads."
       }
-    }
+    },
+    "workspaceFailed": "Some sections could not load. Everything else still works.",
+    "workspaceRetry": "Reload these sections",
+    "myCourses": "My courses",
+    "viewAll": "View all",
+    "noCourses": "No enrollment records have been synced yet.",
+    "recent": "Recently viewed",
+    "results": "Request results"
   },
   "notFound": {
     "code": "404",
@@ -134,7 +143,9 @@
     "unavailable": "Account status is temporarily unavailable.",
     "unavailableHint": "Please try again later. Personal content returns once the service recovers.",
     "signInRequired": "Sign in required",
-    "signInHint": "Sign-in is provided by the shared account service. After signing in you can view and manage your own content."
+    "signInHint": "Sign-in is provided by the shared account service. After signing in you can view and manage your own content.",
+    "reload": "Account status is unavailable. Select to check again",
+    "reloadShort": "Account unknown"
   },
   "academic": {
     "course": "Course",
@@ -167,7 +178,10 @@
       "courseIntro": "Explore courses by offering college and category.",
       "teacherIntro": "Explore teaching experience, course reviews and mentor comments.",
       "empty": "The directory has no entries yet.",
-      "noMatch": "No results match. Try adjusting the filters."
+      "noMatch": "No results match. Try adjusting the filters.",
+      "filtersRetry": "Reload filters",
+      "reloadCourses": "Reload courses",
+      "reloadTeachers": "Reload teachers"
     },
     "subject": {
       "writeCourse": "Write a course review",
@@ -192,7 +206,9 @@
       "creditsUnknown": "Credits not provided",
       "aliases": "Other names",
       "biography": "Overview",
-      "findCourses": "Courses by this teacher"
+      "findCourses": "Courses by this teacher",
+      "saved": "Saved",
+      "bookmarkUnknown": "Cannot confirm the saved status right now."
     },
     "offerings": {
       "title": "Course offerings",
@@ -406,6 +422,11 @@
       "decided": "Decision awaiting execution",
       "applied": "Completed",
       "failed": "Failed; administrator review required"
+    },
+    "requirementStep": {
+      "campus_eligibility": "Verify",
+      "identity_verified": "Verify identity",
+      "course_enrollment": "View my courses"
     }
   },
   "me": {
@@ -462,7 +483,8 @@
       "resources": "Upload results, review status and corrections.",
       "requests": "Outcomes of withdrawals, complaints and appeals.",
       "storage": "Connect cloud accounts and manage custody authorization.",
-      "contributions": "Contributed capacity, usage, renewals and exit progress."
+      "contributions": "Contributed capacity, usage, renewals and exit progress.",
+      "courses": "Courses, teachers and class times by term."
     },
     "profile": {
       "title": "Profile",
@@ -512,7 +534,16 @@
       "select": "Select “{title}”",
       "selected": "Selected: {count}",
       "clearSelection": "Clear selection",
-      "downloadSelected": "Package selected accessible resources"
+      "downloadSelected": "Package selected accessible resources",
+      "find": "Find resources",
+      "placeholder": "Title, description or tag",
+      "activeFilters": "Current filters",
+      "removeFilter": "Remove filter: {name}",
+      "fieldCount": "{count} more conditions",
+      "filtersFailed": "Filters could not load. You can still search by keyword.",
+      "filtersRetry": "Reload filters",
+      "reload": "Reload resources",
+      "currentFolder": "Current folder"
     },
     "package": {
       "title": "Download packages",
@@ -526,20 +557,23 @@
     "picker": {
       "search": "Search in “{label}”",
       "placeholder": "Type a name to search",
-      "unavailable": "Options could not load."
+      "unavailable": "{label} options could not load.",
+      "noMatch": "No matches",
+      "retry": "Reload options"
     },
     "detail": {
       "back": "Back to resources",
       "download": "Download file",
       "requestOwner": "Request withdrawal or complain",
       "complain": "Report infringement or content",
-      "accessRequired": "Downloading requires current eligibility and access rights.",
+      "accessRequired": "Your account has no access to this resource yet. You can submit a request if you have questions.",
       "pendingVersion": "A new version is being processed. The published version remains available.",
       "noDescription": "No description.",
       "about": "About this resource",
       "file": "Resource file",
       "access": "Access",
-      "course": "View the related course"
+      "course": "View the related course",
+      "contact": "Submit a request"
     },
     "access": {
       "allowed": "You can download this.",
@@ -877,7 +911,10 @@
       "failed": "School verification failed; please restart",
       "cancelled": "School verification cancelled",
       "expired": "School verification expired; please restart"
-    }
+    },
+    "continueReady": "You are verified and can return to the previous page.",
+    "continueNext": "Continue",
+    "returnHint": "You return to the page you wanted once verification takes effect."
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",
@@ -991,5 +1028,44 @@
       "attempts_exhausted": "The retry limit was reached. Administrator action is required.",
       "credentials_required": "No recoverable credential was saved. Submit credentials again."
     }
+  },
+  "gate": {
+    "guest": {
+      "title": "Sign in to continue",
+      "text": "Courses, teachers, reviews and resources are open to verified Beihang students and teachers.",
+      "action": "Sign in"
+    },
+    "unverified": {
+      "title": "Verify your Beihang status to continue",
+      "text": "After verification you return to the page you wanted.",
+      "action": "Start verification"
+    },
+    "processing": {
+      "title": "Verification in progress",
+      "text": "You can enter once it is approved. If more material is needed, continue from the progress page.",
+      "action": "View progress"
+    },
+    "expired": {
+      "title": "Verification no longer valid",
+      "text": "Your verification expired or was revoked. Verify again to continue.",
+      "action": "Verify again"
+    },
+    "unavailable": {
+      "title": "Cannot confirm your eligibility right now",
+      "text": "The account or verification service did not respond. This does not mean your verification lapsed.",
+      "action": "Check eligibility again"
+    }
+  },
+  "courses": {
+    "title": "My courses",
+    "intro": "Your enrollments by term, linked to courses, teachers and resources.",
+    "empty": "No enrollment records yet. They appear here once school data is synced.",
+    "reload": "Reload my courses",
+    "timesFailed": "Class times and places could not load. The course list is unaffected.",
+    "timesRetry": "Reload times and places",
+    "noTeacher": "Teacher not provided",
+    "noTime": "Time and place not provided",
+    "classLink": "Teaching class",
+    "updated": "Updated {time}"
   }
 }

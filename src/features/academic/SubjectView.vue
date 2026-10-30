@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Bookmark, BookmarkCheck } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -6,6 +7,7 @@ import { useFormat } from '../../app/i18n'
 import { ApiError } from '../../shared/api/errors'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
 import { useLeaveGuard } from '../../shared/composables/leave'
+import { rememberPage } from '../../shared/recent'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -25,7 +27,7 @@ const api = useAcademic()
 const bookmark = useMutation()
 const composing = ref(false)
 const published = ref('')
-const bookmarked = ref('')
+const saved = useAsync((signal) => (props.kind === 'course' ? api.isBookmarked(props.id, signal) : Promise.resolve(false)))
 const tab = ref<'reviews' | 'mentor' | 'offerings' | 'related'>('reviews')
 const tabs = computed(() => [
   { value: 'reviews' as const, label: t(props.kind === 'course' ? 'academic.subject.courseReviews' : 'academic.subject.teacherCourseReviews') },
@@ -56,11 +58,15 @@ useLeaveGuard(() => (bookmark.uncertain.value || bookmark.busy.value ? t('common
 watch(() => props.id, () => {
   composing.value = false
   published.value = ''
-  bookmarked.value = ''
   tab.value = 'reviews'
   void entry.reload()
   void related.reload()
+  void saved.reload()
 }, { immediate: true })
+
+watch(subject, (value) => {
+  if (value) rememberPage({ path: `/${props.kind === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(value.id)}`, title: value.name, kind: props.kind })
+})
 
 function submitted(result: Result) {
   composing.value = false
@@ -70,13 +76,14 @@ function submitted(result: Result) {
   mentorFeed.value?.refresh()
 }
 
-async function addBookmark() {
-  bookmarked.value = ''
-  const result = await bookmark.run(`bookmark:${props.id}`, { target_id: props.id, set: true }, (body, key) => api.setBookmark(body, key))
-  if (result) bookmarked.value = t('academic.subject.bookmarked')
+let wanted = true
+async function toggleBookmark() {
+  wanted = !saved.data.value
+  const result = await bookmark.run(`bookmark:${props.id}:${wanted}`, { target_id: props.id, set: wanted }, (body, key) => api.setBookmark(body, key))
+  if (result) saved.data.value = wanted
 }
 async function retryBookmark() {
-  if (await bookmark.retry()) bookmarked.value = t('academic.subject.bookmarked')
+  if (await bookmark.retry()) saved.data.value = wanted
 }
 </script>
 
@@ -91,13 +98,21 @@ async function retryBookmark() {
       class="stack-lg"
     >
       <PageHeader
-        :eyebrow="t(kind === 'course' ? 'academic.course' : 'academic.teacher')"
+        :back="kind === 'course' ? '/courses' : '/teachers'"
+        :back-label="t(kind === 'course' ? 'nav.courses' : 'nav.teachers')"
         :title="subject.name"
       >
-        <p class="muted">
-          {{ entry.data.value.school.name }}<template v-if="entry.data.value.department">
-            · {{ entry.data.value.department.name }}
-          </template>
+        <p
+          v-if="entry.data.value.department"
+          class="muted"
+        >
+          {{ entry.data.value.department.name }}
+        </p>
+        <p
+          v-if="saved.status.value === 'error'"
+          class="field-error"
+        >
+          {{ t('academic.subject.bookmarkUnknown') }}
         </p>
         <p
           v-if="subject.inactive"
@@ -117,7 +132,7 @@ async function retryBookmark() {
           <RouterLink
             v-if="kind === 'course'"
             class="btn"
-            :to="{ path: '/resources', query: { school_id: subject.school_id, course_id: subject.id } }"
+            :to="{ path: '/resources', query: { course_id: subject.id } }"
           >
             {{ t('academic.subject.resources') }}
           </RouterLink>
@@ -125,10 +140,15 @@ async function retryBookmark() {
             v-if="kind === 'course'"
             class="btn"
             type="button"
-            :disabled="bookmark.busy.value || bookmark.uncertain.value"
-            @click="addBookmark"
+            :aria-pressed="!!saved.data.value"
+            :disabled="bookmark.busy.value || bookmark.uncertain.value || saved.status.value === 'loading'"
+            @click="toggleBookmark"
           >
-            {{ t('academic.subject.bookmark') }}
+            <component
+              :is="saved.data.value ? BookmarkCheck : Bookmark"
+              aria-hidden="true"
+            />
+            {{ t(saved.data.value ? 'academic.subject.saved' : 'academic.subject.bookmark') }}
           </button>
         </template>
       </PageHeader>
@@ -137,7 +157,7 @@ async function retryBookmark() {
         :busy="bookmark.busy.value"
         :error="bookmark.error.value"
         :uncertain="bookmark.uncertain.value"
-        :success="bookmarked || published"
+        :success="published"
         @retry="retryBookmark"
       />
 
@@ -231,10 +251,6 @@ async function retryBookmark() {
           <h2>{{ t('academic.subject.facts') }}</h2>
           <dl class="facts">
             <div>
-              <dt>{{ t('academic.directory.school') }}</dt>
-              <dd>{{ entry.data.value.school.name }}</dd>
-            </div>
-            <div>
               <dt>{{ t(kind === 'course' ? 'academic.directory.college' : 'academic.directory.department') }}</dt>
               <dd>{{ entry.data.value.department?.name || t('common.notProvided') }}</dd>
             </div>
@@ -256,7 +272,7 @@ async function retryBookmark() {
                     v-for="category in entry.data.value.categories"
                     :key="category.id"
                     class="tag tag-info"
-                    :to="{ path: '/courses', query: { school: subject.school_id, category: category.id } }"
+                    :to="{ path: '/courses', query: { category: category.id } }"
                   >
                     {{ category.name }}
                   </RouterLink>
@@ -270,7 +286,7 @@ async function retryBookmark() {
                     v-for="nature in entry.data.value.natures"
                     :key="nature.id"
                     class="tag tag-info"
-                    :to="{ path: '/courses', query: { school: subject.school_id, nature: nature.id } }"
+                    :to="{ path: '/courses', query: { nature: nature.id } }"
                   >
                     {{ nature.name }}
                   </RouterLink>
@@ -295,7 +311,7 @@ async function retryBookmark() {
           <RouterLink
             v-if="kind === 'teacher'"
             class="btn btn-sm"
-            :to="{ path: '/courses', query: { school: subject.school_id, teacher: subject.id } }"
+            :to="{ path: '/courses', query: { teacher: subject.id } }"
           >
             {{ t('academic.subject.findCourses') }}
           </RouterLink>
@@ -307,7 +323,8 @@ async function retryBookmark() {
 
 <style scoped>
 .related { list-style: none; }
-.facts-card { position: sticky; top: 76px; }
+.facts-card h2 { font-size: 1.0625rem; }
+.facts-card { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); }
 .facts-card .facts { grid-template-columns: 1fr; }
-@media (max-width: 900px) { .facts-card { position: static; order: -1; } }
+@media (max-width: 960px) { .facts-card { position: static; order: -1; } .facts-card .facts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr)); } }
 </style>

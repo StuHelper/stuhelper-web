@@ -40,6 +40,24 @@
     "RES-CLIENT-07": [
       "src/features/resources/api.test.ts#requests safe reuse and never sends bytes for reused or still pending content",
       "tests/e2e/resources.spec.mjs#owned file reuse avoids content transfer and keeps separate review"
+    ],
+    "AE-ACCESS-01": [
+      "tests/e2e/access.spec.mjs#a guest sees sign-in instead of content and sends no business request"
+    ],
+    "AE-ACCESS-02": [
+      "tests/e2e/access.spec.mjs#an account read failure keeps content closed and explains the retry"
+    ],
+    "AE-ACCESS-03": [
+      "tests/e2e/access.spec.mjs#each qualification state gets its own next step"
+    ],
+    "AE-ACCESS-04": [
+      "tests/e2e/access.spec.mjs#a verified user enters content; the home page becomes a workspace"
+    ],
+    "MC-02": [
+      "tests/e2e/access.spec.mjs#my courses separates terms and keeps a data failure apart from having no courses"
+    ],
+    "MC-04": [
+      "tests/e2e/access.spec.mjs#my courses separates terms and keeps a data failure apart from having no courses"
     ]
   }
 }

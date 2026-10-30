@@ -63,14 +63,17 @@ function choose(index: number, level: number) {
 </template>
 
 <style scoped>
-.rating-input { display: grid; gap: .9rem; }
-.rating-group { display: grid; gap: .4rem; }
-.rating-group legend { font-size: .88rem; font-weight: 620; margin-block-end: .35rem; }
-.rating-options { display: flex; flex-wrap: wrap; gap: .35rem; }
-.rating-option { position: relative; display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .65rem; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); font-size: .85rem; cursor: pointer; }
+.rating-input { display: grid; gap: 1.125rem; }
+.rating-group { display: grid; gap: .5rem; }
+.rating-group legend { margin-block-end: .5rem; color: var(--label-2); font-size: .8125rem; font-weight: 500; }
+.rating-options { display: flex; flex-wrap: wrap; gap: .375rem; }
+.rating-option { position: relative; display: inline-flex; align-items: center; gap: .25rem; min-height: 36px; padding: .25rem .875rem; border-radius: var(--pill); background: var(--fill); font-size: .875rem; cursor: pointer; transition: background-color .2s, color .2s, transform .35s var(--spring); }
+.rating-option:hover { background: var(--fill-strong); }
+.rating-option:active { transform: scale(.95); }
 .rating-option input { position: absolute; opacity: 0; pointer-events: none; }
-.rating-option:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
-.rating-option.chosen { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
-.rating-skip { color: var(--muted); }
-fieldset:disabled .rating-option { opacity: .6; cursor: not-allowed; }
+.rating-option:focus-within { outline: 3px solid color-mix(in srgb, var(--accent-fill) 55%, transparent); outline-offset: 2px; }
+.rating-option.chosen { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
+.rating-skip { color: var(--label-2); }
+fieldset:disabled .rating-option { opacity: .5; cursor: default; }
+@media (pointer: coarse) { .rating-option { min-height: 42px; } }
 </style>

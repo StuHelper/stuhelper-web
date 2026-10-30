@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LockKeyhole } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useSession } from '../../shared/session'
 
@@ -21,33 +22,38 @@ const session = useSession()
   </div>
   <section
     v-else
-    class="card sign-in stack"
+    class="card sign-in"
   >
+    <span
+      class="sign-in-icon"
+      aria-hidden="true"
+    ><LockKeyhole /></span>
     <h2>{{ t(session.state.value === 'guest' ? 'account.signInRequired' : 'account.unavailable') }}</h2>
     <p class="muted">
       {{ t(session.state.value === 'guest' ? 'account.signInHint' : 'account.unavailableHint') }}
     </p>
-    <div class="row">
-      <button
-        v-if="session.state.value === 'guest'"
-        class="btn btn-primary"
-        type="button"
-        @click="session.signIn"
-      >
-        {{ t('account.signIn') }}
-      </button>
-      <button
-        v-else
-        class="btn"
-        type="button"
-        @click="session.reload"
-      >
-        {{ t('common.retry') }}
-      </button>
-    </div>
+    <button
+      v-if="session.state.value === 'guest'"
+      class="btn btn-primary"
+      type="button"
+      @click="session.signIn"
+    >
+      {{ t('account.signIn') }}
+    </button>
+    <button
+      v-else
+      class="btn"
+      type="button"
+      @click="session.reload"
+    >
+      {{ t('common.retry') }}
+    </button>
   </section>
 </template>
 
 <style scoped>
-.sign-in { max-width: 32rem; }
+.sign-in { display: grid; justify-items: center; gap: .75rem; padding-block: clamp(2rem, 6vw, 3.5rem); text-align: center; }
+.sign-in-icon { display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.sign-in-icon svg { width: 28px; height: 28px; }
+.sign-in .muted { max-width: 28em; }
 </style>

@@ -35,9 +35,10 @@ async function describe(page, m, title) {
 test('configured category field filters and grouping follow server configuration', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info);
   await expect(page.getByRole('link', { name: 'Fixture notes', exact: true })).toBeVisible();
+  await page.getByRole('search').getByRole('button', { name: new RegExp(all.common.filters) }).click();
   await page.getByRole('combobox', { name: m.category, exact: true }).selectOption('custom-category');
   await page.getByLabel(fixtureName(locale, '自定义年份', 'Custom year'), { exact: true }).fill('2025');
-  await page.getByRole('button', { name: all.common.search, exact: true }).last().click();
+  await page.getByRole('dialog').getByRole('button', { name: m.browse.find, exact: true }).click();
   await expect(page.getByRole('heading', { name: new Intl.NumberFormat(locale, { useGrouping: false }).format(2025), exact: true })).toBeVisible();
   expect(s.calls.some((x) => x.query?.attributes === '{"edition":{"number":2025}}')).toBe(true);
   await layout(page, errors, locale);

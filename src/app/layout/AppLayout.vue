@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { BookOpen, FolderOpen, GraduationCap, House, UserRound } from 'lucide-vue-next'
+import { computed, nextTick, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
+import { extras } from '../../shared/extras'
 import AccountMenu from './AccountMenu.vue'
 import LocaleSelect from './LocaleSelect.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()
-const menuOpen = ref(false)
-const main = ref<HTMLElement>()
+const section = computed(() => route.meta.section)
 const links = [
   { to: '/', label: 'nav.home', section: 'home' },
   { to: '/courses', label: 'nav.courses', section: 'courses' },
@@ -16,7 +17,15 @@ const links = [
   { to: '/resources', label: 'nav.resources', section: 'resources' },
   { to: '/contributions', label: 'nav.contributions', section: 'contributions' },
 ] as const
-const section = computed(() => route.meta.section)
+// Phones get a tab bar. Contributions move into the personal center there, since
+// five tabs are the most that stay readable in all eight languages.
+const tabs: { to: string; label: string; section: string; icon: Component }[] = [
+  { to: '/', label: 'nav.home', section: 'home', icon: House },
+  { to: '/courses', label: 'nav.courses', section: 'courses', icon: BookOpen },
+  { to: '/teachers', label: 'nav.teachers', section: 'teachers', icon: GraduationCap },
+  { to: '/resources', label: 'nav.resources', section: 'resources', icon: FolderOpen },
+  { to: '/me', label: 'nav.me', section: 'me', icon: UserRound },
+]
 
 watch([() => route.meta.title, locale], () => {
   const title = route.meta.title ? t(route.meta.title) : ''
@@ -25,10 +34,9 @@ watch([() => route.meta.title, locale], () => {
 
 // Move focus to the new page so keyboard and screen-reader users start there.
 watch(() => route.path, async (_path, previous) => {
-  menuOpen.value = false
   if (previous === undefined) return
   await nextTick()
-  main.value?.focus({ preventScroll: true })
+  document.getElementById('main-content')?.focus({ preventScroll: true })
 })
 </script>
 
@@ -38,8 +46,8 @@ watch(() => route.path, async (_path, previous) => {
     href="#main-content"
   >{{ t('shell.skip') }}</a>
   <div class="shell">
-    <header class="shell-header">
-      <div class="container shell-bar">
+    <header class="nav">
+      <div class="container nav-bar">
         <RouterLink
           class="brand"
           to="/"
@@ -48,24 +56,13 @@ watch(() => route.path, async (_path, previous) => {
           <img
             src="/brand.png"
             alt=""
-            width="34"
-            height="34"
+            width="26"
+            height="26"
           >
           <span class="brand-name">{{ t('brand.name') }}</span>
         </RouterLink>
-        <button
-          class="btn btn-sm btn-ghost menu-toggle"
-          type="button"
-          :aria-expanded="menuOpen"
-          aria-controls="primary-nav"
-          @click="menuOpen = !menuOpen"
-        >
-          {{ t('nav.menu') }}
-        </button>
         <nav
-          id="primary-nav"
-          class="primary-nav"
-          :class="{ open: menuOpen }"
+          class="nav-links"
           :aria-label="t('nav.primary')"
         >
           <RouterLink
@@ -77,7 +74,12 @@ watch(() => route.path, async (_path, previous) => {
             {{ t(link.label) }}
           </RouterLink>
         </nav>
-        <div class="shell-tools">
+        <div class="nav-tools">
+          <component
+            :is="tool"
+            v-for="(tool, index) in extras.navTools"
+            :key="index"
+          />
           <LocaleSelect />
           <AccountMenu />
         </div>
@@ -85,7 +87,6 @@ watch(() => route.path, async (_path, previous) => {
     </header>
     <main
       id="main-content"
-      ref="main"
       class="container shell-main"
       tabindex="-1"
     >
@@ -97,32 +98,72 @@ watch(() => route.path, async (_path, previous) => {
         <span>{{ t('shell.footer') }}</span>
       </div>
     </footer>
+    <nav
+      class="tabbar"
+      :aria-label="t('nav.primary')"
+    >
+      <RouterLink
+        v-for="tab in tabs"
+        :key="tab.to"
+        class="tabbar-item"
+        :to="tab.to"
+        :aria-current="section === tab.section ? 'page' : undefined"
+      >
+        <component
+          :is="tab.icon"
+          :stroke-width="section === tab.section ? 2.3 : 1.8"
+          aria-hidden="true"
+        />
+        <span>{{ t(tab.label) }}</span>
+      </RouterLink>
+    </nav>
+    <component
+      :is="item"
+      v-for="(item, index) in extras.floating"
+      :key="index"
+    />
   </div>
 </template>
 
 <style scoped>
-.shell { min-height: 100dvh; display: flex; flex-direction: column; }
-.shell-header { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); border-bottom: 1px solid var(--border); }
-.shell-bar { display: flex; align-items: center; gap: 1rem; min-height: 60px; }
-.brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--text); text-decoration: none; font-weight: 720; font-size: 1.05rem; }
-.brand img { object-fit: contain; }
-.primary-nav { display: flex; align-items: center; gap: .15rem; flex: 1; }
-.primary-nav a { padding: .45rem .7rem; border-radius: var(--radius-sm); color: var(--muted); font-weight: 580; text-decoration: none; white-space: nowrap; }
-.primary-nav a:hover { color: var(--text); background: var(--surface-muted); }
-.primary-nav a[aria-current="page"] { color: var(--accent-strong); background: var(--accent-soft); }
-.shell-tools { display: flex; align-items: center; gap: .5rem; margin-inline-start: auto; }
-.menu-toggle { display: none; }
-.shell-main { flex: 1; padding-block: 2rem 4rem; outline: none; }
-.shell-footer { padding-block: 1.25rem; border-top: 1px solid var(--border); color: var(--subtle); font-size: .8rem; }
-@media (max-width: 860px) {
-  .shell-bar { flex-wrap: wrap; gap: .5rem; padding-block: .5rem; }
-  .menu-toggle { display: inline-flex; order: 3; }
-  .shell-tools { order: 2; }
-  .primary-nav { order: 4; flex-basis: 100%; display: none; flex-direction: column; align-items: stretch; padding-block: .25rem .5rem; }
-  .primary-nav.open { display: flex; }
-  .shell-main { padding-block: 1.25rem 3rem; }
-}
-@media (max-width: 420px) {
-  .brand-name { display: none; }
+.skip-link { position: fixed; inset-block-start: .5rem; inset-inline-start: .5rem; z-index: 100; padding: .5rem 1rem; border-radius: var(--pill); background: var(--accent-fill); color: #fff; transform: translateY(-200%); }
+.skip-link:focus { transform: none; }
+.shell { display: flex; flex-direction: column; min-height: 100dvh; }
+.nav { position: sticky; inset-block-start: 0; z-index: 40; background: var(--glass); box-shadow: 0 .5px 0 var(--separator); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+.nav-bar { display: flex; align-items: center; gap: 1.5rem; height: var(--nav-height); }
+.brand { display: inline-flex; flex: none; align-items: center; gap: .5rem; color: var(--label); font-size: 1.0625rem; font-weight: 620; }
+.brand:hover { text-decoration: none; color: var(--label); }
+.brand img { border-radius: 6px; object-fit: contain; }
+.nav-links { display: flex; flex: 1; align-items: center; gap: .125rem; min-width: 0; }
+.nav-links a { padding: .3125rem .75rem; border-radius: var(--pill); color: var(--label-2); font-size: .875rem; white-space: nowrap; transition: color .2s, background-color .2s; }
+.nav-links a:hover { color: var(--label); text-decoration: none; }
+.nav-links a[aria-current="page"] { color: var(--label); font-weight: 550; background: var(--fill); }
+.nav-tools { display: flex; flex: none; align-items: center; gap: .375rem; margin-inline-start: auto; }
+.shell-main { flex: 1; padding-block: clamp(1.75rem, 4vw, 3.25rem) clamp(3rem, 6vw, 5rem); }
+.shell-footer { padding-block: 1.25rem; box-shadow: inset 0 .5px 0 var(--separator); color: var(--label-3); font-size: .75rem; }
+.tabbar { display: none; }
+
+@media (max-width: 760px) {
+  .nav-links { display: none; }
+  .shell-main { padding-block: 1.25rem 2.5rem; }
+  .shell-footer { padding-block-end: calc(var(--tab-height) + var(--safe-bottom) + 1.25rem); }
+  .tabbar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    padding-block-end: var(--safe-bottom);
+    background: var(--glass);
+    box-shadow: 0 -.5px 0 var(--separator);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+  .tabbar-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: var(--tab-height); min-width: 0; padding-inline: 2px; color: var(--label-3); font-size: .6875rem; font-weight: 500; line-height: 1.1; transition: transform .3s var(--spring); }
+  .tabbar-item:hover { text-decoration: none; }
+  .tabbar-item:active { transform: scale(.9); }
+  .tabbar-item svg { width: 25px; height: 25px; }
+  .tabbar-item span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tabbar-item[aria-current="page"] { color: var(--accent); }
 }
 </style>

@@ -3,7 +3,8 @@ import App from './App.vue'
 import { i18n, prepareLocale } from './app/i18n'
 import { createAppRouter } from './app/router'
 import { hostFetchKey, sessionFetch } from './shared/api/transport'
-import { createSessionStore, sessionKey } from './shared/session'
+import { accessKey, createAccessStore } from './features/account/access'
+import { createSessionStore, deniedKey, sessionKey } from './shared/session'
 import './styles/base.css'
 import './styles/components.css'
 
@@ -16,5 +17,6 @@ export function createApplication(fetcher: typeof fetch = sessionFetch) {
   const router = createAppRouter()
   void prepareLocale()
   void session.reload()
-  return createApp(App).provide(hostFetchKey, fetcher).provide(sessionKey, session).use(i18n).use(router)
+  const access = createAccessStore(fetcher, session)
+  return createApp(App).provide(hostFetchKey, fetcher).provide(sessionKey, session).provide(accessKey, access).provide(deniedKey, () => void access.refresh()).use(i18n).use(router)
 }

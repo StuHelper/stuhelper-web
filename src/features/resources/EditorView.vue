@@ -13,6 +13,7 @@ import PageHeader from '../../shared/ui/PageHeader.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import { localName, Upload, useResourcesApi, type Metadata, type Resource } from './api'
+import { useCampusId } from '../account/access'
 import CatalogPicker from './CatalogPicker.vue'
 import FieldInput from './FieldInput.vue'
 
@@ -26,6 +27,7 @@ const { t, locale } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
 const route = useRoute()
+const campus = useCampusId()
 const router = useRouter()
 const api = useResourcesApi()
 const saving = useMutation()
@@ -49,7 +51,7 @@ const metadata = ref<Metadata>({
   category_id: '',
   category_revision: 1,
   attributes: {},
-  associations: { school_id: typeof route.query.school_id === 'string' ? route.query.school_id : '', course_id: typeof route.query.course_id === 'string' ? route.query.course_id : '' },
+  associations: { school_id: campus.value, course_id: typeof route.query.course_id === 'string' ? route.query.course_id : '' },
   access: 'public',
   origin: { kind: 'unknown' },
 })
@@ -213,7 +215,8 @@ function uploadMessage(state: string) {
 <template>
   <div class="stack-lg">
     <PageHeader
-      :eyebrow="t('nav.resources')"
+      back="/resources"
+      :back-label="t('nav.resources')"
       :title="t(id ? 'resources.edit' : 'resources.upload')"
       :description="t('resources.editor.intro')"
     >
@@ -319,24 +322,16 @@ function uploadMessage(state: string) {
               </p>
               <div class="form-grid">
                 <CatalogPicker
-                  v-model="metadata.associations.school_id"
-                  kind="school"
-                  :label="t('academic.directory.school')"
-                  :disabled="!!entry"
-                />
-                <CatalogPicker
                   v-model="metadata.associations.course_id"
                   kind="course"
                   :label="t('academic.course')"
                   :school="metadata.associations.school_id || undefined"
-                  :disabled="!metadata.associations.school_id"
                 />
                 <CatalogPicker
                   v-model="metadata.associations.term_id"
                   kind="term"
                   :label="t('academic.editor.term')"
                   :school="metadata.associations.school_id || undefined"
-                  :disabled="!metadata.associations.school_id"
                 />
                 <CatalogPicker
                   v-model="metadata.associations.offering_id"
@@ -353,7 +348,6 @@ function uploadMessage(state: string) {
                   :label="t('academic.teacher')"
                   :school="metadata.associations.school_id || undefined"
                   :course="metadata.associations.course_id || undefined"
-                  :disabled="!metadata.associations.school_id"
                 />
                 <div class="field">
                   <label class="field">
@@ -602,6 +596,9 @@ function uploadMessage(state: string) {
 </template>
 
 <style scoped>
-.dim { opacity: .7; }
-.origin-choice { padding: .35rem .7rem; border: 1px solid var(--border-strong); border-radius: 999px; }
+.dim { opacity: .55; transition: opacity .3s; }
+.origin-choice { justify-content: flex-start; gap: .5rem; padding: .375rem .875rem; border-radius: var(--pill); background: var(--fill); }
+.origin-choice > span { order: 0; padding: 0; }
+.layout-aside > aside { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); }
+@media (max-width: 960px) { .layout-aside > aside { position: static; } }
 </style>

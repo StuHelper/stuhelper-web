@@ -169,6 +169,6 @@ async function removeRoot() {
 </template>
 
 <style scoped>
-.discussion { max-width: 52rem; }
+.discussion { max-width: var(--reading); margin-inline: auto; }
 .quote { max-width: 36rem; }
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useNow } from '../../shared/composables/clock'
@@ -95,6 +95,14 @@ watch(() => composer.value?.disclosures, (options) => {
   const offered = new Set(options.map((option) => option.key))
   disclosures.value = [...new Set([...disclosures.value.filter((key) => offered.has(key)), ...options.filter((option) => option.required).map((option) => option.key)])]
 })
+
+// Steps open in a new tab so the text being written stays here; returning rechecks.
+const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/verification', course_enrollment: '/me/courses' }
+function recheck() {
+  if (document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
+}
+document.addEventListener('visibilitychange', recheck)
+onBeforeUnmount(() => document.removeEventListener('visibilitychange', recheck))
 
 useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || write.busy.value ? t('common.leaveUnsaved') : ''))
 onMounted(() => {
@@ -216,6 +224,16 @@ function cancel() {
               <StatusTag :tone="requirement.state === 'satisfied' ? 'success' : requirement.state === 'missing' ? 'warning' : 'neutral'">
                 {{ t(`academic.requirement.${requirement.key}`) }} · {{ t(`academic.requirementState.${requirement.state}`) }}
               </StatusTag>
+              <a
+                v-if="requirement.state === 'missing' && steps[requirement.key]"
+                class="eligibility-step"
+                :href="steps[requirement.key]"
+                target="_blank"
+              >{{ t(`academic.requirementStep.${requirement.key}`) }}</a>
+              <span
+                v-else-if="requirement.state === 'missing' && requirement.key === 'phone_bound'"
+                class="subtle"
+              >{{ t('me.status.phoneHint') }}</span>
             </li>
           </ul>
           <p
@@ -471,8 +489,6 @@ function cancel() {
 </template>
 
 <style scoped>
-.editor { border-color: var(--accent-soft); }
-.eligibility { padding: .8rem .9rem; border-radius: var(--radius-sm); background: var(--surface-muted); display: grid; gap: .5rem; }
-.eligibility-list { list-style: none; }
-.block { display: block; }
+.editor { box-shadow: var(--shadow-lift); animation: reveal .45s var(--ease-out); }
+.eligibility { display: grid; gap: .5rem; padding: .875rem 1rem; border-radius: var(--radius); background: var(--fill); }
 </style>

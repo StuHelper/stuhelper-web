@@ -89,5 +89,5 @@ async function download(number: number) {
 
 <style scoped>
 .parts { list-style: none; }
-.part { padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.part { padding: .875rem 1rem; border-radius: var(--radius); background: var(--fill); }
 </style>

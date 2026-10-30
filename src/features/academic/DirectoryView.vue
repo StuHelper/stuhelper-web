@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, reactive, shallowRef, watch } from 'vue'
+import { ChevronRight, Search } from 'lucide-vue-next'
+import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { useCampusId } from '../account/access'
 import { useAsync, usePaged } from '../../shared/composables/async'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
@@ -15,31 +17,30 @@ const format = useFormat()
 const route = useRoute()
 const router = useRouter()
 const api = useAcademic()
-const keys = ['q', 'school', 'department', 'category', 'nature', 'teacher'] as const
+const campus = useCampusId()
+const filtersOpen = ref(false)
+const keys = ['q', 'department', 'category', 'nature', 'teacher'] as const
 type Filters = Record<(typeof keys)[number], string>
-const form = reactive<Filters>({ q: '', school: '', department: '', category: '', nature: '', teacher: '' })
+const form = reactive<Filters>({ q: '', department: '', category: '', nature: '', teacher: '' })
 const names = shallowRef(new Map<string, CatalogObject>())
 
 function fromRoute(): Filters {
   const read = (key: string) => (typeof route.query[key] === 'string' ? String(route.query[key]) : '')
-  return { q: read('q'), school: read('school'), department: read('department'), category: props.kind === 'course' ? read('category') : '', nature: props.kind === 'course' ? read('nature') : '', teacher: props.kind === 'course' ? read('teacher') : '' }
+  return { q: read('q'), department: read('department'), category: props.kind === 'course' ? read('category') : '', nature: props.kind === 'course' ? read('nature') : '', teacher: props.kind === 'course' ? read('teacher') : '' }
 }
 const applied = computed(fromRoute)
 const filtered = computed(() => keys.some((key) => applied.value[key]))
 
 const results = usePaged(async (after, signal) => {
   const f = applied.value
-  const page = await api.objects({ kind: props.kind, q: f.q, school_id: f.school, department_id: f.department, category_id: f.category, nature_id: f.nature, teacher_id: f.teacher, after, limit: listSize }, signal)
-  const found = await api.lookup(page.items.flatMap((item) => [item.school_id, item.department_id]), signal)
+  const page = await api.objects({ kind: props.kind, q: f.q, school_id: campus.value, department_id: f.department, category_id: f.category, nature_id: f.nature, teacher_id: f.teacher, after, limit: listSize }, signal)
+  const found = await api.lookup(page.items.flatMap((item) => [item.department_id]), signal)
   names.value = new Map([...(after ? names.value : []), ...found])
   return { items: page.items, next: page.next }
 })
 
-const schools = useAsync((signal) => api.options({ kind: 'school' }, signal))
-// Departments, categories and natures belong to one school.
 const scoped = useAsync(async (signal) => {
-  const school = form.school
-  if (!school) return { departments: [], categories: [], natures: [] }
+  const school = campus.value
   const [departments, categories, natures] = await Promise.all([
     api.options({ kind: 'department', school_id: school }, signal),
     props.kind === 'course' ? api.options({ kind: 'category', school_id: school }, signal) : Promise.resolve([]),
@@ -57,35 +58,32 @@ function apply(changes: Partial<Filters> = {}) {
   void router.replace({ path: route.path, query })
 }
 
-function changeSchool() {
-  apply({ department: '', category: '', nature: '', teacher: '' })
-}
+const active = computed(() => (['department', 'category', 'nature'] as const).filter((key) => applied.value[key]).length)
 
 watch(() => [props.kind, route.query], () => {
   Object.assign(form, fromRoute())
   void results.reload()
   void teacherName.reload()
 }, { immediate: true, deep: true })
-watch(() => [props.kind, form.school], () => void scoped.reload(), { immediate: true })
-void schools.reload()
+watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate: true })
 </script>
 
 <template>
   <div class="stack-lg">
     <PageHeader
-      :eyebrow="t('academic.directory.eyebrow')"
       :title="t(kind === 'course' ? 'nav.courses' : 'nav.teachers')"
       :description="t(kind === 'course' ? 'academic.directory.courseIntro' : 'academic.directory.teacherIntro')"
     />
 
     <form
-      class="card filters"
+      class="filters"
       role="search"
       @submit.prevent="apply()"
     >
-      <div class="form-grid">
-        <label class="field search-field">
-          <span class="field-label">{{ t('academic.directory.search') }}</span>
+      <div class="search-bar">
+        <label class="search-field">
+          <span class="visually-hidden">{{ t('academic.directory.search') }}</span>
+          <Search aria-hidden="true" />
           <input
             v-model="form.q"
             class="input"
@@ -94,27 +92,30 @@ void schools.reload()
             :placeholder="t(kind === 'course' ? 'academic.directory.courseSearchHint' : 'academic.directory.teacherSearchHint')"
           >
         </label>
-        <label class="field">
-          <span class="field-label">{{ t('academic.directory.school') }}</span>
-          <select
-            v-model="form.school"
-            class="select"
-            @change="changeSchool"
-          >
-            <option value="">{{ t('common.all') }}</option>
-            <option
-              v-for="item in schools.data.value"
-              :key="item.id"
-              :value="item.id"
-            >{{ item.name }}</option>
-          </select>
-        </label>
+        <button
+          class="btn btn-primary"
+          type="submit"
+        >
+          {{ t('common.search') }}
+        </button>
+      </div>
+      <button
+        class="btn btn-sm filter-toggle"
+        type="button"
+        :aria-expanded="filtersOpen"
+        @click="filtersOpen = !filtersOpen"
+      >
+        {{ active ? t('common.filtersCount', { count: format.number(active) }) : t('common.filters') }}
+      </button>
+      <div
+        class="filter-row"
+        :class="{ open: filtersOpen }"
+      >
         <label class="field">
           <span class="field-label">{{ t(kind === 'course' ? 'academic.directory.college' : 'academic.directory.department') }}</span>
           <select
             v-model="form.department"
             class="select"
-            :disabled="!form.school"
             @change="apply()"
           >
             <option value="">{{ t('common.all') }}</option>
@@ -131,7 +132,6 @@ void schools.reload()
             <select
               v-model="form.category"
               class="select"
-              :disabled="!form.school"
               @change="apply()"
             >
               <option value="">{{ t('common.all') }}</option>
@@ -147,7 +147,6 @@ void schools.reload()
             <select
               v-model="form.nature"
               class="select"
-              :disabled="!form.school"
               @change="apply()"
             >
               <option value="">{{ t('common.all') }}</option>
@@ -160,36 +159,36 @@ void schools.reload()
           </label>
         </template>
       </div>
-      <div class="row-between">
-        <p
-          v-if="applied.teacher"
-          class="small muted"
-        >
-          {{ t('academic.directory.taughtBy', { name: teacherName.data.value || t('common.unknown') }) }}
+      <div
+        v-if="applied.teacher || filtered"
+        class="row-between"
+      >
+        <p class="small muted">
+          <template v-if="applied.teacher">
+            {{ t('academic.directory.taughtBy', { name: teacherName.data.value || t('common.unknown') }) }}
+          </template>
         </p>
-        <span v-else />
-        <div class="form-actions">
-          <button
-            v-if="filtered"
-            class="btn btn-ghost"
-            type="button"
-            @click="apply({ q: '', school: '', department: '', category: '', nature: '', teacher: '' })"
-          >
-            {{ t('common.clearFilters') }}
-          </button>
-          <button
-            class="btn btn-primary"
-            type="submit"
-          >
-            {{ t('common.search') }}
-          </button>
-        </div>
+        <button
+          class="btn btn-sm btn-ghost"
+          type="button"
+          @click="apply({ q: '', department: '', category: '', nature: '', teacher: '' })"
+        >
+          {{ t('common.clearFilters') }}
+        </button>
       </div>
       <p
-        v-if="schools.status.value === 'error' || scoped.status.value === 'error'"
-        class="field-error"
+        v-if="scoped.status.value === 'error'"
+        class="field-error row"
+        role="alert"
       >
-        {{ t('academic.directory.filtersUnavailable') }}
+        <span>{{ t('academic.directory.filtersUnavailable') }}</span>
+        <button
+          class="btn btn-sm btn-ghost"
+          type="button"
+          @click="scoped.reload"
+        >
+          {{ t('academic.directory.filtersRetry') }}
+        </button>
       </p>
     </form>
 
@@ -199,35 +198,45 @@ void schools.reload()
       :count="results.items.value.length"
       :next="results.next.value"
       :appending="results.appending.value"
+      :retry-label="t(kind === 'course' ? 'academic.directory.reloadCourses' : 'academic.directory.reloadTeachers')"
       :empty-text="t(filtered ? 'academic.directory.noMatch' : 'academic.directory.empty')"
       @retry="results.reload"
       @more="results.loadMore"
     >
-      <ul class="grid results">
+      <ul class="group">
         <li
           v-for="item in results.items.value"
           :key="item.id"
         >
           <RouterLink
-            class="card card-link result"
+            class="group-row"
             :to="`/${kind === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(item.id)}`"
           >
-            <span class="card-title">{{ item.name }}</span>
-            <span class="small muted">{{ names.get(item.school_id)?.name ?? t('common.unknown') }}<template v-if="item.department_id"> · {{ names.get(item.department_id)?.name ?? t('common.unknown') }}</template></span>
-            <span
-              v-if="kind === 'course'"
-              class="row small"
-            >
+            <span class="group-body">
+              <span class="group-title">{{ item.name }}</span>
               <span
-                v-if="item.code"
+                v-if="item.department_id"
+                class="group-detail"
+              >{{ names.get(item.department_id)?.name ?? t('common.unknown') }}</span>
+            </span>
+            <span class="row result-meta">
+              <span
+                v-if="item.inactive"
+                class="tag tag-warning"
+              >{{ t('academic.subject.inactive') }}</span>
+              <span
+                v-if="kind === 'course' && item.code"
                 class="tag mono"
               >{{ item.code }}</span>
-              <span class="tag">{{ knownCredits(item) === undefined ? t('academic.subject.creditsUnknown') : t('academic.subject.credits', { credits: format.number(knownCredits(item) ?? 0) }) }}</span>
+              <span
+                v-if="kind === 'course'"
+                class="tag"
+              >{{ knownCredits(item) === undefined ? t('academic.subject.creditsUnknown') : t('academic.subject.credits', { credits: format.number(knownCredits(item) ?? 0) }) }}</span>
             </span>
-            <span
-              v-if="item.inactive"
-              class="tag tag-warning"
-            >{{ t('academic.subject.inactive') }}</span>
+            <ChevronRight
+              class="chevron"
+              aria-hidden="true"
+            />
           </RouterLink>
         </li>
       </ul>
@@ -236,9 +245,19 @@ void schools.reload()
 </template>
 
 <style scoped>
-.filters { display: grid; gap: 1rem; }
-.search-field { grid-column: span 2; }
-@media (max-width: 640px) { .search-field { grid-column: auto; } }
-.results { list-style: none; }
-.result { display: grid; gap: .4rem; height: 100%; align-content: start; }
+.filters { display: grid; gap: .875rem; }
+.search-bar { display: flex; gap: .625rem; }
+.search-field { position: relative; display: flex; flex: 1; align-items: center; min-width: 0; }
+.search-field svg { position: absolute; inset-inline-start: .875rem; width: 1.125rem; height: 1.125rem; color: var(--label-3); pointer-events: none; }
+.search-field .input { padding-inline-start: 2.5rem; border-radius: var(--pill); }
+.filter-toggle { display: none; justify-self: start; }
+.filter-row { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); }
+.result-meta { flex: none; max-width: 45%; justify-content: flex-end; }
+@media (max-width: 560px) {
+  .filter-toggle { display: inline-flex; }
+  .filter-row { display: none; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .filter-row.open { display: grid; }
+  .group-row { flex-wrap: wrap; }
+  .result-meta { order: 3; flex-basis: 100%; max-width: none; justify-content: flex-start; }
+}
 </style>

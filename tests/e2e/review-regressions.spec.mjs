@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { fixture as academicFixture } from './academic-fixture.mjs';
-import { test, expect } from '../session-fixture.mjs';
+import { memberTest as test, expect } from '../session-fixture.mjs';
 import { fixture, routes } from './resource-fixture.mjs';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 
@@ -25,10 +25,11 @@ test('course change discards the previous directory cursor', async ({ page }, in
   await page.goto(`http://127.0.0.1:18787/resources?school_id=school&course_id=course&lang=${locale}`);
   await page.getByRole('button', { name: all.common.loadMore, exact: true }).first().click();
   await expect.poll(() => seen.at(-1)?.after).toBe('old-page');
-  const course = page.getByRole('combobox', { name: all.academic.course, exact: true });
-  const search = page.getByRole('button', { name: all.common.search, exact: true }).last();
-  await course.selectOption(''); await search.click();
-  await course.selectOption('course'); await search.click();
+  await page.getByRole('search').getByRole('button', { name: new RegExp(all.common.filters) }).click();
+  await page.getByRole('dialog').getByRole('combobox', { name: all.academic.course, exact: true }).click();
+  await page.getByRole('listbox').getByRole('option', { name: all.common.all, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.resources.browse.find, exact: true }).click();
+  await expect(page).not.toHaveURL(/course_id/);
   await expect.poll(() => seen.at(-1)?.after ?? '').toBe('');
 });
 
@@ -43,6 +44,6 @@ test('an unresolved bookmark blocks changing the displayed object until the orig
   await page.getByRole('link', { name: all.academic.subject.resources, exact: true }).click();
   await expect(page).toHaveURL(/\/courses\/course/);
   await page.getByRole('button', { name: all.common.retryOriginal, exact: true }).click();
-  await expect(page.getByText(all.academic.subject.bookmarked, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: all.academic.subject.saved, exact: true })).toHaveAttribute('aria-pressed', 'true');
   expect(posts).toEqual([{ target_id: 'course', set: true }, { target_id: 'course', set: true }]);
 });

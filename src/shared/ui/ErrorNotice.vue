@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useErrorText } from './messages'
 
-withDefaults(defineProps<{ code: string; retryable?: boolean }>(), { retryable: true })
+withDefaults(defineProps<{ code: string; retryable?: boolean; retryLabel?: string }>(), { retryable: true, retryLabel: '' })
 const emit = defineEmits<{ retry: [] }>()
 const { t } = useI18n()
 const errorText = useErrorText()
@@ -20,7 +20,7 @@ const errorText = useErrorText()
       type="button"
       @click="emit('retry')"
     >
-      {{ t('common.retry') }}
+      {{ retryLabel || t('common.retry') }}
     </button>
   </div>
 </template>

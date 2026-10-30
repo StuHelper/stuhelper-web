@@ -80,5 +80,5 @@ onMounted(() => {
 
 <style scoped>
 .offerings { list-style: none; }
-.term { width: auto; min-height: 34px; }
+.term { width: auto; }
 </style>

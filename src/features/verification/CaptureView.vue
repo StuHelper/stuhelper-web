@@ -38,5 +38,5 @@ const complete = ref(false)
 </template>
 
 <style scoped>
-.capture { max-width: 34rem; }
+.capture { max-width: 34rem; margin-inline: auto; }
 </style>

@@ -10,13 +10,13 @@
   },
   "nav": {
     "primary": "主导航",
-    "menu": "菜单",
     "account": "账号菜单",
     "home": "首页",
     "courses": "课程",
     "teachers": "教师",
     "resources": "学习资料",
-    "contributions": "存储贡献"
+    "contributions": "存储贡献",
+    "me": "我的"
   },
   "language": {
     "label": "语言"
@@ -44,7 +44,9 @@
     "remove": "移除",
     "unknown": "未知",
     "notProvided": "未提供",
-    "notSpecified": "不指定"
+    "notSpecified": "不指定",
+    "filters": "筛选",
+    "filtersCount": "筛选（{count}）"
   },
   "errors": {
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
@@ -85,9 +87,9 @@
     }
   },
   "home": {
-    "eyebrow": "StuHelper 校园信息平台",
+    "eyebrow": "StuHelper · 北京航空航天大学",
     "title": "查课程、看评价、找资料",
-    "description": "同学们的课程评价、教师开课记录和学习资料汇集在这里。完成学生认证后可以阅读完整评价、发布评课和上传资料。",
+    "description": "北航同学的课程评价、教师开课记录和学习资料。完成学生或教师认证后即可使用。",
     "searchLabel": "搜索课程或教师",
     "searchPlaceholder": "输入课程名、课程代码或教师姓名",
     "searchCourses": "搜课程",
@@ -97,7 +99,7 @@
     "entries": {
       "courses": {
         "title": "课程与评价",
-        "text": "按学校、学院和类别查课程，看历次开课和五维评价。"
+        "text": "按学院和类别查课程，看历次开课和五维评价。"
       },
       "teachers": {
         "title": "教师主页",
@@ -109,7 +111,7 @@
       },
       "verification": {
         "title": "学生认证",
-        "text": "证明校园资格，解锁完整评价、发布与资料下载。"
+        "text": "证明北航学生或教师身份，开放课程、评价和资料。"
       },
       "contributions": {
         "title": "我的存储贡献",
@@ -119,7 +121,14 @@
         "title": "个人中心",
         "text": "管理个人资料、认证状态、我的评价、草稿和上传资料。"
       }
-    }
+    },
+    "workspaceFailed": "部分内容暂时无法加载，其他内容不受影响。",
+    "workspaceRetry": "重新加载这些内容",
+    "myCourses": "我的课程",
+    "viewAll": "查看全部",
+    "noCourses": "还没有同步到本学期的选课记录。",
+    "recent": "最近访问",
+    "results": "处理结果"
   },
   "notFound": {
     "code": "404",
@@ -134,7 +143,9 @@
     "unavailable": "暂时无法读取账号状态。",
     "unavailableHint": "请稍后重试。服务端恢复后可以继续访问个人内容。",
     "signInRequired": "请先登录",
-    "signInHint": "登录由统一账号服务提供。登录后可以查看和管理本人内容。"
+    "signInHint": "登录由统一账号服务提供。登录后可以查看和管理本人内容。",
+    "reload": "账号状态暂时无法读取，点击重新读取",
+    "reloadShort": "账号状态未知"
   },
   "academic": {
     "course": "课程",
@@ -167,7 +178,10 @@
       "courseIntro": "按开课学院和课程分类，寻找适合自己的课程。",
       "teacherIntro": "了解授课经历，阅读课程评价与导师评论。",
       "empty": "目录中暂无记录。",
-      "noMatch": "没有符合条件的结果，可以调整筛选条件。"
+      "noMatch": "没有符合条件的结果，可以调整筛选条件。",
+      "filtersRetry": "重新加载筛选项",
+      "reloadCourses": "重新加载课程",
+      "reloadTeachers": "重新加载教师"
     },
     "subject": {
       "writeCourse": "写课程评价",
@@ -192,7 +206,9 @@
       "creditsUnknown": "学分未提供",
       "aliases": "其他名称",
       "biography": "简介",
-      "findCourses": "查看该教师的课程"
+      "findCourses": "查看该教师的课程",
+      "saved": "已收藏",
+      "bookmarkUnknown": "暂时无法确认收藏状态。"
     },
     "offerings": {
       "title": "历次开课",
@@ -406,6 +422,11 @@
       "decided": "决定待执行",
       "applied": "已处理",
       "failed": "处理失败，需管理员检查"
+    },
+    "requirementStep": {
+      "campus_eligibility": "去认证",
+      "identity_verified": "去实名",
+      "course_enrollment": "查看我的课程"
     }
   },
   "me": {
@@ -462,7 +483,8 @@
       "resources": "上传结果、审核状态与更正。",
       "requests": "下架、投诉和异议的处理结果。",
       "storage": "接入网盘账号，管理托管授权。",
-      "contributions": "贡献容量、占用、续期与退出进度。"
+      "contributions": "贡献容量、占用、续期与退出进度。",
+      "courses": "按学期查看课程、教师和上课安排。"
     },
     "profile": {
       "title": "个人资料",
@@ -512,7 +534,16 @@
       "select": "选择“{title}”",
       "selected": "已选择：{count}",
       "clearSelection": "清空选择",
-      "downloadSelected": "打包选中的可访问资料"
+      "downloadSelected": "打包选中的可访问资料",
+      "find": "查找资料",
+      "placeholder": "资料标题、描述或标签",
+      "activeFilters": "当前筛选",
+      "removeFilter": "移除筛选：{name}",
+      "fieldCount": "其他条件 {count} 项",
+      "filtersFailed": "筛选项暂时无法加载，仍可按关键词查找。",
+      "filtersRetry": "重新加载筛选项",
+      "reload": "重新加载资料",
+      "currentFolder": "当前目录"
     },
     "package": {
       "title": "下载包",
@@ -526,20 +557,23 @@
     "picker": {
       "search": "在“{label}”中搜索",
       "placeholder": "输入名称搜索",
-      "unavailable": "选项暂时无法加载。"
+      "unavailable": "{label}选项暂时无法加载。",
+      "noMatch": "没有匹配的选项",
+      "retry": "重新加载选项"
     },
     "detail": {
       "back": "返回资料列表",
       "download": "下载文件",
       "requestOwner": "申请下架或投诉",
       "complain": "侵权或内容投诉",
-      "accessRequired": "下载需要满足当前身份条件及资料访问权限。",
+      "accessRequired": "你的账号暂时没有这份资料的访问权。如有疑问可以提出申请。",
       "pendingVersion": "新版本正在处理，当前已发布版本继续提供下载。",
       "noDescription": "未填写简介。",
       "about": "资料信息",
       "file": "资料文件",
       "access": "访问方式",
-      "course": "查看关联课程"
+      "course": "查看关联课程",
+      "contact": "提出申请"
     },
     "access": {
       "allowed": "可以下载。",
@@ -877,7 +911,10 @@
       "failed": "学校核验未完成，请重新开始",
       "cancelled": "学校验证已取消",
       "expired": "学校验证已过期，请重新开始"
-    }
+    },
+    "continueReady": "认证已生效，可以回到刚才的页面。",
+    "continueNext": "继续前往",
+    "returnHint": "认证生效后会自动回到你刚才要看的页面。"
   },
   "contribution": {
     "eyebrow": "共享存储",
@@ -991,5 +1028,44 @@
       "attempts_exhausted": "已达到重试上限，需要管理员处理。",
       "credentials_required": "未保存可恢复的凭据，请重新提交。"
     }
+  },
+  "gate": {
+    "guest": {
+      "title": "登录后继续",
+      "text": "课程、教师、评价和资料仅向北航认证学生和教师开放。",
+      "action": "登录"
+    },
+    "unverified": {
+      "title": "完成北航认证后继续",
+      "text": "认证通过后会回到你刚才要看的页面。",
+      "action": "开始认证"
+    },
+    "processing": {
+      "title": "认证正在处理",
+      "text": "处理通过后即可进入。如果需要补充材料，可以在认证进度中继续。",
+      "action": "查看认证进度"
+    },
+    "expired": {
+      "title": "认证已失效",
+      "text": "你的认证已到期或被撤销，重新认证后可继续访问。",
+      "action": "重新认证"
+    },
+    "unavailable": {
+      "title": "暂时无法确认你的资格",
+      "text": "账号或认证服务没有响应。这不代表你的认证已失效。",
+      "action": "重新检查资格"
+    }
+  },
+  "courses": {
+    "title": "我的课程",
+    "intro": "按学期查看本人选课记录，并进入课程、教师和资料。",
+    "empty": "还没有选课记录。学校数据同步后会显示在这里。",
+    "reload": "重新加载我的课程",
+    "timesFailed": "上课时间和地点暂时无法加载，课程列表不受影响。",
+    "timesRetry": "重新加载时间地点",
+    "noTeacher": "任课教师未提供",
+    "noTime": "上课时间和地点未提供",
+    "classLink": "教学班",
+    "updated": "数据更新于 {time}"
   }
 }

@@ -50,9 +50,11 @@ onMounted(capabilities.reload)
 </template>
 
 <style scoped>
-.connection { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
-.connection-copy { display: flex; align-items: center; gap: .55rem; color: var(--muted); font-size: .88rem; }
-.connection-dot { flex: 0 0 8px; height: 8px; border-radius: 50%; background: var(--subtle); }
-.connection-ready .connection-dot { background: var(--success); }
-.connection-error .connection-dot { background: var(--warning); }
+.connection { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: .5rem 1rem; }
+.connection-copy { display: flex; align-items: center; gap: .5rem; color: var(--label-2); font-size: .875rem; }
+.connection-dot { flex: 0 0 8px; height: 8px; border-radius: 50%; background: var(--label-3); }
+.connection-ready .connection-dot { background: #34c759; box-shadow: 0 0 0 3px rgb(52 199 89 / 22%); }
+.connection-error .connection-dot { background: #ff9500; box-shadow: 0 0 0 3px rgb(255 149 0 / 22%); }
+.connection-loading .connection-dot { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .35; } }
 </style>

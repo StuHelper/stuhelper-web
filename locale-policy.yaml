@@ -36,9 +36,6 @@ same_text_exceptions:
         reason: 品牌名称或通用格式标记保持原文。
     languages:
       fr-FR:
-        nav.menu:
-          value: Menu
-          reason: 法语 Menu 表示菜单，与英语同形。
         academic.subject.sections:
           value: Sections
           reason: 法语 Sections 表示内容分区，与英语同形。
@@ -115,19 +112,13 @@ same_text_exceptions:
         page.resources.description:
           value: Description
           reason: 法语 Description 是简介字段的常用名称，与英语同形。
-        page.resources.min:
-          value: Minimum
-          reason: 法语 Minimum 表示最小值，与英语同形。
-        page.resources.max:
-          value: Maximum
-          reason: 法语 Maximum 表示最大值，与英语同形。
-        page.resources.options:
-          value: Options
-          reason: 法语 Options 表示选项，与英语同形。
+        page.common.operation:
+          value: Actions
+          reason: 法语 Actions 表示操作列，与英语同形。
+        page.overview.module:
+          value: Module
+          reason: 法语 Module 表示平台模块，与英语同形。
       es-ES:
-        page.contribution.bytes:
-          value: "{value} bytes"
-          reason: 西班牙语的字节单位使用 bytes，与英文写法相同。
         preferences.vertical:
           value: Vertical
           reason: 本语言的正确词语与英文拼写相同。
@@ -143,6 +134,3 @@ same_text_exceptions:
         common.no:
           value: No
           reason: 本语言的正确词语与英文拼写相同。
-        page.resources.bytes:
-          value: bytes
-          reason: 西班牙语字节单位使用 bytes，与英语同形。

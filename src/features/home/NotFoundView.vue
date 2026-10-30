@@ -6,7 +6,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <section class="not-found stack">
+  <section class="not-found">
     <p class="not-found-code">
       {{ t('notFound.code') }}
     </p>
@@ -14,18 +14,16 @@ const { t } = useI18n()
     <p class="muted">
       {{ t('notFound.description') }}
     </p>
-    <p>
-      <RouterLink
-        class="btn btn-primary"
-        to="/"
-      >
-        {{ t('notFound.home') }}
-      </RouterLink>
-    </p>
+    <RouterLink
+      class="btn btn-primary"
+      to="/"
+    >
+      {{ t('notFound.home') }}
+    </RouterLink>
   </section>
 </template>
 
 <style scoped>
-.not-found { max-width: 34rem; padding-block: 3rem; }
-.not-found-code { font-family: var(--mono); color: var(--accent); font-size: 1.1rem; }
+.not-found { display: grid; justify-items: center; gap: 1rem; padding-block: clamp(3rem, 10vw, 7rem); text-align: center; }
+.not-found-code { color: var(--label-3); font-size: clamp(4rem, 12vw, 7rem); font-weight: 700; line-height: 1; letter-spacing: -.04em; }
 </style>
