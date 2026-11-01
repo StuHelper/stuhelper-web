@@ -11,5 +11,11 @@ export const extras = {
   meLinks: [] as { to: string; text: string; icon: Component; tile: string }[],
   navTools: [] as Component[],
   floating: [] as Component[],
+  /** Prototype pages that replace a default destination in the account menu. */
+  accountLinks: {} as { favorites?: string; settings?: string },
+  subjectActions: [] as Component[],
+  subjectPanels: [] as Component[],
+  /** Prototype pages build some lists once during setup, so a language change remounts them. */
+  remountOnLocale: false,
   signIn: undefined as undefined | (() => void),
 }

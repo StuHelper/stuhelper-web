@@ -2,23 +2,18 @@
 import { useI18n } from 'vue-i18n'
 import type { LoadStatus } from '../composables/async'
 import ErrorNotice from './ErrorNotice.vue'
+import PageSkeleton from './PageSkeleton.vue'
 
-withDefaults(defineProps<{ status: LoadStatus; error?: string; empty?: boolean; emptyText?: string; retryLabel?: string }>(), { error: '', empty: false, emptyText: '', retryLabel: '' })
+withDefaults(defineProps<{ status: LoadStatus; skeleton?: 'list' | 'detail' | 'bands'; error?: string; empty?: boolean; emptyText?: string; retryLabel?: string }>(), { skeleton: 'list', error: '', empty: false, emptyText: '', retryLabel: '' })
 const emit = defineEmits<{ retry: [] }>()
 const { t } = useI18n()
 </script>
 
 <template>
-  <div
+  <PageSkeleton
     v-if="status === 'loading'"
-    class="skeleton"
-    :aria-busy="true"
-  >
-    <span class="visually-hidden">{{ t('common.loading') }}</span>
-    <span aria-hidden="true" />
-    <span aria-hidden="true" />
-    <span aria-hidden="true" />
-  </div>
+    :variant="skeleton"
+  />
   <ErrorNotice
     v-else-if="status === 'error'"
     :code="error"

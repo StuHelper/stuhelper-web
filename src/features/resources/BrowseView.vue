@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Folder, Lock, Search, SlidersHorizontal, X } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -428,7 +429,7 @@ void setup.reload()
       >
         <label class="field">
           <span class="field-label">{{ t('resources.category') }}</span>
-          <select
+          <AppSelect
             v-model="draft.category"
             class="select"
           >
@@ -438,7 +439,7 @@ void setup.reload()
               :key="item.id"
               :value="item.id"
             >{{ localName(item.names, locale) }}</option>
-          </select>
+          </AppSelect>
         </label>
         <CatalogPicker
           v-model="draft.course"

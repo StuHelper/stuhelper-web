@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { toRef } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { dimensions } from './api'
-import { ratingSymbol, useRatingText } from './presentation'
+import { useRatingText } from './presentation'
+import RatingIcon from './RatingIcon.vue'
 
-// One radio group per dimension. Level 0 leaves a dimension unrated, which only
-// affects that dimension's sample count.
+// One radio group per dimension. Level 0 means not chosen yet; publishing needs all five.
 const props = defineProps<{ schoolId: string; disabled?: boolean }>()
 const ratings = defineModel<number[]>({ required: true })
-const { t } = useI18n()
 const text = useRatingText(toRef(props, 'schoolId'))
 
 function choose(index: number, level: number) {
@@ -41,21 +39,12 @@ function choose(index: number, level: number) {
             :checked="ratings[index] === level"
             @change="choose(index, level)"
           >
-          <span aria-hidden="true">{{ ratingSymbol(index, level) }}</span>
+          <RatingIcon
+            :dimension="index"
+            :level="level"
+            :mono="ratings[index] === level"
+          />
           <span>{{ text(index, level) }}</span>
-        </label>
-        <label
-          class="rating-option rating-skip"
-          :class="{ chosen: !ratings[index] }"
-        >
-          <input
-            type="radio"
-            :name="`rating-${name}`"
-            :value="0"
-            :checked="!ratings[index]"
-            @change="choose(index, 0)"
-          >
-          <span>{{ t('academic.editor.unrated') }}</span>
         </label>
       </div>
     </fieldset>
@@ -73,7 +62,6 @@ function choose(index: number, level: number) {
 .rating-option input { position: absolute; opacity: 0; pointer-events: none; }
 .rating-option:focus-within { outline: 3px solid color-mix(in srgb, var(--accent-fill) 55%, transparent); outline-offset: 2px; }
 .rating-option.chosen { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
-.rating-skip { color: var(--label-2); }
 fieldset:disabled .rating-option { opacity: .5; cursor: default; }
 @media (pointer: coarse) { .rating-option { min-height: 42px; } }
 </style>

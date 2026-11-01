@@ -28,16 +28,6 @@ export function useRatingText(school: Ref<string | undefined>) {
   }
 }
 
-const faces = ['😞', '🙁', '😐', '🙂', '😃']
-const effort = ['🪶', '🌱', '🧩', '🧗', '🏔️']
-
-/** Difficulty and workload use effort symbols so "hard" never reads as "bad". */
-export function ratingSymbol(dimension: number, level: number) {
-  if (level < 1 || level > 5) return ''
-  const name = dimensions[dimension]
-  return (name === 'difficulty' || name === 'workload' ? effort : faces)[level - 1] ?? ''
-}
-
 /** Public author label. Anonymous participants keep a short per-thread handle. */
 export function useAuthorName() {
   const { t } = useI18n()

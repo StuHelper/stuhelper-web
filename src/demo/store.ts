@@ -1,12 +1,14 @@
 import { computed, reactive, ref } from 'vue'
-import { ago } from './data'
+import { i18n } from '../app/i18n'
+import { tr } from './tr'
+import { ago, courseSeeds, teachesIn, terms } from './data'
 
-export const toasts = ref<{ id: number; text: string }[]>([])
+export const toasts = ref<{ id: number; text: string; undo?: () => void }[]>([])
 let seq = 0
-export function toast(text: string) {
+export function toast(text: string, undo?: () => void) {
   const id = ++seq
-  toasts.value.push({ id, text })
-  setTimeout(() => { toasts.value = toasts.value.filter((row) => row.id !== id) }, 2600)
+  toasts.value.push({ id, text, undo })
+  setTimeout(() => { toasts.value = toasts.value.filter((row) => row.id !== id) }, undo ? 5000 : 2600)
 }
 
 export type Notice = { id: string; kind: 'review' | 'resource' | 'system' | 'account' | 'wallet'; title: string; body: string; at: string; read: boolean; to: string }
@@ -20,25 +22,99 @@ export const notices = reactive<Notice[]>([
 ])
 export const unread = computed(() => notices.filter((row) => !row.read).length)
 
+/** 数组形状不变，文案在读取时才翻译，切换语言后下一次渲染就是新语言。 */
+const lazyList = (keys: string[]) => new Proxy(keys, { get: (target, prop, receiver) => { const value = Reflect.get(target, prop, receiver); return typeof prop === 'string' && /^\d+$/.test(prop) ? tr(value as string) : value } })
+
 export const levelText = {
-  recommendation: ['暂无', '强烈不推荐', '不推荐', '一般', '推荐', '强烈推荐'],
-  quality: ['暂无', '很差', '较差', '一般', '较好', '很好'],
-  difficulty: ['暂无', '很容易', '较容易', '适中', '较难', '很难'],
-  workload: ['暂无', '很少', '较少', '适中', '较多', '很多'],
-  grading: ['暂无', '体验很差', '体验较差', '一般', '体验较好', '体验很好'],
+  recommendation: lazyList(['demo.levelNone', 'demo.levelStronglyNot', 'demo.levelNotRecommended', 'demo.levelAverage', 'demo.levelRecommended', 'demo.levelStrongly']),
+  quality: lazyList(['demo.levelNone', 'demo.levelVeryPoor', 'demo.levelPoor', 'demo.levelAverage', 'demo.levelGood', 'demo.levelVeryGood']),
+  difficulty: lazyList(['demo.levelNone', 'demo.levelVeryEasy', 'demo.levelEasy', 'demo.levelModerate', 'demo.levelHard', 'demo.levelVeryHard']),
+  workload: lazyList(['demo.levelNone', 'demo.levelVeryLittle', 'demo.levelLittle', 'demo.levelModerate', 'demo.levelMuch', 'demo.levelVeryMuch']),
+  grading: lazyList(['demo.levelNone', 'demo.gradingVeryPoor', 'demo.gradingPoor', 'demo.levelAverage', 'demo.gradingGood', 'demo.gradingVeryGood']),
 }
-export const greeting = () => { const h = new Date().getHours(); return h < 6 ? '夜深了' : h < 12 ? '早上好' : h < 18 ? '下午好' : '晚上好' }
-export const relative = (iso: string) => { const m = Math.round((Date.now() - new Date(iso).getTime()) / 6e4); if (m < 60) return `${Math.max(m, 1)} 分钟前`; const h = Math.round(m / 60); if (h < 24) return `${h} 小时前`; const days = Math.round(h / 24); return days < 30 ? `${days} 天前` : `${Math.round(days / 30)} 个月前` }
+export const greeting = (name: string) => { const h = new Date().getHours(); return tr(h < 6 ? 'demo.lateNight' : h < 12 ? 'demo.goodMorning' : h < 18 ? 'demo.goodAfternoon' : 'demo.goodEvening', { name }) }
+export const relative = (iso: string) => {
+  const format = new Intl.RelativeTimeFormat(i18n.global.locale.value, { numeric: 'auto' })
+  const m = Math.round((Date.now() - new Date(iso).getTime()) / 6e4)
+  if (m < 60) return format.format(-Math.max(m, 1), 'minute')
+  const h = Math.round(m / 60)
+  if (h < 24) return format.format(-h, 'hour')
+  const days = Math.round(h / 24)
+  return days < 30 ? format.format(-days, 'day') : format.format(-Math.round(days / 30), 'month')
+}
 export const fileSize = (n: number) => (n >= 1e6 ? `${(n / 1e6).toFixed(1)} MB` : `${Math.round(n / 1e3)} KB`)
 
 // 周课表：weekday 1-7，start/end 为节次。
 export const timetable = [
-  { course: 'c3', name: '数据结构与算法', teacher: '许文澜', place: '新主楼 A201', day: 1, start: 1, end: 2, color: '#0071e3', weeks: '1-16 周' },
-  { course: 'c3', name: '数据结构与算法', teacher: '许文澜', place: '新主楼 G 机房', day: 4, start: 6, end: 7, color: '#0071e3', weeks: '3-14 周' },
-  { course: 'c5', name: '自动控制原理', teacher: '沈若谷', place: '主 M101', day: 2, start: 3, end: 4, color: '#ff9500', weeks: '1-16 周' },
-  { course: 'c5', name: '自动控制原理', teacher: '沈若谷', place: '主 M101', day: 5, start: 1, end: 2, color: '#ff9500', weeks: '1-16 周' },
-  { course: 'c8', name: '信号与系统', teacher: '叶听澜', place: '新主楼 F306', day: 3, start: 6, end: 7, color: '#af52de', weeks: '1-16 周' },
-  { course: 'c10', name: '机器学习基础', teacher: '方亦舟', place: '教三 402', day: 2, start: 8, end: 9, color: '#34c759', weeks: '1-12 周' },
-  { course: 'c10', name: '机器学习基础', teacher: '方亦舟', place: '教三 402', day: 5, start: 3, end: 4, color: '#34c759', weeks: '1-12 周' },
+  { course: 'c3', name: '数据结构与算法', teacher: '许文澜', place: '新主楼 A201', day: 1, start: 1, end: 2, color: 'var(--c-blue)', weeks: '1-16 周' },
+  { course: 'c3', name: '数据结构与算法', teacher: '许文澜', place: '新主楼 G 机房', day: 4, start: 6, end: 7, color: 'var(--c-blue)', weeks: '3-14 周' },
+  { course: 'c5', name: '自动控制原理', teacher: '沈若谷', place: '主 M101', day: 2, start: 3, end: 4, color: 'var(--c-orange)', weeks: '1-16 周' },
+  { course: 'c5', name: '自动控制原理', teacher: '沈若谷', place: '主 M101', day: 5, start: 1, end: 2, color: 'var(--c-orange)', weeks: '1-16 周' },
+  { course: 'c8', name: '信号与系统', teacher: '叶听澜', place: '新主楼 F306', day: 3, start: 6, end: 7, color: 'var(--c-purple)', weeks: '1-16 周' },
+  { course: 'c10', name: '机器学习基础', teacher: '方亦舟', place: '教三 402', day: 2, start: 8, end: 9, color: 'var(--c-green)', weeks: '1-12 周' },
+  { course: 'c10', name: '机器学习基础', teacher: '方亦舟', place: '教三 402', day: 5, start: 3, end: 4, color: 'var(--c-green)', weeks: '1-12 周' },
 ]
 export const periods = ['08:00', '08:50', '09:50', '10:40', '11:30', '14:00', '14:50', '15:50', '16:40', '17:30', '19:00', '19:50']
+
+// —— 对比、收藏和评分图表的演示状态 ——
+export const MAX_COMPARE = 4
+export type CompareKind = 'course' | 'teacher'
+export const compare = reactive<Record<CompareKind, string[]>>({ course: [], teacher: [] })
+export function toggleCompare(kind: CompareKind, id: string) {
+  const list = compare[kind]; const at = list.indexOf(id)
+  if (at >= 0) { list.splice(at, 1); return }
+  if (list.length >= MAX_COMPARE) { toast(tr('demo.compareLimit', { p0: MAX_COMPARE })); return }
+  list.push(id)
+}
+
+// 规格只定义课程收藏。教师、资料收藏和收藏夹是待确认的原型设想。
+export type FavKind = 'course' | 'teacher' | 'resource'
+export const folders = ref(['默认收藏', '期末复习', '下学期选课'])
+export const favorites = reactive<{ kind: FavKind; id: string; folder: string; at: string }[]>([
+  { kind: 'course', id: 'c10', folder: '下学期选课', at: ago(2) }, { kind: 'course', id: 'c4', folder: '下学期选课', at: ago(4) },
+  { kind: 'teacher', id: 'p3', folder: '默认收藏', at: ago(6) }, { kind: 'resource', id: 'x1', folder: '期末复习', at: ago(1) },
+  { kind: 'course', id: 'c5', folder: '期末复习', at: ago(3) }, { kind: 'teacher', id: 'p4', folder: '下学期选课', at: ago(5) }, { kind: 'resource', id: 'x3', folder: '期末复习', at: ago(7) },
+])
+export const bookmarks = reactive(new Set(['r3', 'r9', 'c10', 'c4', 'c5']))
+export const isFavorite = (kind: FavKind, id: string) => favorites.some((row) => row.kind === kind && row.id === id)
+function setFavorite(kind: FavKind, id: string, on: boolean) {
+  const at = favorites.findIndex((row) => row.kind === kind && row.id === id)
+  if (on && at < 0) favorites.unshift({ kind, id, folder: folders.value[0]!, at: new Date().toISOString() })
+  if (!on && at >= 0) favorites.splice(at, 1)
+}
+/** 详情页通过演示接口收藏课程时，同步到收藏页。 */
+export function syncCourseFavorite(id: string, on: boolean) {
+  if (on) bookmarks.add(id); else bookmarks.delete(id)
+  if (/^c\d+$/.test(id)) setFavorite('course', id, on)
+}
+export function toggleFavorite(kind: FavKind, id: string) {
+  const at = favorites.findIndex((row) => row.kind === kind && row.id === id)
+  const old = favorites[at]
+  const apply = (on: boolean) => { if (kind === 'course') syncCourseFavorite(id, on); else setFavorite(kind, id, on) }
+  apply(!old)
+  // 撤销时回到原来的收藏夹和位置。
+  if (old) toast(tr('demo.unfavorited'), () => { if (kind === 'course') bookmarks.add(id); favorites.splice(at, 0, old) })
+  else toast(tr('demo.savedTo', { p0: folders.value[0] }), () => apply(false))
+}
+
+const seed = (text: string) => [...text].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 9973, 7)
+/** 演示用的五档人数，集中在当前档位附近。页面只画比例，不显示均分或百分比。 */
+export function distribution(id: string, level: number) {
+  const base = 14 + (seed(id) % 50)
+  return [1, 2, 3, 4, 5].map((n) => Math.round(base * ([1, .48, .2, .08, .03][Math.abs(n - level)] ?? 0)))
+}
+/** 演示用的学期趋势：较早学期可能样本不足，level 为 0 表示暂无足够数据。 */
+export function trend(id: string, level: number) {
+  return terms.map((term, i) => {
+    const samples = (seed(id + term.id) % 28) + (i === terms.length - 1 ? 6 : 0)
+    const shift = i === terms.length - 1 ? 0 : (seed(id + i) % 3) - 1
+    return { term: term.name.replace(/^20(\d\d) (.)季学期$/, '$1$2'), name: term.name, samples, level: samples < 5 ? 0 : Math.max(1, Math.min(5, level + shift)) }
+  })
+}
+const taughtBy = (id: string) => teachesIn.filter(([, p]) => p === id).map(([c]) => courseSeeds.find((row) => row[0] === c)!)
+/** 与规格一致：对教师的课程等权平均后，再回到五档。 */
+export const teacherLevels = (id: string) => [0, 1, 2, 3, 4].map((i) => { const rows = taughtBy(id); return rows.length ? Math.round(rows.reduce((s, r) => s + r[8][i]!, 0) / rows.length) : 0 })
+export const courseLevels = (id: string) => [...(courseSeeds.find((row) => row[0] === id)?.[8] ?? [0, 0, 0, 0, 0])]
+export const levelsOf = (kind: CompareKind, id: string) => (kind === 'course' ? courseLevels(id) : teacherLevels(id))
+export const dimNames = ['recommendation', 'quality', 'difficulty', 'workload', 'grading'] as const
+export const dimLabels = lazyList(['demo.recommendation', 'demo.dimQuality', 'demo.dimDifficulty', 'demo.dimWorkload', 'demo.dimGrading'])

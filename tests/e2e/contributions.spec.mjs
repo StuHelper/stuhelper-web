@@ -2,6 +2,14 @@ import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { expect, memberTest as test } from '../session-fixture.mjs';
+async function pickDate(page, month, day) {
+  await page.locator('.app-datetime-trigger').click();
+  const head = page.locator('.app-calendar-head');
+  while ((await head.getAttribute('data-month')).slice(0, 4) < month.slice(0, 4)) await head.locator('button').nth(3).click();
+  while (await head.getAttribute('data-month') !== month) await head.locator('button').nth((await head.getAttribute('data-month')) < month ? 2 : 1).click();
+  await page.locator('.app-calendar-day').nth(day - 1).click();
+  await page.locator('.app-calendar-time .btn-primary').click();
+}
 const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 async function setup(page, info, empty = false) {
@@ -29,7 +37,7 @@ async function setup(page, info, empty = false) {
     if (endpoint === 'options') return route.fulfill({ json: example.options });
     return route.fulfill({ json: { ...example.page, items: state.empty ? [] : [state.item] } });
   });
-  await page.goto(`http://127.0.0.1:18787/contributions?lang=${info.project.metadata.locale}`);
+  await page.goto(`http://127.0.0.1:18787/me/storage?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { name: m.mine, exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -37,9 +45,11 @@ async function setup(page, info, empty = false) {
 }
 test('consent, creation, quota adjustment and renewal retain distinct request state', async ({ page }, info) => {
   const { m, c, state, errors } = await setup(page, info, true);
-  await page.getByRole('combobox', { name: m.storage, exact: true }).selectOption('fixture-storage');
+  await page.getByRole('button', { name: m.create, exact: true }).click();
+  await page.getByRole('combobox', { name: m.storage, exact: true }).click();
+  await page.getByRole('option').last().click();
   await page.getByLabel(m.limit, { exact: true }).fill('10'); await page.getByLabel(m.reserve, { exact: true }).fill('1');
-  await page.locator('input[type=datetime-local]').fill('2030-01-02T00:00');
+  await pickDate(page, '2030-01', 2);
   await page.getByRole('button', { name: m.review, exact: true }).click();
   expect(state.requests).toHaveLength(0); await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByRole('checkbox').check();
@@ -57,7 +67,7 @@ test('consent, creation, quota adjustment and renewal retain distinct request st
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[1].body.conditions.until).toBe(until); expect(state.requests[1].body.consent).toBeUndefined();
   await page.getByRole('button', { name: m.actions.renew, exact: true }).click();
-  await page.locator('input[type=datetime-local]').fill('2030-02-01T00:00'); await page.getByRole('checkbox').check();
+  await pickDate(page, '2030-02', 1); await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: m.review, exact: true }).click(); await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[2].body.action).toBe('renew'); expect(state.requests[2].body.consent.accepted).toBe(true); expect(errors).toEqual([]);

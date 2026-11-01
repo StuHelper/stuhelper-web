@@ -60,6 +60,26 @@
           "verification.photo": {
             "value": "Photo {index}",
             "reason": "法语 Photo 表示照片，与英语同形。"
+          },
+          "demo.interactions": {
+            "value": "Interactions",
+            "reason": "法语 Interactions 表示互动，与英语同形。"
+          },
+          "demo.points": {
+            "value": "Points",
+            "reason": "法语 Points 表示积分，与英语同形。"
+          },
+          "demo.pageOf": {
+            "value": "Page {p0} / {p1}",
+            "reason": "法语 Page 表示页，与英语同形。"
+          },
+          "demo.pageNo": {
+            "value": "Page {p0}",
+            "reason": "法语 Page 表示页，与英语同形。"
+          },
+          "demo.notifications": {
+            "value": "Notifications",
+            "reason": "法语 Notifications 表示通知，与英语同形。"
           }
         }
       }

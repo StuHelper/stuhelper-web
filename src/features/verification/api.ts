@@ -8,6 +8,20 @@ export type Application = Schemas['Application']
 export type School = Schemas['School']
 export type Credential = Schemas['Credential']
 export type Summary = Schemas['Summary']
+
+/**
+ * 已实名时展示的脱敏信息：姓名最后一个字，证件号第一位和最后一位。
+ * 脱敏必须由服务端完成，完整姓名和证件号不能下发到客户端。这个字段还没有进入 OpenAPI，
+ * 所以在运行时校验。星号数量固定，不暴露姓名和证件号的真实长度。
+ */
+export function maskedIdentity(summary: Summary | undefined) {
+  const raw = (summary as { identity_masked?: unknown } | undefined)?.identity_masked
+  if (typeof raw !== 'object' || raw === null) return undefined
+  const { name_last: name, id_first: first, id_last: last } = raw as Record<string, unknown>
+  if (typeof name !== 'string' || typeof first !== 'string' || typeof last !== 'string') return undefined
+  if ([...name].length !== 1 || first.length !== 1 || last.length !== 1) return undefined
+  return { name: `*${name}`, number: `${first}${'*'.repeat(16)}${last}` }
+}
 export type RemovalRequest = Schemas['RemovalRequest']
 export type Material = Schemas['Material']
 export type EmailChallenge = Schemas['EmailChallenge']

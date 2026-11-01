@@ -17,6 +17,7 @@ import OfferingsList from './OfferingsList.vue'
 import ReviewEditor from './ReviewEditor.vue'
 import ReviewFeed from './ReviewFeed.vue'
 import StatisticsPanel from './StatisticsPanel.vue'
+import { extras } from '../../shared/extras'
 import TabBar from '../../shared/ui/TabBar.vue'
 
 // Course home or teacher home: facts, rating summary, reviews and offerings.
@@ -89,6 +90,7 @@ async function retryBookmark() {
 
 <template>
   <AsyncState
+    skeleton="detail"
     :status="entry.status.value"
     :error="entry.error.value"
     @retry="entry.reload"
@@ -98,6 +100,7 @@ async function retryBookmark() {
       class="stack-lg"
     >
       <PageHeader
+        class="subject-head"
         :back="kind === 'course' ? '/courses' : '/teachers'"
         :back-label="t(kind === 'course' ? 'nav.courses' : 'nav.teachers')"
         :title="subject.name"
@@ -121,6 +124,13 @@ async function retryBookmark() {
           {{ t('academic.subject.inactiveNotice') }}
         </p>
         <template #actions>
+          <component
+            :is="action"
+            v-for="(action, index) in extras.subjectActions"
+            :id="id"
+            :key="index"
+            :kind="kind"
+          />
           <button
             v-if="!composing && !subject.inactive"
             class="btn btn-primary"
@@ -178,6 +188,13 @@ async function retryBookmark() {
             :kind="kind"
             :target-id="id"
             :school-id="subject.school_id"
+          />
+          <component
+            :is="panel"
+            v-for="(panel, index) in extras.subjectPanels"
+            :id="id"
+            :key="index"
+            :kind="kind"
           />
 
           <section class="section">
@@ -247,7 +264,10 @@ async function retryBookmark() {
           </section>
         </div>
 
-        <aside class="card stack facts-card">
+        <aside
+          class="card stack facts-card"
+          :class="{ 'facts-after': kind === 'course' }"
+        >
           <h2>{{ t('academic.subject.facts') }}</h2>
           <dl class="facts">
             <div>
@@ -322,9 +342,15 @@ async function retryBookmark() {
 </template>
 
 <style scoped>
+/* 手机上操作排成一行可横滑。课程的基本信息放到评价后面，先看评分。 */
+@media (max-width: 760px) {
+  .subject-head :deep(.page-actions) { flex-wrap: nowrap; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .subject-head :deep(.page-actions .btn) { flex: none; min-height: 38px; padding-block: .25rem; font-size: .875rem; }
+}
 .related { list-style: none; }
 .facts-card h2 { font-size: 1.0625rem; }
 .facts-card { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); }
 .facts-card .facts { grid-template-columns: 1fr; }
 @media (max-width: 960px) { .facts-card { position: static; order: -1; } .facts-card .facts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr)); } }
+@media (max-width: 960px) { .facts-card.facts-after { order: 1; } }
 </style>

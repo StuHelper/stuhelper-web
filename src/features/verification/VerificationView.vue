@@ -1,23 +1,30 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
-import { useSession } from '../../shared/session'
+import { extras } from '../../shared/extras'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { safeNext, useAccess } from '../account/access'
 import MeLayout from '../account/MeLayout.vue'
-import { kinds, stages } from './api'
+import { kinds, maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
 import { useVerificationFlow } from './flow'
 
+// 学生认证和实名认证是两个页面，共用同一套流程。实名认证放在账号与安全下面。
+const props = withDefaults(defineProps<{ scope?: 'student' | 'identity' }>(), { scope: 'student' })
 const { t, te } = useI18n()
 const format = useFormat()
-const session = useSession()
 const flow = useVerificationFlow()
 const { form, removal } = flow
 onMounted(flow.reload)
+if (props.scope === 'identity') flow.selectMode('identity')
+// 实名认证通过后不再需要表单。实名提交只更新状态，不产生认证申请，所以申请和学习经历只在学生认证页显示。
+// 状态确认前不显示实名表单，否则已实名的用户会先看到待实名的页面。
+const showForm = computed(() => props.scope === 'student' || flow.summary.value?.identity_verified === false)
+const masked = computed(() => (flow.summary.value?.identity_verified ? maskedIdentity(flow.summary.value) : undefined))
 
 // Back to the page that required verification, once and only on a real change.
 const route = useRoute()
@@ -48,8 +55,10 @@ function profileValue(value: unknown, field: string) {
 
 <template>
   <MeLayout
-    :title="t('verification.title')"
-    :description="t('verification.description')"
+    :title="t(scope === 'identity' ? 'verification.identityTitle' : 'verification.title')"
+    :description="t(scope === 'identity' ? 'verification.identityDescription' : 'verification.description')"
+    :back="scope === 'identity' ? (extras.accountLinks.settings ?? '/me') : undefined"
+    :back-label="scope === 'identity' ? t('me.security') : undefined"
   >
     <template #actions>
       <button
@@ -100,7 +109,10 @@ function profileValue(value: unknown, field: string) {
         :aria-label="t('verification.statusTitle')"
         :aria-busy="flow.loading.value"
       >
-        <article class="card stack-sm">
+        <article
+          v-if="scope === 'student'"
+          class="card stack-sm"
+        >
           <h2 class="small muted">
             {{ t('verification.campus') }}
           </h2>
@@ -110,6 +122,11 @@ function profileValue(value: unknown, field: string) {
           >
             {{ t(flow.summary.value.campus_eligibility ? 'verification.eligible' : 'verification.notEligible') }}
           </StatusTag>
+          <span
+            v-else
+            class="skeleton-tag"
+            aria-hidden="true"
+          />
           <p
             v-if="flow.summary.value?.next_evaluation_at"
             class="small notice notice-warning"
@@ -117,7 +134,10 @@ function profileValue(value: unknown, field: string) {
             {{ t('verification.newcomerReminder', { time: format.dateTime(flow.summary.value.next_evaluation_at) }) }}
           </p>
         </article>
-        <article class="card stack-sm">
+        <article
+          v-else
+          class="card stack-sm identity-card"
+        >
           <h2 class="small muted">
             {{ t('verification.identity') }}
           </h2>
@@ -127,44 +147,32 @@ function profileValue(value: unknown, field: string) {
           >
             {{ t(flow.summary.value.identity_verified ? 'verification.identityVerified' : 'verification.identityMissing') }}
           </StatusTag>
-        </article>
-        <article class="card stack-sm">
-          <h2 class="small muted">
-            {{ t('verification.phone') }}
-          </h2>
-          <StatusTag
-            v-if="session.session.value"
-            :tone="session.session.value.phone_bound ? 'success' : 'neutral'"
+          <span
+            v-else
+            class="skeleton-tag"
+            aria-hidden="true"
+          />
+          <dl
+            v-if="masked"
+            class="identity-facts"
           >
-            {{ t(session.session.value.phone_bound ? 'verification.phoneBound' : 'verification.phoneMissing') }}
-          </StatusTag>
+            <div>
+              <dt>{{ t('verification.identityName') }}</dt>
+              <dd>{{ masked.name }}</dd>
+            </div>
+            <div>
+              <dt>{{ t('verification.identityNumber') }}</dt>
+              <dd>{{ masked.number }}</dd>
+            </div>
+          </dl>
         </article>
       </section>
 
-      <section class="card stack">
+      <section
+        v-if="showForm"
+        class="card stack"
+      >
         <h2>{{ t('verification.start') }}</h2>
-        <div
-          class="row"
-          role="group"
-          :aria-label="t('verification.entry')"
-        >
-          <button
-            class="btn btn-sm"
-            type="button"
-            :aria-pressed="flow.mode.value === 'student'"
-            @click="flow.selectMode('student')"
-          >
-            {{ t('verification.studentEntry') }}
-          </button>
-          <button
-            class="btn btn-sm"
-            type="button"
-            :aria-pressed="flow.mode.value === 'identity'"
-            @click="flow.selectMode('identity')"
-          >
-            {{ t('verification.identityEntry') }}
-          </button>
-        </div>
         <p
           v-if="!flow.schools.value.length && !flow.loading.value"
           class="empty"
@@ -180,7 +188,7 @@ function profileValue(value: unknown, field: string) {
             <template v-if="flow.mode.value === 'student'">
               <label class="field">
                 <span class="field-label">{{ t('verification.method') }}</span>
-                <select
+                <AppSelect
                   v-model="flow.selectedMethod.value"
                   class="select"
                   :disabled="flow.busy.value || !!flow.active.value"
@@ -192,14 +200,14 @@ function profileValue(value: unknown, field: string) {
                     :key="method"
                     :value="method"
                   >{{ t(`verification.methods.${method}`) }}</option>
-                </select>
+                </AppSelect>
               </label>
               <label
                 v-if="flow.chooseStudy.value"
                 class="field"
               >
                 <span class="field-label">{{ t('verification.stage') }}</span>
-                <select
+                <AppSelect
                   v-model="flow.stage.value"
                   class="select"
                   :disabled="!!flow.active.value || flow.busy.value"
@@ -209,14 +217,14 @@ function profileValue(value: unknown, field: string) {
                     :key="item"
                     :value="item"
                   >{{ t(`verification.stages.${item}`) }}</option>
-                </select>
+                </AppSelect>
               </label>
               <label
                 v-if="flow.chooseStudy.value"
                 class="field"
               >
                 <span class="field-label">{{ t('verification.kind') }}</span>
-                <select
+                <AppSelect
                   v-model="flow.kind.value"
                   class="select"
                   :disabled="!!flow.active.value || flow.busy.value"
@@ -226,7 +234,7 @@ function profileValue(value: unknown, field: string) {
                     :key="item"
                     :value="item"
                   >{{ t(`verification.kinds.${item}`) }}</option>
-                </select>
+                </AppSelect>
               </label>
             </template>
           </div>
@@ -344,7 +352,7 @@ function profileValue(value: unknown, field: string) {
               </label>
               <label class="field">
                 <span class="field-label">{{ t('verification.materialType') }}</span>
-                <select
+                <AppSelect
                   v-model="form.material_type"
                   class="select"
                   required
@@ -355,7 +363,7 @@ function profileValue(value: unknown, field: string) {
                     :key="type"
                     :value="type"
                   >{{ label('verification.materialTypes', type, type) }}</option>
-                </select>
+                </AppSelect>
               </label>
             </template>
           </div>
@@ -525,7 +533,10 @@ function profileValue(value: unknown, field: string) {
         </section>
       </section>
 
-      <section class="section">
+      <section
+        v-if="scope === 'student'"
+        class="section"
+      >
         <div class="section-head">
           <h2>{{ t('verification.experiences') }}</h2>
         </div>
@@ -667,7 +678,10 @@ function profileValue(value: unknown, field: string) {
         </dl>
       </section>
 
-      <section class="section">
+      <section
+        v-if="scope === 'student'"
+        class="section"
+      >
         <h2>{{ t('verification.applications') }}</h2>
         <p
           v-if="!flow.applications.value.length && !flow.loading.value"
@@ -713,7 +727,7 @@ function profileValue(value: unknown, field: string) {
       </section>
 
       <section
-        v-if="flow.requests.value.length"
+        v-if="scope === 'student' && flow.requests.value.length"
         class="section"
       >
         <h2>{{ t('verification.requests') }}</h2>

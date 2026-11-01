@@ -1,4 +1,6 @@
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { beginMorph, endMorph, pendingTitle, trackTitleClicks } from '../shared/ui/pendingTitle'
+import { nextTick } from 'vue'
+import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from 'vue-router'
 import HomeView from '../features/home/HomeView.vue'
 import NotFoundView from '../features/home/NotFoundView.vue'
 import { extras } from '../shared/extras'
@@ -8,7 +10,7 @@ declare module 'vue-router' {
     /** Message key of the document title. */
     title?: string
     /** Top-level navigation section highlighted for this page. */
-    section?: 'home' | 'courses' | 'teachers' | 'resources' | 'contributions' | 'me'
+    section?: 'home' | 'courses' | 'teachers' | 'resources' | 'me'
     /** Content pages open only for a current university qualification. */
     access?: 'verified'
   }
@@ -34,22 +36,24 @@ const routes: RouteRecordRaw[] = [
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { access: 'verified', title: 'resources.upload', section: 'resources' } },
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { access: 'verified', title: 'resources.detailTitle', section: 'resources' } },
   { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { access: 'verified', title: 'resources.edit', section: 'resources' } },
-  { path: '/contributions', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'contributions' } },
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
   { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'verified', title: 'me.reviews', section: 'me' } },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'verified', title: 'me.reviews', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'verified', title: 'me.resources', section: 'me' } },
   { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'verified', title: 'courses.title', section: 'me' } },
   { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'verified', title: 'me.requests', section: 'me' } },
+  { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { title: 'verification.identityTitle', section: 'me' } },
   { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { title: 'verification.title', section: 'me' } },
-  { path: '/me/storage-accounts', component: () => import('../features/storage/CustodyView.vue'), meta: { title: 'custody.title', section: 'me' } },
+  { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
   // Earlier entry points keep working after the reorganisation.
   { path: '/community', redirect: (to) => ({ path: '/courses', query: to.query }) },
   { path: '/community/me', redirect: (to) => ({ path: '/me/reviews', query: to.query }) },
   { path: '/community/me/entries/:id', redirect: (to) => ({ path: `/me/reviews/entries/${encodeURIComponent(String(to.params.id))}`, query: to.query }) },
   { path: '/verification', redirect: (to) => ({ path: '/me/verification', query: to.query }) },
-  { path: '/storage-accounts', redirect: (to) => ({ path: '/me/storage-accounts', query: to.query }) },
+  { path: '/contributions', redirect: (to) => ({ path: '/me/storage', query: to.query }) },
+  { path: '/storage-accounts', redirect: (to) => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
+  { path: '/me/storage-accounts', redirect: (to) => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
   { path: '/resources/me', redirect: (to) => ({ path: '/me/resources', query: to.query }) },
   { path: '/resources/requests', redirect: (to) => ({ path: '/me/requests', query: to.query }) },
   { path: '/:pathMatch(.*)*', component: NotFoundView, meta: { title: 'notFound.title' } },
@@ -67,10 +71,40 @@ function restore(top: number) {
   })
 }
 
+/**
+ * Cross-fade between pages with the View Transitions API. The browser keeps a
+ * snapshot of the old page until the new one is in the DOM, so no blank frame
+ * appears. Query-only changes such as tabs and filters stay in place, and
+ * browsers without the API switch directly.
+ */
+function installPageTransition(router: Router) {
+  trackTitleClicks()
+  let finish: (() => void) | undefined
+  router.afterEach(() => { finish?.(); finish = undefined })
+  router.beforeResolve((to, from) => {
+    if (to.path === from.path || !from.matched.length || !document.startViewTransition) return
+    return new Promise<void>((proceed) => {
+      beginMorph(to.path)
+      const transition = document.startViewTransition(async () => {
+        const navigated = new Promise<void>((resolve) => { finish = resolve })
+        proceed()
+        await navigated
+        endMorph()
+        await nextTick()
+      })
+      // A skipped transition still updates the page, so its rejection is not a failure.
+      transition.ready.catch(() => undefined)
+      transition.finished.finally(() => { pendingTitle.value = '' }).catch(() => undefined)
+    })
+  })
+}
+
 export function createAppRouter() {
-  return createRouter({
+  const router = createRouter({
     history: createWebHistory(),
     routes: [...extras.routes, ...routes],
     scrollBehavior: (to, _from, saved) => (saved ? restore(saved.top) : to.hash ? { el: to.hash } : { top: 0 }),
   })
+  installPageTransition(router)
+  return router
 }

@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { computed, type VNode } from 'vue'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
 import { localeReady } from './app/i18n'
 import AppLayout from './app/layout/AppLayout.vue'
+import ConfirmHost from './shared/ui/ConfirmHost.vue'
+import { extras } from './shared/extras'
 import AccessPanel from './features/account/AccessPanel.vue'
 import { useAccess } from './features/account/access'
 
 const route = useRoute()
+const { locale } = useI18n()
 const access = useAccess()
 // Content pages are not mounted until access is confirmed, so they send no
 // business request before that. The server still authorizes every request.
 const blocked = computed(() => route.meta.access === 'verified' && access.state.value !== 'verified')
-
-// Animate between different pages only. A route change that keeps the same view,
-// such as a new resource gaining its id, must not remount it and lose its state.
-function pageKey(page: VNode) {
-  return typeof page.type === 'object' && '__name' in page.type ? String(page.type.__name) : 'page'
-}
 </script>
 
 <template>
@@ -27,19 +25,8 @@ function pageKey(page: VNode) {
     />
     <RouterView
       v-else
-      v-slot="{ Component }"
-    >
-      <Transition
-        name="page"
-        mode="out-in"
-      >
-        <div
-          v-if="Component"
-          :key="pageKey(Component)"
-        >
-          <component :is="Component" />
-        </div>
-      </Transition>
-    </RouterView>
+      :key="extras.remountOnLocale ? locale : undefined"
+    />
   </AppLayout>
+  <ConfirmHost />
 </template>

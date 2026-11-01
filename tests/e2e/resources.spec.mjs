@@ -36,7 +36,8 @@ test('configured category field filters and grouping follow server configuration
   const { all, m, s, errors, locale } = await setup(page, info);
   await expect(page.getByRole('link', { name: 'Fixture notes', exact: true })).toBeVisible();
   await page.getByRole('search').getByRole('button', { name: new RegExp(all.common.filters) }).click();
-  await page.getByRole('combobox', { name: m.category, exact: true }).selectOption('custom-category');
+  await page.getByRole('combobox', { name: m.category, exact: true }).click();
+  await page.getByRole('option', { name: fixtureName(locale, '自定义', 'Custom') }).click();
   await page.getByLabel(fixtureName(locale, '自定义年份', 'Custom year'), { exact: true }).fill('2025');
   await page.getByRole('dialog').getByRole('button', { name: m.browse.find, exact: true }).click();
   await expect(page.getByRole('heading', { name: new Intl.NumberFormat(locale, { useGrouping: false }).format(2025), exact: true })).toBeVisible();

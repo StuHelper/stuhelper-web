@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMutation } from '../../shared/composables/async'
@@ -59,7 +60,7 @@ async function retry() {
         class="field"
       >
         <span class="field-label">{{ t('resources.request.kind') }}</span>
-        <select
+        <AppSelect
           v-model="kind"
           class="select"
         >
@@ -68,7 +69,7 @@ async function retry() {
             value="withdrawal"
           >{{ t('resources.request.kinds.withdrawal') }}</option>
           <option value="complaint">{{ t('resources.request.kinds.complaint') }}</option>
-        </select>
+        </AppSelect>
       </label>
       <p class="small muted">
         {{ t(`resources.request.hints.${kind}`) }}

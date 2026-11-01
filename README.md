@@ -41,15 +41,14 @@ make dev
 | `/reviews/:id` | 一条评价的完整讨论和回复 |
 | `/resources` | 按课程、目录和分类字段查找资料，打包下载有权访问的文件 |
 | `/resources/new`、`/resources/items/:id/edit` | 分三步保存资料信息、上传文件、提交审核 |
-| `/contributions` | 平台存储透明度数据与本人存储贡献 |
 | `/me` | 个人资料、校园资格、独立实名、手机号状态和登录设备 |
 | `/me/reviews` | 本人评价、草稿、课程收藏、投票、举报与申请 |
 | `/me/courses` | 按学期查看本人选课记录、任课教师和已知上课时间地点 |
 | `/me/resources`、`/me/requests` | 本人资料与下架、投诉、异议回执 |
 | `/me/verification` | 学生认证、独立实名、学习经历与撤销删除申请 |
-| `/me/storage-accounts` | BHpan 账号接入与托管授权 |
+| `/me/storage` | 平台存储透明度数据、本人存储贡献，以及 BHpan 账号接入与托管授权（`?tab=accounts`） |
 
-原有入口 `/community`、`/community/me`、`/verification`、`/storage-accounts`、`/resources/me` 和 `/resources/requests` 重定向到新位置。`/verification/capture` 保留为手机拍摄入口。
+原有入口 `/community`、`/community/me`、`/verification`、`/contributions`、`/storage-accounts`、`/me/storage-accounts`、`/resources/me` 和 `/resources/requests` 重定向到新位置。`/verification/capture` 保留为手机拍摄入口。
 
 ## 代码结构
 

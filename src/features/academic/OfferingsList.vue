@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -37,7 +38,7 @@ onMounted(() => {
       <h2>{{ t('academic.offerings.title') }}</h2>
       <label class="row small">
         <span>{{ t('academic.feed.term') }}</span>
-        <select
+        <AppSelect
           v-model="term"
           class="select term"
         >
@@ -47,7 +48,7 @@ onMounted(() => {
             :key="item.id"
             :value="item.id"
           >{{ item.name }}</option>
-        </select>
+        </AppSelect>
       </label>
     </div>
     <PagedState

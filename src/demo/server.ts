@@ -1,3 +1,4 @@
+import { bookmarks, syncCourseFavorite } from './store'
 import * as d from './data'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
@@ -21,7 +22,6 @@ const replies = [...d.replies] as Record<string, any>[]
 const drafts = [...d.drafts] as Record<string, any>[]
 const tasks = [...d.tasks] as Record<string, any>[]
 const resources = [...d.resources] as Record<string, any>[]
-const bookmarks = new Set(['r3', 'r9'])
 
 function catalog(u: URL) {
   const q = u.searchParams
@@ -93,7 +93,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
 
   if (p.startsWith('/verification')) {
     const eligible = who === 'verified'
-    if (p === '/verification/summary') return json({ campus_eligibility: eligible, identity_verified: eligible, evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
+    if (p === '/verification/summary') return json({ campus_eligibility: eligible, identity_verified: eligible, ...(eligible ? { identity_masked: { name_last: '航', id_first: '1', id_last: '8' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
     if (p === '/verification/schools') return json([d.verification.school])
     if (p === '/verification/credentials') return json(eligible ? [d.verification.credential('active')] : who === 'expired' ? [d.verification.credential('expired')] : [])
     if (p === '/verification/applications' && method === 'GET') return json(who === 'processing' ? [d.verification.application] : [])
@@ -133,7 +133,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p.startsWith('/reviews/me/entries/')) { const r = reviews.find((x) => x.id === p.split('/').at(-1)); return r ? json(r) : nope('not_found', 404) }
   if (p === '/reviews/me/votes') return json(reviews.filter((r) => r.my_vote))
   if (p === '/reviews/me/bookmarks' && method === 'GET') return json([...bookmarks])
-  if (p === '/reviews/me/bookmarks') { const b = await body(init); if (b.set) bookmarks.add(b.target_id); else bookmarks.delete(b.target_id); return result(b.target_id) }
+  if (p === '/reviews/me/bookmarks') { const b = await body(init); syncCourseFavorite(b.target_id, !!b.set); return result(b.target_id) }
   if (p === '/reviews/me/drafts' && method === 'GET') return json(drafts)
   if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
   if (p.startsWith('/reviews/me/drafts/')) {

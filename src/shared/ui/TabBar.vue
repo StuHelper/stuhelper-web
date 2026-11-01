@@ -8,6 +8,7 @@ const model = defineModel<T>({ required: true })
 const root = ref<HTMLElement>()
 const buttons = ref<HTMLButtonElement[]>([])
 const thumb = ref({ width: 0, offset: 0 })
+const sliding = ref(false)
 let observer: ResizeObserver | undefined
 
 function measure() {
@@ -39,11 +40,15 @@ function move(event: KeyboardEvent, index: number) {
   buttons.value[next]?.focus()
 }
 
+// 只有切换选项时滑动。字体或内容变化引起的重新测量直接到位。
+watch(model, () => { sliding.value = true; window.setTimeout(() => { sliding.value = false }, 450) })
 watch([model, () => props.tabs], () => void nextTick(measure))
 onMounted(() => {
   measure()
   observer = new ResizeObserver(measure)
   if (root.value) observer.observe(root.value)
+  // A label can settle after mount, for example when a font loads, without resizing the bar.
+  for (const button of buttons.value) observer.observe(button)
 })
 onBeforeUnmount(() => observer?.disconnect())
 </script>
@@ -56,9 +61,10 @@ onBeforeUnmount(() => observer?.disconnect())
     :aria-label="label"
   >
     <span
+      v-show="thumb.width"
       class="tab-thumb"
       aria-hidden="true"
-      :style="{ width: `${thumb.width}px`, insetInlineStart: 'auto', left: 0, transform: `translateX(${thumb.offset}px)` }"
+      :style="{ width: `${thumb.width}px`, insetInlineStart: 'auto', left: 0, transform: `translateX(${thumb.offset}px)`, transition: sliding ? undefined : 'none' }"
     />
     <button
       v-for="(tab, index) in tabs"

@@ -4,6 +4,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { useSession } from '../../shared/session'
+import PageSkeleton from '../../shared/ui/PageSkeleton.vue'
 import { useAccess } from './access'
 
 // One explanation and one next step for each reason content is not open yet.
@@ -22,14 +23,10 @@ const verify = computed(() => (props.gate ? { path: '/me/verification', query: {
 </script>
 
 <template>
-  <div
+  <PageSkeleton
     v-if="access.state.value === 'loading'"
-    class="skeleton"
-    aria-busy="true"
-  >
-    <span class="visually-hidden">{{ t('common.loading') }}</span>
-    <span aria-hidden="true" />
-  </div>
+    :variant="/^\/(courses|teachers)\/[^/]+$/.test(route.path) ? 'detail' : 'list'"
+  />
   <section
     v-else-if="state"
     class="card panel"

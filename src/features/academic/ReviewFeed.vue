@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, watch } from 'vue'
+import ChoiceGroup from './ChoiceGroup.vue'
+import AppSelect from '../../shared/ui/AppSelect.vue'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAsync, usePaged } from '../../shared/composables/async'
 import PagedState from '../../shared/ui/PagedState.vue'
@@ -50,6 +52,8 @@ onMounted(() => {
   void filters.reload()
 })
 defineExpose({ refresh: feed.reload })
+const termChoices = computed(() => [{ value: '', label: t('common.all') }, ...(filters.data.value?.terms ?? []).map((item) => ({ value: item.id, label: item.name }))])
+const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ...(filters.data.value?.teachers ?? []).map((item) => ({ value: item.id, label: item.name }))])
 </script>
 
 <template>
@@ -58,46 +62,29 @@ defineExpose({ refresh: feed.reload })
       v-if="filterable && kind === 'course'"
       class="row feed-filters"
     >
-      <label class="field">
-        <span class="field-label">{{ t('academic.feed.term') }}</span>
-        <select
-          v-model="term"
-          class="select"
-        >
-          <option value="">{{ t('common.all') }}</option>
-          <option
-            v-for="item in filters.data.value?.terms"
-            :key="item.id"
-            :value="item.id"
-          >{{ item.name }}</option>
-        </select>
-      </label>
-      <label
-        v-if="filters.data.value?.teachers.length"
-        class="field"
-      >
-        <span class="field-label">{{ t('academic.feed.teacher') }}</span>
-        <select
-          v-model="teacher"
-          class="select"
-        >
-          <option value="">{{ t('common.all') }}</option>
-          <option
-            v-for="item in filters.data.value.teachers"
-            :key="item.id"
-            :value="item.id"
-          >{{ item.name }}</option>
-        </select>
-      </label>
-      <label class="field">
+      <ChoiceGroup
+        v-if="termChoices.length > 1"
+        v-model="term"
+        compact
+        :label="t('academic.feed.term')"
+        :options="termChoices"
+      />
+      <ChoiceGroup
+        v-if="teacherChoices.length > 1"
+        v-model="teacher"
+        compact
+        :label="t('academic.feed.teacher')"
+        :options="teacherChoices"
+      />
+      <label class="feed-sort">
         <span class="field-label">{{ t('academic.feed.sort') }}</span>
-        <select
+        <AppSelect
           v-model="sort"
           class="select"
         >
           <option value="newest">{{ t('academic.feed.newest') }}</option>
           <option value="oldest">{{ t('academic.feed.oldest') }}</option>
-        </select>
+        </AppSelect>
       </label>
     </div>
     <PagedState
@@ -116,6 +103,7 @@ defineExpose({ refresh: feed.reload })
           :key="review.id"
         >
           <ReviewCard
+            :hide-target="!!targetId"
             :review="review"
             :names="names"
             @updated="update"
@@ -129,4 +117,7 @@ defineExpose({ refresh: feed.reload })
 
 <style scoped>
 .feed-filters .field { min-width: 10rem; }
+.feed-sort { display: inline-flex; align-items: center; gap: .5rem; white-space: nowrap; }
+.feed-sort .select { min-height: 32px; font-size: .8125rem; }
+.feed-filters { align-items: center; gap: .5rem 1rem; }
 </style>

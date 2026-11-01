@@ -52,7 +52,7 @@ defineProps<{ title: string; eyebrow?: string; description?: string; back?: stri
 .page-header-copy { display: grid; gap: .5rem; flex: 1 1 22rem; max-width: 44rem; min-width: 0; }
 .page-header-copy h1 { overflow-wrap: anywhere; }
 .page-eyebrow { color: var(--label-3); font-size: .9375rem; font-weight: 550; }
-.page-description { color: var(--label-2); font-size: clamp(1.0625rem, 1rem + .3vw, 1.25rem); line-height: 1.4; }
+.page-description { color: var(--label-2); font-size: 1rem; line-height: 1.4; }
 .page-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .page-back { display: inline-flex; align-items: center; justify-self: start; min-height: 32px; margin-inline-start: -.375rem; font-size: 1rem; }
 .page-back svg { width: 1.375rem; height: 1.375rem; }

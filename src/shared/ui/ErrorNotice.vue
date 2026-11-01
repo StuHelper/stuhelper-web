@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { RouterLink } from 'vue-router'
 import { useErrorText } from './messages'
 
 withDefaults(defineProps<{ code: string; retryable?: boolean; retryLabel?: string }>(), { retryable: true, retryLabel: '' })
@@ -14,8 +15,15 @@ const errorText = useErrorText()
     role="alert"
   >
     <span>{{ errorText(code) }}</span>
+    <RouterLink
+      v-if="code === 'not_found'"
+      class="btn btn-sm"
+      to="/"
+    >
+      {{ t('common.goHome') }}
+    </RouterLink>
     <button
-      v-if="retryable"
+      v-else-if="retryable"
       class="btn btn-sm"
       type="button"
       @click="emit('retry')"

@@ -12,7 +12,7 @@ import { subjectPath, useAcademic, type CatalogObject, type Review, type ReviewA
 import { reviewLink, safeAvatar, stateTone, useAuthorName } from './presentation'
 import RatingBands from './RatingBands.vue'
 
-const props = withDefaults(defineProps<{ review: Review; names?: Map<string, CatalogObject>; standalone?: boolean; replyEnabled?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false })
+const props = withDefaults(defineProps<{ review: Review; names?: Map<string, CatalogObject>; standalone?: boolean; replyEnabled?: boolean; hideTarget?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false, hideTarget: false })
 const emit = defineEmits<{ updated: [review: Review]; removed: [id: string]; reply: [review: Review] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -55,7 +55,9 @@ async function act(action: ReviewAction) {
   }
 }
 
+const popped = ref(0)
 function vote(value: 1 | -1) {
+  popped.value = props.review.my_vote === value ? 0 : value
   void act({ action: 'vote', revision: props.review.revision, vote: props.review.my_vote === value ? 0 : value })
 }
 
@@ -143,14 +145,17 @@ async function retry() {
     </header>
 
     <p
-      v-if="target && !standalone && isRoot"
+      v-if="target && !standalone && isRoot && !(hideTarget && review.kind !== 'course')"
       class="review-context small"
     >
-      <RouterLink :to="subjectPath(target)">
+      <RouterLink
+        v-if="!hideTarget"
+        :to="subjectPath(target)"
+      >
         {{ target.name }}
       </RouterLink>
       <template v-if="review.kind === 'course'">
-        · {{ teacher ? teacher.name : review.teacher_id ? t('common.unknown') : t('academic.review.noTeacher') }}
+        {{ hideTarget ? '' : '·' }} {{ teacher ? teacher.name : review.teacher_id ? t('common.unknown') : t('academic.review.noTeacher') }}
       </template>
     </p>
 
@@ -179,6 +184,7 @@ async function retry() {
     <RatingBands
       v-if="review.kind === 'course' && !review.preview && review.ratings.some((level) => level > 0)"
       :bands="review.ratings.map((level) => ({ level, samples: 1, courses: 1 }))"
+      inline
       :school-id="review.school_id"
       :samples="false"
       compact
@@ -209,7 +215,9 @@ async function retry() {
           type="button"
           :aria-pressed="review.my_vote === 1"
           :disabled="locked"
+          :data-pop="popped === 1 || undefined"
           @click="vote(1)"
+          @animationend="popped = 0"
         >
           <ThumbsUp aria-hidden="true" />{{ t('academic.review.upvote', { count: format.number(review.upvotes) }) }}
         </button>
@@ -218,7 +226,9 @@ async function retry() {
           type="button"
           :aria-pressed="review.my_vote === -1"
           :disabled="locked"
+          :data-pop="popped === -1 || undefined"
           @click="vote(-1)"
+          @animationend="popped = 0"
         >
           <ThumbsDown aria-hidden="true" />{{ t('academic.review.downvote', { count: format.number(review.downvotes) }) }}
         </button>

@@ -8,18 +8,18 @@ import RequireSignIn from './RequireSignIn.vue'
 
 // Shared frame of the personal center: one heading, section links and the
 // sign-in boundary for private pages.
-withDefaults(defineProps<{ title: string; description?: string; requireSignIn?: boolean }>(), { description: '', requireSignIn: true })
+withDefaults(defineProps<{ title: string; description?: string; requireSignIn?: boolean; back?: string; backLabel?: string }>(), { description: '', requireSignIn: true, back: undefined, backLabel: undefined })
 const { t } = useI18n()
 const route = useRoute()
 const current = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
 const links = [
-  { to: '/me', label: 'me.overview', icon: UserRound, tile: '#8e8e93' },
-  { to: '/me/courses', label: 'courses.title', icon: CalendarDays, tile: '#ff3b30' },
-  { to: '/me/reviews', label: 'me.reviews', icon: FileText, tile: '#0071e3' },
-  { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: '#ff9500' },
-  { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: '#5856d6' },
-  { to: '/me/verification', label: 'verification.title', icon: ShieldCheck, tile: '#34c759' },
-  { to: '/me/storage-accounts', label: 'custody.title', icon: HardDrive, tile: '#32ade6' },
+  { to: '/me', label: 'me.overview', icon: UserRound, tile: 'var(--c-gray)' },
+  { to: '/me/courses', label: 'courses.title', icon: CalendarDays, tile: 'var(--c-red)' },
+  { to: '/me/reviews', label: 'me.reviews', icon: FileText, tile: 'var(--c-blue)' },
+  { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
+  { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: 'var(--c-indigo)' },
+  { to: '/me/verification', label: 'verification.title', icon: ShieldCheck, tile: 'var(--c-green)' },
+  { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
 ] as const
 </script>
 
@@ -67,8 +67,8 @@ const links = [
       <PageHeader
         :title="title"
         :description="description"
-        :back="route.path === '/me' ? undefined : '/me'"
-        :back-label="t('me.title')"
+        :back="back ?? (route.path === '/me' ? undefined : '/me')"
+        :back-label="backLabel ?? t('me.title')"
       >
         <template
           v-if="$slots.actions"
@@ -95,6 +95,8 @@ const links = [
 .me-nav .icon-tile { width: 26px; height: 26px; border-radius: 7px; }
 .me-nav .icon-tile svg { width: 16px; height: 16px; }
 /* On phones the overview page is the menu, as in iOS Settings. */
+/* 桌面端侧栏一直可见，不需要返回个人中心的链接。 */
+@media (min-width: 761px) { .me-content > :deep(.page-header > .page-back[href="/me"]) { display: none; } }
 @media (max-width: 760px) {
   .me { grid-template-columns: minmax(0, 1fr); }
   .me-nav { display: none; }

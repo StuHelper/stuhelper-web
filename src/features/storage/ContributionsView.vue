@@ -1,20 +1,24 @@
 <script setup lang="ts">
+import AppDateTime from '../../shared/ui/AppDateTime.vue'
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import type { Command, Contribution } from '../../api/contribution'
 import { useFormat } from '../../app/i18n'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
-import PageHeader from '../../shared/ui/PageHeader.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
+import TabBar from '../../shared/ui/TabBar.vue'
 import { useErrorText } from '../../shared/ui/messages'
+import MeLayout from '../account/MeLayout.vue'
 import { conditions, gbInput, localDateInput } from './conditions'
+import CustodyPanel from './CustodyPanel.vue'
 import { useContributions } from './useContributions'
 
-// Public transparency figures and the user's own storage contributions.
-// Declared capacity and actually writable capacity are always shown apart.
+// Public transparency figures, the user's contributions and the storage accounts
+// behind them. Declared capacity and actually writable capacity are always shown apart.
 const { t, te } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
@@ -33,6 +37,23 @@ const editing = ref<{ item: Contribution; mode: 'configure' | 'renew' } | null>(
 const invalid = ref(false)
 const formTitle = ref<HTMLElement>()
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+const route = useRoute()
+const router = useRouter()
+const tab = computed<'contributions' | 'accounts'>({
+  get: () => (route.query.tab === 'accounts' ? 'accounts' : 'contributions'),
+  set: (value) => void router.replace({ query: { ...route.query, tab: value === 'accounts' ? 'accounts' : undefined } }),
+})
+const tabs = computed(() => [{ value: 'contributions' as const, label: t('contribution.mine') }, { value: 'accounts' as const, label: t('custody.title') }])
+const creating = ref(false)
+const custody = ref<InstanceType<typeof CustodyPanel>>()
+function refresh() {
+  void reload()
+  if (tab.value === 'accounts') custody.value?.refresh()
+}
+const paged = ref(false)
+const showForm = computed(() => !!editing.value || creating.value)
+function goNext() { paged.value = true; void next() }
+function goFirst() { paged.value = false; void first() }
 const action = computed(() => (pending.value?.kind === 'command' ? pending.value.body.action : pending.value?.kind === 'retry' ? 'retry' : 'create'))
 const needsSignIn = computed(() => error.value === 'unauthenticated' || session.state.value === 'guest')
 
@@ -41,6 +62,7 @@ function consent() {
 }
 function reset() {
   editing.value = null
+  creating.value = false
   instance.value = ''
   limit.value = ''
   reserve.value = '0'
@@ -74,6 +96,10 @@ function review() {
 function command(item: Contribution, value: Command['action']) {
   prepare({ kind: 'command', id: item.id, key: crypto.randomUUID(), body: { revision: item.revision, action: value } })
 }
+// A request only needs mentioning while the contribution has not reached it yet.
+const settled = (item: Contribution) => item.state === item.desired_state
+const leaving = (item: Contribution) => item.desired_state === 'exiting' || item.desired_state === 'revoked'
+const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
 const mutable = (item: Contribution) => item.desired_state === 'active' || item.desired_state === 'paused'
 
 watch(error, (value) => {
@@ -85,28 +111,21 @@ watch(completed, (value) => {
 </script>
 
 <template>
-  <div class="stack-lg">
-    <PageHeader
-      :title="t('nav.contributions')"
-      :description="t('contribution.description')"
-    >
-      <template #actions>
-        <button
-          class="btn"
-          type="button"
-          :disabled="locked"
-          @click="reload()"
-        >
-          {{ t('common.refresh') }}
-        </button>
-        <RouterLink
-          class="btn"
-          to="/me/storage-accounts"
-        >
-          {{ t('custody.title') }}
-        </RouterLink>
-      </template>
-    </PageHeader>
+  <MeLayout
+    :title="t('nav.contributions')"
+    :description="t('contribution.description')"
+    :require-sign-in="false"
+  >
+    <template #actions>
+      <button
+        class="btn"
+        type="button"
+        :disabled="locked"
+        @click="refresh"
+      >
+        {{ t('common.refresh') }}
+      </button>
+    </template>
 
     <section
       class="card stack"
@@ -135,11 +154,14 @@ watch(completed, (value) => {
             <dd>{{ bytes(statistics.used_bytes) }}</dd>
           </div>
         </dl>
-        <p class="row small">
-          <StatusTag :tone="statistics.status === 'current' ? 'success' : 'warning'">
-            {{ t(statistics.status === 'current' ? 'contribution.current' : 'contribution.partial') }}
-          </StatusTag>
-          <span class="subtle">{{ t('contribution.observed', { time: format.dateTime(statistics.generated_at) }) }}</span>
+        <p
+          v-if="statistics.status !== 'current'"
+          class="notice notice-warning small"
+        >
+          {{ t('contribution.partial') }}
+        </p>
+        <p class="subtle">
+          {{ t('contribution.observed', { time: format.dateTime(statistics.generated_at) }) }}
         </p>
       </template>
       <p
@@ -150,7 +172,19 @@ watch(completed, (value) => {
       </p>
     </section>
 
+    <TabBar
+      v-if="session.state.value === 'member' && !needsSignIn"
+      v-model="tab"
+      :tabs="tabs"
+      :label="t('nav.contributions')"
+      id-prefix="storage"
+    />
+    <CustodyPanel
+      v-if="tab === 'accounts' && !needsSignIn"
+      ref="custody"
+    />
     <div
+      v-if="(tab === 'contributions' || needsSignIn) && ((completed && !error) || needsSignIn || (error && !pending))"
       class="stack"
       aria-live="polite"
     >
@@ -186,9 +220,9 @@ watch(completed, (value) => {
       />
     </div>
 
-    <template v-if="data">
+    <template v-if="data && tab === 'contributions'">
       <section
-        v-if="policy && options"
+        v-if="policy && options && showForm"
         class="card stack"
       >
         <h2
@@ -202,9 +236,13 @@ watch(completed, (value) => {
           class="small muted"
         >
           {{ t('contribution.noOptions') }}
-          <RouterLink to="/me/storage-accounts">
+          <button
+            class="btn btn-sm"
+            type="button"
+            @click="tab = 'accounts'"
+          >
             {{ t('custody.connect') }}
-          </RouterLink>
+          </button>
         </p>
         <form
           v-if="editing || options.items.length"
@@ -220,7 +258,7 @@ watch(completed, (value) => {
               class="field"
             >
               <span class="field-label">{{ t('contribution.storage') }}</span>
-              <select
+              <AppSelect
                 v-model="instance"
                 class="select"
                 required
@@ -233,15 +271,9 @@ watch(completed, (value) => {
                   v-for="option in options.items"
                   :key="option.id"
                   :value="option.id"
-                >{{ t('contribution.option', { adapter: option.adapter, id: option.id.slice(-8), capacity: bytes(option.available_bytes) }) }}</option>
-              </select>
+                >{{ t('contribution.option', { adapter: adapterName(option.adapter), id: option.id.slice(-8), capacity: bytes(option.available_bytes) }) }}</option>
+              </AppSelect>
             </label>
-            <p
-              v-else
-              class="mono subtle"
-            >
-              <bdi>{{ editing.item.id }}</bdi>
-            </p>
             <div class="form-grid">
               <label class="field">
                 <span class="field-label">{{ t('contribution.limit') }}</span>
@@ -268,12 +300,10 @@ watch(completed, (value) => {
                 class="field"
               >
                 <span class="field-label">{{ t('contribution.untilInput', { zone }) }}</span>
-                <input
+                <AppDateTime
                   v-model="until"
-                  class="input"
-                  type="datetime-local"
                   required
-                >
+                />
               </label>
             </div>
             <p class="field-hint">
@@ -315,7 +345,6 @@ watch(completed, (value) => {
                 {{ t('contribution.review') }}
               </button>
               <button
-                v-if="editing"
                 class="btn"
                 type="button"
                 @click="reset"
@@ -339,14 +368,26 @@ watch(completed, (value) => {
       <section class="section">
         <div class="section-head">
           <h2>{{ t('contribution.mine') }}</h2>
-          <button
-            class="btn btn-sm btn-ghost"
-            type="button"
-            :disabled="locked"
-            @click="first"
-          >
-            {{ t('contribution.first') }}
-          </button>
+          <div class="row">
+            <button
+              v-if="paged"
+              class="btn btn-sm"
+              type="button"
+              :disabled="locked"
+              @click="goFirst"
+            >
+              {{ t('contribution.first') }}
+            </button>
+            <button
+              v-if="policy && !showForm"
+              class="btn btn-sm btn-primary"
+              type="button"
+              :disabled="locked"
+              @click="creating = true"
+            >
+              {{ t('contribution.create') }}
+            </button>
+          </div>
         </div>
         <p
           v-if="!data.items.length"
@@ -354,23 +395,20 @@ watch(completed, (value) => {
         >
           {{ t('contribution.empty') }}
         </p>
-        <ul class="grid-wide list">
+        <ul class="list">
           <li
             v-for="item in data.items"
             :key="item.id"
           >
             <article class="card stack">
               <div class="row-between">
-                <h3><bdi>{{ item.adapter }}</bdi></h3>
+                <h3><bdi>{{ adapterName(item.adapter) }}</bdi></h3>
                 <StatusTag :tone="item.state === 'active' ? 'success' : item.state === 'blocked' ? 'danger' : 'warning'">
                   {{ label('contribution.states', item.state) }}
                 </StatusTag>
               </div>
-              <p class="mono subtle">
-                <bdi>{{ item.id }}</bdi>
-              </p>
               <dl class="facts">
-                <div>
+                <div v-if="!settled(item)">
                   <dt>{{ t('contribution.requested') }}</dt>
                   <dd>{{ t(`contribution.actions.${desired[item.desired_state]}`) }}</dd>
                 </div>
@@ -408,7 +446,10 @@ watch(completed, (value) => {
                     <dd>{{ bytes(item.observation.available_bytes) }}</dd>
                   </div>
                 </dl>
-                <p class="small">
+                <p
+                  v-if="leaving(item)"
+                  class="small"
+                >
                   {{ t('contribution.remaining', { count: format.number(item.observation.remaining_replicas) }) }}
                 </p>
                 <p class="subtle">
@@ -493,7 +534,7 @@ watch(completed, (value) => {
           class="btn"
           type="button"
           :disabled="locked"
-          @click="next"
+          @click="goNext"
         >
           {{ t('common.loadMore') }}
         </button>
@@ -509,12 +550,6 @@ watch(completed, (value) => {
         v-if="pending"
         class="stack"
       >
-        <p
-          v-if="pending.kind !== 'create'"
-          class="mono subtle"
-        >
-          <bdi>{{ pending.id }}</bdi>
-        </p>
         <p class="small">
           {{ t(action === 'exit' ? 'contribution.exitHint' : action === 'revoke' ? 'contribution.revokeHint' : 'contribution.confirmHint') }}
         </p>
@@ -559,10 +594,11 @@ watch(completed, (value) => {
         </div>
       </div>
     </SheetDialog>
-  </div>
+  </MeLayout>
 </template>
 
 <style scoped>
+article .facts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics { gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics dd { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem); font-weight: 700; line-height: 1.1; letter-spacing: var(--tracking-title); }
 </style>

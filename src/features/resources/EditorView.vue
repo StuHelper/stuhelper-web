@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, shallowRef } from 'vue'
+import AppSelect from '../../shared/ui/AppSelect.vue'
+import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -81,6 +82,11 @@ const baseline = ref('')
 const dirty = computed(() => baseline.value !== '' && fingerprint() !== baseline.value)
 const proposal = computed(() => entry.value?.proposal)
 const step = computed(() => (!entry.value || dirty.value ? 1 : !proposal.value?.file ? 2 : 3))
+// 一次只显示当前步骤。上传完成后文件状态仍和提交审核一起显示。已完成的步骤可以点回去修改。
+const viewStep = ref(step.value)
+watch(step, (value) => { viewStep.value = value })
+const typeNames: Record<string, string> = { 'application/pdf': 'PDF', 'image/png': 'PNG', 'image/jpeg': 'JPG', 'text/plain': 'TXT', 'application/zip': 'ZIP', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX', 'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX' }
+const typeLabel = (type: string) => typeNames[type] ?? type.split('/').at(-1)?.toUpperCase() ?? type
 const canSubmit = computed(() => !!proposal.value?.file && !dirty.value && !['pending', 'preparing'].includes(proposal.value.state))
 const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value)
 const anyUncertain = computed(() => saving.uncertain.value || attaching.uncertain.value || submitting.uncertain.value)
@@ -237,9 +243,34 @@ function uploadMessage(state: string) {
     >
       <div
         v-if="setup.data.value && capabilities"
-        class="layout-aside"
+        class="stack"
       >
+        <ol class="stepper">
+          <li
+            v-for="n in 3"
+            :key="n"
+          >
+            <button
+              class="stepper-item"
+              type="button"
+              :aria-current="viewStep === n ? 'step' : undefined"
+              :data-done="n < step || undefined"
+              :disabled="n > step"
+              @click="viewStep = n"
+            >
+              {{ t(`resources.editor.step${n}`) }}
+            </button>
+          </li>
+        </ol>
+        <MutationNotice
+          :busy="saving.busy.value"
+          :error="saving.error.value"
+          :uncertain="saving.uncertain.value"
+          :success="entry && !dirty && !saving.error.value ? t('resources.editor.saved') : ''"
+          @retry="retrySave"
+        />
         <form
+          v-show="viewStep === 1"
           class="card stack"
           @submit.prevent="save"
         >
@@ -273,7 +304,7 @@ function uploadMessage(state: string) {
             <div class="form-grid">
               <label class="field">
                 <span class="field-label">{{ t('resources.category') }}</span>
-                <select
+                <AppSelect
                   v-model="metadata.category_id"
                   class="select"
                   required
@@ -284,7 +315,7 @@ function uploadMessage(state: string) {
                     :key="item.id"
                     :value="item.id"
                   >{{ localName(item.names, locale) }}</option>
-                </select>
+                </AppSelect>
               </label>
               <FieldInput
                 v-for="field in category?.fields"
@@ -305,13 +336,13 @@ function uploadMessage(state: string) {
               </div>
               <label class="field">
                 <span class="field-label">{{ t('resources.detail.access') }}</span>
-                <select
+                <AppSelect
                   v-model="metadata.access"
                   class="select"
                 >
                   <option value="public">{{ t('resources.accessLevel.public') }}</option>
                   <option value="restricted">{{ t('resources.accessLevel.restricted') }}</option>
-                </select>
+                </AppSelect>
               </label>
             </div>
 
@@ -447,13 +478,6 @@ function uploadMessage(state: string) {
               </div>
             </fieldset>
           </fieldset>
-          <MutationNotice
-            :busy="saving.busy.value"
-            :error="saving.error.value"
-            :uncertain="saving.uncertain.value"
-            :success="entry && !dirty && !saving.error.value ? t('resources.editor.saved') : ''"
-            @retry="retrySave"
-          />
           <div class="form-actions">
             <button
               class="btn btn-primary"
@@ -467,12 +491,12 @@ function uploadMessage(state: string) {
 
         <aside class="stack">
           <section
+            v-show="viewStep >= 2"
             class="card stack"
-            :class="{ dim: step < 2 }"
           >
             <h2>{{ t('resources.editor.step2') }}</h2>
             <p class="small muted">
-              {{ t('resources.editor.limits', { size: format.bytes(capabilities.max_file_size), types: format.list(capabilities.allowed_types) }) }}
+              {{ t('resources.editor.limits', { size: format.bytes(capabilities.max_file_size), types: format.list(capabilities.allowed_types.map(typeLabel)) }) }}
             </p>
             <p
               v-if="!profile"
@@ -486,14 +510,17 @@ function uploadMessage(state: string) {
             >
               {{ t('resources.editor.currentFile', { name: proposal.file.filename, size: format.bytes(proposal.file.size) }) }}
             </p>
-            <label class="field">
+            <label class="field app-file">
               <span class="field-label">{{ t('resources.editor.chooseFile') }}</span>
               <input
+                class="app-file-input"
+                :aria-label="t('resources.editor.chooseFile')"
                 type="file"
                 :accept="capabilities.allowed_types.join(',')"
                 :disabled="!entry || dirty || uploadBusy || (!!uploadState && !['cancelled', 'attached'].includes(uploadState))"
                 @change="chooseFile"
               >
+              <span class="app-file-row"><span class="btn btn-sm">{{ t('resources.editor.browseFile') }}</span><span class="subtle truncate">{{ file?.name ?? t('resources.editor.noFile') }}</span></span>
             </label>
             <p
               v-if="dirty || !entry"
@@ -548,8 +575,8 @@ function uploadMessage(state: string) {
           </section>
 
           <section
+            v-show="viewStep === 3"
             class="card stack"
-            :class="{ dim: step < 3 }"
           >
             <h2>{{ t('resources.editor.step3') }}</h2>
             <p class="small muted">
@@ -596,7 +623,11 @@ function uploadMessage(state: string) {
 </template>
 
 <style scoped>
-.dim { opacity: .55; transition: opacity .3s; }
+.stepper { display: flex; flex-wrap: wrap; gap: .375rem; }
+.stepper-item { min-height: 36px; padding: .25rem .875rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label-2); font: inherit; font-size: .875rem; cursor: pointer; }
+.stepper-item[aria-current="step"] { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
+.stepper-item[data-done]::before { content: "✓ "; color: var(--c-green); }
+.stepper-item:disabled { opacity: .5; cursor: default; }
 .origin-choice { justify-content: flex-start; gap: .5rem; padding: .375rem .875rem; border-radius: var(--pill); background: var(--fill); }
 .origin-choice > span { order: 0; padding: 0; }
 .layout-aside > aside { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); }

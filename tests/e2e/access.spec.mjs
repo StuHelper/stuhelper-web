@@ -123,3 +123,24 @@ memberTest('my courses separates terms and keeps a data failure apart from havin
   await expect(page.getByRole('button', { name: all.courses.reload, exact: true })).toBeVisible();
   await expect(page.getByText(all.courses.empty, { exact: true })).toHaveCount(0);
 });
+
+memberTest('identity page waits for the real state and only shows masked identity', async ({ page }, info) => {
+  const all = catalogue(info), v = all.verification;
+  let release;
+  const held = new Promise((resolve) => { release = resolve; });
+  await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: [] }));
+  await verification(page, true);
+  await page.route('**/api/v1/verification/summary', async (route) => {
+    await held;
+    return route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name_last: '航', id_first: '1', id_last: '8' } } });
+  });
+  await page.goto(`${base}/me/account/identity?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('heading', { level: 1, name: v.identityTitle })).toBeVisible();
+  await expect(page.getByRole('heading', { name: v.start })).toHaveCount(0);
+  await expect(page.getByText(v.identityMissing, { exact: true })).toHaveCount(0);
+  release();
+  await expect(page.getByText(v.identityVerified, { exact: true })).toBeVisible();
+  await expect(page.getByText('*航', { exact: true })).toBeVisible();
+  await expect(page.getByText('1****************8', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: v.start })).toHaveCount(0);
+});

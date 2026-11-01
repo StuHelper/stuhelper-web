@@ -25,3 +25,41 @@
 .d-unread { position: absolute; inset-block-start: 3px; inset-inline-end: 3px; min-width: 16px; height: 16px; padding-inline: 4px; border-radius: var(--pill); background: #ff3b30; color: #fff; font-size: .625rem; font-weight: 700; line-height: 16px; text-align: center; box-shadow: 0 0 0 2px var(--bg); }
 .d-progress { height: 6px; border-radius: var(--pill); background: var(--fill); overflow: hidden; }
 .d-progress span { display: block; height: 100%; border-radius: inherit; background: var(--accent-fill); transition: width .6s var(--ease-out); }
+.d-drawer-overlay { position: fixed; inset: 0; z-index: 100; background: rgb(0 0 0 / .35); animation: d-fade .2s; }
+.d-drawer { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 101; display: flex; flex-direction: column; width: min(100%, 34rem); background: var(--bg); box-shadow: var(--shadow-float); animation: d-slide .3s var(--ease-out); }
+.d-drawer-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-block-end: .5px solid var(--separator); }
+.d-drawer-head h2 { font-size: 1.125rem; font-weight: 650; }
+.d-drawer-body { flex: 1; display: grid; align-content: start; gap: 1.25rem; overflow-y: auto; padding: 1.25rem; }
+.d-drawer-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .5rem; padding: .75rem 1.25rem calc(.75rem + var(--safe-bottom)); border-block-start: .5px solid var(--separator); }
+@keyframes d-fade { from { opacity: 0; } }
+@keyframes d-slide { from { transform: translateX(100%); } }
+[dir="rtl"] .d-drawer { animation-name: d-slide-rtl; }
+@keyframes d-slide-rtl { from { transform: translateX(-100%); } }
+.d-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--pill); background: var(--fill); }
+.d-seg .btn { min-height: 30px; width: 34px; background: transparent; }
+.d-seg .btn[aria-pressed="true"] { background: var(--surface); color: var(--label); box-shadow: var(--shadow-card); }
+.d-toast { pointer-events: auto; display: flex; align-items: center; gap: .75rem; }
+.d-toast .btn { min-height: 28px; padding-block: .125rem; }
+
+.d-search input::-webkit-search-cancel-button { appearance: none; }
+.d-search input { padding-inline-end: 2.5rem; }
+.d-search .d-search-clear { position: absolute; inset-inline-end: .5rem; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: var(--fill); color: var(--label-2); cursor: pointer; }
+.d-search-clear:hover { background: var(--fill-strong); }
+.d-search .d-search-clear svg { position: static; width: .875rem; height: .875rem; color: inherit; }
+.d-active { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; animation: d-list-in .18s var(--ease-out); }
+.d-active-item { display: inline-flex; align-items: center; gap: .25rem; min-height: 28px; padding: .125rem .5rem .125rem .75rem; border: 0; border-radius: var(--pill); background: var(--accent-soft); color: var(--accent); font: inherit; font-size: .8125rem; cursor: pointer; }
+.d-active-item:hover { filter: brightness(.96); }
+.d-active-item svg { width: .8125rem; height: .8125rem; }
+.d-active-all { padding: .125rem .375rem; border: 0; background: none; color: var(--label-2); font: inherit; font-size: .8125rem; cursor: pointer; }
+.d-active-all:hover { color: var(--label); text-decoration: underline; }
+.d-list-in { animation: d-list-in .2s var(--ease-out); }
+@keyframes d-list-in { from { opacity: 0; transform: translateY(4px); } }
+.d-row-more { display: none; }
+@media (max-width: 760px) { .d-row-more { display: inline-flex; } }
+.d-drawer[data-state="closed"] { animation: d-slide-out .2s ease-in forwards; }
+[dir="rtl"] .d-drawer[data-state="closed"] { animation-name: d-slide-out-rtl; }
+.d-drawer-overlay[data-state="closed"] { animation: fade-out .2s ease-in forwards; }
+@keyframes d-slide-out { to { transform: translateX(100%); } }
+@keyframes d-slide-out-rtl { to { transform: translateX(-100%); } }
+.d-bump { display: inline-block; animation: d-bump .3s var(--spring); }
+@keyframes d-bump { 40% { transform: scale(1.12); } }

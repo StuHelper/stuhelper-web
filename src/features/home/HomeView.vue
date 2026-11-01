@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { BookOpen, ChevronRight, FileText, FolderOpen, GraduationCap, HardDrive, Search, ShieldCheck, UserRound } from 'lucide-vue-next'
+import PageSkeleton from '../../shared/ui/PageSkeleton.vue'
+import { BookOpen, ChevronRight, FileText, FolderOpen, GraduationCap, Search, ShieldCheck, UserRound } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
@@ -23,17 +24,16 @@ const verified = computed(() => access.state.value === 'verified')
 const recent = ref(recentPages())
 const icons = { course: BookOpen, teacher: GraduationCap, resource: FolderOpen }
 const shortcuts = [
-  { to: '/courses', title: 'nav.courses', icon: BookOpen, tile: '#0071e3' },
-  { to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: '#af52de' },
-  { to: '/resources', title: 'nav.resources', icon: FolderOpen, tile: '#ff9500' },
-  { to: '/me/reviews', title: 'me.reviews', icon: FileText, tile: '#5856d6' },
-  { to: '/contributions', title: 'nav.contributions', icon: HardDrive, tile: '#32ade6' },
-  { to: '/me', title: 'me.title', icon: UserRound, tile: '#ff2d55' },
+  { to: '/courses', title: 'nav.courses', icon: BookOpen, tile: 'var(--c-blue)' },
+  { to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: 'var(--c-purple)' },
+  { to: '/resources', title: 'nav.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
+  { to: '/me/reviews', title: 'me.reviews', icon: FileText, tile: 'var(--c-indigo)' },
+  { to: '/me', title: 'me.title', icon: UserRound, tile: 'var(--c-pink)' },
 ] as const
 const introductions = [
-  { title: 'home.entries.courses.title', text: 'home.entries.courses.text', icon: BookOpen, tile: '#0071e3' },
-  { title: 'home.entries.resources.title', text: 'home.entries.resources.text', icon: FolderOpen, tile: '#ff9500' },
-  { title: 'home.entries.verification.title', text: 'home.entries.verification.text', icon: ShieldCheck, tile: '#34c759' },
+  { title: 'home.entries.courses.title', text: 'home.entries.courses.text', icon: BookOpen, tile: 'var(--c-blue)' },
+  { title: 'home.entries.resources.title', text: 'home.entries.resources.text', icon: FolderOpen, tile: 'var(--c-orange)' },
+  { title: 'home.entries.verification.title', text: 'home.entries.verification.text', icon: ShieldCheck, tile: 'var(--c-green)' },
 ] as const
 
 // Sections fail independently, and one failure must not hide the others.
@@ -70,8 +70,12 @@ const name = (id: string) => workspace.data.value?.names.get(id)?.name ?? t('com
   <div
     class="home"
   >
+    <PageSkeleton
+      v-if="access.state.value === 'loading'"
+      variant="home"
+    />
     <section
-      v-if="!verified"
+      v-else-if="!verified"
       class="hero"
     >
       <p class="hero-eyebrow">

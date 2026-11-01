@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { attribute, localName, type Field, type Value } from './api'
@@ -27,7 +28,7 @@ function change(event: Event) {
 <template>
   <label class="field">
     <span class="field-label">{{ localName(field.names, locale) }}</span>
-    <select
+    <AppSelect
       v-if="field.kind === 'choice'"
       class="select"
       :value="raw"
@@ -42,7 +43,7 @@ function change(event: Event) {
         :key="option.id"
         :value="option.id"
       >{{ localName(option.names, locale) }}</option>
-    </select>
+    </AppSelect>
     <input
       v-else
       class="input"

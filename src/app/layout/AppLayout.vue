@@ -15,7 +15,6 @@ const links = [
   { to: '/courses', label: 'nav.courses', section: 'courses' },
   { to: '/teachers', label: 'nav.teachers', section: 'teachers' },
   { to: '/resources', label: 'nav.resources', section: 'resources' },
-  { to: '/contributions', label: 'nav.contributions', section: 'contributions' },
 ] as const
 // Phones get a tab bar. Contributions move into the personal center there, since
 // five tabs are the most that stay readable in all eight languages.
@@ -129,19 +128,26 @@ watch(() => route.path, async (_path, previous) => {
 .skip-link { position: fixed; inset-block-start: .5rem; inset-inline-start: .5rem; z-index: 100; padding: .5rem 1rem; border-radius: var(--pill); background: var(--accent-fill); color: #fff; transform: translateY(-200%); }
 .skip-link:focus { transform: none; }
 .shell { display: flex; flex-direction: column; min-height: 100dvh; }
-.nav { position: sticky; inset-block-start: 0; z-index: 40; background: var(--glass); box-shadow: 0 .5px 0 var(--separator); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+.nav { view-transition-name: shell-nav; position: sticky; inset-block-start: 0; z-index: 40; background: var(--glass); box-shadow: 0 .5px 0 var(--separator); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
 .nav-bar { display: flex; align-items: center; gap: 1.5rem; height: var(--nav-height); }
 .brand { display: inline-flex; flex: none; align-items: center; gap: .5rem; color: var(--label); font-size: 1.0625rem; font-weight: 620; }
 .brand:hover { text-decoration: none; color: var(--label); }
 .brand img { border-radius: 6px; object-fit: contain; }
-.nav-links { display: flex; flex: 1; align-items: center; gap: .125rem; min-width: 0; }
+.nav-links { display: flex; flex: none; align-items: center; gap: .125rem; }
 .nav-links a { padding: .3125rem .75rem; border-radius: var(--pill); color: var(--label-2); font-size: .875rem; white-space: nowrap; transition: color .2s, background-color .2s; }
 .nav-links a:hover { color: var(--label); text-decoration: none; }
 .nav-links a[aria-current="page"] { color: var(--label); font-weight: 550; background: var(--fill); }
-.nav-tools { display: flex; flex: none; align-items: center; gap: .375rem; margin-inline-start: auto; }
-.shell-main { flex: 1; padding-block: clamp(1.75rem, 4vw, 3.25rem) clamp(3rem, 6vw, 5rem); }
+.nav-tools { container: nav-tools / inline-size; display: flex; flex: 1; justify-content: flex-end; align-items: center; gap: .375rem; min-width: 0; }
+/* 空间不足时只收窄搜索框，头像和其他按钮保持原尺寸。 */
+.nav-tools > :deep(*) { flex-shrink: 0; }
+.shell-main { flex: 1; min-height: calc(100dvh - var(--nav-height)); view-transition-name: page; padding-block: clamp(1.75rem, 4vw, 3.25rem) clamp(3rem, 6vw, 5rem); }
 .shell-footer { padding-block: 1.25rem; box-shadow: inset 0 .5px 0 var(--separator); color: var(--label-3); font-size: .75rem; }
-.tabbar { display: none; }
+.tabbar { display: none; view-transition-name: shell-tabbar; }
+
+/* 最窄的手机上只保留品牌图标，给工具按钮留出位置。 */
+@media (max-width: 360px) {
+  .brand-name { display: none; }
+}
 
 @media (max-width: 760px) {
   .nav-links { display: none; }

@@ -10,6 +10,8 @@ import AsyncState from '../../shared/ui/AsyncState.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useAcademic, type DisclosureKey, type Draft, type Result, type ReviewAction, type ReviewInput, type ReviewKind } from './api'
+import { askConfirm } from '../../shared/ui/confirm'
+import ChoiceGroup from './ChoiceGroup.vue'
 import RatingInput from './RatingInput.vue'
 
 /**
@@ -56,6 +58,11 @@ const teacherOptions = computed(() => {
   // A withdrawn review keeps its original teacher even if enrollment changed since.
   return withdrawn && teacher.value && !ids.includes(teacher.value) ? [...ids, teacher.value] : ids
 })
+const termChoices = computed(() => (terms.data.value ?? []).map((item) => ({ value: item.id, label: item.name })))
+const teacherChoices = computed(() => [
+  { value: '', label: t('academic.review.noTeacher') },
+  ...teacherOptions.value.map((id) => ({ value: id, label: context.data.value?.names.get(id)?.name ?? t('common.unknown') })),
+])
 
 function input(): ReviewInput {
   return {
@@ -72,7 +79,14 @@ function input(): ReviewInput {
 const baseline = ref(JSON.stringify(input()))
 const dirty = computed(() => JSON.stringify(input()) !== baseline.value)
 const locked = computed(() => write.busy.value || write.uncertain.value)
-const canPublish = computed(() => !locked.value && composer.value?.allowed === true && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+// 条件全部满足时不打扰作者。选择学期属于填写步骤，由下方的学期选项提示。
+const showEligibility = computed(() => {
+  if (!composer.value) return context.status.value === 'error'
+  return (!composer.value.allowed && composer.value.state !== 'choose_term') || composer.value.requirements.some((item) => item.state !== 'satisfied')
+})
+// 课程评价发布时五个维度都要评分。草稿可以只填一部分。
+const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.some((level) => !level))
+const canPublish = computed(() => !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
 const remaining = computed(() => {
   if (!expires.value) return ''
   const minutes = Math.max(0, Math.ceil((Date.parse(expires.value) - now.value) / 60_000))
@@ -97,7 +111,7 @@ watch(() => composer.value?.disclosures, (options) => {
 })
 
 // Steps open in a new tab so the text being written stays here; returning rechecks.
-const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/verification', course_enrollment: '/me/courses' }
+const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity', course_enrollment: '/me/courses' }
 function recheck() {
   if (document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
 }
@@ -187,8 +201,8 @@ function keepMine() {
   write.dismiss()
 }
 
-function cancel() {
-  if (dirty.value && !window.confirm(t('common.leaveUnsaved'))) return
+async function cancel() {
+  if (dirty.value && !(await askConfirm(t('common.leaveUnsaved')))) return
   emit('cancel')
 }
 </script>
@@ -207,6 +221,7 @@ function cancel() {
     </header>
 
     <section
+      v-if="showEligibility"
       class="eligibility"
       :aria-label="t('academic.editor.eligibility')"
     >
@@ -275,51 +290,40 @@ function cancel() {
       class="stack"
       :disabled="locked"
     >
-      <div
-        v-if="kind === 'course'"
-        class="form-grid"
+      <p
+        v-if="composer?.state === 'choose_term'"
+        class="small muted"
       >
-        <label class="field">
-          <span class="field-label">{{ t('academic.editor.term') }}</span>
-          <select
-            v-model="term"
-            class="select"
-            required
-            :disabled="withdrawn"
-          >
-            <option value="">{{ t('common.choose') }}</option>
-            <option
-              v-for="item in terms.data.value"
-              :key="item.id"
-              :value="item.id"
-            >{{ item.name }}</option>
-          </select>
-        </label>
+        {{ t('academic.composer.choose_term') }}
+      </p>
+      <template v-if="kind === 'course'">
+        <ChoiceGroup
+          v-model="term"
+          :label="t('academic.editor.term')"
+          :options="termChoices"
+          :disabled="withdrawn"
+          :limit="6"
+          :more-label="t('academic.editor.moreTerms')"
+        />
         <p
           v-if="terms.status.value === 'error'"
           class="field-error"
         >
           {{ t('academic.editor.termsUnavailable') }}
         </p>
-        <div class="field">
-          <label class="field">
-            <span class="field-label">{{ t('academic.editor.teacher') }}</span>
-            <select
-              v-model="teacher"
-              class="select"
-              :disabled="withdrawn || !term"
-            >
-              <option value="">{{ t('academic.review.noTeacher') }}</option>
-              <option
-                v-for="id in teacherOptions"
-                :key="id"
-                :value="id"
-              >{{ context.data.value?.names.get(id)?.name ?? t('common.unknown') }}</option>
-            </select>
-          </label>
+        <div
+          v-if="term"
+          class="field"
+        >
+          <ChoiceGroup
+            v-model="teacher"
+            :label="t('academic.editor.teacher')"
+            :options="teacherChoices"
+            :disabled="withdrawn"
+          />
           <span class="field-hint">{{ t('academic.editor.teacherHint') }}</span>
         </div>
-      </div>
+      </template>
 
       <RatingInput
         v-if="kind === 'course'"
@@ -327,6 +331,12 @@ function cancel() {
         :school-id="schoolId"
         :disabled="locked"
       />
+      <p
+        v-if="ratingsMissing"
+        class="field-hint"
+      >
+        {{ t('academic.editor.ratingsRequired') }}
+      </p>
 
       <label
         v-if="kind !== 'reply'"

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { ChevronRight, Search } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -113,7 +114,7 @@ watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate:
       >
         <label class="field">
           <span class="field-label">{{ t(kind === 'course' ? 'academic.directory.college' : 'academic.directory.department') }}</span>
-          <select
+          <AppSelect
             v-model="form.department"
             class="select"
             @change="apply()"
@@ -124,12 +125,12 @@ watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate:
               :key="item.id"
               :value="item.id"
             >{{ item.name }}</option>
-          </select>
+          </AppSelect>
         </label>
         <template v-if="kind === 'course'">
           <label class="field">
             <span class="field-label">{{ t('academic.directory.category') }}</span>
-            <select
+            <AppSelect
               v-model="form.category"
               class="select"
               @change="apply()"
@@ -140,11 +141,11 @@ watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate:
                 :key="item.id"
                 :value="item.id"
               >{{ item.name }}</option>
-            </select>
+            </AppSelect>
           </label>
           <label class="field">
             <span class="field-label">{{ t('academic.directory.nature') }}</span>
-            <select
+            <AppSelect
               v-model="form.nature"
               class="select"
               @change="apply()"
@@ -155,7 +156,7 @@ watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate:
                 :key="item.id"
                 :value="item.id"
               >{{ item.name }}</option>
-            </select>
+            </AppSelect>
           </label>
         </template>
       </div>

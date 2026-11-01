@@ -24,7 +24,7 @@ async function setup(page, info) {
     return route.fulfill({ json: { items: state.items, next_cursor: '' } });
   });
   await page.goto(`http://127.0.0.1:18787/storage-accounts?lang=${info.project.metadata.locale}`);
-  await expect(page).toHaveURL(/\/me\/storage-accounts/);
+  await expect(page).toHaveURL(/\/me\/storage\?.*tab=accounts/);
   await expect(page.getByRole('heading', { name: m.connect, exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -34,13 +34,18 @@ async function setup(page, info) {
 async function fill(page, m) {
   await page.getByLabel(m.username, { exact: true }).fill('fixture-account');
   await page.getByLabel(m.password, { exact: true }).fill('test-only-password');
-  await page.locator('input[type=datetime-local]').fill('2030-01-02T00:00');
+  await page.locator('.app-datetime-trigger').click();
+  const head = page.locator('.app-calendar-head');
+  // 这组测试安装了模拟时钟，弹出层的定位循环会让 Playwright 一直判定元素不稳定，所以直接触发点击。
+  while (await head.getAttribute('data-month') !== '2030-01') await head.locator('button').nth(2).dispatchEvent('click');
+  await page.locator('.app-calendar-day').nth(1).dispatchEvent('click');
+  await page.locator('.app-calendar-time .btn-primary').dispatchEvent('click');
 }
 test('custody requires consent, clears secrets and preserves the binding on renewal', async ({ page }, info) => {
   const { m, state, errors } = await setup(page, info);
   await fill(page, m); await page.getByRole('button', { name: m.submit, exact: true }).click(); expect(state.posts).toHaveLength(0);
   await page.getByRole('checkbox').check(); await page.getByRole('button', { name: m.submit, exact: true }).focus(); await page.keyboard.press('Enter');
-  await expect(page.locator('article')).toContainText(m.states.ready); await expect(page.getByLabel(m.password, { exact: true })).toHaveValue('');
+  await expect(page.locator('article')).toContainText(m.states.ready); await expect(page.getByLabel(m.password, { exact: true })).toHaveCount(0);
   expect(state.posts[0].body.consent).toEqual({ accepted: true, version: 'custody-v1', digest: 'a'.repeat(64) });
   expect(state.posts[0].body).not.toHaveProperty('owner_domain'); expect(state.posts[0].body).not.toHaveProperty('root');
   const original = state.items[0].id;
@@ -56,7 +61,7 @@ test('uncertain custody submission recovers by ID without retaining or resending
   await page.getByRole('button', { name: m.recover, exact: true }).click();
   await expect(page.locator('article')).toContainText(m.states.ready); expect(state.posts).toHaveLength(1); expect(state.lookups).toBe(1);
   state.reject = 403; await page.getByRole('button', { name: messages.common.refresh, exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText(messages.errors.forbidden); await expect(page.locator('article')).toHaveCount(0); await expect(page.locator('input[type=password]')).toHaveCount(0); expect(errors).toEqual([]);
+  await expect(page.getByRole('alert').filter({ hasText: messages.errors.forbidden })).toBeVisible(); await expect(page.locator('article')).toHaveCount(0); await expect(page.locator('input[type=password]')).toHaveCount(0); expect(errors).toEqual([]);
 });
 test('an existing blocked custody request resumes without new credentials', async ({ page }, info) => {
   const { m, state, errors, messages } = await setup(page, info);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine, Server } from 'lucide-vue-next'
+import { CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -41,13 +41,12 @@ onMounted(() => {
 })
 
 const links = [
-  { to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: '#ff3b30' },
-  { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews', icon: FileText, tile: '#0071e3' },
-  { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts', icon: PencilLine, tile: '#ff9500' },
+  { to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: 'var(--c-red)' },
+  { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews', icon: FileText, tile: 'var(--c-blue)' },
+  { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts', icon: PencilLine, tile: 'var(--c-orange)' },
   { to: '/me/resources', title: 'me.resources', text: 'me.links.resources', icon: FolderOpen, tile: '#ffcc00' },
-  { to: '/me/requests', title: 'me.requests', text: 'me.links.requests', icon: Inbox, tile: '#5856d6' },
-  { to: '/me/storage-accounts', title: 'custody.title', text: 'me.links.storage', icon: Server, tile: '#32ade6' },
-  { to: '/contributions', title: 'nav.contributions', text: 'me.links.contributions', icon: HardDrive, tile: '#34c759' },
+  { to: '/me/requests', title: 'me.requests', text: 'me.links.requests', icon: Inbox, tile: 'var(--c-indigo)' },
+  { to: '/me/storage', title: 'nav.contributions', text: 'me.links.storage', icon: HardDrive, tile: 'var(--c-cyan)' },
 ] as const
 
 function startEdit() {
@@ -232,9 +231,14 @@ async function signOut() {
       <section class="section">
         <div class="section-head">
           <h2>{{ t('me.status.title') }}</h2>
-          <RouterLink to="/me/verification">
-            {{ t('me.status.manage') }}
-          </RouterLink>
+          <span class="row">
+            <RouterLink to="/me/verification">
+              {{ t('me.status.manage') }}
+            </RouterLink>
+            <RouterLink to="/me/account/identity">
+              {{ t('me.status.manageIdentity') }}
+            </RouterLink>
+          </span>
         </div>
         <p
           v-if="summary.status.value === 'error'"
@@ -367,7 +371,7 @@ async function signOut() {
 <style scoped>
 .profile { display: grid; gap: 1rem; }
 .profile-head { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
-.profile-avatar { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(145deg, #5e9cff, #0071e3); color: #fff; font-size: 1.75rem; font-weight: 600; }
+.profile-avatar { flex: none; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(145deg, #5e9cff, var(--c-blue)); color: #fff; font-size: 1.75rem; font-weight: 600; }
 .profile-copy { display: grid; flex: 1 1 12rem; justify-items: start; gap: .25rem; min-width: 0; }
 .profile-copy h2 { max-width: 100%; }
 .sign-out { justify-content: center; color: var(--accent); font-weight: 500; }

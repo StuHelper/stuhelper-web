@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppSelect from '../../shared/ui/AppSelect.vue'
 import { onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -6,6 +7,7 @@ import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync } from '../../shared/composables/async'
 import AsyncState from '../../shared/ui/AsyncState.vue'
+import CollapseSection from '../../shared/ui/CollapseSection.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import { useAcademic, type CatalogObject, type Statistics } from './api'
 import RatingBands from './RatingBands.vue'
@@ -69,20 +71,21 @@ defineExpose({ refresh: summary.reload })
       <h2>{{ t('academic.stats.title') }}</h2>
       <label class="row small">
         <span>{{ t('academic.stats.range') }}</span>
-        <select
+        <AppSelect
           v-model="range"
           class="select range"
         >
           <option value="all">{{ t('academic.stats.rangeAll') }}</option>
           <option value="365">{{ t('academic.stats.rangeYear') }}</option>
           <option value="30">{{ t('academic.stats.rangeMonth') }}</option>
-        </select>
+        </AppSelect>
       </label>
     </div>
     <p class="small muted">
       {{ t(kind === 'teacher' ? 'academic.stats.teacherScope' : 'academic.stats.courseScope') }}
     </p>
     <AsyncState
+      skeleton="bands"
       :status="summary.status.value"
       :error="summary.error.value"
       @retry="summary.reload"
@@ -97,43 +100,46 @@ defineExpose({ refresh: summary.reload })
         <RatingBands
           :bands="summary.data.value.dimensions"
           :school-id="schoolId"
+          :show-courses="kind === 'teacher'"
         />
-        <div
+        <CollapseSection
           v-if="kind === 'teacher' && courses.length"
-          class="stack"
+          :label="t('academic.stats.byCourse')"
         >
-          <h3>{{ t('academic.stats.byCourse') }}</h3>
-          <ul class="list">
-            <li
-              v-for="row in courses"
-              :key="row.course_id"
-              class="card stack-sm"
+          <div class="stack">
+            <ul class="list">
+              <li
+                v-for="row in courses"
+                :key="row.course_id"
+                class="card stack-sm"
+              >
+                <RouterLink :to="`/courses/${encodeURIComponent(row.course_id)}`">
+                  {{ names.get(row.course_id)?.name ?? t('common.unknown') }}
+                </RouterLink>
+                <RatingBands
+                  :bands="row.dimensions"
+                  :school-id="schoolId"
+                  :samples="false"
+                  compact
+                />
+              </li>
+            </ul>
+            <ErrorNotice
+              v-if="moreError"
+              :code="moreError"
+              @retry="more"
+            />
+            <button
+              v-else-if="next"
+              class="btn"
+              type="button"
+              :disabled="loadingMore"
+              @click="more"
             >
-              <RouterLink :to="`/courses/${encodeURIComponent(row.course_id)}`">
-                {{ names.get(row.course_id)?.name ?? t('common.unknown') }}
-              </RouterLink>
-              <RatingBands
-                :bands="row.dimensions"
-                :school-id="schoolId"
-                compact
-              />
-            </li>
-          </ul>
-          <ErrorNotice
-            v-if="moreError"
-            :code="moreError"
-            @retry="more"
-          />
-          <button
-            v-else-if="next"
-            class="btn"
-            type="button"
-            :disabled="loadingMore"
-            @click="more"
-          >
-            {{ t('common.loadMore') }}
-          </button>
-        </div>
+              {{ t('common.loadMore') }}
+            </button>
+          </div>
+        </CollapseSection>
       </template>
     </AsyncState>
   </section>

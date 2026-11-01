@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import sharedCases from '../../../contracts/verification-cases.json'
 import { Http } from '../../shared/api/http'
-import { parseEntity, VerificationApi } from './api'
+import { parseEntity, VerificationApi, maskedIdentity } from './api'
 
 const application = { id: 'a1', school_id: 'synthetic', method: 'manual_material_review', stage: 'bachelor', kind: 'student', state: 'in_progress', revision: 1, created_at: '2026-10-28T00:00:00Z', updated_at: '2026-10-28T00:00:00Z', expires_at: '2026-10-28T00:30:00Z', credential_id: '', result_code: '' }
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
@@ -83,3 +83,16 @@ for (const sample of sharedCases.cases) {
     else expect(parse).toThrow('incompatible')
   })
 }
+
+describe('maskedIdentity', () => {
+  const base = { campus_eligibility: true, identity_verified: true, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null }
+  it('keeps only the last name character and the first and last ID characters', () => {
+    const summary = { ...base, identity_masked: { name_last: '航', id_first: '1', id_last: 'X' } }
+    expect(maskedIdentity(summary as never)).toEqual({ name: '*航', number: `1${'*'.repeat(16)}X` })
+  })
+  it('refuses values that are not masked', () => {
+    const summary = { ...base, identity_masked: { name_last: '小航', id_first: '110', id_last: '8' } }
+    expect(maskedIdentity(summary as never)).toBeUndefined()
+    expect(maskedIdentity(base as never)).toBeUndefined()
+  })
+})

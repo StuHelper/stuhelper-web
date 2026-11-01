@@ -1,3 +1,4 @@
+import { askConfirm } from '../ui/confirm'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 
@@ -8,7 +9,7 @@ import { onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 export function useLeaveGuard(message: () => string) {
   const allow = () => {
     const question = message()
-    return !question || window.confirm(question)
+    return !question || askConfirm(question)
   }
   onBeforeRouteLeave(allow)
   onBeforeRouteUpdate((to, from) => (to.path === from.path ? true : allow()))

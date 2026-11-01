@@ -8,8 +8,9 @@ export const school = obj(SCHOOL, 'school', '北京航空航天大学', { aliase
 export const departments = [
   obj('d-math', 'department', '数学科学学院'), obj('d-cs', 'department', '计算机学院'), obj('d-auto', 'department', '自动化科学与电气工程学院'),
   obj('d-astro', 'department', '宇航学院'), obj('d-aero', 'department', '航空科学与工程学院'), obj('d-ee', 'department', '电子信息工程学院'), obj('d-hum', 'department', '人文社会科学学院'),
+  obj('d-marx', 'department', '马克思主义学院'), obj('d-lang', 'department', '外国语学院'), obj('d-pe', 'department', '体育部'),
 ]
-export const categories = [obj('c-base', 'category', '公共基础'), obj('c-core', 'category', '专业核心'), obj('c-gen', 'category', '通识选修')]
+export const categories = [obj('c-pe', 'category', '体育课'), obj('c-en', 'category', '英语课'), obj('c-pol', 'category', '思政课'), obj('c-hx', 'category', '核心通识课'), obj('c-gen', 'category', '一般通识课'), obj('c-sy', 'category', '综合素养课'), obj('c-base', 'category', '基础课'), obj('c-core', 'category', '专业课')]
 export const natures = [obj('n-req', 'nature', '必修'), obj('n-opt', 'nature', '选修')]
 export const terms = [obj('t-25f', 'term', '2025 秋季学期'), obj('t-26s', 'term', '2026 春季学期'), obj('t-26f', 'term', '2026 秋季学期')]
 
@@ -25,8 +26,25 @@ export const courseSeeds: Seed[] = [
   ['c8', '信号与系统', 'B3I02206', 'd-ee', 'c-core', 'n-req', 4, 68, [3, 3, 4, 4, 3]],
   ['c9', '大学物理（2）', 'B1A11102', 'd-math', 'c-base', 'n-req', 4, 77, [3, 4, 4, 3, 3]],
   ['c10', '机器学习基础', 'B3I06410', 'd-cs', 'c-core', 'n-opt', 3, 91, [5, 4, 4, 4, 4]],
-  ['c11', '航空航天概论', 'B1G05001', 'd-aero', 'c-gen', 'n-opt', 2, 83, [5, 5, 1, 1, 5]],
-  ['c12', '中国近现代史纲要', 'B1G17002', 'd-hum', 'c-base', 'n-req', 3, 58, [3, 3, 2, 2, 4]],
+  ['c11', '航空航天概论', 'B1G05001', 'd-aero', 'c-hx', 'n-opt', 2, 83, [5, 5, 1, 1, 5]],
+  ['c12', '中国近现代史纲要', 'B1G17002', 'd-marx', 'c-pol', 'n-req', 3, 58, [3, 3, 2, 2, 4]],
+  ['c13', '羽毛球', 'B1P00101', 'd-pe', 'c-pe', 'n-req', 1, 88, [4, 4, 2, 2, 4]],
+  ['c14', '太极拳', 'B1P00102', 'd-pe', 'c-pe', 'n-req', 1, 70, [4, 3, 1, 2, 5]],
+  ['c15', '游泳', 'B1P00103', 'd-pe', 'c-pe', 'n-req', 1, 82, [5, 4, 3, 3, 4]],
+  ['c16', '篮球', 'B1P00104', 'd-pe', 'c-pe', 'n-req', 1, 66, [4, 4, 2, 2, 4]],
+  ['c17', '大学英语 A', 'B1E00201', 'd-lang', 'c-en', 'n-req', 4, 80, [3, 3, 3, 3, 3]],
+  ['c18', '学术英语写作', 'B1E00202', 'd-lang', 'c-en', 'n-opt', 2, 61, [4, 4, 3, 4, 3]],
+  ['c19', '英语口语与交流', 'B1E00203', 'd-lang', 'c-en', 'n-opt', 2, 57, [4, 4, 2, 3, 4]],
+  ['c20', '马克思主义基本原理', 'B1M00301', 'd-marx', 'c-pol', 'n-req', 3, 63, [3, 3, 2, 2, 4]],
+  ['c21', '思想道德与法治', 'B1M00302', 'd-marx', 'c-pol', 'n-req', 3, 60, [3, 3, 2, 2, 4]],
+  ['c22', '毛泽东思想和中国特色社会主义理论体系概论', 'B1M00303', 'd-marx', 'c-pol', 'n-req', 5, 59, [3, 3, 2, 3, 4]],
+  ['c23', '科学技术史', 'B1G00401', 'd-hum', 'c-hx', 'n-opt', 2, 74, [5, 4, 2, 2, 4]],
+  ['c24', '中国古代文明', 'B1G00402', 'd-hum', 'c-hx', 'n-opt', 2, 67, [4, 5, 2, 2, 4]],
+  ['c25', '音乐鉴赏', 'B1G00501', 'd-hum', 'c-gen', 'n-opt', 2, 85, [5, 4, 1, 1, 5]],
+  ['c26', '电影艺术赏析', 'B1G00502', 'd-hum', 'c-gen', 'n-opt', 2, 79, [5, 4, 1, 2, 5]],
+  ['c27', '心理学导论', 'B1G00503', 'd-hum', 'c-gen', 'n-opt', 2, 76, [4, 4, 2, 2, 4]],
+  ['c28', '大学生职业发展', 'B1S00601', 'd-hum', 'c-sy', 'n-req', 1, 48, [3, 3, 1, 1, 5]],
+  ['c29', '创新创业基础', 'B1S00602', 'd-cs', 'c-sy', 'n-opt', 2, 53, [4, 3, 2, 3, 4]],
 ]
 export const courses: any[] = courseSeeds.map(([id, name, code, department_id, category_id, nature_id, credits]) => obj(id, 'course', name, { code, department_id, category_id, nature_id, credits }))
 
@@ -36,10 +54,11 @@ const teacherSeeds = [
   ['p5', '沈若谷', 'd-auto', '控制理论方向，习惯用工程案例引入新内容。'], ['p6', '顾星河', 'd-aero', '飞行器总体设计方向，带队参加多项航模竞赛。'],
   ['p7', '宋既明', 'd-astro', '航天动力学方向，考试偏重推导。'], ['p8', '叶听澜', 'd-ee', '信号处理方向，作业量适中，答疑及时。'],
   ['p9', '方亦舟', 'd-cs', '机器学习方向，课程项目自由度高。'], ['p10', '苏以安', 'd-hum', '近现代史方向，讲课以史料为线索。'],
+  ['p11', '韩一鸣', 'd-pe', '球类与传统体育方向，课堂以分组练习为主。'], ['p12', '程语微', 'd-lang', '学术英语方向，重视写作反馈。'], ['p13', '唐敬之', 'd-marx', '马克思主义理论方向，常用案例讨论。'], ['p14', '沈南乔', 'd-hum', '艺术与心理方向，课程以赏析和讨论为主。'],
 ]
 export const teachers = teacherSeeds.map(([id, name, department_id, biography]) => obj(id!, 'teacher', name!, { department_id, biography }))
 
-const links: [course: string, teacher: string][] = [['c1', 'p1'], ['c1', 'p2'], ['c2', 'p2'], ['c3', 'p3'], ['c4', 'p4'], ['c4', 'p3'], ['c5', 'p5'], ['c6', 'p6'], ['c7', 'p7'], ['c8', 'p8'], ['c9', 'p2'], ['c10', 'p9'], ['c11', 'p6'], ['c12', 'p10']]
+const links: [course: string, teacher: string][] = [['c1', 'p1'], ['c1', 'p2'], ['c2', 'p2'], ['c3', 'p3'], ['c4', 'p4'], ['c4', 'p3'], ['c5', 'p5'], ['c6', 'p6'], ['c7', 'p7'], ['c8', 'p8'], ['c9', 'p2'], ['c10', 'p9'], ['c11', 'p6'], ['c12', 'p10'], ['c13', 'p11'], ['c14', 'p11'], ['c15', 'p11'], ['c16', 'p11'], ['c17', 'p12'], ['c18', 'p12'], ['c19', 'p12'], ['c20', 'p13'], ['c21', 'p13'], ['c22', 'p13'], ['c23', 'p10'], ['c24', 'p10'], ['c25', 'p14'], ['c26', 'p14'], ['c27', 'p14'], ['c28', 'p14'], ['c29', 'p9']]
 export const teachesIn = links
 export const offerings = terms.flatMap((term) => courses.map((c) => obj(`${c.id}-${term.id}`, 'term_course', `${c.name}（${term.name}）`, { course_id: c.id, term_id: term.id, credits: c.credits })))
 const places = ['新主楼 A201', '主 M101', '新主楼 F306', '教三 402', '主 M204', '沙河 J3-112', '新主楼 B512']
