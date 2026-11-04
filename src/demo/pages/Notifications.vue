@@ -3,10 +3,13 @@ import { useI18n } from 'vue-i18n'
 import { BellOff, CheckCheck, MessageCircle, FolderOpen, Megaphone, ShieldCheck, Coins, Settings2 } from 'lucide-vue-next'
 import { computed, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
+import AccessPanel from '../../features/account/AccessPanel.vue'
+import { useSession } from '../../shared/session'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { notices, relative, toast, unread, type Notice } from '../store'
 const { t: tr } = useI18n()
+const session = useSession()
 
 const filter = ref<'all' | 'unread' | Notice['kind']>('all')
 const settings = ref(false)
@@ -18,7 +21,8 @@ function readAll() { notices.forEach((n) => { n.read = true }); toast(tr('demo.a
 </script>
 
 <template>
-  <div class="stack-lg reading">
+  <AccessPanel v-if="session.state.value !== 'member'" gate />
+  <div v-else class="stack-lg reading">
     <PageHeader :title="tr('demo.notifications')" :description="unread ? tr('demo.unreadCount', { p0: unread }) : tr('demo.allCaughtUp')">
       <template #actions>
         <button class="btn btn-sm" type="button" :disabled="!unread" @click="readAll"><CheckCheck aria-hidden="true" />{{ tr('demo.markAllRead') }}</button>

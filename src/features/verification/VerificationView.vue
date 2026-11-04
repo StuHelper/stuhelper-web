@@ -4,6 +4,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { extras } from '../../shared/extras'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
@@ -20,6 +21,7 @@ const format = useFormat()
 const flow = useVerificationFlow()
 const { form, removal } = flow
 onMounted(flow.reload)
+useLeaveGuard(() => (flow.busy.value || Object.entries(form).some(([field, value]) => field !== 'material_type' && value) || flow.smsCode.value ? t('common.leaveUnsaved') : ''))
 if (props.scope === 'identity') flow.selectMode('identity')
 // 实名认证通过后不再需要表单。实名提交只更新状态，不产生认证申请，所以申请和学习经历只在学生认证页显示。
 // 状态确认前不显示实名表单，否则已实名的用户会先看到待实名的页面。

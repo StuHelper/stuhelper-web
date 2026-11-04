@@ -1,4 +1,4 @@
-import { bookmarks, syncCourseFavorite } from './store'
+import { bookmarks, syncCourseFavorite, teacherLevels } from './store'
 import * as d from './data'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
@@ -72,7 +72,7 @@ function reviewList(u: URL) {
 
 function statistics(u: URL) {
   const seed = d.courseSeeds.find((row) => row[0] === u.searchParams.get('target_id'))
-  const rating = seed?.[8] ?? [5, 4, 4, 3, 4]
+  const rating = seed?.[8] ?? teacherLevels(u.searchParams.get('target_id') ?? '')
   const dimensions = d.statDims(rating)
   const related = d.teachesIn.filter(([, p]) => p === u.searchParams.get('target_id')).map(([c]) => ({ course_id: c, dimensions: d.statDims(d.courseSeeds.find((row) => row[0] === c)![8]) }))
   return json({ dimensions, courses: seed ? [{ course_id: seed[0], dimensions }] : related, next: '', from: u.searchParams.get('from'), until: u.searchParams.get('until') })

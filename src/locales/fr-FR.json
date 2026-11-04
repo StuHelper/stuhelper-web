@@ -587,14 +587,13 @@
       "download": "Télécharger le fichier",
       "requestOwner": "Demander le retrait ou se plaindre",
       "complain": "Signaler une atteinte ou un contenu",
-      "accessRequired": "Votre compte n’a pas encore accès à cette ressource. Vous pouvez envoyer une demande.",
+      "accessRequired": "Votre compte ne peut pas télécharger cette ressource pour le moment.",
       "pendingVersion": "Une nouvelle version est en cours de traitement. La version publiée reste disponible.",
       "noDescription": "Pas de description.",
       "about": "À propos",
       "file": "Fichier de la ressource",
       "access": "Accès",
-      "course": "Voir le cours associé",
-      "contact": "Envoyer une demande"
+      "course": "Voir le cours associé"
     },
     "access": {
       "allowed": "Téléchargement possible.",

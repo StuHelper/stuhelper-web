@@ -40,10 +40,12 @@ watch([q, dept, cat, sort], ([search, department, category, order]) => {
     if (value) query[key] = value
     else delete query[key]
   }
-  void router.replace({ query })
+  if (JSON.stringify(query) !== JSON.stringify(route.query)) void router.replace({ query })
 })
-// 课程页和教师页共用这个组件，切换时重新读取网址。
-watch(() => props.kind, () => { q.value = read('q'); dept.value = readDept(); cat.value = readCategory(); sort.value = readSort(); expanded.clear() })
+// 站内跳转、前进后退和类型切换都以网址为准。值相同时不会再次触发上面的写回。
+watch(() => route.query, () => { q.value = read('q'); dept.value = readDept(); cat.value = readCategory(); sort.value = readSort() })
+watch(() => props.kind, () => expanded.clear())
+const teacher = computed(() => read('teacher'))
 
 interface Row { id: string; name: string; sub: string; dept: string; category: string; reviews: number; heat: number }
 const deptName = (id: string) => departments.find((d) => d.id === id)?.name ?? ''
@@ -58,7 +60,7 @@ const palette = ['var(--c-blue)', 'var(--c-purple)', 'var(--c-orange)', 'var(--c
 // 头像上是白字，底色压暗后才有足够对比度。
 const tint = (id: string) => `color-mix(in srgb, ${palette[[...id].reduce((sum, c) => sum + c.charCodeAt(0), 0) % palette.length]} 72%, black)`
 const key = computed(() => q.value.trim().toLowerCase())
-const searched = computed(() => courseRows.filter((r) => (!key.value || r.name.toLowerCase().includes(key.value) || r.sub.toLowerCase().includes(key.value)) && (!dept.value || r.dept === dept.value)))
+const searched = computed(() => courseRows.filter((r) => (!teacher.value || teachesIn.some(([c, p]) => c === r.id && p === teacher.value)) && (!key.value || r.name.toLowerCase().includes(key.value) || r.sub.toLowerCase().includes(key.value)) && (!dept.value || r.dept === dept.value)))
 const teacherList = computed(() => teacherRows
   .filter((t) => (!key.value || t.name.toLowerCase().includes(key.value)) && (!dept.value || t.dept === dept.value))
   .sort((a, b) => (sort.value === 'name' ? a.name.localeCompare(b.name, 'zh-CN') : (sort.value === 'recommend' ? b.level - a.level : 0) || b.heat - a.heat)))

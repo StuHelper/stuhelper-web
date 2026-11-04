@@ -344,7 +344,8 @@ async function retryBookmark() {
 <style scoped>
 /* 手机上操作排成一行可横滑。课程的基本信息放到评价后面，先看评分。 */
 @media (max-width: 760px) {
-  .subject-head :deep(.page-actions) { flex-wrap: nowrap; width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .subject-head, .subject-head :deep(.page-header-main) { min-width: 0; max-width: 100%; }
+  .subject-head :deep(.page-actions) { flex-wrap: nowrap; width: 100%; min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .subject-head :deep(.page-actions .btn) { flex: none; min-height: 38px; padding-block: .25rem; font-size: .875rem; }
 }
 .related { list-style: none; }

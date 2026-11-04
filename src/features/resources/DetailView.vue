@@ -108,14 +108,6 @@ function accessReason(code: string) {
         class="notice notice-info"
       >
         <span>{{ accessReason(entryValue.access_reason) }}</span>
-        <button
-          v-if="!entryValue.owned && entryValue.access_reason !== 'not_published'"
-          class="btn btn-sm"
-          type="button"
-          @click="requesting = true"
-        >
-          {{ t('resources.detail.contact') }}
-        </button>
       </p>
       <p
         v-if="entryValue.proposal && entryValue.current"

@@ -587,14 +587,13 @@
       "download": "下载文件",
       "requestOwner": "申请下架或投诉",
       "complain": "侵权或内容投诉",
-      "accessRequired": "你的账号暂时没有这份资料的访问权。如有疑问可以提出申请。",
+      "accessRequired": "当前账号暂时不能下载这份资料。",
       "pendingVersion": "新版本正在处理，当前已发布版本继续提供下载。",
       "noDescription": "未填写简介。",
       "about": "资料信息",
       "file": "资料文件",
       "access": "访问方式",
-      "course": "查看关联课程",
-      "contact": "提出申请"
+      "course": "查看关联课程"
     },
     "access": {
       "allowed": "可以下载。",

@@ -587,14 +587,13 @@
       "download": "파일 다운로드",
       "requestOwner": "내리기 신청 또는 신고",
       "complain": "침해 또는 내용 신고",
-      "accessRequired": "이 계정에는 아직 자료 접근 권한이 없습니다. 문의 사항은 신청해 주세요.",
+      "accessRequired": "현재 계정으로는 이 자료를 내려받을 수 없습니다.",
       "pendingVersion": "새 버전을 처리 중입니다. 기존 공개 버전은 계속 이용할 수 있습니다.",
       "noDescription": "소개가 없습니다.",
       "about": "자료 정보",
       "file": "자료 파일",
       "access": "접근 방식",
-      "course": "관련 강의 보기",
-      "contact": "신청하기"
+      "course": "관련 강의 보기"
     },
     "access": {
       "allowed": "다운로드할 수 있습니다.",

@@ -46,6 +46,8 @@ const tab = computed<'contributions' | 'accounts'>({
 const tabs = computed(() => [{ value: 'contributions' as const, label: t('contribution.mine') }, { value: 'accounts' as const, label: t('custody.title') }])
 const creating = ref(false)
 const custody = ref<InstanceType<typeof CustodyPanel>>()
+const custodyOpened = ref(tab.value === 'accounts')
+watch(tab, (value) => { if (value === 'accounts') custodyOpened.value = true })
 function refresh() {
   void reload()
   if (tab.value === 'accounts') custody.value?.refresh()
@@ -180,7 +182,8 @@ watch(completed, (value) => {
       id-prefix="storage"
     />
     <CustodyPanel
-      v-if="tab === 'accounts' && !needsSignIn"
+      v-if="custodyOpened && !needsSignIn"
+      v-show="tab === 'accounts'"
       ref="custody"
     />
     <div

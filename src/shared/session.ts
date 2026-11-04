@@ -4,6 +4,7 @@ import type { components } from '../api/session.gen'
 import { ApiError } from './api/errors'
 import { Http } from './api/http'
 import { extras } from './extras'
+import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
 import { useHostFetch } from './api/transport'
 
@@ -59,6 +60,7 @@ export function createSessionStore(fetcher: typeof fetch) {
   /** End this application's session on this device or on all devices. */
   async function signOut(all: boolean) {
     await http.send(`/api/v1/auth/${all ? 'logout-all' : 'logout'}`, { method: 'POST', timeout: 10_000 })
+    forgetPages()
     session.value = null
     state.value = 'guest'
     window.location.assign('/')

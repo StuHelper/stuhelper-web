@@ -31,7 +31,7 @@ function change(event: Event) {
     <AppSelect
       v-if="field.kind === 'choice'"
       class="select"
-      :value="raw"
+      :model-value="raw"
       :aria-invalid="invalid"
       :required="!filter && field.required"
       :disabled="disabled"

@@ -587,14 +587,13 @@
       "download": "ファイルをダウンロード",
       "requestOwner": "取り下げ申請・苦情",
       "complain": "権利侵害・内容の苦情",
-      "accessRequired": "このアカウントにはまだ資料へのアクセス権がありません。不明な点は申請してください。",
+      "accessRequired": "現在のアカウントではこの資料をダウンロードできません。",
       "pendingVersion": "新しい版を処理中です。公開済みの版は引き続き利用できます。",
       "noDescription": "紹介はありません。",
       "about": "資料について",
       "file": "資料ファイル",
       "access": "アクセス",
-      "course": "関連する授業を見る",
-      "contact": "申請する"
+      "course": "関連する授業を見る"
     },
     "access": {
       "allowed": "ダウンロードできます。",

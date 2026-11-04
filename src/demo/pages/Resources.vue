@@ -28,8 +28,9 @@ watch([q, cat, course], ([search, category, target]) => {
     if (value) query[key] = value
     else delete query[key]
   }
-  void router.replace({ query })
+  if (JSON.stringify(query) !== JSON.stringify(route.query)) void router.replace({ query })
 })
+watch(() => route.query, () => { q.value = read('q'); cat.value = read('cat'); course.value = read('course_id') || read('course') })
 const selecting = ref(false)
 const picked = ref<string[]>([])
 const rows = computed(() => resources.filter((r) => r.current).filter((r) => { const m = r.current!.metadata; return (!q.value.trim() || m.title.includes(q.value.trim()) || m.description.includes(q.value.trim())) && (!cat.value || m.category_id === cat.value) && (!course.value || m.associations.course_id === course.value) }))

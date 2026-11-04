@@ -39,6 +39,17 @@ describe('HTTP boundary', () => {
     await expect(gateway.json('/api/v1/x', anything, { method: 'PUT', body: {} })).rejects.toMatchObject({ code: 'unavailable', uncertain: true })
   })
 
+  it('applies the deadline and cancellation to the response body', async () => {
+    const stalled = new Http(async () => new Response(new ReadableStream({ start() {} }), { status: 200 }))
+    await expect(stalled.json('/api/v1/x', anything, { timeout: 10 })).rejects.toMatchObject({ code: 'timeout', uncertain: false })
+    await expect(stalled.json('/api/v1/x', anything, { method: 'POST', body: {}, timeout: 10 })).rejects.toMatchObject({ code: 'timeout', uncertain: true })
+    await expect(stalled.blob('/api/v1/x', 10, { timeout: 10 })).rejects.toMatchObject({ code: 'timeout' })
+    const controller = new AbortController()
+    const pending = stalled.json('/api/v1/x', anything, { signal: controller.signal })
+    setTimeout(() => controller.abort(), 5)
+    await expect(pending).rejects.toMatchObject({ code: 'cancelled' })
+  })
+
   it('treats a failure with a recorded operation as a known outcome', async () => {
     const http = new Http(async () => json({ code: 'dependency_unavailable', operation_id: 'a'.repeat(64) }, 503))
     await expect(http.json('/api/v1/x', anything, { method: 'POST', body: {} })).rejects.toMatchObject({ code: 'unavailable', uncertain: false, operationId: 'a'.repeat(64) })

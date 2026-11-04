@@ -11,8 +11,12 @@ declare module 'vue-router' {
     title?: string
     /** Top-level navigation section highlighted for this page. */
     section?: 'home' | 'courses' | 'teachers' | 'resources' | 'me'
-    /** Content pages open only for a current university qualification. */
-    access?: 'verified'
+    /** Content pages need current content access; a person's own records need only a session. */
+    access?: 'verified' | 'member'
+    /** The path names different content, so the page never reuses another path's state. */
+    remountOnPath?: boolean
+    /** Path whose page continues as this one instead of remounting. */
+    continuesFrom?: string
   }
 }
 
@@ -33,17 +37,17 @@ const routes: RouteRecordRaw[] = [
   { path: '/classes/:id', component: academic.offering, props: (route) => ({ kind: 'class', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teachingClass', section: 'courses' } },
   { path: '/reviews/:id', component: academic.discussion, props: true, meta: { access: 'verified', title: 'academic.discussion', section: 'courses' } },
   { path: '/resources', component: () => import('../features/resources/BrowseView.vue'), meta: { access: 'verified', title: 'nav.resources', section: 'resources' } },
-  { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { access: 'verified', title: 'resources.upload', section: 'resources' } },
+  { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { access: 'verified', title: 'resources.detailTitle', section: 'resources' } },
-  { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { access: 'verified', title: 'resources.edit', section: 'resources' } },
+  { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'verified', title: 'resources.edit', section: 'resources' } },
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
-  { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'verified', title: 'me.reviews', section: 'me' } },
-  { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'verified', title: 'me.reviews', section: 'me' } },
-  { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'verified', title: 'me.resources', section: 'me' } },
-  { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'verified', title: 'courses.title', section: 'me' } },
-  { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'verified', title: 'me.requests', section: 'me' } },
-  { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { title: 'verification.identityTitle', section: 'me' } },
-  { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { title: 'verification.title', section: 'me' } },
+  { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
+  { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },
+  { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
+  { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } },
+  { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'member', title: 'me.requests', section: 'me' } },
+  { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { remountOnPath: true, title: 'verification.identityTitle', section: 'me' } },
+  { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.title', section: 'me' } },
   { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
   // Earlier entry points keep working after the reorganisation.

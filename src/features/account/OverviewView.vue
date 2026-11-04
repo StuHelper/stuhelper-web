@@ -6,7 +6,6 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
-import { forgetPages } from '../../shared/recent'
 import { useSession, type Profile } from '../../shared/session'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
@@ -109,7 +108,6 @@ async function signOut() {
   signOutBusy.value = true
   signOutError.value = ''
   try {
-    forgetPages()
     await session.signOut(signingOut.value === 'all')
   } catch (failure) {
     signOutError.value = errorCode(failure)

@@ -587,14 +587,13 @@
       "download": "Download file",
       "requestOwner": "Request withdrawal or complain",
       "complain": "Report infringement or content",
-      "accessRequired": "Your account has no access to this resource yet. You can submit a request if you have questions.",
+      "accessRequired": "Your account cannot download this resource right now.",
       "pendingVersion": "A new version is being processed. The published version remains available.",
       "noDescription": "No description.",
       "about": "About this resource",
       "file": "Resource file",
       "access": "Access",
-      "course": "View the related course",
-      "contact": "Submit a request"
+      "course": "View the related course"
     },
     "access": {
       "allowed": "You can download this.",

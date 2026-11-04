@@ -36,10 +36,17 @@ const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
 
+// What the pending write does once it succeeds, so a retry of the original request finishes it too.
+let finish: (result: never) => void | Promise<void> = () => {}
+
 async function act(action: ReviewAction) {
   success.value = ''
+  finish = (result) => acted(action, result)
   const result = await write.run(`act:${props.review.id}:${action.action}`, action, (body, key) => api.act(props.review.id, body, key))
-  if (!result) return
+  if (result) await acted(action, result)
+}
+
+async function acted(action: ReviewAction, result: { state: string }) {
   if (result.state === 'withdrawn') {
     await router.push({ path: '/me/reviews', query: { tab: 'drafts' } })
     return
@@ -79,17 +86,22 @@ async function submitTask() {
   const kind = panel.value
   if (!kind) return
   const submission: Submission = { object_id: props.review.id, kind, reason: reason.value.trim(), evidence: [], ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
+  finish = () => submitted(kind)
   const task = await write.run(`task:${props.review.id}:${kind}`, submission, (body, key) => api.submitTask(body, key))
-  if (!task) return
+  if (task) submitted(kind)
+}
+
+function submitted(kind: Panel) {
   success.value = t(kind === 'report' ? 'academic.review.reportSent' : 'academic.review.requestSent')
   panel.value = ''
 }
 
 async function retry() {
-  await write.retry()
+  const result = await write.retry()
   if (!write.error.value) {
     panel.value = ''
     confirming.value = ''
+    if (result) await finish(result as never)
   }
 }
 </script>

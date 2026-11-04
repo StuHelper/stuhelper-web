@@ -204,6 +204,7 @@ function removeReview(id: string) {
           :school-id="names.get(editing.input.target_id)?.school_id ?? ''"
           :parent-id="editing.parent_id"
           :draft="editing"
+          :leave-query="['tab']"
           @submitted="edited"
           @cancel="editing = undefined"
         />

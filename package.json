@@ -30,7 +30,8 @@
     "check:verification": "node scripts/check-verification.mjs",
     "check:docs": "stuhelper-check docs",
     "check:session": "node scripts/check-session.mjs",
-    "generate:session": "openapi-typescript contracts/session.openapi.json -o src/api/session.gen.ts"
+    "generate:session": "openapi-typescript contracts/session.openapi.json -o src/api/session.gen.ts",
+    "browser:demo": "playwright test --config playwright.demo.config.mjs"
   },
   "name": "@stuhelper/web",
   "packageManager": "pnpm@10.33.4",

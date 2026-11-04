@@ -63,6 +63,21 @@ test('uncertain custody submission recovers by ID without retaining or resending
   state.reject = 403; await page.getByRole('button', { name: messages.common.refresh, exact: true }).click();
   await expect(page.getByRole('alert').filter({ hasText: messages.errors.forbidden })).toBeVisible(); await expect(page.locator('article')).toHaveCount(0); await expect(page.locator('input[type=password]')).toHaveCount(0); expect(errors).toEqual([]);
 });
+test('an unconfirmed custody request can still be recovered after switching tabs', async ({ page }, info) => {
+  const { m, state, messages } = await setup(page, info); state.lose = true;
+  await fill(page, m); await page.getByRole('checkbox').check(); await page.getByRole('button', { name: m.submit, exact: true }).click();
+  const recover = page.getByRole('button', { name: m.recover, exact: true });
+  await expect(recover).toBeVisible();
+  await page.getByRole('tab', { name: messages.contribution.mine, exact: true }).dispatchEvent('click');
+  await expect(recover).toBeHidden();
+  await page.getByRole('tab').nth(1).dispatchEvent('click');
+  await expect(recover).toBeVisible();
+  await expect(page.getByLabel(m.password, { exact: true })).toHaveValue('');
+  await recover.click();
+  await expect.poll(() => state.lookups).toBe(1);
+  expect(state.posts).toHaveLength(1);
+});
+
 test('an existing blocked custody request resumes without new credentials', async ({ page }, info) => {
   const { m, state, errors, messages } = await setup(page, info);
   const item = { id: '00000000-0000-4000-8000-000000000001', adapter: 'bhpan', revision: 1, state: 'blocked', authorization_expires_at: '2030-01-01T00:00:00Z', request_id: '00000000-0000-4000-8000-000000000002', last_error: 'result_unknown' };

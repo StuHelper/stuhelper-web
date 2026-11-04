@@ -6,6 +6,14 @@ afterEach(() => vi.unstubAllGlobals())
 const session = { authenticated: true, profile: { nickname: 'A', revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: false, administrator: false, expires_at: '2030-01-01T00:00:00Z' }
 
 describe('application session', () => {
+  it('clears recent pages on every sign-out path', async () => {
+    const removed: string[] = []
+    vi.stubGlobal('localStorage', { removeItem: (key: string) => removed.push(key) })
+    vi.stubGlobal('window', { location: { assign: () => {} } })
+    await createSessionStore(async () => new Response(null, { status: 204 })).signOut(false)
+    expect(removed).toEqual(['stuhelper.recent'])
+  })
+
   it('adds the session-bound CSRF value on writes only and stays same-origin', async () => {
     vi.stubGlobal('window', { location: { href: 'https://app.example/', origin: 'https://app.example' } })
     vi.stubGlobal('document', { cookie: 'other=1; stuhelper_csrf=current-csrf' })

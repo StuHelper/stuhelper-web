@@ -19,7 +19,7 @@ import RatingInput from './RatingInput.vue'
  * reports the current eligibility, teacher candidates from the author's own
  * enrollment and the discussion identity; the page only presents them.
  */
-const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft }>(), { parentId: undefined, draft: undefined })
+const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, leaveQuery: undefined })
 const emit = defineEmits<{ submitted: [result: Result]; cancel: [] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -118,7 +118,7 @@ function recheck() {
 document.addEventListener('visibilitychange', recheck)
 onBeforeUnmount(() => document.removeEventListener('visibilitychange', recheck))
 
-useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || write.busy.value ? t('common.leaveUnsaved') : ''))
+useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || write.busy.value ? t('common.leaveUnsaved') : ''), { query: props.leaveQuery })
 onMounted(() => {
   void terms.reload()
   void context.reload()
