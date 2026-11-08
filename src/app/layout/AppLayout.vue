@@ -4,6 +4,7 @@ import { computed, nextTick, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { extras } from '../../shared/extras'
+import ToastHost from '../../shared/ui/ToastHost.vue'
 import AccountMenu from './AccountMenu.vue'
 import LocaleSelect from './LocaleSelect.vue'
 
@@ -116,6 +117,7 @@ watch(() => route.path, async (_path, previous) => {
         <span>{{ t(tab.label) }}</span>
       </RouterLink>
     </nav>
+    <ToastHost />
     <component
       :is="item"
       v-for="(item, index) in extras.floating"

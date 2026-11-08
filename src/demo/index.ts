@@ -15,7 +15,7 @@ export function installDemo() {
   installDemoFetch()
   extras.remountOnLocale = true
   extras.signIn = () => { setPersona('verified'); window.location.reload() }
-  extras.accountLinks = { favorites: '/me/favorites', settings: '/me/account' }
+  extras.accountLinks = { settings: '/me/account' }
   extras.navTools.push(SearchPalette, Chrome)
   extras.floating.push(Floating, CompareTray)
   extras.subjectActions.push(SubjectActions)
@@ -31,7 +31,6 @@ export function installDemo() {
   const verified = { access: 'verified' as const }
   extras.routes.push(
     { path: '/compare', component: () => import('./pages/Compare.vue'), meta: { ...verified, title: 'nav.courses', section: 'courses' } },
-    { path: '/me/favorites', component: () => import('./pages/Favorites.vue'), meta: { ...verified, title: 'me.title', section: 'me' } },
     { path: '/', component: () => import('./pages/Home.vue'), meta: { title: 'nav.home', section: 'home' } },
     { path: '/courses', component: () => import('./pages/Directory.vue'), props: { kind: 'course' }, meta: { ...verified, title: 'nav.courses', section: 'courses' } },
     { path: '/teachers', component: () => import('./pages/Directory.vue'), props: { kind: 'teacher' }, meta: { ...verified, title: 'nav.teachers', section: 'teachers' } },

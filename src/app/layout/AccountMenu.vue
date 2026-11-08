@@ -18,7 +18,7 @@ const statusKey = computed(() => ({ verified: 'account.status.verified', unverif
 const nextStep = computed(() => ({ unverified: 'gate.unverified.action', processing: 'gate.processing.action', expired: 'gate.expired.action' } as Record<string, string>)[access.state.value])
 const content = computed(() => [
   { to: '/me/courses', label: 'courses.title', icon: CalendarDays },
-  { to: extras.accountLinks.favorites ?? '/me/reviews?tab=bookmarks', label: 'account.menu.favorites', icon: Bookmark },
+  { to: '/me/favorites', label: 'account.menu.favorites', icon: Bookmark },
   { to: '/me/reviews', label: 'me.reviews', icon: FileText },
   { to: '/me/resources', label: 'me.resources', icon: FolderOpen },
 ])

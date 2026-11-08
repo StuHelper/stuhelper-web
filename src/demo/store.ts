@@ -3,13 +3,8 @@ import { i18n } from '../app/i18n'
 import { tr } from './tr'
 import { ago, courseSeeds, teachesIn, terms } from './data'
 
-export const toasts = ref<{ id: number; text: string; undo?: () => void }[]>([])
-let seq = 0
-export function toast(text: string, undo?: () => void) {
-  const id = ++seq
-  toasts.value.push({ id, text, undo })
-  setTimeout(() => { toasts.value = toasts.value.filter((row) => row.id !== id) }, undo ? 5000 : 2600)
-}
+import { toast } from '../shared/ui/toast'
+export { toast }
 
 export type Notice = { id: string; kind: 'review' | 'resource' | 'system' | 'account' | 'wallet'; title: string; body: string; at: string; read: boolean; to: string }
 export const notices = reactive<Notice[]>([
@@ -67,29 +62,6 @@ export function toggleCompare(kind: CompareKind, id: string) {
   list.push(id)
 }
 
-// 课程、教师与资料收藏及收藏夹。
-export type FavKind = 'course' | 'teacher' | 'resource'
-export const folders = ref(['默认收藏', '期末复习', '下学期选课'])
-export const favorites = reactive<{ kind: FavKind; id: string; folder: string; at: string }[]>([
-  { kind: 'course', id: 'c10', folder: '下学期选课', at: ago(2) }, { kind: 'course', id: 'c4', folder: '下学期选课', at: ago(4) },
-  { kind: 'teacher', id: 'p3', folder: '默认收藏', at: ago(6) }, { kind: 'resource', id: 'x1', folder: '期末复习', at: ago(1) },
-  { kind: 'course', id: 'c5', folder: '期末复习', at: ago(3) }, { kind: 'teacher', id: 'p4', folder: '下学期选课', at: ago(5) }, { kind: 'resource', id: 'x3', folder: '期末复习', at: ago(7) },
-])
-export const isFavorite = (kind: FavKind, id: string) => favorites.some((row) => row.kind === kind && row.id === id)
-function setFavorite(kind: FavKind, id: string, on: boolean) {
-  const at = favorites.findIndex((row) => row.kind === kind && row.id === id)
-  if (on && at < 0) favorites.unshift({ kind, id, folder: folders.value[0]!, at: new Date().toISOString() })
-  if (!on && at >= 0) favorites.splice(at, 1)
-}
-export function toggleFavorite(kind: FavKind, id: string) {
-  const at = favorites.findIndex((row) => row.kind === kind && row.id === id)
-  const old = favorites[at]
-  const apply = (on: boolean) => setFavorite(kind, id, on)
-  apply(!old)
-  // 撤销时回到原来的收藏夹和位置。
-  if (old) toast(tr('demo.unfavorited'), () => { favorites.splice(at, 0, old) })
-  else toast(tr('demo.savedTo', { p0: folders.value[0] }), () => apply(false))
-}
 
 const seed = (text: string) => [...text].reduce((n, c) => (n * 31 + c.charCodeAt(0)) % 9973, 7)
 /** 演示用的五档人数，集中在当前档位附近。页面只画比例，不显示均分或百分比。 */

@@ -3,7 +3,6 @@ import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { UserCog, X } from 'lucide-vue-next'
 import { persona, setPersona, type Persona } from '../server'
-import { toasts } from '../store'
 const { t: tr } = useI18n()
 const open = ref(false)
 const current = persona()
@@ -17,7 +16,6 @@ const options = computed<{ value: Persona; label: string; hint: string }[]>(() =
 function pick(value: Persona) { setPersona(value); window.location.reload() }
 </script>
 <template>
-  <div class="d-toasts" aria-live="polite"><div v-for="row in toasts" :key="row.id" class="d-toast"><span>{{ row.text }}</span><button v-if="row.undo" class="btn btn-sm" type="button" @click="row.undo(); toasts = toasts.filter((item) => item.id !== row.id)">{{ tr('demo.undo') }}</button></div></div>
   <div class="switcher">
     <div v-if="open" class="panel" role="dialog" :aria-label="tr('demo.switchPersona')">
       <p class="caption">{{ tr('demo.personaCaption') }}</p>

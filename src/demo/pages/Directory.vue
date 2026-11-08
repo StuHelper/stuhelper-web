@@ -7,10 +7,10 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import { categories, courseSeeds, departments, reviews, teachers, teachesIn } from '../data'
 import { compare, teacherLevels, toggleCompare } from '../store'
-import FavButton from './FavButton.vue'
+import FavoriteButton from '../../features/favorites/FavoriteButton.vue'
 import FilterBar from './FilterBar.vue'
 import RowMore from './RowMore.vue'
-import SearchField from './SearchField.vue'
+import SearchField from '../../shared/ui/SearchField.vue'
 import Level from './Level.vue'
 import QuickView from './QuickView.vue'
 const { t: tr } = useI18n()
@@ -113,7 +113,7 @@ const clear = () => { q.value = ''; dept.value = ''; cat.value = '' }
     </div>
     <ul v-else-if="kind === 'teacher'" :key="listKey" class="cards d-list-in">
       <li v-for="row in teacherList" :key="row.id" class="card teacher-card">
-        <div class="row teacher"><span class="face" :style="{ background: tint(row.id) }" aria-hidden="true">{{ row.name[0] }}</span><span class="group-body"><RouterLink class="card-title" :to="`/teachers/${row.id}`">{{ row.name }}</RouterLink><span class="subtle">{{ deptName(row.dept) }}</span></span><FavButton :id="row.id" kind="teacher" /></div>
+        <div class="row teacher"><span class="face" :style="{ background: tint(row.id) }" aria-hidden="true">{{ row.name[0] }}</span><span class="group-body"><RouterLink class="card-title" :to="`/teachers/${row.id}`">{{ row.name }}</RouterLink><span class="subtle">{{ deptName(row.dept) }}</span></span><FavoriteButton :id="row.id" kind="teacher" /></div>
         <span class="muted small clamp-2">{{ row.biography }}</span>
         <span class="dims"><small>{{ tr('demo.teacherOverallScore') }}</small><Level dim="recommendation" :level="row.level" /></span>
         <div class="foot"><button class="btn btn-sm" type="button" @click="quick = row.id"><Eye aria-hidden="true" />{{ tr('demo.quickView') }}</button><button class="btn btn-sm" type="button" :aria-pressed="compare.teacher.includes(row.id)" @click="toggleCompare('teacher', row.id)"><Scale aria-hidden="true" />{{ compare.teacher.includes(row.id) ? tr('demo.inCompare') : tr('demo.compare') }}</button></div>
@@ -141,7 +141,7 @@ const clear = () => { q.value = ''; dept.value = ''; cat.value = '' }
             <span class="ops">
               <button class="btn btn-sm btn-icon desk" type="button" :aria-label="tr('demo.quickViewItem', { p0: r.name })" @click="quick = r.id"><Eye aria-hidden="true" /></button>
               <button class="btn btn-sm btn-icon desk" type="button" :aria-label="compare.course.includes(r.id) ? tr('demo.removeItemFromCompare', { p0: r.name }) : tr('demo.compareItem', { p0: r.name })" :aria-pressed="compare.course.includes(r.id)" @click="toggleCompare('course', r.id)"><Scale aria-hidden="true" /></button>
-              <FavButton :id="r.id" kind="course" />
+              <FavoriteButton :id="r.id" kind="course" />
               <RowMore :label="tr('demo.moreActionsFor', { p0: r.name })" :items="[{ label: tr('demo.quickView'), icon: Eye, action: () => { quick = r.id } }, { label: compare.course.includes(r.id) ? tr('demo.removeFromCompare') : tr('demo.addToCompare'), icon: Scale, action: () => toggleCompare('course', r.id) }]" />
             </span>
           </li>

@@ -10,6 +10,7 @@ import StatusTag from '../../shared/ui/StatusTag.vue'
 import { rememberPage } from '../../shared/recent'
 import { useErrorText } from '../../shared/ui/messages'
 import { attributeText, localName, useResourcesApi } from './api'
+import FavoriteButton from '../favorites/FavoriteButton.vue'
 import RequestForm from './RequestForm.vue'
 
 const props = defineProps<{ id: string }>()
@@ -76,6 +77,11 @@ function accessReason(code: string) {
           <span class="subtle">{{ format.date(version.created_at ?? '') }}</span>
         </div>
         <template #actions>
+          <FavoriteButton
+            :id="id"
+            kind="resource"
+            text
+          />
           <button
             v-if="entryValue.download_allowed && entryValue.current?.file"
             class="btn btn-primary"

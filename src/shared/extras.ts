@@ -12,7 +12,7 @@ export const extras = {
   navTools: [] as Component[],
   floating: [] as Component[],
   /** Prototype pages that replace a default destination in the account menu. */
-  accountLinks: {} as { favorites?: string; settings?: string },
+  accountLinks: {} as { settings?: string },
   subjectActions: [] as Component[],
   subjectPanels: [] as Component[],
   /** Prototype pages build some lists once during setup, so a language change remounts them. */

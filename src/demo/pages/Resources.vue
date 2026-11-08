@@ -8,10 +8,10 @@ import PageHeader from '../../shared/ui/PageHeader.vue'
 import { courses, resCategories, resources } from '../data'
 import { fileSize, relative, toast } from '../store'
 import Drawer from './Drawer.vue'
-import FavButton from './FavButton.vue'
+import FavoriteButton from '../../features/favorites/FavoriteButton.vue'
 import FilterBar from './FilterBar.vue'
 import RowMore from './RowMore.vue'
-import SearchField from './SearchField.vue'
+import SearchField from '../../shared/ui/SearchField.vue'
 const { t: tr } = useI18n()
 
 const route = useRoute()
@@ -95,7 +95,7 @@ function batch() { toast(tr('demo.packed', { p0: picked.value.length })); picked
           <p class="muted small clamp-2">{{ r.current!.metadata.description }}</p>
           <p class="subtle">{{ courseName(r.current!.metadata.associations.course_id!) }} · {{ r.current!.category.names['zh-CN'] }} · {{ fileSize(r.current!.file!.size) }} · {{ relative(r.current!.created_at) }}</p>
         </div>
-        <div v-if="!selecting" class="ops"><button class="btn btn-sm btn-icon desk" type="button" :aria-label="tr('demo.previewItem', { p0: r.current!.metadata.title })" @click="preview = r"><Eye aria-hidden="true" /></button><button class="btn btn-sm btn-icon desk" type="button" :aria-label="tr('demo.downloadItem', { p0: r.current!.metadata.title })" @click="download(r.current!.file!.filename)"><Download aria-hidden="true" /></button><FavButton :id="r.id" kind="resource" /><RowMore :label="tr('demo.moreActionsFor', { p0: r.current!.metadata.title })" :items="[{ label: tr('demo.preview'), icon: Eye, action: () => { preview = r } }, { label: tr('demo.download'), icon: Download, action: () => download(r.current!.file!.filename) }]" /></div>
+        <div v-if="!selecting" class="ops"><button class="btn btn-sm btn-icon desk" type="button" :aria-label="tr('demo.previewItem', { p0: r.current!.metadata.title })" @click="preview = r"><Eye aria-hidden="true" /></button><button class="btn btn-sm btn-icon desk" type="button" :aria-label="tr('demo.downloadItem', { p0: r.current!.metadata.title })" @click="download(r.current!.file!.filename)"><Download aria-hidden="true" /></button><FavoriteButton :id="r.id" kind="resource" /><RowMore :label="tr('demo.moreActionsFor', { p0: r.current!.metadata.title })" :items="[{ label: tr('demo.preview'), icon: Eye, action: () => { preview = r } }, { label: tr('demo.download'), icon: Download, action: () => download(r.current!.file!.filename) }]" /></div>
       </li>
     </ul>
     </div>
@@ -104,7 +104,7 @@ function batch() { toast(tr('demo.packed', { p0: picked.value.length })); picked
       <div class="row-between"><div class="row"><button class="btn btn-sm btn-icon" type="button" :aria-label="tr('demo.prevPage')" :disabled="pageNo <= 1" @click="pageNo--"><ChevronLeft class="flip-rtl" aria-hidden="true" /></button><span class="subtle">{{ tr('demo.pageOf', { p0: pageNo, p1: pageCount }) }}</span><button class="btn btn-sm btn-icon" type="button" :aria-label="tr('demo.nextPage')" :disabled="pageNo >= pageCount" @click="pageNo++"><ChevronRight class="flip-rtl" aria-hidden="true" /></button></div><div class="row"><button class="btn btn-sm btn-icon" type="button" :aria-label="tr('demo.zoomOut')" :disabled="zoom <= 60" @click="zoom -= 20"><Minus aria-hidden="true" /></button><span class="subtle">{{ zoom }}%</span><button class="btn btn-sm btn-icon" type="button" :aria-label="tr('demo.zoomIn')" :disabled="zoom >= 140" @click="zoom += 20"><Plus aria-hidden="true" /></button></div></div>
       <div class="sheet-wrap"><div class="sheet" :style="{ width: `${zoom * 3.4}px` }" role="img" :aria-label="tr('demo.pagePreview', { p0: pageNo })"><b>{{ preview?.current?.metadata.title }}</b><small>{{ tr('demo.pageNo', { p0: pageNo }) }}</small><i v-for="n in 13" :key="n" :style="{ width: `${60 + ((n * 37 + pageNo * 13) % 40)}%` }" /></div></div>
       <p class="muted small">{{ preview?.current?.metadata.description }}</p>
-      <template #footer><FavButton v-if="preview" :id="preview.id" kind="resource" text /><RouterLink v-if="preview" class="btn" :to="`/resources/items/${preview.id}`">{{ tr('demo.viewDetails') }}</RouterLink><button class="btn btn-primary" type="button" @click="download(preview!.current!.file!.filename)"><Download aria-hidden="true" />{{ tr('demo.download') }}</button></template>
+      <template #footer><FavoriteButton v-if="preview" :id="preview.id" kind="resource" text /><RouterLink v-if="preview" class="btn" :to="`/resources/items/${preview.id}`">{{ tr('demo.viewDetails') }}</RouterLink><button class="btn btn-primary" type="button" @click="download(preview!.current!.file!.filename)"><Download aria-hidden="true" />{{ tr('demo.download') }}</button></template>
     </Drawer>
     <Transition name="page">
       <div v-if="selecting && picked.length" class="bar">

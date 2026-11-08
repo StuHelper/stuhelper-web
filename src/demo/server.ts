@@ -1,5 +1,6 @@
 import { teacherLevels } from './store'
 import * as d from './data'
+import { favoritesRoute } from './favorites'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
 const KEY = 'stuhelper-demo-persona'
@@ -92,6 +93,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/profiles/me') return json(demoProfile)
   if (p === '/system/capabilities') return json({ api_version: 1, capabilities: ['platform.status'] })
   if (who === 'guest' && !p.startsWith('/verification/schools')) return nope('unauthenticated', 401)
+  const favorite = await favoritesRoute(p, method, u, init, who === 'verified')
+  if (favorite) return favorite
 
   if (p.startsWith('/verification')) {
     const eligible = who === 'verified'

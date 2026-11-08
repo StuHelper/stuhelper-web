@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import { courseSeeds, departments, resources, reviews, teachers, teachesIn } from '../data'
 import { compare, levelsOf, toggleCompare } from '../store'
 import Dist from './Dist.vue'
-import FavButton from './FavButton.vue'
+import FavoriteButton from '../../features/favorites/FavoriteButton.vue'
 import Drawer from './Drawer.vue'
 import Radar from './Radar.vue'
 import Trend from './Trend.vue'
@@ -38,7 +38,7 @@ const on = computed(() => !!props.id && compare[props.kind].includes(props.id))
     <section v-if="top" class="stack-sm"><h3 class="d-title">{{ tr('demo.topReview') }}</h3><div class="quote"><b>{{ top.title }}</b><p class="muted small clamp-3">{{ top.body }}</p><span class="subtle">{{ tr('demo.upvotes', { p0: top.upvotes }) }}</span></div></section>
     <section v-if="files.length" class="stack-sm"><h3 class="d-title">{{ tr('demo.relatedResources') }}</h3><ul class="links column"><li v-for="r in files" :key="r.id"><RouterLink :to="`/resources/items/${r.id}`">{{ r.current!.metadata.title }}</RouterLink></li></ul></section>
     <template #footer>
-      <FavButton v-if="id" :id="id" :kind="kind" text />
+      <FavoriteButton v-if="id" :id="id" :kind="kind" text />
       <button class="btn" type="button" :aria-pressed="on" @click="id && toggleCompare(kind, id)"><Scale aria-hidden="true" />{{ on ? tr('demo.inCompare') : tr('demo.addToCompare') }}</button>
       <RouterLink class="btn btn-primary" :to="`/${kind === 'course' ? 'courses' : 'teachers'}/${id}`">{{ tr('demo.viewDetails') }}</RouterLink>
     </template>

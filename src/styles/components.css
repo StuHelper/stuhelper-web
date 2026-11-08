@@ -328,3 +328,14 @@ html { scrollbar-width: thin; scrollbar-color: var(--fill-strong) transparent; }
 .skeleton-bands span:first-child { grid-column: 1 / -1; }
 @media (min-width: 720px) { .skeleton-bands { grid-template-columns: repeat(5, minmax(0, 1fr)); } .skeleton-bands span:first-child { grid-column: auto; } }
 .skeleton .skeleton-bands span[aria-hidden] { width: 100%; height: 7.1875rem; }
+
+/* Rounded search field (shared/ui/SearchField.vue). */
+.d-search { position: relative; display: flex; align-items: center; flex: 1 1 16rem; min-width: 0; }
+.d-search svg { position: absolute; inset-inline-start: .875rem; width: 1.0625rem; height: 1.0625rem; color: var(--label-3); pointer-events: none; }
+.d-search input { width: 100%; height: 42px; padding-inline: 2.5rem 1rem; border: 0; border-radius: var(--pill); background: var(--surface); box-shadow: var(--shadow-card); color: var(--label); font: inherit; }
+.d-search input:focus { outline: none; box-shadow: 0 0 0 1.5px var(--accent-fill), 0 0 0 5px var(--accent-soft); }
+.d-search input::-webkit-search-cancel-button { appearance: none; }
+.d-search input { padding-inline-end: 2.5rem; }
+.d-search .d-search-clear { position: absolute; inset-inline-end: .5rem; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: var(--fill); color: var(--label-2); cursor: pointer; }
+.d-search-clear:hover { background: var(--fill-strong); }
+.d-search .d-search-clear svg { position: static; width: .875rem; height: .875rem; color: inherit; }
