@@ -1,4 +1,4 @@
-import { teacherLevels } from './store'
+import { periods as periodStarts, teacherLevels, timetable } from './store'
 import * as d from './data'
 import { favoritesRoute } from './favorites'
 import { billingRoute } from './billing'
@@ -163,6 +163,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p.endsWith('/summary') && p.startsWith('/catalog/objects/')) return summary(decodeURIComponent(p.split('/').at(-2)!))
   if (p.startsWith('/catalog/objects/')) { const o = d.allObjects.find((x) => x.id === decodeURIComponent(p.split('/').at(-1)!)); return o ? json(o) : nope('not_found', 404) }
   if (p === '/catalog/me/enrollments') return json(d.enrollments)
+  if (p === '/catalog/me/schedule') return json({ items: schedule(u.searchParams.get('term_id') ?? ''), next: '' })
+  if (p === '/catalog/me/schedule/calendar') return new Response('BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//StuHelper Demo//EN\r\nEND:VCALENDAR\r\n', { headers: { 'content-type': 'text/calendar' } })
 
   if (p === '/reviews/presentation') return json({ effective: { school_id: d.SCHOOL, revision: 0, rating_texts: {} }, configured: null, source: 'default' })
   if (p === '/reviews/statistics') return statistics(u)
@@ -268,4 +270,19 @@ export function installDemoFetch() {
     if (response.status >= 400 && import.meta.env.DEV) console.warn('[demo]', method, u.pathname, response.status)
     return response
   }
+}
+
+// 本人课表：当前学期按演示周课表生成结构化时间，往期学期只有原文时间。
+function schedule(term: string) {
+  const range = (text: string) => { const [a, b] = text.replace(/[^\d-]/g, '').split('-').map(Number); return Array.from({ length: b! - a! + 1 }, (_, i) => a! + i) }
+  // 每节 45 分钟。
+  const plus45 = (time: string) => { const total = Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) + 45; return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}` }
+  const periods = periodStarts.map((start, i) => ({ number: i + 1, start, end: plus45(start) }))
+  return d.enrollments.filter((e) => e.term_id === term).map((e) => {
+    const rows = timetable.filter((row) => row.course === e.course_id)
+    const meetings = term === 't-26f'
+      ? rows.map((row, i) => ({ id: `${e.id}-m${i}`, time_text: `周${'一二三四五六日'[row.day - 1]} 第${row.start}-${row.end}节 第${row.weeks.replace(' 周', '')}周`, location: row.place, schedule_time: { weekday: row.day, start_period: row.start, end_period: row.end, weeks: range(row.weeks) } }))
+      : [{ id: `${e.id}-m0`, time_text: '周三 下午', location: '' }]
+    return { enrollment: e, course_name: d.allObjects.find((o) => o.id === e.course_id)?.name ?? e.course_id, meetings, ...(term === 't-26f' ? { timetable: { school_id: d.SCHOOL, term_id: term, revision: 1, week_one_start: '2026-09-07', timezone: 'Asia/Shanghai', periods } } : {}) }
+  })
 }

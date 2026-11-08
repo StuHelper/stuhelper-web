@@ -26,6 +26,5 @@ export function installDemo() {
     { path: '/teachers', component: () => import('./pages/Directory.vue'), props: { kind: 'teacher' }, meta: { ...verified, title: 'nav.teachers', section: 'teachers' } },
     { path: '/resources', component: () => import('./pages/Resources.vue'), meta: { ...verified, title: 'nav.resources', section: 'resources' } },
     { path: '/me', component: () => import('./pages/MeHome.vue'), meta: { title: 'me.title', section: 'me' } },
-    { path: '/me/courses', component: () => import('./pages/Schedule.vue'), meta: { ...verified, title: 'courses.title', section: 'me' } },
   )
 }

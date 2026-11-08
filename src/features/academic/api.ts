@@ -5,7 +5,7 @@ import type { components as Catalog } from '../../api/catalog.gen'
 import type { components as Moderation } from '../../api/moderation.gen'
 import type { components as Reviews } from '../../api/reviews.gen'
 import { ApiError } from '../../shared/api/errors'
-import { segment, type Http, type Query } from '../../shared/api/http'
+import { saveBlob, segment, type Http, type Query } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
 import { useHttp } from '../../shared/session'
 
@@ -14,6 +14,9 @@ export type ObjectKind = CatalogObject['kind']
 export type ObjectPage = Catalog['schemas']['Page']
 export type ObjectSummary = Catalog['schemas']['Summary']
 export type Enrollment = Catalog['schemas']['Enrollment']
+export type OwnSchedule = Catalog['schemas']['OwnSchedule']
+export type ScheduleMeeting = Catalog['schemas']['ScheduleMeeting']
+export type Timetable = Catalog['schemas']['Timetable']
 export type Review = Reviews['schemas']['View']
 export type ReviewKind = ReviewInput['kind']
 export type ReviewInput = Reviews['schemas']['Input']
@@ -44,6 +47,7 @@ const parse = {
   summary: schemaOf<ObjectSummary>(catalog, 'Summary'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
+  schedule: schemaOf<Catalog['schemas']['OwnSchedulePage']>(catalog, 'OwnSchedulePage'),
   review: schemaOf<Review>(reviews, 'View'),
   reviewList: schemaOf<Review[]>(reviews, 'View', true),
   reviewPage: schemaOf<ReviewPage>(reviews, 'Page'),
@@ -127,6 +131,25 @@ export class AcademicApi {
 
   myEnrollments(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query, signal })
+  }
+
+  /** The caller's active courses of one term with their meetings and the school timetable, all pages. */
+  async mySchedule(termId: string, signal?: AbortSignal): Promise<OwnSchedule[]> {
+    const items: OwnSchedule[] = []
+    let after = ''
+    for (let page = 0; page < 10; page++) {
+      const result = await this.http.json('/api/v1/catalog/me/schedule', parse.schedule, { query: { term_id: termId, after: after || undefined, limit: 100 }, signal })
+      items.push(...result.items)
+      if (!result.next) return items
+      if (result.next === after) throw new ApiError('incompatible')
+      after = result.next
+    }
+    throw new ApiError('capacity_exceeded')
+  }
+
+  /** iCalendar of the whole term. Fails with schedule_incomplete when times or the timetable are missing. */
+  async scheduleCalendar(termId: string, signal?: AbortSignal) {
+    saveBlob(await this.http.blob('/api/v1/catalog/me/schedule/calendar', 1 << 20, { query: { term_id: termId }, signal }), 'stuhelper-schedule.ics')
   }
 
   reviews(query: Query, signal?: AbortSignal) {

@@ -10,6 +10,7 @@ const schedules=[obj('schedule','schedule','Teaching time',{class_id:'class-one'
 const directory={term_course:offerings,class:classes,schedule:schedules,school:[school],department:[obj('dept','department','Test College')],category:[obj('seminar','category','Test Seminar')],nature:[obj('optional','nature','Optional')],term:terms,course:[course],teacher:[teacher,otherTeacher]};
 const dimensions=Array.from({length:5},()=>({level:3,samples:2,courses:1}));
 const review={id:'review',root_id:'review',kind:'course',school_id:'school',target_id:'course',term_id:'fall',title:'A student review',body:'Useful course content.',ratings:[3,3,3,3,3],author:{anonymous:true,handle:'anonymous'},revision:1,published_at:'2026-10-27T00:00:00Z',upvotes:0,downvotes:0,my_vote:0,mine:false,state:'published',can_edit:false};
+const enrollments=terms.map((term,i)=>({id:`enrollment-${i}`,subject:'synthetic',school_id:'school',course_id:'course',term_id:term.id,teacher_ids:[i===0?'teacher-a':'teacher-b'],active:true}));
 const fulfill=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
 export async function fixture(page){
   await page.route('**/api/v1/**',async route=>{
@@ -24,7 +25,8 @@ export async function fixture(page){
     if(p==='/api/v1/catalog/objects/lookup'){const ids=(u.searchParams.get('ids')??'').split(',');const items=Object.values(directory).flat().filter(item=>ids.includes(item.id));return fulfill(route,{items,missing_ids:ids.filter(id=>!items.some(item=>item.id===id))});}
     if(p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(directory).flat().find(item=>item.id===id);return fulfill(route,{object:entry,school,department:entry.kind==='course'?directory.department[0]:null,categories:entry.kind==='course'?directory.category:[],natures:entry.kind==='course'?directory.nature:[],course_count:1,teacher_count:entry.kind==='course'?2:1,offering_count:entry.kind==='course'?2:1});}
     if(p.startsWith('/api/v1/catalog/objects/')){const id=p.split('/').at(-1);return fulfill(route,Object.values(directory).flat().find(v=>v.id===id)??course);}
-    if(p==='/api/v1/catalog/me/enrollments')return fulfill(route,terms.map((term,i)=>({id:`enrollment-${i}`,subject:'synthetic',school_id:'school',course_id:'course',term_id:term.id,teacher_ids:[i===0?'teacher-a':'teacher-b'],active:true})));
+    if(p==='/api/v1/catalog/me/enrollments')return fulfill(route,enrollments);
+    if(p==='/api/v1/catalog/me/schedule')return fulfill(route,{items:enrollments.filter(row=>row.term_id===u.searchParams.get('term_id')).map(row=>({enrollment:row,course_name:'Test Course',meetings:[{id:`${row.id}-m`,time_text:'Monday 09:00',location:'Room A'}]})),next:''});
     if(p==='/api/v1/reviews/compose'){
       const needsTerm=u.searchParams.get('kind')==='course'&&!u.searchParams.get('term_id');
       return fulfill(route,{allowed:!needsTerm,state:needsTerm?'choose_term':'ready',requirements:[{key:'login',state:'satisfied'},{key:'campus_eligibility',state:'satisfied'},{key:'phone_bound',state:'satisfied'}],teacher_ids:u.searchParams.get('kind')==='course'&&u.searchParams.get('term_id')?[u.searchParams.get('term_id')==='fall'?'teacher-a':'teacher-b']:[],identity:'choice',rule_version:'fixture'});
