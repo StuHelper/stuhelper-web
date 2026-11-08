@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-open-platform",
-  "revision": "88f0add78533da70145685ea710351f571ad9ad0",
+  "revision": "93781d5a4a6938db3eab509f6566ea7514ba000a",
   "version": "0.1.0",
   "files": {
     "contracts/open-platform.openapi.json": "contracts/open-platform.openapi.json",

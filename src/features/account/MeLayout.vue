@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarDays, FileText, FolderOpen, HardDrive, Inbox, ShieldCheck, UserRound } from 'lucide-vue-next'
+import { Bookmark, CalendarDays, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { extras } from '../../shared/extras'
@@ -20,6 +20,8 @@ const links = [
   { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: 'var(--c-indigo)' },
   { to: '/me/verification', label: 'verification.title', icon: ShieldCheck, tile: 'var(--c-green)' },
   { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
+  { to: '/me/favorites', label: 'favorites.title', icon: Bookmark, tile: 'var(--c-orange)' },
+  { to: '/me/account', label: 'security.title', icon: LockKeyhole, tile: 'var(--c-gray)' },
 ] as const
 </script>
 

@@ -51,3 +51,8 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
     compare: new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }).compare,
   };
 }
+
+/** Keep a left-to-right value such as a masked number in order inside right-to-left text. */
+export function isolate(value: string) {
+  return `\u2066${value}\u2069`
+}

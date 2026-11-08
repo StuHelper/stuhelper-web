@@ -45,6 +45,10 @@
         "notFound.code": {
           "value": "404",
           "reason": "品牌名称或通用格式标记保持原文。"
+        },
+        "qq.parts.connect.title": {
+          "value": "QQ Connect",
+          "reason": "QQ Connect 是腾讯产品名称，各语言保持原文。"
         }
       },
       "languages": {

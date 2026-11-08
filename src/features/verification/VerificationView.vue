@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useLeaveGuard } from '../../shared/composables/leave'
-import { extras } from '../../shared/extras'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { safeNext, useAccess } from '../account/access'
@@ -59,7 +58,7 @@ function profileValue(value: unknown, field: string) {
   <MeLayout
     :title="t(scope === 'identity' ? 'verification.identityTitle' : 'verification.title')"
     :description="t(scope === 'identity' ? 'verification.identityDescription' : 'verification.description')"
-    :back="scope === 'identity' ? (extras.accountLinks.settings ?? '/me') : undefined"
+    :back="scope === 'identity' ? '/me/account' : undefined"
     :back-label="scope === 'identity' ? t('me.security') : undefined"
   >
     <template #actions>

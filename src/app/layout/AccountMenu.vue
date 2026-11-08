@@ -5,7 +5,6 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAccess } from '../../features/account/access'
-import { extras } from '../../shared/extras'
 import { useSession } from '../../shared/session'
 
 // Frequent personal pages and the account's standing. Everything else lives in
@@ -93,7 +92,7 @@ async function signOut() {
         <DropdownMenuItem as-child>
           <RouterLink
             class="menu-item"
-            :to="extras.accountLinks.settings ?? '/me'"
+            :to="'/me/account'"
           >
             <Settings aria-hidden="true" />{{ t('account.menu.settings') }}
           </RouterLink>
