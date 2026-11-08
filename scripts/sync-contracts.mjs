@@ -34,7 +34,8 @@ for (const name of selected.length ? selected : Object.keys(modules)) {
   const spec = modules[name];
   if (!spec) throw new Error(`Unknown module: ${name}`);
   const checkout = path.resolve(workspace, spec.repo);
-  if (git(checkout, 'status', '--porcelain').trim()) throw new Error(`Provider checkout has uncommitted changes: ${checkout}`);
+  // Files are read from the committed HEAD; uncommitted edits to them would make the record misleading.
+  if (git(checkout, 'status', '--porcelain', '--', ...Object.keys(spec.files)).trim()) throw new Error(`Provider files have uncommitted changes: ${checkout}`);
   const revision = git(checkout, 'rev-parse', 'HEAD').trim();
   const sha256 = {};
   for (const [providerFile, clientFile] of Object.entries(spec.files)) {
