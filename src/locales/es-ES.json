@@ -92,7 +92,8 @@
     "billing_assets_pending": "Hay un pedido en proceso. Inténtalo más tarde.",
     "billing_closure_conflict": "La cuenta se está cerrando y la acción no está disponible.",
     "billing_operation_too_large": "Demasiados elementos en una sola operación. Divídelos en lotes más pequeños.",
-    "provider_failed": "El servicio de pago falló. Si no se te cobró, puedes hacer un nuevo pedido."
+    "provider_failed": "El servicio de pago falló. Si no se te cobró, puedes hacer un nuevo pedido.",
+    "quota_exceeded": "Demasiadas solicitudes: se superó la cuota. Inténtalo más tarde."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -1093,13 +1094,10 @@
     "updated": "Actualizado {time}"
   },
   "demo": {
-    "clientIdCopied": "Client ID copiado",
     "deptCredits": "{p0} · Créditos: {p1}",
     "codeDeptCredits": "{p0} · {p1} · Créditos: {p2}",
-    "peopleCount": "Usuarios: {p0}",
     "upvotes": "Votos a favor: {p0}",
     "creditsDifficulty": "Créditos: {p0} · Dificultad: {p1}",
-    "authorizedLastUsed": "Autorizada: {p0} · Último uso: {p1}",
     "countOnly": "{p0} reseñ.",
     "unreadCount": "Sin leer: {p0}",
     "reviewCount": "Reseñas: {p0}",
@@ -1133,7 +1131,6 @@
     "gradingGood": "Buena experiencia",
     "gradingPoor": "Mala experiencia",
     "walletHint": "Saldo 128, 20 caducan pronto",
-    "noAuthorizedApps": "Aún no has autorizado ninguna aplicación.",
     "saveCorrection": "Guardar corrección",
     "compareEmptyHint": "Añade dos elementos para comparar las cinco dimensiones.",
     "all": "Todo",
@@ -1161,12 +1158,9 @@
     "list": "Lista",
     "listMode": "Vista de lista",
     "developerHint": "Crea y gestiona tus aplicaciones",
-    "createApp": "Crear aplicación",
     "addToCompare": "Añadir a comparar",
     "beihangVerified": "Universidad de Beihang · Estudiante verificado",
     "heroEyebrow": "Comunidad de cursos y materiales para estudiantes de Beihang",
-    "docsMissing": "Este prototipo no incluye documentación de la API",
-    "cancel": "Cancelar",
     "cancelSelection": "Cancelar selección",
     "correctionHint": "Solo tú ves esta corrección. La matrícula no cambia.",
     "personaGuestHint": "Solo ve la introducción y el acceso",
@@ -1185,9 +1179,6 @@
     "weekView": "Semana",
     "weekTimetable": "Horario semanal",
     "prefReplies": "Respuestas y votos",
-    "redirectUri": "URL de redirección",
-    "redirectInvalid": "La URL debe empezar por https://.",
-    "copyClientId": "Copiar Client ID de {p0}",
     "lateNight": "Es tarde, {name}",
     "storageContribution": "Contribución de almacenamiento",
     "study": "Estudio",
@@ -1199,7 +1190,6 @@
     "searchNeedsVerification": "Completa la verificación de Beihang para buscar cursos, profesores y materiales.",
     "fullTimetable": "Horario completo",
     "prefReviewResults": "Resultados de revisión y solicitudes",
-    "inReview": "En revisión",
     "personaCaption": "Herramienta de revisión · Cambiar identidad",
     "compare": "Comparar",
     "compareItem": "Comparar {p0}",
@@ -1210,7 +1200,6 @@
     "notVerified": "Verificación de estudiante pendiente",
     "expandAll": "Mostrar todos ({p0})",
     "dimWorkload": "Carga de trabajo",
-    "live": "Publicada",
     "correctionSaved": "Corrección guardada. Solo tú la ves.",
     "allMarkedRead": "Todo marcado como leído",
     "inCompare": "En comparación",
@@ -1218,7 +1207,6 @@
     "downloadStarted": "Descarga iniciada: {p0}",
     "packed": "Archivos empaquetados: {p0}",
     "appsHint": "Aplicaciones autorizadas: 2",
-    "appRevoked": "Acceso de {p0} revocado",
     "personaUnverified": "Con sesión, sin verificar",
     "personaVerified": "Estudiante verificado",
     "selectedCount": "Seleccionados: {p0}",
@@ -1226,10 +1214,7 @@
     "shortcuts": "Accesos directos",
     "prefAnnouncements": "Avisos de la plataforma",
     "compareDescription": "Compara hasta {p0} elementos.",
-    "appName": "Nombre de la aplicación",
-    "appSubmitted": "Aplicación enviada a revisión",
     "startCompare": "Comparar",
-    "developerPlatform": "Plataforma de desarrolladores",
     "offeringDepartment": "Facultad",
     "levelStronglyNot": "Nada recomendado",
     "levelStrongly": "Muy recomendado",
@@ -1260,16 +1245,11 @@
     "byDepartment": "Por facultad",
     "featureReviewsText": "Lee reseñas por curso, profesor y semestre.",
     "browseByCourse": "Explorar por curso",
-    "authorizedApps": "Aplicaciones autorizadas",
-    "authorizedUsers": "Usuarios autorizados",
     "sort": "Ordenar",
-    "apiDocs": "Documentación de la API",
     "levelRecommended": "Recomendado",
     "recommendation": "Recomendación",
     "recommendationDist": "Distribución de recomendación",
     "recommendationTrend": "Tendencia de recomendación. {p0}",
-    "createAppHint": "Un administrador la revisa. Otros podrán autorizarla tras aprobarse.",
-    "submitReview": "Enviar a revisión",
     "search": "Buscar",
     "searchHotkeyTitle": "Buscar (Ctrl K)",
     "searchTeachers": "Buscar profesores",
@@ -1284,9 +1264,6 @@
     "searchResourcesLabel": "Buscar materiales",
     "searchResourcesHint": "Busca títulos o descripciones",
     "searchHotkeyLabel": "Buscar, atajo Ctrl K",
-    "revokeApp": "¿Revocar {p0}?",
-    "revokeAppHint": "La aplicación pierde el acceso de inmediato y deberás autorizarla de nuevo.",
-    "revokeAccess": "Revocar acceso",
     "collapse": "Contraer",
     "zoomIn": "Acercar",
     "teachers": "Profesores",
@@ -1311,7 +1288,6 @@
     "draftTodo": "Tienes 1 borrador sin terminar",
     "personaGuest": "Visitante sin sesión",
     "unread": "Sin leer",
-    "rejected": "Rechazada",
     "thisPage": "Esta página",
     "viewDetails": "Ver detalles",
     "viewCourse": "Ver curso",
@@ -1324,8 +1300,6 @@
     "addCompareItem": "Añadir elemento",
     "clearAll": "Borrar todo",
     "clearFilters": "Borrar filtros",
-    "developerDescription": "Accede a tu aplicación con StuHelper y lee datos con el consentimiento de los estudiantes.",
-    "requestedScopes": "Permisos solicitados",
     "relatedResources": "Materiales relacionados",
     "points": "Puntos",
     "prefPoints": "Movimientos de puntos",
@@ -1352,10 +1326,6 @@
     "reviewCountLabel": "Número de reseñas",
     "mostReviews": "Más reseñados",
     "scoreDistribution": "Distribución de valoraciones",
-    "scopePublicReviews": "Leer reseñas públicas",
-    "scopeProfile": "Leer perfil básico",
-    "scopeTimetable": "Leer mi horario",
-    "scopeCatalog": "Leer catálogo de cursos",
     "courses": "Cursos",
     "coursesCount": "Cursos {p0}",
     "courseCategory": "Categoría del curso",
@@ -1376,7 +1346,6 @@
     "levelPoor": "Mala",
     "levelHard": "Difícil",
     "typeToSearch": "Escribe para buscar.",
-    "appsDescription": "Estas aplicaciones leen datos según lo aprobado. Puedes revocarlo cuando quieras.",
     "noClassesToday": "No hay clases este día.",
     "noNotifications": "Aún no hay notificaciones.",
     "signOut": "Cerrar sesión",
@@ -1693,5 +1662,154 @@
       "submitted": "Datos de cobro enviados."
     },
     "ivoryBalance": "Saldo de Ivory"
+  },
+  "platform": {
+    "scopes": {
+      "student_status": {
+        "title": "Estado de estudiante",
+        "detail": "Si tienes actualmente la condición de estudiante en el campus y cuándo se evaluó."
+      },
+      "schools": {
+        "title": "Centro",
+        "detail": "El ID y el nombre del centro de tu condición actual."
+      },
+      "qq_binding_status": {
+        "title": "Estado de vinculación con QQ",
+        "detail": "Solo si la vinculación con QQ está completa."
+      },
+      "qq_binding_details": {
+        "title": "Estado de vinculación y número de QQ",
+        "detail": "El estado de vinculación y, si las tres partes están completas, el número de QQ vinculado."
+      },
+      "profile": {
+        "title": "Perfil público",
+        "detail": "ID, alias y presentación del perfil público."
+      },
+      "schedule": {
+        "title": "Horario",
+        "detail": "Asignaturas, cursos, grupos y horarios conocidos de tus matrículas activas."
+      },
+      "catalog": {
+        "title": "Catálogo",
+        "detail": "Nombres y campos de asignaturas, docentes y otras entradas visibles del catálogo."
+      },
+      "public_reviews": {
+        "title": "Reseñas públicas",
+        "detail": "Texto de las reseñas visibles, sus objetos, valoraciones y fechas de publicación."
+      }
+    },
+    "grants": {
+      "title": "Aplicaciones autorizadas",
+      "description": "Aplicaciones de terceros que autorizaste. Puedes retirar parte o toda la información que leen.",
+      "empty": "No has autorizado ninguna aplicación de terceros.",
+      "expires": "Autorizada hasta el {date}",
+      "scopes": "Información autorizada",
+      "revoke": "Retirar acceso",
+      "revokeTitle": "Retirar el acceso de «{name}»",
+      "revokeHint": "Los tokens antiguos dejan de funcionar al instante y la aplicación ya no puede leer la información retirada. No se cierra tu cuenta en esa aplicación.",
+      "revokeScopes": "Información que quieres retirar",
+      "revokeAllNotice": "Se retirará toda la información; la aplicación tendrá que pedir autorización de nuevo.",
+      "revokeSubmit": "Retirar lo seleccionado",
+      "revokedAll": "Se retiró todo el acceso de «{name}».",
+      "revokedSome": "Se retiró parte del acceso de «{name}»."
+    },
+    "developer": {
+      "title": "Plataforma abierta",
+      "description": "Solicita conectar aplicaciones de terceros y consulta revisiones, credenciales y avisos de retirada.",
+      "create": "Nueva aplicación",
+      "empty": "No has enviado ninguna aplicación.",
+      "state": {
+        "pending": "En revisión",
+        "changes_requested": "Requiere cambios",
+        "active": "Activa",
+        "suspended": "Suspendida"
+      },
+      "note": "Nota del administrador: {note}",
+      "clientId": "ID de cliente",
+      "copyClientId": "Copiar el ID de cliente de «{name}»",
+      "clientIdCopied": "ID de cliente copiado.",
+      "copyFailed": "No se pudo copiar. Selecciona el texto y cópialo a mano.",
+      "clientType": "Tipo de cliente",
+      "clientTypes": {
+        "confidential": {
+          "title": "Aplicación de servidor",
+          "detail": "Guarda un secreto de cliente en un servidor y lo intercambia por tokens."
+        },
+        "public": {
+          "title": "Cliente público",
+          "detail": "Aplicación móvil o interfaz web que no guarda secretos y solo usa PKCE."
+        }
+      },
+      "redirects": "URI de redirección",
+      "redirectsHint": "Una dirección HTTPS por línea, hasta 10. Cada una debe coincidir exactamente con la solicitud de autorización.",
+      "tooManyRedirects": "Usa como máximo 10 URI de redirección.",
+      "redirectProblem": {
+        "invalid": "Una URI de redirección no es una dirección válida.",
+        "https": "Las URI de redirección deben usar HTTPS.",
+        "fragment": "Las URI de redirección no pueden contener un fragmento #."
+      },
+      "policy": "Límites de autorización",
+      "policyValue": "Autorización de {grant} días, token de acceso de {token} minutos, {quota} consultas al día",
+      "scopes": "Información solicitada",
+      "approved": "Aprobada",
+      "notApproved": "No aprobada",
+      "resubmit": "Editar y volver a enviar",
+      "rotate": "Renovar secreto de cliente",
+      "issue": "Crear secreto de cliente",
+      "rotateConfirm": "El secreto anterior deja de funcionar al instante. El nuevo solo se muestra una vez.",
+      "issueConfirm": "El secreto solo se muestra una vez; ten preparado un lugar seguro.",
+      "secretTitle": "Secreto de cliente",
+      "secretHint": "Es la única vez que se muestra el secreto. Si lo pierdes, renuévalo.",
+      "copySecret": "Copiar secreto",
+      "secretCopied": "Secreto copiado.",
+      "secretSaved": "Ya lo he guardado",
+      "secretNotRetrievable": "La solicitud se completó, pero no se pudo mostrar el secreto. Renuévalo si no lo guardaste.",
+      "formHint": "Una solicitud no concede acceso por sí sola. Los administradores revisan cada información y cada usuario da su consentimiento por separado.",
+      "name": "Nombre de la aplicación",
+      "purpose": "Finalidad",
+      "purposeHint": "Explica qué hace la aplicación y por qué necesita la información solicitada.",
+      "submit": "Enviar a revisión",
+      "submitted": "«{name}» se envió a revisión.",
+      "notices": {
+        "open": "Avisos de retirada",
+        "title": "Avisos de retirada de «{name}»",
+        "hint": "Cuando un usuario retira el acceso o una autorización vence, la aplicación debe dejar de usar esos datos y borrarlos según lo acordado. Indica aquí lo que hizo.",
+        "empty": "No hay avisos de retirada.",
+        "unanswered": "Sin respuesta",
+        "meta": "Usuario {user} · {time}",
+        "reason": {
+          "user_revoked": "El usuario retiró el acceso",
+          "consent_changed": "El usuario cambió el acceso",
+          "expired": "La autorización venció",
+          "application_changed": "Cambiaron los datos de la aplicación",
+          "account_closed": "El usuario cerró la cuenta"
+        },
+        "status": {
+          "received": "Recibido",
+          "deleted": "Datos borrados",
+          "retention_exception": "Conservación legal"
+        },
+        "answer": "Informar del resultado",
+        "result": "Resultado",
+        "retentionReason": "Base legal de la conservación (obligatorio)",
+        "noteOptional": "Nota adicional (opcional)",
+        "send": "Enviar informe",
+        "recorded": "Resultado registrado."
+      }
+    },
+    "consent": {
+      "title": "Autorización de aplicación",
+      "invalidTitle": "Solicitud de autorización no válida",
+      "invalid": "Este enlace de autorización no tiene los parámetros necesarios o pide información no admitida. Vuelve a empezar desde la aplicación.",
+      "loading": "Comprobando la solicitud de autorización…",
+      "heading": "«{name}» quiere acceder a tu información de StuHelper",
+      "client": "ID de cliente: {id} · vuelve a {host}",
+      "choose": "Elige qué puede leer esta aplicación",
+      "limits": "La aplicación solo puede leer la información que marques y que la plataforma haya aprobado. Nunca se comparten documentos de identidad, materiales de verificación ni registros del monedero.",
+      "withdraw": "Puedes retirar el acceso cuando quieras en Aplicaciones autorizadas. No se cierra tu cuenta en la aplicación.",
+      "expires": "Esta solicitud es válida hasta el {time}.",
+      "approve": "Permitir lo seleccionado ({count})",
+      "deny": "Denegar"
+    }
   }
 }

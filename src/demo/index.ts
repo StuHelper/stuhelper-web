@@ -1,4 +1,3 @@
-import { AppWindow, Code2 } from 'lucide-vue-next'
 import { tr } from './tr'
 import { extras } from '../shared/extras'
 import Chrome from './pages/Chrome.vue'
@@ -19,10 +18,6 @@ export function installDemo() {
   extras.floating.push(Floating, CompareTray)
   extras.subjectActions.push(SubjectActions)
   extras.subjectPanels.push(Insights)
-  extras.meLinks.push(
-    { to: '/me/apps', get text() { return tr('demo.authorizedApps') }, icon: AppWindow, tile: '#32ade6' },
-    { to: '/me/developer', get text() { return tr('demo.developerPlatform') }, icon: Code2, tile: '#636366' },
-  )
   const verified = { access: 'verified' as const }
   extras.routes.push(
     { path: '/compare', component: () => import('./pages/Compare.vue'), meta: { ...verified, title: 'nav.courses', section: 'courses' } },
@@ -33,7 +28,5 @@ export function installDemo() {
     { path: '/me', component: () => import('./pages/MeHome.vue'), meta: { title: 'me.title', section: 'me' } },
     { path: '/me/courses', component: () => import('./pages/Schedule.vue'), meta: { ...verified, title: 'courses.title', section: 'me' } },
     { path: '/notifications', component: () => import('./pages/Notifications.vue'), meta: { title: 'nav.home', section: 'me' } },
-    { path: '/me/apps', component: () => import('./pages/Apps.vue'), meta: { title: 'me.title', section: 'me' } },
-    { path: '/me/developer', component: () => import('./pages/Developer.vue'), meta: { title: 'me.title', section: 'me' } },
   )
 }

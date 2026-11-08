@@ -8,7 +8,6 @@ import type { RouteRecordRaw } from 'vue-router'
 export const extras = {
   routes: [] as RouteRecordRaw[],
   navLinks: [] as { to: string; text: string; section: string }[],
-  meLinks: [] as { to: string; text: string; icon: Component; tile: string }[],
   navTools: [] as Component[],
   floating: [] as Component[],
   subjectActions: [] as Component[],

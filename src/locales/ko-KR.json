@@ -92,7 +92,8 @@
     "billing_assets_pending": "처리 중인 주문이 있습니다. 잠시 후 다시 시도하세요.",
     "billing_closure_conflict": "계정 해지 진행 중이라 작업할 수 없습니다.",
     "billing_operation_too_large": "한 번에 처리하는 항목이 너무 많습니다. 나누어 처리하세요.",
-    "provider_failed": "결제 서비스 처리에 실패했습니다. 청구되지 않았다면 다시 주문할 수 있습니다."
+    "provider_failed": "결제 서비스 처리에 실패했습니다. 청구되지 않았다면 다시 주문할 수 있습니다.",
+    "quota_exceeded": "요청이 너무 많아 한도를 초과했습니다. 잠시 후 다시 시도하세요."
   },
   "connection": {
     "label": "서비스 연결 상태",
@@ -1093,13 +1094,10 @@
     "updated": "{time} 업데이트"
   },
   "demo": {
-    "clientIdCopied": "Client ID를 복사했습니다",
     "deptCredits": "{p0} · {p1}학점",
     "codeDeptCredits": "{p0} · {p1} · {p2}학점",
-    "peopleCount": "{p0}명",
     "upvotes": "공감 {p0}명",
     "creditsDifficulty": "{p0}학점 · 난이도: {p1}",
-    "authorizedLastUsed": "{p0} 승인 · 최근 사용 {p1}",
     "countOnly": "{p0}건",
     "unreadCount": "읽지 않음 {p0}건",
     "reviewCount": "평가 {p0}건",
@@ -1133,7 +1131,6 @@
     "gradingGood": "좋음",
     "gradingPoor": "나쁨",
     "walletHint": "잔액 128, 곧 20 만료",
-    "noAuthorizedApps": "승인한 앱이 없습니다.",
     "saveCorrection": "수정 저장",
     "compareEmptyHint": "두 항목을 추가하면 5개 항목을 나란히 비교할 수 있습니다.",
     "all": "전체",
@@ -1161,12 +1158,9 @@
     "list": "목록",
     "listMode": "목록 방식",
     "developerHint": "앱 생성 및 관리",
-    "createApp": "앱 만들기",
     "addToCompare": "비교에 추가",
     "beihangVerified": "베이항대학교 · 인증 학생",
     "heroEyebrow": "베이항 학생을 위한 강의·자료 커뮤니티",
-    "docsMissing": "이 프로토타입에는 API 문서가 없습니다",
-    "cancel": "취소",
     "cancelSelection": "선택 취소",
     "correctionHint": "수정 내용은 본인만 볼 수 있으며 수강 기록은 바뀌지 않습니다.",
     "personaGuestHint": "소개와 로그인만 표시",
@@ -1185,9 +1179,6 @@
     "weekView": "주간",
     "weekTimetable": "주간 시간표",
     "prefReplies": "답글과 공감",
-    "redirectUri": "리디렉션 URL",
-    "redirectInvalid": "URL은 https://로 시작해야 합니다.",
-    "copyClientId": "{p0} Client ID 복사",
     "lateNight": "늦은 밤이네요, {name}",
     "storageContribution": "저장소 기여",
     "study": "학습",
@@ -1199,7 +1190,6 @@
     "searchNeedsVerification": "베이항 인증을 완료하면 강의, 교수, 자료를 검색할 수 있습니다.",
     "fullTimetable": "전체 시간표",
     "prefReviewResults": "심사 및 신청 결과",
-    "inReview": "심사 중",
     "personaCaption": "검토 도구 · 데모 신분 전환",
     "compare": "비교",
     "compareItem": "{p0} 비교",
@@ -1210,7 +1200,6 @@
     "notVerified": "학생 인증 미완료",
     "expandAll": "전체 보기 ({p0})",
     "dimWorkload": "과제량",
-    "live": "운영 중",
     "correctionSaved": "수정 내용을 저장했습니다. 본인만 볼 수 있습니다",
     "allMarkedRead": "모두 읽음으로 표시했습니다",
     "inCompare": "비교에 추가됨",
@@ -1218,7 +1207,6 @@
     "downloadStarted": "다운로드 시작: {p0}",
     "packed": "파일 {p0}개를 묶었습니다",
     "appsHint": "승인한 앱 2개",
-    "appRevoked": "{p0} 승인을 취소했습니다",
     "personaUnverified": "로그인, 미인증",
     "personaVerified": "인증 학생",
     "selectedCount": "{p0}개 선택",
@@ -1226,10 +1214,7 @@
     "shortcuts": "바로가기",
     "prefAnnouncements": "플랫폼 공지",
     "compareDescription": "최대 {p0}개를 나란히 비교합니다.",
-    "appName": "앱 이름",
-    "appSubmitted": "앱을 심사에 제출했습니다",
     "startCompare": "비교 시작",
-    "developerPlatform": "개발자 플랫폼",
     "offeringDepartment": "개설 학부",
     "levelStronglyNot": "강력 비추천",
     "levelStrongly": "강력 추천",
@@ -1260,16 +1245,11 @@
     "byDepartment": "학부별",
     "featureReviewsText": "강의, 교수, 학기별 학생 평가를 확인하세요.",
     "browseByCourse": "강의별 보기",
-    "authorizedApps": "승인한 앱",
-    "authorizedUsers": "승인 사용자",
     "sort": "정렬",
-    "apiDocs": "API 문서",
     "levelRecommended": "추천",
     "recommendation": "추천도",
     "recommendationDist": "추천도 분포",
     "recommendationTrend": "추천도 추이. {p0}",
-    "createAppHint": "관리자 심사 후 다른 학생이 승인할 수 있습니다.",
-    "submitReview": "심사 제출",
     "search": "검색",
     "searchHotkeyTitle": "검색 (Ctrl K)",
     "searchTeachers": "교수 검색",
@@ -1284,9 +1264,6 @@
     "searchResourcesLabel": "자료 검색",
     "searchResourcesHint": "제목 또는 설명 검색",
     "searchHotkeyLabel": "검색, 단축키 Ctrl K",
-    "revokeApp": "{p0} 승인을 취소할까요?",
-    "revokeAppHint": "앱은 즉시 데이터를 읽을 수 없으며 다시 사용하려면 재승인이 필요합니다.",
-    "revokeAccess": "승인 취소",
     "collapse": "접기",
     "zoomIn": "확대",
     "teachers": "교수",
@@ -1311,7 +1288,6 @@
     "draftTodo": "작성 중인 임시 글이 1개 있습니다",
     "personaGuest": "비로그인 방문자",
     "unread": "읽지 않음",
-    "rejected": "반려됨",
     "thisPage": "이 페이지",
     "viewDetails": "자세히 보기",
     "viewCourse": "강의 보기",
@@ -1324,8 +1300,6 @@
     "addCompareItem": "비교 항목 추가",
     "clearAll": "모두 지우기",
     "clearFilters": "필터 지우기",
-    "developerDescription": "StuHelper 계정으로 앱에 로그인하고 학생 동의 후 데이터를 읽습니다.",
-    "requestedScopes": "요청 권한",
     "relatedResources": "관련 자료",
     "points": "포인트",
     "prefPoints": "포인트 변동",
@@ -1352,10 +1326,6 @@
     "reviewCountLabel": "평가 수",
     "mostReviews": "평가 많은 순",
     "scoreDistribution": "평점 분포",
-    "scopePublicReviews": "공개 평가 읽기",
-    "scopeProfile": "기본 정보 읽기",
-    "scopeTimetable": "내 시간표 읽기",
-    "scopeCatalog": "강의 목록 읽기",
     "courses": "강의",
     "coursesCount": "강의 {p0}",
     "courseCategory": "강의 분류",
@@ -1376,7 +1346,6 @@
     "levelPoor": "나쁨",
     "levelHard": "어려움",
     "typeToSearch": "검색어를 입력하세요.",
-    "appsDescription": "이 앱들은 동의한 범위에서 데이터를 읽으며 언제든 취소할 수 있습니다.",
     "noClassesToday": "이날은 수업이 없습니다.",
     "noNotifications": "알림이 없습니다.",
     "signOut": "로그아웃",
@@ -1693,5 +1662,154 @@
       "submitted": "수취 정보를 제출했습니다."
     },
     "ivoryBalance": "Ivory 잔액"
+  },
+  "platform": {
+    "scopes": {
+      "student_status": {
+        "title": "학생 인증 상태",
+        "detail": "현재 캠퍼스 학생 자격 여부와 평가 시각."
+      },
+      "schools": {
+        "title": "소속 학교",
+        "detail": "현재 유효한 자격의 학교 ID와 이름."
+      },
+      "qq_binding_status": {
+        "title": "QQ 연결 상태",
+        "detail": "QQ 연결 완료 여부만 제공합니다."
+      },
+      "qq_binding_details": {
+        "title": "QQ 연결 상태와 QQ 번호",
+        "detail": "연결 상태와, 세 항목이 모두 완료된 경우 연결된 QQ 번호."
+      },
+      "profile": {
+        "title": "공개 프로필",
+        "detail": "공개 프로필 ID, 닉네임, 소개."
+      },
+      "schedule": {
+        "title": "시간표",
+        "detail": "유효한 수강의 과목, 학기, 분반, 알려진 수업 시간."
+      },
+      "catalog": {
+        "title": "과목 목록",
+        "detail": "현재 볼 수 있는 과목과 교수 등의 이름과 항목."
+      },
+      "public_reviews": {
+        "title": "공개 평가",
+        "detail": "현재 볼 수 있는 평가 본문, 대상, 점수, 게시 시각."
+      }
+    },
+    "grants": {
+      "title": "연결된 앱",
+      "description": "권한을 준 외부 앱을 확인하고 정보의 일부 또는 전부를 철회할 수 있습니다.",
+      "empty": "권한을 준 외부 앱이 없습니다.",
+      "expires": "{date}까지 유효",
+      "scopes": "허용한 정보",
+      "revoke": "권한 철회",
+      "revokeTitle": "“{name}” 권한 철회",
+      "revokeHint": "철회하면 기존 토큰은 즉시 무효가 되고 철회한 정보를 더 읽을 수 없습니다. 해당 앱의 계정은 삭제되지 않습니다.",
+      "revokeScopes": "철회할 정보 선택",
+      "revokeAllNotice": "모든 정보를 철회합니다. 앱은 다시 권한을 요청해야 합니다.",
+      "revokeSubmit": "선택한 정보 철회",
+      "revokedAll": "“{name}”의 모든 권한을 철회했습니다.",
+      "revokedSome": "“{name}”의 권한 일부를 철회했습니다."
+    },
+    "developer": {
+      "title": "오픈 플랫폼",
+      "description": "외부 앱 연결을 신청하고 심사 결과, 자격 증명, 철회 알림을 확인합니다.",
+      "create": "새 앱",
+      "empty": "신청한 앱이 없습니다.",
+      "state": {
+        "pending": "심사 중",
+        "changes_requested": "수정 필요",
+        "active": "사용 중",
+        "suspended": "중지됨"
+      },
+      "note": "관리자 설명: {note}",
+      "clientId": "클라이언트 ID",
+      "copyClientId": "“{name}”의 클라이언트 ID 복사",
+      "clientIdCopied": "클라이언트 ID를 복사했습니다.",
+      "copyFailed": "복사하지 못했습니다. 텍스트를 선택해 직접 복사하세요.",
+      "clientType": "클라이언트 유형",
+      "clientTypes": {
+        "confidential": {
+          "title": "서버 앱",
+          "detail": "서버에 클라이언트 시크릿을 보관하고 토큰으로 교환합니다."
+        },
+        "public": {
+          "title": "공개 클라이언트",
+          "detail": "시크릿을 보관하지 않는 모바일 앱이나 브라우저로, PKCE만 사용합니다."
+        }
+      },
+      "redirects": "리디렉션 URI",
+      "redirectsHint": "한 줄에 HTTPS 주소 하나, 최대 10개. 인가 요청과 정확히 같아야 합니다.",
+      "tooManyRedirects": "리디렉션 URI는 최대 10개입니다.",
+      "redirectProblem": {
+        "invalid": "리디렉션 URI 형식이 올바르지 않습니다.",
+        "https": "리디렉션 URI는 HTTPS를 사용해야 합니다.",
+        "fragment": "리디렉션 URI에는 # 프래그먼트를 넣을 수 없습니다."
+      },
+      "policy": "권한 기간과 한도",
+      "policyValue": "사용자 권한 {grant}일, 액세스 토큰 {token}분, 하루 {quota}회 조회",
+      "scopes": "신청한 정보",
+      "approved": "승인됨",
+      "notApproved": "승인 안 됨",
+      "resubmit": "수정 후 다시 제출",
+      "rotate": "클라이언트 시크릿 교체",
+      "issue": "클라이언트 시크릿 발급",
+      "rotateConfirm": "기존 시크릿은 즉시 무효가 됩니다. 새 시크릿은 한 번만 표시됩니다.",
+      "issueConfirm": "시크릿은 한 번만 표시됩니다. 보관할 곳을 준비하세요.",
+      "secretTitle": "클라이언트 시크릿",
+      "secretHint": "시크릿은 이번 한 번만 표시됩니다. 잃어버리면 다시 교체하세요.",
+      "copySecret": "시크릿 복사",
+      "secretCopied": "시크릿을 복사했습니다.",
+      "secretSaved": "저장했습니다",
+      "secretNotRetrievable": "요청은 완료되었지만 시크릿을 표시하지 못했습니다. 저장하지 않았다면 다시 교체하세요.",
+      "formHint": "신청만으로는 권한이 생기지 않습니다. 관리자가 항목별로 심사하고 사용자가 항목별로 동의합니다.",
+      "name": "앱 이름",
+      "purpose": "용도",
+      "purposeHint": "앱이 하는 일과 신청한 정보가 필요한 이유를 설명하세요.",
+      "submit": "심사 제출",
+      "submitted": "“{name}”을(를) 심사에 제출했습니다.",
+      "notices": {
+        "open": "철회 알림",
+        "title": "“{name}” 철회 알림",
+        "hint": "사용자가 권한을 철회하거나 기간이 끝나면 앱은 해당 데이터 사용을 중단하고 약정대로 삭제해야 합니다. 처리 결과를 여기에서 보고하세요.",
+        "empty": "철회 알림이 없습니다.",
+        "unanswered": "보고 안 함",
+        "meta": "사용자 {user} · {time}",
+        "reason": {
+          "user_revoked": "사용자가 권한 철회",
+          "consent_changed": "사용자가 권한 변경",
+          "expired": "권한 만료",
+          "application_changed": "앱 정보 변경",
+          "account_closed": "사용자 탈퇴"
+        },
+        "status": {
+          "received": "수신함",
+          "deleted": "데이터 삭제함",
+          "retention_exception": "법에 따라 보관"
+        },
+        "answer": "처리 결과 보고",
+        "result": "처리 결과",
+        "retentionReason": "보관 근거(필수)",
+        "noteOptional": "추가 설명(선택)",
+        "send": "보고 제출",
+        "recorded": "처리 결과를 기록했습니다."
+      }
+    },
+    "consent": {
+      "title": "앱 권한",
+      "invalidTitle": "잘못된 인가 요청",
+      "invalid": "이 인가 링크에 필요한 매개변수가 없거나 지원하지 않는 정보가 포함되어 있습니다. 앱에서 다시 시작하세요.",
+      "loading": "인가 요청을 확인하는 중…",
+      "heading": "“{name}”이(가) StuHelper 정보 접근을 요청합니다",
+      "client": "클라이언트 ID: {id} · 허용 후 {host}(으)로 돌아갑니다",
+      "choose": "이 앱이 읽을 수 있는 정보 선택",
+      "limits": "앱은 선택한 정보 중 플랫폼이 승인한 정보만 읽을 수 있습니다. 신분증, 인증 자료, 지갑 기록은 제공되지 않습니다.",
+      "withdraw": "“연결된 앱”에서 언제든 철회할 수 있습니다. 철회해도 앱 계정은 삭제되지 않습니다.",
+      "expires": "이 요청은 {time}까지 유효합니다.",
+      "approve": "선택 항목 허용({count})",
+      "deny": "거부"
+    }
   }
 }

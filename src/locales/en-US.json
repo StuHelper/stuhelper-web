@@ -92,7 +92,8 @@
     "billing_assets_pending": "An order is still being processed. Try again later.",
     "billing_closure_conflict": "This account is being closed, so the action is unavailable.",
     "billing_operation_too_large": "Too many items in one operation. Split it into smaller batches.",
-    "provider_failed": "The payment service failed. If you were not charged, you can place a new order."
+    "provider_failed": "The payment service failed. If you were not charged, you can place a new order.",
+    "quota_exceeded": "Too many requests. The quota was exceeded; try again later."
   },
   "connection": {
     "label": "Service connection status",
@@ -1093,13 +1094,10 @@
     "updated": "Updated {time}"
   },
   "demo": {
-    "clientIdCopied": "Client ID copied",
     "deptCredits": "{p0} · Credits: {p1}",
     "codeDeptCredits": "{p0} · {p1} · Credits: {p2}",
-    "peopleCount": "Users: {p0}",
     "upvotes": "Upvotes: {p0}",
     "creditsDifficulty": "Credits: {p0} · Difficulty: {p1}",
-    "authorizedLastUsed": "Authorized {p0} · Last used {p1}",
     "countOnly": "{p0} rev.",
     "unreadCount": "Unread: {p0}",
     "reviewCount": "Reviews: {p0}",
@@ -1133,7 +1131,6 @@
     "gradingGood": "Good experience",
     "gradingPoor": "Poor experience",
     "walletHint": "Balance 128, 20 expiring soon",
-    "noAuthorizedApps": "You haven’t authorized any apps.",
     "saveCorrection": "Save correction",
     "compareEmptyHint": "Add two items to compare all five dimensions side by side.",
     "all": "All",
@@ -1161,12 +1158,9 @@
     "list": "List",
     "listMode": "List layout",
     "developerHint": "Create and manage your apps",
-    "createApp": "Create app",
     "addToCompare": "Add to compare",
     "beihangVerified": "Beihang University · Verified student",
     "heroEyebrow": "A course and resource community for Beihang students",
-    "docsMissing": "API docs aren’t included in this prototype",
-    "cancel": "Cancel",
     "cancelSelection": "Cancel selection",
     "correctionHint": "Only you see this correction. The enrollment record doesn’t change.",
     "personaGuestHint": "Sees only the intro and sign-in",
@@ -1185,9 +1179,6 @@
     "weekView": "Week",
     "weekTimetable": "Weekly timetable",
     "prefReplies": "Replies and upvotes",
-    "redirectUri": "Redirect URL",
-    "redirectInvalid": "The redirect URL must start with https://.",
-    "copyClientId": "Copy Client ID of {p0}",
     "lateNight": "It’s late, {name}",
     "storageContribution": "Storage contribution",
     "study": "Study",
@@ -1199,7 +1190,6 @@
     "searchNeedsVerification": "Complete Beihang verification to search courses, teachers and resources.",
     "fullTimetable": "Full timetable",
     "prefReviewResults": "Review and request results",
-    "inReview": "In review",
     "personaCaption": "Review tool · Switch demo identity",
     "compare": "Compare",
     "compareItem": "Compare {p0}",
@@ -1210,7 +1200,6 @@
     "notVerified": "Student verification not completed",
     "expandAll": "Show all ({p0})",
     "dimWorkload": "Workload",
-    "live": "Live",
     "correctionSaved": "Correction saved. Only you can see it.",
     "allMarkedRead": "All marked as read",
     "inCompare": "In comparison",
@@ -1218,7 +1207,6 @@
     "downloadStarted": "Download started: {p0}",
     "packed": "Files packaged: {p0}",
     "appsHint": "Authorized apps: 2",
-    "appRevoked": "Revoked access for {p0}",
     "personaUnverified": "Signed in, not verified",
     "personaVerified": "Verified student",
     "selectedCount": "Selected: {p0}",
@@ -1226,10 +1214,7 @@
     "shortcuts": "Shortcuts",
     "prefAnnouncements": "Platform announcements",
     "compareDescription": "Compare side by side, up to {p0} items.",
-    "appName": "App name",
-    "appSubmitted": "App submitted for review",
     "startCompare": "Start comparing",
-    "developerPlatform": "Developer platform",
     "offeringDepartment": "Offering school",
     "levelStronglyNot": "Strongly not recommended",
     "levelStrongly": "Highly recommended",
@@ -1260,16 +1245,11 @@
     "byDepartment": "By school",
     "featureReviewsText": "Read student reviews by course, teacher and term.",
     "browseByCourse": "Browse by course",
-    "authorizedApps": "Authorized apps",
-    "authorizedUsers": "Authorized users",
     "sort": "Sort",
-    "apiDocs": "API docs",
     "levelRecommended": "Recommended",
     "recommendation": "Recommendation",
     "recommendationDist": "Recommendation distribution",
     "recommendationTrend": "Recommendation trend. {p0}",
-    "createAppHint": "An administrator reviews it first. Other students can authorize it after approval.",
-    "submitReview": "Submit for review",
     "search": "Search",
     "searchHotkeyTitle": "Search (Ctrl K)",
     "searchTeachers": "Search teachers",
@@ -1284,9 +1264,6 @@
     "searchResourcesLabel": "Search resources",
     "searchResourcesHint": "Search titles or descriptions",
     "searchHotkeyLabel": "Search, shortcut Ctrl K",
-    "revokeApp": "Revoke {p0}?",
-    "revokeAppHint": "The app immediately loses access to your data. Using it again requires new authorization.",
-    "revokeAccess": "Revoke access",
     "collapse": "Collapse",
     "zoomIn": "Zoom in",
     "teachers": "Teachers",
@@ -1311,7 +1288,6 @@
     "draftTodo": "You have 1 unfinished draft",
     "personaGuest": "Signed-out visitor",
     "unread": "Unread",
-    "rejected": "Rejected",
     "thisPage": "This page",
     "viewDetails": "View details",
     "viewCourse": "View course",
@@ -1324,8 +1300,6 @@
     "addCompareItem": "Add item to compare",
     "clearAll": "Clear all",
     "clearFilters": "Clear filters",
-    "developerDescription": "Sign in to your app with StuHelper and read data after students consent.",
-    "requestedScopes": "Requested permissions",
     "relatedResources": "Related resources",
     "points": "Points",
     "prefPoints": "Points activity",
@@ -1352,10 +1326,6 @@
     "reviewCountLabel": "Review count",
     "mostReviews": "Most reviewed",
     "scoreDistribution": "Rating distribution",
-    "scopePublicReviews": "Read public reviews",
-    "scopeProfile": "Read basic profile",
-    "scopeTimetable": "Read my timetable",
-    "scopeCatalog": "Read course catalog",
     "courses": "Courses",
     "coursesCount": "Courses {p0}",
     "courseCategory": "Course category",
@@ -1376,7 +1346,6 @@
     "levelPoor": "Poor",
     "levelHard": "Hard",
     "typeToSearch": "Type a keyword to search.",
-    "appsDescription": "These apps can read data within the scope you approved. You can revoke access anytime.",
     "noClassesToday": "No classes on this day.",
     "noNotifications": "No notifications yet.",
     "signOut": "Sign out",
@@ -1693,5 +1662,154 @@
       "submitted": "Payout details submitted."
     },
     "ivoryBalance": "Ivory balance"
+  },
+  "platform": {
+    "scopes": {
+      "student_status": {
+        "title": "Student status",
+        "detail": "Whether you currently hold student eligibility on campus, and when it was evaluated."
+      },
+      "schools": {
+        "title": "School",
+        "detail": "The ID and name of the school of your current eligibility."
+      },
+      "qq_binding_status": {
+        "title": "QQ binding status",
+        "detail": "Only whether QQ binding is complete."
+      },
+      "qq_binding_details": {
+        "title": "QQ binding status and QQ number",
+        "detail": "The binding status, plus the bound QQ number when all three parts are complete."
+      },
+      "profile": {
+        "title": "Public profile",
+        "detail": "Public profile ID, nickname and bio."
+      },
+      "schedule": {
+        "title": "Timetable",
+        "detail": "Courses, terms, classes and known meeting times of your active enrollments."
+      },
+      "catalog": {
+        "title": "Course catalog",
+        "detail": "Names and fields of courses, teachers and other visible catalog entries."
+      },
+      "public_reviews": {
+        "title": "Public reviews",
+        "detail": "Visible review text, review targets, ratings and publication times."
+      }
+    },
+    "grants": {
+      "title": "Authorized apps",
+      "description": "Third-party apps you authorized. You can withdraw some or all of the information they read.",
+      "empty": "You have not authorized any third-party apps.",
+      "expires": "Authorized until {date}",
+      "scopes": "Authorized information",
+      "revoke": "Withdraw access",
+      "revokeTitle": "Withdraw access for “{name}”",
+      "revokeHint": "Old tokens stop working immediately and the app can no longer read the withdrawn information. This does not close your account in that app.",
+      "revokeScopes": "Information to withdraw",
+      "revokeAllNotice": "All information will be withdrawn; the app must ask for authorization again.",
+      "revokeSubmit": "Withdraw selected",
+      "revokedAll": "All access for “{name}” was withdrawn.",
+      "revokedSome": "Part of the access for “{name}” was withdrawn."
+    },
+    "developer": {
+      "title": "Open platform",
+      "description": "Apply to connect third-party apps and follow reviews, credentials and withdrawal notices.",
+      "create": "New app",
+      "empty": "You have not submitted any apps.",
+      "state": {
+        "pending": "In review",
+        "changes_requested": "Changes requested",
+        "active": "Active",
+        "suspended": "Suspended"
+      },
+      "note": "Administrator note: {note}",
+      "clientId": "Client ID",
+      "copyClientId": "Copy the client ID of “{name}”",
+      "clientIdCopied": "Client ID copied.",
+      "copyFailed": "Copying failed. Select the text and copy it manually.",
+      "clientType": "Client type",
+      "clientTypes": {
+        "confidential": {
+          "title": "Server app",
+          "detail": "Keeps a client secret on a server and exchanges it for tokens."
+        },
+        "public": {
+          "title": "Public client",
+          "detail": "A mobile app or browser front end that keeps no secret and uses PKCE only."
+        }
+      },
+      "redirects": "Redirect URIs",
+      "redirectsHint": "One HTTPS address per line, up to 10. Each must match the authorization request exactly.",
+      "tooManyRedirects": "Use at most 10 redirect URIs.",
+      "redirectProblem": {
+        "invalid": "A redirect URI is not a valid address.",
+        "https": "Redirect URIs must use HTTPS.",
+        "fragment": "Redirect URIs cannot contain a # fragment."
+      },
+      "policy": "Authorization limits",
+      "policyValue": "User grants last {grant} days, access tokens {token} minutes, {quota} queries per day",
+      "scopes": "Requested information",
+      "approved": "Approved",
+      "notApproved": "Not approved",
+      "resubmit": "Edit and resubmit",
+      "rotate": "Rotate client secret",
+      "issue": "Create client secret",
+      "rotateConfirm": "The old secret stops working immediately. The new secret is shown only once, so have a safe place ready.",
+      "issueConfirm": "The secret is shown only once, so have a safe place ready.",
+      "secretTitle": "Client secret",
+      "secretHint": "This is the only time the secret is shown. If you lose it, rotate it again.",
+      "copySecret": "Copy secret",
+      "secretCopied": "Secret copied.",
+      "secretSaved": "I have saved it",
+      "secretNotRetrievable": "The request completed, but the secret could not be shown. Rotate again if you did not save it.",
+      "formHint": "An application grants no access by itself. Administrators review each scope and users consent to each one.",
+      "name": "App name",
+      "purpose": "Purpose",
+      "purposeHint": "Explain what the app does and why it needs the requested information.",
+      "submit": "Submit for review",
+      "submitted": "“{name}” was submitted for review.",
+      "notices": {
+        "open": "Withdrawal notices",
+        "title": "Withdrawal notices for “{name}”",
+        "hint": "When a user withdraws access or a grant ends, the app must stop using that data and delete it as agreed. Report what the app did here.",
+        "empty": "No withdrawal notices.",
+        "unanswered": "Not reported",
+        "meta": "User {user} · {time}",
+        "reason": {
+          "user_revoked": "User withdrew access",
+          "consent_changed": "User changed access",
+          "expired": "Grant expired",
+          "application_changed": "App details changed",
+          "account_closed": "User closed the account"
+        },
+        "status": {
+          "received": "Received",
+          "deleted": "Data deleted",
+          "retention_exception": "Retained by law"
+        },
+        "answer": "Report result",
+        "result": "Result",
+        "retentionReason": "Legal basis for retention (required)",
+        "noteOptional": "Additional note (optional)",
+        "send": "Send report",
+        "recorded": "Result recorded."
+      }
+    },
+    "consent": {
+      "title": "App authorization",
+      "invalidTitle": "Invalid authorization request",
+      "invalid": "This authorization link is missing required parameters or asks for unsupported information. Start again from the app.",
+      "loading": "Checking the authorization request…",
+      "heading": "“{name}” wants to access your StuHelper information",
+      "client": "Client ID: {id} · returns to {host}",
+      "choose": "Choose what this app may read",
+      "limits": "The app can read only the information you select that the platform also approved. Identity documents, verification materials and wallet records are never shared.",
+      "withdraw": "You can withdraw access at any time under Authorized apps. Withdrawing does not close your account in the app.",
+      "expires": "This request is valid until {time}.",
+      "approve": "Allow selected ({count})",
+      "deny": "Deny"
+    }
   }
 }

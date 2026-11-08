@@ -2,6 +2,7 @@ import { teacherLevels } from './store'
 import * as d from './data'
 import { favoritesRoute } from './favorites'
 import { billingRoute } from './billing'
+import { openPlatformRoute } from './open-platform'
 import { qqRoute } from './qq'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
@@ -117,6 +118,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (qq) return qq
   const billing = await billingRoute(p, method, u, init)
   if (billing) return billing
+  const platform = await openPlatformRoute(p, method, init)
+  if (platform) return platform
 
   if (p.startsWith('/verification')) {
     const eligible = who === 'verified'

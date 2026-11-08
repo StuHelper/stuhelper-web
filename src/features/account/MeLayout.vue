@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { Bookmark, CalendarDays, Coins, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
+import { AppWindow, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
-import { extras } from '../../shared/extras'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import RequireSignIn from './RequireSignIn.vue'
 
@@ -22,6 +21,8 @@ const links = [
   { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
   { to: '/me/favorites', label: 'favorites.title', icon: Bookmark, tile: 'var(--c-orange)' },
   { to: '/me/wallet', label: 'wallet.title', icon: Coins, tile: 'var(--c-flame)' },
+  { to: '/me/apps', label: 'platform.grants.title', icon: AppWindow, tile: 'var(--c-cyan)' },
+  { to: '/me/developer', label: 'platform.developer.title', icon: Code2, tile: 'var(--c-gray)' },
   { to: '/me/profile', label: 'profile.title', icon: UserRoundCog, tile: 'var(--c-pink)' },
   { to: '/me/account', label: 'security.title', icon: LockKeyhole, tile: 'var(--c-gray)' },
 ] as const
@@ -50,21 +51,6 @@ const links = [
           aria-hidden="true"
         /></span>
         <span class="truncate">{{ t(link.label) }}</span>
-      </RouterLink>
-      <RouterLink
-        v-for="link in extras.meLinks"
-        :key="link.to"
-        :to="link.to"
-        :aria-current="current(link.to) ? 'page' : undefined"
-      >
-        <span
-          class="icon-tile"
-          :style="{ '--tile': link.tile }"
-        ><component
-          :is="link.icon"
-          aria-hidden="true"
-        /></span>
-        <span class="truncate">{{ link.text }}</span>
       </RouterLink>
     </nav>
     <div class="stack-lg me-content">

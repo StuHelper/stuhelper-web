@@ -92,7 +92,8 @@
     "billing_assets_pending": "処理中の注文があります。しばらくしてから再試行してください。",
     "billing_closure_conflict": "アカウントの解約手続き中のため操作できません。",
     "billing_operation_too_large": "一度に処理する件数が多すぎます。分けて実行してください。",
-    "provider_failed": "決済サービスで処理に失敗しました。請求されていなければ再注文できます。"
+    "provider_failed": "決済サービスで処理に失敗しました。請求されていなければ再注文できます。",
+    "quota_exceeded": "リクエストが多すぎて上限を超えました。しばらくしてから再試行してください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -1093,13 +1094,10 @@
     "updated": "更新日時 {time}"
   },
   "demo": {
-    "clientIdCopied": "Client ID をコピーしました",
     "deptCredits": "{p0} · {p1} 単位",
     "codeDeptCredits": "{p0} · {p1} · {p2} 単位",
-    "peopleCount": "{p0} 人",
     "upvotes": "賛同 {p0} 人",
     "creditsDifficulty": "{p0} 単位 · 難易度：{p1}",
-    "authorizedLastUsed": "{p0} に承認 · 最終利用 {p1}",
     "countOnly": "{p0} 件",
     "unreadCount": "未読 {p0} 件",
     "reviewCount": "評価 {p0} 件",
@@ -1133,7 +1131,6 @@
     "gradingGood": "良い",
     "gradingPoor": "悪い",
     "walletHint": "残高 128、まもなく 20 が失効",
-    "noAuthorizedApps": "承認済みのアプリはありません。",
     "saveCorrection": "修正を保存",
     "compareEmptyHint": "2 件追加すると 5 つの観点を並べて比較できます。",
     "all": "すべて",
@@ -1161,12 +1158,9 @@
     "list": "リスト",
     "listMode": "リスト形式",
     "developerHint": "アプリの作成と管理",
-    "createApp": "アプリを作成",
     "addToCompare": "比較に追加",
     "beihangVerified": "北京航空航天大学 · 認証済み学生",
     "heroEyebrow": "北航生のための授業・資料コミュニティ",
-    "docsMissing": "このプロトタイプに API ドキュメントはありません",
-    "cancel": "キャンセル",
     "cancelSelection": "選択をキャンセル",
     "correctionHint": "修正は自分だけに表示され、履修記録は変わりません。",
     "personaGuestHint": "紹介とログインのみ表示",
@@ -1185,9 +1179,6 @@
     "weekView": "週",
     "weekTimetable": "週間時間割",
     "prefReplies": "返信と賛同",
-    "redirectUri": "リダイレクト URL",
-    "redirectInvalid": "URL は https:// で始めてください。",
-    "copyClientId": "{p0} の Client ID をコピー",
     "lateNight": "夜遅くまでお疲れさま、{name}",
     "storageContribution": "ストレージ提供",
     "study": "学習",
@@ -1199,7 +1190,6 @@
     "searchNeedsVerification": "北航認証を完了すると授業・教員・資料を検索できます。",
     "fullTimetable": "時間割全体",
     "prefReviewResults": "審査と申請の結果",
-    "inReview": "審査中",
     "personaCaption": "レビュー用 · デモ身分を切替",
     "compare": "比較",
     "compareItem": "{p0} を比較",
@@ -1210,7 +1200,6 @@
     "notVerified": "学生認証は未完了です",
     "expandAll": "すべて表示（{p0}）",
     "dimWorkload": "課題量",
-    "live": "公開中",
     "correctionSaved": "修正を保存しました。自分だけに表示されます",
     "allMarkedRead": "すべて既読にしました",
     "inCompare": "比較に追加済み",
@@ -1218,7 +1207,6 @@
     "downloadStarted": "ダウンロードを開始：{p0}",
     "packed": "{p0} 件をまとめました",
     "appsHint": "承認済みアプリ 2 件",
-    "appRevoked": "{p0} の承認を取り消しました",
     "personaUnverified": "ログイン済み・未認証",
     "personaVerified": "認証済み学生",
     "selectedCount": "{p0} 件選択中",
@@ -1226,10 +1214,7 @@
     "shortcuts": "よく使う項目",
     "prefAnnouncements": "プラットフォームのお知らせ",
     "compareDescription": "最大 {p0} 件を並べて比較できます。",
-    "appName": "アプリ名",
-    "appSubmitted": "アプリを審査に提出しました",
     "startCompare": "比較する",
-    "developerPlatform": "開発者プラットフォーム",
     "offeringDepartment": "開講学院",
     "levelStronglyNot": "全くおすすめしない",
     "levelStrongly": "強くおすすめ",
@@ -1260,16 +1245,11 @@
     "byDepartment": "学院別",
     "featureReviewsText": "授業・教員・学期ごとに学生の評価を確認できます。",
     "browseByCourse": "授業別に見る",
-    "authorizedApps": "承認済みアプリ",
-    "authorizedUsers": "承認ユーザー",
     "sort": "並べ替え",
-    "apiDocs": "API ドキュメント",
     "levelRecommended": "おすすめ",
     "recommendation": "おすすめ度",
     "recommendationDist": "おすすめ度の分布",
     "recommendationTrend": "おすすめ度の推移。{p0}",
-    "createAppHint": "管理者の審査後、他の学生が承認できるようになります。",
-    "submitReview": "審査に提出",
     "search": "検索",
     "searchHotkeyTitle": "検索 (Ctrl K)",
     "searchTeachers": "教員を検索",
@@ -1284,9 +1264,6 @@
     "searchResourcesLabel": "資料を検索",
     "searchResourcesHint": "タイトルや説明で検索",
     "searchHotkeyLabel": "検索、ショートカット Ctrl K",
-    "revokeApp": "{p0} を取り消しますか？",
-    "revokeAppHint": "アプリはすぐにデータを読めなくなり、再利用には再承認が必要です。",
-    "revokeAccess": "承認を取り消す",
     "collapse": "閉じる",
     "zoomIn": "拡大",
     "teachers": "教員",
@@ -1311,7 +1288,6 @@
     "draftTodo": "未完成の下書きが 1 件あります",
     "personaGuest": "未ログインの訪問者",
     "unread": "未読",
-    "rejected": "不承認",
     "thisPage": "このページ",
     "viewDetails": "詳細を見る",
     "viewCourse": "授業を見る",
@@ -1324,8 +1300,6 @@
     "addCompareItem": "比較項目を追加",
     "clearAll": "すべて解除",
     "clearFilters": "絞り込みを解除",
-    "developerDescription": "StuHelper アカウントでアプリにログインし、学生の同意後にデータを読み取れます。",
-    "requestedScopes": "申請する権限",
     "relatedResources": "関連資料",
     "points": "ポイント",
     "prefPoints": "ポイントの変動",
@@ -1352,10 +1326,6 @@
     "reviewCountLabel": "評価数",
     "mostReviews": "評価数順",
     "scoreDistribution": "評価の分布",
-    "scopePublicReviews": "公開評価の読み取り",
-    "scopeProfile": "基本情報の読み取り",
-    "scopeTimetable": "時間割の読み取り",
-    "scopeCatalog": "授業一覧の読み取り",
     "courses": "授業",
     "coursesCount": "授業 {p0}",
     "courseCategory": "授業区分",
@@ -1376,7 +1346,6 @@
     "levelPoor": "悪い",
     "levelHard": "難しい",
     "typeToSearch": "キーワードを入力してください。",
-    "appsDescription": "これらのアプリは同意した範囲でデータを読み取れ、いつでも取り消せます。",
     "noClassesToday": "この日は授業がありません。",
     "noNotifications": "通知はありません。",
     "signOut": "ログアウト",
@@ -1693,5 +1662,154 @@
       "submitted": "受取情報を送信しました。"
     },
     "ivoryBalance": "Ivory 残高"
+  },
+  "platform": {
+    "scopes": {
+      "student_status": {
+        "title": "学生認証状態",
+        "detail": "現在キャンパスの学生資格があるかどうかと評価日時。"
+      },
+      "schools": {
+        "title": "所属学校",
+        "detail": "現在有効な資格の学校の ID と名称。"
+      },
+      "qq_binding_status": {
+        "title": "QQ 連携状態",
+        "detail": "QQ 連携が完了しているかどうかのみ。"
+      },
+      "qq_binding_details": {
+        "title": "QQ 連携状態と QQ 番号",
+        "detail": "連携状態と、3 項目すべて完了している場合の QQ 番号。"
+      },
+      "profile": {
+        "title": "公開プロフィール",
+        "detail": "公開プロフィールの ID、ニックネーム、自己紹介。"
+      },
+      "schedule": {
+        "title": "時間割",
+        "detail": "有効な履修の科目、学期、クラス、判明している授業時間。"
+      },
+      "catalog": {
+        "title": "科目カタログ",
+        "detail": "表示可能な科目や教員などの名称と項目。"
+      },
+      "public_reviews": {
+        "title": "公開レビュー",
+        "detail": "表示可能なレビュー本文、対象、評価、公開日時。"
+      }
+    },
+    "grants": {
+      "title": "連携アプリ",
+      "description": "許可した外部アプリを確認し、提供する情報の一部または全部を取り消せます。",
+      "empty": "許可した外部アプリはありません。",
+      "expires": "{date} まで有効",
+      "scopes": "許可した情報",
+      "revoke": "許可を取り消す",
+      "revokeTitle": "「{name}」の許可を取り消す",
+      "revokeHint": "取り消すと古いトークンはすぐに無効になり、取り消した情報は読み取れなくなります。そのアプリのアカウントは削除されません。",
+      "revokeScopes": "取り消す情報を選択",
+      "revokeAllNotice": "すべての情報を取り消します。アプリは改めて許可を求める必要があります。",
+      "revokeSubmit": "選択した情報を取り消す",
+      "revokedAll": "「{name}」の許可をすべて取り消しました。",
+      "revokedSome": "「{name}」の許可の一部を取り消しました。"
+    },
+    "developer": {
+      "title": "オープンプラットフォーム",
+      "description": "外部アプリの接続を申請し、審査結果、認証情報、取り消し通知を確認できます。",
+      "create": "アプリを作成",
+      "empty": "申請したアプリはありません。",
+      "state": {
+        "pending": "審査中",
+        "changes_requested": "修正が必要",
+        "active": "利用中",
+        "suspended": "停止中"
+      },
+      "note": "管理者からの説明：{note}",
+      "clientId": "クライアント ID",
+      "copyClientId": "「{name}」のクライアント ID をコピー",
+      "clientIdCopied": "クライアント ID をコピーしました。",
+      "copyFailed": "コピーできませんでした。テキストを選択して手動でコピーしてください。",
+      "clientType": "クライアントの種類",
+      "clientTypes": {
+        "confidential": {
+          "title": "サーバーアプリ",
+          "detail": "サーバーでクライアントシークレットを保管し、トークンと交換します。"
+        },
+        "public": {
+          "title": "パブリッククライアント",
+          "detail": "シークレットを保管しないモバイルアプリやブラウザーで、PKCE のみを使います。"
+        }
+      },
+      "redirects": "リダイレクト URI",
+      "redirectsHint": "1 行に 1 つの HTTPS アドレス、最大 10 個。認可リクエストと完全に一致する必要があります。",
+      "tooManyRedirects": "リダイレクト URI は最大 10 個です。",
+      "redirectProblem": {
+        "invalid": "リダイレクト URI の形式が正しくありません。",
+        "https": "リダイレクト URI は HTTPS を使用してください。",
+        "fragment": "リダイレクト URI に # フラグメントは使えません。"
+      },
+      "policy": "認可期間と上限",
+      "policyValue": "ユーザー許可 {grant} 日、アクセストークン {token} 分、1 日 {quota} 回まで",
+      "scopes": "申請する情報",
+      "approved": "承認済み",
+      "notApproved": "未承認",
+      "resubmit": "修正して再申請",
+      "rotate": "シークレットを更新",
+      "issue": "シークレットを発行",
+      "rotateConfirm": "古いシークレットはすぐに無効になります。新しいシークレットは一度だけ表示されます。",
+      "issueConfirm": "シークレットは一度だけ表示されます。保存先を用意してください。",
+      "secretTitle": "クライアントシークレット",
+      "secretHint": "シークレットはこの一度だけ表示されます。紛失した場合は再度更新してください。",
+      "copySecret": "シークレットをコピー",
+      "secretCopied": "シークレットをコピーしました。",
+      "secretSaved": "保存しました",
+      "secretNotRetrievable": "処理は完了しましたが、シークレットを表示できませんでした。保存していない場合は再度更新してください。",
+      "formHint": "申請だけでは権限は付与されません。管理者が項目ごとに審査し、ユーザーが項目ごとに同意します。",
+      "name": "アプリ名",
+      "purpose": "用途",
+      "purposeHint": "アプリの内容と、申請する情報が必要な理由を説明してください。",
+      "submit": "審査に提出",
+      "submitted": "「{name}」を審査に提出しました。",
+      "notices": {
+        "open": "取り消し通知",
+        "title": "「{name}」の取り消し通知",
+        "hint": "ユーザーが許可を取り消すか期限が切れたら、アプリは該当データの利用を止め、取り決めに従って削除する必要があります。対応結果をここで報告してください。",
+        "empty": "取り消し通知はありません。",
+        "unanswered": "未報告",
+        "meta": "ユーザー {user} · {time}",
+        "reason": {
+          "user_revoked": "ユーザーが許可を取り消し",
+          "consent_changed": "ユーザーが許可を変更",
+          "expired": "許可の期限切れ",
+          "application_changed": "アプリ情報の変更",
+          "account_closed": "ユーザーが退会"
+        },
+        "status": {
+          "received": "受領",
+          "deleted": "データ削除済み",
+          "retention_exception": "法令による保持"
+        },
+        "answer": "対応結果を報告",
+        "result": "対応結果",
+        "retentionReason": "保持の根拠（必須）",
+        "noteOptional": "補足（任意）",
+        "send": "報告を送信",
+        "recorded": "対応結果を記録しました。"
+      }
+    },
+    "consent": {
+      "title": "アプリの許可",
+      "invalidTitle": "無効な認可リクエスト",
+      "invalid": "この認可リンクには必要なパラメーターがないか、対応していない情報が含まれています。アプリからやり直してください。",
+      "loading": "認可リクエストを確認しています…",
+      "heading": "「{name}」が StuHelper の情報へのアクセスを求めています",
+      "client": "クライアント ID：{id} · 許可後 {host} に戻ります",
+      "choose": "このアプリに読み取りを許可する情報を選択",
+      "limits": "アプリが読み取れるのは、選択した情報のうちプラットフォームが承認したものだけです。身分証、認証資料、ウォレットの記録は提供されません。",
+      "withdraw": "「連携アプリ」からいつでも取り消せます。取り消してもアプリのアカウントは削除されません。",
+      "expires": "このリクエストは {time} まで有効です。",
+      "approve": "選択した項目を許可（{count}）",
+      "deny": "拒否"
+    }
   }
 }
