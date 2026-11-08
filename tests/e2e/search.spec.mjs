@@ -25,6 +25,8 @@ memberTest('the search palette finds a course and opens it with the keyboard', a
   await academicFixture(page);
   const seen = await searchServer(page, { '/api/v1/search': (q) => ({ items: q.get('q') === 'Test' ? [item('course', 'course', 'Test Course'), item('review', 'review', 'A student review', 'reviews')] : [], next_cursor: '' }) });
   await page.goto(`${base}/?lang=${info.project.metadata.locale}`);
+  // The shortcut is registered when the layout mounts, after the language catalog loads.
+  await expect(page.getByRole('button', { name: s.open, exact: true })).toBeVisible();
   await page.keyboard.press('Control+k');
   const input = page.getByRole('combobox', { name: s.title });
   await input.fill('Test');

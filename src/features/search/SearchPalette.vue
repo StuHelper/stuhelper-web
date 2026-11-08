@@ -41,8 +41,9 @@ function cancel() {
   controller?.abort()
   clearTimeout(timer)
 }
-watch(q, (value) => {
-  active.value = 0
+// Access may resolve after the viewer starts typing, so a change in either restarts the query.
+watch([q, verified], ([value], previous) => {
+  if (value !== previous?.[0]) active.value = 0
   cancel()
   const text = value.trim()
   if (!text || !verified.value) {
