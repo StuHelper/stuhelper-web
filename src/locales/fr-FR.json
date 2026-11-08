@@ -93,7 +93,8 @@
     "billing_closure_conflict": "Le compte est en cours de clôture : action indisponible.",
     "billing_operation_too_large": "Trop d’éléments en une seule opération. Répartissez-les en lots plus petits.",
     "provider_failed": "Le service de paiement a échoué. Si rien n’a été débité, vous pouvez passer une nouvelle commande.",
-    "quota_exceeded": "Trop de requêtes : le quota est dépassé. Réessayez plus tard."
+    "quota_exceeded": "Trop de requêtes : le quota est dépassé. Réessayez plus tard.",
+    "billing_conflict": "Les données ont changé entre-temps. Actualisez puis réessayez."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -1612,7 +1613,9 @@
       "awaiting_manual": "Paiement manuel en attente",
       "awaiting_payment": "En attente de paiement",
       "expired": "Expirée",
-      "cancelled": "Annulée"
+      "cancelled": "Annulée",
+      "needs_review": "Vérification manuelle en cours",
+      "review_query_pending": "En attente d’une nouvelle vérification"
     },
     "topup": {
       "action": "Recharger",

@@ -58,7 +58,7 @@ function amountText(entry: Entry) {
     : format.value.number(entry.amount, { signDisplay: 'exceptZero' })
   return entry.asset === 'ivory' ? `${isolate(signed)} Ivory` : t('wallet.pointsAmount', { amount: isolate(signed) })
 }
-const stateTone = (state: Order['state']) => (state === 'succeeded' ? 'success' : state === 'failed' || state === 'rejected' ? 'danger' : finalStates.includes(state) ? 'neutral' : 'info')
+const stateTone = (state: Order['state']) => (state === 'succeeded' ? 'success' : state === 'failed' || state === 'rejected' ? 'danger' : state === 'needs_review' || state === 'review_query_pending' ? 'warning' : finalStates.includes(state) ? 'neutral' : 'info')
 function orderTitle(order: Order) {
   if (order.kind === 'topup') return t('wallet.orderTitle.topup', { amount: ivory(order.amount_minor) })
   if (order.kind === 'purchase') return t('wallet.orderTitle.purchase', { points: points(order.points) })

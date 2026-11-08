@@ -93,7 +93,8 @@
     "billing_closure_conflict": "アカウントの解約手続き中のため操作できません。",
     "billing_operation_too_large": "一度に処理する件数が多すぎます。分けて実行してください。",
     "provider_failed": "決済サービスで処理に失敗しました。請求されていなければ再注文できます。",
-    "quota_exceeded": "リクエストが多すぎて上限を超えました。しばらくしてから再試行してください。"
+    "quota_exceeded": "リクエストが多すぎて上限を超えました。しばらくしてから再試行してください。",
+    "billing_conflict": "データが他の操作で更新されました。再読み込みしてから再試行してください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -1612,7 +1613,9 @@
       "awaiting_manual": "手動支払い待ち",
       "awaiting_payment": "支払い待ち",
       "expired": "期限切れ",
-      "cancelled": "キャンセル済み"
+      "cancelled": "キャンセル済み",
+      "needs_review": "手動で確認中",
+      "review_query_pending": "再照会待ち"
     },
     "topup": {
       "action": "チャージ",

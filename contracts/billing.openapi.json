@@ -68,7 +68,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -165,7 +165,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -274,7 +274,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -371,7 +371,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -459,7 +459,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -549,7 +549,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -649,7 +649,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -749,7 +749,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -857,7 +857,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -965,7 +965,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1063,7 +1063,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1171,7 +1171,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1279,7 +1279,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1379,7 +1379,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1479,7 +1479,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1579,7 +1579,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1688,7 +1688,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1796,7 +1796,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1885,7 +1885,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1964,7 +1964,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2052,7 +2052,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2161,7 +2161,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2260,7 +2260,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2341,7 +2341,9 @@
                 "awaiting_manual",
                 "succeeded",
                 "failed",
-                "rejected"
+                "rejected",
+                "needs_review",
+                "review_query_pending"
               ]
             }
           }
@@ -2398,7 +2400,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2496,7 +2498,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2594,7 +2596,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2692,7 +2694,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2827,7 +2829,7 @@
             }
           },
           "409": {
-            "description": "幂等内容冲突、余额不足或状态不允许",
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
             "content": {
               "application/json": {
                 "schema": {
@@ -2849,6 +2851,115 @@
         },
         "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。返回钱包、最近订单及明细。订单按创建时间和 id 倒序，明细按流水号倒序；两者独立分页。没有账务记录时返回零余额与空列表。"
       }
+    },
+    "/api/v1/billing/admin/orders/{id}/payment-review": {
+      "post": {
+        "operationId": "reviewPayment",
+        "summary": "处理需要人工核实的支付订单",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaymentReviewInput"
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，且订单为 needs_review。retry_query 将下次查询时间设为当前时间并安排一轮只读查询，不重置累计次数、首轮时间或审计。confirm_succeeded/confirm_failed 根据渠道核实结果原子结清。相同幂等键返回首次结果，不同内容冲突。"
+      }
     }
   },
   "components": {
@@ -2865,7 +2976,20 @@
         "additionalProperties": false,
         "properties": {
           "code": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "billing_invalid_input",
+              "billing_unauthenticated",
+              "billing_forbidden",
+              "billing_not_found",
+              "billing_conflict",
+              "billing_closure_conflict",
+              "billing_insufficient_funds",
+              "billing_assets_pending",
+              "billing_operation_too_large",
+              "billing_unavailable"
+            ],
+            "description": "billing_conflict（409）：版本、状态或幂等键内容冲突。billing_closure_conflict（409）：账号已因注销冻结，或注销申请 ID 与既有结清申请不同。其他错误码按响应状态处理。"
           }
         },
         "required": [
@@ -3059,8 +3183,11 @@
               "awaiting_manual",
               "awaiting_payment",
               "expired",
-              "cancelled"
-            ]
+              "cancelled",
+              "needs_review",
+              "review_query_pending"
+            ],
+            "description": "needs_review 表示自动预算耗尽或管理查询仍未确认结果；review_query_pending 表示管理员已安排一轮只读渠道查询。两者均保留未知结果和退款冻结。"
           },
           "amount_minor": {
             "type": "integer",
@@ -3116,6 +3243,21 @@
           },
           "provider_reference": {
             "type": "string"
+          },
+          "query_attempts": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "已预留的查询轮次；自动查询最多 32 轮，管理员安排的额外单轮查询继续累计，不清零。"
+          },
+          "query_started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "首轮查询时间；自动查询总时限 24 小时。"
+          },
+          "next_query_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "下次允许查询时间。间隔从 5 秒指数增长，最多 1 小时。"
           }
         },
         "required": [
@@ -3540,13 +3682,20 @@
           },
           "reason": {
             "type": "string"
+          },
+          "payment_channel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "实际人工付款渠道的稳定标识；与 payment_reference 共同跨用户唯一。不同付款账户必须使用不同渠道标识。"
           }
         },
         "required": [
           "target",
           "succeeded",
           "payment_reference",
-          "reason"
+          "reason",
+          "payment_channel"
         ]
       },
       "Callback": {
@@ -3739,8 +3888,11 @@
               "awaiting_manual",
               "awaiting_payment",
               "expired",
-              "cancelled"
-            ]
+              "cancelled",
+              "needs_review",
+              "review_query_pending"
+            ],
+            "description": "needs_review 表示自动预算耗尽或管理查询仍未确认结果；review_query_pending 表示管理员已安排一轮只读渠道查询。两者均保留未知结果和退款冻结。"
           },
           "amount_minor": {
             "type": "integer",
@@ -3799,6 +3951,21 @@
           },
           "target": {
             "$ref": "#/components/schemas/Target"
+          },
+          "query_attempts": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "已预留的查询轮次；自动查询最多 32 轮，管理员安排的额外单轮查询继续累计，不清零。"
+          },
+          "query_started_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "首轮查询时间；自动查询总时限 24 小时。"
+          },
+          "next_query_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "下次允许查询时间。间隔从 5 秒指数增长，最多 1 小时。"
           }
         },
         "required": [
@@ -3917,6 +4084,40 @@
             "$ref": "#/components/schemas/LedgerPage"
           }
         }
+      },
+      "PaymentReviewInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/Target"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "retry_query",
+              "confirm_succeeded",
+              "confirm_failed"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "evidence_reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "渠道核实依据编号；仅保存引用，不提交支付载荷。"
+          }
+        },
+        "required": [
+          "target",
+          "action",
+          "reason",
+          "evidence_reference"
+        ]
       }
     }
   }

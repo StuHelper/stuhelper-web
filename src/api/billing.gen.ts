@@ -504,12 +504,36 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/admin/orders/{id}/payment-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 处理需要人工核实的支付订单
+         * @description 要求 billing.manage，且订单为 needs_review。retry_query 将下次查询时间设为当前时间并安排一轮只读查询，不重置累计次数、首轮时间或审计。confirm_succeeded/confirm_failed 根据渠道核实结果原子结清。相同幂等键返回首次结果，不同内容冲突。
+         */
+        post: operations["reviewPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
         Error: {
-            code: string;
+            /**
+             * @description billing_conflict（409）：版本、状态或幂等键内容冲突。billing_closure_conflict（409）：账号已因注销冻结，或注销申请 ID 与既有结清申请不同。其他错误码按响应状态处理。
+             * @enum {string}
+             */
+            code: "billing_invalid_input" | "billing_unauthenticated" | "billing_forbidden" | "billing_not_found" | "billing_conflict" | "billing_closure_conflict" | "billing_insufficient_funds" | "billing_assets_pending" | "billing_operation_too_large" | "billing_unavailable";
         };
         Wallet: {
             /** Format: int64 */
@@ -561,8 +585,11 @@ export interface components {
             id: string;
             /** @enum {string} */
             kind: "topup" | "purchase" | "refund" | "purchase_refund";
-            /** @enum {string} */
-            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled";
+            /**
+             * @description needs_review 表示自动预算耗尽或管理查询仍未确认结果；review_query_pending 表示管理员已安排一轮只读渠道查询。两者均保留未知结果和退款冻结。
+             * @enum {string}
+             */
+            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled" | "needs_review" | "review_query_pending";
             /** Format: int64 */
             amount_minor: number;
             /** Format: int64 */
@@ -581,6 +608,18 @@ export interface components {
             failure_code: string;
             payment_instruction?: components["schemas"]["PaymentInstruction"];
             provider_reference?: string;
+            /** @description 已预留的查询轮次；自动查询最多 32 轮，管理员安排的额外单轮查询继续累计，不清零。 */
+            query_attempts?: number;
+            /**
+             * Format: date-time
+             * @description 首轮查询时间；自动查询总时限 24 小时。
+             */
+            query_started_at?: string;
+            /**
+             * Format: date-time
+             * @description 下次允许查询时间。间隔从 5 秒指数增长，最多 1 小时。
+             */
+            next_query_at?: string;
         };
         Channel: {
             id: string;
@@ -687,6 +726,8 @@ export interface components {
             succeeded: boolean;
             payment_reference: string;
             reason: string;
+            /** @description 实际人工付款渠道的稳定标识；与 payment_reference 共同跨用户唯一。不同付款账户必须使用不同渠道标识。 */
+            payment_channel: string;
         };
         Callback: {
             issuer: string;
@@ -730,8 +771,11 @@ export interface components {
             id: string;
             /** @enum {string} */
             kind: "topup" | "purchase" | "refund" | "purchase_refund";
-            /** @enum {string} */
-            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled";
+            /**
+             * @description needs_review 表示自动预算耗尽或管理查询仍未确认结果；review_query_pending 表示管理员已安排一轮只读渠道查询。两者均保留未知结果和退款冻结。
+             * @enum {string}
+             */
+            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled" | "needs_review" | "review_query_pending";
             /** Format: int64 */
             amount_minor: number;
             /** Format: int64 */
@@ -751,6 +795,18 @@ export interface components {
             payment_instruction?: components["schemas"]["PaymentInstruction"];
             provider_reference?: string;
             target: components["schemas"]["Target"];
+            /** @description 已预留的查询轮次；自动查询最多 32 轮，管理员安排的额外单轮查询继续累计，不清零。 */
+            query_attempts?: number;
+            /**
+             * Format: date-time
+             * @description 首轮查询时间；自动查询总时限 24 小时。
+             */
+            query_started_at?: string;
+            /**
+             * Format: date-time
+             * @description 下次允许查询时间。间隔从 5 秒指数增长，最多 1 小时。
+             */
+            next_query_at?: string;
         };
         AdminRefundPage: {
             items: components["schemas"]["AdminOrder"][];
@@ -777,6 +833,14 @@ export interface components {
             wallet: components["schemas"]["Wallet"];
             orders: components["schemas"]["OrderPage"];
             ledger: components["schemas"]["LedgerPage"];
+        };
+        PaymentReviewInput: {
+            target: components["schemas"]["Target"];
+            /** @enum {string} */
+            action: "retry_query" | "confirm_succeeded" | "confirm_failed";
+            reason: string;
+            /** @description 渠道核实依据编号；仅保存引用，不提交支付载荷。 */
+            evidence_reference: string;
         };
     };
     responses: never;
@@ -841,7 +905,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -918,7 +982,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -996,7 +1060,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1073,7 +1137,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1149,7 +1213,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1229,7 +1293,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1309,7 +1373,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1389,7 +1453,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1471,7 +1535,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1549,7 +1613,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1631,7 +1695,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1713,7 +1777,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1795,7 +1859,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1875,7 +1939,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1955,7 +2019,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2035,7 +2099,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2117,7 +2181,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2199,7 +2263,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2273,7 +2337,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2347,7 +2411,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2427,7 +2491,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2505,7 +2569,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2590,7 +2654,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2615,7 +2679,7 @@ export interface operations {
             query?: {
                 after?: string;
                 limit?: number;
-                state?: "submitted" | "processing" | "awaiting_details" | "awaiting_manual" | "succeeded" | "failed" | "rejected";
+                state?: "submitted" | "processing" | "awaiting_details" | "awaiting_manual" | "succeeded" | "failed" | "rejected" | "needs_review" | "review_query_pending";
             };
             header?: never;
             path?: never;
@@ -2668,7 +2732,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2745,7 +2809,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2822,7 +2886,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2899,7 +2963,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -2980,7 +3044,89 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    reviewPayment: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaymentReviewInput"];
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
             409: {
                 headers: {
                     [name: string]: unknown;

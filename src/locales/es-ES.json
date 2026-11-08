@@ -93,7 +93,8 @@
     "billing_closure_conflict": "La cuenta se está cerrando y la acción no está disponible.",
     "billing_operation_too_large": "Demasiados elementos en una sola operación. Divídelos en lotes más pequeños.",
     "provider_failed": "El servicio de pago falló. Si no se te cobró, puedes hacer un nuevo pedido.",
-    "quota_exceeded": "Demasiadas solicitudes: se superó la cuota. Inténtalo más tarde."
+    "quota_exceeded": "Demasiadas solicitudes: se superó la cuota. Inténtalo más tarde.",
+    "billing_conflict": "Los datos cambiaron mientras tanto. Actualiza e inténtalo de nuevo."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -1612,7 +1613,9 @@
       "awaiting_manual": "Pendiente de pago manual",
       "awaiting_payment": "Pendiente de pago",
       "expired": "Caducado",
-      "cancelled": "Cancelado"
+      "cancelled": "Cancelado",
+      "needs_review": "En revisión manual",
+      "review_query_pending": "Esperando otra comprobación"
     },
     "topup": {
       "action": "Recargar",

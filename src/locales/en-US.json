@@ -93,7 +93,8 @@
     "billing_closure_conflict": "This account is being closed, so the action is unavailable.",
     "billing_operation_too_large": "Too many items in one operation. Split it into smaller batches.",
     "provider_failed": "The payment service failed. If you were not charged, you can place a new order.",
-    "quota_exceeded": "Too many requests. The quota was exceeded; try again later."
+    "quota_exceeded": "Too many requests. The quota was exceeded; try again later.",
+    "billing_conflict": "The data changed in the meantime. Refresh and try again."
   },
   "connection": {
     "label": "Service connection status",
@@ -1612,7 +1613,9 @@
       "awaiting_manual": "Awaiting manual payout",
       "awaiting_payment": "Awaiting payment",
       "expired": "Expired",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "needs_review": "Under manual review",
+      "review_query_pending": "Waiting for another check"
     },
     "topup": {
       "action": "Top up",
