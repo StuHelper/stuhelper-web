@@ -404,6 +404,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/admin/refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 账务管理读取
+         * @description 要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按创建时间倒序，同时间按 issuer、subject、id 倒序。每项包含 target，可用于审核和人工结果提交。
+         */
+        get: operations["listAdminRefunds"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/channels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 账务管理读取
+         * @description 要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按 ID 升序分页，包含已停用项。
+         */
+        get: operations["listAdminChannels"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 账务管理读取
+         * @description 要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按 ID 升序分页，包含已停用项。
+         */
+        get: operations["listAdminOffers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 账务管理读取
+         * @description 要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按 ID 升序分页，包含已停用项。每个规则返回最新版本。
+         */
+        get: operations["listAdminRules"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 账务管理读取
+         * @description 要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。返回钱包、最近订单及明细。订单按创建时间和 id 倒序，明细按流水号倒序；两者独立分页。没有账务记录时返回零余额与空列表。
+         */
+        get: operations["getAdminAccount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -625,6 +725,58 @@ export interface components {
             content: string;
             /** Format: date-time */
             expires_at: string;
+        };
+        AdminOrder: {
+            id: string;
+            /** @enum {string} */
+            kind: "topup" | "purchase" | "refund" | "purchase_refund";
+            /** @enum {string} */
+            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled";
+            /** Format: int64 */
+            amount_minor: number;
+            /** Format: int64 */
+            points: number;
+            reference: string;
+            channel: string;
+            reason: string;
+            /** Format: date-time */
+            created_at: string;
+            allocations: components["schemas"]["Allocation"][];
+            /** Format: int64 */
+            original_points: number;
+            /** Format: int64 */
+            original_amount_minor: number;
+            receipt_reference: string;
+            failure_code: string;
+            payment_instruction?: components["schemas"]["PaymentInstruction"];
+            provider_reference?: string;
+            target: components["schemas"]["Target"];
+        };
+        AdminRefundPage: {
+            items: components["schemas"]["AdminOrder"][];
+            /** @description 下一页游标；空字符串表示结束 */
+            next: string;
+        };
+        AdminChannelPage: {
+            items: components["schemas"]["Channel"][];
+            /** @description 下一页游标；空字符串表示结束 */
+            next: string;
+        };
+        AdminOfferPage: {
+            items: components["schemas"]["Offer"][];
+            /** @description 下一页游标；空字符串表示结束 */
+            next: string;
+        };
+        AdminRulePage: {
+            items: components["schemas"]["Rule"][];
+            /** @description 下一页游标；空字符串表示结束 */
+            next: string;
+        };
+        AdminAccount: {
+            target: components["schemas"]["Target"];
+            wallet: components["schemas"]["Wallet"];
+            orders: components["schemas"]["OrderPage"];
+            ledger: components["schemas"]["LedgerPage"];
         };
     };
     responses: never;
@@ -2400,6 +2552,396 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listAdminRefunds: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+                state?: "submitted" | "processing" | "awaiting_details" | "awaiting_manual" | "succeeded" | "failed" | "rejected";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRefundPage"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listAdminChannels: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminChannelPage"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listAdminOffers: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOfferPage"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listAdminRules: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminRulePage"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 幂等内容冲突、余额不足或状态不允许 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getAdminAccount: {
+        parameters: {
+            query: {
+                issuer: string;
+                subject: string;
+                orders_after?: string;
+                orders_limit?: number;
+                ledger_after?: string;
+                ledger_limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAccount"];
                 };
             };
             /** @description 输入无效 */

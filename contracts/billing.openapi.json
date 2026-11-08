@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper Billing",
-    "version": "1.0.0",
+    "version": "0.2.0",
     "description": "Ivory 以最小单位（0.01 Ivory）整数表示，CNY 按 1:1 入账。积分为整数，时间为 UTC RFC3339。长期积分不返回 expires_at。分页按稳定 ID 升序，next 为空表示结束。所有写入要求幂等键，同键不同内容返回 409。会员和资料购买当前未提供。"
   },
   "security": [
@@ -2305,6 +2305,550 @@
           }
         }
       }
+    },
+    "/api/v1/billing/admin/refunds": {
+      "get": {
+        "operationId": "listAdminRefunds",
+        "summary": "账务管理读取",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "submitted",
+              "enum": [
+                "submitted",
+                "processing",
+                "awaiting_details",
+                "awaiting_manual",
+                "succeeded",
+                "failed",
+                "rejected"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRefundPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "幂等内容冲突、余额不足或状态不允许",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按创建时间倒序，同时间按 issuer、subject、id 倒序。每项包含 target，可用于审核和人工结果提交。"
+      }
+    },
+    "/api/v1/billing/admin/channels": {
+      "get": {
+        "operationId": "listAdminChannels",
+        "summary": "账务管理读取",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminChannelPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "幂等内容冲突、余额不足或状态不允许",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按 ID 升序分页，包含已停用项。"
+      }
+    },
+    "/api/v1/billing/admin/offers": {
+      "get": {
+        "operationId": "listAdminOffers",
+        "summary": "账务管理读取",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOfferPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "幂等内容冲突、余额不足或状态不允许",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按 ID 升序分页，包含已停用项。"
+      }
+    },
+    "/api/v1/billing/admin/rules": {
+      "get": {
+        "operationId": "listAdminRules",
+        "summary": "账务管理读取",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminRulePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "幂等内容冲突、余额不足或状态不允许",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。按 ID 升序分页，包含已停用项。每个规则返回最新版本。"
+      }
+    },
+    "/api/v1/billing/admin/accounts": {
+      "get": {
+        "operationId": "getAdminAccount",
+        "summary": "账务管理读取",
+        "parameters": [
+          {
+            "name": "issuer",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "orders_after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "orders_limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "ledger_after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "ledger_limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAccount"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "幂等内容冲突、余额不足或状态不允许",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。返回钱包、最近订单及明细。订单按创建时间和 id 倒序，明细按流水号倒序；两者独立分页。没有账务记录时返回零余额与空列表。"
+      }
     }
   },
   "components": {
@@ -3164,6 +3708,213 @@
           "expires_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "AdminOrder": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "topup",
+              "purchase",
+              "refund",
+              "purchase_refund"
+            ]
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "submitted",
+              "processing",
+              "succeeded",
+              "failed",
+              "rejected",
+              "awaiting_details",
+              "awaiting_manual",
+              "awaiting_payment",
+              "expired",
+              "cancelled"
+            ]
+          },
+          "amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "reference": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "allocations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Allocation"
+            }
+          },
+          "original_points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "original_amount_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "receipt_reference": {
+            "type": "string"
+          },
+          "failure_code": {
+            "type": "string"
+          },
+          "payment_instruction": {
+            "$ref": "#/components/schemas/PaymentInstruction"
+          },
+          "provider_reference": {
+            "type": "string"
+          },
+          "target": {
+            "$ref": "#/components/schemas/Target"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "state",
+          "amount_minor",
+          "points",
+          "reference",
+          "channel",
+          "reason",
+          "created_at",
+          "allocations",
+          "original_points",
+          "original_amount_minor",
+          "receipt_reference",
+          "failure_code",
+          "target"
+        ]
+      },
+      "AdminRefundPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminOrder"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
+      },
+      "AdminChannelPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Channel"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
+      },
+      "AdminOfferPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Offer"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
+      },
+      "AdminRulePage": {
+        "type": "object",
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Rule"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
+      },
+      "AdminAccount": {
+        "type": "object",
+        "required": [
+          "target",
+          "wallet",
+          "orders",
+          "ledger"
+        ],
+        "properties": {
+          "target": {
+            "$ref": "#/components/schemas/Target"
+          },
+          "wallet": {
+            "$ref": "#/components/schemas/Wallet"
+          },
+          "orders": {
+            "$ref": "#/components/schemas/OrderPage"
+          },
+          "ledger": {
+            "$ref": "#/components/schemas/LedgerPage"
           }
         }
       }
