@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-favorites",
+  "revision": "95fab84d1dc9a71a55524bd20c8f45636856b062",
+  "version": "0.1.0",
+  "files": {
+    "contracts/favorites.openapi.json": "contracts/favorites.openapi.json",
+    "sdk/favorites.gen.ts": "src/api/favorites.gen.ts"
+  },
+  "sha256": {
+    "contracts/favorites.openapi.json": "c2dc984dccff16a8034b03d069b97ba4d888ae4a649607610734c35c8ef74cc0",
+    "src/api/favorites.gen.ts": "8b50e5a5b9a12c0cf24957bb37764f7902eb6feb74240c976cfec799490d5c33"
+  }
+}

@@ -1,15 +1,12 @@
 <script setup lang="ts">
-import { Bookmark, BookmarkCheck } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { ApiError } from '../../shared/api/errors'
-import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
-import { useLeaveGuard } from '../../shared/composables/leave'
+import { useAsync, usePaged } from '../../shared/composables/async'
 import { rememberPage } from '../../shared/recent'
 import AsyncState from '../../shared/ui/AsyncState.vue'
-import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { knownCredits, listSize, useAcademic, type Result } from './api'
@@ -25,10 +22,8 @@ const props = defineProps<{ kind: 'course' | 'teacher'; id: string }>()
 const { t } = useI18n()
 const format = useFormat()
 const api = useAcademic()
-const bookmark = useMutation()
 const composing = ref(false)
 const published = ref('')
-const saved = useAsync((signal) => (props.kind === 'course' ? api.isBookmarked(props.id, signal) : Promise.resolve(false)))
 const tab = ref<'reviews' | 'mentor' | 'offerings' | 'related'>('reviews')
 const tabs = computed(() => [
   { value: 'reviews' as const, label: t(props.kind === 'course' ? 'academic.subject.courseReviews' : 'academic.subject.teacherCourseReviews') },
@@ -53,8 +48,6 @@ const related = usePaged(async (after, signal) => {
   return { items: page.items, next: page.next }
 })
 
-// A bookmark whose result is unknown must be confirmed before the page changes subject.
-useLeaveGuard(() => (bookmark.uncertain.value || bookmark.busy.value ? t('common.leaveUncertain') : ''))
 
 watch(() => props.id, () => {
   composing.value = false
@@ -62,7 +55,6 @@ watch(() => props.id, () => {
   tab.value = 'reviews'
   void entry.reload()
   void related.reload()
-  void saved.reload()
 }, { immediate: true })
 
 watch(subject, (value) => {
@@ -77,15 +69,6 @@ function submitted(result: Result) {
   mentorFeed.value?.refresh()
 }
 
-let wanted = true
-async function toggleBookmark() {
-  wanted = !saved.data.value
-  const result = await bookmark.run(`bookmark:${props.id}:${wanted}`, { target_id: props.id, set: wanted }, (body, key) => api.setBookmark(body, key))
-  if (result) saved.data.value = wanted
-}
-async function retryBookmark() {
-  if (await bookmark.retry()) saved.data.value = wanted
-}
 </script>
 
 <template>
@@ -110,12 +93,6 @@ async function retryBookmark() {
           class="muted"
         >
           {{ entry.data.value.department.name }}
-        </p>
-        <p
-          v-if="saved.status.value === 'error'"
-          class="field-error"
-        >
-          {{ t('academic.subject.bookmarkUnknown') }}
         </p>
         <p
           v-if="subject.inactive"
@@ -146,30 +123,16 @@ async function retryBookmark() {
           >
             {{ t('academic.subject.resources') }}
           </RouterLink>
-          <button
-            v-if="kind === 'course'"
-            class="btn"
-            type="button"
-            :aria-pressed="!!saved.data.value"
-            :disabled="bookmark.busy.value || bookmark.uncertain.value || saved.status.value === 'loading'"
-            @click="toggleBookmark"
-          >
-            <component
-              :is="saved.data.value ? BookmarkCheck : Bookmark"
-              aria-hidden="true"
-            />
-            {{ t(saved.data.value ? 'academic.subject.saved' : 'academic.subject.bookmark') }}
-          </button>
         </template>
       </PageHeader>
 
-      <MutationNotice
-        :busy="bookmark.busy.value"
-        :error="bookmark.error.value"
-        :uncertain="bookmark.uncertain.value"
-        :success="published"
-        @retry="retryBookmark"
-      />
+      <p
+        v-if="published"
+        class="notice notice-success"
+        role="status"
+      >
+        {{ published }}
+      </p>
 
       <ReviewEditor
         v-if="composing"

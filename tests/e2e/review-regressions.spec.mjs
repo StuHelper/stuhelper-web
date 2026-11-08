@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import { fixture as academicFixture } from './academic-fixture.mjs';
 import { memberTest as test, expect } from '../session-fixture.mjs';
 import { fixture, routes } from './resource-fixture.mjs';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
@@ -31,17 +30,3 @@ test('course change discards the previous directory cursor', async ({ page }, in
   await expect.poll(() => seen.at(-1)?.after ?? '').toBe('');
 });
 
-test('an unresolved bookmark blocks changing the displayed object until the original request is confirmed', async ({ page }, info) => {
-  const locale = info.project.metadata.locale, all = catalogue(info), posts = [];
-  await academicFixture(page);
-  await page.route('**/api/v1/reviews/me/bookmarks', (route) => { posts.push(route.request().postDataJSON()); return posts.length === 1 ? route.abort() : route.fulfill({ json: { id: 'bookmark', state: 'saved', revision: 1 } }); });
-  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: all.academic.subject.bookmark, exact: true }).click();
-  await expect(page.getByRole('button', { name: all.common.retryOriginal, exact: true })).toBeVisible();
-  await page.getByRole('link', { name: all.academic.subject.resources, exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
-  await expect(page).toHaveURL(/\/courses\/course/);
-  await page.getByRole('button', { name: all.common.retryOriginal, exact: true }).click();
-  await expect(page.getByRole('button', { name: all.academic.subject.saved, exact: true })).toHaveAttribute('aria-pressed', 'true');
-  expect(posts).toEqual([{ target_id: 'course', set: true }, { target_id: 'course', set: true }]);
-});

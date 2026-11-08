@@ -1,8 +1,10 @@
-import { bookmarks, syncCourseFavorite, teacherLevels } from './store'
+import { teacherLevels } from './store'
 import * as d from './data'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
 const KEY = 'stuhelper-demo-persona'
+const demoProfile = { id: '00000000-0000-4000-8000-000000000001', nickname: '小航同学', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, revision: 1 }
+
 export function persona(): Persona {
   try { return (localStorage.getItem(KEY) as Persona) || 'verified' } catch { return 'verified' }
 }
@@ -85,21 +87,27 @@ async function body(init?: RequestInit) {
 async function route(u: URL, method: string, init?: RequestInit): Promise<Response> {
   const p = u.pathname.replace('/api/v1', '')
   const who = persona()
-  if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, profile: { nickname: '小航同学', revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' })
+  if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, profile: demoProfile, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' })
   if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return new Response(null, { status: 204 }) }
-  if (p === '/profiles/me') return json({ nickname: '小航同学', revision: 1 })
+  if (p === '/profiles/me') return json(demoProfile)
   if (p === '/system/capabilities') return json({ api_version: 1, capabilities: ['platform.status'] })
   if (who === 'guest' && !p.startsWith('/verification/schools')) return nope('unauthenticated', 401)
 
   if (p.startsWith('/verification')) {
     const eligible = who === 'verified'
-    if (p === '/verification/summary') return json({ campus_eligibility: eligible, identity_verified: eligible, ...(eligible ? { identity_masked: { name_last: '航', id_first: '1', id_last: '8' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
+    if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8` } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
     if (p === '/verification/schools') return json([d.verification.school])
     if (p === '/verification/credentials') return json(eligible ? [d.verification.credential('active')] : who === 'expired' ? [d.verification.credential('expired')] : [])
     if (p === '/verification/applications' && method === 'GET') return json(who === 'processing' ? [d.verification.application] : [])
     if (p === '/verification/applications') return json({ ...d.verification.application, state: 'in_progress' }, 201)
     if (p === '/verification/identity') return json({ code: 'pending' }, 400)
     return json([])
+  }
+  // Own-record names need only a session, so they stay readable after content admission lapses.
+  if (p === '/reviews/me/references') {
+    const ids = (u.searchParams.get('ids') ?? '').split(',')
+    const items = d.allObjects.filter((o) => ids.includes(o.id)).map((o) => ({ id: o.id, kind: o.kind, name: o.name }))
+    return json({ items, missing_ids: ids.filter((id) => !items.some((o) => o.id === id)) })
   }
   if (who !== 'verified' && !p.startsWith('/storage')) return nope('verification_required', 403)
 
@@ -113,7 +121,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p.startsWith('/catalog/objects/')) { const o = d.allObjects.find((x) => x.id === decodeURIComponent(p.split('/').at(-1)!)); return o ? json(o) : nope('not_found', 404) }
   if (p === '/catalog/me/enrollments') return json(d.enrollments)
 
-  if (p === '/reviews/presentation') return json({ effective: { school_id: d.SCHOOL, revision: 0, guest_preview: 80, member_preview: 400, preview_ratio: 0.3, rating_texts: {} }, configured: null, source: 'default' })
+  if (p === '/reviews/presentation') return json({ effective: { school_id: d.SCHOOL, revision: 0, rating_texts: {} }, configured: null, source: 'default' })
   if (p === '/reviews/statistics') return statistics(u)
   if (p === '/reviews/compose') {
     const kind = u.searchParams.get('kind')
@@ -126,16 +134,14 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/reviews') {
     const input = await body(init)
     const id = nid('r')
-    reviews.unshift({ ...input, id, root_id: id, school_id: d.SCHOOL, preview: false, author: { anonymous: !input.signed, handle: input.signed ? '小航同学' : '匿名同学' }, revision: 1, published_at: new Date().toISOString(), upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published' })
+    reviews.unshift({ ...input, id, root_id: id, school_id: d.SCHOOL, author: { anonymous: !input.signed, handle: input.signed ? '小航同学' : '匿名同学' }, revision: 1, published_at: new Date().toISOString(), upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published' })
     return result(id)
   }
   if (p === '/reviews/me/entries') return json({ items: reviews.filter((r) => r.mine), next: '' })
   if (p.startsWith('/reviews/me/entries/')) { const r = reviews.find((x) => x.id === p.split('/').at(-1)); return r ? json(r) : nope('not_found', 404) }
   if (p === '/reviews/me/votes') return json(reviews.filter((r) => r.my_vote))
-  if (p === '/reviews/me/bookmarks' && method === 'GET') return json([...bookmarks])
-  if (p === '/reviews/me/bookmarks') { const b = await body(init); syncCourseFavorite(b.target_id, !!b.set); return result(b.target_id) }
   if (p === '/reviews/me/drafts' && method === 'GET') return json(drafts)
-  if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
+  if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false, reference_ids: [b.input.target_id, b.input.term_id, b.input.teacher_id].filter(Boolean), reference_state: 'verified' }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
   if (p.startsWith('/reviews/me/drafts/')) {
     const id = p.split('/')[4]!
     const at = drafts.findIndex((x) => x.id === id)
@@ -147,7 +153,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
     const parent = p.split('/')[2]!
     const input = await body(init)
     const id = nid('reply')
-    replies.push({ ...input, id, root_id: parent, parent_id: parent, school_id: d.SCHOOL, preview: false, author: { anonymous: !input.signed, handle: input.signed ? '小航同学' : '匿名同学' }, revision: 1, published_at: new Date().toISOString(), upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published' })
+    replies.push({ ...input, id, root_id: parent, parent_id: parent, school_id: d.SCHOOL, author: { anonymous: !input.signed, handle: input.signed ? '小航同学' : '匿名同学' }, revision: 1, published_at: new Date().toISOString(), upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published' })
     return result(id)
   }
   if (/^\/reviews\/[^/]+\/actions$/.test(p)) {

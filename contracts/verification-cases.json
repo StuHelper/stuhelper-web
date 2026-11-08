@@ -9,7 +9,12 @@
         "identity_verified": true,
         "evaluated_at": "2026-10-28T00:00:00Z",
         "revision": 1,
-        "next_evaluation_at": null
+        "next_evaluation_at": null,
+        "teacher_verified": false,
+        "identity_masked": {
+          "name": "**明",
+          "document_number": "1****************X"
+        }
       },
       "accepted": true
     },
@@ -20,7 +25,8 @@
         "campus_eligibility": false,
         "evaluated_at": "2026-10-28T00:00:00Z",
         "revision": 1,
-        "next_evaluation_at": null
+        "next_evaluation_at": null,
+        "teacher_verified": false
       },
       "accepted": false
     },
@@ -106,6 +112,61 @@
         "revision": 1
       },
       "accepted": false
+    },
+    {
+      "name": "teacher fact does not imply student eligibility",
+      "kind": "Summary",
+      "body": {
+        "campus_eligibility": false,
+        "teacher_verified": true,
+        "identity_verified": false,
+        "evaluated_at": "2026-11-01T00:00:00Z",
+        "revision": 2,
+        "next_evaluation_at": null
+      },
+      "accepted": true
+    },
+    {
+      "name": "server generated identity mask",
+      "kind": "IdentityMasked",
+      "body": {
+        "name": "**明",
+        "document_number": "1****************X"
+      },
+      "accepted": true
+    },
+    {
+      "name": "identity mask requires both values",
+      "kind": "IdentityMasked",
+      "body": {
+        "name": "**明"
+      },
+      "accepted": false
+    },
+    {
+      "name": "short identity input rejected",
+      "kind": "IdentityInput",
+      "body": {
+        "student_id": "x001",
+        "name": "甲",
+        "document_number": "12",
+        "password": "",
+        "school_id": "buaa",
+        "notice_version": "v1",
+        "consent": true
+      },
+      "accepted": false
+    },
+    {
+      "name": "SSO verification needs no real name fields",
+      "kind": "VerifyInput",
+      "body": {
+        "student_id": "x001",
+        "name": "",
+        "document_number": "",
+        "password": "synthetic"
+      },
+      "accepted": true
     }
   ]
 }

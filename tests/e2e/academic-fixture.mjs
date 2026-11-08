@@ -9,7 +9,7 @@ const classes=[obj('class-one','class','Class One',{term_course_id:'offering-fal
 const schedules=[obj('schedule','schedule','Teaching time',{class_id:'class-one',time_text:'Monday 09:00',location:'Room A'})];
 const directory={term_course:offerings,class:classes,schedule:schedules,school:[school],department:[obj('dept','department','Test College')],category:[obj('seminar','category','Test Seminar')],nature:[obj('optional','nature','Optional')],term:terms,course:[course],teacher:[teacher,otherTeacher]};
 const dimensions=Array.from({length:5},()=>({level:3,samples:2,courses:1}));
-const review={id:'review',root_id:'review',kind:'course',school_id:'school',target_id:'course',term_id:'fall',title:'A student review',body:'Useful course content.',ratings:[3,3,3,3,3],preview:false,author:{anonymous:true,handle:'anonymous'},revision:1,published_at:'2026-10-27T00:00:00Z',upvotes:0,downvotes:0,my_vote:0,mine:false,state:'published',can_edit:false};
+const review={id:'review',root_id:'review',kind:'course',school_id:'school',target_id:'course',term_id:'fall',title:'A student review',body:'Useful course content.',ratings:[3,3,3,3,3],author:{anonymous:true,handle:'anonymous'},revision:1,published_at:'2026-10-27T00:00:00Z',upvotes:0,downvotes:0,my_vote:0,mine:false,state:'published',can_edit:false};
 const fulfill=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
 export async function fixture(page){
   await page.route('**/api/v1/**',async route=>{
@@ -29,7 +29,7 @@ export async function fixture(page){
       const needsTerm=u.searchParams.get('kind')==='course'&&!u.searchParams.get('term_id');
       return fulfill(route,{allowed:!needsTerm,state:needsTerm?'choose_term':'ready',requirements:[{key:'login',state:'satisfied'},{key:'campus_eligibility',state:'satisfied'},{key:'phone_bound',state:'satisfied'}],teacher_ids:u.searchParams.get('kind')==='course'&&u.searchParams.get('term_id')?[u.searchParams.get('term_id')==='fall'?'teacher-a':'teacher-b']:[],identity:'choice',rule_version:'fixture'});
     }
-    if(p==='/api/v1/reviews/presentation')return fulfill(route,{effective:{school_id:'school',revision:0,guest_preview:80,member_preview:160,preview_ratio:0.3,rating_texts:{}},configured:null,source:'default'});
+    if(p==='/api/v1/reviews/presentation')return fulfill(route,{effective:{school_id:'school',revision:0,rating_texts:{}},configured:null,source:'default'});
     if(p==='/api/v1/reviews/statistics')return fulfill(route,{dimensions,courses:[{course_id:'course',dimensions}],next:'',from:u.searchParams.get('from'),until:u.searchParams.get('until')});
     if(p==='/api/v1/reviews'&&route.request().method()==='GET')return fulfill(route,{items:u.searchParams.get('kind')==='course'?[review]:[],next:''});
     if(p==='/api/v1/reviews/review')return fulfill(route,review);

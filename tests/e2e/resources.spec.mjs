@@ -76,7 +76,7 @@ test('current denial clears resource data and request receipts survive navigatio
   await expect(page.getByRole('alert')).toContainText(all.errors.forbidden);
   await expect(page.getByRole('heading', { name: 'Fixture notes', exact: true })).toHaveCount(0);
   s.reject = false;
-  await page.goto(`http://127.0.0.1:18787/resources/requests?lang=${locale}`);
+  await page.goto(`http://127.0.0.1:18787/me/requests?lang=${locale}`);
   await expect(page).toHaveURL(/\/me\/requests/);
   await page.getByRole('button', { name: all.me.checkStatus, exact: true }).click();
   await expect(page.getByText('Processed decision')).toBeVisible();

@@ -18,7 +18,7 @@ const todos = [
 ]
 const access = useAccess()
 const verified = computed(() => access.state.value === 'verified')
-const stats = [{ to: '/me/reviews', n: 1, text: tr('demo.reviews') }, { to: '/me/resources', n: 2, text: tr('demo.resourcesShort') }, { to: '/me/reviews?tab=bookmarks', n: 2, text: tr('demo.favorites') }, { to: '/me/wallet', n: 128, text: 'Ivory' }]
+const stats = [{ to: '/me/reviews', n: 1, text: tr('demo.reviews') }, { to: '/me/resources', n: 2, text: tr('demo.resourcesShort') }, { to: '/me/favorites', n: 2, text: tr('demo.favorites') }, { to: '/me/wallet', n: 128, text: 'Ivory' }]
 const groups = [
   { title: tr('demo.study'), rows: [{ to: '/me/courses', text: tr('demo.myCourses'), hint: tr('demo.coursesHint'), icon: CalendarDays, tile: 'var(--c-red)' }, { to: '/me/reviews', text: tr('demo.myReviews'), hint: tr('demo.reviewsHint'), icon: FileText, tile: 'var(--c-blue)' }, { to: '/me/resources', text: tr('demo.myResources'), hint: tr('demo.uploadStatusHint'), icon: FolderOpen, tile: 'var(--c-orange)' }, { to: '/me/requests', text: tr('demo.myRequests'), hint: tr('demo.requestsHint'), icon: Inbox, tile: 'var(--c-indigo)' }] },
   { title: tr('demo.accountSection'), rows: [{ to: '/me/profile', text: tr('demo.profile'), hint: tr('demo.profileHint'), icon: UserRoundCog, tile: 'var(--c-pink)' }, { to: '/me/verification', text: tr('demo.studentVerification'), hint: tr('demo.verificationValidHint'), icon: ShieldCheck, tile: 'var(--c-green)' }, { to: '/me/account', text: tr('demo.accountSecurity'), hint: tr('demo.accountHint'), icon: Link2, tile: 'var(--c-gray)' }, { to: '/me/wallet', text: tr('demo.walletTitle'), hint: tr('demo.walletHint'), icon: Coins, tile: '#ffb300' }] },

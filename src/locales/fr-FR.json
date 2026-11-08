@@ -205,8 +205,6 @@
       "writeCourse": "Évaluer le cours",
       "writeMentor": "Commenter l’encadrement",
       "resources": "Ressources du cours",
-      "bookmark": "Enregistrer le cours",
-      "bookmarked": "Cours enregistré.",
       "inactive": "Désactivé",
       "inactiveNotice": "Désactivé. L’historique est conservé.",
       "sections": "Sections",
@@ -224,9 +222,7 @@
       "creditsUnknown": "Crédits non renseignés",
       "aliases": "Autres noms",
       "biography": "Présentation",
-      "findCourses": "Cours de cet enseignant",
-      "saved": "Enregistré",
-      "bookmarkUnknown": "Impossible de confirmer l’enregistrement pour le moment."
+      "findCourses": "Cours de cet enseignant"
     },
     "offerings": {
       "title": "Sessions du cours",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "Contenu de qualité",
       "noTeacher": "Sans enseignant précis",
-      "preview": "Aperçu affiché. Terminez la vérification étudiante pour lire le texte complet.",
       "upvote": "D’accord {count}",
       "downvote": "Pas d’accord {count}",
       "reply": "Répondre",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "Mes avis",
       "drafts": "Brouillons",
-      "bookmarks": "Cours enregistrés",
       "votes": "Mes votes",
       "requests": "Signalements et demandes"
     },
     "reviewEmpty": {
       "entries": "Vous n’avez encore publié aucun avis.",
       "drafts": "Aucun brouillon.",
-      "bookmarks": "Aucun cours suivi.",
       "votes": "Aucun vote.",
       "requests": "Aucun signalement ni demande."
     },
@@ -476,9 +469,6 @@
     "continueEditing": "Continuer la modification",
     "deleteDraft": "Supprimer le brouillon",
     "deleteDraftConfirm": "Supprimer ce brouillon non publié ?",
-    "removeBookmark": "Retirer des favoris",
-    "removeBookmarkConfirm": "Retirer ce cours de vos favoris ?",
-    "bookmarkUnavailable": "Cours indisponible",
     "updatedAt": "Mis à jour le {time}",
     "decisionReason": "Motif de la décision : {reason}",
     "viewContent": "Voir le contenu",

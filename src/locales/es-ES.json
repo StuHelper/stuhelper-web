@@ -205,8 +205,6 @@
       "writeCourse": "Escribir una reseña",
       "writeMentor": "Comentar la supervisión",
       "resources": "Materiales del curso",
-      "bookmark": "Guardar curso",
-      "bookmarked": "Curso guardado.",
       "inactive": "Inactivo",
       "inactiveNotice": "Inactivo. Se conserva el contenido histórico.",
       "sections": "Secciones",
@@ -224,9 +222,7 @@
       "creditsUnknown": "Créditos no indicados",
       "aliases": "Otros nombres",
       "biography": "Descripción",
-      "findCourses": "Cursos de este profesor",
-      "saved": "Guardado",
-      "bookmarkUnknown": "No se puede confirmar si está guardado."
+      "findCourses": "Cursos de este profesor"
     },
     "offerings": {
       "title": "Ediciones del curso",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "Contenido destacado",
       "noTeacher": "Sin docente específico",
-      "preview": "Vista previa. Completa la verificación de estudiante para leer el texto completo.",
       "upvote": "De acuerdo {count}",
       "downvote": "En desacuerdo {count}",
       "reply": "Responder",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "Mis reseñas",
       "drafts": "Borradores",
-      "bookmarks": "Cursos guardados",
       "votes": "Mis votos",
       "requests": "Denuncias y solicitudes"
     },
     "reviewEmpty": {
       "entries": "Aún no has publicado reseñas.",
       "drafts": "No tienes borradores.",
-      "bookmarks": "Aún no has guardado cursos.",
       "votes": "Aún no hay votos.",
       "requests": "No hay denuncias ni solicitudes."
     },
@@ -476,9 +469,6 @@
     "continueEditing": "Seguir editando",
     "deleteDraft": "Eliminar borrador",
     "deleteDraftConfirm": "¿Eliminar este borrador sin publicar?",
-    "removeBookmark": "Quitar de guardados",
-    "removeBookmarkConfirm": "¿Quitar este curso de tus guardados?",
-    "bookmarkUnavailable": "Curso no disponible",
     "updatedAt": "Actualizado: {time}",
     "decisionReason": "Nota de la decisión: {reason}",
     "viewContent": "Ver contenido",

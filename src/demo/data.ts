@@ -97,16 +97,16 @@ const rows: Row[] = [
 ]
 const stateFor = (id: string) => (id === 'r16' ? { mine: true, can_edit: true } : { mine: false, can_edit: false })
 export const reviews = rows.map(([id, target_id, term_id, teacher_id, title, body, ratings, upvotes, downvotes, days, who, featured]) => ({
-  id, root_id: id, kind: target_id.startsWith('p') ? 'mentor' : 'course', school_id: SCHOOL, target_id, ...(term_id ? { term_id } : {}), ...(teacher_id ? { teacher_id } : {}), title, body, ratings, preview: false, author: author(who), revision: 1, published_at: ago(days), upvotes, downvotes, my_vote: 0, state: 'published', ...(featured ? { featured } : {}), ...stateFor(id),
+  id, root_id: id, kind: target_id.startsWith('p') ? 'mentor' : 'course', school_id: SCHOOL, target_id, ...(term_id ? { term_id } : {}), ...(teacher_id ? { teacher_id } : {}), title, body, ratings, author: author(who), revision: 1, published_at: ago(days), upvotes, downvotes, my_vote: 0, state: 'published', ...(featured ? { featured } : {}), ...stateFor(id),
 }))
 export const replies = [
   { root: 'r1', who: '不周山', body: '同意，图算法那个实验确实要预留足够时间。', days: 2 },
   { root: 'r1', who: '', body: '请问零基础选这个老师的班合适吗？', days: 2 },
   { root: 'r1', who: '航小北', body: '合适，但前四周多投入一些，助教很耐心。', days: 1 },
   { root: 'r3', who: '', body: '习题课真的很有用，强烈推荐。', days: 10 },
-].map((r, i) => ({ id: `reply-${i}`, root_id: r.root, parent_id: r.root, kind: 'reply', school_id: SCHOOL, target_id: r.root, title: '', body: r.body, ratings: [0, 0, 0, 0, 0], preview: false, author: author(r.who), revision: 1, published_at: ago(r.days), upvotes: i, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false }))
+].map((r, i) => ({ id: `reply-${i}`, root_id: r.root, parent_id: r.root, kind: 'reply', school_id: SCHOOL, target_id: r.root, title: '', body: r.body, ratings: [0, 0, 0, 0, 0], author: author(r.who), revision: 1, published_at: ago(r.days), upvotes: i, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false }))
 export const drafts = [
-  { id: 'dr1', revision: 2, input: { kind: 'course', target_id: 'c5', term_id: 't-26s', teacher_id: 'p5', title: '控制原理的学习建议', body: '还没写完：想说说根轨迹……', ratings: [4, 4, 0, 0, 0], signed: false }, withdrawn: false },
+  { id: 'dr1', revision: 2, input: { kind: 'course', target_id: 'c5', term_id: 't-26s', teacher_id: 'p5', title: '控制原理的学习建议', body: '还没写完：想说说根轨迹……', ratings: [4, 4, 0, 0, 0], signed: false }, withdrawn: false, reference_ids: ['c5', 't-26s', 'p5'], reference_state: 'verified' },
 ]
 export const tasks = [
   { id: 'tk1', school_id: SCHOOL, content_kind: 'review', submission: { object_id: 'r16', kind: 'review', reason: 'content_review', evidence: [] }, object_revision: 1, revision: 2, state: 'decided', created_at: ago(7), updated_at: ago(6), can_appeal: false },

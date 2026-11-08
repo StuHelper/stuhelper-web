@@ -707,11 +707,11 @@ function profileValue(value: unknown, field: string) {
               <span class="subtle">{{ format.dateTime(application.updated_at) }}</span>
             </div>
             <button
-              v-if="['in_progress', 'supplement_required'].includes(application.state)"
+              v-if="flow.isStudentApplication(application) && ['in_progress', 'supplement_required'].includes(application.state)"
               class="btn btn-sm"
               type="button"
               :disabled="flow.busy.value"
-              @click="flow.resume(application)"
+              @click="flow.isStudentApplication(application) && flow.resume(application)"
             >
               {{ t('verification.continue') }}
             </button>

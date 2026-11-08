@@ -12,13 +12,14 @@ import PagedState from '../../shared/ui/PagedState.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import MeLayout from '../account/MeLayout.vue'
-import { arrayCursor, listSize, subjectPath, useAcademic, type CatalogObject, type Draft, type Result, type Review, type Task } from './api'
+import { arrayCursor, listSize, useAcademic, type Draft, type Reference, type Result, type Review, type Task } from './api'
 import ReviewCard from './ReviewCard.vue'
 import ReviewEditor from './ReviewEditor.vue'
 
-// The author's own reviews, drafts, bookmarked courses, votes and requests.
-type Tab = 'entries' | 'drafts' | 'bookmarks' | 'votes' | 'requests'
-type Row = { kind: 'review'; review: Review } | { kind: 'draft'; draft: Draft } | { kind: 'bookmark'; id: string } | { kind: 'task'; task: Task }
+// The author's own reviews, drafts, votes and requests. Names come from own-record references,
+// so the page keeps working after content admission lapses.
+type Tab = 'entries' | 'drafts' | 'votes' | 'requests'
+type Row = { kind: 'review'; review: Review } | { kind: 'draft'; draft: Draft } | { kind: 'task'; task: Task }
 
 const { t, te } = useI18n()
 const format = useFormat()
@@ -27,16 +28,17 @@ const router = useRouter()
 const api = useAcademic()
 const now = useNow()
 const write = useMutation()
-const tabNames: Tab[] = ['entries', 'drafts', 'bookmarks', 'votes', 'requests']
+const tabNames: Tab[] = ['entries', 'drafts', 'votes', 'requests']
 const tab = computed<Tab>({
   get: () => tabNames.find((value) => value === route.query.tab) ?? 'entries',
   set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
 })
 const tabs = computed(() => tabNames.map((value) => ({ value, label: t(`me.reviewTabs.${value}`) })))
-const names = shallowRef(new Map<string, CatalogObject>())
+const names = shallowRef(new Map<string, Reference>())
+const editingSchool = ref('')
 const editing = shallowRef<Draft>()
 const editError = ref('')
-const removing = shallowRef<{ kind: 'draft'; draft: Draft } | { kind: 'bookmark'; id: string }>()
+const removing = shallowRef<{ kind: 'draft'; draft: Draft }>()
 const appealing = shallowRef<Task>()
 const appealReason = ref('')
 const success = ref('')
@@ -61,18 +63,13 @@ const rows = usePaged<Row>(async (after, signal) => {
     items = list.map((draft) => ({ kind: 'draft', draft }))
     next = arrayCursor(list, (row) => row.id)
     ids = list.map((row) => row.input.target_id)
-  } else if (tab.value === 'bookmarks') {
-    const list = await api.myBookmarks(query, signal)
-    items = list.map((id) => ({ kind: 'bookmark', id }))
-    next = arrayCursor(list, (id) => id)
-    ids = list
   } else {
     const list = await api.myTasks(query, signal)
     items = list.map((task) => ({ kind: 'task', task }))
     next = arrayCursor(list, (row) => row.id)
     ids = []
   }
-  const found = await api.lookup(ids, signal)
+  const found = await api.references(ids, signal)
   names.value = new Map([...(after ? names.value : []), ...found])
   return { items, next }
 })
@@ -83,7 +80,7 @@ watch(tab, () => {
   void rows.reload()
 }, { immediate: true })
 
-const key = (row: Row) => (row.kind === 'review' ? row.review.id : row.kind === 'draft' ? row.draft.id : row.kind === 'task' ? row.task.id : row.id)
+const key = (row: Row) => (row.kind === 'review' ? row.review.id : row.kind === 'draft' ? row.draft.id : row.task.id)
 
 function remaining(expires: string) {
   const minutes = Math.max(0, Math.ceil((Date.parse(expires) - now.value) / 60_000))
@@ -94,7 +91,10 @@ async function edit(draft: Draft) {
   editError.value = ''
   try {
     // Open the current saved copy, which another device may have changed.
-    editing.value = await api.draft(draft.id)
+    const current = await api.draft(draft.id)
+    // Editing validates against the current catalog, which requires content admission.
+    editingSchool.value = (await api.object(current.input.target_id)).school_id
+    editing.value = current
   } catch (failure) {
     editError.value = errorCode(failure)
   }
@@ -109,9 +109,7 @@ function edited(result: Result) {
 async function confirmRemove() {
   const target = removing.value
   if (!target) return
-  const result = target.kind === 'draft'
-    ? await write.run(`draft:${target.draft.id}:delete`, { revision: target.draft.revision }, (body, key) => api.deleteDraft(target.draft.id, body, key))
-    : await write.run(`bookmark:${target.id}:unset`, { target_id: target.id, set: false }, (body, key) => api.setBookmark(body, key))
+  const result = await write.run(`draft:${target.draft.id}:delete`, { revision: target.draft.revision }, (body, key) => api.deleteDraft(target.draft.id, body, key))
   if (!result) return
   removing.value = undefined
   void rows.reload()
@@ -136,10 +134,6 @@ async function retry() {
   }
 }
 
-function bookmarkPath(id: string) {
-  const target = names.value.get(id)
-  return target ? subjectPath(target) : ''
-}
 function taskState(state: string) {
   return te(`academic.taskState.${state}`) ? t(`academic.taskState.${state}`) : t('academic.taskState.waiting')
 }
@@ -201,7 +195,7 @@ function removeReview(id: string) {
           :key="editing.id"
           :kind="editing.input.kind"
           :target-id="editing.input.target_id"
-          :school-id="names.get(editing.input.target_id)?.school_id ?? ''"
+          :school-id="editingSchool"
           :parent-id="editing.parent_id"
           :draft="editing"
           :leave-query="['tab']"
@@ -275,29 +269,6 @@ function removeReview(id: string) {
                 </div>
               </article>
               <article
-                v-else-if="row.kind === 'bookmark'"
-                class="card row-between"
-              >
-                <RouterLink
-                  v-if="bookmarkPath(row.id)"
-                  :to="bookmarkPath(row.id)"
-                >
-                  {{ names.get(row.id)?.name }}
-                </RouterLink>
-                <span
-                  v-else
-                  class="muted"
-                >{{ t('me.bookmarkUnavailable') }}</span>
-                <button
-                  class="btn btn-sm"
-                  type="button"
-                  :disabled="write.busy.value || write.uncertain.value"
-                  @click="removing = { kind: 'bookmark', id: row.id }"
-                >
-                  {{ t('me.removeBookmark') }}
-                </button>
-              </article>
-              <article
                 v-else
                 class="card stack-sm"
               >
@@ -348,8 +319,8 @@ function removeReview(id: string) {
 
     <ConfirmDialog
       :open="!!removing"
-      :title="t(removing?.kind === 'draft' ? 'me.deleteDraft' : 'me.removeBookmark')"
-      :message="t(removing?.kind === 'draft' ? 'me.deleteDraftConfirm' : 'me.removeBookmarkConfirm')"
+      :title="t('me.deleteDraft')"
+      :message="t('me.deleteDraftConfirm')"
       :danger="removing?.kind === 'draft'"
       :busy="write.busy.value"
       @confirm="confirmRemove"

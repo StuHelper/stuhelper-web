@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-open-platform",
+  "revision": "88f0add78533da70145685ea710351f571ad9ad0",
+  "version": "0.1.0",
+  "files": {
+    "contracts/open-platform.openapi.json": "contracts/open-platform.openapi.json",
+    "sdk/open-platform.gen.ts": "src/api/open-platform.gen.ts"
+  },
+  "sha256": {
+    "contracts/open-platform.openapi.json": "586f1e369d3609613daad4f146eaf92987f4405b06725075b2aecb89e2475ea8",
+    "src/api/open-platform.gen.ts": "42b07c6f559fe036d89223a723a2bcf83a4f0363053d4a65445bec91880af2ef"
+  }
+}

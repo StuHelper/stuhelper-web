@@ -4,9 +4,9 @@ import { fixture as academic } from './academic-fixture.mjs';
 import { fixture as resourceState, routes as resourceRoutes } from './resource-fixture.mjs';
 import example from '../../contracts/contribution.example.json' with { type: 'json' };
 
-export const member = { authenticated: true, profile: { nickname: 'Fixture student', revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' };
+export const member = { authenticated: true, profile: { id: '00000000-0000-4000-8000-000000000001', nickname: 'Fixture student', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' };
 const verification = {
-  summary: { campus_eligibility: true, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null },
+  summary: { campus_eligibility: true, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null },
   schools: [{ id: 'school', name: 'Test University', enabled: true, methods: ['manual_material_review', 'student_email_outbound_otp'], notice_version: 'v1', opening_date: '2026-09-01', newcomer_days: 30, email_domain: 'example.edu', material_types: ['student_card'], revision: 1 }],
   credentials: [{ id: 'credential', school_id: 'school', method: 'manual_material_review', stage: 'bachelor', kind: 'student', state: 'active', student_display: '2026****01', revision: 1, verified_at: '2026-10-01T00:00:00Z', expires_at: null }],
 };

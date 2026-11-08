@@ -6,7 +6,7 @@ import type { components as Moderation } from '../../api/moderation.gen'
 import type { components as Reviews } from '../../api/reviews.gen'
 import { ApiError } from '../../shared/api/errors'
 import { segment, type Http, type Query } from '../../shared/api/http'
-import { schemaOf, stringList } from '../../shared/api/schema'
+import { schemaOf } from '../../shared/api/schema'
 import { useHttp } from '../../shared/session'
 
 export type CatalogObject = Catalog['schemas']['Object']
@@ -30,6 +30,9 @@ export type DisclosureOption = Reviews['schemas']['DisclosureOption']
 export type PresentationView = Reviews['schemas']['PresentationView']
 export type Submission = Moderation['schemas']['Submission']
 export type Task = Moderation['schemas']['TaskView']
+export type Reference = Reviews['schemas']['Reference']
+/** The name fields a review card shows. Catalog objects and own-record references both provide them. */
+export type NamedObject = { id: string; kind: string; name: string }
 
 const catalog = catalogContract.components.schemas
 const reviews = reviewsContract.components.schemas
@@ -49,6 +52,7 @@ const parse = {
   drafts: schemaOf<Draft[]>(reviews, 'DraftView', true),
   result: schemaOf<Result>(reviews, 'Result'),
   composer: schemaOf<Composer>(reviews, 'Composer'),
+  references: schemaOf<Reviews['schemas']['References']>(reviews, 'References'),
   presentation: schemaOf<PresentationView>(reviews, 'PresentationView'),
   task: schemaOf<Task>(moderation, 'TaskView'),
   tasks: schemaOf<Task[]>(moderation, 'TaskView', true),
@@ -88,6 +92,20 @@ export class AcademicApi {
     const names = new Map<string, CatalogObject>()
     for (let start = 0; start < unique.length; start += 100) {
       const result = await this.http.json('/api/v1/catalog/objects/lookup', parse.lookup, { query: { ids: unique.slice(start, start + 100).join(',') }, signal })
+      for (const item of result.items) names.set(item.id, item)
+    }
+    return names
+  }
+
+  /**
+   * Names referenced by the caller's own records, in batches of 100. This works after content
+   * admission lapses, so the personal center uses it instead of catalog lookups.
+   */
+  async references(ids: (string | undefined)[], signal?: AbortSignal): Promise<Map<string, Reference>> {
+    const unique = [...new Set(ids.filter((id): id is string => !!id))]
+    const names = new Map<string, Reference>()
+    for (let start = 0; start < unique.length; start += 100) {
+      const result = await this.http.json('/api/v1/reviews/me/references', parse.references, { query: { ids: unique.slice(start, start + 100).join(',') }, signal })
       for (const item of result.items) names.set(item.id, item)
     }
     return names
@@ -155,25 +173,8 @@ export class AcademicApi {
     return this.http.json(`/api/v1/reviews/me/drafts/${segment(id)}`, parse.draft, { signal })
   }
 
-  myBookmarks(query: Query, signal?: AbortSignal) {
-    return this.http.json('/api/v1/reviews/me/bookmarks', stringList, { query, signal })
-  }
-
   myVotes(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/reviews/me/votes', parse.reviewList, { query, signal })
-  }
-
-  /** The contract offers no single lookup, so read the bounded bookmark list. */
-  async isBookmarked(id: string, signal?: AbortSignal) {
-    let after = ''
-    for (let page = 0; page < 10; page++) {
-      const rows = await this.myBookmarks({ after, limit: 100 }, signal)
-      if (rows.includes(id)) return true
-      const last = rows.at(-1)
-      if (rows.length < 100 || last === undefined) return false
-      after = last
-    }
-    return false
   }
 
   myTasks(query: Query, signal?: AbortSignal) {
@@ -204,10 +205,6 @@ export class AcademicApi {
     return this.http.json(`/api/v1/reviews/me/drafts/${segment(id)}`, parse.result, { method: 'DELETE', body, key })
   }
 
-  setBookmark(body: { target_id: string; set: boolean }, key: string) {
-    return this.http.json('/api/v1/reviews/me/bookmarks', parse.result, { method: 'POST', body, key })
-  }
-
   submitTask(submission: Submission, key: string) {
     return this.http.json('/api/v1/moderation/tasks', parse.task, { method: 'POST', body: submission, key })
   }
@@ -225,8 +222,8 @@ export function arrayCursor<T>(rows: T[], id: (row: T) => string) {
 
 const subjectPrefixes: Partial<Record<ObjectKind, string>> = { course: 'courses', teacher: 'teachers', term_course: 'offerings', class: 'classes' }
 
-export function subjectPath(object: Pick<CatalogObject, 'id' | 'kind'>) {
-  const base = subjectPrefixes[object.kind]
+export function subjectPath(object: { id: string; kind: string }) {
+  const base = subjectPrefixes[object.kind as ObjectKind]
   return base ? `/${base}/${encodeURIComponent(object.id)}` : ''
 }
 

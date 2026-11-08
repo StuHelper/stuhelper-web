@@ -3,6 +3,9 @@ import { ApiError, errorCode } from '../../shared/api/errors'
 import { useVerification, type Application, type Credential, type EmailChallenge, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
 
 type Section = 'schools' | 'applications' | 'credentials' | 'requests'
+/** Teacher applications share the application list but use the teacher form and review. */
+type StudentApplication = Application & { kind: Kind }
+const isStudentApplication = (application: Application): application is StudentApplication => application.kind !== 'teacher'
 const pendingChallenge = ['processing', 'waiting_sms']
 
 /**
@@ -176,7 +179,7 @@ export function useVerificationFlow() {
     await reload()
   })
 
-  const resume = (application: Application) => action(async () => {
+  const resume = (application: StudentApplication) => action(async () => {
     mode.value = 'student'
     for (let page = 0; !schools.value.some((row) => row.id === application.school_id) && cursors.schools && page < 20; page++) {
       const more = await api.list('School', '/api/v1/verification/schools', { limit: 100, after: cursors.schools })
@@ -374,7 +377,7 @@ export function useVerificationFlow() {
 
   return {
     loading, busy, error, notice, summary, schools, applications, credentials, requests, cursors, profile,
-    mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
+    isStudentApplication, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, writable,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,

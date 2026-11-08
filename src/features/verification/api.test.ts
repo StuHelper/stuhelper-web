@@ -76,23 +76,23 @@ describe('verification contract boundary', () => {
 
 for (const sample of sharedCases.cases) {
   it(`shared contract: ${sample.name}`, () => {
-    if (!['Summary', 'Application', 'School'].includes(sample.kind)) throw new Error('unknown shared fixture schema')
+    if (!['Summary', 'Application', 'School', 'IdentityMasked', 'IdentityInput', 'VerifyInput'].includes(sample.kind)) throw new Error('unknown shared fixture schema')
     // The fixture schema name is checked against the supported contract cases above.
-    const parse = () => parseEntity(sample.kind as 'Summary' | 'Application' | 'School', sample.body)
+    const parse = () => parseEntity(sample.kind as 'Summary' | 'Application' | 'School' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput', sample.body)
     if (sample.accepted) expect(parse).not.toThrow()
     else expect(parse).toThrow('incompatible')
   })
 }
 
 describe('maskedIdentity', () => {
-  const base = { campus_eligibility: true, identity_verified: true, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null }
-  it('keeps only the last name character and the first and last ID characters', () => {
-    const summary = { ...base, identity_masked: { name_last: '航', id_first: '1', id_last: 'X' } }
-    expect(maskedIdentity(summary as never)).toEqual({ name: '*航', number: `1${'*'.repeat(16)}X` })
+  const base = { campus_eligibility: true, teacher_verified: false, identity_verified: true, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null }
+  it('shows the server mask, whose star count follows the hidden code points', () => {
+    const summary = parseEntity('Summary', { ...base, identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}X` } })
+    expect(maskedIdentity(summary)).toEqual({ name: '**航', number: `1${'*'.repeat(16)}X` })
   })
-  it('refuses values that are not masked', () => {
-    const summary = { ...base, identity_masked: { name_last: '小航', id_first: '110', id_last: '8' } }
-    expect(maskedIdentity(summary as never)).toBeUndefined()
-    expect(maskedIdentity(base as never)).toBeUndefined()
+  it('rejects unmasked values and masks on an unverified summary', () => {
+    expect(() => parseEntity('Summary', { ...base, identity_masked: { name: '小航', document_number: '1108' } })).toThrow('incompatible')
+    expect(() => parseEntity('Summary', { ...base, identity_verified: false, identity_masked: { name: '*航', document_number: '1**8' } })).toThrow('incompatible')
+    expect(maskedIdentity(parseEntity('Summary', base))).toBeUndefined()
   })
 })

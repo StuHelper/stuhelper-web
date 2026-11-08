@@ -205,8 +205,6 @@
       "writeCourse": "Write a course review",
       "writeMentor": "Write a mentor comment",
       "resources": "Course resources",
-      "bookmark": "Bookmark course",
-      "bookmarked": "Course bookmarked.",
       "inactive": "Inactive",
       "inactiveNotice": "Inactive. Historical content is preserved.",
       "sections": "Sections",
@@ -224,9 +222,7 @@
       "creditsUnknown": "Credits not provided",
       "aliases": "Other names",
       "biography": "Overview",
-      "findCourses": "Courses by this teacher",
-      "saved": "Saved",
-      "bookmarkUnknown": "Cannot confirm the saved status right now."
+      "findCourses": "Courses by this teacher"
     },
     "offerings": {
       "title": "Course offerings",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "Featured content",
       "noTeacher": "No specific teacher",
-      "preview": "Preview shown. Complete student verification to read the full text.",
       "upvote": "Agree {count}",
       "downvote": "Disagree {count}",
       "reply": "Reply",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "My reviews",
       "drafts": "Drafts",
-      "bookmarks": "Saved courses",
       "votes": "My votes",
       "requests": "Reports and requests"
     },
     "reviewEmpty": {
       "entries": "You have not posted any reviews yet.",
       "drafts": "Your drafts folder is empty.",
-      "bookmarks": "No bookmarked courses yet.",
       "votes": "No votes yet.",
       "requests": "No reports or requests."
     },
@@ -476,9 +469,6 @@
     "continueEditing": "Continue editing",
     "deleteDraft": "Delete draft",
     "deleteDraftConfirm": "Delete this unpublished draft?",
-    "removeBookmark": "Remove bookmark",
-    "removeBookmarkConfirm": "Remove this course from your bookmarks?",
-    "bookmarkUnavailable": "Course no longer available",
     "updatedAt": "Updated {time}",
     "decisionReason": "Decision note: {reason}",
     "viewContent": "View related content",

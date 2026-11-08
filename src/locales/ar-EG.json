@@ -205,8 +205,6 @@
       "writeCourse": "كتابة تقييم للمقرر",
       "writeMentor": "كتابة رأي عن الإشراف",
       "resources": "مواد المقرر",
-      "bookmark": "حفظ المقرر",
-      "bookmarked": "حُفظ المقرر.",
       "inactive": "غير نشط",
       "inactiveNotice": "غير نشط. يُحتفظ بالمحتوى السابق.",
       "sections": "الأقسام",
@@ -224,9 +222,7 @@
       "creditsUnknown": "الساعات المعتمدة غير متوفرة",
       "aliases": "أسماء أخرى",
       "biography": "نبذة",
-      "findCourses": "مقررات هذا الأستاذ",
-      "saved": "محفوظ",
-      "bookmarkUnknown": "يتعذر تأكيد حالة الحفظ الآن."
+      "findCourses": "مقررات هذا الأستاذ"
     },
     "offerings": {
       "title": "مرات طرح المقرر",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "محتوى مميز",
       "noTeacher": "دون تحديد مدرس",
-      "preview": "تُعرض معاينة. أكمل التحقق من صفة الطالب لقراءة النص الكامل.",
       "upvote": "أوافق {count}",
       "downvote": "لا أوافق {count}",
       "reply": "رد",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "تقييماتي",
       "drafts": "المسودات",
-      "bookmarks": "المقررات المحفوظة",
       "votes": "تصويتاتي",
       "requests": "البلاغات والطلبات"
     },
     "reviewEmpty": {
       "entries": "لم تنشر أي تقييم بعد.",
       "drafts": "لا توجد مسودات.",
-      "bookmarks": "لا توجد مقررات محفوظة.",
       "votes": "لا توجد أصوات بعد.",
       "requests": "لا توجد بلاغات أو طلبات."
     },
@@ -476,9 +469,6 @@
     "continueEditing": "متابعة التعديل",
     "deleteDraft": "حذف المسودة",
     "deleteDraftConfirm": "هل تريد حذف هذه المسودة غير المنشورة؟",
-    "removeBookmark": "إزالة من المحفوظات",
-    "removeBookmarkConfirm": "هل تزيل هذا المقرر من المحفوظات؟",
-    "bookmarkUnavailable": "المقرر غير متاح",
     "updatedAt": "آخر تحديث: {time}",
     "decisionReason": "ملاحظة القرار: {reason}",
     "viewContent": "عرض المحتوى",

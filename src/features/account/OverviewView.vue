@@ -6,7 +6,7 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
-import { useSession, type Profile } from '../../shared/session'
+import { useSession, type Profile, type ProfileUpdate } from '../../shared/session'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
@@ -58,7 +58,7 @@ function startEdit() {
 async function submit() {
   if (!profile.value) return
   saved.value = ''
-  const body: Profile = { nickname: nickname.value.trim(), revision: profile.value.revision }
+  const body: ProfileUpdate = { nickname: nickname.value.trim(), revision: profile.value.revision }
   const result = await save.run('profile', body, (value, key) => session.saveProfile(value, key))
   if (result) {
     editing.value = false
@@ -94,7 +94,7 @@ function useCurrent() {
 async function keepMine() {
   if (!current.value) return
   // Resubmit the typed nickname against the version now on the server.
-  const body: Profile = { nickname: nickname.value.trim(), revision: current.value.revision }
+  const body: ProfileUpdate = { nickname: nickname.value.trim(), revision: current.value.revision }
   current.value = undefined
   const result = await save.run('profile', body, (value, key) => session.saveProfile(value, key))
   if (result) {

@@ -25,7 +25,7 @@ test('a successful vote retry shows the result the first attempt lost', async ({
   const all = catalogue(info), locale = info.project.metadata.locale;
   await academicFixture(page);
   let posts = 0;
-  const review = { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Review', body: 'Content', ratings: [3, 3, 3, 3, 3], preview: false, author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-31T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false };
+  const review = { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Review', body: 'Content', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-31T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false };
   await page.route('**/api/v1/reviews/review', (route) => route.fulfill({ json: review }));
   await page.route('**/api/v1/reviews/review/actions', (route) => {
     posts += 1;
@@ -79,7 +79,7 @@ test('a configured choice field shows its saved option and accepts a new one', a
 test('an expired qualification keeps own records open and closes public content', async ({ page }, info) => {
   const all = catalogue(info), locale = info.project.metadata.locale;
   await demo(page);
-  await page.route('**/api/v1/verification/summary', (route) => route.fulfill({ json: { campus_eligibility: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
+  await page.route('**/api/v1/verification/summary', (route) => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
   await page.route('**/api/v1/verification/credentials*', (route) => route.fulfill({ json: [{ id: 'credential', school_id: 'school', method: 'manual_material_review', stage: 'bachelor', kind: 'student', state: 'expired', student_display: '2026****01', revision: 1, verified_at: '2026-10-01T00:00:00Z', expires_at: null }] }));
   await page.goto(`${base}/me/reviews?lang=${locale}`);
   await expect(page.getByRole('tab', { name: all.me.reviewTabs.entries, exact: true })).toBeVisible();

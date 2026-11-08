@@ -14,13 +14,10 @@ export type Summary = Schemas['Summary']
  * 脱敏必须由服务端完成，完整姓名和证件号不能下发到客户端。这个字段还没有进入 OpenAPI，
  * 所以在运行时校验。星号数量固定，不暴露姓名和证件号的真实长度。
  */
+/** The server-generated identity mask, present on the caller's own verified summary. */
 export function maskedIdentity(summary: Summary | undefined) {
-  const raw = (summary as { identity_masked?: unknown } | undefined)?.identity_masked
-  if (typeof raw !== 'object' || raw === null) return undefined
-  const { name_last: name, id_first: first, id_last: last } = raw as Record<string, unknown>
-  if (typeof name !== 'string' || typeof first !== 'string' || typeof last !== 'string') return undefined
-  if ([...name].length !== 1 || first.length !== 1 || last.length !== 1) return undefined
-  return { name: `*${name}`, number: `${first}${'*'.repeat(16)}${last}` }
+  const masked = summary?.identity_verified ? summary.identity_masked : undefined
+  return masked ? { name: masked.name, number: masked.document_number } : undefined
 }
 export type RemovalRequest = Schemas['RemovalRequest']
 export type Material = Schemas['Material']
@@ -30,17 +27,23 @@ export type Method = Schemas['Method']
 export type Stage = Schemas['Stage']
 export type Kind = Schemas['Kind']
 
-type Entity = 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput'
+type Entity = 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput'
 
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
 export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
 export const kinds = ['student', 'alumni', 'newcomer', 'unknown'] as const
+/** Application and credential kinds; teacher applications use the teacher form and review. */
+const recordKinds = [...kinds, 'teacher'] as const
 
 // The verification contract is YAML and private-provider owned, so its
 // response shapes are checked here field by field. The provider's shared cases
 // (contracts/verification-cases.json) run against these checks.
 const object = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 const text = (v: unknown): v is string => typeof v === 'string'
+/** Lengths in Unicode code points, matching the provider's limits. */
+const points = (v: string) => [...v].length
+const sized = (v: unknown, min: number, max: number): v is string => text(v) && points(v) >= min && points(v) <= max
+const masked = (v: unknown) => object(v) && Object.keys(v).length === 2 && sized(v.name, 2, 100) && /^\*+[^*]$/u.test(v.name) && sized(v.document_number, 3, 32) && /^[^*]\*+[^*]$/u.test(v.document_number)
 const count = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0
 const instant = (v: unknown): v is string => {
   if (!text(v)) return false
@@ -58,9 +61,14 @@ const challenge = (v: unknown) => object(v) && text(v.id) && oneOf(v.state, ['pr
 const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   StudentProfile: (v) => text(v.school_id) && oneOf(v.data_status, ['complete', 'partial', 'reference_only', 'unavailable']) && text(v.schema) && count(v.revision) && optionalInstant(v.collected_at) && text(v.source_revision) && object(v.fields) && Object.keys(v.fields).length <= 64 && object(v.field_sources) && Object.values(v.field_sources).every(text) && (v.raw_data === undefined || text(v.raw_data)),
   School: (v) => text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every((m) => oneOf(m, methods)) && text(v.notice_version) && text(v.opening_date) && count(v.newcomer_days) && text(v.email_domain) && strings(v.material_types) && count(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)),
-  Application: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, kinds) && oneOf(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'expired', 'deleted']) && count(v.revision) && instant(v.created_at) && instant(v.updated_at) && instant(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || optionalInstant(v.qualification_expires_at)) && (v.school_challenge === undefined || challenge(v.school_challenge)),
-  Credential: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, kinds) && oneOf(v.state, ['active', 'revoked', 'expired', 'deleted']) && text(v.student_display) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at),
-  Summary: (v) => typeof v.campus_eligibility === 'boolean' && typeof v.identity_verified === 'boolean' && instant(v.evaluated_at) && count(v.revision) && optionalInstant(v.next_evaluation_at),
+  Application: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'expired', 'deleted']) && count(v.revision) && instant(v.created_at) && instant(v.updated_at) && instant(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || optionalInstant(v.qualification_expires_at)) && (v.school_challenge === undefined || challenge(v.school_challenge)),
+  Credential: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['active', 'revoked', 'expired', 'deleted']) && text(v.student_display) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at),
+  Summary: (v) => typeof v.campus_eligibility === 'boolean' && typeof v.teacher_verified === 'boolean' && typeof v.identity_verified === 'boolean' && (v.identity_masked === undefined ? true : v.identity_verified === true && masked(v.identity_masked)) && instant(v.evaluated_at) && count(v.revision) && optionalInstant(v.next_evaluation_at),
+  IdentityMasked: masked,
+  IdentityInput: (v) => sized(v.student_id, 1, 64) && sized(v.name, 2, 100) && sized(v.document_number, 3, 32) && v.password === '' && sized(v.school_id, 0, 64) && sized(v.notice_version, 0, 64) && v.consent === true,
+  // Real-name matching sends name and document number; school SSO sends only a password.
+  VerifyInput: (v) => sized(v.student_id, 1, 64) && sized(v.name, 0, 100) && sized(v.document_number, 0, 32) && sized(v.password, 0, 256)
+    && ((points(v.name as string) >= 2 && points(v.document_number as string) >= 3 && v.password === '') || (v.name === '' && v.document_number === '' && points(v.password as string) >= 1)),
   RemovalRequest: (v) => text(v.id) && text(v.credential_id) && text(v.school_id) && oneOf(v.kind, ['revoke', 'delete']) && oneOf(v.state, ['pending', 'approved', 'rejected']) && text(v.reason) && text(v.note) && count(v.revision) && instant(v.created_at),
   Suggestion: (v) => text(v.id) && text(v.name) && text(v.website) && oneOf(v.state, ['pending', 'approved', 'rejected']) && text(v.note) && count(v.revision),
   EmailChallenge: (v) => text(v.id) && text(v.application_id) && instant(v.expires_at) && oneOf(v.state, ['queued', 'waiting', 'delivered', 'used', 'failed']) && text(v.masked_email) && text(v.target_address),

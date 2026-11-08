@@ -205,8 +205,6 @@
       "writeCourse": "写课程评价",
       "writeMentor": "写导师评论",
       "resources": "课程资料",
-      "bookmark": "收藏课程",
-      "bookmarked": "课程已收藏。",
       "inactive": "已停用",
       "inactiveNotice": "已停用，历史内容仍保留。",
       "sections": "内容分区",
@@ -224,9 +222,7 @@
       "creditsUnknown": "学分未提供",
       "aliases": "其他名称",
       "biography": "简介",
-      "findCourses": "查看该教师的课程",
-      "saved": "已收藏",
-      "bookmarkUnknown": "暂时无法确认收藏状态。"
+      "findCourses": "查看该教师的课程"
     },
     "offerings": {
       "title": "历次开课",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "优质内容",
       "noTeacher": "不指定教师",
-      "preview": "当前显示预览。完成学生认证后可阅读完整内容。",
       "upvote": "赞同 {count}",
       "downvote": "不赞同 {count}",
       "reply": "回复",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "我的评价",
       "drafts": "草稿箱",
-      "bookmarks": "收藏课程",
       "votes": "我的投票",
       "requests": "举报与申请"
     },
     "reviewEmpty": {
       "entries": "还没有发布过评价。",
       "drafts": "草稿箱是空的。",
-      "bookmarks": "还没有收藏课程。",
       "votes": "还没有投票记录。",
       "requests": "没有举报或申请记录。"
     },
@@ -476,9 +469,6 @@
     "continueEditing": "继续编辑",
     "deleteDraft": "删除草稿",
     "deleteDraftConfirm": "确认删除这份未发布草稿？",
-    "removeBookmark": "取消收藏",
-    "removeBookmarkConfirm": "确认取消收藏这门课程？",
-    "bookmarkUnavailable": "课程已不可见",
     "updatedAt": "更新于 {time}",
     "decisionReason": "处理说明：{reason}",
     "viewContent": "查看相关内容",

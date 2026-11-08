@@ -205,8 +205,6 @@
       "writeCourse": "강의 평가 작성",
       "writeMentor": "지도교수 후기 작성",
       "resources": "강의 자료",
-      "bookmark": "강의 저장",
-      "bookmarked": "강의를 저장했습니다.",
       "inactive": "비활성",
       "inactiveNotice": "비활성 상태입니다. 기존 내용은 보존됩니다.",
       "sections": "섹션",
@@ -224,9 +222,7 @@
       "creditsUnknown": "학점 정보 없음",
       "aliases": "다른 이름",
       "biography": "소개",
-      "findCourses": "이 교수의 강의",
-      "saved": "저장됨",
-      "bookmarkUnknown": "저장 상태를 확인할 수 없습니다."
+      "findCourses": "이 교수의 강의"
     },
     "offerings": {
       "title": "개설 이력",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "우수 콘텐츠",
       "noTeacher": "교원 지정 안 함",
-      "preview": "미리보기입니다. 학생 인증을 완료하면 전체 내용을 읽을 수 있습니다.",
       "upvote": "공감 {count}",
       "downvote": "비공감 {count}",
       "reply": "답글",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "내 평가",
       "drafts": "초안",
-      "bookmarks": "저장한 강의",
       "votes": "내 투표",
       "requests": "신고 및 요청"
     },
     "reviewEmpty": {
       "entries": "아직 작성한 평가가 없습니다.",
       "drafts": "임시 저장함이 비어 있습니다.",
-      "bookmarks": "즐겨찾기한 강의가 없습니다.",
       "votes": "투표 기록이 없습니다.",
       "requests": "신고나 신청 기록이 없습니다."
     },
@@ -476,9 +469,6 @@
     "continueEditing": "이어서 수정",
     "deleteDraft": "초안 삭제",
     "deleteDraftConfirm": "이 미게시 초안을 삭제할까요?",
-    "removeBookmark": "저장 취소",
-    "removeBookmarkConfirm": "이 강의를 즐겨찾기에서 해제할까요?",
-    "bookmarkUnavailable": "강의를 볼 수 없습니다",
     "updatedAt": "업데이트: {time}",
     "decisionReason": "처리 설명: {reason}",
     "viewContent": "관련 내용 보기",

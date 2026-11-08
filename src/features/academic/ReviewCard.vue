@@ -8,11 +8,11 @@ import { useMutation } from '../../shared/composables/async'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
-import { subjectPath, useAcademic, type CatalogObject, type Review, type ReviewAction, type Submission } from './api'
+import { subjectPath, useAcademic, type NamedObject, type Review, type ReviewAction, type Submission } from './api'
 import { reviewLink, safeAvatar, stateTone, useAuthorName } from './presentation'
 import RatingBands from './RatingBands.vue'
 
-const props = withDefaults(defineProps<{ review: Review; names?: Map<string, CatalogObject>; standalone?: boolean; replyEnabled?: boolean; hideTarget?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false, hideTarget: false })
+const props = withDefaults(defineProps<{ review: Review; names?: ReadonlyMap<string, NamedObject>; standalone?: boolean; replyEnabled?: boolean; hideTarget?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false, hideTarget: false })
 const emit = defineEmits<{ updated: [review: Review]; removed: [id: string]; reply: [review: Review] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -186,15 +186,8 @@ async function retry() {
     <p class="review-body prewrap">
       {{ review.body }}
     </p>
-    <p
-      v-if="review.preview"
-      class="notice notice-info small"
-    >
-      {{ t('academic.review.preview') }}
-    </p>
-
     <RatingBands
-      v-if="review.kind === 'course' && !review.preview && review.ratings.some((level) => level > 0)"
+      v-if="review.kind === 'course' && review.ratings.some((level) => level > 0)"
       :bands="review.ratings.map((level) => ({ level, samples: 1, courses: 1 }))"
       inline
       :school-id="review.school_id"

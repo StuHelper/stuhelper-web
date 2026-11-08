@@ -5,7 +5,7 @@ import { expect, memberTest, test } from '../session-fixture.mjs';
 
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
-const summary = (campus_eligibility) => ({ campus_eligibility, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null });
+const summary = (campus_eligibility) => ({ campus_eligibility, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null });
 // Business requests a closed page must never send.
 function business(page) {
   const seen = [];
@@ -72,21 +72,6 @@ memberTest('a verified user enters content; the home page becomes a workspace', 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-memberTest('bookmark shows the stored state and can be removed in place', async ({ page }, info) => {
-  const all = catalogue(info), posts = [];
-  await academicFixture(page);
-  await page.route('**/api/v1/reviews/me/bookmarks*', (route) => {
-    if (route.request().method() === 'GET') return route.fulfill({ json: ['course'] });
-    posts.push(route.request().postDataJSON());
-    return route.fulfill({ json: { id: 'bookmark', state: 'saved', revision: 1 } });
-  });
-  await page.goto(`${base}/courses/course?lang=${info.project.metadata.locale}`);
-  const button = page.getByRole('button', { name: all.academic.subject.saved, exact: true });
-  await expect(button).toHaveAttribute('aria-pressed', 'true');
-  await button.click();
-  await expect(page.getByRole('button', { name: all.academic.subject.bookmark, exact: true })).toHaveAttribute('aria-pressed', 'false');
-  expect(posts).toEqual([{ target_id: 'course', set: false }]);
-});
 
 memberTest('resource search and filters survive a reload', async ({ page }, info) => {
   const all = catalogue(info), s = fixture();
@@ -132,7 +117,7 @@ memberTest('identity page waits for the real state and only shows masked identit
   await verification(page, true);
   await page.route('**/api/v1/verification/summary', async (route) => {
     await held;
-    return route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name_last: '航', id_first: '1', id_last: '8' } } });
+    return route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8' } } });
   });
   await page.goto(`${base}/me/account/identity?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { level: 1, name: v.identityTitle })).toBeVisible();

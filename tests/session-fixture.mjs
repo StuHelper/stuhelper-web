@@ -1,7 +1,7 @@
 import { test as base, expect } from 'playwright/test';
 import { member } from './e2e/demo-fixture.mjs';
 
-const verifiedSummary = { campus_eligibility: true, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null };
+const verifiedSummary = { campus_eligibility: true, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null };
 
 // These suites isolate business-page behavior with HTTP fixtures. The formal
 // backend suite exercises actual login, current sessions and revocation.

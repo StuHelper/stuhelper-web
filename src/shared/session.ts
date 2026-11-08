@@ -10,6 +10,7 @@ import { useHostFetch } from './api/transport'
 
 export type Session = components['schemas']['Session']
 export type Profile = components['schemas']['Profile']
+export type ProfileUpdate = components['schemas']['ProfileUpdate']
 export type SessionState = 'loading' | 'guest' | 'member' | 'error'
 
 const schemas = contract.components.schemas
@@ -70,7 +71,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     return http.json('/api/v1/profiles/me', parseProfile, { signal })
   }
 
-  async function saveProfile(profile: Profile, key: string) {
+  async function saveProfile(profile: ProfileUpdate, key: string) {
     const saved = await http.json('/api/v1/profiles/me', parseProfile, { method: 'PUT', body: profile, key, timeout: 10_000 })
     if (session.value) session.value = { ...session.value, profile: saved }
     return saved

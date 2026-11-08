@@ -205,8 +205,6 @@
       "writeCourse": "授業をレビュー",
       "writeMentor": "指導教員へコメント",
       "resources": "授業の資料",
-      "bookmark": "授業を保存",
-      "bookmarked": "授業を保存しました。",
       "inactive": "停止中",
       "inactiveNotice": "無効です。過去の内容は保持されています。",
       "sections": "セクション",
@@ -224,9 +222,7 @@
       "creditsUnknown": "単位数は未提供",
       "aliases": "別名",
       "biography": "概要",
-      "findCourses": "この教員の授業",
-      "saved": "保存済み",
-      "bookmarkUnknown": "保存状態を確認できません。"
+      "findCourses": "この教員の授業"
     },
     "offerings": {
       "title": "開講履歴",
@@ -316,7 +312,6 @@
     "review": {
       "featured": "おすすめの投稿",
       "noTeacher": "教員を指定しない",
-      "preview": "プレビューを表示しています。学生認証を完了すると全文を閲覧できます。",
       "upvote": "賛成 {count}",
       "downvote": "反対 {count}",
       "reply": "返信",
@@ -459,14 +454,12 @@
     "reviewTabs": {
       "entries": "自分のレビュー",
       "drafts": "下書き",
-      "bookmarks": "保存した授業",
       "votes": "自分の投票",
       "requests": "報告と申請"
     },
     "reviewEmpty": {
       "entries": "まだ評価を投稿していません。",
       "drafts": "下書きはありません。",
-      "bookmarks": "お気に入りの授業はまだありません。",
       "votes": "投票の記録はまだありません。",
       "requests": "通報や申請の記録はありません。"
     },
@@ -476,9 +469,6 @@
     "continueEditing": "編集を続ける",
     "deleteDraft": "下書きを削除",
     "deleteDraftConfirm": "この未投稿の下書きを削除しますか？",
-    "removeBookmark": "保存を解除",
-    "removeBookmarkConfirm": "この授業をお気に入りから外しますか？",
-    "bookmarkUnavailable": "授業は表示できません",
     "updatedAt": "更新：{time}",
     "decisionReason": "処理の説明：{reason}",
     "viewContent": "関連コンテンツを見る",

@@ -67,7 +67,7 @@ export function toggleCompare(kind: CompareKind, id: string) {
   list.push(id)
 }
 
-// 规格只定义课程收藏。教师、资料收藏和收藏夹是待确认的原型设想。
+// 课程、教师与资料收藏及收藏夹。
 export type FavKind = 'course' | 'teacher' | 'resource'
 export const folders = ref(['默认收藏', '期末复习', '下学期选课'])
 export const favorites = reactive<{ kind: FavKind; id: string; folder: string; at: string }[]>([
@@ -75,25 +75,19 @@ export const favorites = reactive<{ kind: FavKind; id: string; folder: string; a
   { kind: 'teacher', id: 'p3', folder: '默认收藏', at: ago(6) }, { kind: 'resource', id: 'x1', folder: '期末复习', at: ago(1) },
   { kind: 'course', id: 'c5', folder: '期末复习', at: ago(3) }, { kind: 'teacher', id: 'p4', folder: '下学期选课', at: ago(5) }, { kind: 'resource', id: 'x3', folder: '期末复习', at: ago(7) },
 ])
-export const bookmarks = reactive(new Set(['r3', 'r9', 'c10', 'c4', 'c5']))
 export const isFavorite = (kind: FavKind, id: string) => favorites.some((row) => row.kind === kind && row.id === id)
 function setFavorite(kind: FavKind, id: string, on: boolean) {
   const at = favorites.findIndex((row) => row.kind === kind && row.id === id)
   if (on && at < 0) favorites.unshift({ kind, id, folder: folders.value[0]!, at: new Date().toISOString() })
   if (!on && at >= 0) favorites.splice(at, 1)
 }
-/** 详情页通过演示接口收藏课程时，同步到收藏页。 */
-export function syncCourseFavorite(id: string, on: boolean) {
-  if (on) bookmarks.add(id); else bookmarks.delete(id)
-  if (/^c\d+$/.test(id)) setFavorite('course', id, on)
-}
 export function toggleFavorite(kind: FavKind, id: string) {
   const at = favorites.findIndex((row) => row.kind === kind && row.id === id)
   const old = favorites[at]
-  const apply = (on: boolean) => { if (kind === 'course') syncCourseFavorite(id, on); else setFavorite(kind, id, on) }
+  const apply = (on: boolean) => setFavorite(kind, id, on)
   apply(!old)
   // 撤销时回到原来的收藏夹和位置。
-  if (old) toast(tr('demo.unfavorited'), () => { if (kind === 'course') bookmarks.add(id); favorites.splice(at, 0, old) })
+  if (old) toast(tr('demo.unfavorited'), () => { favorites.splice(at, 0, old) })
   else toast(tr('demo.savedTo', { p0: folders.value[0] }), () => apply(false))
 }
 

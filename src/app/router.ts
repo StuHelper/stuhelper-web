@@ -50,16 +50,6 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.title', section: 'me' } },
   { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
-  // Earlier entry points keep working after the reorganisation.
-  { path: '/community', redirect: (to) => ({ path: '/courses', query: to.query }) },
-  { path: '/community/me', redirect: (to) => ({ path: '/me/reviews', query: to.query }) },
-  { path: '/community/me/entries/:id', redirect: (to) => ({ path: `/me/reviews/entries/${encodeURIComponent(String(to.params.id))}`, query: to.query }) },
-  { path: '/verification', redirect: (to) => ({ path: '/me/verification', query: to.query }) },
-  { path: '/contributions', redirect: (to) => ({ path: '/me/storage', query: to.query }) },
-  { path: '/storage-accounts', redirect: (to) => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
-  { path: '/me/storage-accounts', redirect: (to) => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
-  { path: '/resources/me', redirect: (to) => ({ path: '/me/resources', query: to.query }) },
-  { path: '/resources/requests', redirect: (to) => ({ path: '/me/requests', query: to.query }) },
   { path: '/:pathMatch(.*)*', component: NotFoundView, meta: { title: 'notFound.title' } },
 ]
 

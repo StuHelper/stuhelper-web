@@ -23,7 +23,7 @@ async function setup(page, info) {
     if (url.pathname.includes('/requests/')) { state.lookups++; return route.fulfill({ json: state.items[0] }); }
     return route.fulfill({ json: { items: state.items, next_cursor: '' } });
   });
-  await page.goto(`http://127.0.0.1:18787/storage-accounts?lang=${info.project.metadata.locale}`);
+  await page.goto(`http://127.0.0.1:18787/me/storage?tab=accounts&lang=${info.project.metadata.locale}`);
   await expect(page).toHaveURL(/\/me\/storage\?.*tab=accounts/);
   await expect(page.getByRole('heading', { name: m.connect, exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
