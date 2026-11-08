@@ -26,8 +26,12 @@ export type StudentProfile = Schemas['StudentProfile']
 export type Method = Schemas['Method']
 export type Stage = Schemas['Stage']
 export type Kind = Schemas['Kind']
+export type TeacherForm = Schemas['TeacherForm']
+export type TeacherCredential = Schemas['TeacherCredential']
+export type TeacherDisclosure = Schemas['TeacherDisclosures'][number]
+export const teacherDisclosures: TeacherDisclosure[] = ['real_name', 'teacher', 'gender', 'organization']
 
-type Entity = 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput'
+type Entity = 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential'
 
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
 export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
@@ -56,6 +60,7 @@ const instant = (v: unknown): v is string => {
 const optionalInstant = (v: unknown) => v === null || instant(v)
 const oneOf = (v: unknown, choices: readonly string[]) => text(v) && choices.includes(v)
 const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(text)
+const disclosures = (v: unknown) => Array.isArray(v) && v.length <= 4 && new Set(v).size === v.length && v.every((item) => oneOf(item, ['real_name', 'teacher', 'gender', 'organization']))
 const challenge = (v: unknown) => object(v) && text(v.id) && oneOf(v.state, ['processing', 'waiting_sms', 'authenticated', 'failed', 'cancelled', 'expired']) && text(v.code) && text(v.masked_phone) && instant(v.expires_at)
 
 const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
@@ -75,6 +80,8 @@ const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   CaptureSession: (v) => text(v.token) && /^[A-Za-z0-9_-]{43}$/.test(v.token) && instant(v.expires_at),
   Material: (v) => text(v.id) && text(v.application_id) && oneOf(v.content_type, ['image/jpeg', 'image/png', 'application/pdf']) && count(v.size) && instant(v.created_at),
   Operation: (v) => text(v.id) && oneOf(v.state, ['processing', 'completed', 'failed']) && text(v.code) && instant(v.expires_at),
+  TeacherForm: (v) => sized(v.name, 0, 100) && sized(v.organization, 0, 100) && (v.gender === undefined || sized(v.gender, 0, 32)) && sized(v.email, 0, 254) && sized(v.material_type, 0, 64) && strings(v.material_ids) && v.material_ids.length <= 5 && disclosures(v.disclosures) && count(v.revision),
+  TeacherCredential: (v) => text(v.id) && text(v.school_id) && strings(v.teacher_ids) && oneOf(v.state, ['active', 'revoked', 'expired']) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at) && text(v.source) && text(v.note) && disclosures(v.disclosures),
   ManualInput: (v) => text(v.student_id) && text(v.name) && text(v.department) && text(v.email) && text(v.material_type) && strings(v.material_ids) && count(v.revision),
 }
 

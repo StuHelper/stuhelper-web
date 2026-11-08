@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-qq-binding",
-  "revision": "b5fed4771c45dceaa6cf7870af23983e8038a966",
+  "revision": "308eae8e39b785262deaec99262abdee09af12de",
   "version": "0.2.0",
   "files": {
     "contracts/qq-binding.openapi.json": "contracts/qq-binding.openapi.json",

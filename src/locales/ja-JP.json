@@ -1811,5 +1811,62 @@
       "approve": "選択した項目を許可（{count}）",
       "deny": "拒否"
     }
+  },
+  "teacher": {
+    "title": "教員認証",
+    "description": "在職を証明する資料を提出すると、管理者が確認してコースカタログの教員プロフィールと関連付けます。公開する情報はご自身で選べます。",
+    "link": "教員認証",
+    "credentials": "教員資格",
+    "profiles": "関連する教員プロフィール：{names}",
+    "validUntil": "{date} まで有効",
+    "noExpiry": "有効期限なし",
+    "note": "管理者のメモ：{note}",
+    "nothingPublic": "公開している情報はありません。",
+    "changeDisclosures": "公開情報を変更",
+    "disclosureLegend": "次の情報を公開",
+    "disclosuresSaved": "公開情報を更新しました。",
+    "application": "進行中の申請",
+    "reviewNote": "審査コメント：{note}",
+    "waiting": "資料は提出済みで、管理者の審査を待っています。",
+    "supplement": "資料を追加",
+    "fillForm": "申請を入力",
+    "name": "氏名",
+    "organization": "所属機関",
+    "gender": "性別（任意）",
+    "email": "勤務先メール",
+    "emailHint": "審査の連絡にのみ使用し、公開しません。",
+    "materialType": "証明資料の種類",
+    "materials": "アップロード済み資料：{count}",
+    "materialItem": "資料 {index}",
+    "removeMaterial": "資料 {index} を削除",
+    "disclosureHint": "承認後、選んだ情報がレビューとプロフィールに表示されます。いつでも変更できます。",
+    "submit": "審査に提出",
+    "submitted": "申請を提出しました。審査をお待ちください。",
+    "start": "教員認証を申請",
+    "startHint": "勤務する学校を選び、認証の案内を確認してください。教員認証は学生認証とは別に扱われます。",
+    "school": "勤務校",
+    "consent": "学校の認証案内を読み、資料を審査のために提出することに同意します。",
+    "apply": "申請を開始",
+    "history": "過去の申請",
+    "credentialState": {
+      "active": "有効",
+      "revoked": "取り消し済み",
+      "expired": "期限切れ"
+    },
+    "applicationState": {
+      "in_progress": "入力中",
+      "pending_review": "審査待ち",
+      "supplement_required": "資料の追加が必要",
+      "approved": "承認済み",
+      "rejected": "不承認",
+      "expired": "期限切れ",
+      "deleted": "削除済み"
+    },
+    "disclosure": {
+      "real_name": "氏名",
+      "teacher": "教員であること",
+      "gender": "性別",
+      "organization": "所属機関"
+    }
   }
 }

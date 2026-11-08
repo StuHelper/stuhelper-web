@@ -57,6 +57,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { remountOnPath: true, title: 'verification.identityTitle', section: 'me' } },
   { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.title', section: 'me' } },
   { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },
+  { path: '/me/verification/teacher', component: () => import('../features/verification/TeacherView.vue'), meta: { title: 'teacher.title', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
   { path: '/:pathMatch(.*)*', component: NotFoundView, meta: { title: 'notFound.title' } },
 ]

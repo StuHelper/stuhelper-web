@@ -4,6 +4,7 @@ import { favoritesRoute } from './favorites'
 import { billingRoute } from './billing'
 import { openPlatformRoute } from './open-platform'
 import { qqRoute } from './qq'
+import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
 const KEY = 'stuhelper-demo-persona'
@@ -121,12 +122,23 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const platform = await openPlatformRoute(p, method, init)
   if (platform) return platform
 
+  const teacher = await teacherRoute(p, method, init)
+  if (teacher) return teacher
+
   if (p.startsWith('/verification')) {
     const eligible = who === 'verified'
+    if (p === '/verification/capture' && method === 'POST') {
+      const material = teacherCaptured(init?.body instanceof Blob ? init.body.size : 1)
+      return material ? json(material, 201) : nope('not_found', 404)
+    }
+    if (p.startsWith('/verification/materials/') && method === 'DELETE') {
+      const removed = teacherMaterialDeleted(decodeURIComponent(p.slice('/verification/materials/'.length)))
+      return removed ? json(removed) : nope('not_found', 404)
+    }
     if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8` } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
     if (p === '/verification/schools') return json([d.verification.school])
     if (p === '/verification/credentials') return json(eligible ? [d.verification.credential('active')] : who === 'expired' ? [d.verification.credential('expired')] : [])
-    if (p === '/verification/applications' && method === 'GET') return json(who === 'processing' ? [d.verification.application] : [])
+    if (p === '/verification/applications' && method === 'GET') return json([...(who === 'processing' ? [d.verification.application] : []), ...teacherApplications()])
     if (p === '/verification/applications') return json({ ...d.verification.application, state: 'in_progress' }, 201)
     if (p === '/verification/identity') return json({ code: 'pending' }, 400)
     return json([])

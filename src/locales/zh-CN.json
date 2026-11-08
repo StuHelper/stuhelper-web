@@ -1811,5 +1811,62 @@
       "approve": "允许所选（{count}）",
       "deny": "拒绝"
     }
+  },
+  "teacher": {
+    "title": "教师认证",
+    "description": "提交任教证明，管理员审核后关联课程目录中的教师档案。公开哪些信息由你决定。",
+    "link": "教师认证",
+    "credentials": "我的教师资格",
+    "profiles": "关联教师档案：{names}",
+    "validUntil": "有效期至 {date}",
+    "noExpiry": "长期有效",
+    "note": "管理员备注：{note}",
+    "nothingPublic": "当前不公开任何信息。",
+    "changeDisclosures": "修改公开信息",
+    "disclosureLegend": "公开以下信息",
+    "disclosuresSaved": "公开信息已更新。",
+    "application": "进行中的申请",
+    "reviewNote": "审核意见：{note}",
+    "waiting": "材料已提交，正在等待管理员审核。",
+    "supplement": "补充材料",
+    "fillForm": "填写申请",
+    "name": "姓名",
+    "organization": "任职单位",
+    "gender": "性别（可选）",
+    "email": "工作邮箱",
+    "emailHint": "用于联系核实，不会公开。",
+    "materialType": "证明材料类型",
+    "materials": "已上传材料：{count}",
+    "materialItem": "材料 {index}",
+    "removeMaterial": "删除材料 {index}",
+    "disclosureHint": "认证通过后，所选信息会显示在你的评价与资料中，之后可以随时修改。",
+    "submit": "提交审核",
+    "submitted": "申请已提交，请等待审核。",
+    "start": "申请教师认证",
+    "startHint": "选择任教学校并阅读认证须知。教师认证与学生认证相互独立。",
+    "school": "任教学校",
+    "consent": "我已阅读并同意该学校的认证须知，同意提交材料供审核。",
+    "apply": "开始申请",
+    "history": "历史申请",
+    "credentialState": {
+      "active": "有效",
+      "revoked": "已撤销",
+      "expired": "已过期"
+    },
+    "applicationState": {
+      "in_progress": "填写中",
+      "pending_review": "待审核",
+      "supplement_required": "需补充材料",
+      "approved": "已通过",
+      "rejected": "未通过",
+      "expired": "已过期",
+      "deleted": "已删除"
+    },
+    "disclosure": {
+      "real_name": "真实姓名",
+      "teacher": "教师身份",
+      "gender": "性别",
+      "organization": "任职单位"
+    }
   }
 }

@@ -1811,5 +1811,62 @@
       "approve": "선택 항목 허용({count})",
       "deny": "거부"
     }
+  },
+  "teacher": {
+    "title": "교원 인증",
+    "description": "재직 증빙을 제출하면 관리자가 검토한 뒤 강의 카탈로그의 교원 프로필과 연결합니다. 공개할 정보는 직접 선택합니다.",
+    "link": "교원 인증",
+    "credentials": "내 교원 자격",
+    "profiles": "연결된 교원 프로필: {names}",
+    "validUntil": "{date}까지 유효",
+    "noExpiry": "유효 기간 없음",
+    "note": "관리자 메모: {note}",
+    "nothingPublic": "공개 중인 정보가 없습니다.",
+    "changeDisclosures": "공개 정보 변경",
+    "disclosureLegend": "다음 정보 공개",
+    "disclosuresSaved": "공개 정보를 변경했습니다.",
+    "application": "진행 중인 신청",
+    "reviewNote": "검토 의견: {note}",
+    "waiting": "자료를 제출했으며 관리자 검토를 기다리고 있습니다.",
+    "supplement": "자료 보완",
+    "fillForm": "신청서 작성",
+    "name": "이름",
+    "organization": "소속 기관",
+    "gender": "성별(선택)",
+    "email": "업무용 이메일",
+    "emailHint": "검토 연락에만 사용하며 공개하지 않습니다.",
+    "materialType": "증빙 자료 종류",
+    "materials": "업로드한 자료: {count}",
+    "materialItem": "자료 {index}",
+    "removeMaterial": "자료 {index} 삭제",
+    "disclosureHint": "승인되면 선택한 정보가 강의평과 프로필에 표시됩니다. 언제든지 바꿀 수 있습니다.",
+    "submit": "검토 요청",
+    "submitted": "신청을 제출했습니다. 검토를 기다려 주세요.",
+    "start": "교원 인증 신청",
+    "startHint": "재직 중인 학교를 고르고 인증 안내를 읽어 주세요. 교원 인증은 학생 인증과 별개입니다.",
+    "school": "재직 학교",
+    "consent": "학교의 인증 안내를 읽었으며 검토를 위해 자료를 제출하는 데 동의합니다.",
+    "apply": "신청 시작",
+    "history": "지난 신청",
+    "credentialState": {
+      "active": "유효",
+      "revoked": "취소됨",
+      "expired": "만료됨"
+    },
+    "applicationState": {
+      "in_progress": "작성 중",
+      "pending_review": "검토 대기",
+      "supplement_required": "자료 보완 필요",
+      "approved": "승인됨",
+      "rejected": "거절됨",
+      "expired": "만료됨",
+      "deleted": "삭제됨"
+    },
+    "disclosure": {
+      "real_name": "실명",
+      "teacher": "교원 신분",
+      "gender": "성별",
+      "organization": "소속 기관"
+    }
   }
 }

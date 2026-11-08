@@ -17,6 +17,17 @@ describe('verification contract boundary', () => {
     expect(parseEntity('Application', application).id).toBe('a1')
   })
 
+  it('accepts teacher records only with known, distinct disclosure choices', () => {
+    const credential = { id: 'tc', school_id: 'synthetic', teacher_ids: ['p1'], state: 'active', revision: 1, verified_at: '2026-10-28T00:00:00Z', expires_at: null, source: 'manual_material_review', note: '', disclosures: ['teacher'] }
+    expect(parseEntity('TeacherCredential', credential).teacher_ids).toEqual(['p1'])
+    expect(() => parseEntity('TeacherCredential', { ...credential, disclosures: ['teacher', 'teacher'] })).toThrow('incompatible')
+    expect(() => parseEntity('TeacherCredential', { ...credential, disclosures: ['phone'] })).toThrow('incompatible')
+    expect(() => parseEntity('TeacherCredential', { ...credential, state: 'pending' })).toThrow('incompatible')
+    const form = { name: 'Lin', organization: 'School', email: 'lin@example.invalid', material_type: 'staff_card', material_ids: ['m1'], disclosures: [], revision: 1 }
+    expect(parseEntity('TeacherForm', form).disclosures).toEqual([])
+    expect(() => parseEntity('TeacherForm', { ...form, material_ids: ['1', '2', '3', '4', '5', '6'] })).toThrow('incompatible')
+  })
+
   it('retains the idempotency key after a lost response and uses a new one for a new intent', async () => {
     const keys: string[] = []
     let fail = true

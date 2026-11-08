@@ -1811,5 +1811,62 @@
       "approve": "Autoriser la sélection ({count})",
       "deny": "Refuser"
     }
+  },
+  "teacher": {
+    "title": "Vérification enseignant",
+    "description": "Envoyez une preuve d’enseignement. Un administrateur la vérifie et relie vos fiches enseignant du catalogue. Vous choisissez ce qui est public.",
+    "link": "Vérification enseignant",
+    "credentials": "Mes qualifications d’enseignant",
+    "profiles": "Fiches enseignant liées : {names}",
+    "validUntil": "Valable jusqu’au {date}",
+    "noExpiry": "Sans date d’expiration",
+    "note": "Note de l’administrateur : {note}",
+    "nothingPublic": "Aucune information n’est publique.",
+    "changeDisclosures": "Modifier les informations publiques",
+    "disclosureLegend": "Rendre public",
+    "disclosuresSaved": "Informations publiques mises à jour.",
+    "application": "Demande en cours",
+    "reviewNote": "Avis de vérification : {note}",
+    "waiting": "Vos pièces attendent l’examen d’un administrateur.",
+    "supplement": "Compléter les pièces",
+    "fillForm": "Remplir la demande",
+    "name": "Nom complet",
+    "organization": "Établissement employeur",
+    "gender": "Genre (facultatif)",
+    "email": "E-mail professionnel",
+    "emailHint": "Sert uniquement à vous contacter pour la vérification ; jamais rendu public.",
+    "materialType": "Type de justificatif",
+    "materials": "Pièces envoyées : {count}",
+    "materialItem": "Pièce {index}",
+    "removeMaterial": "Supprimer la pièce {index}",
+    "disclosureHint": "Après approbation, les informations choisies apparaissent sur vos avis et votre profil. Vous pouvez les modifier à tout moment.",
+    "submit": "Envoyer pour vérification",
+    "submitted": "Demande envoyée. Patientez pendant l’examen.",
+    "start": "Demander la vérification enseignant",
+    "startHint": "Choisissez l’établissement où vous enseignez et lisez sa notice. Cette vérification est distincte de celle des étudiants.",
+    "school": "Établissement",
+    "consent": "J’ai lu la notice de vérification de l’établissement et j’accepte d’envoyer mes pièces pour examen.",
+    "apply": "Commencer la demande",
+    "history": "Demandes précédentes",
+    "credentialState": {
+      "active": "En vigueur",
+      "revoked": "Révoquée",
+      "expired": "Expirée"
+    },
+    "applicationState": {
+      "in_progress": "En cours de saisie",
+      "pending_review": "En attente d’examen",
+      "supplement_required": "Pièces à compléter",
+      "approved": "Approuvée",
+      "rejected": "Refusée",
+      "expired": "Expirée",
+      "deleted": "Supprimée"
+    },
+    "disclosure": {
+      "real_name": "Nom réel",
+      "teacher": "Qualité d’enseignant",
+      "gender": "Genre",
+      "organization": "Établissement employeur"
+    }
   }
 }

@@ -1811,5 +1811,62 @@
       "approve": "Allow selected ({count})",
       "deny": "Deny"
     }
+  },
+  "teacher": {
+    "title": "Teacher verification",
+    "description": "Submit proof of teaching. An administrator reviews it and links your teacher profiles in the course catalog. You choose what is shown publicly.",
+    "link": "Teacher verification",
+    "credentials": "My teacher qualifications",
+    "profiles": "Linked teacher profiles: {names}",
+    "validUntil": "Valid until {date}",
+    "noExpiry": "No expiry date",
+    "note": "Administrator note: {note}",
+    "nothingPublic": "Nothing is shown publicly.",
+    "changeDisclosures": "Change public details",
+    "disclosureLegend": "Show publicly",
+    "disclosuresSaved": "Public details updated.",
+    "application": "Open application",
+    "reviewNote": "Review note: {note}",
+    "waiting": "Your materials are waiting for an administrator to review them.",
+    "supplement": "Add materials",
+    "fillForm": "Fill in the application",
+    "name": "Full name",
+    "organization": "Employer",
+    "gender": "Gender (optional)",
+    "email": "Work email",
+    "emailHint": "Used only to contact you about the review; never shown publicly.",
+    "materialType": "Proof type",
+    "materials": "Uploaded materials: {count}",
+    "materialItem": "Material {index}",
+    "removeMaterial": "Remove material {index}",
+    "disclosureHint": "Once approved, the selected details appear on your reviews and profile. You can change them at any time.",
+    "submit": "Submit for review",
+    "submitted": "Application submitted. Wait for the review.",
+    "start": "Apply for teacher verification",
+    "startHint": "Choose the school where you teach and read its notice. Teacher verification is separate from student verification.",
+    "school": "School",
+    "consent": "I have read the school’s verification notice and agree to submit my materials for review.",
+    "apply": "Start application",
+    "history": "Past applications",
+    "credentialState": {
+      "active": "Active",
+      "revoked": "Revoked",
+      "expired": "Expired"
+    },
+    "applicationState": {
+      "in_progress": "In progress",
+      "pending_review": "Pending review",
+      "supplement_required": "Needs more materials",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "expired": "Expired",
+      "deleted": "Deleted"
+    },
+    "disclosure": {
+      "real_name": "Real name",
+      "teacher": "Teacher status",
+      "gender": "Gender",
+      "organization": "Employer"
+    }
   }
 }

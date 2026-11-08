@@ -1811,5 +1811,62 @@
       "approve": "Permitir lo seleccionado ({count})",
       "deny": "Denegar"
     }
+  },
+  "teacher": {
+    "title": "Verificación docente",
+    "description": "Envía una prueba de que impartes clases. Un administrador la revisa y vincula tus perfiles docentes del catálogo. Tú eliges qué se muestra públicamente.",
+    "link": "Verificación docente",
+    "credentials": "Mis acreditaciones docentes",
+    "profiles": "Perfiles docentes vinculados: {names}",
+    "validUntil": "Válida hasta el {date}",
+    "noExpiry": "Sin fecha de caducidad",
+    "note": "Nota del administrador: {note}",
+    "nothingPublic": "No se muestra nada públicamente.",
+    "changeDisclosures": "Cambiar datos públicos",
+    "disclosureLegend": "Mostrar públicamente",
+    "disclosuresSaved": "Datos públicos actualizados.",
+    "application": "Solicitud en curso",
+    "reviewNote": "Comentario de la revisión: {note}",
+    "waiting": "Tus documentos esperan la revisión de un administrador.",
+    "supplement": "Añadir documentos",
+    "fillForm": "Rellenar la solicitud",
+    "name": "Nombre completo",
+    "organization": "Centro de trabajo",
+    "gender": "Género (opcional)",
+    "email": "Correo del trabajo",
+    "emailHint": "Solo se usa para contactarte sobre la revisión; nunca se muestra.",
+    "materialType": "Tipo de justificante",
+    "materials": "Documentos subidos: {count}",
+    "materialItem": "Documento {index}",
+    "removeMaterial": "Quitar documento {index}",
+    "disclosureHint": "Tras la aprobación, los datos elegidos aparecen en tus reseñas y tu perfil. Puedes cambiarlos cuando quieras.",
+    "submit": "Enviar a revisión",
+    "submitted": "Solicitud enviada. Espera la revisión.",
+    "start": "Solicitar verificación docente",
+    "startHint": "Elige el centro donde das clase y lee su aviso. La verificación docente es independiente de la de estudiantes.",
+    "school": "Centro",
+    "consent": "He leído el aviso de verificación del centro y acepto enviar mis documentos para su revisión.",
+    "apply": "Iniciar solicitud",
+    "history": "Solicitudes anteriores",
+    "credentialState": {
+      "active": "Vigente",
+      "revoked": "Revocada",
+      "expired": "Caducada"
+    },
+    "applicationState": {
+      "in_progress": "En preparación",
+      "pending_review": "Pendiente de revisión",
+      "supplement_required": "Faltan documentos",
+      "approved": "Aprobada",
+      "rejected": "Rechazada",
+      "expired": "Caducada",
+      "deleted": "Eliminada"
+    },
+    "disclosure": {
+      "real_name": "Nombre real",
+      "teacher": "Condición docente",
+      "gender": "Género",
+      "organization": "Centro de trabajo"
+    }
   }
 }

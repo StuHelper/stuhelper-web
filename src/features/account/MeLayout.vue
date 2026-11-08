@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppWindow, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
+import { AppWindow, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, GraduationCap, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -10,7 +10,9 @@ import RequireSignIn from './RequireSignIn.vue'
 withDefaults(defineProps<{ title: string; description?: string; requireSignIn?: boolean; back?: string; backLabel?: string }>(), { description: '', requireSignIn: true, back: undefined, backLabel: undefined })
 const { t } = useI18n()
 const route = useRoute()
-const current = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
+const covers = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
+// The most specific link wins, so the teacher page does not also mark the verification link.
+const current = (to: string) => covers(to) && !links.some((link) => link.to !== to && link.to.startsWith(`${to}/`) && covers(link.to))
 const links = [
   { to: '/me', label: 'me.overview', icon: UserRound, tile: 'var(--c-gray)' },
   { to: '/me/courses', label: 'courses.title', icon: CalendarDays, tile: 'var(--c-red)' },
@@ -18,6 +20,7 @@ const links = [
   { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
   { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: 'var(--c-indigo)' },
   { to: '/me/verification', label: 'verification.title', icon: ShieldCheck, tile: 'var(--c-green)' },
+  { to: '/me/verification/teacher', label: 'teacher.link', icon: GraduationCap, tile: 'var(--c-indigo)' },
   { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
   { to: '/me/favorites', label: 'favorites.title', icon: Bookmark, tile: 'var(--c-orange)' },
   { to: '/me/wallet', label: 'wallet.title', icon: Coins, tile: 'var(--c-flame)' },
