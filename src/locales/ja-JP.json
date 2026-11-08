@@ -1905,5 +1905,67 @@
       "inaccessible": "関連する内容にはアクセスできなくなりました。",
       "unavailable": "関連する内容を今は表示できません。しばらくしてから再試行してください。"
     }
+  },
+  "search": {
+    "title": "検索",
+    "open": "検索を開く",
+    "hotkey": "検索（Ctrl K）",
+    "placeholderShort": "授業・教員・資料を検索",
+    "placeholder": "授業、教員、評価、資料を検索",
+    "needsVerification": "学生認証または教員認証を完了すると授業の内容を検索できます。",
+    "results": "検索結果",
+    "searching": "検索しています…",
+    "noMatch": "該当する内容はありません。",
+    "typeToSearch": "キーワードを入力してください。",
+    "allResults": "すべての結果を見る",
+    "all": "すべて",
+    "submit": "検索",
+    "filter": "結果の種類",
+    "recent": "最近見たページ",
+    "kinds": {
+      "course": "授業",
+      "teacher": "教員",
+      "review": "評価",
+      "resource": "資料"
+    },
+    "popular": {
+      "title": "人気",
+      "description": "最近の閲覧、評価、お気に入り、反応の数で並べています。人気と評価は別々に集計しており、上位でも評価が高いとは限りません。",
+      "courses": "人気の授業",
+      "teachers": "人気の教員",
+      "kind": "ランキングの種類",
+      "empty": "ランキングを作るためのデータがまだ足りません。"
+    },
+    "votes": {
+      "title": "自分の投票",
+      "description": "評価に対する「役に立った」「役に立たなかった」の投票です。変更や取り消しは各評価のページで行います。",
+      "empty": "まだ投票していません。",
+      "review": "評価",
+      "up": "役に立った",
+      "down": "役に立たなかった"
+    },
+    "compare": {
+      "title": "比較",
+      "description": "授業や教員の 5 項目の評価を並べて比較します。最大 {max} 件です。",
+      "courses": "授業（{count}）",
+      "teachers": "教員（{count}）",
+      "kind": "比較の種類",
+      "emptyTitle": "比較する項目がありません",
+      "emptyHint": "授業または教員のページで「比較に追加」を選んでから、ここに戻ってください。",
+      "browseCourses": "授業を探す",
+      "browseTeachers": "教員を探す",
+      "dimension": "評価項目",
+      "remove": "{name} を比較から外す",
+      "noReviews": "評価なし",
+      "samples": "評価数",
+      "note": "すべての列で同じ集計期間を使います。評価が少ない場合は「十分なデータがありません」と表示し、正確な平均は表示しません。",
+      "full": "比較できるのは最大 {max} 件です。先に 1 件外してください。",
+      "added": "比較に追加済み",
+      "add": "比較に追加",
+      "tray": "比較リスト",
+      "progress": "{count} / {max} 件を選択中",
+      "start": "比較する",
+      "pickMore": "もう 1 件選ぶと比較できます"
+    }
   }
 }

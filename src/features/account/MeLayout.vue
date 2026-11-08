@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, GraduationCap, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
+import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, GraduationCap, HardDrive, Inbox, LockKeyhole, ShieldCheck, ThumbsUp, UserRound, UserRoundCog } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -24,6 +24,7 @@ const links = [
   { to: '/me/verification/teacher', label: 'teacher.link', icon: GraduationCap, tile: 'var(--c-indigo)' },
   { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
   { to: '/me/favorites', label: 'favorites.title', icon: Bookmark, tile: 'var(--c-orange)' },
+  { to: '/me/votes', label: 'search.votes.title', icon: ThumbsUp, tile: 'var(--c-blue)' },
   { to: '/me/wallet', label: 'wallet.title', icon: Coins, tile: 'var(--c-flame)' },
   { to: '/me/apps', label: 'platform.grants.title', icon: AppWindow, tile: 'var(--c-cyan)' },
   { to: '/me/developer', label: 'platform.developer.title', icon: Code2, tile: 'var(--c-gray)' },

@@ -168,6 +168,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
 
   if (p === '/reviews/presentation') return json({ effective: { school_id: d.SCHOOL, revision: 0, rating_texts: {} }, configured: null, source: 'default' })
   if (p === '/reviews/statistics') return statistics(u)
+  if (p === '/search' || p === '/search/popular') return json({ items: search(u, p === '/search/popular'), next_cursor: '' })
+  if (p === '/search/my-votes') return json({ items: d.reviews.slice(0, 3).map((r, i) => ({ target: { source: 'reviews', id: r.id, kind: 'review' }, choice: i === 1 ? 'down' : 'up' })), next_cursor: '' })
   if (p === '/reviews/compose') {
     const kind = u.searchParams.get('kind')
     const term = u.searchParams.get('term_id')
@@ -285,4 +287,18 @@ function schedule(term: string) {
       : [{ id: `${e.id}-m0`, time_text: '周三 下午', location: '' }]
     return { enrollment: e, course_name: d.allObjects.find((o) => o.id === e.course_id)?.name ?? e.course_id, meetings, ...(term === 't-26f' ? { timetable: { school_id: d.SCHOOL, term_id: term, revision: 1, week_one_start: '2026-09-07', timezone: 'Asia/Shanghai', periods } } : {}) }
   })
+}
+
+// 搜索与热门：按名称或标题匹配课程、教师和评价；热门按评价数排序。
+function search(u: URL, popular: boolean) {
+  const kind = u.searchParams.get('kind') ?? ''
+  const q = (u.searchParams.get('q') ?? '').trim().toLowerCase()
+  const objects = d.allObjects.filter((o) => (o.kind === 'course' || o.kind === 'teacher') && (!kind || o.kind === kind))
+  if (popular) {
+    const count = (id: string) => d.reviews.filter((r) => r.target_id === id || ('teacher_id' in r && r.teacher_id === id)).length
+    return objects.sort((a, b) => count(b.id) - count(a.id)).slice(0, 20).map((o) => ({ target: { source: 'catalog', id: o.id, kind: o.kind }, title: o.name, school_id: d.SCHOOL }))
+  }
+  const found = objects.filter((o) => o.name.toLowerCase().includes(q)).map((o) => ({ target: { source: 'catalog', id: o.id, kind: o.kind }, title: o.name, school_id: d.SCHOOL }))
+  const reviews = !kind || kind === 'review' ? d.reviews.filter((r) => r.title.toLowerCase().includes(q)).map((r) => ({ target: { source: 'reviews', id: r.id, kind: 'review' }, title: r.title, school_id: d.SCHOOL })) : []
+  return [...found, ...reviews].slice(0, Number(u.searchParams.get('limit') ?? 20))
 }

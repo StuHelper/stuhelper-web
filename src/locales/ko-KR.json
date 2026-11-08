@@ -1905,5 +1905,67 @@
       "inaccessible": "관련 항목에 더 이상 접근할 수 없습니다.",
       "unavailable": "관련 항목을 지금 표시할 수 없습니다. 잠시 후 다시 시도하세요."
     }
+  },
+  "search": {
+    "title": "검색",
+    "open": "검색 열기",
+    "hotkey": "검색 (Ctrl K)",
+    "placeholderShort": "강의, 교원, 자료 검색",
+    "placeholder": "강의, 교원, 평가 또는 자료 검색",
+    "needsVerification": "학생 인증이나 교원 인증을 마치면 강의 내용을 검색할 수 있습니다.",
+    "results": "검색 결과",
+    "searching": "검색 중…",
+    "noMatch": "일치하는 내용이 없습니다.",
+    "typeToSearch": "검색어를 입력하세요.",
+    "allResults": "전체 결과 보기",
+    "all": "전체",
+    "submit": "검색",
+    "filter": "결과 유형",
+    "recent": "최근 본 페이지",
+    "kinds": {
+      "course": "강의",
+      "teacher": "교원",
+      "review": "평가",
+      "resource": "자료"
+    },
+    "popular": {
+      "title": "인기",
+      "description": "최근 조회, 평가, 즐겨찾기, 반응 수로 정렬합니다. 인기와 평점은 따로 집계하므로 순위가 높다고 평가가 좋은 것은 아닙니다.",
+      "courses": "인기 강의",
+      "teachers": "인기 교원",
+      "kind": "순위 유형",
+      "empty": "순위를 만들 데이터가 아직 부족합니다."
+    },
+    "votes": {
+      "title": "내 투표",
+      "description": "평가에 남긴 도움됨·도움 안 됨 투표입니다. 변경하거나 취소하려면 해당 평가로 이동하세요.",
+      "empty": "아직 투표하지 않았습니다.",
+      "review": "평가",
+      "up": "도움됨",
+      "down": "도움 안 됨"
+    },
+    "compare": {
+      "title": "비교",
+      "description": "강의나 교원의 다섯 가지 평가를 나란히 봅니다. 최대 {max}개까지 가능합니다.",
+      "courses": "강의 ({count})",
+      "teachers": "교원 ({count})",
+      "kind": "비교 유형",
+      "emptyTitle": "비교할 항목이 없습니다",
+      "emptyHint": "강의나 교원 페이지에서 “비교에 추가”를 누른 뒤 여기로 돌아오세요.",
+      "browseCourses": "강의 둘러보기",
+      "browseTeachers": "교원 둘러보기",
+      "dimension": "평가 항목",
+      "remove": "{name}을(를) 비교에서 제거",
+      "noReviews": "평가 없음",
+      "samples": "평가 수",
+      "note": "모든 열은 같은 집계 기간을 사용합니다. 평가가 부족하면 “데이터 부족”으로 표시하며 정확한 평균은 보여 주지 않습니다.",
+      "full": "최대 {max}개까지 비교할 수 있습니다. 먼저 하나를 제거하세요.",
+      "added": "비교에 추가됨",
+      "add": "비교에 추가",
+      "tray": "비교 목록",
+      "progress": "{count} / {max}개 선택됨",
+      "start": "비교하기",
+      "pickMore": "하나 더 고르면 비교할 수 있습니다"
+    }
   }
 }

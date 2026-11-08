@@ -1905,5 +1905,67 @@
       "inaccessible": "The related item is no longer accessible.",
       "unavailable": "The related item cannot be shown right now. Try again later."
     }
+  },
+  "search": {
+    "title": "Search",
+    "open": "Open search",
+    "hotkey": "Search (Ctrl K)",
+    "placeholderShort": "Search courses, teachers, resources",
+    "placeholder": "Search courses, teachers, reviews or resources",
+    "needsVerification": "Search course content after completing student or teacher verification.",
+    "results": "Search results",
+    "searching": "Searching…",
+    "noMatch": "Nothing matches.",
+    "typeToSearch": "Type a keyword to search.",
+    "allResults": "See all results",
+    "all": "All",
+    "submit": "Search",
+    "filter": "Result type",
+    "recent": "Recently viewed",
+    "kinds": {
+      "course": "Course",
+      "teacher": "Teacher",
+      "review": "Review",
+      "resource": "Resource"
+    },
+    "popular": {
+      "title": "Popular",
+      "description": "Ranked by recent views, reviews, favorites and interactions. Popularity is counted apart from ratings; a high rank does not mean better reviews.",
+      "courses": "Popular courses",
+      "teachers": "Popular teachers",
+      "kind": "Ranking",
+      "empty": "Not enough activity yet to build a ranking."
+    },
+    "votes": {
+      "title": "My votes",
+      "description": "Your helpful and not helpful votes on reviews. Open a review to change or withdraw your vote.",
+      "empty": "You have not voted yet.",
+      "review": "Review",
+      "up": "Helpful",
+      "down": "Not helpful"
+    },
+    "compare": {
+      "title": "Compare",
+      "description": "See the five ratings of courses or teachers side by side, up to {max} at a time.",
+      "courses": "Courses ({count})",
+      "teachers": "Teachers ({count})",
+      "kind": "Compare",
+      "emptyTitle": "Nothing to compare yet",
+      "emptyHint": "Choose “Add to compare” on a course or teacher page, then come back here.",
+      "browseCourses": "Browse courses",
+      "browseTeachers": "Browse teachers",
+      "dimension": "Rating",
+      "remove": "Remove {name} from comparison",
+      "noReviews": "No reviews",
+      "samples": "Reviews",
+      "note": "Every column uses the same time range. Too few reviews shows “Not enough data”; exact averages are never shown.",
+      "full": "You can compare up to {max} at a time. Remove one first.",
+      "added": "In comparison",
+      "add": "Add to compare",
+      "tray": "Comparison list",
+      "progress": "{count} of {max} selected",
+      "start": "Compare now",
+      "pickMore": "Pick one more to compare"
+    }
   }
 }

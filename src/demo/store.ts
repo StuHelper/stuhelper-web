@@ -52,14 +52,11 @@ export const timetable = [
 export const periods = ['08:00', '08:50', '09:50', '10:40', '11:30', '14:00', '14:50', '15:50', '16:40', '17:30', '19:00', '19:50']
 
 // —— 对比、收藏和评分图表的演示状态 ——
-export const MAX_COMPARE = 4
-export type CompareKind = 'course' | 'teacher'
-export const compare = reactive<Record<CompareKind, string[]>>({ course: [], teacher: [] })
+export { maxCompare as MAX_COMPARE, compareList as compare } from '../features/search/compare'
+export type { CompareKind } from '../features/search/compare'
+import { maxCompare, toggleCompare as toggleReal, type CompareKind } from '../features/search/compare'
 export function toggleCompare(kind: CompareKind, id: string) {
-  const list = compare[kind]; const at = list.indexOf(id)
-  if (at >= 0) { list.splice(at, 1); return }
-  if (list.length >= MAX_COMPARE) { toast(tr('demo.compareLimit', { p0: MAX_COMPARE })); return }
-  list.push(id)
+  if (!toggleReal(kind, id)) toast(tr('demo.compareLimit', { p0: maxCompare }))
 }
 
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PageSkeleton from '../../shared/ui/PageSkeleton.vue'
-import { BookOpen, ChevronRight, FileText, FolderOpen, GraduationCap, Search, ShieldCheck, UserRound } from 'lucide-vue-next'
+import { BookOpen, ChevronRight, FileText, Flame, FolderOpen, GraduationCap, Scale, Search, ShieldCheck, UserRound } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
@@ -26,6 +26,8 @@ const icons = { course: BookOpen, teacher: GraduationCap, resource: FolderOpen }
 const shortcuts = [
   { to: '/courses', title: 'nav.courses', icon: BookOpen, tile: 'var(--c-blue)' },
   { to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: 'var(--c-purple)' },
+  { to: '/popular', title: 'search.popular.title', icon: Flame, tile: 'var(--c-red)' },
+  { to: '/compare', title: 'search.compare.title', icon: Scale, tile: 'var(--c-indigo)' },
   { to: '/resources', title: 'nav.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
   { to: '/me/reviews', title: 'me.reviews', icon: FileText, tile: 'var(--c-indigo)' },
   { to: '/me', title: 'me.title', icon: UserRound, tile: 'var(--c-pink)' },

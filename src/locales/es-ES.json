@@ -1905,5 +1905,67 @@
       "inaccessible": "El elemento relacionado ya no está accesible.",
       "unavailable": "El elemento relacionado no se puede mostrar ahora. Inténtalo más tarde."
     }
+  },
+  "search": {
+    "title": "Búsqueda",
+    "open": "Abrir la búsqueda",
+    "hotkey": "Buscar (Ctrl K)",
+    "placeholderShort": "Buscar cursos, docentes, recursos",
+    "placeholder": "Busca cursos, docentes, reseñas o recursos",
+    "needsVerification": "Podrás buscar contenido de cursos tras completar la verificación de estudiante o docente.",
+    "results": "Resultados de búsqueda",
+    "searching": "Buscando…",
+    "noMatch": "No hay coincidencias.",
+    "typeToSearch": "Escribe una palabra clave para buscar.",
+    "allResults": "Ver todos los resultados",
+    "all": "Todo",
+    "submit": "Buscar",
+    "filter": "Tipo de resultado",
+    "recent": "Vistos recientemente",
+    "kinds": {
+      "course": "Curso",
+      "teacher": "Docente",
+      "review": "Reseña",
+      "resource": "Recurso"
+    },
+    "popular": {
+      "title": "Populares",
+      "description": "Ordenados por visitas, reseñas, favoritos e interacciones recientes. La popularidad se cuenta aparte de las valoraciones: un puesto alto no implica mejores reseñas.",
+      "courses": "Cursos populares",
+      "teachers": "Docentes populares",
+      "kind": "Clasificación",
+      "empty": "Aún no hay actividad suficiente para la clasificación."
+    },
+    "votes": {
+      "title": "Mis votos",
+      "description": "Tus votos de útil y no útil en las reseñas. Abre una reseña para cambiar o retirar tu voto.",
+      "empty": "Aún no has votado.",
+      "review": "Reseña",
+      "up": "Útil",
+      "down": "No útil"
+    },
+    "compare": {
+      "title": "Comparar",
+      "description": "Las cinco valoraciones de cursos o docentes lado a lado, hasta {max} a la vez.",
+      "courses": "Cursos ({count})",
+      "teachers": "Docentes ({count})",
+      "kind": "Tipo de comparación",
+      "emptyTitle": "Aún no hay nada que comparar",
+      "emptyHint": "Elige «Añadir a la comparación» en la página de un curso o docente y vuelve aquí.",
+      "browseCourses": "Ver cursos",
+      "browseTeachers": "Ver docentes",
+      "dimension": "Criterio",
+      "remove": "Quitar {name} de la comparación",
+      "noReviews": "Sin reseñas",
+      "samples": "Número de reseñas",
+      "note": "Todas las columnas usan el mismo periodo. Con pocas reseñas se muestra «Datos insuficientes»; nunca se muestran medias exactas.",
+      "full": "Puedes comparar hasta {max} a la vez. Quita uno primero.",
+      "added": "En la comparación",
+      "add": "Añadir a la comparación",
+      "tray": "Lista de comparación",
+      "progress": "{count} de {max} seleccionados",
+      "start": "Comparar ahora",
+      "pickMore": "Elige uno más para comparar"
+    }
   }
 }

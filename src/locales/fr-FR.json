@@ -1905,5 +1905,67 @@
       "inaccessible": "L’élément lié n’est plus accessible.",
       "unavailable": "L’élément lié ne peut pas être affiché pour le moment. Réessayez plus tard."
     }
+  },
+  "search": {
+    "title": "Recherche",
+    "open": "Ouvrir la recherche",
+    "hotkey": "Rechercher (Ctrl K)",
+    "placeholderShort": "Cours, enseignants, ressources",
+    "placeholder": "Rechercher des cours, enseignants, avis ou ressources",
+    "needsVerification": "La recherche dans les contenus de cours est ouverte après la vérification étudiante ou enseignante.",
+    "results": "Résultats de recherche",
+    "searching": "Recherche en cours…",
+    "noMatch": "Aucun résultat.",
+    "typeToSearch": "Saisissez un mot-clé pour rechercher.",
+    "allResults": "Voir tous les résultats",
+    "all": "Tout",
+    "submit": "Rechercher",
+    "filter": "Type de résultat",
+    "recent": "Consultés récemment",
+    "kinds": {
+      "course": "Cours",
+      "teacher": "Enseignant",
+      "review": "Avis",
+      "resource": "Ressource"
+    },
+    "popular": {
+      "title": "Populaires",
+      "description": "Classement selon les consultations, avis, favoris et interactions récents. La popularité est comptée à part des notes : un bon rang ne signifie pas de meilleurs avis.",
+      "courses": "Cours populaires",
+      "teachers": "Enseignants populaires",
+      "kind": "Classement",
+      "empty": "Pas encore assez d’activité pour établir un classement."
+    },
+    "votes": {
+      "title": "Mes votes",
+      "description": "Vos votes utile et pas utile sur les avis. Ouvrez un avis pour modifier ou retirer votre vote.",
+      "empty": "Vous n’avez pas encore voté.",
+      "review": "Avis",
+      "up": "Utile",
+      "down": "Pas utile"
+    },
+    "compare": {
+      "title": "Comparer",
+      "description": "Les cinq notes de cours ou d’enseignants côte à côte, jusqu’à {max} à la fois.",
+      "courses": "Cours ({count})",
+      "teachers": "Enseignants ({count})",
+      "kind": "Type de comparaison",
+      "emptyTitle": "Rien à comparer pour l’instant",
+      "emptyHint": "Choisissez « Ajouter à la comparaison » sur une page de cours ou d’enseignant, puis revenez ici.",
+      "browseCourses": "Parcourir les cours",
+      "browseTeachers": "Parcourir les enseignants",
+      "dimension": "Critère",
+      "remove": "Retirer {name} de la comparaison",
+      "noReviews": "Aucun avis",
+      "samples": "Nombre d’avis",
+      "note": "Toutes les colonnes utilisent la même période. Avec trop peu d’avis, « Données insuffisantes » s’affiche ; les moyennes exactes ne sont jamais montrées.",
+      "full": "Vous pouvez comparer jusqu’à {max} éléments. Retirez-en un d’abord.",
+      "added": "Dans la comparaison",
+      "add": "Ajouter à la comparaison",
+      "tray": "Liste de comparaison",
+      "progress": "{count} sur {max} sélectionnés",
+      "start": "Comparer",
+      "pickMore": "Choisissez-en un de plus"
+    }
   }
 }

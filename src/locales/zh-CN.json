@@ -1905,5 +1905,67 @@
       "inaccessible": "相关内容已无法访问。",
       "unavailable": "相关内容暂时无法查看，请稍后重试。"
     }
+  },
+  "search": {
+    "title": "搜索",
+    "open": "打开搜索",
+    "hotkey": "搜索（Ctrl K）",
+    "placeholderShort": "搜索课程、教师、资料",
+    "placeholder": "搜索课程、教师、评价或资料",
+    "needsVerification": "完成学生认证或教师认证后才能搜索课程内容。",
+    "results": "搜索结果",
+    "searching": "正在搜索…",
+    "noMatch": "没有找到相关内容。",
+    "typeToSearch": "输入关键词开始搜索。",
+    "allResults": "查看全部结果",
+    "all": "全部",
+    "submit": "搜索",
+    "filter": "结果类型",
+    "recent": "最近浏览",
+    "kinds": {
+      "course": "课程",
+      "teacher": "教师",
+      "review": "评价",
+      "resource": "资料"
+    },
+    "popular": {
+      "title": "热门",
+      "description": "按近期浏览、评价、收藏和互动排序。热度和评分分开统计，排名靠前不代表评价更好。",
+      "courses": "热门课程",
+      "teachers": "热门教师",
+      "kind": "榜单类型",
+      "empty": "暂时还没有足够的数据生成榜单。"
+    },
+    "votes": {
+      "title": "我的投票",
+      "description": "本人对评价的有用和没用投票。修改或取消投票请进入对应评价。",
+      "empty": "还没有投过票。",
+      "review": "评价",
+      "up": "有用",
+      "down": "没用"
+    },
+    "compare": {
+      "title": "对比",
+      "description": "并排查看课程或教师的五项评分，最多 {max} 项。",
+      "courses": "课程（{count}）",
+      "teachers": "教师（{count}）",
+      "kind": "对比类型",
+      "emptyTitle": "还没有选择要对比的项目",
+      "emptyHint": "在课程或教师页面点“加入对比”，再回到这里查看。",
+      "browseCourses": "浏览课程",
+      "browseTeachers": "浏览教师",
+      "dimension": "评分项",
+      "remove": "从对比中移除 {name}",
+      "noReviews": "暂无评价",
+      "samples": "评价数",
+      "note": "各列使用相同的统计时间范围。评价不足时显示“暂无足够数据”，不显示精确均分。",
+      "full": "最多对比 {max} 项，请先移除一项。",
+      "added": "已加入对比",
+      "add": "加入对比",
+      "tray": "对比列表",
+      "progress": "已选 {count} / {max} 项",
+      "start": "开始对比",
+      "pickMore": "再选一项即可对比"
+    }
   }
 }

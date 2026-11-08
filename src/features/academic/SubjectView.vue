@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import FavoriteButton from '../favorites/FavoriteButton.vue'
+import CompareButton from '../search/CompareButton.vue'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -113,6 +114,10 @@ function submitted(result: Result) {
             :id="id"
             :kind="kind"
             text
+          />
+          <CompareButton
+            :id="id"
+            :kind="kind"
           />
           <button
             v-if="!composing && !subject.inactive"

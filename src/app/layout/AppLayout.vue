@@ -5,6 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { extras } from '../../shared/extras'
 import ToastHost from '../../shared/ui/ToastHost.vue'
+import CompareTray from '../../features/search/CompareTray.vue'
+import SearchPalette from '../../features/search/SearchPalette.vue'
 import AccountMenu from './AccountMenu.vue'
 import LocaleSelect from './LocaleSelect.vue'
 
@@ -75,6 +77,7 @@ watch(() => route.path, async (_path, previous) => {
           </RouterLink>
         </nav>
         <div class="nav-tools">
+          <SearchPalette />
           <component
             :is="tool"
             v-for="(tool, index) in extras.navTools"
@@ -118,6 +121,7 @@ watch(() => route.path, async (_path, previous) => {
       </RouterLink>
     </nav>
     <ToastHost />
+    <CompareTray />
     <component
       :is="item"
       v-for="(item, index) in extras.floating"
