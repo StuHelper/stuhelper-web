@@ -7,7 +7,7 @@ export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expi
 const KEY = 'stuhelper-demo-persona'
 // Account closure request of the prototype session.
 let closure: Record<string, any> | undefined
-const demoProfile = { id: '00000000-0000-4000-8000-000000000001', nickname: '小航同学', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, revision: 1 }
+const demoProfile = { id: '00000000-0000-4000-8000-000000000001', nickname: '小航同学', nickname_required: false, bio: '计算机学院 2023 级，喜欢写代码和拍飞机。', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, revision: 1 }
 
 export function persona(): Persona {
   try { return (localStorage.getItem(KEY) as Persona) || 'verified' } catch { return 'verified' }
@@ -93,7 +93,18 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const who = persona()
   if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, profile: demoProfile, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' })
   if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return new Response(null, { status: 204 }) }
+  if (p === '/profiles/me' && method === 'PUT') {
+    const b = await body(init)
+    if (b.revision !== demoProfile.revision) return nope('conflict', 409)
+    Object.assign(demoProfile, { nickname: b.nickname, bio: b.bio ?? demoProfile.bio, visibility: b.visibility ?? demoProfile.visibility, revision: demoProfile.revision + 1 })
+    return json(demoProfile)
+  }
   if (p === '/profiles/me') return json(demoProfile)
+  if (p === `/profiles/${demoProfile.id}`) {
+    const v = demoProfile.visibility
+    const affiliation = { ...(v.school ? { school_name: d.school.name } : {}), ...(v.department ? { department: '计算机学院' } : {}), ...(v.grade ? { grade: '2023 级' } : {}), ...(v.badge ? { badge: 'student' } : {}) }
+    return json({ id: demoProfile.id, nickname: demoProfile.nickname, bio: demoProfile.bio, visibility: v, affiliations: Object.keys(affiliation).length ? [affiliation] : [], facts_state: 'available' })
+  }
   if (p === '/profiles/me/closure' && method === 'GET') return closure ? json(closure) : nope('not_found', 404)
   if (p === '/profiles/me/closure') { closure = { id: '00000000-0000-4000-8000-0000000000c1', state: 'cooling', revision: 1, requested_at: new Date().toISOString(), cooling_ends_at: new Date(Date.now() + 7 * 864e5).toISOString(), completed_steps: [], blocker: '', points_policy: 'forfeit_all_points_and_pending_deductions', profile_id: demoProfile.id }; return json(closure) }
   if (p.startsWith('/profiles/me/closure/') && p.endsWith('/cancel') && closure) { closure = { ...closure, state: 'cancelled', revision: closure.revision + 1 }; return json(closure) }
