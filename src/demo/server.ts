@@ -4,6 +4,7 @@ import { favoritesRoute } from './favorites'
 import { billingRoute } from './billing'
 import { openPlatformRoute } from './open-platform'
 import { qqRoute } from './qq'
+import { notificationsRoute } from './notifications'
 import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
@@ -122,6 +123,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const platform = await openPlatformRoute(p, method, init)
   if (platform) return platform
 
+  const notifications = await notificationsRoute(p, method, init)
+  if (notifications) return notifications
   const teacher = await teacherRoute(p, method, init)
   if (teacher) return teacher
 

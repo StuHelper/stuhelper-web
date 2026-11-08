@@ -1470,7 +1470,9 @@
       "account_closed": "This account is closed and cannot bind QQ.",
       "revision_conflict": "The binding changed on another page. Refresh and try again.",
       "invalid_state": "The authorization expired or belongs to another sign-in. Start again from the account page.",
-      "unionid_missing": "QQ did not return a complete identity, so QQ Connect cannot be bound right now."
+      "unionid_missing": "QQ did not return a complete identity, so QQ Connect cannot be bound right now.",
+      "reauthorization_required": "The QQ authorization did not finish. Start QQ Connect again from the account page.",
+      "processing": "QQ is still confirming the authorization. Check the binding on the account page in a moment."
     },
     "callback": {
       "title": "QQ Connect authorization",
@@ -1867,6 +1869,70 @@
       "teacher": "Teacher status",
       "gender": "Gender",
       "organization": "Employer"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "link": "Notifications",
+    "description": "Interactions with your content, handling results and verification results.",
+    "unread": "Unread notifications: {count}",
+    "interaction": "Receive interaction notifications (replies, likes)",
+    "interactionOn": "Interaction notifications are on.",
+    "interactionOff": "Interaction notifications are off.",
+    "always": "Handling results, security and account notifications are always delivered.",
+    "readAll": "Mark all as read",
+    "allRead": "All notifications are marked as read.",
+    "empty": "No notifications yet.",
+    "count": "Total: {count}",
+    "unreadMark": "Unread",
+    "titles": {
+      "interaction": {
+        "reply": "Your content {content_id} got a new reply",
+        "like": "Your content {content_id} got a like"
+      },
+      "content": {
+        "approved": "Your content {content_id} was approved",
+        "rejected": "Your content {content_id} was not approved",
+        "removed": "Your content {content_id} was taken down"
+      },
+      "resource_removal": {
+        "approved": "Takedown request {request_id} was accepted",
+        "rejected": "Takedown request {request_id} was declined"
+      },
+      "report": {
+        "approved": "Your report {report_id} was upheld",
+        "rejected": "Your report {report_id} was not upheld after review"
+      },
+      "student_verification": {
+        "approved": "Student verification {application_id} was approved",
+        "rejected": "Student verification {application_id} was not approved",
+        "revoked": "Student verification {credential_id} was revoked"
+      },
+      "identity_verification": {
+        "approved": "Identity check {operation_id} passed",
+        "rejected": "Identity check {operation_id} did not pass"
+      },
+      "verification_revocation": {
+        "approved": "Verification revocation request {request_id} was accepted",
+        "rejected": "Verification revocation request {request_id} was declined"
+      },
+      "verification_deletion": {
+        "approved": "Verification deletion request {request_id} was accepted",
+        "rejected": "Verification deletion request {request_id} was declined"
+      },
+      "teacher_verification": {
+        "approved": "Teacher verification {application_id} was approved",
+        "rejected": "Teacher verification {application_id} was not approved"
+      },
+      "system": {
+        "notice": "System notice, reference {reference_id}",
+        "security": "Security alert, reference {reference_id}",
+        "account": "Account notice, reference {reference_id}"
+      }
+    },
+    "status": {
+      "inaccessible": "The related item is no longer accessible.",
+      "unavailable": "The related item cannot be shown right now. Try again later."
     }
   }
 }

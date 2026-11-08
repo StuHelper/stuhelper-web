@@ -1470,7 +1470,9 @@
       "account_closed": "このアカウントは削除済みのため QQ を連携できません。",
       "revision_conflict": "連携状態が別の画面で変更されました。更新してからやり直してください。",
       "invalid_state": "認可の有効期限が切れたか、別のログインのものです。アカウント画面からやり直してください。",
-      "unionid_missing": "QQ から完全な ID が返されなかったため、QQ Connect を連携できません。"
+      "unionid_missing": "QQ から完全な ID が返されなかったため、QQ Connect を連携できません。",
+      "reauthorization_required": "QQ の認可が完了しませんでした。アカウントページから QQ ログイン連携をやり直してください。",
+      "processing": "QQ が認可結果を確認中です。しばらくしてからアカウントページで連携状態を確認してください。"
     },
     "callback": {
       "title": "QQ Connect の認可",
@@ -1867,6 +1869,70 @@
       "teacher": "教員であること",
       "gender": "性別",
       "organization": "所属機関"
+    }
+  },
+  "notifications": {
+    "title": "通知",
+    "link": "通知",
+    "description": "あなたに関係するコンテンツへの反応、処理結果、認証結果です。",
+    "unread": "未読の通知：{count}",
+    "interaction": "反応の通知を受け取る（返信、いいね）",
+    "interactionOn": "反応の通知をオンにしました。",
+    "interactionOff": "反応の通知をオフにしました。",
+    "always": "処理結果、セキュリティ、アカウントの通知は常に届きます。",
+    "readAll": "すべて既読にする",
+    "allRead": "すべて既読にしました。",
+    "empty": "通知はまだありません。",
+    "count": "合計：{count}",
+    "unreadMark": "未読",
+    "titles": {
+      "interaction": {
+        "reply": "コンテンツ {content_id} に新しい返信がありました",
+        "like": "コンテンツ {content_id} にいいねが付きました"
+      },
+      "content": {
+        "approved": "コンテンツ {content_id} が承認されました",
+        "rejected": "コンテンツ {content_id} は承認されませんでした",
+        "removed": "コンテンツ {content_id} が非公開になりました"
+      },
+      "resource_removal": {
+        "approved": "資料の削除申請 {request_id} が承認されました",
+        "rejected": "資料の削除申請 {request_id} は承認されませんでした"
+      },
+      "report": {
+        "approved": "通報 {report_id} は対応されました",
+        "rejected": "通報 {report_id} は確認の結果、対応されませんでした"
+      },
+      "student_verification": {
+        "approved": "学生認証の申請 {application_id} が承認されました",
+        "rejected": "学生認証の申請 {application_id} は承認されませんでした",
+        "revoked": "学生認証 {credential_id} が取り消されました"
+      },
+      "identity_verification": {
+        "approved": "本人確認 {operation_id} が完了しました",
+        "rejected": "本人確認 {operation_id} は完了しませんでした"
+      },
+      "verification_revocation": {
+        "approved": "認証の取り消し申請 {request_id} が承認されました",
+        "rejected": "認証の取り消し申請 {request_id} は承認されませんでした"
+      },
+      "verification_deletion": {
+        "approved": "認証の削除申請 {request_id} が承認されました",
+        "rejected": "認証の削除申請 {request_id} は承認されませんでした"
+      },
+      "teacher_verification": {
+        "approved": "教員認証の申請 {application_id} が承認されました",
+        "rejected": "教員認証の申請 {application_id} は承認されませんでした"
+      },
+      "system": {
+        "notice": "システムからのお知らせ（関連番号 {reference_id}）",
+        "security": "セキュリティのお知らせ（関連番号 {reference_id}）",
+        "account": "アカウントのお知らせ（関連番号 {reference_id}）"
+      }
+    },
+    "status": {
+      "inaccessible": "関連する内容にはアクセスできなくなりました。",
+      "unavailable": "関連する内容を今は表示できません。しばらくしてから再試行してください。"
     }
   }
 }

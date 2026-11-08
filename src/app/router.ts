@@ -47,6 +47,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/apps', component: () => import('../features/open-platform/GrantsView.vue'), meta: { access: 'member', title: 'platform.grants.title', section: 'me' } },
   { path: '/me/developer', component: () => import('../features/open-platform/DeveloperView.vue'), meta: { access: 'member', title: 'platform.developer.title', section: 'me' } },
   { path: '/oauth/authorize', component: () => import('../features/open-platform/ConsentView.vue'), meta: { access: 'member', title: 'platform.consent.title' } },
+  { path: '/notifications', component: () => import('../features/notifications/NotificationsView.vue'), meta: { access: 'member', title: 'notifications.title', section: 'me' } },
   { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { access: 'member', title: 'favorites.title', section: 'me' } },
   { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { access: 'member', title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },

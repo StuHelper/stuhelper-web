@@ -1470,7 +1470,9 @@
       "account_closed": "Esta cuenta está cerrada y no puede vincular QQ.",
       "revision_conflict": "La vinculación cambió en otra página. Actualiza e inténtalo de nuevo.",
       "invalid_state": "La autorización caducó o pertenece a otro inicio de sesión. Empieza de nuevo desde la página de la cuenta.",
-      "unionid_missing": "QQ no devolvió una identidad completa, así que no se puede vincular QQ Connect ahora."
+      "unionid_missing": "QQ no devolvió una identidad completa, así que no se puede vincular QQ Connect ahora.",
+      "reauthorization_required": "La autorización de QQ no terminó. Vuelve a iniciar la conexión con QQ desde la página de la cuenta.",
+      "processing": "QQ todavía está confirmando la autorización. Revisa la vinculación en la página de la cuenta dentro de un momento."
     },
     "callback": {
       "title": "Autorización de QQ Connect",
@@ -1867,6 +1869,70 @@
       "teacher": "Condición docente",
       "gender": "Género",
       "organization": "Centro de trabajo"
+    }
+  },
+  "notifications": {
+    "title": "Notificaciones",
+    "link": "Notificaciones",
+    "description": "Reacciones a tu contenido, resultados de gestión y de verificación.",
+    "unread": "Notificaciones sin leer: {count}",
+    "interaction": "Recibir notificaciones de reacciones (respuestas, me gusta)",
+    "interactionOn": "Notificaciones de reacciones activadas.",
+    "interactionOff": "Notificaciones de reacciones desactivadas.",
+    "always": "Los resultados de gestión, la seguridad y la cuenta se notifican siempre.",
+    "readAll": "Marcar todo como leído",
+    "allRead": "Todas las notificaciones están leídas.",
+    "empty": "Todavía no hay notificaciones.",
+    "count": "En total: {count}",
+    "unreadMark": "Sin leer",
+    "titles": {
+      "interaction": {
+        "reply": "Tu contenido {content_id} recibió una respuesta",
+        "like": "Tu contenido {content_id} recibió un me gusta"
+      },
+      "content": {
+        "approved": "Tu contenido {content_id} fue aprobado",
+        "rejected": "Tu contenido {content_id} no fue aprobado",
+        "removed": "Tu contenido {content_id} fue retirado"
+      },
+      "resource_removal": {
+        "approved": "La solicitud de retirada {request_id} fue aceptada",
+        "rejected": "La solicitud de retirada {request_id} fue rechazada"
+      },
+      "report": {
+        "approved": "Tu denuncia {report_id} fue aceptada",
+        "rejected": "Tu denuncia {report_id} no se aceptó tras la revisión"
+      },
+      "student_verification": {
+        "approved": "La verificación de estudiante {application_id} fue aprobada",
+        "rejected": "La verificación de estudiante {application_id} no fue aprobada",
+        "revoked": "La verificación de estudiante {credential_id} fue revocada"
+      },
+      "identity_verification": {
+        "approved": "La comprobación de identidad {operation_id} se superó",
+        "rejected": "La comprobación de identidad {operation_id} no se superó"
+      },
+      "verification_revocation": {
+        "approved": "La solicitud de revocación {request_id} fue aceptada",
+        "rejected": "La solicitud de revocación {request_id} fue rechazada"
+      },
+      "verification_deletion": {
+        "approved": "La solicitud de eliminación {request_id} fue aceptada",
+        "rejected": "La solicitud de eliminación {request_id} fue rechazada"
+      },
+      "teacher_verification": {
+        "approved": "La verificación docente {application_id} fue aprobada",
+        "rejected": "La verificación docente {application_id} no fue aprobada"
+      },
+      "system": {
+        "notice": "Aviso del sistema, referencia {reference_id}",
+        "security": "Alerta de seguridad, referencia {reference_id}",
+        "account": "Aviso de la cuenta, referencia {reference_id}"
+      }
+    },
+    "status": {
+      "inaccessible": "El elemento relacionado ya no está accesible.",
+      "unavailable": "El elemento relacionado no se puede mostrar ahora. Inténtalo más tarde."
     }
   }
 }

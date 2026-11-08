@@ -1470,7 +1470,9 @@
       "account_closed": "Ce compte est fermé et ne peut pas lier QQ.",
       "revision_conflict": "La liaison a changé sur une autre page. Actualisez puis réessayez.",
       "invalid_state": "L’autorisation a expiré ou appartient à une autre connexion. Recommencez depuis la page du compte.",
-      "unionid_missing": "QQ n’a pas renvoyé d’identité complète ; QQ Connect ne peut pas être lié pour le moment."
+      "unionid_missing": "QQ n’a pas renvoyé d’identité complète ; QQ Connect ne peut pas être lié pour le moment.",
+      "reauthorization_required": "L’autorisation QQ n’a pas abouti. Relancez la connexion QQ depuis la page du compte.",
+      "processing": "QQ confirme encore l’autorisation. Vérifiez la liaison sur la page du compte dans un instant."
     },
     "callback": {
       "title": "Autorisation QQ Connect",
@@ -1867,6 +1869,70 @@
       "teacher": "Qualité d’enseignant",
       "gender": "Genre",
       "organization": "Établissement employeur"
+    }
+  },
+  "notifications": {
+    "title": "Mes notifications",
+    "link": "Notifications reçues",
+    "description": "Réactions à vos contenus, résultats de traitement et de vérification.",
+    "unread": "Notifications non lues : {count}",
+    "interaction": "Recevoir les notifications de réactions (réponses, j’aime)",
+    "interactionOn": "Notifications de réactions activées.",
+    "interactionOff": "Notifications de réactions désactivées.",
+    "always": "Les résultats de traitement, la sécurité et le compte sont toujours notifiés.",
+    "readAll": "Tout marquer comme lu",
+    "allRead": "Toutes les notifications sont lues.",
+    "empty": "Aucune notification pour le moment.",
+    "count": "Au total : {count}",
+    "unreadMark": "Non lue",
+    "titles": {
+      "interaction": {
+        "reply": "Votre contenu {content_id} a reçu une réponse",
+        "like": "Votre contenu {content_id} a reçu un j’aime"
+      },
+      "content": {
+        "approved": "Votre contenu {content_id} a été approuvé",
+        "rejected": "Votre contenu {content_id} n’a pas été approuvé",
+        "removed": "Votre contenu {content_id} a été retiré"
+      },
+      "resource_removal": {
+        "approved": "La demande de retrait {request_id} a été acceptée",
+        "rejected": "La demande de retrait {request_id} a été refusée"
+      },
+      "report": {
+        "approved": "Votre signalement {report_id} a été retenu",
+        "rejected": "Votre signalement {report_id} n’a pas été retenu après examen"
+      },
+      "student_verification": {
+        "approved": "La vérification étudiante {application_id} a été approuvée",
+        "rejected": "La vérification étudiante {application_id} n’a pas été approuvée",
+        "revoked": "La vérification étudiante {credential_id} a été révoquée"
+      },
+      "identity_verification": {
+        "approved": "La vérification d’identité {operation_id} a réussi",
+        "rejected": "La vérification d’identité {operation_id} a échoué"
+      },
+      "verification_revocation": {
+        "approved": "La demande de révocation {request_id} a été acceptée",
+        "rejected": "La demande de révocation {request_id} a été refusée"
+      },
+      "verification_deletion": {
+        "approved": "La demande de suppression {request_id} a été acceptée",
+        "rejected": "La demande de suppression {request_id} a été refusée"
+      },
+      "teacher_verification": {
+        "approved": "La vérification enseignant {application_id} a été approuvée",
+        "rejected": "La vérification enseignant {application_id} n’a pas été approuvée"
+      },
+      "system": {
+        "notice": "Avis du système, référence {reference_id}",
+        "security": "Alerte de sécurité, référence {reference_id}",
+        "account": "Avis concernant le compte, référence {reference_id}"
+      }
+    },
+    "status": {
+      "inaccessible": "L’élément lié n’est plus accessible.",
+      "unavailable": "L’élément lié ne peut pas être affiché pour le moment. Réessayez plus tard."
     }
   }
 }

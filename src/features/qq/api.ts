@@ -1,3 +1,4 @@
+import { ApiError } from '../../shared/api/errors'
 import qqContract from '../../../contracts/qq-binding.openapi.json'
 import type { components } from '../../api/qq-binding.gen'
 import { segment, type Http } from '../../shared/api/http'
@@ -39,8 +40,21 @@ export class QqBindingApi {
     return this.http.json('/api/v1/qq-binding/connect/start', parse.authorization, { method: 'POST', body: {}, key })
   }
 
-  confirmConnect(body: { state: string; code: string }, key: string) {
-    return this.http.json('/api/v1/qq-binding/connect/confirm', parse.status, { method: 'POST', body, key })
+  /**
+   * Confirm the QQ Connect result. While the server is still exchanging the code it answers
+   * 202 qq_binding_processing; the identical request (same key) is sent again until the stored
+   * result is known. The authorization code itself is never exchanged twice by the server.
+   */
+  async confirmConnect(body: { state: string; code: string }, key: string, wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))) {
+    const processing = Symbol('processing')
+    const read = (value: unknown) => (typeof value === 'object' && value !== null && (value as { code?: unknown }).code === 'qq_binding_processing' ? processing : parse.status(value))
+    for (let attempt = 0; attempt < 12; attempt++) {
+      const result = await this.http.json('/api/v1/qq-binding/connect/confirm', read, { method: 'POST', body, key })
+      if (result !== processing) return result
+      await wait(Math.min(1000 * 2 ** Math.min(attempt, 2), 4000))
+    }
+    // The outcome is still unknown; the server fails the operation after its deadline.
+    throw new ApiError('processing', true)
   }
 
   cancelConnect(body: { state: string }, key: string) {

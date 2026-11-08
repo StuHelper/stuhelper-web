@@ -27,6 +27,5 @@ export function installDemo() {
     { path: '/resources', component: () => import('./pages/Resources.vue'), meta: { ...verified, title: 'nav.resources', section: 'resources' } },
     { path: '/me', component: () => import('./pages/MeHome.vue'), meta: { title: 'me.title', section: 'me' } },
     { path: '/me/courses', component: () => import('./pages/Schedule.vue'), meta: { ...verified, title: 'courses.title', section: 'me' } },
-    { path: '/notifications', component: () => import('./pages/Notifications.vue'), meta: { title: 'nav.home', section: 'me' } },
   )
 }

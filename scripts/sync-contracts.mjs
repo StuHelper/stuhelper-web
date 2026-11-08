@@ -21,6 +21,7 @@ const modules = {
   'open-platform': { repo: 'open-platform', files: { 'contracts/open-platform.openapi.json': 'contracts/open-platform.openapi.json', 'sdk/open-platform.gen.ts': 'src/api/open-platform.gen.ts' } },
   'qq-binding': { repo: 'qq-binding', files: { 'contracts/qq-binding.openapi.json': 'contracts/qq-binding.openapi.json', 'sdk/qq-binding.gen.ts': 'src/api/qq-binding.gen.ts' } },
   billing: { repo: 'billing', files: { 'contracts/billing.openapi.json': 'contracts/billing.openapi.json', 'sdk/billing.gen.ts': 'src/api/billing.gen.ts' } },
+  notifications: { repo: 'notifications', files: { 'contracts/notifications.openapi.json': 'contracts/notifications.openapi.json', 'sdk/notifications.gen.ts': 'src/api/notifications.gen.ts' } },
   session: { repo: 'backend', single: true, files: { 'contracts/session.openapi.json': 'contracts/session.openapi.json' }, extra: { generator: 'openapi-typescript@7.13.0' } },
   verification: { repo: 'verification', single: true, files: { 'contracts/verification.openapi.yaml': 'contracts/verification.openapi.yaml', 'sdk/verification.gen.ts': 'src/api/verification.gen.ts', 'contracts/verification-cases.json': 'contracts/verification-cases.json' } },
   platform: { repo: 'platform', single: true, files: { 'contracts/platform.openapi.yaml': 'contracts/platform.openapi.yaml', 'sdk/platform.gen.ts': 'src/api/platform.gen.ts', 'contracts/client-cases.json': 'contracts/client-cases.json' } },

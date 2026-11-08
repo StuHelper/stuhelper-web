@@ -48,6 +48,11 @@ export function validates(value: unknown, schema: unknown, schemas: SchemaSet, d
   }
   if (value === null) return schema.nullable === true
   if (Array.isArray(schema.enum) && !schema.enum.includes(value)) return false
+  // Combinators apply in addition to the schema's own type and properties.
+  if (Array.isArray(schema.allOf) && !schema.allOf.every((part) => validates(value, part, schemas, depth + 1))) return false
+  if (Array.isArray(schema.anyOf) && !schema.anyOf.some((part) => validates(value, part, schemas, depth + 1))) return false
+  if (Array.isArray(schema.oneOf) && schema.oneOf.filter((part) => validates(value, part, schemas, depth + 1)).length !== 1) return false
+  if (schema.type === undefined && (schema.allOf || schema.anyOf || schema.oneOf)) return true
   switch (schema.type) {
     case 'string':
       return typeof value === 'string' && validString(value, schema)

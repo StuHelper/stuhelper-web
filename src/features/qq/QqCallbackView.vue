@@ -44,7 +44,7 @@ onMounted(async () => {
   }
 })
 
-const known = ['invalid_state', 'unionid_missing', 'already_bound', 'ownership_conflict', 'rate_limited', 'account_closed', 'unavailable']
+const known = ['invalid_state', 'reauthorization_required', 'processing', 'unionid_missing', 'already_bound', 'ownership_conflict', 'rate_limited', 'account_closed', 'unavailable']
 </script>
 
 <template>

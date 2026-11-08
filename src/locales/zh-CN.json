@@ -1470,7 +1470,9 @@
       "account_closed": "账号已注销，不能绑定 QQ。",
       "revision_conflict": "绑定状态已在其他页面改变，请刷新后再试。",
       "invalid_state": "授权已失效或不属于当前登录，请回到账号页重新发起。",
-      "unionid_missing": "QQ 没有返回完整的身份信息，暂时无法完成 QQ 互联绑定。"
+      "unionid_missing": "QQ 没有返回完整的身份信息，暂时无法完成 QQ 互联绑定。",
+      "reauthorization_required": "QQ 授权没有完成，请回到账号页重新发起 QQ 互联绑定。",
+      "processing": "QQ 仍在确认授权结果，请稍后回到账号页查看绑定状态。"
     },
     "callback": {
       "title": "QQ 互联授权",
@@ -1867,6 +1869,70 @@
       "teacher": "教师身份",
       "gender": "性别",
       "organization": "任职单位"
+    }
+  },
+  "notifications": {
+    "title": "通知",
+    "link": "通知",
+    "description": "与你有关的内容互动、处理结果和认证结果。",
+    "unread": "未读通知：{count}",
+    "interaction": "接收互动通知（回复、点赞）",
+    "interactionOn": "已开启互动通知。",
+    "interactionOff": "已关闭互动通知。",
+    "always": "处理结果、安全与账号通知始终接收。",
+    "readAll": "全部标为已读",
+    "allRead": "已全部标为已读。",
+    "empty": "暂时没有通知。",
+    "count": "累计：{count}",
+    "unreadMark": "未读",
+    "titles": {
+      "interaction": {
+        "reply": "你的内容 {content_id} 收到了新回复",
+        "like": "你的内容 {content_id} 收到了点赞"
+      },
+      "content": {
+        "approved": "你的内容 {content_id} 已通过审核",
+        "rejected": "你的内容 {content_id} 未通过审核",
+        "removed": "你的内容 {content_id} 已被下架"
+      },
+      "resource_removal": {
+        "approved": "资料下架申请 {request_id} 已通过",
+        "rejected": "资料下架申请 {request_id} 未通过"
+      },
+      "report": {
+        "approved": "你的举报 {report_id} 已处理并采纳",
+        "rejected": "你的举报 {report_id} 经核实未采纳"
+      },
+      "student_verification": {
+        "approved": "学生认证申请 {application_id} 已通过",
+        "rejected": "学生认证申请 {application_id} 未通过",
+        "revoked": "学生认证 {credential_id} 已被撤销"
+      },
+      "identity_verification": {
+        "approved": "实名核验 {operation_id} 已通过",
+        "rejected": "实名核验 {operation_id} 未通过"
+      },
+      "verification_revocation": {
+        "approved": "认证撤销申请 {request_id} 已通过",
+        "rejected": "认证撤销申请 {request_id} 未通过"
+      },
+      "verification_deletion": {
+        "approved": "认证删除申请 {request_id} 已通过",
+        "rejected": "认证删除申请 {request_id} 未通过"
+      },
+      "teacher_verification": {
+        "approved": "教师认证申请 {application_id} 已通过",
+        "rejected": "教师认证申请 {application_id} 未通过"
+      },
+      "system": {
+        "notice": "系统通知，相关编号 {reference_id}",
+        "security": "安全提醒，相关编号 {reference_id}",
+        "account": "账号通知，相关编号 {reference_id}"
+      }
+    },
+    "status": {
+      "inaccessible": "相关内容已无法访问。",
+      "unavailable": "相关内容暂时无法查看，请稍后重试。"
     }
   }
 }

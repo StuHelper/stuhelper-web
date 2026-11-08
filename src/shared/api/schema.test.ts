@@ -24,3 +24,23 @@ describe('contract validation', () => {
     expect(validates([1, 2], { type: 'array', minItems: 5, items: { type: 'integer' } }, {})).toBe(false)
   })
 })
+
+describe('schema combinators', () => {
+  const schemas = {
+    A: { type: 'object', required: ['kind'], properties: { kind: { type: 'string', enum: ['a'] }, n: { type: 'integer' } } },
+    B: { type: 'object', required: ['kind'], properties: { kind: { type: 'string', enum: ['b'] } } },
+  }
+  const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
+  it('requires every allOf part and exactly one oneOf part', () => {
+    const shape = { type: 'object', properties: { kind: { type: 'string' }, n: { type: 'integer' } }, allOf: [{ oneOf: [ref('A'), ref('B')] }] }
+    expect(validates({ kind: 'a', n: 1 }, shape, schemas)).toBe(true)
+    expect(validates({ kind: 'b' }, shape, schemas)).toBe(true)
+    expect(validates({ kind: 'c' }, shape, schemas)).toBe(false)
+    expect(validates({ kind: 'a', n: 'x' }, shape, schemas)).toBe(false)
+  })
+  it('rejects a value matching more than one oneOf part and accepts anyOf with one match', () => {
+    const loose = { type: 'object' }
+    expect(validates({ kind: 'a' }, { oneOf: [ref('A'), loose] }, schemas)).toBe(false)
+    expect(validates({ kind: 'a' }, { anyOf: [ref('A'), ref('B')] }, schemas)).toBe(true)
+  })
+})

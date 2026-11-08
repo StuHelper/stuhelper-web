@@ -128,7 +128,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description 需要当前登录会话和 Idempotency-Key。state 必须属于当前会话且未过期。相同键及请求返回原结果，不同内容返回 409。确认绑定；已消费的 state 不可用新键再次确认。 */
+        /** @description 确认前持久化操作，绑定操作者、会话、state、幂等键和请求摘要。同键同内容返回处理中或保存的最终结果，同键不同内容返回 409。处理中最长 15 秒；中断或交换失败返回 qq_binding_reauthorization_required，必须重新授权，不重放授权码。结果保留 24 小时。 */
         post: operations["confirmConnect"];
         delete?: never;
         options?: never;
@@ -860,7 +860,19 @@ export interface operations {
                     "application/json": components["schemas"]["Status"];
                 };
             };
-            /** @description 业务拒绝或暂不可用 */
+            /** @description qq_binding_processing：同一操作处理中，使用相同请求稍后查询。 */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        code: "qq_binding_processing";
+                    };
+                };
+            };
+            /** @description 无效 state 或 qq_binding_reauthorization_required（需要重新授权）；交换失败结果稳定保存。 */
             400: {
                 headers: {
                     [name: string]: unknown;

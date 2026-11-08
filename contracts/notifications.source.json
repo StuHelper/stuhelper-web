@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-notifications",
+  "revision": "77d0b5f3b273f7eae41d9fe16805b20bd0cd5d73",
+  "version": "0.2.0",
+  "files": {
+    "contracts/notifications.openapi.json": "contracts/notifications.openapi.json",
+    "sdk/notifications.gen.ts": "src/api/notifications.gen.ts"
+  },
+  "sha256": {
+    "contracts/notifications.openapi.json": "23d8935d8f47fe4803c8cba6b10ef0b3ccc7ec651fdfcd3ea24d35877dbc5531",
+    "src/api/notifications.gen.ts": "f13edb442feac751eb6cccb0deaceb39aa8797c7a1577f5998d741cf24bd5bc6"
+  }
+}

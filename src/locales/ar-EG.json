@@ -1470,7 +1470,9 @@
       "account_closed": "هذا الحساب مغلق ولا يمكنه ربط QQ.",
       "revision_conflict": "تغيّر الربط في صفحة أخرى. حدّث الصفحة وحاول مجددًا.",
       "invalid_state": "انتهت صلاحية التفويض أو يخص تسجيل دخول آخر. ابدأ من جديد من صفحة الحساب.",
-      "unionid_missing": "لم يُرجع QQ هوية كاملة، لذلك لا يمكن ربط QQ Connect حاليًا."
+      "unionid_missing": "لم يُرجع QQ هوية كاملة، لذلك لا يمكن ربط QQ Connect حاليًا.",
+      "reauthorization_required": "لم يكتمل تفويض QQ. ابدأ تسجيل الدخول عبر QQ من جديد من صفحة الحساب.",
+      "processing": "ما زال QQ يؤكد نتيجة التفويض. تحقق من حالة الربط في صفحة الحساب بعد قليل."
     },
     "callback": {
       "title": "تفويض QQ Connect",
@@ -1867,6 +1869,70 @@
       "teacher": "صفة المعلّم",
       "gender": "الجنس",
       "organization": "جهة العمل"
+    }
+  },
+  "notifications": {
+    "title": "الإشعارات",
+    "link": "الإشعارات",
+    "description": "التفاعل مع محتواك ونتائج المعالجة والتوثيق.",
+    "unread": "إشعارات غير مقروءة: {count}",
+    "interaction": "تلقي إشعارات التفاعل (الردود والإعجابات)",
+    "interactionOn": "تم تشغيل إشعارات التفاعل.",
+    "interactionOff": "تم إيقاف إشعارات التفاعل.",
+    "always": "تصل إشعارات نتائج المعالجة والأمان والحساب دائمًا.",
+    "readAll": "تعليم الكل كمقروء",
+    "allRead": "تم تعليم كل الإشعارات كمقروءة.",
+    "empty": "لا توجد إشعارات بعد.",
+    "count": "الإجمالي: {count}",
+    "unreadMark": "غير مقروء",
+    "titles": {
+      "interaction": {
+        "reply": "تلقى محتواك {content_id} ردًا جديدًا",
+        "like": "تلقى محتواك {content_id} إعجابًا"
+      },
+      "content": {
+        "approved": "تمت الموافقة على محتواك {content_id}",
+        "rejected": "لم تتم الموافقة على محتواك {content_id}",
+        "removed": "تمت إزالة محتواك {content_id}"
+      },
+      "resource_removal": {
+        "approved": "تم قبول طلب الإزالة {request_id}",
+        "rejected": "تم رفض طلب الإزالة {request_id}"
+      },
+      "report": {
+        "approved": "تم قبول بلاغك {report_id}",
+        "rejected": "لم يُقبل بلاغك {report_id} بعد المراجعة"
+      },
+      "student_verification": {
+        "approved": "تمت الموافقة على توثيق الطالب {application_id}",
+        "rejected": "لم تتم الموافقة على توثيق الطالب {application_id}",
+        "revoked": "تم إلغاء توثيق الطالب {credential_id}"
+      },
+      "identity_verification": {
+        "approved": "نجح التحقق من الهوية {operation_id}",
+        "rejected": "لم ينجح التحقق من الهوية {operation_id}"
+      },
+      "verification_revocation": {
+        "approved": "تم قبول طلب إلغاء التوثيق {request_id}",
+        "rejected": "تم رفض طلب إلغاء التوثيق {request_id}"
+      },
+      "verification_deletion": {
+        "approved": "تم قبول طلب حذف التوثيق {request_id}",
+        "rejected": "تم رفض طلب حذف التوثيق {request_id}"
+      },
+      "teacher_verification": {
+        "approved": "تمت الموافقة على توثيق المعلّم {application_id}",
+        "rejected": "لم تتم الموافقة على توثيق المعلّم {application_id}"
+      },
+      "system": {
+        "notice": "إشعار النظام، الرقم المرتبط {reference_id}",
+        "security": "تنبيه أمني، الرقم المرتبط {reference_id}",
+        "account": "إشعار الحساب، الرقم المرتبط {reference_id}"
+      }
+    },
+    "status": {
+      "inaccessible": "العنصر المرتبط لم يعد متاحًا.",
+      "unavailable": "لا يمكن عرض العنصر المرتبط الآن. أعد المحاولة لاحقًا."
     }
   }
 }

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppWindow, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, GraduationCap, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
+import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, GraduationCap, HardDrive, Inbox, LockKeyhole, ShieldCheck, UserRound, UserRoundCog } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -15,6 +15,7 @@ const covers = (to: string) => route.path === to || (to !== '/me' && route.path.
 const current = (to: string) => covers(to) && !links.some((link) => link.to !== to && link.to.startsWith(`${to}/`) && covers(link.to))
 const links = [
   { to: '/me', label: 'me.overview', icon: UserRound, tile: 'var(--c-gray)' },
+  { to: '/notifications', label: 'notifications.link', icon: Bell, tile: 'var(--c-red)' },
   { to: '/me/courses', label: 'courses.title', icon: CalendarDays, tile: 'var(--c-red)' },
   { to: '/me/reviews', label: 'me.reviews', icon: FileText, tile: 'var(--c-blue)' },
   { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: 'var(--c-orange)' },

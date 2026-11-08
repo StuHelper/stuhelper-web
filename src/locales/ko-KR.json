@@ -1470,7 +1470,9 @@
       "account_closed": "해지된 계정은 QQ를 연동할 수 없습니다.",
       "revision_conflict": "다른 화면에서 연동 상태가 바뀌었습니다. 새로고침 후 다시 시도하세요.",
       "invalid_state": "승인이 만료되었거나 다른 로그인의 것입니다. 계정 페이지에서 다시 시작하세요.",
-      "unionid_missing": "QQ가 완전한 신원 정보를 보내지 않아 QQ Connect를 연동할 수 없습니다."
+      "unionid_missing": "QQ가 완전한 신원 정보를 보내지 않아 QQ Connect를 연동할 수 없습니다.",
+      "reauthorization_required": "QQ 인증이 완료되지 않았습니다. 계정 페이지에서 QQ 로그인 연동을 다시 시작하세요.",
+      "processing": "QQ가 아직 인증 결과를 확인하고 있습니다. 잠시 후 계정 페이지에서 연결 상태를 확인하세요."
     },
     "callback": {
       "title": "QQ Connect 승인",
@@ -1867,6 +1869,70 @@
       "teacher": "교원 신분",
       "gender": "성별",
       "organization": "소속 기관"
+    }
+  },
+  "notifications": {
+    "title": "알림",
+    "link": "알림",
+    "description": "내 콘텐츠에 대한 반응, 처리 결과, 인증 결과입니다.",
+    "unread": "읽지 않은 알림: {count}",
+    "interaction": "반응 알림 받기(답글, 좋아요)",
+    "interactionOn": "반응 알림을 켰습니다.",
+    "interactionOff": "반응 알림을 껐습니다.",
+    "always": "처리 결과, 보안 및 계정 알림은 항상 전달됩니다.",
+    "readAll": "모두 읽음으로 표시",
+    "allRead": "모든 알림을 읽음으로 표시했습니다.",
+    "empty": "아직 알림이 없습니다.",
+    "count": "합계: {count}",
+    "unreadMark": "읽지 않음",
+    "titles": {
+      "interaction": {
+        "reply": "내 콘텐츠 {content_id}에 새 답글이 달렸습니다",
+        "like": "내 콘텐츠 {content_id}가 좋아요를 받았습니다"
+      },
+      "content": {
+        "approved": "내 콘텐츠 {content_id}가 승인되었습니다",
+        "rejected": "내 콘텐츠 {content_id}가 승인되지 않았습니다",
+        "removed": "내 콘텐츠 {content_id}가 게시 중단되었습니다"
+      },
+      "resource_removal": {
+        "approved": "자료 삭제 요청 {request_id}이 승인되었습니다",
+        "rejected": "자료 삭제 요청 {request_id}이 거절되었습니다"
+      },
+      "report": {
+        "approved": "신고 {report_id}이 처리되었습니다",
+        "rejected": "신고 {report_id}은 검토 결과 받아들여지지 않았습니다"
+      },
+      "student_verification": {
+        "approved": "학생 인증 신청 {application_id}이 승인되었습니다",
+        "rejected": "학생 인증 신청 {application_id}이 승인되지 않았습니다",
+        "revoked": "학생 인증 {credential_id}이 취소되었습니다"
+      },
+      "identity_verification": {
+        "approved": "실명 확인 {operation_id}이 완료되었습니다",
+        "rejected": "실명 확인 {operation_id}이 완료되지 않았습니다"
+      },
+      "verification_revocation": {
+        "approved": "인증 취소 요청 {request_id}이 승인되었습니다",
+        "rejected": "인증 취소 요청 {request_id}이 거절되었습니다"
+      },
+      "verification_deletion": {
+        "approved": "인증 삭제 요청 {request_id}이 승인되었습니다",
+        "rejected": "인증 삭제 요청 {request_id}이 거절되었습니다"
+      },
+      "teacher_verification": {
+        "approved": "교원 인증 신청 {application_id}이 승인되었습니다",
+        "rejected": "교원 인증 신청 {application_id}이 승인되지 않았습니다"
+      },
+      "system": {
+        "notice": "시스템 알림, 관련 번호 {reference_id}",
+        "security": "보안 알림, 관련 번호 {reference_id}",
+        "account": "계정 알림, 관련 번호 {reference_id}"
+      }
+    },
+    "status": {
+      "inaccessible": "관련 항목에 더 이상 접근할 수 없습니다.",
+      "unavailable": "관련 항목을 지금 표시할 수 없습니다. 잠시 후 다시 시도하세요."
     }
   }
 }
