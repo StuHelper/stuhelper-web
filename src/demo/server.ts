@@ -1,6 +1,7 @@
 import { teacherLevels } from './store'
 import * as d from './data'
 import { favoritesRoute } from './favorites'
+import { billingRoute } from './billing'
 import { qqRoute } from './qq'
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
@@ -114,6 +115,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (favorite) return favorite
   const qq = await qqRoute(p, method, init)
   if (qq) return qq
+  const billing = await billingRoute(p, method, u, init)
+  if (billing) return billing
 
   if (p.startsWith('/verification')) {
     const eligible = who === 'verified'

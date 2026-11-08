@@ -43,6 +43,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
   { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },
+  { path: '/me/wallet', component: () => import('../features/wallet/WalletView.vue'), meta: { access: 'member', title: 'wallet.title', section: 'me' } },
   { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { access: 'member', title: 'favorites.title', section: 'me' } },
   { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { access: 'member', title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
