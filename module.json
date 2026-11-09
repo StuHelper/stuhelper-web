@@ -74,6 +74,21 @@
     ],
     "PC-12": [
       "tests/e2e/profile.spec.mjs#group card fields start off and only the allowed ones are saved"
+    ],
+    "RES-CLIENT-08": [
+      "tests/e2e/unlock.spec.mjs#buying access waits for the grant before offering the download",
+      "tests/e2e/unlock.spec.mjs#a resource that cannot be delivered after payment reports the refund, not success",
+      "tests/e2e/unlock.spec.mjs#either account can be chosen when both prices are set"
+    ],
+    "RES-CLIENT-09": [
+      "tests/e2e/unlock.spec.mjs#an insufficient balance names the missing amount and links to the wallet"
+    ],
+    "WP-CLIENT-01": [
+      "tests/e2e/membership.spec.mjs#each plan shows what it covers, and a plan without coverage cannot be bought"
+    ],
+    "WP-CLIENT-02": [
+      "tests/e2e/membership.spec.mjs#buying a plan pays from the chosen account and lists the membership",
+      "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog"
     ]
   }
 }
