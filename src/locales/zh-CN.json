@@ -1530,6 +1530,19 @@
     "badge": {
       "student": "学生",
       "teacher": "教师"
+    },
+    "card": {
+      "title": "群名片可使用的信息",
+      "hint": "开启的项目可用于 StuHelper 管理的 QQ 群自动设置你的群名片。默认全部关闭，关闭后群名片不再使用这一项。",
+      "fields": {
+        "nickname": "昵称",
+        "name": "真实姓名",
+        "school": "学校",
+        "department": "学院",
+        "grade": "年级",
+        "student_id": "学号",
+        "gender": "性别"
+      }
     }
   },
   "wallet": {
@@ -1966,6 +1979,52 @@
       "progress": "已选 {count} / {max} 项",
       "start": "开始对比",
       "pickMore": "再选一项即可对比"
+    }
+  },
+  "groups": {
+    "title": "我的群",
+    "description": "已加入或正在申请的 QQ 群，以及入群还差哪些条件。",
+    "refresh": "刷新",
+    "empty": "还没有加入或申请由 StuHelper 管理的 QQ 群。",
+    "number": "群号 {number}",
+    "stateLabel": "状态",
+    "deadline": "截止时间",
+    "notJoined": "尚未入群",
+    "missing": "还需要满足：",
+    "unknown": "暂时无法确认{facts}，稍后刷新查看结果。",
+    "eligibility": {
+      "eligible": "符合条件",
+      "ineligible": "条件未满足",
+      "unknown": "待确认"
+    },
+    "state": {
+      "requested": "已申请，等待处理",
+      "awaiting_verification": "等待完成认证",
+      "grace": "入群宽限期内",
+      "extended": "宽限期已延长",
+      "exempt": "管理员已豁免",
+      "restored": "资格已恢复",
+      "removal_pending": "即将移出"
+    },
+    "condition": {
+      "qq_binding": "绑定 QQ",
+      "student_verification": "完成学生认证",
+      "alumni_not_accepted": "本群不接受校友",
+      "temporary_not_accepted": "本群不接受临时新生",
+      "password": "在群内提交入群口令",
+      "restricted": "当前账号受到入群限制"
+    },
+    "fact": {
+      "student_eligibility": "学生资格",
+      "student_stage": "学籍阶段"
+    },
+    "hint": {
+      "submit_password": "请按群公告在群内发送入群口令。",
+      "contact_group_admin": "请联系该群管理员处理。"
+    },
+    "action": {
+      "bind_qq": "去绑定 QQ",
+      "verify_student": "去学生认证"
     }
   }
 }

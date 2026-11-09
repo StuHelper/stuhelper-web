@@ -11,7 +11,7 @@ export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expi
 const KEY = 'stuhelper-demo-persona'
 // Account closure request of the prototype session.
 let closure: Record<string, any> | undefined
-const demoProfile = { id: '00000000-0000-4000-8000-000000000001', nickname: '小航同学', nickname_required: false, bio: '计算机学院 2023 级，喜欢写代码和拍飞机。', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, revision: 1 }
+const demoProfile = { id: '00000000-0000-4000-8000-000000000001', nickname: '小航同学', nickname_required: false, bio: '计算机学院 2023 级，喜欢写代码和拍飞机。', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, group_card_consent: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false }, revision: 1 }
 
 export function persona(): Persona {
   try { return (localStorage.getItem(KEY) as Persona) || 'verified' } catch { return 'verified' }
@@ -100,7 +100,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/profiles/me' && method === 'PUT') {
     const b = await body(init)
     if (b.revision !== demoProfile.revision) return nope('conflict', 409)
-    Object.assign(demoProfile, { nickname: b.nickname, bio: b.bio ?? demoProfile.bio, visibility: b.visibility ?? demoProfile.visibility, revision: demoProfile.revision + 1 })
+    Object.assign(demoProfile, { nickname: b.nickname, bio: b.bio ?? demoProfile.bio, visibility: b.visibility ?? demoProfile.visibility, group_card_consent: b.group_card_consent ?? demoProfile.group_card_consent, revision: demoProfile.revision + 1 })
     return json(demoProfile)
   }
   if (p === '/profiles/me') return json(demoProfile)

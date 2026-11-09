@@ -20,6 +20,7 @@ import MeLayout from './MeLayout.vue'
 // Lengths count Unicode code points, as the server does.
 type PublicProfile = components['schemas']['PublicProfile']
 type Visibility = Profile['visibility']
+type CardConsent = Profile['group_card_consent']
 const parsePublic = schemaOf<PublicProfile>(sessionContract.components.schemas, 'PublicProfile')
 
 const { t } = useI18n()
@@ -29,12 +30,12 @@ const http = useHttp()
 
 const profile = useAsync((signal) => session.currentProfile(signal))
 void profile.reload()
-const form = reactive({ nickname: '', bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true } as Visibility })
+const form = reactive({ nickname: '', bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true } as Visibility, card: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false } as CardConsent })
 const baseline = ref('')
 const snapshot = () => JSON.stringify(form)
 watch(() => profile.data.value, (value) => {
   if (!value) return
-  Object.assign(form, { nickname: value.nickname, bio: value.bio, visibility: { ...value.visibility } })
+  Object.assign(form, { nickname: value.nickname, bio: value.bio, visibility: { ...value.visibility }, card: { ...value.group_card_consent } })
   baseline.value = snapshot()
 }, { immediate: true })
 const dirty = computed(() => !!baseline.value && snapshot() !== baseline.value)
@@ -47,6 +48,8 @@ const saveError = ref('')
 useLeaveGuard(() => (dirty.value || saving.value ? t('common.leaveUnsaved') : ''))
 
 const switches: (keyof Visibility)[] = ['school', 'badge', 'department', 'grade', 'reviews', 'resources']
+// Fields a QQ group may put on the member's group card. Each is off until the owner allows it.
+const cardFields: (keyof CardConsent)[] = ['nickname', 'name', 'school', 'department', 'grade', 'student_id', 'gender']
 
 async function save() {
   const current = profile.data.value
@@ -54,7 +57,7 @@ async function save() {
   saving.value = true
   saveError.value = ''
   try {
-    profile.data.value = await session.saveProfile({ nickname: nickname.value, bio: form.bio.trim(), visibility: { ...form.visibility }, revision: current.revision }, crypto.randomUUID())
+    profile.data.value = await session.saveProfile({ nickname: nickname.value, bio: form.bio.trim(), visibility: { ...form.visibility }, group_card_consent: { ...form.card }, revision: current.revision }, crypto.randomUUID())
     toast(t('profile.saved'))
   } catch (failure) {
     // A newer revision saved elsewhere keeps the typed values so they can be saved again after reloading.
@@ -175,6 +178,33 @@ const facts = (row: PublicProfile['affiliations'][number]) => [row.school_name, 
                 type="checkbox"
               >
               <span>{{ t(`profile.visibility.${key}`) }}</span>
+            </label>
+          </div>
+        </section>
+        <section
+          class="section"
+          aria-labelledby="profile-card"
+        >
+          <h2
+            id="profile-card"
+            class="d-title"
+          >
+            {{ t('profile.card.title') }}
+          </h2>
+          <p class="muted small">
+            {{ t('profile.card.hint') }}
+          </p>
+          <div class="card stack">
+            <label
+              v-for="key in cardFields"
+              :key="key"
+              class="check"
+            >
+              <input
+                v-model="form.card[key]"
+                type="checkbox"
+              >
+              <span>{{ t(`profile.card.fields.${key}`) }}</span>
             </label>
           </div>
         </section>

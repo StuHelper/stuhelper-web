@@ -41,7 +41,7 @@ export class ApiError extends Error {
 }
 
 // Some modules prefix codes with their own name, for example "resources_not_found".
-const modulePrefix = /^(?:catalog|reviews|moderation|resources|media|storage|contribution|verification|profiles)_(.+)$/
+const modulePrefix = /^(?:catalog|reviews|moderation|resources|media|storage|contribution|verification|profiles|groups)_(.+)$/
 
 export function normalizeCode(code: string) {
   const bare = modulePrefix.exec(code)?.[1] ?? code

@@ -53,6 +53,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/votes', component: () => import('../features/search/MyVotesView.vue'), meta: { access: 'member', title: 'search.votes.title', section: 'me' } },
   { path: '/notifications', component: () => import('../features/notifications/NotificationsView.vue'), meta: { access: 'member', title: 'notifications.title', section: 'me' } },
   { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { access: 'member', title: 'favorites.title', section: 'me' } },
+  { path: '/me/groups', component: () => import('../features/groups/MyGroupsView.vue'), meta: { access: 'member', title: 'groups.title', section: 'me' } },
   { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { access: 'member', title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
   { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } },

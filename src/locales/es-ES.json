@@ -1530,6 +1530,19 @@
     "badge": {
       "student": "Estudiante",
       "teacher": "Docente"
+    },
+    "card": {
+      "title": "Datos para la tarjeta de grupo",
+      "hint": "Los grupos de QQ gestionados por StuHelper pueden usar los datos que actives para configurar tu tarjeta de grupo. Todo empieza desactivado; al desactivar un dato, deja de usarse.",
+      "fields": {
+        "nickname": "Apodo",
+        "name": "Nombre real",
+        "school": "Centro",
+        "department": "Facultad",
+        "grade": "Curso",
+        "student_id": "Número de estudiante",
+        "gender": "Género"
+      }
     }
   },
   "wallet": {
@@ -1966,6 +1979,52 @@
       "progress": "{count} de {max} seleccionados",
       "start": "Comparar ahora",
       "pickMore": "Elige uno más para comparar"
+    }
+  },
+  "groups": {
+    "title": "Mis grupos",
+    "description": "Grupos de QQ a los que te has unido o has solicitado, y lo que aún falta para entrar.",
+    "refresh": "Actualizar",
+    "empty": "No te has unido ni has solicitado ningún grupo de QQ gestionado por StuHelper.",
+    "number": "Grupo {number}",
+    "stateLabel": "Estado",
+    "deadline": "Fecha límite",
+    "notJoined": "Aún no estás en el grupo",
+    "missing": "Aún falta:",
+    "unknown": "Ahora no se puede confirmar: {facts}. Actualiza más tarde para ver el resultado.",
+    "eligibility": {
+      "eligible": "Cumple los requisitos",
+      "ineligible": "No cumple los requisitos",
+      "unknown": "Pendiente de confirmar"
+    },
+    "state": {
+      "requested": "Solicitud enviada, en espera",
+      "awaiting_verification": "Esperando verificación",
+      "grace": "En periodo de gracia",
+      "extended": "Periodo de gracia ampliado",
+      "exempt": "Eximido por un administrador",
+      "restored": "Requisitos restablecidos",
+      "removal_pending": "Salida inminente"
+    },
+    "condition": {
+      "qq_binding": "Vincular tu cuenta de QQ",
+      "student_verification": "Completar la verificación de estudiante",
+      "alumni_not_accepted": "Este grupo no admite egresados",
+      "temporary_not_accepted": "Este grupo no admite nuevos estudiantes provisionales",
+      "password": "Enviar la contraseña de acceso en el grupo",
+      "restricted": "Esta cuenta tiene restringido el acceso"
+    },
+    "fact": {
+      "student_eligibility": "condición de estudiante",
+      "student_stage": "situación de matrícula"
+    },
+    "hint": {
+      "submit_password": "Envía la contraseña de acceso en el grupo según indica el aviso del grupo.",
+      "contact_group_admin": "Ponte en contacto con un administrador de este grupo."
+    },
+    "action": {
+      "bind_qq": "Vincular QQ",
+      "verify_student": "Verificarme como estudiante"
     }
   }
 }

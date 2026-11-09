@@ -1530,6 +1530,19 @@
     "badge": {
       "student": "학생",
       "teacher": "교원"
+    },
+    "card": {
+      "title": "그룹 명함에 쓸 수 있는 정보",
+      "hint": "켠 항목은 StuHelper가 관리하는 QQ 그룹에서 그룹 명함을 설정할 때 사용됩니다. 처음에는 모두 꺼져 있으며, 끄면 해당 항목은 더 이상 사용되지 않습니다.",
+      "fields": {
+        "nickname": "닉네임",
+        "name": "실명",
+        "school": "학교",
+        "department": "단과대학",
+        "grade": "학년",
+        "student_id": "학번",
+        "gender": "성별"
+      }
     }
   },
   "wallet": {
@@ -1966,6 +1979,52 @@
       "progress": "{count} / {max}개 선택됨",
       "start": "비교하기",
       "pickMore": "하나 더 고르면 비교할 수 있습니다"
+    }
+  },
+  "groups": {
+    "title": "내 그룹",
+    "description": "가입했거나 신청 중인 QQ 그룹과 가입에 남은 조건입니다.",
+    "refresh": "새로고침",
+    "empty": "StuHelper가 관리하는 QQ 그룹에 가입하거나 신청한 기록이 없습니다.",
+    "number": "그룹 번호 {number}",
+    "stateLabel": "상태",
+    "deadline": "기한",
+    "notJoined": "아직 가입 전",
+    "missing": "남은 조건:",
+    "unknown": "{facts}을(를) 지금 확인할 수 없습니다. 나중에 새로고침하여 결과를 확인하세요.",
+    "eligibility": {
+      "eligible": "조건 충족",
+      "ineligible": "조건 미충족",
+      "unknown": "확인 대기"
+    },
+    "state": {
+      "requested": "신청 완료, 처리 대기",
+      "awaiting_verification": "인증 대기",
+      "grace": "유예 기간 중",
+      "extended": "유예 기간 연장됨",
+      "exempt": "관리자가 면제함",
+      "restored": "자격 복구됨",
+      "removal_pending": "곧 내보내짐"
+    },
+    "condition": {
+      "qq_binding": "QQ 연결",
+      "student_verification": "학생 인증 완료",
+      "alumni_not_accepted": "이 그룹은 졸업생을 받지 않습니다",
+      "temporary_not_accepted": "이 그룹은 임시 신입생을 받지 않습니다",
+      "password": "그룹에서 가입 암호 보내기",
+      "restricted": "이 계정은 가입이 제한되어 있습니다"
+    },
+    "fact": {
+      "student_eligibility": "학생 자격",
+      "student_stage": "학적 구분"
+    },
+    "hint": {
+      "submit_password": "그룹 공지에 따라 그룹에서 가입 암호를 보내세요.",
+      "contact_group_admin": "이 그룹의 관리자에게 문의하세요."
+    },
+    "action": {
+      "bind_qq": "QQ 연결하기",
+      "verify_student": "학생 인증하기"
     }
   }
 }

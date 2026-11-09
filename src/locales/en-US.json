@@ -1530,6 +1530,19 @@
     "badge": {
       "student": "Student",
       "teacher": "Teacher"
+    },
+    "card": {
+      "title": "Group card information",
+      "hint": "QQ groups managed by StuHelper may use the items you turn on to set your group card. All items start off; turning one off stops groups from using it.",
+      "fields": {
+        "nickname": "Nickname",
+        "name": "Legal name",
+        "school": "School",
+        "department": "Department",
+        "grade": "Year",
+        "student_id": "Student ID",
+        "gender": "Gender"
+      }
     }
   },
   "wallet": {
@@ -1966,6 +1979,52 @@
       "progress": "{count} of {max} selected",
       "start": "Compare now",
       "pickMore": "Pick one more to compare"
+    }
+  },
+  "groups": {
+    "title": "My groups",
+    "description": "QQ groups you have joined or applied to, and what is still needed to join.",
+    "refresh": "Refresh",
+    "empty": "You have not joined or applied to any QQ group managed by StuHelper.",
+    "number": "Group {number}",
+    "stateLabel": "Status",
+    "deadline": "Deadline",
+    "notJoined": "Not in the group yet",
+    "missing": "Still needed:",
+    "unknown": "{facts} cannot be confirmed right now. Refresh later to see the result.",
+    "eligibility": {
+      "eligible": "Eligible",
+      "ineligible": "Requirements not met",
+      "unknown": "Pending confirmation"
+    },
+    "state": {
+      "requested": "Applied, awaiting review",
+      "awaiting_verification": "Waiting for verification",
+      "grace": "In the grace period",
+      "extended": "Grace period extended",
+      "exempt": "Exempted by an administrator",
+      "restored": "Eligibility restored",
+      "removal_pending": "About to be removed"
+    },
+    "condition": {
+      "qq_binding": "Bind your QQ account",
+      "student_verification": "Complete student verification",
+      "alumni_not_accepted": "This group does not accept alumni",
+      "temporary_not_accepted": "This group does not accept provisional freshmen",
+      "password": "Send the join password in the group",
+      "restricted": "This account is restricted from joining"
+    },
+    "fact": {
+      "student_eligibility": "Student eligibility",
+      "student_stage": "Enrollment stage"
+    },
+    "hint": {
+      "submit_password": "Send the join password in the group as the group notice describes.",
+      "contact_group_admin": "Contact an administrator of this group."
+    },
+    "action": {
+      "bind_qq": "Bind QQ",
+      "verify_student": "Verify as a student"
     }
   }
 }

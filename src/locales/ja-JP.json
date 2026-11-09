@@ -1530,6 +1530,19 @@
     "badge": {
       "student": "学生",
       "teacher": "教員"
+    },
+    "card": {
+      "title": "グループ名刺に使える情報",
+      "hint": "オンにした項目は、StuHelper が管理する QQ グループであなたのグループ名刺を設定するときに使われます。初期状態はすべてオフで、オフにするとその項目は使われなくなります。",
+      "fields": {
+        "nickname": "ニックネーム",
+        "name": "氏名",
+        "school": "学校",
+        "department": "学部",
+        "grade": "学年",
+        "student_id": "学籍番号",
+        "gender": "性別"
+      }
     }
   },
   "wallet": {
@@ -1966,6 +1979,52 @@
       "progress": "{count} / {max} 件を選択中",
       "start": "比較する",
       "pickMore": "もう 1 件選ぶと比較できます"
+    }
+  },
+  "groups": {
+    "title": "マイグループ",
+    "description": "参加済みまたは申請中の QQ グループと、参加に必要な残りの条件。",
+    "refresh": "更新",
+    "empty": "StuHelper が管理する QQ グループへの参加や申請はまだありません。",
+    "number": "グループ番号 {number}",
+    "stateLabel": "状態",
+    "deadline": "期限",
+    "notJoined": "未参加",
+    "missing": "残りの条件：",
+    "unknown": "{facts}を現在確認できません。後で更新して結果を確認してください。",
+    "eligibility": {
+      "eligible": "条件を満たしています",
+      "ineligible": "条件を満たしていません",
+      "unknown": "確認待ち"
+    },
+    "state": {
+      "requested": "申請済み・処理待ち",
+      "awaiting_verification": "認証待ち",
+      "grace": "猶予期間中",
+      "extended": "猶予期間延長済み",
+      "exempt": "管理者により免除",
+      "restored": "資格回復済み",
+      "removal_pending": "まもなく退出処理"
+    },
+    "condition": {
+      "qq_binding": "QQ を連携する",
+      "student_verification": "学生認証を完了する",
+      "alumni_not_accepted": "このグループは卒業生を受け付けていません",
+      "temporary_not_accepted": "このグループは仮登録の新入生を受け付けていません",
+      "password": "グループ内で参加パスワードを送信する",
+      "restricted": "このアカウントは参加が制限されています"
+    },
+    "fact": {
+      "student_eligibility": "学生資格",
+      "student_stage": "在籍区分"
+    },
+    "hint": {
+      "submit_password": "グループのお知らせに従い、グループ内で参加パスワードを送信してください。",
+      "contact_group_admin": "このグループの管理者に連絡してください。"
+    },
+    "action": {
+      "bind_qq": "QQ を連携",
+      "verify_student": "学生認証へ"
     }
   }
 }
