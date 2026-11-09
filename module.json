@@ -63,6 +63,17 @@
     "QQ-01": [
       "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
       "tests/e2e/groups.spec.mjs#facts that cannot be confirmed are named and the list refreshes on request"
+    ],
+    "QQ-11": [
+      "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
+      "tests/e2e/groups.spec.mjs#later pages load on request and the empty list explains itself"
+    ],
+    "QQ-12": [
+      "tests/e2e/groups.spec.mjs#facts that cannot be confirmed are named and the list refreshes on request",
+      "tests/e2e/groups.spec.mjs#an empty list and a failed load each say so"
+    ],
+    "PC-12": [
+      "tests/e2e/profile.spec.mjs#group card fields start off and only the allowed ones are saved"
     ]
   }
 }
