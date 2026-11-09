@@ -2052,5 +2052,33 @@
       "bind_qq": "去绑定 QQ",
       "verify_student": "去学生认证"
     }
+  },
+  "membership": {
+    "title": "会员",
+    "description": "可购买的会员套餐、各自实际覆盖的资料范围，以及你当前的会员。",
+    "mine": "我的会员",
+    "none": "还没有会员。",
+    "unnamed": "会员套餐",
+    "until": "有效期至 {date}",
+    "ended": "已于 {date} 结束",
+    "active": "有效",
+    "expired": "已结束",
+    "plans": "可购买的套餐",
+    "noPlans": "暂时没有可购买的套餐。",
+    "days": "{count} 天",
+    "alternative": "，或 ",
+    "covers": "覆盖的资料：",
+    "noCoverage": "这个套餐尚未配置覆盖范围，暂不能购买。",
+    "coverageUnavailable": "覆盖范围暂时无法读取，请稍后刷新。",
+    "school": "指定学校",
+    "directory": "指定目录",
+    "category": "指定分类",
+    "buy": "购买",
+    "renew": "续费",
+    "buyTitle": "购买 {name}",
+    "renewTitle": "续费 {name}",
+    "renewHint": "续费从当前到期时间起延长有效期。",
+    "confirm": "支付 {price}",
+    "bought": "会员已开通，覆盖范围内的资料稍后即可下载。"
   }
 }

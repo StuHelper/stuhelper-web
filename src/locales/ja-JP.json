@@ -2052,5 +2052,33 @@
       "bind_qq": "QQ を連携",
       "verify_student": "学生認証へ"
     }
+  },
+  "membership": {
+    "title": "メンバーシップ",
+    "description": "購入できるメンバーシップ、それぞれが実際に対象とする資料、現在のメンバーシップ。",
+    "mine": "マイメンバーシップ",
+    "none": "メンバーシップはまだありません。",
+    "unnamed": "メンバーシッププラン",
+    "until": "{date} まで有効",
+    "ended": "{date} に終了",
+    "active": "有効",
+    "expired": "終了",
+    "plans": "購入できるプラン",
+    "noPlans": "現在購入できるプランはありません。",
+    "days": "{count} 日",
+    "alternative": "、または ",
+    "covers": "対象の資料：",
+    "noCoverage": "このプランは対象範囲が未設定のため、購入できません。",
+    "coverageUnavailable": "対象範囲を読み込めません。後で更新してください。",
+    "school": "指定の学校",
+    "directory": "指定のフォルダー",
+    "category": "指定の分類",
+    "buy": "購入",
+    "renew": "更新",
+    "buyTitle": "{name} を購入",
+    "renewTitle": "{name} を更新",
+    "renewHint": "更新すると、現在の終了日から有効期間が延長されます。",
+    "confirm": "{price} を支払う",
+    "bought": "メンバーシップが有効になりました。対象の資料はまもなくダウンロードできます。"
   }
 }

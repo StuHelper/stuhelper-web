@@ -2052,5 +2052,33 @@
       "bind_qq": "Bind QQ",
       "verify_student": "Verify as a student"
     }
+  },
+  "membership": {
+    "title": "Membership",
+    "description": "Membership plans on sale, the resources each one actually covers, and your current memberships.",
+    "mine": "My memberships",
+    "none": "You have no memberships yet.",
+    "unnamed": "Membership plan",
+    "until": "Valid until {date}",
+    "ended": "Ended on {date}",
+    "active": "Active",
+    "expired": "Ended",
+    "plans": "Plans on sale",
+    "noPlans": "No plans are on sale right now.",
+    "days": "{count} days",
+    "alternative": ", or ",
+    "covers": "Covers:",
+    "noCoverage": "This plan has no coverage configured yet and cannot be bought.",
+    "coverageUnavailable": "Coverage cannot be read right now. Refresh later.",
+    "school": "A school",
+    "directory": "A folder",
+    "category": "A category",
+    "buy": "Buy",
+    "renew": "Renew",
+    "buyTitle": "Buy {name}",
+    "renewTitle": "Renew {name}",
+    "renewHint": "Renewing extends the plan from its current end date.",
+    "confirm": "Pay {price}",
+    "bought": "Membership active. Covered resources can be downloaded shortly."
   }
 }

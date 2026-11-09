@@ -2052,5 +2052,33 @@
       "bind_qq": "Vincular QQ",
       "verify_student": "Verificarme como estudiante"
     }
+  },
+  "membership": {
+    "title": "Membresía",
+    "description": "Planes de membresía a la venta, los recursos que cubre cada uno y tus membresías actuales.",
+    "mine": "Mis membresías",
+    "none": "Aún no tienes membresías.",
+    "unnamed": "Plan de membresía",
+    "until": "Válida hasta el {date}",
+    "ended": "Terminó el {date}",
+    "active": "Activa",
+    "expired": "Terminada",
+    "plans": "Planes a la venta",
+    "noPlans": "Ahora no hay planes a la venta.",
+    "days": "{count} días",
+    "alternative": ", o ",
+    "covers": "Recursos cubiertos:",
+    "noCoverage": "Este plan aún no tiene cobertura configurada y no se puede comprar.",
+    "coverageUnavailable": "No se puede leer la cobertura ahora. Actualiza más tarde.",
+    "school": "Un centro",
+    "directory": "Una carpeta",
+    "category": "Una categoría",
+    "buy": "Comprar",
+    "renew": "Renovar",
+    "buyTitle": "Comprar {name}",
+    "renewTitle": "Renovar {name}",
+    "renewHint": "Al renovar, la vigencia se amplía desde la fecha de fin actual.",
+    "confirm": "Pagar {price}",
+    "bought": "Membresía activa. Podrás descargar los recursos cubiertos en breve."
   }
 }

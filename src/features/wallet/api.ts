@@ -13,6 +13,8 @@ export type Channel = Schemas['Channel']
 export type Offer = Schemas['Offer']
 export type ResourcePrice = Schemas['ResourcePrice']
 export type Membership = Schemas['Membership']
+// The contract adds an anyOf requiring at least one price; the full shape is the member carrying an id.
+export type Plan = Extract<Schemas['PublicMembershipPlan'], { id: string }>
 export type PayAccount = 'points' | 'ivory'
 
 const schemas = billingContract.components.schemas
@@ -26,6 +28,7 @@ const parse = {
   offers: schemaOf<Schemas['OfferList']>(schemas, 'OfferList'),
   price: schemaOf<ResourcePrice>(schemas, 'ResourcePrice'),
   memberships: schemaOf<Membership[]>(schemas, 'Membership', true),
+  plans: schemaOf<Plan[]>(schemas, 'PublicMembershipPlan', true),
 }
 
 /** Order states that will not change any more. */
@@ -108,6 +111,16 @@ export class WalletApi {
    */
   unlockResource(body: { resource_id: string; account: PayAccount }, key: string) {
     return this.http.json('/api/v1/billing/resource-unlocks', parse.order, { method: 'POST', body, key })
+  }
+
+  /** Plans on sale. Only enabled plans with at least one price are listed. */
+  plans(signal?: AbortSignal) {
+    return this.http.json('/api/v1/billing/membership-plans', parse.plans, { query: { limit: 100 }, signal })
+  }
+
+  /** Buy or renew a plan; renewing the same plan extends it from its current end. */
+  buyMembership(body: { plan_id: string; account: PayAccount }, key: string) {
+    return this.http.json('/api/v1/billing/memberships', parse.order, { method: 'POST', body, key })
   }
 
   memberships(signal?: AbortSignal) {

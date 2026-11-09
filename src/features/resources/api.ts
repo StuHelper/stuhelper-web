@@ -17,6 +17,7 @@ export type Value = Schema['Value']
 export type Capabilities = Schema['Capabilities']
 export type Directory = Schema['Directory']
 export type Package = Schema['Package']
+export type Coverage = Schema['Coverage']
 export type Receipt = Schema['RequestReceipt']
 export type RequestInput = Schema['Request']
 export type MediaVersion = Media['schemas']['Version']
@@ -27,6 +28,7 @@ const parse = {
   capabilities: schemaOf<Capabilities>(resources, 'Capabilities'),
   categories: schemaOf<Schema['CategoryPage']>(resources, 'CategoryPage'),
   resource: schemaOf<Resource>(resources, 'Resource'),
+  coverage: schemaOf<Coverage>(resources, 'Coverage'),
   page: schemaOf<Schema['ResourcePage']>(resources, 'ResourcePage'),
   directories: schemaOf<Schema['DirectoryPage']>(resources, 'DirectoryPage'),
   package: schemaOf<Package>(resources, 'Package'),
@@ -95,6 +97,11 @@ export class ResourcesApi {
 
   item(id: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/resources/items/${segment(id)}`, parse.resource, { signal })
+  }
+
+  /** Resources a membership plan covers; not_found means the plan has no coverage configured. */
+  coverage(planID: string, signal?: AbortSignal) {
+    return this.http.json(`/api/v1/resources/coverage/${segment(planID)}`, parse.coverage, { signal })
   }
 
   directories(query: Query, signal?: AbortSignal) {

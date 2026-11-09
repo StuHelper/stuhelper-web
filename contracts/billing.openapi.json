@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper Billing",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "Ivory 以最小单位（0.01 Ivory）整数表示，CNY 按 1:1 入账。积分为整数，时间为 UTC RFC3339。长期积分不返回 expires_at。分页按稳定 ID 升序，next 为空表示结束。所有写入要求幂等键，同键不同内容返回 409。支持资料解锁、会员商业条款与加密退款收款资料。"
   },
   "security": [
@@ -4347,6 +4347,109 @@
           }
         }
       }
+    },
+    "/api/v1/billing/membership-plans": {
+      "get": {
+        "operationId": "listPurchasableMembershipPlans",
+        "summary": "列出用户可购买的会员套餐",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PublicMembershipPlan"
+                  },
+                  "maxItems": 100
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求登录。仅返回 enabled 且至少配置一种正数价格的套餐，按 ID 的 C 排序升序。after 为排他的上一页最后一项 ID，limit 默认 50、最多 100；过滤在分页前执行。列表展示商业条款，购买时仍检查当前资格及资源覆盖配置。"
+      }
     }
   },
   "components": {
@@ -5683,6 +5786,10 @@
           },
           "source": {
             "type": "string"
+          },
+          "plan_name": {
+            "type": "string",
+            "description": "最近一次购买、续费或管理员授予时保存的套餐名称快照。修改、停用或删除套餐不改变已保存的名称。"
           }
         },
         "required": [
@@ -5690,7 +5797,8 @@
           "valid_from",
           "valid_until",
           "revision",
-          "source"
+          "source",
+          "plan_name"
         ]
       },
       "Payee": {
@@ -5730,6 +5838,74 @@
         "required": [
           "issuer",
           "subject"
+        ]
+      },
+      "PublicMembershipPlan": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "valid_seconds": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 315576000
+          },
+          "points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "nullable": true
+          },
+          "ivory_minor": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "valid_seconds",
+          "points",
+          "ivory_minor"
+        ],
+        "description": "登录用户可见的启用且有价格的套餐。未提供的支付方式价格为 null。",
+        "anyOf": [
+          {
+            "properties": {
+              "points": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "points"
+            ]
+          },
+          {
+            "properties": {
+              "ivory_minor": {
+                "type": "integer",
+                "format": "int64",
+                "minimum": 1,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "ivory_minor"
+            ]
+          }
         ]
       }
     }

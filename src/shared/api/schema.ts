@@ -53,7 +53,10 @@ export function validates(value: unknown, schema: unknown, schemas: SchemaSet, d
   if (Array.isArray(schema.anyOf) && !schema.anyOf.some((part) => validates(value, part, schemas, depth + 1))) return false
   if (Array.isArray(schema.oneOf) && schema.oneOf.filter((part) => validates(value, part, schemas, depth + 1)).length !== 1) return false
   if (schema.type === undefined && (schema.allOf || schema.anyOf || schema.oneOf)) return true
-  switch (schema.type) {
+  // A combinator branch such as { properties: { points: ... }, required: ['points'] } has no
+  // type of its own; its object rules apply to objects. Other untyped schemas stay rejected.
+  const type = schema.type ?? (record(value) && (schema.properties !== undefined || schema.required !== undefined) ? 'object' : undefined)
+  switch (type) {
     case 'string':
       return typeof value === 'string' && validString(value, schema)
     case 'boolean':

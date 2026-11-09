@@ -44,3 +44,19 @@ describe('schema combinators', () => {
     expect(validates({ kind: 'a' }, { anyOf: [ref('A'), ref('B')] }, schemas)).toBe(true)
   })
 })
+
+describe('schemas without a type', () => {
+  const plan = {
+    type: 'object',
+    properties: { points: { type: 'integer', nullable: true }, ivory: { type: 'integer', nullable: true } },
+    required: ['points', 'ivory'],
+    anyOf: [{ properties: { points: { type: 'integer', minimum: 1 } }, required: ['points'] }, { properties: { ivory: { type: 'integer', minimum: 1 } }, required: ['ivory'] }],
+  }
+  it('applies an untyped object branch to objects', () => {
+    expect(validates({ points: 300, ivory: null }, plan, {})).toBe(true)
+    expect(validates({ points: null, ivory: 150 }, plan, {})).toBe(true)
+    // Neither branch holds when both prices are absent.
+    expect(validates({ points: null, ivory: null }, plan, {})).toBe(false)
+  })
+})
+

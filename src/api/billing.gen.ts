@@ -697,6 +697,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/membership-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 列出用户可购买的会员套餐
+         * @description 要求登录。仅返回 enabled 且至少配置一种正数价格的套餐，按 ID 的 C 排序升序。after 为排他的上一页最后一项 ID，limit 默认 50、最多 100；过滤在分页前执行。列表展示商业条款，购买时仍检查当前资格及资源覆盖配置。
+         */
+        get: operations["listPurchasableMembershipPlans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1072,6 +1092,8 @@ export interface components {
             /** Format: int64 */
             revision: number;
             source: string;
+            /** @description 最近一次购买、续费或管理员授予时保存的套餐名称快照。修改、停用或删除套餐不改变已保存的名称。 */
+            plan_name: string;
         };
         Payee: {
             method: string;
@@ -1081,6 +1103,23 @@ export interface components {
         Principal: {
             issuer: string;
             subject: string;
+        };
+        /** @description 登录用户可见的启用且有价格的套餐。未提供的支付方式价格为 null。 */
+        PublicMembershipPlan: {
+            id: string;
+            name: string;
+            /** Format: int64 */
+            valid_seconds: number;
+            /** Format: int64 */
+            points: number | null;
+            /** Format: int64 */
+            ivory_minor: number | null;
+        } | {
+            /** Format: int64 */
+            points: number;
+        } | {
+            /** Format: int64 */
+            ivory_minor: number;
         };
     };
     responses: never;
@@ -4382,6 +4421,83 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Payee"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listPurchasableMembershipPlans: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicMembershipPlan"][];
                 };
             };
             /** @description 输入无效 */

@@ -2052,5 +2052,33 @@
       "bind_qq": "Associer QQ",
       "verify_student": "Vérifier mon statut étudiant"
     }
+  },
+  "membership": {
+    "title": "Abonnement",
+    "description": "Les formules d’abonnement en vente, les ressources réellement couvertes par chacune et vos abonnements en cours.",
+    "mine": "Mes abonnements",
+    "none": "Vous n’avez pas encore d’abonnement.",
+    "unnamed": "Formule d’abonnement",
+    "until": "Valable jusqu’au {date}",
+    "ended": "Terminé le {date}",
+    "active": "Actif",
+    "expired": "Terminé",
+    "plans": "Formules en vente",
+    "noPlans": "Aucune formule n’est en vente pour le moment.",
+    "days": "{count} jours",
+    "alternative": ", ou ",
+    "covers": "Ressources couvertes :",
+    "noCoverage": "Cette formule n’a pas encore de périmètre et ne peut pas être achetée.",
+    "coverageUnavailable": "Impossible de lire le périmètre pour le moment. Actualisez plus tard.",
+    "school": "Un établissement",
+    "directory": "Un dossier",
+    "category": "Une catégorie",
+    "buy": "Acheter",
+    "renew": "Renouveler",
+    "buyTitle": "Acheter {name}",
+    "renewTitle": "Renouveler {name}",
+    "renewHint": "Le renouvellement prolonge la formule à partir de sa date de fin actuelle.",
+    "confirm": "Payer {price}",
+    "bought": "Abonnement actif. Les ressources couvertes seront téléchargeables sous peu."
   }
 }
