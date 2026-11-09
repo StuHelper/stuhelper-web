@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-billing",
-  "revision": "b534402d583c70c43b2cadd383c6695df87596a1",
-  "version": "0.2.0",
+  "revision": "2ef817d7e154f40a6274f16e2bef13747315454d",
+  "version": "0.3.0",
   "files": {
     "contracts/billing.openapi.json": "contracts/billing.openapi.json",
     "sdk/billing.gen.ts": "src/api/billing.gen.ts"
   },
   "sha256": {
-    "contracts/billing.openapi.json": "81360fcddfb9fe1cf6b568d51549d3721fdcc215c9c24768822f5fa743dec4d3",
-    "src/api/billing.gen.ts": "9d4f62b62f3ad94ffeaf26ef09ece9a75bd0d9d3ee805a8ce4bbd9d95f224048"
+    "contracts/billing.openapi.json": "6589941868301c5378adf20033d3318ff0cf8c8aeb0949a4e49f5ff8c386e8c4",
+    "src/api/billing.gen.ts": "8827edffca37e9763d322cd736662f4b691daa205e03fdd780f71f3e9d84a5a9"
   }
 }

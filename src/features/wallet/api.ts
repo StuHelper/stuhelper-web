@@ -11,6 +11,9 @@ export type Lot = Schemas['Lot']
 export type Order = Schemas['Order']
 export type Channel = Schemas['Channel']
 export type Offer = Schemas['Offer']
+export type ResourcePrice = Schemas['ResourcePrice']
+export type Membership = Schemas['Membership']
+export type PayAccount = 'points' | 'ivory'
 
 const schemas = billingContract.components.schemas
 const parse = {
@@ -21,10 +24,12 @@ const parse = {
   order: schemaOf<Order>(schemas, 'Order'),
   channels: schemaOf<Schemas['ChannelList']>(schemas, 'ChannelList'),
   offers: schemaOf<Schemas['OfferList']>(schemas, 'OfferList'),
+  price: schemaOf<ResourcePrice>(schemas, 'ResourcePrice'),
+  memberships: schemaOf<Membership[]>(schemas, 'Membership', true),
 }
 
 /** Order states that will not change any more. */
-export const finalStates: Order['state'][] = ['succeeded', 'failed', 'rejected', 'expired', 'cancelled']
+export const finalStates: Order['state'][] = ['succeeded', 'failed', 'rejected', 'expired', 'cancelled', 'fulfilled', 'refunded']
 
 /**
  * The caller's points and Ivory. Ivory amounts are in minor units (0.01 Ivory); a CNY top-up
@@ -89,6 +94,24 @@ export class WalletApi {
   /** Ask the payment provider for the current result. Only a confirmed payment credits Ivory. */
   refresh(id: string, key: string) {
     return this.http.json(`/api/v1/billing/orders/${segment(id)}/refresh`, parse.order, { method: 'POST', key })
+  }
+
+  /** Price of a restricted resource; either price may be absent when that account is not accepted. */
+  resourcePrice(id: string, signal?: AbortSignal) {
+    return this.http.json(`/api/v1/billing/resource-prices/${segment(id)}`, parse.price, { signal })
+  }
+
+  /**
+   * Pay for a resource. A paid order still waits for the resources module to grant
+   * access; it ends as fulfilled, or refunded to the same account when the resource
+   * can no longer be delivered.
+   */
+  unlockResource(body: { resource_id: string; account: PayAccount }, key: string) {
+    return this.http.json('/api/v1/billing/resource-unlocks', parse.order, { method: 'POST', body, key })
+  }
+
+  memberships(signal?: AbortSignal) {
+    return this.http.json('/api/v1/billing/memberships', parse.memberships, { signal })
   }
 
   cancel(id: string, key: string) {

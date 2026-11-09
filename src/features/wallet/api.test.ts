@@ -50,7 +50,7 @@ it('sends each write with the caller idempotency key and rejects responses outsi
   const order = { id: 'order', kind: 'topup', state: 'awaiting_payment', amount_minor: 1000, points: 0, reference: '', channel: 'demo-pay', reason: '', created_at: '2026-11-08T00:00:00Z', allocations: [], original_points: 0, original_amount_minor: 0, receipt_reference: '', failure_code: '' }
   const api = new WalletApi(new Http(async (input, init) => {
     sent.push({ url: String(input), key: new Headers(init?.headers).get('Idempotency-Key'), body: init?.body ? JSON.parse(String(init.body)) : undefined })
-    return sent.length === 1 ? Response.json(order) : Response.json({ ...order, state: 'paid' })
+    return sent.length === 1 ? Response.json(order) : Response.json({ ...order, state: 'settled' })
   }))
   await expect(api.topup({ channel: 'demo-pay', amount_minor: 1000 }, 'key-1')).resolves.toMatchObject({ state: 'awaiting_payment' })
   await expect(api.refresh('order', 'key-2')).rejects.toMatchObject({ code: 'incompatible' })

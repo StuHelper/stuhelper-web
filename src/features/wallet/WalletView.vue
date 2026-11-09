@@ -58,10 +58,12 @@ function amountText(entry: Entry) {
     : format.value.number(entry.amount, { signDisplay: 'exceptZero' })
   return entry.asset === 'ivory' ? `${isolate(signed)} Ivory` : t('wallet.pointsAmount', { amount: isolate(signed) })
 }
-const stateTone = (state: Order['state']) => (state === 'succeeded' ? 'success' : state === 'failed' || state === 'rejected' ? 'danger' : state === 'needs_review' || state === 'review_query_pending' ? 'warning' : finalStates.includes(state) ? 'neutral' : 'info')
+const stateTone = (state: Order['state']) => (state === 'succeeded' || state === 'fulfilled' ? 'success' : state === 'failed' || state === 'rejected' ? 'danger' : state === 'needs_review' || state === 'review_query_pending' ? 'warning' : finalStates.includes(state) ? 'neutral' : 'info')
 function orderTitle(order: Order) {
   if (order.kind === 'topup') return t('wallet.orderTitle.topup', { amount: ivory(order.amount_minor) })
   if (order.kind === 'purchase') return t('wallet.orderTitle.purchase', { points: points(order.points) })
+  // Resource unlocks and memberships are paid from one account, either points or Ivory.
+  if (order.kind === 'resource_unlock' || order.kind === 'membership') return t(`wallet.orderTitle.${order.kind}`, { price: order.account === 'points' ? points(order.points) : `${ivory(order.amount_minor)} Ivory` })
   return t(`wallet.orderTitle.${order.kind}`, { amount: ivory(order.amount_minor) })
 }
 

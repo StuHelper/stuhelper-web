@@ -12,6 +12,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import { attributeText, localName, useResourcesApi } from './api'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import RequestForm from './RequestForm.vue'
+import UnlockPanel from './UnlockPanel.vue'
 
 const props = defineProps<{ id: string }>()
 const { t, te, locale } = useI18n()
@@ -110,11 +111,16 @@ function accessReason(code: string) {
       </PageHeader>
 
       <p
-        v-if="!entryValue.download_allowed"
+        v-if="!entryValue.download_allowed && !entryValue.available_methods?.includes('purchase')"
         class="notice notice-info"
       >
-        <span>{{ accessReason(entryValue.access_reason) }}</span>
+        <span>{{ accessReason(entryValue.unlock_reason || entryValue.access_reason) }}</span>
       </p>
+      <UnlockPanel
+        v-if="!entryValue.download_allowed && entryValue.available_methods?.includes('purchase')"
+        :resource-id="entryValue.id"
+        @unlocked="entry.reload()"
+      />
       <p
         v-if="entryValue.proposal && entryValue.current"
         class="notice notice-warning small"

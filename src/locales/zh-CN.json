@@ -95,7 +95,8 @@
     "provider_failed": "支付服务处理失败，未扣款时可重新下单。",
     "quota_exceeded": "请求过于频繁，已超出配额，请稍后重试。",
     "billing_conflict": "数据已被其他操作更新，请刷新后重试。",
-    "schedule_incomplete": "课表信息还不完整，暂时无法导出日历。学校补充上课时间或作息后即可导出。"
+    "schedule_incomplete": "课表信息还不完整，暂时无法导出日历。学校补充上课时间或作息后即可导出。",
+    "billing_already_accessible": "你已经可以访问这份资料，无需再次付款。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -602,7 +603,13 @@
     },
     "access": {
       "allowed": "可以下载。",
-      "not_published": "资料尚未发布，暂不能下载。"
+      "not_published": "资料尚未发布，暂不能下载。",
+      "already_accessible": "你已经可以访问这份资料。",
+      "requirements_missing": "需要先满足资料的访问条件，例如完成学生认证。",
+      "resource_unavailable": "这份资料目前无法提供。",
+      "not_purchasable": "这份资料不支持购买。",
+      "unauthenticated": "请先登录。",
+      "not_found": "没有找到这份资料。"
     },
     "accessLevel": {
       "public": "公开资料",
@@ -725,6 +732,20 @@
         "applied": "处理结果已生效。",
         "failed": "执行失败，可以重新处理原申请。"
       }
+    },
+    "unlock": {
+      "title": "购买访问权",
+      "hint": "付款后长期有效，并覆盖这份资料后续的版本；下载时仍需满足当前的资格条件。",
+      "payWith": "支付方式",
+      "buy": "支付 {price}",
+      "short": "余额不足，还差 {amount}。",
+      "toWallet": "前往钱包",
+      "noPrice": "这份资料暂未开放购买。",
+      "paid": "已付款，正在开通访问权。",
+      "granting": "已付款，正在开通访问权，请稍候。也可以稍后在钱包的订单中查看结果。",
+      "viewOrder": "查看订单",
+      "refunded": "这份资料暂时无法交付，费用已退回原支付账户。",
+      "done": "已开通，可以下载了。"
     }
   },
   "verification": {
@@ -1582,7 +1603,9 @@
       "topup": "充值 {amount} Ivory",
       "purchase": "兑换积分 {points}",
       "refund": "退款 {amount} Ivory",
-      "purchase_refund": "兑换退回 {amount} Ivory"
+      "purchase_refund": "兑换退回 {amount} Ivory",
+      "resource_unlock": "资料解锁（{price}）",
+      "membership": "会员（{price}）"
     },
     "state": {
       "submitted": "已提交",
@@ -1596,7 +1619,10 @@
       "expired": "已过期",
       "cancelled": "已取消",
       "needs_review": "人工核实中",
-      "review_query_pending": "等待再次查询"
+      "review_query_pending": "等待再次查询",
+      "paid": "已付款，正在开通",
+      "fulfilled": "已开通",
+      "refunded": "已退回"
     },
     "topup": {
       "action": "充值",

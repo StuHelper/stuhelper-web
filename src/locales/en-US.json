@@ -95,7 +95,8 @@
     "provider_failed": "The payment service failed. If you were not charged, you can place a new order.",
     "quota_exceeded": "Too many requests. The quota was exceeded; try again later.",
     "billing_conflict": "The data changed in the meantime. Refresh and try again.",
-    "schedule_incomplete": "The timetable is incomplete, so the calendar cannot be exported yet. It will be available once the school adds class times or period times."
+    "schedule_incomplete": "The timetable is incomplete, so the calendar cannot be exported yet. It will be available once the school adds class times or period times.",
+    "billing_already_accessible": "You already have access to this resource. No payment is needed."
   },
   "connection": {
     "label": "Service connection status",
@@ -602,7 +603,13 @@
     },
     "access": {
       "allowed": "You can download this.",
-      "not_published": "The resource is not published yet."
+      "not_published": "The resource is not published yet.",
+      "already_accessible": "You already have access to this resource.",
+      "requirements_missing": "Meet the access conditions first, for example by completing student verification.",
+      "resource_unavailable": "This resource is not available right now.",
+      "not_purchasable": "This resource cannot be purchased.",
+      "unauthenticated": "Please sign in first.",
+      "not_found": "This resource was not found."
     },
     "accessLevel": {
       "public": "Public resource",
@@ -725,6 +732,20 @@
         "applied": "The outcome is in effect.",
         "failed": "Applying the outcome failed; you can process the original request again."
       }
+    },
+    "unlock": {
+      "title": "Buy access",
+      "hint": "Access lasts and covers later versions of this resource. Downloads still require your current eligibility.",
+      "payWith": "Pay with",
+      "buy": "Pay {price}",
+      "short": "Not enough balance. You need {amount} more.",
+      "toWallet": "Go to wallet",
+      "noPrice": "This resource is not available for purchase yet.",
+      "paid": "Paid. Granting access.",
+      "granting": "Paid. Granting access, please wait. You can also check the result later in your wallet orders.",
+      "viewOrder": "View order",
+      "refunded": "This resource cannot be delivered right now. The payment has been returned to the account you paid from.",
+      "done": "Access granted. You can download it now."
     }
   },
   "verification": {
@@ -1582,7 +1603,9 @@
       "topup": "Top up {amount} Ivory",
       "purchase": "Redeem points: {points}",
       "refund": "Refund {amount} Ivory",
-      "purchase_refund": "Redemption return {amount} Ivory"
+      "purchase_refund": "Redemption return {amount} Ivory",
+      "resource_unlock": "Resource unlock ({price})",
+      "membership": "Membership ({price})"
     },
     "state": {
       "submitted": "Submitted",
@@ -1596,7 +1619,10 @@
       "expired": "Expired",
       "cancelled": "Cancelled",
       "needs_review": "Under manual review",
-      "review_query_pending": "Waiting for another check"
+      "review_query_pending": "Waiting for another check",
+      "paid": "Paid, granting access",
+      "fulfilled": "Access granted",
+      "refunded": "Returned"
     },
     "topup": {
       "action": "Top up",

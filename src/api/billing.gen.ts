@@ -524,6 +524,179 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/billing/resource-unlocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** unlockResource */
+        post: operations["unlockResource"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/resource-prices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** setResourcePrice */
+        put: operations["setResourcePrice"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/resource-prices/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getResourcePrice */
+        get: operations["getResourcePrice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/membership-plans/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** setMembershipPlan */
+        put: operations["setMembershipPlan"];
+        post?: never;
+        /** deleteMembershipPlan */
+        delete: operations["deleteMembershipPlan"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/membership-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** listMembershipPlans */
+        get: operations["listMembershipPlans"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/memberships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** currentMemberships */
+        get: operations["currentMemberships"];
+        put?: never;
+        /** buyMembership */
+        post: operations["buyMembership"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/memberships/grants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** grantMembership */
+        post: operations["grantMembership"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/commerce-refunds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** refundCommerce */
+        post: operations["refundCommerce"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/refunds/{id}/payee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** getRefundPayee */
+        get: operations["getRefundPayee"];
+        /** setRefundPayee */
+        put: operations["setRefundPayee"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/billing/admin/refunds/{id}/payee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** readRefundPayee */
+        get: operations["readRefundPayee"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -533,7 +706,12 @@ export interface components {
              * @description billing_conflict（409）：版本、状态或幂等键内容冲突。billing_closure_conflict（409）：账号已因注销冻结，或注销申请 ID 与既有结清申请不同。其他错误码按响应状态处理。
              * @enum {string}
              */
-            code: "billing_invalid_input" | "billing_unauthenticated" | "billing_forbidden" | "billing_not_found" | "billing_conflict" | "billing_closure_conflict" | "billing_insufficient_funds" | "billing_assets_pending" | "billing_operation_too_large" | "billing_unavailable";
+            code: "billing_invalid_input" | "billing_unauthenticated" | "billing_forbidden" | "billing_not_found" | "billing_conflict" | "billing_closure_conflict" | "billing_insufficient_funds" | "billing_assets_pending" | "billing_operation_too_large" | "billing_unavailable" | "billing_already_accessible";
+            /**
+             * Format: int64
+             * @description 缺少的积分或 Ivory 最小单位
+             */
+            missing?: number;
         };
         Wallet: {
             /** Format: int64 */
@@ -584,12 +762,12 @@ export interface components {
         Order: {
             id: string;
             /** @enum {string} */
-            kind: "topup" | "purchase" | "refund" | "purchase_refund";
+            kind: "topup" | "purchase" | "refund" | "purchase_refund" | "resource_unlock" | "membership";
             /**
              * @description needs_review 表示自动预算耗尽或管理查询仍未确认结果；review_query_pending 表示管理员已安排一轮只读渠道查询。两者均保留未知结果和退款冻结。
              * @enum {string}
              */
-            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled" | "needs_review" | "review_query_pending";
+            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled" | "needs_review" | "review_query_pending" | "paid" | "fulfilled" | "refunded";
             /** Format: int64 */
             amount_minor: number;
             /** Format: int64 */
@@ -620,6 +798,17 @@ export interface components {
              * @description 下次允许查询时间。间隔从 5 秒指数增长，最多 1 小时。
              */
             next_query_at?: string;
+            resource_id?: string;
+            plan_id?: string;
+            /** @enum {string} */
+            account?: "points" | "ivory";
+            entitlement?: string;
+            /** Format: int64 */
+            revision?: number;
+            /** Format: date-time */
+            valid_from?: string;
+            /** Format: date-time */
+            valid_until?: string;
         };
         Channel: {
             id: string;
@@ -671,6 +860,7 @@ export interface components {
             /** Format: int64 */
             amount_minor: number;
             reason: string;
+            payee?: components["schemas"]["Payee"];
         };
         RewardInput: {
             event_id: string;
@@ -770,12 +960,12 @@ export interface components {
         AdminOrder: {
             id: string;
             /** @enum {string} */
-            kind: "topup" | "purchase" | "refund" | "purchase_refund";
+            kind: "topup" | "purchase" | "refund" | "purchase_refund" | "resource_unlock" | "membership";
             /**
              * @description needs_review 表示自动预算耗尽或管理查询仍未确认结果；review_query_pending 表示管理员已安排一轮只读渠道查询。两者均保留未知结果和退款冻结。
              * @enum {string}
              */
-            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled" | "needs_review" | "review_query_pending";
+            state: "submitted" | "processing" | "succeeded" | "failed" | "rejected" | "awaiting_details" | "awaiting_manual" | "awaiting_payment" | "expired" | "cancelled" | "needs_review" | "review_query_pending" | "paid" | "fulfilled" | "refunded";
             /** Format: int64 */
             amount_minor: number;
             /** Format: int64 */
@@ -807,6 +997,17 @@ export interface components {
              * @description 下次允许查询时间。间隔从 5 秒指数增长，最多 1 小时。
              */
             next_query_at?: string;
+            resource_id?: string;
+            plan_id?: string;
+            /** @enum {string} */
+            account?: "points" | "ivory";
+            entitlement?: string;
+            /** Format: int64 */
+            revision?: number;
+            /** Format: date-time */
+            valid_from?: string;
+            /** Format: date-time */
+            valid_until?: string;
         };
         AdminRefundPage: {
             items: components["schemas"]["AdminOrder"][];
@@ -841,6 +1042,45 @@ export interface components {
             reason: string;
             /** @description 渠道核实依据编号；仅保存引用，不提交支付载荷。 */
             evidence_reference: string;
+        };
+        ResourcePrice: {
+            resource_id: string;
+            /** Format: int64 */
+            points?: number | null;
+            /** Format: int64 */
+            ivory_minor?: number | null;
+        };
+        MembershipPlan: {
+            id: string;
+            name: string;
+            /** Format: int64 */
+            valid_seconds: number;
+            enabled: boolean;
+            /** Format: int64 */
+            points?: number | null;
+            /** Format: int64 */
+            ivory_minor?: number | null;
+            /** Format: int64 */
+            version: number;
+        };
+        Membership: {
+            plan_id: string;
+            /** Format: date-time */
+            valid_from: string;
+            /** Format: date-time */
+            valid_until: string;
+            /** Format: int64 */
+            revision: number;
+            source: string;
+        };
+        Payee: {
+            method: string;
+            name: string;
+            account: string;
+        };
+        Principal: {
+            issuer: string;
+            subject: string;
         };
     };
     responses: never;
@@ -1159,7 +1399,12 @@ export interface operations {
     };
     getOrder: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description 管理员读取目标账号；本人读取省略 */
+                issuer?: string;
+                /** @description 管理员读取目标账号；本人读取省略 */
+                subject?: string;
+            };
             header?: never;
             path: {
                 id: string;
@@ -3088,6 +3333,1055 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    unlockResource: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    resource_id: string;
+                    /** @enum {string} */
+                    account: "points" | "ivory";
+                };
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    setResourcePrice: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResourcePrice"];
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourcePrice"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getResourcePrice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResourcePrice"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    setMembershipPlan: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MembershipPlan"];
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembershipPlan"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    deleteMembershipPlan: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembershipPlan"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listMembershipPlans: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MembershipPlan"][];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    currentMemberships: {
+        parameters: {
+            query?: {
+                after?: string;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Membership"][];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    buyMembership: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    plan_id: string;
+                    /** @enum {string} */
+                    account: "points" | "ivory";
+                };
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    grantMembership: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    target: components["schemas"]["Principal"];
+                    plan_id: string;
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    refundCommerce: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    target: components["schemas"]["Principal"];
+                    order_id: string;
+                    /** Format: int64 */
+                    amount: number;
+                    reason: string;
+                };
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getRefundPayee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payee"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    setRefundPayee: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Payee"];
+            };
+        };
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payee"];
+                };
+            };
+            /** @description 输入无效 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 无权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 不存在或不属于当前账号 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 依赖不可用或结果暂未确认 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    readRefundPayee: {
+        parameters: {
+            query?: {
+                /** @description 管理员读取目标账号；本人读取省略 */
+                issuer?: string;
+                /** @description 管理员读取目标账号；本人读取省略 */
+                subject?: string;
+            };
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Payee"];
                 };
             };
             /** @description 输入无效 */

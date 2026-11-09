@@ -95,7 +95,8 @@
     "provider_failed": "Le service de paiement a échoué. Si rien n’a été débité, vous pouvez passer une nouvelle commande.",
     "quota_exceeded": "Trop de requêtes : le quota est dépassé. Réessayez plus tard.",
     "billing_conflict": "Les données ont changé entre-temps. Actualisez puis réessayez.",
-    "schedule_incomplete": "L’emploi du temps est incomplet : l’agenda ne peut pas encore être exporté. Il le sera dès que l’établissement aura ajouté les horaires."
+    "schedule_incomplete": "L’emploi du temps est incomplet : l’agenda ne peut pas encore être exporté. Il le sera dès que l’établissement aura ajouté les horaires.",
+    "billing_already_accessible": "Vous avez déjà accès à cette ressource, aucun paiement n’est nécessaire."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -602,7 +603,13 @@
     },
     "access": {
       "allowed": "Téléchargement possible.",
-      "not_published": "La ressource n’est pas encore publiée."
+      "not_published": "La ressource n’est pas encore publiée.",
+      "already_accessible": "Vous avez déjà accès à cette ressource.",
+      "requirements_missing": "Remplissez d’abord les conditions d’accès, par exemple la vérification étudiante.",
+      "resource_unavailable": "Cette ressource n’est pas disponible pour le moment.",
+      "not_purchasable": "Cette ressource ne peut pas être achetée.",
+      "unauthenticated": "Veuillez d’abord vous connecter.",
+      "not_found": "Ressource introuvable."
     },
     "accessLevel": {
       "public": "Ressource publique",
@@ -725,6 +732,20 @@
         "applied": "Le résultat est effectif.",
         "failed": "L’application a échoué ; vous pouvez relancer la demande initiale."
       }
+    },
+    "unlock": {
+      "title": "Acheter l’accès",
+      "hint": "L’accès acheté reste valable et couvre les versions suivantes de cette ressource. Le téléchargement exige toujours votre éligibilité actuelle.",
+      "payWith": "Payer avec",
+      "buy": "Payer {price}",
+      "short": "Solde insuffisant. Il manque {amount}.",
+      "toWallet": "Aller au portefeuille",
+      "noPrice": "Cette ressource n’est pas encore en vente.",
+      "paid": "Paiement reçu. Ouverture de l’accès.",
+      "granting": "Paiement reçu. Ouverture de l’accès en cours, veuillez patienter. Vous pourrez aussi voir le résultat plus tard dans les commandes de votre portefeuille.",
+      "viewOrder": "Voir la commande",
+      "refunded": "Cette ressource ne peut pas être fournie pour le moment. Le paiement a été rendu au compte utilisé.",
+      "done": "Accès accordé. Vous pouvez la télécharger."
     }
   },
   "verification": {
@@ -1582,7 +1603,9 @@
       "topup": "Recharge de {amount} Ivory",
       "purchase": "Conversion en points : {points}",
       "refund": "Remboursement de {amount} Ivory",
-      "purchase_refund": "Retour de conversion : {amount} Ivory"
+      "purchase_refund": "Retour de conversion : {amount} Ivory",
+      "resource_unlock": "Déblocage de ressource ({price})",
+      "membership": "Abonnement ({price})"
     },
     "state": {
       "submitted": "Envoyée",
@@ -1596,7 +1619,10 @@
       "expired": "Expirée",
       "cancelled": "Annulée",
       "needs_review": "Vérification manuelle en cours",
-      "review_query_pending": "En attente d’une nouvelle vérification"
+      "review_query_pending": "En attente d’une nouvelle vérification",
+      "paid": "Payé, accès en cours",
+      "fulfilled": "Accès accordé",
+      "refunded": "Remboursé"
     },
     "topup": {
       "action": "Recharger",

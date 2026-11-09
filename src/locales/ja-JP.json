@@ -95,7 +95,8 @@
     "provider_failed": "決済サービスで処理に失敗しました。請求されていなければ再注文できます。",
     "quota_exceeded": "リクエストが多すぎて上限を超えました。しばらくしてから再試行してください。",
     "billing_conflict": "データが他の操作で更新されました。再読み込みしてから再試行してください。",
-    "schedule_incomplete": "時間割の情報が不足しているため、まだカレンダーを書き出せません。学校が授業時間や時限を登録すると書き出せます。"
+    "schedule_incomplete": "時間割の情報が不足しているため、まだカレンダーを書き出せません。学校が授業時間や時限を登録すると書き出せます。",
+    "billing_already_accessible": "この資料には既にアクセスできます。再度支払う必要はありません。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -602,7 +603,13 @@
     },
     "access": {
       "allowed": "ダウンロードできます。",
-      "not_published": "資料はまだ公開されていません。"
+      "not_published": "資料はまだ公開されていません。",
+      "already_accessible": "この資料には既にアクセスできます。",
+      "requirements_missing": "先に学生認証などのアクセス条件を満たしてください。",
+      "resource_unavailable": "この資料は現在提供できません。",
+      "not_purchasable": "この資料は購入できません。",
+      "unauthenticated": "先にログインしてください。",
+      "not_found": "資料が見つかりません。"
     },
     "accessLevel": {
       "public": "公開資料",
@@ -725,6 +732,20 @@
         "applied": "処理結果が反映されました。",
         "failed": "実行に失敗しました。元の申請を再処理できます。"
       }
+    },
+    "unlock": {
+      "title": "アクセス権を購入",
+      "hint": "購入したアクセス権は継続して有効で、この資料の今後の版も対象です。ダウンロードには現在の資格条件も必要です。",
+      "payWith": "支払い方法",
+      "buy": "{price} を支払う",
+      "short": "残高が不足しています。あと {amount} 必要です。",
+      "toWallet": "ウォレットへ",
+      "noPrice": "この資料はまだ購入できません。",
+      "paid": "支払い済みです。アクセス権を付与しています。",
+      "granting": "支払い済みです。アクセス権を付与しています。しばらくお待ちください。結果は後でウォレットの注文からも確認できます。",
+      "viewOrder": "注文を見る",
+      "refunded": "この資料は現在提供できないため、代金は支払元のアカウントに返金されました。",
+      "done": "アクセス権が付与されました。ダウンロードできます。"
     }
   },
   "verification": {
@@ -1582,7 +1603,9 @@
       "topup": "{amount} Ivory をチャージ",
       "purchase": "ポイント交換 {points}",
       "refund": "{amount} Ivory を返金",
-      "purchase_refund": "交換の返還 {amount} Ivory"
+      "purchase_refund": "交換の返還 {amount} Ivory",
+      "resource_unlock": "資料の購入（{price}）",
+      "membership": "メンバーシップ（{price}）"
     },
     "state": {
       "submitted": "送信済み",
@@ -1596,7 +1619,10 @@
       "expired": "期限切れ",
       "cancelled": "キャンセル済み",
       "needs_review": "手動で確認中",
-      "review_query_pending": "再照会待ち"
+      "review_query_pending": "再照会待ち",
+      "paid": "支払い済み・付与中",
+      "fulfilled": "付与済み",
+      "refunded": "返金済み"
     },
     "topup": {
       "action": "チャージ",

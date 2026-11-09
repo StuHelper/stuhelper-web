@@ -95,7 +95,8 @@
     "provider_failed": "El servicio de pago falló. Si no se te cobró, puedes hacer un nuevo pedido.",
     "quota_exceeded": "Demasiadas solicitudes: se superó la cuota. Inténtalo más tarde.",
     "billing_conflict": "Los datos cambiaron mientras tanto. Actualiza e inténtalo de nuevo.",
-    "schedule_incomplete": "El horario está incompleto y todavía no se puede exportar el calendario. Estará disponible cuando el centro añada las horas de clase."
+    "schedule_incomplete": "El horario está incompleto y todavía no se puede exportar el calendario. Estará disponible cuando el centro añada las horas de clase.",
+    "billing_already_accessible": "Ya tienes acceso a este recurso; no hace falta pagar de nuevo."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -602,7 +603,13 @@
     },
     "access": {
       "allowed": "Puedes descargarlo.",
-      "not_published": "El material aún no está publicado."
+      "not_published": "El material aún no está publicado.",
+      "already_accessible": "Ya tienes acceso a este recurso.",
+      "requirements_missing": "Primero cumple las condiciones de acceso, por ejemplo la verificación de estudiante.",
+      "resource_unavailable": "Este recurso no está disponible ahora.",
+      "not_purchasable": "Este recurso no se puede comprar.",
+      "unauthenticated": "Inicia sesión primero.",
+      "not_found": "No se encontró el recurso."
     },
     "accessLevel": {
       "public": "Material público",
@@ -725,6 +732,20 @@
         "applied": "El resultado ya está vigente.",
         "failed": "Falló la aplicación; puedes volver a procesar la solicitud original."
       }
+    },
+    "unlock": {
+      "title": "Comprar acceso",
+      "hint": "El acceso comprado se mantiene y cubre las versiones posteriores de este recurso. Para descargar sigues necesitando cumplir los requisitos actuales.",
+      "payWith": "Pagar con",
+      "buy": "Pagar {price}",
+      "short": "Saldo insuficiente. Te faltan {amount}.",
+      "toWallet": "Ir al monedero",
+      "noPrice": "Este recurso aún no está a la venta.",
+      "paid": "Pago recibido. Activando el acceso.",
+      "granting": "Pago recibido. Activando el acceso, espera un momento. También puedes ver el resultado más tarde en los pedidos del monedero.",
+      "viewOrder": "Ver pedido",
+      "refunded": "Este recurso no se puede entregar ahora. El pago se ha devuelto a la cuenta con la que pagaste.",
+      "done": "Acceso concedido. Ya puedes descargarlo."
     }
   },
   "verification": {
@@ -1582,7 +1603,9 @@
       "topup": "Recarga de {amount} Ivory",
       "purchase": "Canje de puntos: {points}",
       "refund": "Reembolso de {amount} Ivory",
-      "purchase_refund": "Devolución de canje: {amount} Ivory"
+      "purchase_refund": "Devolución de canje: {amount} Ivory",
+      "resource_unlock": "Desbloqueo de recurso ({price})",
+      "membership": "Membresía ({price})"
     },
     "state": {
       "submitted": "Enviado",
@@ -1596,7 +1619,10 @@
       "expired": "Caducado",
       "cancelled": "Cancelado",
       "needs_review": "En revisión manual",
-      "review_query_pending": "Esperando otra comprobación"
+      "review_query_pending": "Esperando otra comprobación",
+      "paid": "Pagado, activando acceso",
+      "fulfilled": "Acceso concedido",
+      "refunded": "Devuelto"
     },
     "topup": {
       "action": "Recargar",
