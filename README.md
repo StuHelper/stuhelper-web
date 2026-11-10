@@ -107,3 +107,11 @@ contracts 中的 OpenAPI 快照与 `src/api/*.gen.ts` 由提供方仓库生成�
 ## 工程配置来源
 
 工程配置参考官方 create-vue 3.24.0 的 TypeScript、Router、Vitest 和 ESLint 模板。纸飞机图标沿用项目负责人已确认的 StuHelper 品牌资产。业务规格和多仓库入口见 [StuHelper Next](https://github.com/StuHelper/stuhelper-next)。
+
+## 部署模块入口
+
+应用读取 `/api/v1/system/capabilities`，按部署能力隐藏未启用模块的入口。能力加载期间不挂载对应页面，直接访问未启用页面显示 404，也不发送该页面的业务请求。读取失败时保留入口，由服务端逐次授权。
+
+钱包、会员、群、应用授权、QQ 绑定、搜索、收藏与通知使用对应能力。群模块关闭时保存资料保留原有群名片许可。通知目标属于关闭的模块时显示不可用。
+
+`tests/e2e/capabilities.spec.mjs` 覆盖模块启停与能力读取失败，场景登记在 `module.json`。

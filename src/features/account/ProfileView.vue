@@ -15,6 +15,9 @@ import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from './MeLayout.vue'
+import { feature, useCapabilities } from '../../shared/capabilities'
+
+const capabilities = useCapabilities()
 
 // The owner's profile: nickname, bio and which academic facts the public profile shows.
 // Lengths count Unicode code points, as the server does.
@@ -57,7 +60,7 @@ async function save() {
   saving.value = true
   saveError.value = ''
   try {
-    profile.data.value = await session.saveProfile({ nickname: nickname.value, bio: form.bio.trim(), visibility: { ...form.visibility }, group_card_consent: { ...form.card }, revision: current.revision }, crypto.randomUUID())
+    profile.data.value = await session.saveProfile({ nickname: nickname.value, bio: form.bio.trim(), visibility: { ...form.visibility }, group_card_consent: { ...(capabilities.has(feature.groups) ? form.card : current.group_card_consent) }, revision: current.revision }, crypto.randomUUID())
     toast(t('profile.saved'))
   } catch (failure) {
     // A newer revision saved elsewhere keeps the typed values so they can be saved again after reloading.
@@ -182,6 +185,7 @@ const facts = (row: PublicProfile['affiliations'][number]) => [row.school_name, 
           </div>
         </section>
         <section
+          v-if="capabilities.has(feature.groups)"
           class="section"
           aria-labelledby="profile-card"
         >

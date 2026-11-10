@@ -7,12 +7,14 @@ import { extras } from '../../shared/extras'
 import ToastHost from '../../shared/ui/ToastHost.vue'
 import CompareTray from '../../features/search/CompareTray.vue'
 import SearchPalette from '../../features/search/SearchPalette.vue'
+import { feature, useCapabilities } from '../../shared/capabilities'
 import AccountMenu from './AccountMenu.vue'
 import LocaleSelect from './LocaleSelect.vue'
 
 const { t, locale } = useI18n()
 const route = useRoute()
 const section = computed(() => route.meta.section)
+const capabilities = useCapabilities()
 const links = [
   { to: '/', label: 'nav.home', section: 'home' },
   { to: '/courses', label: 'nav.courses', section: 'courses' },
@@ -77,7 +79,7 @@ watch(() => route.path, async (_path, previous) => {
           </RouterLink>
         </nav>
         <div class="nav-tools">
-          <SearchPalette />
+          <SearchPalette v-if="capabilities.has(feature.search)" />
           <component
             :is="tool"
             v-for="(tool, index) in extras.navTools"

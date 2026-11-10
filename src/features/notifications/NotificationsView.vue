@@ -10,6 +10,7 @@ import { useAsync, usePaged } from '../../shared/composables/async'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
+import { useLinkAvailable } from '../../shared/capabilities'
 import MeLayout from '../account/MeLayout.vue'
 import { targetRoute, titleMessage, useNotificationsApi, type Notification } from './api'
 
@@ -20,6 +21,11 @@ const { t } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
 const router = useRouter()
+const linkAvailable = useLinkAvailable()
+const targetAvailable = (item: Notification) => {
+  const to = targetRoute(item.target)
+  return !!to && linkAvailable(to)
+}
 const api = useNotificationsApi()
 const list = usePaged<Notification>((cursor, signal) => api.list(cursor, signal))
 void list.reload()
@@ -50,7 +56,7 @@ async function open(item: Notification) {
     }
   }
   const route = targetRoute(item.target)
-  if (item.target_status === 'accessible' && route) void router.push(route)
+  if (item.target_status === 'accessible' && route && linkAvailable(route)) void router.push(route)
 }
 async function readAll() {
   if (busy.value) return
@@ -145,9 +151,9 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
                 class="group-detail"
               >{{ t('notifications.count', { count: format.number(item.count) }) }}</span>
               <span
-                v-if="item.target_status !== 'accessible'"
+                v-if="item.target_status !== 'accessible' || !targetAvailable(item)"
                 class="group-detail"
-              >{{ t(`notifications.status.${item.target_status}`) }}</span>
+              >{{ t(`notifications.status.${targetAvailable(item) ? item.target_status : 'unavailable'}`) }}</span>
               <span class="subtle">{{ stamp(item.created_at) }}</span>
             </span>
             <span

@@ -3,6 +3,7 @@ import PageSkeleton from '../../shared/ui/PageSkeleton.vue'
 import { BookOpen, ChevronRight, FileText, Flame, FolderOpen, GraduationCap, Scale, Search, ShieldCheck, UserRound } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useLinkAvailable } from '../../shared/capabilities'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync } from '../../shared/composables/async'
@@ -20,6 +21,7 @@ const router = useRouter()
 const access = useAccess()
 const api = useAcademic()
 const query = ref('')
+const available = useLinkAvailable()
 const verified = computed(() => access.state.value === 'verified')
 const recent = ref(recentPages())
 const icons = { course: BookOpen, teacher: GraduationCap, resource: FolderOpen }
@@ -138,7 +140,7 @@ const name = (id: string) => workspace.data.value?.names.get(id)?.name ?? t('com
         :aria-label="t('home.entriesTitle')"
       >
         <RouterLink
-          v-for="item in shortcuts"
+          v-for="item in shortcuts.filter((entry) => available(entry.to))"
           :key="item.to"
           class="shortcut"
           :to="item.to"

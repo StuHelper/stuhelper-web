@@ -3,6 +3,7 @@ import { nextTick } from 'vue'
 import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from 'vue-router'
 import HomeView from '../features/home/HomeView.vue'
 import NotFoundView from '../features/home/NotFoundView.vue'
+import { feature } from '../shared/capabilities'
 import { extras } from '../shared/extras'
 
 declare module 'vue-router' {
@@ -17,6 +18,8 @@ declare module 'vue-router' {
     remountOnPath?: boolean
     /** Path whose page continues as this one instead of remounting. */
     continuesFrom?: string
+    /** Capability of an optional module; without it the page shows as unavailable. */
+    capability?: string
   }
 }
 
@@ -43,19 +46,19 @@ const routes: RouteRecordRaw[] = [
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
   { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },
-  { path: '/me/membership', component: () => import('../features/wallet/MembershipView.vue'), meta: { access: 'member', title: 'membership.title', section: 'me' } },
-  { path: '/me/wallet', component: () => import('../features/wallet/WalletView.vue'), meta: { access: 'member', title: 'wallet.title', section: 'me' } },
-  { path: '/me/apps', component: () => import('../features/open-platform/GrantsView.vue'), meta: { access: 'member', title: 'platform.grants.title', section: 'me' } },
-  { path: '/me/developer', component: () => import('../features/open-platform/DeveloperView.vue'), meta: { access: 'member', title: 'platform.developer.title', section: 'me' } },
-  { path: '/oauth/authorize', component: () => import('../features/open-platform/ConsentView.vue'), meta: { access: 'member', title: 'platform.consent.title' } },
-  { path: '/search', component: () => import('../features/search/SearchView.vue'), meta: { access: 'verified', title: 'search.title' } },
-  { path: '/popular', component: () => import('../features/search/PopularView.vue'), meta: { access: 'verified', title: 'search.popular.title', section: 'courses' } },
+  { path: '/me/membership', component: () => import('../features/wallet/MembershipView.vue'), meta: { capability: feature.membership, access: 'member', title: 'membership.title', section: 'me' } },
+  { path: '/me/wallet', component: () => import('../features/wallet/WalletView.vue'), meta: { capability: feature.wallet, access: 'member', title: 'wallet.title', section: 'me' } },
+  { path: '/me/apps', component: () => import('../features/open-platform/GrantsView.vue'), meta: { capability: feature.openPlatform, access: 'member', title: 'platform.grants.title', section: 'me' } },
+  { path: '/me/developer', component: () => import('../features/open-platform/DeveloperView.vue'), meta: { capability: feature.openPlatform, access: 'member', title: 'platform.developer.title', section: 'me' } },
+  { path: '/oauth/authorize', component: () => import('../features/open-platform/ConsentView.vue'), meta: { capability: feature.openPlatform, access: 'member', title: 'platform.consent.title' } },
+  { path: '/search', component: () => import('../features/search/SearchView.vue'), meta: { capability: feature.search, access: 'verified', title: 'search.title' } },
+  { path: '/popular', component: () => import('../features/search/PopularView.vue'), meta: { capability: feature.search, access: 'verified', title: 'search.popular.title', section: 'courses' } },
   { path: '/compare', component: () => import('../features/search/CompareView.vue'), meta: { access: 'verified', title: 'search.compare.title', section: 'courses' } },
   { path: '/me/votes', component: () => import('../features/search/MyVotesView.vue'), meta: { access: 'member', title: 'search.votes.title', section: 'me' } },
-  { path: '/notifications', component: () => import('../features/notifications/NotificationsView.vue'), meta: { access: 'member', title: 'notifications.title', section: 'me' } },
-  { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { access: 'member', title: 'favorites.title', section: 'me' } },
-  { path: '/me/groups', component: () => import('../features/groups/MyGroupsView.vue'), meta: { access: 'member', title: 'groups.title', section: 'me' } },
-  { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { access: 'member', title: 'qq.callback.title', section: 'me' } },
+  { path: '/notifications', component: () => import('../features/notifications/NotificationsView.vue'), meta: { capability: feature.notifications, access: 'member', title: 'notifications.title', section: 'me' } },
+  { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { capability: feature.favorites, access: 'member', title: 'favorites.title', section: 'me' } },
+  { path: '/me/groups', component: () => import('../features/groups/MyGroupsView.vue'), meta: { capability: feature.groups, access: 'member', title: 'groups.title', section: 'me' } },
+  { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { capability: feature.qq, access: 'member', title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
   { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } },
   { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'member', title: 'me.requests', section: 'me' } },

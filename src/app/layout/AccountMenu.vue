@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAccess } from '../../features/account/access'
 import { useSession } from '../../shared/session'
+import { useLinkAvailable } from '../../shared/capabilities'
 
 // Frequent personal pages and the account's standing. Everything else lives in
 // the personal center. Content links stay hidden until the account may open them.
@@ -13,6 +14,7 @@ const { t, locale } = useI18n()
 const session = useSession()
 const access = useAccess()
 const router = useRouter()
+const available = useLinkAvailable()
 const statusKey = computed(() => ({ verified: 'account.status.verified', unverified: 'account.status.unverified', processing: 'account.status.processing', expired: 'account.status.expired', unavailable: 'me.status.unknown', guest: '', loading: '' }[access.state.value]))
 const nextStep = computed(() => ({ unverified: 'gate.unverified.action', processing: 'gate.processing.action', expired: 'gate.expired.action' } as Record<string, string>)[access.state.value])
 const content = computed(() => [
@@ -62,7 +64,7 @@ async function signOut() {
         <DropdownMenuSeparator class="menu-sep" />
         <template v-if="access.state.value === 'verified'">
           <DropdownMenuItem
-            v-for="link in content"
+            v-for="link in content.filter((item) => available(item.to))"
             :key="link.to"
             as-child
           >

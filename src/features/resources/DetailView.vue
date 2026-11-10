@@ -9,6 +9,7 @@ import PageHeader from '../../shared/ui/PageHeader.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { rememberPage } from '../../shared/recent'
 import { useErrorText } from '../../shared/ui/messages'
+import { feature, useCapabilities } from '../../shared/capabilities'
 import { attributeText, localName, useResourcesApi } from './api'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import RequestForm from './RequestForm.vue'
@@ -19,6 +20,7 @@ const { t, te, locale } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
 const api = useResourcesApi()
+const capabilities = useCapabilities()
 const download = useTask()
 const requesting = ref(false)
 const entry = useAsync((signal) => api.item(props.id, signal))
@@ -79,6 +81,7 @@ function accessReason(code: string) {
         </div>
         <template #actions>
           <FavoriteButton
+            v-if="capabilities.has(feature.favorites)"
             :id="id"
             kind="resource"
             text
@@ -117,7 +120,7 @@ function accessReason(code: string) {
         <span>{{ accessReason(entryValue.unlock_reason || entryValue.access_reason) }}</span>
       </p>
       <UnlockPanel
-        v-if="!entryValue.download_allowed && entryValue.available_methods?.includes('purchase')"
+        v-if="capabilities.has(feature.unlock) && !entryValue.download_allowed && entryValue.available_methods?.includes('purchase')"
         :resource-id="entryValue.id"
         @unlocked="entry.reload()"
       />

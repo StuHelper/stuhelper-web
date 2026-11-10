@@ -2,6 +2,7 @@
 import { CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useLinkAvailable } from '../../shared/capabilities'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
@@ -29,6 +30,7 @@ const current = ref<Profile>()
 const signingOut = ref<'' | 'device' | 'all'>('')
 const signOutError = ref('')
 const signOutBusy = ref(false)
+const available = useLinkAvailable()
 
 const summary = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
 const profile = computed(() => session.session.value?.profile)
@@ -295,7 +297,7 @@ async function signOut() {
         <h2>{{ t('me.content') }}</h2>
         <ul class="group">
           <li
-            v-for="link in links"
+            v-for="link in links.filter((item) => available(item.to))"
             :key="link.to"
           >
             <RouterLink

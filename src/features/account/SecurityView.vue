@@ -17,6 +17,9 @@ import QqBinding from '../qq/QqBinding.vue'
 import { maskedIdentity, useVerification } from '../verification/api'
 import { useClosureApi, type Closure } from './closure'
 import MeLayout from './MeLayout.vue'
+import { feature, useCapabilities } from '../../shared/capabilities'
+
+const capabilities = useCapabilities()
 
 // Account and security: identity facts, QQ binding, signing out everywhere and closing
 // the StuHelper account. Each section loads and fails on its own.
@@ -154,7 +157,7 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
       </ul>
     </section>
 
-    <QqBinding />
+    <QqBinding v-if="capabilities.has(feature.qq)" />
 
     <section
       class="section"

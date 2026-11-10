@@ -89,6 +89,12 @@
     "WP-CLIENT-02": [
       "tests/e2e/membership.spec.mjs#buying a plan pays from the chosen account and lists the membership",
       "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog"
+    ],
+    "CAP-01": [
+      "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
+      "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
+      "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
+      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding"
     ]
   }
 }

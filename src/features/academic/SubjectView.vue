@@ -17,11 +17,13 @@ import ReviewEditor from './ReviewEditor.vue'
 import ReviewFeed from './ReviewFeed.vue'
 import StatisticsPanel from './StatisticsPanel.vue'
 import { extras } from '../../shared/extras'
+import { feature, useCapabilities } from '../../shared/capabilities'
 import TabBar from '../../shared/ui/TabBar.vue'
 
 // Course home or teacher home: facts, rating summary, reviews and offerings.
 const props = defineProps<{ kind: 'course' | 'teacher'; id: string }>()
 const { t } = useI18n()
+const capabilities = useCapabilities()
 const format = useFormat()
 const api = useAcademic()
 const composing = ref(false)
@@ -111,6 +113,7 @@ function submitted(result: Result) {
             :kind="kind"
           />
           <FavoriteButton
+            v-if="capabilities.has(feature.favorites)"
             :id="id"
             :kind="kind"
             text

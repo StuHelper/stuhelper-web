@@ -8,6 +8,8 @@ import { hasLeaveWarning } from './shared/composables/leave'
 import ConfirmHost from './shared/ui/ConfirmHost.vue'
 import { extras } from './shared/extras'
 import AccessPanel from './features/account/AccessPanel.vue'
+import NotFoundView from './features/home/NotFoundView.vue'
+import { useCapabilities } from './shared/capabilities'
 import { useAccess } from './features/account/access'
 import { useSession } from './shared/session'
 
@@ -28,13 +30,21 @@ watch(() => route.path, (to, from) => {
   if (route.meta.continuesFrom !== from) pathKey.value = route.meta.remountOnPath ? to : ''
 })
 const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', pathKey.value].join('|'))
+const capabilities = useCapabilities()
+// An optional module that this deployment does not run shows as unavailable;
+// the page waits until the module list is known so it sends no request first.
+const capability = computed(() => route.meta.capability)
+const waiting = computed(() => !!capability.value && (capabilities.status.value === 'idle' || capabilities.status.value === 'loading'))
+const missing = computed(() => !!capability.value && !waiting.value && !capabilities.has(capability.value))
 const blocked = computed(() => (route.meta.access === 'verified' && access.state.value !== 'verified') || (route.meta.access === 'member' && session.state.value !== 'member'))
 </script>
 
 <template>
   <AppLayout v-if="localeReady">
+    <NotFoundView v-if="missing" />
+    <template v-else-if="waiting" />
     <AccessPanel
-      v-if="blocked"
+      v-else-if="blocked"
       gate
     />
     <RouterView

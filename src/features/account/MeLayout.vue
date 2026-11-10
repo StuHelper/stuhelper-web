@@ -3,6 +3,7 @@ import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, Folder
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
+import { useLinkAvailable } from '../../shared/capabilities'
 import RequireSignIn from './RequireSignIn.vue'
 
 // Shared frame of the personal center: one heading, section links and the
@@ -10,6 +11,7 @@ import RequireSignIn from './RequireSignIn.vue'
 withDefaults(defineProps<{ title: string; description?: string; requireSignIn?: boolean; back?: string; backLabel?: string }>(), { description: '', requireSignIn: true, back: undefined, backLabel: undefined })
 const { t } = useI18n()
 const route = useRoute()
+const available = useLinkAvailable()
 const covers = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
 // The most specific link wins, so the teacher page does not also mark the verification link.
 const current = (to: string) => covers(to) && !links.some((link) => link.to !== to && link.to.startsWith(`${to}/`) && covers(link.to))
@@ -45,7 +47,7 @@ const links = [
         {{ t('me.title') }}
       </p>
       <RouterLink
-        v-for="link in links"
+        v-for="link in links.filter((item) => available(item.to))"
         :key="link.to"
         :to="link.to"
         :aria-current="current(link.to) ? 'page' : undefined"
