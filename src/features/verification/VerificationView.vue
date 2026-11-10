@@ -11,6 +11,7 @@ import { safeNext, useAccess } from '../account/access'
 import MeLayout from '../account/MeLayout.vue'
 import { kinds, maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
+import SchoolPicker from './SchoolPicker.vue'
 import { useVerificationFlow } from './flow'
 
 // 学生认证和实名认证是两个页面，共用同一套流程。实名认证放在账号与安全下面。
@@ -185,6 +186,12 @@ function profileValue(value: unknown, field: string) {
           class="stack"
           @submit.prevent="flow.mode.value === 'identity' || flow.active.value ? flow.submit() : flow.start()"
         >
+          <SchoolPicker
+            :model-value="flow.selectedSchool.value"
+            :schools="flow.schools.value"
+            :disabled="flow.busy.value || !!flow.active.value"
+            @select="flow.selectSchool"
+          />
           <div class="form-grid">
             <template v-if="flow.mode.value === 'student'">
               <label class="field">

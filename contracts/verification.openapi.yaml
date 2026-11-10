@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.4.0
+  version: 0.4.1
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
@@ -237,7 +237,12 @@ paths:
   /api/v1/verification/schools:
     get:
       operationId: listSchools
+      description: Search enabled authentication schools using catalog school codes, names and registered aliases. Empty q lists enabled schools. Catalog failure returns unavailable, never an unfiltered list.
       parameters:
+        - name: q
+          in: query
+          schema: { type: string, maxLength: 200 }
+          description: Trimmed literal school query. Numeric id/code matches exactly; five digits also match the suffix of a ten-digit id/code.
         - $ref: '#/components/parameters/After'
         - $ref: '#/components/parameters/Limit'
       responses:
@@ -1170,7 +1175,7 @@ components:
       properties:
         id: { type: string }
         school_id: { type: string }
-        kind: { type: string, enum: [mail, event] }
+        kind: { type: string, enum: [mail] }
         state: { type: string, enum: [pending, running, manual, done] }
         attempts: { type: integer }
         code: { type: string }

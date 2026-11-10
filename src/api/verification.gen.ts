@@ -236,6 +236,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Search enabled authentication schools using catalog school codes, names and registered aliases. Empty q lists enabled schools. Catalog failure returns unavailable, never an unfiltered list. */
         get: operations["listSchools"];
         put?: never;
         post?: never;
@@ -1091,7 +1092,7 @@ export interface components {
             id: string;
             school_id: string;
             /** @enum {string} */
-            kind: "mail" | "event";
+            kind: "mail";
             /** @enum {string} */
             state: "pending" | "running" | "manual" | "done";
             attempts: number;
@@ -1524,6 +1525,8 @@ export interface operations {
     listSchools: {
         parameters: {
             query?: {
+                /** @description Trimmed literal school query. Numeric id/code matches exactly; five digits also match the suffix of a ten-digit id/code. */
+                q?: string;
                 after?: components["parameters"]["After"];
                 limit?: components["parameters"]["Limit"];
             };

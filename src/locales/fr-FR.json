@@ -963,7 +963,8 @@
     "identityTitle": "Vérification d’identité",
     "identityDescription": "La vérification d’identité est distincte de la vérification étudiante et sert aux actions qui confirment votre identité.",
     "identityName": "Nom",
-    "identityNumber": "Numéro de pièce d’identité"
+    "identityNumber": "Numéro de pièce d’identité",
+    "schoolSearch": "Rechercher un code, un nom ou un alias d’établissement"
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",
@@ -1965,7 +1966,8 @@
       "course": "Cours",
       "teacher": "Enseignant",
       "review": "Avis",
-      "resource": "Ressource"
+      "resource": "Ressource",
+      "school": "Établissements"
     },
     "popular": {
       "title": "Populaires",

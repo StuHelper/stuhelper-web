@@ -13,6 +13,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from '../account/MeLayout.vue'
 import { useAcademic } from '../academic/api'
 import CameraCapture from './CameraCapture.vue'
+import SchoolPicker from './SchoolPicker.vue'
 import { teacherDisclosures, useVerification, type Application, type Material, type School, type TeacherCredential, type TeacherDisclosure } from './api'
 
 // Teacher verification: the person applies with photographed evidence, an
@@ -38,15 +39,21 @@ const data = useAsync(async (signal) => {
 void data.reload()
 const open = computed(() => data.data.value?.applications.find((item) => ['in_progress', 'supplement_required', 'pending_review'].includes(item.state)))
 const decided = computed(() => data.data.value?.applications.filter((item) => item !== open.value) ?? [])
-const schoolOf = (id: string) => data.data.value?.schools.find((item) => item.id === id)
+const searchedSchools = ref<School[]>([])
+const knownSchools = computed(() => [...new Map([...(data.data.value?.schools ?? []), ...searchedSchools.value].map((item) => [item.id, item])).values()])
+const schoolOf = (id: string) => knownSchools.value.find((item) => item.id === id)
 const appTone = (state: Application['state']) => (state === 'approved' ? 'success' : state === 'rejected' || state === 'expired' ? 'danger' : state === 'supplement_required' ? 'warning' : 'info')
 
 // Starting an application requires choosing the school and accepting its notice.
 const task = useTask()
 const school = ref('')
+function chooseSchool(item: School) {
+  searchedSchools.value = [...new Map([...searchedSchools.value, item].map((row) => [row.id, row])).values()]
+  school.value = item.id
+}
 const consent = ref(false)
 async function start() {
-  const chosen = data.data.value?.schools.find((item) => item.id === school.value)
+  const chosen = schoolOf(school.value)
   if (!chosen || !consent.value) return
   const created = await task.run(() => api.write('Application', '/api/v1/verification/teacher-applications', { school_id: chosen.id, notice_version: chosen.notice_version, consent: true }))
   if (created) {
@@ -433,26 +440,12 @@ function schoolName(id: string, schools: School[]) {
             <p class="muted small">
               {{ t('teacher.startHint') }}
             </p>
-            <fieldset
-              class="stack-sm"
+            <SchoolPicker
+              :model-value="school"
+              :schools="knownSchools"
               :disabled="task.busy.value"
-            >
-              <legend class="field-label">
-                {{ t('teacher.school') }}
-              </legend>
-              <label
-                v-for="item in data.data.value.schools"
-                :key="item.id"
-                class="check"
-              >
-                <input
-                  v-model="school"
-                  type="radio"
-                  :value="item.id"
-                >
-                <span>{{ item.name }}</span>
-              </label>
-            </fieldset>
+              @select="chooseSchool"
+            />
             <label class="check">
               <input
                 v-model="consent"

@@ -17,13 +17,9 @@ export function deriveAccess(summary: Summary, applications: Application[], cred
   return 'unverified'
 }
 
-/**
- * The platform serves one university. Its id comes from the catalog so that no
- * environment-specific value is compiled in; a deployment holding several school
- * records must name the served one with VITE_STUHELPER_SCHOOL_ID.
- */
+/** The backend session names the community school; clients never guess a deployment value. */
 export function chooseCampus(schools: CatalogObject[], configured: string | undefined) {
-  const chosen = configured ? schools.find((row) => row.id === configured) : schools.length === 1 ? schools[0] : undefined
+  const chosen = schools.find((row) => row.id === configured)
   if (!chosen) throw new ApiError('incompatible')
   return chosen
 }
@@ -55,7 +51,7 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
         ])
         next = deriveAccess(summary, applications.items, credentials.items)
       }
-      if (next === 'verified' && !campus.value) campus.value = chooseCampus(await academic.options({ kind: 'school' }), import.meta.env.VITE_STUHELPER_SCHOOL_ID)
+      if (next === 'verified' && !campus.value) campus.value = chooseCampus(await academic.options({ kind: 'school' }), session.session.value?.content_school_id)
       if (current === generation) result.value = next
     } catch (failure) {
       if (current !== generation) return

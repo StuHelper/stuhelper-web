@@ -24,7 +24,8 @@ describe('content access', () => {
     for (const value of ['//evil.example', '/\\evil.example', 'https://evil.example', '', undefined, ['/a']]) expect(safeNext(value)).toBe('')
   })
   it('refuses to guess the served school when several exist', () => {
-    expect(chooseCampus([school('a')], undefined).id).toBe('a')
+    expect(() => chooseCampus([school('a')], undefined)).toThrow()
+    expect(chooseCampus([school('a')], 'a').id).toBe('a')
     expect(chooseCampus([school('a'), school('b')], 'b').id).toBe('b')
     expect(() => chooseCampus([school('a'), school('b')], undefined)).toThrow()
     expect(() => chooseCampus([], undefined)).toThrow()

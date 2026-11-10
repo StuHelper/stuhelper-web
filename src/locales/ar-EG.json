@@ -963,7 +963,8 @@
     "identityTitle": "التحقق من الهوية",
     "identityDescription": "التحقق من الهوية منفصل عن التحقق من صفة الطالب، ويُستخدم في الإجراءات التي تتطلب تأكيد هويتك.",
     "identityName": "الاسم",
-    "identityNumber": "رقم الهوية"
+    "identityNumber": "رقم الهوية",
+    "schoolSearch": "ابحث برمز الجامعة أو اسمها أو اسم بديل"
   },
   "contribution": {
     "eyebrow": "تخزين مشترك",
@@ -1965,7 +1966,8 @@
       "course": "مقرر",
       "teacher": "مدرّس",
       "review": "تقييم",
-      "resource": "مادة"
+      "resource": "مادة",
+      "school": "الجامعات"
     },
     "popular": {
       "title": "الأكثر رواجًا",

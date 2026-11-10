@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BookOpen, FileText, FolderOpen, GraduationCap, History, Search } from 'lucide-vue-next'
+import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, History, Search } from 'lucide-vue-next'
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -24,7 +24,7 @@ const active = ref(0)
 const results = shallowRef<SearchItem[]>([])
 const status = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
 const failure = ref('')
-const icons: Record<SearchKind, Component> = { course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
+const icons: Record<SearchKind, Component> = { school: Building2, course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
 const verified = computed(() => access.state.value === 'verified')
 // Key names are not translated; they match the keyboard.
 const hotkeyLabel = 'Ctrl K'

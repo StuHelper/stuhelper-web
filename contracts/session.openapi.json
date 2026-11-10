@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper application sessions",
-    "version": "0.4.0"
+    "version": "0.3.0"
   },
   "paths": {
     "/api/v1/auth/session": {
@@ -1291,7 +1291,8 @@
           "csrf_token",
           "phone_bound",
           "administrator",
-          "expires_at"
+          "expires_at",
+          "content_school_id"
         ],
         "properties": {
           "authenticated": {
@@ -1314,6 +1315,12 @@
           "expires_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "content_school_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Canonical community school selected by the server configuration. Clients must use this value instead of a build-time school setting."
           }
         }
       },

@@ -963,7 +963,8 @@
     "identityTitle": "实名认证",
     "identityDescription": "实名认证独立于学生认证，用于需要确认本人身份的操作。",
     "identityName": "姓名",
-    "identityNumber": "身份证号"
+    "identityNumber": "身份证号",
+    "schoolSearch": "搜索学校代码、名称或别名"
   },
   "contribution": {
     "eyebrow": "共享存储",
@@ -1965,7 +1966,8 @@
       "course": "课程",
       "teacher": "教师",
       "review": "评价",
-      "resource": "资料"
+      "resource": "资料",
+      "school": "学校"
     },
     "popular": {
       "title": "热门",

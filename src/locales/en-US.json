@@ -963,7 +963,8 @@
     "identityTitle": "Identity verification",
     "identityDescription": "Identity verification is separate from student verification and is used for actions that confirm who you are.",
     "identityName": "Name",
-    "identityNumber": "ID number"
+    "identityNumber": "ID number",
+    "schoolSearch": "Search school code, name or alias"
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",
@@ -1965,7 +1966,8 @@
       "course": "Course",
       "teacher": "Teacher",
       "review": "Review",
-      "resource": "Resource"
+      "resource": "Resource",
+      "school": "Schools"
     },
     "popular": {
       "title": "Popular",

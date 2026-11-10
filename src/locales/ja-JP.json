@@ -963,7 +963,8 @@
     "identityTitle": "本人確認",
     "identityDescription": "本人確認は学生認証とは別のもので、本人であることの確認が必要な操作に使います。",
     "identityName": "氏名",
-    "identityNumber": "身分証番号"
+    "identityNumber": "身分証番号",
+    "schoolSearch": "学校コード、名称、別名で検索"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
@@ -1965,7 +1966,8 @@
       "course": "授業",
       "teacher": "教員",
       "review": "評価",
-      "resource": "資料"
+      "resource": "資料",
+      "school": "学校"
     },
     "popular": {
       "title": "人気",

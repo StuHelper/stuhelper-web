@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BookOpen, FileText, FolderOpen, GraduationCap, Search } from 'lucide-vue-next'
+import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, Search } from 'lucide-vue-next'
 import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -15,8 +15,8 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const api = useSearchApi()
-const kinds = ['course', 'teacher', 'review', 'resource'] as const
-const icons: Record<SearchKind, Component> = { course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
+const kinds = ['school', 'course', 'teacher', 'review', 'resource'] as const
+const icons: Record<SearchKind, Component> = { school: Building2, course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
 
 const q = computed(() => (typeof route.query.q === 'string' ? route.query.q.trim().slice(0, 200) : ''))
 const kind = computed<SearchKind | ''>(() => (kinds as readonly string[]).includes(String(route.query.kind)) ? route.query.kind as SearchKind : '')

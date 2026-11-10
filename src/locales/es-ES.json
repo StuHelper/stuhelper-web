@@ -963,7 +963,8 @@
     "identityTitle": "Verificación de identidad",
     "identityDescription": "La verificación de identidad es independiente de la de estudiante y se usa en acciones que confirman quién eres.",
     "identityName": "Nombre",
-    "identityNumber": "Número de documento"
+    "identityNumber": "Número de documento",
+    "schoolSearch": "Buscar código, nombre o alias de la institución"
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -1965,7 +1966,8 @@
       "course": "Curso",
       "teacher": "Docente",
       "review": "Reseña",
-      "resource": "Recurso"
+      "resource": "Recurso",
+      "school": "Instituciones"
     },
     "popular": {
       "title": "Populares",

@@ -227,6 +227,8 @@ export interface components {
             administrator: boolean;
             /** Format: date-time */
             expires_at: string;
+            /** @description Canonical community school selected by the server configuration. Clients must use this value instead of a build-time school setting. */
+            content_school_id: string;
         };
         Error: {
             code: string;

@@ -139,7 +139,11 @@ export function useVerificationFlow() {
     notice.value = ''
   }
 
-  function selectSchool() {
+  function selectSchool(chosen?: School) {
+    if (chosen) {
+      schools.value = merge(schools.value, [chosen])
+      selectedSchool.value = chosen.id
+    }
     reset()
     selectedMethod.value = availableMethods.value[0] ?? 'manual_material_review'
     form.material_type = school.value?.material_types[0] ?? ''

@@ -963,7 +963,8 @@
     "identityTitle": "본인 인증",
     "identityDescription": "본인 인증은 학생 인증과 별개이며 본인 확인이 필요한 작업에 사용합니다.",
     "identityName": "이름",
-    "identityNumber": "신분증 번호"
+    "identityNumber": "신분증 번호",
+    "schoolSearch": "학교 코드, 이름 또는 별칭 검색"
   },
   "contribution": {
     "eyebrow": "공유 저장소",
@@ -1965,7 +1966,8 @@
       "course": "강의",
       "teacher": "교원",
       "review": "평가",
-      "resource": "자료"
+      "resource": "자료",
+      "school": "학교"
     },
     "popular": {
       "title": "인기",

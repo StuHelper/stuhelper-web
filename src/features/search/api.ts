@@ -21,6 +21,8 @@ export const pageSize = 20
 export function targetRoute(target: Target) {
   const id = encodeURIComponent(target.id)
   switch (target.kind) {
+    case 'school':
+      return '/courses'
     case 'course':
       return `/courses/${id}`
     case 'teacher':

@@ -99,3 +99,23 @@ test('an approved teacher sees linked profiles and changes the public details', 
   expect(state.writes).toEqual([{ method: 'PUT', path: '/teacher-credentials/tc/disclosures', body: { revision: 3, disclosures: ['gender'] }, key: expect.any(String) }]);
   await expect(page.getByText(t.disclosure.gender, { exact: true })).toBeVisible();
 });
+
+test('school selection sends codes names and aliases to the server and handles empty results', async ({ page }, info) => {
+  const m = catalogue(info);
+  await server(page);
+  const queries = [];
+  await page.route('**/api/v1/verification/schools?**', route => {
+    const q = new URL(route.request().url()).searchParams.get('q');
+    if (q) queries.push(q);
+    return route.fulfill({ json: q === '99999' ? [] : [school] });
+  });
+  await page.goto(`${base}/me/verification/teacher?lang=${info.project.metadata.locale}`);
+  const picker = page.getByRole('group', { name: m.verification.school, exact: true });
+  for (const q of ['4111010006', '10006', '北京航空航天大学', '北航', '99999']) {
+    await picker.getByRole('searchbox').fill(q);
+    await picker.getByRole('button', { name: m.common.search, exact: true }).click();
+    await expect.poll(() => queries.at(-1)).toBe(q);
+    if (q === '99999') await expect(picker.getByRole('radio')).toHaveCount(0);
+    else await expect(picker.getByRole('radio', { name: school.name, exact: true })).toBeVisible();
+  }
+});

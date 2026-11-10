@@ -123,12 +123,12 @@ export class VerificationApi {
   }
 
   /** A page of a list endpoint. The cursor is the last id when the page is full. */
-  async list<K extends Entity>(kind: K, path: string, options: { after?: string; limit?: number; signal?: AbortSignal } = {}): Promise<{ items: Schemas[K][]; next: string }> {
+  async list<K extends Entity>(kind: K, path: string, options: { q?: string; after?: string; limit?: number; signal?: AbortSignal } = {}): Promise<{ items: Schemas[K][]; next: string }> {
     const limit = options.limit ?? pageSize
     const items = await this.http.json(path, (value) => {
       if (!Array.isArray(value) || value.length > 100) throw new ApiError('incompatible')
       return value.map((item) => parseEntity(kind, item))
-    }, { query: { limit, after: options.after }, signal: options.signal, timeout: 25_000 })
+    }, { query: { q: options.q, limit, after: options.after }, signal: options.signal, timeout: 25_000 })
     const last = items.at(-1)
     return { items, next: items.length === limit && last && 'id' in last ? String(last.id) : '' }
   }
