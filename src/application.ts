@@ -1,10 +1,24 @@
-import { sessionFetch } from './api/session';
-import { createApp } from 'vue';
-import App from './App.vue';
-import { hostFetchKey } from './api/host';
-import { i18n } from './i18n';
-import { router } from './router';
+import { createApp } from 'vue'
+import App from './App.vue'
+import { i18n, prepareLocale } from './app/i18n'
+import { createAppRouter } from './app/router'
+import { hostFetchKey, sessionFetch } from './shared/api/transport'
+import { accessKey, createAccessStore } from './features/account/access'
+import { createSessionStore, deniedKey, sessionKey } from './shared/session'
+import { installTips } from './shared/ui/tips'
+import './styles/base.css'
+import './styles/components.css'
 
+/**
+ * Create the Web application. A host may pass its authenticated transport;
+ * every business request then obtains current credentials from it.
+ */
 export function createApplication(fetcher: typeof fetch = sessionFetch) {
-  return createApp(App).provide(hostFetchKey, fetcher).use(i18n).use(router);
+  installTips()
+  const session = createSessionStore(fetcher)
+  const router = createAppRouter()
+  void prepareLocale()
+  void session.reload()
+  const access = createAccessStore(fetcher, session)
+  return createApp(App).provide(hostFetchKey, fetcher).provide(sessionKey, session).provide(accessKey, access).provide(deniedKey, () => void access.refresh()).use(i18n).use(router)
 }

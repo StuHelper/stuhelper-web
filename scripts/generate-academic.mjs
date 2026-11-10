@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
 
-for (const module of ['catalog', 'reviews', 'moderation', 'resources', 'media']) {
+for (const module of ['catalog', 'reviews', 'moderation', 'resources', 'media', 'favorites', 'profiles', 'open-platform', 'billing', 'qq-binding']) {
   execFileSync('pnpm', ['exec', 'openapi-typescript', `contracts/${module}.openapi.json`, '-o', `src/api/${module}.gen.ts`], { stdio: 'inherit' });
 }

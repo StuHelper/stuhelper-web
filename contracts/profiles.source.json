@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-profiles",
+  "revision": "83999a03f3d51479f30c36826089346ed10cbea3",
+  "version": "0.4.0",
+  "files": {
+    "contracts/profiles.openapi.json": "contracts/profiles.openapi.json",
+    "sdk/profiles.gen.ts": "src/api/profiles.gen.ts"
+  },
+  "sha256": {
+    "contracts/profiles.openapi.json": "75374842bf1cb10e677fc42e493ce1bb2ebf6e172cb7a2ddacd1e5233aa67067",
+    "src/api/profiles.gen.ts": "090b6d23f747483365e34e1ee4035cc31bcb5e1e111a8f37926b68729e5e4b46"
+  }
+}

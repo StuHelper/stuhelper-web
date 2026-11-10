@@ -10,7 +10,7 @@ const generated = admin ? 'apps/web-antd/src/api/verification.gen.ts' : 'src/api
 const source = JSON.parse(fs.readFileSync('contracts/verification.source.json', 'utf8'));
 assert.equal(source.repository, 'StuHelper/stuhelper-verification');
 assert.match(source.revision, /^[a-f0-9]{40}$/);
-assert.equal(source.version, '0.2.0');
+assert.equal(source.version, (fs.readFileSync('contracts/verification.openapi.yaml', 'utf8').match(/\n {2}version: ['"]?([^'"\n]+)/) ?? [])[1]);
 assert.deepEqual(source.files, {
   'contracts/verification.openapi.yaml': 'contracts/verification.openapi.yaml',
   'sdk/verification.gen.ts': generated,

@@ -4,6 +4,174 @@
  */
 
 export interface paths {
+    "/api/v1/admin/verification/teacher-credentials/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description Read the current revision and status for school-scoped teacher administration. No raw evidence is returned. */
+        get: operations["getTeacherCredential"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/teacher-applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Create an owner-bound manual teacher application. Reuse its capture and material endpoints; approval never grants student eligibility. */
+        post: operations["createTeacherApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/applications/{id}/teacher-form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description Read only the caller's teacher application form. */
+        get: operations["getOwnTeacherForm"];
+        /** @description Submit or supplement photographed teacher evidence with explicit field disclosure choices. */
+        put: operations["submitTeacherForm"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verification/applications/{id}/teacher-form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description Requires school-scoped teacher material permission; reads are audited. */
+        get: operations["getTeacherForm"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verification/applications/{id}/teacher-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Review independently from student applications. Approval validates canonical teacher IDs through catalog; self-review is forbidden. */
+        post: operations["reviewTeacherApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verification/schools/{id}/teacher-applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description Pending teacher applications in the authorized school, ordered by ID. */
+        get: operations["listTeacherReviewQueue"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/teacher-credentials": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The caller's teacher qualifications, including revoked and expired history, ordered by ID. */
+        get: operations["listOwnTeacherCredentials"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/teacher-credentials/{id}/disclosures": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        /** @description Change only the caller's public-field consent; revocation takes effect on subsequent fact reads. */
+        put: operations["setTeacherDisclosures"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verification/teacher-credentials/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Revoke a teacher qualification and release its active bindings; retain audit and history. Approve must be true. */
+        post: operations["revokeTeacherCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/verification/applications/{id}/school-challenge": {
         parameters: {
             query?: never;
@@ -68,6 +236,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description Search enabled authentication schools using catalog school codes, names and registered aliases. Empty q lists enabled schools. Catalog failure returns unavailable, never an unfiltered list. */
         get: operations["listSchools"];
         put?: never;
         post?: never;
@@ -637,6 +806,62 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        TeacherCreateInput: {
+            school_id: string;
+            notice_version: string;
+            /** @enum {boolean} */
+            consent: true;
+        };
+        TeacherDisclosures: ("real_name" | "teacher" | "gender" | "organization")[];
+        TeacherForm: {
+            name: string;
+            organization: string;
+            gender?: string;
+            /** Format: email */
+            email: string;
+            material_type: string;
+            material_ids: string[];
+            disclosures: components["schemas"]["TeacherDisclosures"];
+            /** Format: int64 */
+            revision: number;
+        };
+        TeacherReviewInput: {
+            /** @enum {string} */
+            decision: "approve" | "reject" | "supplement";
+            note: string;
+            /** Format: int64 */
+            revision: number;
+            /** @description Nonempty on approval, otherwise empty. All canonical teacher profiles must belong to the application school. */
+            teacher_ids: string[];
+            /**
+             * Format: date-time
+             * @description Null means valid until revoked.
+             */
+            expires_at?: string | null;
+        };
+        TeacherCredential: {
+            id: string;
+            school_id: string;
+            teacher_ids: string[];
+            /** @enum {string} */
+            state: "active" | "revoked" | "expired";
+            /** Format: int64 */
+            revision: number;
+            /** Format: date-time */
+            verified_at: string;
+            /** Format: date-time */
+            expires_at: string | null;
+            /** @description Manual approval evidence reference; no raw material. */
+            source: string;
+            /** @description Approval or revocation explanation. */
+            note: string;
+            disclosures: components["schemas"]["TeacherDisclosures"];
+        };
+        TeacherDisclosureInput: {
+            /** Format: int64 */
+            revision: number;
+            disclosures: components["schemas"]["TeacherDisclosures"];
+        };
         /** @enum {string} */
         Method: "real_name_identity_check" | "school_sso" | "student_email_outbound_otp" | "student_email_inbound_challenge" | "manual_material_review";
         /** @enum {string} */
@@ -674,7 +899,8 @@ export interface components {
             school_id: string;
             method: components["schemas"]["Method"];
             stage: components["schemas"]["Stage"];
-            kind: components["schemas"]["Kind"];
+            /** @enum {string} */
+            kind: "student" | "alumni" | "newcomer" | "unknown" | "teacher";
             /** @enum {string} */
             state: "in_progress" | "pending_review" | "supplement_required" | "approved" | "rejected" | "expired" | "deleted";
             /** Format: int64 */
@@ -702,7 +928,15 @@ export interface components {
              * @description Required only for school SSO; never persisted.
              */
             password: string;
-        };
+        } & ({
+            name?: string;
+            document_number?: string;
+            password?: string;
+        } | {
+            name?: string;
+            document_number?: string;
+            password?: string;
+        });
         IdentityInput: {
             student_id: string;
             name: string;
@@ -784,9 +1018,20 @@ export interface components {
             /** Format: date-time */
             expires_at: string | null;
         };
+        /** @description Server-generated mask from successful real-name verification. Star counts follow original Unicode code-point lengths. Never contains full identity values. */
+        IdentityMasked: {
+            /** @description All characters except the last are replaced with stars. */
+            name: string;
+            /** @description All characters except the first and last are replaced with stars. */
+            document_number: string;
+        };
         Summary: {
             campus_eligibility: boolean;
+            /** @description Current manually reviewed teacher qualification in the requested school; independent of student eligibility. */
+            teacher_verified: boolean;
             identity_verified: boolean;
+            /** @description Present for every successful own summary with identity_verified=true. Absent when not verified and from trusted eligibility-fact reads. Missing stored proof is a service error, never an apparently verified summary without masks. */
+            identity_masked?: components["schemas"]["IdentityMasked"];
             /** Format: date-time */
             evaluated_at: string;
             /** Format: int64 */
@@ -847,7 +1092,7 @@ export interface components {
             id: string;
             school_id: string;
             /** @enum {string} */
-            kind: "mail" | "event";
+            kind: "mail";
             /** @enum {string} */
             state: "pending" | "running" | "manual" | "done";
             attempts: number;
@@ -938,6 +1183,273 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getTeacherCredential: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current qualification and binding. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCredential"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    createTeacherApplication: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeacherCreateInput"];
+            };
+        };
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    getOwnTeacherForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherForm"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    submitTeacherForm: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeacherForm"];
+            };
+        };
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    getTeacherForm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherForm"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    reviewTeacherApplication: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeacherReviewInput"];
+            };
+        };
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    listTeacherReviewQueue: {
+        parameters: {
+            query?: {
+                after?: components["parameters"]["After"];
+                limit?: components["parameters"]["Limit"];
+            };
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Application"][];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    listOwnTeacherCredentials: {
+        parameters: {
+            query?: {
+                after?: components["parameters"]["After"];
+                limit?: components["parameters"]["Limit"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCredential"][];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    setTeacherDisclosures: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TeacherDisclosureInput"];
+            };
+        };
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCredential"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    revokeTeacherCredential: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DecisionInput"];
+            };
+        };
+        responses: {
+            /** @description Current result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherCredential"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
     continueSchoolChallenge: {
         parameters: {
             query?: never;
@@ -1013,6 +1525,8 @@ export interface operations {
     listSchools: {
         parameters: {
             query?: {
+                /** @description Trimmed literal school query. Numeric id/code matches exactly; five digits also match the suffix of a ten-digit id/code. */
+                q?: string;
                 after?: components["parameters"]["After"];
                 limit?: components["parameters"]["Limit"];
             };
