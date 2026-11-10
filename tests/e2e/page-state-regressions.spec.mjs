@@ -86,3 +86,20 @@ test('an expired qualification keeps own records open and closes public content'
   await page.goto(`${base}/courses?lang=${locale}`);
   await expect(page.getByRole('main').getByText(all.gate.expired.action, { exact: true })).toBeVisible();
 });
+
+test('switching the review tab asks before discarding an edited draft', async ({ page }, info) => {
+  const all = catalogue(info), locale = info.project.metadata.locale;
+  await academicFixture(page);
+  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_id: 'teacher-a', title: 'Saved title', body: 'Saved body', ratings: [3, 3, 3, 3, 3], signed: false }, expires_at: '2099-01-01T00:00:00Z', withdrawn: false, reference_ids: ['course'], reference_state: 'verified' };
+  await page.route('**/api/v1/reviews/me/drafts?**', (route) => route.fulfill({ json: [draft] }));
+  await page.route('**/api/v1/reviews/me/drafts/draft', (route) => route.fulfill({ json: draft }));
+  await page.route('**/api/v1/reviews/me/references?**', (route) => route.fulfill({ json: { items: [{ id: 'course', kind: 'course', name: 'Test Course' }], missing_ids: [] } }));
+  await page.goto(`${base}/me/reviews?tab=drafts&lang=${locale}`);
+  await page.getByRole('button', { name: all.me.continueEditing, exact: true }).click();
+  const title = page.getByLabel(all.academic.editor.title, { exact: true });
+  await title.fill('Unsaved title');
+  await page.getByRole('tab', { name: all.me.reviewTabs.entries, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await expect(title).toHaveValue('Unsaved title');
+  await expect(page).toHaveURL(/tab=drafts/);
+});

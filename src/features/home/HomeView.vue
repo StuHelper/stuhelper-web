@@ -43,7 +43,7 @@ const introductions = [
 // Sections fail independently, and one failure must not hide the others.
 const workspace = useAsync(async (signal) => {
   const [courses, drafts, tasks] = await Promise.allSettled([
-    api.myEnrollments({}, signal),
+    api.myEnrollments(signal),
     api.myDrafts({ limit: 3 }, signal),
     api.myTasks({ limit: 3 }, signal),
   ])

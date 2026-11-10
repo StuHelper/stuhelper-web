@@ -104,7 +104,7 @@ memberTest('my courses separates terms and keeps a data failure apart from havin
   await page.getByRole('tab', { name: all.courses.listView, exact: true }).click();
   await expect(page.getByRole('link', { name: 'Teacher A', exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Teacher B', exact: true })).toHaveCount(0);
-  await page.route('**/api/v1/catalog/me/enrollments', (route) => route.fulfill({ status: 503, json: { code: 'unavailable' } }));
+  await page.route('**/api/v1/catalog/me/enrollments?**', (route) => route.fulfill({ status: 503, json: { code: 'unavailable' } }));
   await page.reload();
   await expect(page.getByRole('button', { name: all.courses.reload, exact: true })).toBeVisible();
   await expect(page.getByText(all.courses.empty, { exact: true })).toHaveCount(0);

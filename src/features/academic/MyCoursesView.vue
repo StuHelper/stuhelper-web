@@ -27,7 +27,7 @@ const mode = ref<'week' | 'list'>('week')
 const week = ref(1)
 
 const enrollments = useAsync(async (signal) => {
-  const rows = (await api.myEnrollments({}, signal)).filter((row) => row.active)
+  const rows = (await api.myEnrollments(signal)).filter((row) => row.active)
   const names = await api.lookup(rows.flatMap((row) => [row.term_id, ...row.teacher_ids]), signal)
   return { rows, names }
 })

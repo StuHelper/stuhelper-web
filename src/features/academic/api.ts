@@ -129,8 +129,22 @@ export class AcademicApi {
     throw new ApiError('capacity_exceeded')
   }
 
-  myEnrollments(query: Query, signal?: AbortSignal) {
-    return this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query, signal })
+  /**
+   * The caller's enrollments, all pages. The endpoint returns a bare array ordered by id and
+   * continues after the last id of a full page, so pages are followed until a short one arrives.
+   */
+  async myEnrollments(signal?: AbortSignal): Promise<Enrollment[]> {
+    const items: Enrollment[] = []
+    let after = ''
+    for (let page = 0; page < 10; page++) {
+      const rows = await this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query: { after: after || undefined, limit: 100 }, signal })
+      items.push(...rows)
+      if (rows.length < 100) return items
+      const last = rows.at(-1)?.id ?? ''
+      if (!last || last === after) throw new ApiError('incompatible')
+      after = last
+    }
+    throw new ApiError('capacity_exceeded')
   }
 
   /** The caller's active courses of one term with their meetings and the school timetable, all pages. */

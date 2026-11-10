@@ -30,6 +30,27 @@ describe('academic boundary', () => {
     expect(fetcher).toHaveBeenCalledTimes(2)
   })
 
+  it('loads every enrollment page, continuing after the last row of a full page', async () => {
+    const row = (index: number) => ({ id: `enrollment-${String(index).padStart(3, '0')}`, subject: 'synthetic', school_id: 'school', course_id: `course-${index}`, term_id: 'term', teacher_ids: [], active: true })
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(json(Array.from({ length: 100 }, (_, index) => row(index))))
+      .mockResolvedValueOnce(json([row(100), row(101)]))
+    const rows = await new AcademicApi(new Http(fetcher)).myEnrollments()
+    expect(rows).toHaveLength(102)
+    const first = new URL(String(fetcher.mock.calls[0]?.[0]), 'https://example.test')
+    expect(first.searchParams.get('limit')).toBe('100')
+    const second = new URL(String(fetcher.mock.calls[1]?.[0]), 'https://example.test')
+    expect(second.searchParams.get('after')).toBe('enrollment-099')
+  })
+
+  it('rejects an enrollment page that does not advance instead of looping', async () => {
+    const page = Array.from({ length: 100 }, (_, index) => ({ id: `enrollment-${index}`, subject: 'synthetic', school_id: 'school', course_id: 'course', term_id: 'term', teacher_ids: [], active: true }))
+    const fetcher = vi.fn<typeof fetch>(async () => json(page))
+    await expect(new AcademicApi(new Http(fetcher)).myEnrollments()).rejects.toMatchObject({ code: 'incompatible' })
+    expect(fetcher).toHaveBeenCalledTimes(2)
+  })
+
   it('looks up names in batches of at most 100 identifiers', async () => {
     const fetcher = vi.fn<typeof fetch>(async () => json({ items: [], missing_ids: [] }))
     await new AcademicApi(new Http(fetcher)).lookup([...Array.from({ length: 150 }, (_, index) => `id-${index}`), 'id-1', undefined])
