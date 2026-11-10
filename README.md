@@ -1,10 +1,10 @@
 # StuHelper Web
 
-StuHelper Web 应用框架，使用 Vue 3、TypeScript、Vite 与 Vue Router。当前提供基础布局、真实平台接口状态、错误重试与未开放页面提示。业务功能尚未实现。
+StuHelper 的学生端，使用 Vue 3、TypeScript、Vite、Vue Router 和 Reka UI。页面覆盖课程与教师查询、课程评价与导师评论、学习资料、学生认证、存储贡献和个人中心。页面通过同源业务 API 读取数据，资格、权限和可信选课事实由后端判断。
 
 ## 本地开发
 
-需要 Node.js 24.22.1。
+需要 Node.js 24.22.1 和 pnpm 10.33.4。
 
 ```bash
 make setup
@@ -14,16 +14,104 @@ make dev
 
 默认监听 127.0.0.1:5173，开发 API 代理为 127.0.0.1:8080，可通过 STUHELPER_API_TARGET 修改。生产静态站点由同源反向代理转发 /api 请求。
 
-## 结构
+## 界面设计
 
-App 只组装布局和路由。usePlatform 负责请求生命周期、取消与重试；client.ts 校验接口版本并映射错误。页面仅显示后端真实返回的状态，不提供演示登录或虚构业务数据。
+界面采用 Apple 风格的自研设计系统，令牌和通用样式位于 `src/styles`。Reka UI 提供菜单和弹层的键盘与焦点行为，lucide-vue-next 提供图标，外观全部由本仓库样式决定。
 
-contracts/platform.openapi.yaml 是平台接口快照，src/api/platform.gen.ts 由 openapi-typescript 生成。接口更新先修改提供方，重新生成后同步快照，不能手改类型。生成工具单独固定兼容的 TypeScript 5.9.3。
+桌面端使用半透明顶部导航，手机端使用底部标签栏，个人中心首页同时作为手机端的设置式菜单。弹层在手机上从底部滑出。选择框保留原生控件，以便手机打开系统选择器。
 
-纸飞机图标沿用项目负责人已确认的 StuHelper 品牌资产。业务规格和多仓库入口见 [StuHelper Next](https://github.com/StuHelper/stuhelper-next)。
+颜色跟随系统外观。样式使用逻辑属性适配阿拉伯语从右向左布局，并遵守系统的减弱动态效果设置。
+
+## 服务范围与内容准入
+
+社区学校由 backend 的 session.content_school_id 指定，默认值由服务端配置决定。页面按该 ID 读取目录，不使用构建时学校变量。学生与教师认证可通过服务端按完整代码、五位代码、名称或登记别名查询学校。
+
+路由 `meta.access: 'verified'` 标记内容页面。`features/account/access.ts` 把账号和认证结果归为未登录、未认证、处理中、通过、失效和读取失败。未通过时页面不挂载，也不发送业务请求，地址保持不变。
+
+准入只控制进入内容区，具体操作仍以服务端返回为准。发布评价的缺失条件在编辑器内给出下一步，入口在新标签页打开，返回后自动重新检查，正在写的内容不受影响。
+
+## 页面与入口
+
+| 路径 | 内容 |
+| --- | --- |
+| `/` | 课程与教师搜索、常用入口和平台连接状态 |
+| `/courses`、`/teachers` | 按学校、学院、类别和性质筛选目录，筛选条件保存在地址中 |
+| `/courses/:id`、`/teachers/:id` | 基本信息、五维评分、课程评价、导师评论、历次开课与关联对象 |
+| `/offerings/:id`、`/classes/:id` | 学期开课的教学班，教学班的任课教师、时间与地点 |
+| `/reviews/:id` | 一条评价的完整讨论和回复 |
+| `/resources` | 按课程、目录和分类字段查找资料，打包下载有权访问的文件 |
+| `/resources/items/:id` | 资料详情、下载；受限资料可用积分或 Ivory 购买访问权，付款后等访问权开通才显示成功，无法交付时显示已退回 |
+| `/resources/new`、`/resources/items/:id/edit` | 分三步保存资料信息、上传文件、提交审核 |
+| `/me` | 个人资料、校园资格、独立实名、手机号状态和登录设备 |
+| `/me/reviews` | 本人评价、草稿、课程收藏、投票、举报与申请 |
+| `/me/courses` | 按学期查看本人选课记录、任课教师和已知上课时间地点 |
+| `/me/resources`、`/me/requests` | 本人资料与下架、投诉、异议回执 |
+| `/me/verification` | 学生认证、独立实名、学习经历与撤销删除申请 |
+| `/me/membership` | 可购买的会员套餐、每个套餐实际覆盖的资料范围、本人会员与有效期；未配置覆盖范围的套餐不能购买 |
+| `/me/groups` | 本人已加入或申请中的 QQ 群、处理状态、截止时间、仍缺的条件和下一步入口 |
+| `/me/profile` | 昵称、简介、公开主页显示项，以及群名片可使用的逐字段许可（默认全部关闭） |
+| `/me/storage` | 平台存储透明度数据、本人存储贡献，以及 BHpan 账号接入与托管授权（`?tab=accounts`） |
+
+原有入口 `/community`、`/community/me`、`/verification`、`/contributions`、`/storage-accounts`、`/me/storage-accounts`、`/resources/me` 和 `/resources/requests` 重定向到新位置。`/verification/capture` 保留为手机拍摄入口。
+
+## 代码结构
+
+```text
+src/app/          应用装配：路由、国际化、页面框架
+src/shared/       公共请求层、会话、状态组合函数与界面组件
+src/features/     按业务划分的页面、接口封装与测试
+src/api/          提供方生成的类型和浏览器 SDK，不手工修改
+src/locales/      八种语言的消息目录
+```
+
+`shared/api/http.ts` 统一处理同源传输、超时、取消、响应大小上限和错误码。服务端错误码保留原值，模块前缀和同义写法归一，例如 `resources_permission_denied` 显示为无权限。写请求在连接中断、超时或网关故障时标记为结果未确认。
+
+`shared/api/mutation.ts` 保存结果未确认的写请求。页面只允许按原请求体和原幂等键重试，表单保持锁定，直到服务端给出明确结果。业务响应在类型化前按提供方 OpenAPI 结构做运行时校验。学生认证契约为私有 YAML，按字段校验并运行提供方共享用例。
+
+服务端拒绝当前账号时，列表和详情清空已展示的私有数据，并重新确认会话。个人中心页面在未登录时显示登录入口，服务端仍逐次授权。页面只显示接口真实返回的数据，未接入的业务不显示入口。
+
+## 宿主认证与会话
+
+宿主调用 `createApplication(authenticatedFetch).mount('#app')` 时，所有业务请求和会话请求通过同一注入传输发送，每次请求读取当前凭据。默认传输只发送同源请求，会话 Cookie 为 HttpOnly，写请求附带会话绑定的 CSRF 值。页面不保存令牌，也不以 BHpan 密码识别 StuHelper 用户。
+
+统一登录、当前设备退出、全部设备退出和昵称修改通过 session 接口完成。昵称冲突时页面展示服务端当前版本，由用户选择保留哪一个。
+
+## 业务规则在页面中的体现
+
+评价编辑器展示服务端返回的发布条件。教师候选来自本人所选学期的选课记录，可选择不指定教师。导师评论加载六段推荐模板，模板内容均可删改。默认匿名，署名只显示平台昵称和头像。评分使用五级文字和表情，不显示精确均值。
+
+普通草稿可多次保存，跨端冲突时由用户选择版本。撤回重编的草稿显示 24 小时剩余时间，重新提交沿用原到期时间。超过 5 分钟编辑窗口的修改和删除通过申请处理，个人中心可以对处置结果申请复核。
+
+资料上传先保存信息，再传输文件并关联，最后提交审核。文件写入结果不明时先查询上传会话，取消只在服务端确认后显示完成。匹配本人已有文件时不重复发送内容，新资料仍单独审核。目录打包只包含有权访问的资料，列出全部分包并支持单包重试。
+
+存储贡献和账号托管使用提供方维护的浏览器 SDK。贡献操作先在对话框中确认，结果不明时只能重试原请求。托管提交后立即清空密码，结果不明时只按申请标识查询。
+
+## 国际化
+
+默认中文，支持英文、法文、俄文、日文、韩文、西班牙文和阿拉伯文，阿拉伯文使用 RTL 布局。中文目录随应用加载，其他语言在选择时按需加载。语言顺序为地址参数 `lang`、本人保存的偏好、默认中文。数字、日期、字节和金额通过 `shared/format.ts` 使用 `Intl` 格式化，时间点按平台默认时区 Asia/Shanghai 显示。
+
+与英文同形的非英语消息登记在 locale-policy.yaml。`make check` 检查八语言键、占位符、复数类别和代码中使用的消息键。
+
+## 契约与检查
+
+contracts 中的 OpenAPI 快照与 `src/api/*.gen.ts` 由提供方仓库生成，source.json 记录提交、版本与摘要。接口更新先修改提供方，重新生成后同步快照，不能手改类型。生成工具单独固定兼容的 TypeScript 5.9.3。
+
+`make check` 执行契约摘要与生成一致性、仓库检查、八语言检查、类型检查、ESLint、Vitest 单元测试、生产构建和 workflow 检查。Vitest 覆盖请求层、幂等重试、契约校验、会话、分页状态、各业务接口、学生认证流程和摄像头释放。
+
+运行 `make build` 后执行 `pnpm browser`。Playwright 1.64.1 使用明确 HTTP 夹具，在八种语言的桌面与移动视口运行评价发布、评分展示、资料上传与打包、权限撤销、存储贡献、账号托管和导航保护用例。首次执行需 `pnpm exec playwright install --with-deps chromium`。
+
+测试截图按需写入 CONTRIBUTION_SCREENSHOTS、CUSTODY_SCREENSHOTS 或 RESOURCE_SCREENSHOTS 指定的任务目录，默认关闭，人工检查后删除。测试报告只保留在本机，CI 不上传制品或配置共享缓存。
+
+`module.json` 的 `scenario_tests` 登记资料客户端场景及实际测试名称，`make check` 核对测试仍然存在。真实账号、生产 SSO 与部署验收另行进行。
 
 ## 工程配置来源
 
-工程配置参考官方 create-vue 3.24.0 的 TypeScript、Router、Vitest 和 ESLint 模板。TypeScript 使用 `@vue/tsconfig` 与 `@tsconfig/node24`，ESLint 使用 `@vue/eslint-config-typescript`。应用、Node 工具与测试分别维护编译配置。
+工程配置参考官方 create-vue 3.24.0 的 TypeScript、Router、Vitest 和 ESLint 模板。纸飞机图标沿用项目负责人已确认的 StuHelper 品牌资产。业务规格和多仓库入口见 [StuHelper Next](https://github.com/StuHelper/stuhelper-next)。
 
-现有 Vue、Vite、Vue Router 与接口依赖继续使用已验证版本，页面和国际化逻辑由本仓库维护。跨仓浏览器联调放在架构仓库，项目的格式、语言和契约规则由共享工程工具与现成检查器执行。
+## 部署模块入口
+
+应用读取 `/api/v1/system/capabilities`，按部署能力隐藏未启用模块的入口。能力加载期间不挂载对应页面，直接访问未启用页面显示 404，也不发送该页面的业务请求。读取失败时保留入口，由服务端逐次授权。
+
+钱包、会员、群、应用授权、QQ 绑定、搜索、收藏与通知使用对应能力。群模块关闭时保存资料保留原有群名片许可。通知目标属于关闭的模块时显示不可用。
+
+`tests/e2e/capabilities.spec.mjs` 覆盖模块启停与能力读取失败，场景登记在 `module.json`。

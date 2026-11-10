@@ -1,0 +1,100 @@
+{
+  "id": "web",
+  "implementation": "application",
+  "required": [
+    "platform"
+  ],
+  "optional": [
+    "catalog",
+    "reviews",
+    "moderation",
+    "storage",
+    "media",
+    "storage-contribution",
+    "resources",
+    "groups"
+  ],
+  "specifications": [
+    "README.md"
+  ],
+  "scenario_tests": {
+    "RES-CLIENT-01": [
+      "src/features/resources/api.test.ts#retries unknown writes with the frozen nested payload and original key",
+      "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again"
+    ],
+    "RES-CLIENT-02": [
+      "src/features/resources/api.test.ts#passes current host credentials and cancellation on every request",
+      "src/features/resources/api.test.ts#releases a known rejected mutation and clears private state even for non-JSON denial"
+    ],
+    "RES-CLIENT-03": [
+      "tests/e2e/resources.spec.mjs#configured category field filters and grouping follow server configuration"
+    ],
+    "RES-CLIENT-04": [
+      "tests/e2e/resources.spec.mjs#upload uses current terms and retries the original metadata request"
+    ],
+    "RES-CLIENT-05": [
+      "tests/e2e/resources.spec.mjs#current denial clears resource data and request receipts survive navigation"
+    ],
+    "RES-CLIENT-06": [
+      "tests/e2e/resources.spec.mjs#folder packages list every part and allow individual retry"
+    ],
+    "RES-CLIENT-07": [
+      "src/features/resources/api.test.ts#requests safe reuse and never sends bytes for reused or still pending content",
+      "tests/e2e/resources.spec.mjs#owned file reuse avoids content transfer and keeps separate review"
+    ],
+    "AE-ACCESS-01": [
+      "tests/e2e/access.spec.mjs#a guest sees sign-in instead of content and sends no business request"
+    ],
+    "AE-ACCESS-02": [
+      "tests/e2e/access.spec.mjs#an account read failure keeps content closed and explains the retry"
+    ],
+    "AE-ACCESS-03": [
+      "tests/e2e/access.spec.mjs#each qualification state gets its own next step"
+    ],
+    "AE-ACCESS-04": [
+      "tests/e2e/access.spec.mjs#a verified user enters content; the home page becomes a workspace"
+    ],
+    "MC-02": [
+      "tests/e2e/access.spec.mjs#my courses separates terms and keeps a data failure apart from having no courses"
+    ],
+    "MC-04": [
+      "tests/e2e/access.spec.mjs#my courses separates terms and keeps a data failure apart from having no courses"
+    ],
+    "QQ-01": [
+      "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
+      "tests/e2e/groups.spec.mjs#facts that cannot be confirmed are named and the list refreshes on request"
+    ],
+    "QQ-11": [
+      "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
+      "tests/e2e/groups.spec.mjs#later pages load on request and the empty list explains itself"
+    ],
+    "QQ-12": [
+      "tests/e2e/groups.spec.mjs#facts that cannot be confirmed are named and the list refreshes on request",
+      "tests/e2e/groups.spec.mjs#an empty list and a failed load each say so"
+    ],
+    "PC-12": [
+      "tests/e2e/profile.spec.mjs#group card fields start off and only the allowed ones are saved"
+    ],
+    "RES-CLIENT-08": [
+      "tests/e2e/unlock.spec.mjs#buying access waits for the grant before offering the download",
+      "tests/e2e/unlock.spec.mjs#a resource that cannot be delivered after payment reports the refund, not success",
+      "tests/e2e/unlock.spec.mjs#either account can be chosen when both prices are set"
+    ],
+    "RES-CLIENT-09": [
+      "tests/e2e/unlock.spec.mjs#an insufficient balance names the missing amount and links to the wallet"
+    ],
+    "WP-CLIENT-01": [
+      "tests/e2e/membership.spec.mjs#each plan shows what it covers, and a plan without coverage cannot be bought"
+    ],
+    "WP-CLIENT-02": [
+      "tests/e2e/membership.spec.mjs#buying a plan pays from the chosen account and lists the membership",
+      "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog"
+    ],
+    "CAP-01": [
+      "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
+      "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
+      "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
+      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding"
+    ]
+  }
+}

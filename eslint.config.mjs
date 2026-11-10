@@ -5,14 +5,14 @@ import jsonc from 'eslint-plugin-jsonc'
 import i18n from '@intlify/eslint-plugin-vue-i18n'
 
 export default defineConfigWithVueTs(
-  { ignores: ['dist/**', 'src/api/platform.gen.ts', 'coverage/**'] },
+  { ignores: ['dist/**', 'src/demo/**', 'src/api/*.gen.ts', 'src/api/contribution.ts', 'src/api/custody.ts', 'test-results/**', 'coverage/**'] },
   js.configs.recommended,
   ...vue.configs['flat/recommended'],
   vueTsConfigs.recommended,
   ...jsonc.configs['flat/recommended-with-json'],
   ...i18n.configs['flat/recommended'],
   { settings: { 'vue-i18n': { localeDir: './src/locales/*.json', messageSyntaxVersion: '^11.0.0' } }, rules: {
-    '@intlify/vue-i18n/no-raw-text': ['error', { attributes: { '/.*/': ['title', 'aria-label', 'placeholder', 'alt'] }, ignorePattern: '^[0-9\\s/]*$' }],
+    '@intlify/vue-i18n/no-raw-text': ['error', { attributes: { '/.*/': ['title', 'aria-label', 'placeholder', 'alt'] }, ignorePattern: '^[0-9\\s/·]*$' }], // '·' separates translated values and is language-neutral.
     '@intlify/vue-i18n/no-missing-keys': 'error',
     '@intlify/vue-i18n/valid-message-syntax': 'error',
     'jsonc/no-dupe-keys': 'error',

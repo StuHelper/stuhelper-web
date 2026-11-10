@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-search",
+  "revision": "ad208103682f5e30615381fbe6f76d27a3666cba",
+  "version": "0.3.0",
+  "files": {
+    "contracts/search.openapi.json": "contracts/search.openapi.json",
+    "sdk/search.gen.ts": "src/api/search.gen.ts"
+  },
+  "sha256": {
+    "contracts/search.openapi.json": "28f00d601783ecac7fb014dcb8f3de20a250943f67c4f4f79b3a11baecd08513",
+    "src/api/search.gen.ts": "479499f4fe69176ab25c5e918d7bfa4c850eb7476c2a7519d0c356697d630fe3"
+  }
+}

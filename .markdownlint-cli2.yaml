@@ -1,0 +1,11 @@
+globs:
+  - 'README.md'
+  - 'AGENTS.md'
+  - 'docs/**/*.md'
+ignores:
+  - '**/.git/**'
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - '**/.tools/**'
+config:
+  MD013: false
