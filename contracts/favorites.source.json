@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-favorites",
-  "revision": "ffe7d52e9c281029ced1d875474e903e20974302",
+  "revision": "480ad908ab233ec02f05365cdbbe964adb910b9d",
   "version": "0.2.0",
   "files": {
     "contracts/favorites.openapi.json": "contracts/favorites.openapi.json",

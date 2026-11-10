@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-billing",
-  "revision": "5a5b35904c43bd7eafeb4bc44889ad3edae07afc",
+  "revision": "c40e84c3ad1e05d304f0e4b2cddca721e58c07dd",
   "version": "0.3.1",
   "files": {
     "contracts/billing.openapi.json": "contracts/billing.openapi.json",

@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-profiles",
-  "revision": "f3d0269fee8ce7b62f3797869dcc635f33ff9e6e",
+  "revision": "83999a03f3d51479f30c36826089346ed10cbea3",
   "version": "0.4.0",
   "files": {
     "contracts/profiles.openapi.json": "contracts/profiles.openapi.json",

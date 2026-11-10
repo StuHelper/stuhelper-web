@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-reviews",
-  "revision": "da338ee129f5c2cd0ff05734549196cbaf66801e",
+  "revision": "995e6d087fd69fc29ac5a7d223efed35b5538e30",
   "version": "0.5.1",
   "files": {
     "contracts/reviews.openapi.json": "contracts/reviews.openapi.json",
