@@ -1,7 +1,5 @@
 name: Application release image
 on:
-  push:
-    tags: ['v*.*.*']
   workflow_dispatch:
     inputs:
       version:
