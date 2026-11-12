@@ -1565,9 +1565,12 @@
             "items": {
               "type": "string",
               "enum": [
+                "billing",
+                "open-platform",
                 "reviews",
                 "resources",
-                "favorites"
+                "favorites",
+                "qq-binding"
               ]
             },
             "uniqueItems": true,
