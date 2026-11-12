@@ -1,0 +1,21 @@
+name: Application release assets
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Existing annotated version tag on main
+        required: true
+        type: string
+permissions:
+  contents: write
+concurrency:
+  group: release-assets-${{ inputs.version || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  release:
+    uses: StuHelper/stuhelper-tooling/.github/workflows/release.yml@v0.1.5
+    with:
+      application: web
+      version: ${{ inputs.version || github.ref_name }}
