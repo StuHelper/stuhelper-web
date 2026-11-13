@@ -101,7 +101,8 @@
     ],
     "SESSION-AVAILABILITY-02": [
       "src/shared/session.test.ts#the retry component backs off and leaves an in-progress form mounted",
-      "src/shared/session.test.ts#clears the snapshot after an explicit rejection even after an outage"
+      "src/shared/session.test.ts#clears the snapshot after an explicit rejection even after an outage",
+      "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401"
     ]
   }
 }
