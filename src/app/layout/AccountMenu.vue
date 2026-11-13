@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAccess } from '../../features/account/access'
+import SessionNotice from '../../shared/ui/SessionNotice.vue'
 import { useSession } from '../../shared/session'
 import { useLinkAvailable } from '../../shared/capabilities'
 
@@ -35,6 +36,7 @@ async function signOut() {
 </script>
 
 <template>
+  <SessionNotice />
   <DropdownMenuRoot
     v-if="session.state.value === 'member' && session.session.value"
     :modal="false"
