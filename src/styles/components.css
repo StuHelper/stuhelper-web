@@ -9,24 +9,28 @@
   border: 0;
   border-radius: var(--pill);
   background: var(--fill);
+  box-shadow: var(--control-edge);
   color: var(--label);
   font: inherit;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 550;
   line-height: 1.2;
   letter-spacing: inherit;
   text-align: center;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
-  transition: background-color .2s, color .2s, opacity .2s, transform .35s var(--spring);
+  transition: background-color .2s, color .2s, opacity .2s, box-shadow .3s, transform .35s var(--spring);
 }
 .btn:hover { background: var(--fill-strong); color: var(--label); text-decoration: none; }
-.btn:active:not(:disabled) { transform: scale(.965); transition-duration: .1s, .1s, .1s, .1s; }
+.btn:active:not(:disabled) { transform: scale(.965); transition-duration: .1s, .1s, .1s, .1s, .1s; }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .42; cursor: default; }
 .btn svg { flex: none; width: 1.125em; height: 1.125em; }
-.btn-primary { background: var(--accent-fill); color: var(--on-accent); }
-.btn-primary:hover { background: var(--accent-fill-hover); color: var(--on-accent); }
+.btn-primary { background: var(--accent-fill) linear-gradient(180deg, rgb(255 255 255 / 18%), transparent 62%); box-shadow: inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 0 0 .5px rgb(255 255 255 / 16%); color: var(--on-accent); }
+.btn-primary:hover { background-color: var(--accent-fill-hover); color: var(--on-accent); }
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) { box-shadow: inset 0 1px 0 rgb(255 255 255 / 34%), inset 0 0 0 .5px rgb(255 255 255 / 16%), 0 8px 20px -10px color-mix(in srgb, var(--accent-fill) 85%, transparent); }
+}
 .btn-danger { background: var(--danger-soft); color: var(--danger); }
 .btn-danger:hover { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
 .btn-ghost { background: var(--fill); color: var(--label); }
@@ -80,45 +84,96 @@ legend { font-size: 1.0625rem; font-weight: 620; }
 .form-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr)); align-items: start; }
 .form-actions { display: flex; flex-wrap: wrap; gap: .625rem; align-items: center; }
 
-/* A checkbox with a label is a switch. Selection checkboxes opt out with .pick. */
-.check { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; font-size: .9375rem; line-height: 1.4; cursor: pointer; }
-.check > span { order: -1; flex: 1; padding-block-start: .25rem; }
+/*
+ * Choices with a label. A checkbox is a tick box in front of its text: agreeing
+ * to terms and picking items are answers, not settings. A setting that takes
+ * effect as on or off adds .switch and puts the control after the text.
+ */
+.check { display: flex; align-items: flex-start; gap: .75rem; font-size: .9375rem; line-height: 1.45; cursor: pointer; }
+.check > span { flex: 1; min-width: 0; padding-block-start: .0625rem; }
 .check input[type="checkbox"] {
   appearance: none;
   flex: none;
   position: relative;
-  width: 51px;
-  height: 31px;
-  margin: 0;
-  border-radius: var(--pill);
-  background: var(--fill-strong);
+  width: 22px;
+  height: 22px;
+  margin: .0625rem 0 0;
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1.5px var(--label-3);
   cursor: pointer;
-  transition: background-color .25s;
+  transition: background-color .2s, box-shadow .2s, transform .35s var(--spring);
 }
+/* The tick is drawn by revealing a stroke, so it appears to be written. */
 .check input[type="checkbox"]::after {
   content: "";
   position: absolute;
-  inset-block-start: 2px;
-  inset-inline-start: 2px;
-  width: 27px;
-  height: 27px;
-  border-radius: 50%;
+  inset: 0;
   background: #fff;
-  box-shadow: 0 2px 6px rgb(0 0 0 / 22%), 0 0 1px rgb(0 0 0 / 20%);
-  transition: inset-inline-start .32s var(--spring), width .2s;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 11.5 3.4 3.4L16 7.8'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 22' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 11.5 3.4 3.4L16 7.8'/%3E%3C/svg%3E") center / contain no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path .28s var(--ease-out) .04s;
 }
-.check input[type="checkbox"]:active::after { width: 31px; }
-.check input[type="checkbox"]:checked { background: #34c759; }
-.check input[type="checkbox"]:checked::after { inset-inline-start: 22px; }
-.check input[type="checkbox"]:checked:active::after { inset-inline-start: 18px; }
+.check:hover input[type="checkbox"]:not(:checked, :disabled) { box-shadow: inset 0 0 0 1.5px var(--accent-fill), 0 0 0 4px var(--accent-soft); }
+.check input[type="checkbox"]:active:not(:disabled) { transform: scale(.88); }
+.check input[type="checkbox"]:checked { background: var(--accent-fill); box-shadow: inset 0 0 0 1.5px var(--accent-fill); }
+.check input[type="checkbox"]:checked::after { clip-path: inset(0); }
+
+/*
+ * Switch: a track that fills with the brand gradient and a round thumb that
+ * shows a tick once it arrives. The thumb stretches while pressed.
+ */
+.check.switch { align-items: center; justify-content: space-between; gap: 1rem; }
+.check.switch > span { order: -1; padding-block-start: 0; }
+.check.switch input[type="checkbox"] {
+  width: 46px;
+  height: 26px;
+  margin: 0;
+  border-radius: var(--pill);
+  background: var(--fill-strong);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 10%);
+  transition: background-color .3s, box-shadow .3s;
+}
+.check.switch input[type="checkbox"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(115deg, var(--accent-fill), color-mix(in srgb, var(--accent-fill) 55%, #a855f7));
+  opacity: 0;
+  transition: opacity .3s;
+}
+.check.switch input[type="checkbox"]::after {
+  inset: 3px auto 3px 3px;
+  inset-inline: 3px auto;
+  width: 20px;
+  border-radius: var(--pill);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%232d5bff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6.2 10.4 2.6 2.6 5-5.4'/%3E%3C/svg%3E") center / 0 no-repeat;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 18%), 0 3px 8px rgb(0 0 0 / 14%);
+  mask: none;
+  -webkit-mask: none;
+  clip-path: none;
+  transition: inset-inline-start .4s var(--spring), width .2s, background-size .3s var(--ease-out) .1s;
+}
+.check.switch:hover input[type="checkbox"]:not(:checked, :disabled) { box-shadow: inset 0 1px 2px rgb(0 0 0 / 10%), 0 0 0 4px var(--accent-soft); }
+.check.switch input[type="checkbox"]:active:not(:disabled) { transform: none; }
+.check.switch input[type="checkbox"]:active:not(:disabled)::after { width: 25px; }
+.check.switch input[type="checkbox"]:checked { background: var(--fill-strong); box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent-fill) 70%, transparent); }
+.check.switch input[type="checkbox"]:checked::before { opacity: 1; }
+.check.switch input[type="checkbox"]:checked::after { inset-inline-start: 23px; background-size: 100%; }
+.check.switch input[type="checkbox"]:checked:active:not(:disabled)::after { inset-inline-start: 18px; }
 .check input:disabled { opacity: .5; cursor: default; }
+/* A radio keeps its text first and the mark at the end of the row. */
+.check:has(> input[type="radio"]) { justify-content: space-between; gap: 1rem; }
+.check:has(> input[type="radio"]) > span { order: -1; }
 .check input[type="radio"] { flex: none; width: 1.25rem; height: 1.25rem; margin: 0; accent-color: var(--accent-fill); }
 .pick { appearance: none; flex: none; width: 24px; height: 24px; margin: 0; border: 1.5px solid var(--label-3); border-radius: 50%; background: transparent center / 14px no-repeat; cursor: pointer; transition: background-color .15s, border-color .15s, transform .3s var(--spring); }
 .pick:checked { border-color: var(--accent-fill); background-color: var(--accent-fill); background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 7.5 2.8 2.8L11 4.5'/%3E%3C/svg%3E"); transform: scale(1.05); }
 .pick:disabled { opacity: .4; }
 
 /* Surfaces */
-.card { border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-card); padding: clamp(1.125rem, 2.5vw, 1.5rem); }
+.card { border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-card); padding: clamp(1rem, 1.5vw, 1.25rem); }
 .card-link { display: grid; gap: .25rem; align-content: start; height: 100%; color: inherit; text-decoration: none; transition: transform .45s var(--ease-out), box-shadow .45s var(--ease-out); }
 .card-link:hover { color: inherit; text-decoration: none; box-shadow: var(--shadow-lift); transform: translateY(-3px); }
 .card-link:active { transform: scale(.985); transition-duration: .12s; }
@@ -167,10 +222,10 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 .notice.stack, .notice.stack-sm { display: grid; justify-content: stretch; }
 
 /* Segmented control */
-.tabs { position: relative; display: inline-flex; justify-self: start; width: fit-content; max-width: 100%; padding: 2px; overflow-x: auto; border-radius: 11px; background: var(--fill); scrollbar-width: none; }
+.tabs { position: relative; display: inline-flex; justify-self: start; width: fit-content; max-width: 100%; padding: 3px; overflow-x: auto; border-radius: var(--pill); background: var(--fill); scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
-.tab-thumb { position: absolute; inset-block: 2px; inset-inline-start: 0; border-radius: 9px; background: var(--surface-raised); box-shadow: 0 1px 3px rgb(0 0 0 / 12%), 0 3px 8px rgb(0 0 0 / 8%); transition: transform .42s var(--ease), width .42s var(--ease); }
-.tab { position: relative; flex: none; min-height: 34px; padding: .3125rem 1rem; border: 0; border-radius: 9px; background: transparent; color: var(--label); font: inherit; font-size: .875rem; font-weight: 500; letter-spacing: inherit; white-space: nowrap; cursor: pointer; transition: opacity .2s; }
+.tab-thumb { position: absolute; inset-block: 3px; inset-inline-start: 0; border-radius: var(--pill); background: var(--surface-raised); box-shadow: var(--glass-edge), 0 1px 3px rgb(0 0 0 / 10%), 0 4px 12px -2px rgb(0 0 0 / 12%); transition: transform .42s var(--ease), width .42s var(--ease); }
+.tab { position: relative; flex: none; min-height: 34px; padding: .3125rem 1.125rem; border: 0; border-radius: var(--pill); background: transparent; color: var(--label); font: inherit; font-size: .875rem; font-weight: 500; letter-spacing: inherit; white-space: nowrap; cursor: pointer; transition: opacity .2s; }
 .tab:hover { opacity: .68; }
 .tab[aria-selected="true"] { font-weight: 600; opacity: 1; }
 @media (pointer: coarse) { .tab { min-height: 40px; } }
@@ -182,10 +237,10 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 .table td { padding: .75rem 1.125rem; border-block-start: .5px solid var(--separator); }
 
 /* Sheet: centred on wide screens, attached to the bottom edge on phones. */
-.sheet-overlay { position: fixed; inset: 0; z-index: 60; background: rgb(0 0 0 / 38%); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.sheet-overlay { position: fixed; inset: 0; z-index: 60; background: rgb(0 0 0 / 26%); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
 .sheet-overlay[data-state="open"] { animation: fade-in .3s var(--ease-out); }
 .sheet-overlay[data-state="closed"] { animation: fade-out .22s ease-in forwards; }
-.sheet { position: fixed; inset-block-start: 50%; inset-inline-start: 50%; z-index: 61; display: grid; gap: 1rem; width: min(calc(100vw - 2rem), 30rem); max-height: calc(100dvh - 3rem); padding: 1.75rem; overflow-y: auto; overscroll-behavior: contain; border-radius: var(--radius-xl); background: var(--surface-raised); box-shadow: var(--shadow-float); translate: -50% -50%; }
+.sheet { position: fixed; inset-block-start: 50%; inset-inline-start: 50%; z-index: 61; display: grid; gap: 1rem; width: min(calc(100vw - 2rem), 30rem); max-height: calc(100dvh - 3rem); padding: 1.75rem; overflow-y: auto; overscroll-behavior: contain; border-radius: var(--radius-xl); background: var(--glass-strong); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); translate: -50% -50%; }
 [dir="rtl"] .sheet { translate: 50% -50%; }
 .sheet-wide { width: min(calc(100vw - 2rem), 42rem); }
 .sheet[data-state="open"] { animation: sheet-in .42s var(--ease-out); }
@@ -193,7 +248,8 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 .sheet-title { font-size: 1.3125rem; font-weight: 650; line-height: 1.2; }
 .sheet-grabber { display: none; }
 @media (max-width: 640px) {
-  .sheet, [dir="rtl"] .sheet { inset: auto 0 0; width: 100%; max-height: 92dvh; padding: .5rem 1.25rem calc(1.25rem + var(--safe-bottom)); border-radius: var(--radius-xl) var(--radius-xl) 0 0; translate: 0; }
+  /* On phones the sheet floats just above the bottom edge instead of attaching to it. */
+  .sheet, [dir="rtl"] .sheet { inset: auto .5rem calc(.5rem + var(--safe-bottom)); width: auto; max-height: 90dvh; padding: .5rem 1.25rem 1.25rem; border-radius: var(--radius-xl); translate: 0; }
   .sheet-grabber { display: block; justify-self: center; width: 36px; height: 5px; margin-block-end: .25rem; border-radius: var(--pill); background: var(--fill-strong); }
   .sheet[data-state="open"] { animation: sheet-up .48s var(--ease); }
   .sheet[data-state="closed"] { animation: sheet-down .26s ease-in forwards; }
@@ -201,13 +257,14 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 }
 
 /* Popover menu */
-.menu { z-index: 50; min-width: 14rem; padding: .375rem; border-radius: var(--radius); background: var(--glass); box-shadow: var(--shadow-float), inset 0 0 0 .5px var(--separator); backdrop-filter: saturate(180%) blur(30px); -webkit-backdrop-filter: saturate(180%) blur(30px); transform-origin: var(--reka-dropdown-menu-content-transform-origin); }
+.menu { z-index: 50; min-width: 14rem; padding: .375rem; border-radius: 22px; background: var(--glass); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); transform-origin: var(--reka-dropdown-menu-content-transform-origin); }
 .menu[data-state="open"] { animation: menu-in .26s var(--ease-out); }
 .menu[data-state="closed"] { animation: fade-out .12s ease-in forwards; }
-.menu-item { display: flex; align-items: center; gap: .625rem; min-height: 38px; padding: .375rem .625rem; border-radius: 8px; color: var(--label); font-size: .9375rem; text-decoration: none; cursor: pointer; outline: none; }
+.menu-item { display: flex; align-items: center; gap: .625rem; min-height: 40px; padding: .375rem .75rem; border-radius: 16px; color: var(--label); font-size: .9375rem; text-decoration: none; cursor: pointer; outline: none; }
 .menu-item svg { width: 1.0625rem; height: 1.0625rem; color: var(--label-2); }
-.menu-item[data-highlighted], .menu-item:hover { background: var(--accent-fill); color: #fff; text-decoration: none; }
-.menu-item[data-highlighted] svg, .menu-item:hover svg { color: #fff; }
+.menu-item { transition: background-color .15s; }
+.menu-item[data-highlighted], .menu-item:hover { background: var(--fill-strong); color: var(--label); text-decoration: none; }
+.menu-item[data-highlighted] svg, .menu-item:hover svg { color: var(--label); }
 .menu-sep { height: .5px; margin: .375rem .625rem; background: var(--separator); }
 .menu-label { padding: .375rem .625rem; color: var(--label-3); font-size: .8125rem; }
 
@@ -231,8 +288,8 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 @keyframes fade-out { to { opacity: 0; } }
 @keyframes sheet-in { from { opacity: 0; scale: .94; } }
 @keyframes sheet-out { to { opacity: 0; scale: .97; } }
-@keyframes sheet-up { from { transform: translateY(100%); } }
-@keyframes sheet-down { to { transform: translateY(100%); } }
+@keyframes sheet-up { from { transform: translateY(calc(100% + 1rem)); } }
+@keyframes sheet-down { to { transform: translateY(calc(100% + 1rem)); } }
 @keyframes menu-in { from { opacity: 0; scale: .92; } }
 @keyframes shimmer { to { background-position: -220% 0; } }
 
@@ -332,10 +389,17 @@ html { scrollbar-width: thin; scrollbar-color: var(--fill-strong) transparent; }
 /* Rounded search field (shared/ui/SearchField.vue). */
 .d-search { position: relative; display: flex; align-items: center; flex: 1 1 16rem; min-width: 0; }
 .d-search svg { position: absolute; inset-inline-start: .875rem; width: 1.0625rem; height: 1.0625rem; color: var(--label-3); pointer-events: none; }
-.d-search input { width: 100%; height: 42px; padding-inline: 2.5rem 1rem; border: 0; border-radius: var(--pill); background: var(--surface); box-shadow: var(--shadow-card); color: var(--label); font: inherit; }
+.d-search input { width: 100%; height: 44px; padding-inline: 2.5rem 1rem; border: 0; border-radius: var(--pill); background: var(--surface); box-shadow: var(--shadow-card); color: var(--label); font: inherit; }
 .d-search input:focus { outline: none; box-shadow: 0 0 0 1.5px var(--accent-fill), 0 0 0 5px var(--accent-soft); }
 .d-search input::-webkit-search-cancel-button { appearance: none; }
 .d-search input { padding-inline-end: 2.5rem; }
 .d-search .d-search-clear { position: absolute; inset-inline-end: .5rem; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: var(--fill); color: var(--label-2); cursor: pointer; }
 .d-search-clear:hover { background: var(--fill-strong); }
 .d-search .d-search-clear svg { position: static; width: .875rem; height: .875rem; color: inherit; }
+
+/* Icon tiles answer a hover on the link or button that contains them. */
+.icon-tile { transition: transform .5s var(--spring); }
+@media (hover: hover) {
+  :is(a, button):hover > .icon-tile, :is(a, button):hover > * > .icon-tile { transform: scale(1.08) rotate(-5deg); }
+}
+.tag { transition: background-color .2s, color .2s; }

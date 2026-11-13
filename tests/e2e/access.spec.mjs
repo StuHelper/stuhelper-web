@@ -65,7 +65,7 @@ memberTest('a verified user enters content; the home page becomes a workspace', 
   await academicFixture(page);
   await page.goto(`${base}/courses/course?lang=${locale}`);
   await expect(page.getByRole('heading', { level: 1, name: 'Test Course' })).toBeVisible();
-  await page.goto(`${base}/?lang=${locale}`);
+  await page.goto(`${base}/campus?lang=${locale}`);
   await expect(page.getByRole('heading', { name: all.home.myCourses, exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Test Course', exact: true }).first()).toBeVisible();
   await expect(page.getByRole('heading', { name: all.home.recent, exact: true })).toBeVisible();

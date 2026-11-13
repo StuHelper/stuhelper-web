@@ -209,8 +209,8 @@ onBeforeUnmount(() => {
 </style>
 
 <style>
-.palette-overlay { position: fixed; inset: 0; z-index: 100; background: rgb(0 0 0 / .3); }
-.palette { position: fixed; inset-block-start: 12vh; inset-inline: 0; z-index: 101; width: min(calc(100% - 1.5rem), 36rem); margin-inline: auto; overflow: hidden; border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-float); }
+.palette-overlay { position: fixed; inset: 0; z-index: 100; background: rgb(0 0 0 / .22); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
+.palette { position: fixed; inset-block-start: 12vh; inset-inline: 0; z-index: 101; width: min(calc(100% - 1.5rem), 36rem); margin-inline: auto; overflow: hidden; border-radius: var(--radius-lg); background: var(--glass-strong); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
 .palette .field-row { display: flex; align-items: center; gap: .625rem; padding-inline: 1rem; border-block-end: .5px solid var(--separator); }
 .palette .field-row svg { flex: none; width: 1.125rem; height: 1.125rem; color: var(--label-3); }
 .palette input { flex: 1; min-width: 0; height: 48px; border: 0; outline: 0; background: transparent; color: var(--label); font: inherit; }

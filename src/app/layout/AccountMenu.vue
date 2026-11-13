@@ -133,7 +133,7 @@ async function signOut() {
 </template>
 
 <style scoped>
-.avatar { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: linear-gradient(145deg, #5e9cff, #0071e3); color: #fff; font: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; transition: transform .3s var(--spring); }
+.avatar { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: linear-gradient(145deg, #6f8dff, #2d5bff); color: #fff; font: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; transition: transform .3s var(--spring); }
 .avatar:active { transform: scale(.92); }
 .account-error svg { color: var(--warning); }
 @media (max-width: 480px) { .account-error-text { display: none; } }
@@ -145,6 +145,6 @@ async function signOut() {
 .menu-head small { color: var(--label-3); font-size: .75rem; }
 .menu-head[data-highlighted] small, .menu-head:hover small { color: inherit; }
 .menu-item.menu-next { color: var(--accent); font-weight: 550; }
-.menu-item.menu-next[data-highlighted], .menu-item.menu-next:hover { color: #fff; }
-.menu-item.menu-next:not([data-highlighted], :hover) svg { color: var(--accent); }
+.menu-item.menu-next[data-highlighted], .menu-item.menu-next:hover { color: var(--accent); }
+.menu-item.menu-next svg, .menu-item.menu-next:hover svg { color: var(--accent); }
 </style>

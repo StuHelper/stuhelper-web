@@ -32,7 +32,8 @@ const enrollments = useAsync(async (signal) => {
   return { rows, names }
 })
 const terms = computed(() => {
-  const seen = [...new Set((enrollments.data.value?.rows ?? []).map((row) => row.term_id))]
+  // Enrollments arrive oldest term first. The newest term is listed first and opens by default.
+  const seen = [...new Set((enrollments.data.value?.rows ?? []).map((row) => row.term_id))].reverse()
   return seen.map((value) => ({ value, label: enrollments.data.value?.names.get(value)?.name ?? t('academic.offerings.unknownTerm') }))
 })
 const schedule = useAsync<OwnSchedule[]>((signal) => api.mySchedule(term.value, signal))
@@ -43,7 +44,7 @@ const lastWeek = computed(() => Math.max(1, ...arranged.value.lessons.flatMap((l
 const fetched = computed(() => rows.value.map((row) => row.enrollment.fetched_at).filter((value): value is string => !!value).sort().at(-1))
 
 watch(terms, (list) => {
-  if (!list.some((item) => item.value === term.value)) term.value = list.at(-1)?.value ?? ''
+  if (!list.some((item) => item.value === term.value)) term.value = list[0]?.value ?? ''
 })
 watch(term, (value) => {
   if (value) void schedule.reload()
@@ -122,7 +123,7 @@ async function exportCalendar() {
                   :aria-label="t('courses.weekPicker')"
                 >
                   <button
-                    class="btn btn-sm icon-only"
+                    class="btn btn-sm btn-icon"
                     type="button"
                     :disabled="week <= 1"
                     :aria-label="t('courses.prevWeek')"
@@ -135,7 +136,7 @@ async function exportCalendar() {
                   </button>
                   <span aria-live="polite">{{ t('courses.weekNumber', { week: format.number(week) }) }}</span>
                   <button
-                    class="btn btn-sm icon-only"
+                    class="btn btn-sm btn-icon"
                     type="button"
                     :disabled="week >= lastWeek"
                     :aria-label="t('courses.nextWeek')"

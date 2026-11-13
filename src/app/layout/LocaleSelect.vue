@@ -35,6 +35,7 @@ async function change(value: string) {
 .locale { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--label-2); transition: background-color .2s, color .2s; }
 .locale:hover { background: var(--fill); color: var(--label); }
 .locale:focus-within { outline: 3px solid color-mix(in srgb, var(--accent-fill) 55%, transparent); }
-.locale svg { width: 19px; height: 19px; }
+.locale svg { width: 19px; height: 19px; transition: transform .6s var(--ease-out); }
+.locale:hover svg { transform: rotate(30deg); }
 .locale-select { position: absolute; inset: 0; opacity: 0; }
 </style>

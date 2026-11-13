@@ -47,6 +47,23 @@ export function targetRoute(target: Notification['target']): string {
   }
 }
 
+/** Boxes of the message center, in display order. */
+export const boxes = ['interaction', 'review', 'verification', 'system'] as const
+export type Box = (typeof boxes)[number]
+
+/**
+ * Box a notification is filed in, decided by the subject of its title key:
+ * replies and likes, moderation results, verification results, and system
+ * notices. An unknown subject is filed with system notices so nothing is lost.
+ */
+export function boxOf(item: Pick<Notification, 'title_key'>): Box {
+  const subject = item.title_key.slice('notifications.'.length).split('.')[0] ?? ''
+  if (subject === 'interaction') return 'interaction'
+  if (['content', 'resource_removal', 'report'].includes(subject)) return 'review'
+  if (subject.endsWith('_verification') || subject.startsWith('verification_')) return 'verification'
+  return 'system'
+}
+
 /** Message key of a title. The contract keys are already namespaced under `notifications.`. */
 export const titleMessage = (key: TitleKey) => `notifications.titles.${key.slice('notifications.'.length)}`
 

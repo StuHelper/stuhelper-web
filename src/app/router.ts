@@ -11,7 +11,7 @@ declare module 'vue-router' {
     /** Message key of the document title. */
     title?: string
     /** Top-level navigation section highlighted for this page. */
-    section?: 'home' | 'courses' | 'teachers' | 'resources' | 'me'
+    section?: 'portal' | 'api' | 'store' | 'home' | 'courses' | 'teachers' | 'resources' | 'me'
     /** Content pages need current content access; a person's own records need only a session. */
     access?: 'verified' | 'member'
     /** The path names different content, so the page never reuses another path's state. */
@@ -31,7 +31,10 @@ const academic = {
 }
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', component: HomeView, meta: { title: 'nav.home', section: 'home' } },
+  { path: '/', component: () => import('../features/portal/PortalView.vue'), meta: { section: 'portal' } },
+  { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
+  { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
+  { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },
   { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { access: 'verified', title: 'nav.courses', section: 'courses' } },
   { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { access: 'verified', title: 'nav.teachers', section: 'teachers' } },
   { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.course', section: 'courses' } },
@@ -65,9 +68,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/profile', component: () => import('../features/account/ProfileView.vue'), meta: { access: 'member', title: 'profile.title', section: 'me' } },
   { path: '/me/account', component: () => import('../features/account/SecurityView.vue'), meta: { access: 'member', title: 'security.title', section: 'me' } },
   { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { remountOnPath: true, title: 'verification.identityTitle', section: 'me' } },
-  { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.title', section: 'me' } },
+  { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.unified.title', section: 'me' } },
   { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },
-  { path: '/me/verification/teacher', component: () => import('../features/verification/TeacherView.vue'), meta: { title: 'teacher.title', section: 'me' } },
+  { path: '/me/verification/teacher', component: () => import('../features/verification/TeacherView.vue'), meta: { title: 'verification.unified.title', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
   { path: '/:pathMatch(.*)*', component: NotFoundView, meta: { title: 'notFound.title' } },
 ]
@@ -116,7 +119,7 @@ export function createAppRouter() {
   const router = createRouter({
     history: createWebHistory(),
     routes: [...extras.routes, ...routes],
-    scrollBehavior: (to, _from, saved) => (saved ? restore(saved.top) : to.hash ? { el: to.hash } : { top: 0 }),
+    scrollBehavior: (to, _from, saved) => (saved ? restore(saved.top) : to.hash ? { el: to.hash, behavior: 'smooth' } : { top: 0 }),
   })
   installPageTransition(router)
   return router

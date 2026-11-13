@@ -369,7 +369,7 @@ async function cancel() {
 
       <label
         v-if="identity === 'choice'"
-        class="check"
+        class="check switch"
       >
         <input
           v-model="signed"
