@@ -106,3 +106,24 @@ test('system notices form a conversation with a preview and an unread count', as
   await expect(page.getByRole('button', { name: fill(n.titles.student_verification.approved, { application_id: isolate('app-1') }) })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('an empty box keeps loading later pages that hold its notifications', async ({ page }, info) => {
+  const n = catalogue(info).notifications;
+  const common = catalogue(info).common;
+  const first = [note({ id: 's1', target: { kind: 'teacher_application', id: 'ta-1' }, title_key: 'notifications.teacher_verification.approved', title_params: { application_id: 'ta-1' } })];
+  const second = [note({ id: 'i1', type: 'interaction', target: { kind: 'review', id: 'rev-2' }, title_key: 'notifications.interaction.reply', title_params: { content_id: 'rev-2' } })];
+  await page.route('**/api/v1/notifications**', async (route) => {
+    const url = new URL(route.request().url());
+    const path = url.pathname.replace('/api/v1/notifications', '');
+    if (path === '/unread-count') return route.fulfill({ json: { count: 2 } });
+    if (path === '/preferences') return route.fulfill({ json: { interaction_enabled: true } });
+    if (url.searchParams.get('cursor') === 'p2') return route.fulfill({ json: { items: second, next_cursor: '' } });
+    return route.fulfill({ json: { items: first, next_cursor: 'p2' } });
+  });
+  await page.goto(`${base}/notifications?box=interaction&lang=${info.project.metadata.locale}`);
+  // The first page has nothing for this box, but a later page does.
+  await expect(page.getByText(n.empty, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: common.loadMore, exact: true }).click();
+  await expect(page.getByRole('button', { name: fill(n.titles.interaction.reply, { content_id: isolate('rev-2') }) })).toBeVisible();
+  await expect(page.getByRole('button', { name: common.loadMore, exact: true })).toHaveCount(0);
+});

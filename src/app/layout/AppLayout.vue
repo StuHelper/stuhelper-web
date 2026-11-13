@@ -7,7 +7,7 @@ import { extras } from '../../shared/extras'
 import ToastHost from '../../shared/ui/ToastHost.vue'
 import CompareTray from '../../features/search/CompareTray.vue'
 import SearchPalette from '../../features/search/SearchPalette.vue'
-import { feature, useCapabilities } from '../../shared/capabilities'
+import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { products } from '../products'
 import AccountMenu from './AccountMenu.vue'
 import LocaleSelect from './LocaleSelect.vue'
@@ -19,6 +19,7 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const section = computed(() => route.meta.section)
 const capabilities = useCapabilities()
+const linkAvailable = useLinkAvailable()
 const campusSections = ['home', 'courses', 'teachers', 'resources']
 const product = computed(() => {
   if (section.value === 'portal') return 'portal'
@@ -228,7 +229,10 @@ watch(() => route.path, async (_path, previous) => {
           <RouterLink to="/store">
             {{ products.store.name }}
           </RouterLink>
-          <RouterLink :to="{ path: '/', hash: '#platform' }">
+          <RouterLink
+            v-if="linkAvailable('/me/developer')"
+            :to="{ path: '/', hash: '#platform' }"
+          >
             {{ t('nav.platform') }}
           </RouterLink>
         </nav>

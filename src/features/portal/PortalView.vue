@@ -3,6 +3,7 @@ import {
   Activity, AppWindow, ArrowUpRight, BookOpen, CalendarDays, ChevronRight, Database, FileCheck2, FolderOpen, GraduationCap, KeyRound, MessageSquareText, Network, Scale, ScanSearch,
   ShoppingBag, SlidersHorizontal, UserRound, Waypoints,
 } from 'lucide-vue-next'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { products } from '../../app/products'
@@ -16,15 +17,18 @@ import '../../styles/landing.css'
 // each product then gets its name, a short phrase and an explanation.
 const { t } = useI18n()
 const available = useLinkAvailable()
+// The open platform section and tile describe a module that may be switched off.
+const platformOn = computed(() => available('/me/developer'))
 // Letters enter one by one; the heading keeps its full name for assistive technology.
 const letters = [...t('brand.name')]
 const tones = { campus: '#2d5bff', api: '#7a4de8', store: '#0d9467', platform: '#e0662b' }
-const tiles = [
+const allTiles = [
   { to: '/campus', key: 'campus', name: 'nav.campus', icon: GraduationCap },
   { to: products.api.path, key: 'api', brand: products.api.name, icon: Waypoints },
   { to: '/store', key: 'store', brand: products.store.name, icon: ShoppingBag },
   { to: { path: '/', hash: '#platform' }, key: 'platform', name: 'nav.platform', icon: Network },
 ] as const
+const tiles = computed(() => allTiles.filter((tile) => tile.key !== 'platform' || platformOn.value))
 const campus = [
   { key: 'reviews', icon: MessageSquareText },
   { key: 'resources', icon: FolderOpen },
@@ -251,6 +255,7 @@ const platform = [
     </section>
 
     <section
+      v-if="platformOn"
       id="platform"
       v-reveal
       class="lp-reveal"
@@ -271,10 +276,7 @@ const platform = [
           <p class="lp-lead">
             {{ t('portal.platform.lead') }}
           </p>
-          <div
-            v-if="available('/me/developer')"
-            class="lp-cta"
-          >
+          <div class="lp-cta">
             <RouterLink
               class="lp-link"
               to="/me/developer"

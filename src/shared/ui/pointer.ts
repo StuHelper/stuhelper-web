@@ -32,7 +32,10 @@ export const vSpotlight: Directive<Tracked> = {
 export const vTilt: Directive<Tracked, number | undefined> = {
   mounted(element, binding) {
     const limit = binding.value ?? 5
+    // Tilting is motion; people who ask for reduced motion see the picture still.
+    const still = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)')
     track(element, (x, y, box) => {
+      if (still && still.matches) return
       element.style.setProperty('--ry', `${((x / box.width) - .5) * 2 * limit}deg`)
       element.style.setProperty('--rx', `${(.5 - (y / box.height)) * 2 * limit}deg`)
     }, () => {

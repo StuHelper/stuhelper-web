@@ -29,7 +29,7 @@ onMounted(() => {
 })
 onBeforeUnmount(() => clearInterval(timer))
 const order = { plan: 'ChatGPT Plus', price: '¥132' }
-const account = 'lin@buaa.edu.cn'
+const account = 'student@example.edu'
 </script>
 
 <template>

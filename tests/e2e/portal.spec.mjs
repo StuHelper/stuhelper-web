@@ -57,3 +57,14 @@ test('the appearance choice applies at once and survives a reload', async ({ pag
   await page.getByRole('button', { name: all.shell.themeLight, exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
+
+test('the portal does not advertise the open platform when that module is off', async ({ page }, info) => {
+  const all = catalogue(info);
+  // The launch set: campus modules on, open platform off.
+  await page.route('**/api/v1/system/capabilities', (route) => route.fulfill({ json: { api_version: 1, capabilities: ['favorites.manage', 'notifications.inbox', 'search.query'] } }));
+  await page.goto(`${base}/?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('heading', { level: 2, name: all.portal.campus.name, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: all.portal.platform.title, exact: true })).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: all.nav.products, exact: true }).getByRole('link', { name: all.nav.platform })).toHaveCount(0);
+  await expect(page.getByRole('contentinfo').getByRole('link', { name: all.nav.platform, exact: true })).toHaveCount(0);
+});
