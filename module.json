@@ -95,6 +95,13 @@
       "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
       "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
       "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding"
+    ],
+    "SESSION-AVAILABILITY-01": [
+      "src/shared/session.test.ts#coalesces 25 failures, waits with bounded backoff and preserves the signed-in snapshot"
+    ],
+    "SESSION-AVAILABILITY-02": [
+      "src/shared/session.test.ts#the retry component backs off and leaves an in-progress form mounted",
+      "src/shared/session.test.ts#clears the snapshot after an explicit rejection even after an outage"
     ]
   }
 }
