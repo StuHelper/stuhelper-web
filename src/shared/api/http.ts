@@ -22,6 +22,8 @@ export interface RequestOptions {
 }
 
 export interface HttpOptions {
+  /** Share a single account check after a service outage. Writes are never replayed. */
+  onUnavailable?: () => void;
   /** Called when the server rejects the current account (401/403). */
   onDenied?: () => void
 }
@@ -136,6 +138,7 @@ export class Http {
     }
     finish()
     const operation = typeof problem === 'object' && problem !== null && 'operation_id' in problem && typeof problem.operation_id === 'string' && /^[a-f0-9]{64}$/.test(problem.operation_id) ? problem.operation_id : undefined
+    if (response.status === 503) this.options.onUnavailable?.();
     if (response.status === 401 || response.status === 403) this.options.onDenied?.()
     // A gateway or server failure without a recorded operation leaves a write's outcome unknown.
     throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation)
