@@ -29,12 +29,15 @@ export function createSessionStore(fetcher: typeof fetch) {
   let pending: Promise<void> | undefined;
   let retryAt = 0;
   let failures = 0;
+ let generation=0;
 
   async function load() {
+ const current=generation;
     const wait = retryAt - Date.now();
     if (wait > 0) await new Promise<void>((resolve) => setTimeout(resolve, wait));
     try {
       const value = await http.json('/api/v1/auth/session', parseSession, { timeout: 10_000 })
+      if(current!==generation)return;
       if (!value.authenticated) throw new ApiError('incompatible')
       session.value = value
       state.value = 'member';
@@ -42,6 +45,7 @@ export function createSessionStore(fetcher: typeof fetch) {
       failures = 0;
       retryAt = 0;
     } catch (error) {
+ if(current!==generation)return;
       if (error instanceof ApiError && error.denied) {
         session.value = null;
         state.value = 'guest';
@@ -73,6 +77,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     if (state.value === 'member' && (!serviceUnavailable || !unavailable.value)) void reload()
   }
 
+  function invalidate(){generation++;session.value=null;state.value='guest';unavailable.value=false;failures=0;retryAt=0;}
   function signIn() {
     if (extras.signIn) return extras.signIn()
     const target = window.location.href.split('#')[0] ?? window.location.origin
@@ -98,7 +103,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     return saved
   }
 
-  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, signIn, signOut, currentProfile, saveProfile }
+  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signOut, currentProfile, saveProfile }
 }
 
 export type SessionStore = ReturnType<typeof createSessionStore>
@@ -117,8 +122,8 @@ export function useHttp() {
   const fetcher = useHostFetch()
   const session = inject(sessionKey, undefined)
   const recheck = inject(deniedKey, undefined)
-  return new Http(fetcher, { onUnavailable: () => session?.revalidate(true), onDenied: () => {
-    session?.revalidate()
+  return new Http(fetcher, { onUnavailable: () => session?.revalidate(true), onDenied: (status) => {
+    if(status===401) session?.invalidate(); else session?.revalidate()
     recheck?.()
   } })
 }

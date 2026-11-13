@@ -142,3 +142,17 @@ it('the retry component backs off and leaves an in-progress form mounted', async
     expect(root.querySelector('input')).toBe(input);
   } finally { app.unmount(); }
 });
+
+
+it('does not restore a session when an in-flight check completes after a 401', async () => {
+ let finish: ((value: Response) => void) | undefined;
+ const fetcher = vi.fn(() => new Promise<Response>((resolve) => { finish = resolve; }));
+ const store = createSessionStore(fetcher);
+ const pending = store.reload();
+ store.invalidate();
+ finish?.(Response.json(session));
+ await pending;
+ expect(store.state.value).toBe('guest');
+ expect(store.session.value).toBeNull();
+ expect(fetcher).toHaveBeenCalledOnce();
+});
