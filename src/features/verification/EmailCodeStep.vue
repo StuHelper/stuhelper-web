@@ -33,9 +33,13 @@ watch(sent, (value) => { if (value) void nextTick(() => input.value?.focus()) },
 
 function onInput(event: Event) {
   // Keep digits only, so pasted text such as "482 916" still works.
-  const digits = (event.target as HTMLInputElement).value.replace(/\D/g, '').slice(0, 6)
+  const target = event.target
+  if (!(target instanceof HTMLInputElement)) return
+  const digits = target.value.replace(/\D/g, '').slice(0, 6)
+  const changed = digits !== code.value
+  target.value = digits
   code.value = digits
-  if (digits.length === 6 && !props.busy && !expired.value) emit('confirm')
+  if (changed && digits.length === 6 && !props.busy && !expired.value && !failed.value) emit('confirm')
 }
 </script>
 
@@ -96,7 +100,7 @@ function onInput(event: Event) {
         inputmode="numeric"
         autocomplete="one-time-code"
         pattern="[0-9]{6}"
-        maxlength="6"
+        maxlength="32"
         :disabled="busy || expired || failed"
         :aria-describedby="'email-code-expiry'"
         required
@@ -125,7 +129,7 @@ function onInput(event: Event) {
         <button
           class="btn"
           type="button"
-          :disabled="busy || resendIn > 0 || sending"
+          :disabled="busy || resendIn > 0"
           @click="emit('resend')"
         >
           {{ resendIn > 0 ? t('verification.emailStep.resendIn', { seconds: format.number(resendIn) }) : t('verification.emailStep.resend') }}

@@ -699,6 +699,7 @@ function profileValue(value: unknown, field: string) {
           <div
             v-for="(value, field) in flow.profile.value.fields"
             :key="field"
+            :data-profile-field="field"
           >
             <dt>
               {{ label('verification.profileFields', String(field)) }}
