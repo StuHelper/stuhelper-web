@@ -1069,7 +1069,9 @@
       "mailbox_verification": "Propriété du courriel",
       "self_reported": "Saisi par l’utilisateur",
       "legacy_credential": "Vérification historique",
-      "synthetic": "Données de test"
+      "synthetic": "Données de test",
+      "oracle_students": "données de scolarité de l’établissement",
+      "oracle_departments": "données de scolarité de l’établissement"
     },
     "schoolErrors": {
       "credentials_rejected": "Compte ou mot de passe refusé.",

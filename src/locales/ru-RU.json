@@ -1069,7 +1069,9 @@
       "mailbox_verification": "Подтверждение почты",
       "self_reported": "Ввод пользователя",
       "legacy_credential": "Историческая проверка",
-      "synthetic": "Тестовые данные"
+      "synthetic": "Тестовые данные",
+      "oracle_students": "учебные данные вуза",
+      "oracle_departments": "учебные данные вуза"
     },
     "schoolErrors": {
       "credentials_rejected": "Вуз отклонил учётную запись или пароль.",

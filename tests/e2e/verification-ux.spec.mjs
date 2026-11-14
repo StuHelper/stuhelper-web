@@ -8,7 +8,7 @@ const school = { id: 'school', name: 'Test University', enabled: true, methods: 
 const credential = { id: 'credential', school_id: 'school', method: 'real_name_identity_check', stage: 'bachelor', kind: 'student', state: 'active', student_display: '2026****01', revision: 1, verified_at: '2026-11-14T04:00:00Z', expires_at: null };
 const application = { id: 'application', school_id: 'school', method: 'real_name_identity_check', stage: 'bachelor', kind: 'student', state: 'in_progress', revision: 1, created_at: '2026-11-14T00:00:00Z', updated_at: '2026-11-14T00:00:00Z', expires_at: '2030-01-01T00:00:00Z', credential_id: '', result_code: '' };
 async function fixture(page, options = {}) {
-  const state = { writes: [], profile: { school_id: 'school', data_status: 'partial', schema: 'buaa.imported.v1', revision: 1, collected_at: '2020-01-01T00:00:00Z', source_revision: '1', fields: { student_id: '20260001', name: 'Synthetic Student', college_name: 'Test College', major_name: null }, field_sources: { student_id: 'unknown', name: 'future_source', college_name: 'academic_profile' } } };
+  const state = { writes: [], profile: { school_id: 'school', data_status: 'partial', schema: 'buaa.imported.v1', revision: 1, collected_at: '2020-01-01T00:00:00Z', source_revision: '1', fields: { student_id: '20260001', name: 'Synthetic Student', college_name: 'Test College', major_name: null, department: 'Test Department', contact_email: 'synthetic@example.edu' }, field_sources: { student_id: 'oracle_students', name: 'unknown', college_name: 'academic_profile', department: 'oracle_departments', contact_email: 'future_source' } } };
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/verification/**', route => {
     const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
@@ -103,6 +103,9 @@ test('profile hides unknown sources and binds authentication time to the selecte
   const card = page.locator('section').filter({ has: page.getByRole('heading', { name: v.profileTitle, exact: true }) });
   await expect(card).not.toContainText(m.common.unknown);
   await expect(card).toContainText(v.profileSources.academic_profile);
+  for (const field of ['student_id', 'department']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toContainText(v.profileSources.academic_profile);
+  await expect(card.locator('dt').filter({ hasText: v.profileFields.name })).toHaveText(v.profileFields.name);
+  await expect(card.locator('dt').filter({ hasText: v.profileFields.contact_email })).toHaveText(v.profileFields.contact_email);
   await expect(card).not.toContainText(v.profileStatus.partial);
   await expect(card.locator('time')).toHaveAttribute('datetime', credential.verified_at);
   await expect(card).toContainText(v.profileFields.major_name);
