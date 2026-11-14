@@ -873,7 +873,12 @@ export interface components {
             study_stage_required: boolean;
             allowed_kinds?: components["schemas"]["Kind"][];
         };
+        /** @description User-visible explanation keys by method. Real-name checks use verification.methodDescriptions.real_name_identity_check for both school and authorized third-party providers. */
+        MethodDescriptionKeys: {
+            [key: string]: string;
+        };
         School: {
+            method_description_keys?: components["schemas"]["MethodDescriptionKeys"];
             readonly method_capabilities?: {
                 [key: string]: components["schemas"]["MethodCapabilities"];
             };
@@ -1169,7 +1174,7 @@ export interface components {
                 "application/json": components["schemas"]["Problem"];
             };
         };
-        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
+        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
         Problem: {
             headers: {
                 [name: string]: unknown;

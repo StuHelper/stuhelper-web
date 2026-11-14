@@ -87,7 +87,7 @@
     "disclosure_required": "Authorized real name or teacher verification is missing. You cannot reply to your own course yet.",
     "identity_owned": "This student identity belongs to another account. Recover that account or contact an administrator.",
     "expired": "The application, code or capture link expired. Please start again.",
-    "information_mismatch": "The information did not match. Check the number of digits in your student ID, your name and identity document number, and whether the selected study level matches your enrollment record, then try again.",
+    "information_mismatch": "The information could not be verified. Check it and try again.",
     "method_unavailable": "This method is unavailable. Choose another available method.",
     "processing": "The request is still processing. Refresh or retry shortly.",
     "billing_unavailable": "The account service is unavailable. Try again later.",
@@ -104,7 +104,15 @@
     "billing_conflict": "The data changed in the meantime. Refresh and try again.",
     "schedule_incomplete": "The timetable is incomplete, so the calendar cannot be exported yet. It will be available once the school adds class times or period times.",
     "billing_already_accessible": "You already have access to this resource. No payment is needed.",
-    "method_identity_not_allowed": "This method is available only to current students. Alumni should use real-name information verification or manual document review."
+    "method_identity_not_allowed": "This method is available only to current students. Alumni should use real-name information verification or manual document review.",
+    "real_name_mismatch": "Real-name verification failed. Check your information and try again, or choose another verification method.",
+    "real_name_no_record": "Real-name verification is unavailable for this student ID. Choose another verification method.",
+    "email_identity_mismatch": "The student ID and name do not match. Check them and try again, or choose another verification method.",
+    "email_identity_no_record": "School email verification is unavailable for this student ID. Choose another verification method.",
+    "school_credentials_rejected": "The school account or password is incorrect. Try again.",
+    "school_account_locked": "Your school account is locked. Contact your school to unlock it and try again.",
+    "school_account_disabled": "Your school account is disabled. Contact your school or choose another verification method.",
+    "school_account_unavailable": "Your school account cannot be used for verification right now. Choose another verification method."
   },
   "connection": {
     "label": "Service connection status",
@@ -655,7 +663,6 @@
       "conflict": "Your profile was changed on another device; the saved nickname is “{nickname}”. Choose which version to keep.",
       "useCurrent": "Use the saved version",
       "keepMine": "Replace it with my input",
-      "sessionExpires": "Session valid until",
       "role": "Account role",
       "administrator": "Administrator"
     },
@@ -904,11 +911,10 @@
     "stage": "Study level",
     "kind": "Student category",
     "moreSchools": "Load more schools",
-    "schoolFacts": "Study level and status follow school records.",
     "bitPrivacy": "BIT sign-in reads and checks the name, student ID, college and major, class and grade, identity document, school contact details, and study plans supplied by the school. Personal data is stored encrypted by school. Passwords, SMS codes, and school sessions are not stored.",
     "privacy": "Your information is used to verify your school identity. School passwords are never stored. New review materials are kept for 30 days after review; verification results and study history are stored separately.",
     "consent": "I have read the notice and consent to verification of the information provided.",
-    "studentId": "Student or admission number",
+    "studentId": "Student ID",
     "name": "Full name",
     "document": "Identity document number",
     "password": "School account password",
@@ -1021,7 +1027,7 @@
     "profileStatus": {
       "complete": "Supported school data collected",
       "partial": "The school provided only part of this information",
-      "reference_only": "Information comes from the school’s academic system",
+      "reference_only": "Information provided by the school",
       "unavailable": "No profile data is currently available"
     },
     "profileFields": {
@@ -1067,14 +1073,14 @@
       "school_account": "School account",
       "sso_profile": "School SSO profile",
       "sso_document": "School document query",
-      "academic_profile": "school academic records",
+      "academic_profile": "School-provided data",
       "manual_review": "Manual review",
       "mailbox_verification": "Mailbox ownership",
       "self_reported": "User supplied",
       "legacy_credential": "Historical verification",
       "synthetic": "Test data",
-      "oracle_students": "school academic records",
-      "oracle_departments": "school academic records"
+      "oracle_students": "School-provided data",
+      "oracle_departments": "School-provided data"
     },
     "schoolErrors": {
       "credentials_rejected": "The school rejected the account or password.",
@@ -1110,7 +1116,10 @@
       "teacher": "Teacher"
     },
     "verifiedAt": "Verified at: {time}",
-    "profileSource": "From {source}"
+    "profileSource": "From {source}",
+    "methodDescriptions": {
+      "real_name_identity_check": "Your real-name information is used only for this identity check and will be compared with data provided by your school or a third-party identity verification service."
+    }
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",

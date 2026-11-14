@@ -87,7 +87,7 @@
     "disclosure_required": "Falta el nombre real o la acreditación autorizada. Aún no puedes responder sobre tu curso.",
     "identity_owned": "Esta identidad estudiantil está vinculada a otra cuenta. Recupérala o contacta con un administrador.",
     "expired": "La solicitud, el código o el enlace caducó. Inicia de nuevo.",
-    "information_mismatch": "Los datos no coinciden. Comprueba el número de dígitos de tu número de estudiante, tu nombre, el número de tu documento de identidad y que el nivel de estudios seleccionado coincida con tu matrícula. Después, inténtalo de nuevo.",
+    "information_mismatch": "No se han podido verificar los datos. Revísalos e inténtalo de nuevo.",
     "method_unavailable": "Este método no está disponible. Elige otro.",
     "processing": "La solicitud sigue en proceso. Actualiza o reintenta en breve.",
     "billing_unavailable": "El servicio de cuentas no está disponible. Inténtalo más tarde.",
@@ -104,7 +104,15 @@
     "billing_conflict": "Los datos cambiaron mientras tanto. Actualiza e inténtalo de nuevo.",
     "schedule_incomplete": "El horario está incompleto y todavía no se puede exportar el calendario. Estará disponible cuando el centro añada las horas de clase.",
     "billing_already_accessible": "Ya tienes acceso a este recurso; no hace falta pagar de nuevo.",
-    "method_identity_not_allowed": "Este método solo está disponible para estudiantes actuales. Los antiguos alumnos deben usar la verificación de identidad o la revisión manual de documentos."
+    "method_identity_not_allowed": "Este método solo está disponible para estudiantes actuales. Los antiguos alumnos deben usar la verificación de identidad o la revisión manual de documentos.",
+    "real_name_mismatch": "La verificación de identidad ha fallado. Revisa los datos e inténtalo de nuevo o elige otro método.",
+    "real_name_no_record": "La verificación de identidad no está disponible para este número de estudiante. Elige otro método.",
+    "email_identity_mismatch": "El número de estudiante y el nombre no coinciden. Revísalos e inténtalo de nuevo o elige otro método.",
+    "email_identity_no_record": "La verificación por correo universitario no está disponible para este número de estudiante. Elige otro método.",
+    "school_credentials_rejected": "La cuenta universitaria o la contraseña es incorrecta. Inténtalo de nuevo.",
+    "school_account_locked": "Tu cuenta universitaria está bloqueada. Pide a tu universidad que la desbloquee e inténtalo de nuevo.",
+    "school_account_disabled": "Tu cuenta universitaria está desactivada. Contacta con tu universidad o elige otro método.",
+    "school_account_unavailable": "Tu cuenta universitaria no puede usarse para la verificación en este momento. Elige otro método."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -655,7 +663,6 @@
       "conflict": "El perfil cambió en otro dispositivo; el apodo guardado es «{nickname}». Elige qué versión conservar.",
       "useCurrent": "Usar la versión guardada",
       "keepMine": "Sustituir por lo que escribí",
-      "sessionExpires": "Sesión válida hasta",
       "role": "Rol de la cuenta",
       "administrator": "Administrador"
     },
@@ -904,11 +911,10 @@
     "stage": "Nivel de estudios",
     "kind": "Categoría de estudiante",
     "moreSchools": "Cargar más universidades",
-    "schoolFacts": "El nivel y el estado siguen los registros de la universidad.",
     "bitPrivacy": "El acceso a BIT consulta y contrasta el nombre, número de estudiante, facultad, especialidad, clase, promoción, documento de identidad, contactos registrados y planes de estudio. Los datos personales se guardan cifrados por institución. No se guardan contraseñas, códigos SMS ni sesiones de acceso.",
     "privacy": "Tus datos se usan para verificar tu identidad académica. Las contraseñas no se guardan. Los nuevos documentos se conservan 30 días tras la revisión; los resultados y estudios se guardan por separado.",
     "consent": "He leído el aviso y acepto la verificación de los datos proporcionados.",
-    "studentId": "Número de estudiante o admisión",
+    "studentId": "Número de estudiante",
     "name": "Nombre completo",
     "document": "Número de documento de identidad",
     "password": "Contraseña de la cuenta académica",
@@ -1021,7 +1027,7 @@
     "profileStatus": {
       "complete": "Se han recopilado los datos disponibles",
       "partial": "La universidad solo aportó parte de los datos",
-      "reference_only": "Datos del sistema académico de la universidad",
+      "reference_only": "Información proporcionada por la universidad",
       "unavailable": "No hay datos disponibles actualmente"
     },
     "profileFields": {
@@ -1067,14 +1073,14 @@
       "school_account": "Cuenta académica",
       "sso_profile": "Perfil SSO académico",
       "sso_document": "Documento de la institución",
-      "academic_profile": "datos académicos de la institución",
+      "academic_profile": "Datos proporcionados por la universidad",
       "manual_review": "Revisión manual",
       "mailbox_verification": "Titularidad del correo",
       "self_reported": "Aportado por el usuario",
       "legacy_credential": "Verificación histórica",
       "synthetic": "Datos de prueba",
-      "oracle_students": "datos académicos de la institución",
-      "oracle_departments": "datos académicos de la institución"
+      "oracle_students": "Datos proporcionados por la universidad",
+      "oracle_departments": "Datos proporcionados por la universidad"
     },
     "schoolErrors": {
       "credentials_rejected": "La institución rechazó la cuenta o contraseña.",
@@ -1110,7 +1116,10 @@
       "teacher": "Profesor"
     },
     "verifiedAt": "Fecha de verificación: {time}",
-    "profileSource": "Fuente: {source}"
+    "profileSource": "Fuente: {source}",
+    "methodDescriptions": {
+      "real_name_identity_check": "Tus datos de identidad se usan únicamente para esta verificación y se compararán con los datos de tu universidad o de un servicio externo de verificación de identidad."
+    }
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",

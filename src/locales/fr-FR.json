@@ -87,7 +87,7 @@
     "disclosure_required": "Le nom réel ou la certification autorisée manque. Vous ne pouvez pas répondre à votre cours.",
     "identity_owned": "Cette identité étudiante est liée à un autre compte. Récupérez-le ou contactez un administrateur.",
     "expired": "La demande, le code ou le lien a expiré. Recommencez.",
-    "information_mismatch": "Les informations ne correspondent pas. Vérifiez le nombre de chiffres de votre numéro étudiant, votre nom, votre numéro de pièce d’identité et la concordance du cycle d’études sélectionné avec votre inscription, puis réessayez.",
+    "information_mismatch": "Les informations n’ont pas pu être vérifiées. Vérifiez-les puis réessayez.",
     "method_unavailable": "Cette méthode est indisponible. Choisissez une autre méthode proposée.",
     "processing": "La demande est en cours. Actualisez ou réessayez bientôt.",
     "billing_unavailable": "Le service de compte est indisponible. Réessayez plus tard.",
@@ -104,7 +104,15 @@
     "billing_conflict": "Les données ont changé entre-temps. Actualisez puis réessayez.",
     "schedule_incomplete": "L’emploi du temps est incomplet : l’agenda ne peut pas encore être exporté. Il le sera dès que l’établissement aura ajouté les horaires.",
     "billing_already_accessible": "Vous avez déjà accès à cette ressource, aucun paiement n’est nécessaire.",
-    "method_identity_not_allowed": "Cette méthode est réservée aux étudiants actuels. Les anciens étudiants doivent utiliser la vérification d’identité ou l’examen manuel des documents."
+    "method_identity_not_allowed": "Cette méthode est réservée aux étudiants actuels. Les anciens étudiants doivent utiliser la vérification d’identité ou l’examen manuel des documents.",
+    "real_name_mismatch": "La vérification d’identité a échoué. Vérifiez les informations saisies puis réessayez, ou choisissez une autre méthode.",
+    "real_name_no_record": "La vérification d’identité est indisponible pour ce numéro étudiant. Choisissez une autre méthode.",
+    "email_identity_mismatch": "Le numéro étudiant et le nom ne correspondent pas. Vérifiez-les puis réessayez, ou choisissez une autre méthode.",
+    "email_identity_no_record": "La vérification par courriel universitaire est indisponible pour ce numéro étudiant. Choisissez une autre méthode.",
+    "school_credentials_rejected": "Le compte universitaire ou le mot de passe est incorrect. Réessayez.",
+    "school_account_locked": "Votre compte universitaire est verrouillé. Contactez votre établissement pour le déverrouiller puis réessayez.",
+    "school_account_disabled": "Votre compte universitaire est désactivé. Contactez votre établissement ou choisissez une autre méthode.",
+    "school_account_unavailable": "Votre compte universitaire ne permet pas la vérification actuellement. Choisissez une autre méthode."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -655,7 +663,6 @@
       "conflict": "Le profil a été modifié ailleurs ; le pseudo enregistré est « {nickname} ». Choisissez la version à garder.",
       "useCurrent": "Garder la version enregistrée",
       "keepMine": "Remplacer par ma saisie",
-      "sessionExpires": "Session valable jusqu’au",
       "role": "Rôle du compte",
       "administrator": "Administrateur"
     },
@@ -904,11 +911,10 @@
     "stage": "Niveau d’études",
     "kind": "Statut étudiant",
     "moreSchools": "Charger plus d’établissements",
-    "schoolFacts": "Le niveau et le statut suivent les dossiers de l’université.",
     "bitPrivacy": "La connexion à BIT consulte et vérifie le nom, le numéro étudiant, la faculté, la spécialité, la classe, la promotion, les pièces d’identité, les coordonnées enregistrées et les programmes d’études fournis par l’établissement. Les données personnelles sont chiffrées par établissement. Les mots de passe, codes SMS et sessions ne sont pas conservés.",
     "privacy": "Vos informations servent à vérifier votre identité universitaire. Les mots de passe ne sont pas conservés. Les nouvelles pièces sont conservées 30 jours après l’examen ; les résultats et parcours sont enregistrés séparément.",
     "consent": "J’ai lu la notice et j’accepte la vérification des informations fournies.",
-    "studentId": "Numéro étudiant ou d’admission",
+    "studentId": "Numéro étudiant",
     "name": "Nom complet",
     "document": "Numéro du document d’identité",
     "password": "Mot de passe du compte universitaire",
@@ -1021,7 +1027,7 @@
     "profileStatus": {
       "complete": "Données prises en charge recueillies",
       "partial": "L’université n’a fourni qu’une partie des données",
-      "reference_only": "Données issues du système académique",
+      "reference_only": "Informations fournies par l’établissement",
       "unavailable": "Aucune donnée disponible actuellement"
     },
     "profileFields": {
@@ -1067,14 +1073,14 @@
       "school_account": "Compte scolaire",
       "sso_profile": "Profil SSO scolaire",
       "sso_document": "Document de l’établissement",
-      "academic_profile": "données de scolarité de l’établissement",
+      "academic_profile": "Données fournies par l’établissement",
       "manual_review": "Examen manuel",
       "mailbox_verification": "Propriété du courriel",
       "self_reported": "Saisi par l’utilisateur",
       "legacy_credential": "Vérification historique",
       "synthetic": "Données de test",
-      "oracle_students": "données de scolarité de l’établissement",
-      "oracle_departments": "données de scolarité de l’établissement"
+      "oracle_students": "Données fournies par l’établissement",
+      "oracle_departments": "Données fournies par l’établissement"
     },
     "schoolErrors": {
       "credentials_rejected": "Compte ou mot de passe refusé.",
@@ -1110,7 +1116,10 @@
       "teacher": "Enseignant"
     },
     "verifiedAt": "Date de vérification : {time}",
-    "profileSource": "Source : {source}"
+    "profileSource": "Source : {source}",
+    "methodDescriptions": {
+      "real_name_identity_check": "Vos informations d’identité servent uniquement à cette vérification et seront comparées aux données fournies par votre établissement ou un prestataire tiers de vérification d’identité."
+    }
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",

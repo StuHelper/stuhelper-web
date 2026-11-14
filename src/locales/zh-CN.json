@@ -87,7 +87,7 @@
     "disclosure_required": "缺少已获准公开的真实姓名或教师认证信息，暂时不能回复本人任课课程。",
     "identity_owned": "该学生身份已绑定其他账号，请找回原账号或联系管理员。",
     "expired": "申请、验证码或拍摄链接已到期，请重新发起。",
-    "information_mismatch": "信息未匹配。请核对学号位数、姓名、证件号，以及所选学习阶段是否与学籍一致，然后重试。",
+    "information_mismatch": "信息校验失败，请核对后重试。",
     "method_unavailable": "该认证方式当前不可用，请选择其他已开放方式。",
     "processing": "请求仍在处理中，请稍后刷新或重试。",
     "billing_unavailable": "账务服务暂时不可用，请稍后重试。",
@@ -104,7 +104,15 @@
     "billing_conflict": "数据已被其他操作更新，请刷新后重试。",
     "schedule_incomplete": "课表信息尚不完整，暂时无法导出日历。学校补充上课时间或作息后即可导出。",
     "billing_already_accessible": "你已拥有该资料的访问权，无需再次付款。",
-    "method_identity_not_allowed": "此认证方式仅适用于在读学生。校友请改用实名信息校验或人工材料审核。"
+    "method_identity_not_allowed": "此认证方式仅适用于在读学生。校友请改用实名信息校验或人工材料审核。",
+    "real_name_mismatch": "实名信息校验失败，请核对所填信息后重试或更换其他认证方式。",
+    "real_name_no_record": "无法使用实名信息校验进行认证，请更换其他认证方式。",
+    "email_identity_mismatch": "学号与姓名不一致，请核对后重试或更换其他认证方式。",
+    "email_identity_no_record": "无法使用学校邮箱进行认证，请更换其他认证方式。",
+    "school_credentials_rejected": "学校账号或密码错误，请重试。",
+    "school_account_locked": "学校账号已锁定，请联系学校解锁后重试。",
+    "school_account_disabled": "学校账号已停用，请联系学校处理或更换其他认证方式。",
+    "school_account_unavailable": "学校账号当前无法用于认证，请更换其他认证方式。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -655,7 +663,6 @@
       "conflict": "资料已在其他设备上更新，当前保存的昵称为“{nickname}”。请选择保留哪个版本。",
       "useCurrent": "采用已保存的版本",
       "keepMine": "用我输入的昵称覆盖",
-      "sessionExpires": "本次登录有效至",
       "role": "账号身份",
       "administrator": "管理员"
     },
@@ -904,11 +911,10 @@
     "stage": "学习阶段",
     "kind": "学生身份",
     "moreSchools": "加载更多学校",
-    "schoolFacts": "学习阶段和学籍状态以学校记录为准。",
     "bitPrivacy": "北理工账号认证将读取并核对学校提供的姓名、学号、学院专业、班级年级、证件信息、学校登记联系方式和培养方案。取得的个人资料按学校加密保存，密码、验证码和校方登录会话不保存。",
     "privacy": "所填信息用于学校身份核验。学校密码不会保存，新提交的审核材料在审核结束后保留 30 天，认证结论与学习经历另行保存。",
     "consent": "我已阅读认证说明，并同意核验所填资料。",
-    "studentId": "学号或录取编号",
+    "studentId": "学号",
     "name": "姓名",
     "document": "证件号码",
     "password": "学校账号密码",
@@ -1021,7 +1027,7 @@
     "profileStatus": {
       "complete": "已取得该校支持的资料",
       "partial": "学校只提供了部分资料",
-      "reference_only": "资料来自学校教务系统",
+      "reference_only": "资料由学校提供",
       "unavailable": "当前没有可用资料"
     },
     "profileFields": {
@@ -1067,14 +1073,14 @@
       "school_account": "学校账号",
       "sso_profile": "学校统一认证资料",
       "sso_document": "学校证件查询",
-      "academic_profile": "学校教务数据",
+      "academic_profile": "学校提供的数据",
       "manual_review": "人工审核",
       "mailbox_verification": "邮箱归属验证",
       "self_reported": "用户填写",
       "legacy_credential": "历史认证资料",
       "synthetic": "测试资料",
-      "oracle_students": "学校教务数据",
-      "oracle_departments": "学校教务数据"
+      "oracle_students": "学校提供的数据",
+      "oracle_departments": "学校提供的数据"
     },
     "schoolErrors": {
       "credentials_rejected": "学校账号或密码未通过。",
@@ -1110,7 +1116,10 @@
       "teacher": "教师"
     },
     "verifiedAt": "认证时间：{time}",
-    "profileSource": "来自{source}"
+    "profileSource": "来自{source}",
+    "methodDescriptions": {
+      "real_name_identity_check": "您的实名信息仅用于本次身份核验，将与学校或第三方认证服务商提供的数据进行比对。"
+    }
   },
   "contribution": {
     "eyebrow": "共享存储",
