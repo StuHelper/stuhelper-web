@@ -57,7 +57,7 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
 </script>
 
 <template>
-  <div class="stack">
+  <div class="stack feed">
     <div
       v-if="filterable && kind === 'course'"
       class="row feed-filters"
@@ -103,6 +103,7 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
           :key="review.id"
         >
           <ReviewCard
+            compact
             :hide-target="!!targetId"
             :review="review"
             :names="names"
@@ -116,6 +117,11 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
 </template>
 
 <style scoped>
+/* Reviews sit in two columns once the feed itself is wide enough; order still reads left to right, top to bottom. */
+.feed { container: feed / inline-size; }
+@container feed (min-width: 56rem) {
+  .list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
 .feed-filters .field { min-width: 10rem; }
 .feed-sort { display: inline-flex; align-items: center; gap: .5rem; white-space: nowrap; }
 .feed-sort .select { min-height: 32px; font-size: .8125rem; }

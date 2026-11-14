@@ -34,7 +34,7 @@ function undo(row: Toast) {
 
 <style scoped>
 .toasts { position: fixed; inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + 1rem); inset-inline: 0; z-index: 90; display: grid; justify-items: center; gap: .5rem; pointer-events: none; }
-.toast { pointer-events: auto; display: flex; align-items: center; gap: .75rem; padding: .625rem 1.125rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--shadow-float), inset 0 0 0 .5px var(--separator); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); font-size: .9375rem; font-weight: 500; animation: toast-in .42s var(--ease-out); }
+.toast { pointer-events: auto; display: flex; align-items: center; gap: .75rem; padding: .625rem 1.125rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); font-size: .9375rem; font-weight: 500; animation: toast-in .42s var(--ease-out); }
 .toast .btn { min-height: 28px; padding-block: .125rem; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px) scale(.96); } }
 @media (min-width: 761px) { .toasts { inset-block-end: 1.5rem; } }

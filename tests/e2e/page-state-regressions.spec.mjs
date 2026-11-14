@@ -8,16 +8,34 @@ const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.proje
 const base = 'http://127.0.0.1:18787';
 const push = (page, path) => page.evaluate((to) => document.querySelector('#app').__vue_app__.config.globalProperties.$router.push(to), path);
 
+test('campus verification is one entry with a student and a teacher role', async ({ page }, info) => {
+  const all = catalogue(info), u = all.verification.unified, locale = info.project.metadata.locale;
+  await demo(page);
+  await page.goto(`${base}/me/verification?lang=${locale}`);
+  await expect(page.getByRole('heading', { level: 1, name: u.title, exact: true })).toBeVisible();
+  const roles = page.getByRole('tablist', { name: u.roles, exact: true });
+  await expect(roles.getByRole('tab')).toHaveText([u.student, u.teacher]);
+  await expect(roles.getByRole('tab', { name: u.student, exact: true })).toHaveAttribute('aria-selected', 'true');
+  await roles.getByRole('tab', { name: u.teacher, exact: true }).click();
+  await expect(page).toHaveURL(/\/me\/verification\/teacher/);
+  await expect(page.getByRole('heading', { level: 1, name: u.title, exact: true })).toBeVisible();
+  await expect(page.getByRole('tablist', { name: u.roles, exact: true }).getByRole('tab', { name: u.teacher, exact: true })).toHaveAttribute('aria-selected', 'true');
+  // The personal center lists verification once, and that entry stays current for both roles.
+  const entries = page.getByRole('navigation', { name: all.me.title, exact: true }).getByRole('link', { name: u.title, exact: true });
+  if (await entries.count()) await expect(entries).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('navigation', { name: all.me.title, exact: true }).getByRole('link', { name: all.teacher.title, exact: true })).toHaveCount(0);
+});
+
 test('verification routes reused by the router show their own flow in both directions', async ({ page }, info) => {
   const all = catalogue(info), m = all.verification, locale = info.project.metadata.locale;
   await demo(page);
   await page.goto(`${base}/me/verification?lang=${locale}`);
-  await expect(page.getByRole('heading', { level: 1, name: m.title, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: m.unified.title, exact: true })).toBeVisible();
   await push(page, `/me/account/identity?lang=${locale}`);
   await expect(page.getByRole('heading', { level: 1, name: m.identityTitle, exact: true })).toBeVisible();
   await expect(page.getByText(m.stage, { exact: true })).toHaveCount(0);
   await push(page, `/me/verification?lang=${locale}`);
-  await expect(page.getByRole('heading', { level: 1, name: m.title, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1, name: m.unified.title, exact: true })).toBeVisible();
   await expect(page.getByText(m.method, { exact: true }).first()).toBeVisible();
 });
 

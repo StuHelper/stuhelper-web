@@ -11,6 +11,7 @@ import StatusTag from '../../shared/ui/StatusTag.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from '../account/MeLayout.vue'
+import VerificationRoles from './VerificationRoles.vue'
 import { useAcademic } from '../academic/api'
 import CameraCapture from './CameraCapture.vue'
 import SchoolPicker from './SchoolPicker.vue'
@@ -130,9 +131,10 @@ function schoolName(id: string, schools: School[]) {
 
 <template>
   <MeLayout
-    :title="t('teacher.title')"
+    :title="t('verification.unified.title')"
     :description="t('teacher.description')"
   >
+    <VerificationRoles role="teacher" />
     <AsyncState
       :status="data.status.value"
       :error="data.error.value"

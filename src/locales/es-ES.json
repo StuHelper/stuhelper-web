@@ -6,17 +6,23 @@
   },
   "shell": {
     "skip": "Ir al contenido principal",
-    "footer": "Información del campus sobre cursos, reseñas y materiales"
+    "footer": "Información del campus sobre cursos, reseñas y materiales",
+    "themeLight": "Cambiar a apariencia clara",
+    "themeDark": "Cambiar a apariencia oscura"
   },
   "nav": {
     "primary": "Navegación principal",
     "account": "Menú de la cuenta",
-    "home": "Inicio",
     "courses": "Cursos",
     "teachers": "Profesores",
     "resources": "Materiales",
     "contributions": "Contribución de almacenamiento",
-    "me": "Mi perfil"
+    "me": "Mi perfil",
+    "campus": "Campus",
+    "discover": "Descubrir",
+    "campusSections": "Navegación del campus",
+    "products": "Productos",
+    "platform": "Plataforma abierta"
   },
   "language": {
     "label": "Idioma"
@@ -26,7 +32,7 @@
     "empty": "Todavía no hay nada.",
     "retry": "Reintentar",
     "retryOriginal": "Enviar de nuevo",
-    "uncertain": "No se pudo confirmar el envío. Para evitar duplicados, el contenido está bloqueado. Envíalo de nuevo.",
+    "uncertain": "El envío está pendiente de confirmación. El contenido queda bloqueado para evitar duplicados; envíalo de nuevo.",
     "leaveUnsaved": "Hay cambios sin guardar. ¿Salir de todos modos?",
     "leaveUncertain": "Un envío aún no está confirmado y será difícil comprobarlo al salir. ¿Salir de todos modos?",
     "all": "Todos",
@@ -152,6 +158,131 @@
     "noCourses": "Aún no se han sincronizado matrículas.",
     "recent": "Vistos recientemente",
     "results": "Resultados de solicitudes"
+  },
+  "portal": {
+    "more": "Conocer {name}",
+    "visit": "Ir a {host}",
+    "tiles": {
+      "campus": "Reseñas de cursos y profesores, materiales y horarios",
+      "api": "Una sola interfaz para varios grandes modelos",
+      "store": "Suscripciones de GPT y créditos de Codex recargados por ti",
+      "platform": "Inicio de sesión único e integración de aplicaciones de terceros"
+    },
+    "campus": {
+      "name": "Campus StuHelper",
+      "tag": "Cursos, profesores, materiales y horarios",
+      "lead": "Una comunidad de cursos para estudiantes matriculados. Lee reseñas de cursos y profesores, encuentra exámenes anteriores y apuntes, compara los cursos que estás valorando y gestiona tu horario. Actualmente abierto a la Universidad de Beihang.",
+      "action": "Entrar en Campus",
+      "points": {
+        "reviews": {
+          "title": "Reseñas de cursos y profesores",
+          "text": "Las reseñas proceden de estudiantes con registro de matrícula y cubren cinco dimensiones. Los directores de posgrado tienen sus propias reseñas."
+        },
+        "resources": {
+          "title": "Materiales de estudio",
+          "text": "Exámenes anteriores, apuntes y diapositivas se archivan por curso, y los estudiantes pueden subir y compartir los suyos."
+        },
+        "compare": {
+          "title": "Comparación de cursos",
+          "text": "Coloca varios cursos candidatos en paralelo y compara valoraciones, créditos y profesores."
+        },
+        "schedule": {
+          "title": "Mi horario",
+          "text": "Consulta tus cursos por semestre, con sus profesores, horas y lugares."
+        }
+      }
+    },
+    "api": {
+      "tag": "Una interfaz, muchos modelos",
+      "lead": "Un servicio de retransmisión para las API de grandes modelos de lenguaje. Los modelos de distintos proveedores comparten una misma dirección, así que cambiar de modelo solo exige modificar su nombre en el cliente.",
+      "points": {
+        "protocols": {
+          "title": "Tres protocolos",
+          "text": "Compatible con las interfaces de OpenAI, Anthropic y Gemini. Los SDK existentes solo necesitan otra dirección de solicitud."
+        },
+        "tokens": {
+          "title": "Tokens bajo control",
+          "text": "Cada token puede tener su propia cuota y su lista de modelos permitidos, y puede desactivarse en cualquier momento."
+        },
+        "usage": {
+          "title": "Consumo claro",
+          "text": "Cada solicitud registra su modelo, número de tokens y coste. La facturación sigue el uso real."
+        },
+        "models": {
+          "title": "Catálogo de modelos",
+          "text": "Consulta en un solo lugar los modelos disponibles, sus proveedores y cómo se factura cada uno."
+        },
+        "playground": {
+          "title": "Zona de pruebas",
+          "text": "Conversa con un modelo directamente en el navegador y comprueba el resultado antes de integrarlo."
+        },
+        "wallet": {
+          "title": "Monedero y planes",
+          "text": "Admite recargas de saldo, códigos de canje y planes de suscripción."
+        }
+      }
+    },
+    "store": {
+      "tag": "Recargas oficiales de GPT y Codex",
+      "lead": "Activa una suscripción de ChatGPT o añade créditos de Codex en tu propia cuenta. El pago se hace en yuanes, y cada etapa de tramitación posterior al pago aparece en la página del pedido.",
+      "points": {
+        "gpt": {
+          "title": "Recarga oficial de GPT",
+          "text": "Activa o mejora una suscripción de ChatGPT en tu propia cuenta, con los planes Go, Plus y Pro."
+        },
+        "codex": {
+          "title": "Créditos de Codex",
+          "text": "Recarga por créditos. Antes de pedir se muestran el precio unitario y el total de la región elegida."
+        },
+        "check": {
+          "title": "Comprobación de la cuenta antes del pedido",
+          "text": "El tipo de cuenta, la suscripción actual y la región de facturación se confirman en directo, y solo se muestran los planes que esa cuenta puede comprar."
+        },
+        "upgrade": {
+          "title": "Descuento al mejorar",
+          "text": "Cuando una cuenta con suscripción web mejora su plan, el tiempo de suscripción restante se descuenta del precio."
+        },
+        "progress": {
+          "title": "Progreso visible",
+          "text": "La página del pedido muestra la etapa alcanzada por la recarga. Un resultado dudoso se sigue comprobando, y cada pedido se cobra una sola vez."
+        },
+        "receipts": {
+          "title": "Comprobantes y estado de renovación",
+          "text": "Al terminar puedes descargar la factura y el recibo, y ver si la renovación automática está desactivada."
+        }
+      }
+    },
+    "platform": {
+      "title": "SSO y plataforma abierta",
+      "tag": "Una identidad, integración abierta",
+      "lead": "Todos los servicios de StuHelper se apoyan en un mismo sistema de identidad. El inicio de sesión único autentica mediante el protocolo estándar OIDC. La plataforma abierta permite a desarrolladores externos conectar sus aplicaciones y, con el consentimiento del usuario, leer datos como el estado de verificación de estudiante o el horario.",
+      "action": "Desarrollar en la plataforma abierta",
+      "points": {
+        "identity": {
+          "title": "Inicio de sesión único",
+          "text": "El registro, el inicio de sesión y la recuperación de contraseña corren a cargo de un servicio independiente. Cada aplicación confirma la identidad mediante OIDC y mantiene su propia sesión."
+        },
+        "apps": {
+          "title": "Aplicaciones de terceros",
+          "text": "Los desarrolladores envían los datos de su aplicación, su finalidad y los ámbitos de datos solicitados, y se conectan tras la revisión. El flujo de autorización exige PKCE."
+        },
+        "scopes": {
+          "title": "Datos abiertos por ámbito",
+          "text": "Estado de verificación de estudiante, centro, perfil, horario, catálogo de cursos y reseñas públicas: cada elemento se solicita y aprueba por separado."
+        },
+        "consent": {
+          "title": "Consentimiento elemento a elemento",
+          "text": "Iniciar sesión en una aplicación y compartir datos son pasos distintos. El usuario acepta cada elemento y puede retirarlo en cualquier momento desde su centro personal."
+        }
+      }
+    },
+    "showcase": {
+      "course": "Sistemas operativos",
+      "order": "Filipinas · suscripción nueva",
+      "signIn": "Iniciar sesión en StuHelper",
+      "continue": "Continuar",
+      "oneAccount": "Una cuenta para todos los servicios"
+    }
   },
   "notFound": {
     "code": "404",
@@ -341,7 +472,7 @@
       "proposedBody": "Texto propuesto",
       "panelHint": {
         "report": "Solo se mantiene una denuncia abierta por contenido; puedes añadir detalles.",
-        "edit_request": "Tras 5 minutos, las modificaciones las gestiona moderación; la solicitud no cambia el contenido.",
+        "edit_request": "Tras 5 minutos, las modificaciones las gestiona moderación; el contenido se actualiza cuando termina.",
         "delete_request": "Tras 5 minutos, la eliminación la gestiona moderación y te informa."
       },
       "reportSent": "Denuncia enviada. Síguela en tu área personal.",
@@ -350,7 +481,9 @@
       "withdrawTitle": "Retirar y editar",
       "deleteRootConfirm": "¿Eliminar definitivamente? Se borrará toda la discusión y no se podrá recuperar.",
       "deleteReplyConfirm": "¿Eliminar esta respuesta definitivamente? El resto de la discusión se mantiene.",
-      "withdrawConfirm": "Retirar oculta la discusión. Republicar conserva la fecha original, respuestas y votos. Los borradores caducados se eliminan."
+      "withdrawConfirm": "Retirar oculta la discusión. Republicar conserva la fecha original, respuestas y votos. Los borradores caducados se eliminan.",
+      "expand": "Ver más",
+      "collapse": "Ver menos"
     },
     "replies": {
       "title": "Respuestas",
@@ -493,7 +626,7 @@
     "ownEntry": "Mi entrada",
     "backToReviews": "Volver a mis reseñas",
     "resources": "Mis materiales",
-    "resourcesIntro": "Consulta subidas y revisiones. No hay borrado simple: corrige, envía una versión nueva o solicita la retirada.",
+    "resourcesIntro": "Consulta subidas y revisiones. Puedes corregir un material, enviar una versión nueva o solicitar la retirada.",
     "resourcesEmpty": "Aún no has subido materiales.",
     "proposal": "Versión en revisión:",
     "correct": "Corregir o enviar una versión nueva",
@@ -533,7 +666,7 @@
     },
     "sessions": {
       "title": "Dispositivos con sesión",
-      "hint": "Cerrar sesión solo afecta a StuHelper, no a otras aplicaciones.",
+      "hint": "Cerrar sesión termina solo la sesión de StuHelper; las demás aplicaciones siguen conectadas.",
       "deviceConfirm": "¿Cerrar sesión de StuHelper en este dispositivo?",
       "allConfirm": "¿Cerrar sesión de StuHelper en todos los dispositivos? Los demás deberán volver a entrar."
     },
@@ -707,7 +840,7 @@
         "appeal": "Alegación"
       },
       "hints": {
-        "withdrawal": "Moderación gestiona la retirada; no se retira al enviarla y las licencias ya concedidas siguen vigentes.",
+        "withdrawal": "Moderación gestiona la retirada y el material se retira cuando termina; las licencias ya concedidas siguen vigentes.",
         "complaint": "Indica tu contacto, la prueba de derechos y una explicación. La plataforma lo registra y avisa a quien lo subió.",
         "appeal": "Explica tu objeción y añade nuevos motivos."
       },
@@ -964,7 +1097,13 @@
     "identityDescription": "La verificación de identidad es independiente de la de estudiante y se usa en acciones que confirman quién eres.",
     "identityName": "Nombre",
     "identityNumber": "Número de documento",
-    "schoolSearch": "Buscar código, nombre o alias de la institución"
+    "schoolSearch": "Buscar código, nombre o alias de la institución",
+    "unified": {
+      "title": "Verificación del campus",
+      "roles": "Rol a verificar",
+      "student": "Estudiante",
+      "teacher": "Profesor"
+    }
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -1101,7 +1240,7 @@
     },
     "unavailable": {
       "title": "No se puede confirmar tu elegibilidad ahora",
-      "text": "El servicio de cuenta o de verificación no respondió. Esto no significa que tu verificación haya caducado.",
+      "text": "El servicio de cuenta o de verificación no respondió. Tu verificación se mantiene tal como está.",
       "action": "Comprobar de nuevo"
     }
   },
@@ -1197,7 +1336,6 @@
     "storageContribution": "Contribución de almacenamiento",
     "study": "Estudio",
     "resources": "Materiales",
-    "studentVerification": "Verificación de estudiante",
     "department": "Facultad",
     "searchNeedsVerification": "Completa la verificación de Beihang para buscar cursos, profesores y materiales.",
     "fullTimetable": "Horario completo",
@@ -1363,7 +1501,12 @@
     "categoryCBase": "Fundamentos",
     "categoryCCore": "Especialidad",
     "interactions": "Interacciones",
-    "points": "Puntos"
+    "points": "Puntos",
+    "chatDirect": "Mensaje privado",
+    "chatGroup": "Chat de grupo · {p0} miembros",
+    "chatSample": "Conversación de ejemplo. Los mensajes solo se guardan en esta página.",
+    "chatPlaceholder": "Escribe un mensaje",
+    "chatSend": "Enviar"
   },
   "favorites": {
     "title": "Guardados",
@@ -1492,10 +1635,10 @@
     "signOutAllConfirm": "Las sesiones de StuHelper de todos los dispositivos terminarán y tendrás que volver a iniciar sesión.",
     "closure": {
       "title": "Cerrar la cuenta",
-      "hint": "El cierre solo afecta a la cuenta de StuHelper. Tu cuenta de inicio de sesión único y otras aplicaciones no cambian.",
+      "hint": "El cierre solo afecta a la cuenta de StuHelper. Tu cuenta de inicio de sesión único y otras aplicaciones siguen funcionando.",
       "request": "Solicitar el cierre",
       "cooling": "Tras enviarla hay un periodo de reflexión de 7 días en el que puedes cancelarla. Después la procesa un administrador.",
-      "scope": "Solo se cierra la cuenta de StuHelper. Tu cuenta de inicio de sesión único y otras aplicaciones no cambian.",
+      "scope": "Solo se cierra la cuenta de StuHelper. Tu cuenta de inicio de sesión único se conserva y otras aplicaciones siguen funcionando.",
       "assets": "Antes del cierre, el saldo de Ivory debe ser cero y los reembolsos deben haber terminado; si no, la solicitud espera la liquidación.",
       "content": "Las reseñas firmadas pasan a ser anónimas y los recursos públicos conservan su contenido sin vincularse a tu cuenta. Se eliminan los favoritos y la vinculación de QQ.",
       "points": "Entiendo que el cierre definitivo borra los puntos a largo plazo, los puntos temporales y las deducciones pendientes, sin convertirlos en dinero ni en Ivory.",
@@ -1719,7 +1862,7 @@
       "scopes": "Información autorizada",
       "revoke": "Retirar acceso",
       "revokeTitle": "Retirar el acceso de «{name}»",
-      "revokeHint": "Los tokens antiguos dejan de funcionar al instante y la aplicación ya no puede leer la información retirada. No se cierra tu cuenta en esa aplicación.",
+      "revokeHint": "Los tokens antiguos dejan de funcionar al instante y la aplicación ya no puede leer la información retirada. Tu cuenta en esa aplicación se conserva.",
       "revokeScopes": "Información que quieres retirar",
       "revokeAllNotice": "Se retirará toda la información; la aplicación tendrá que pedir autorización de nuevo.",
       "revokeSubmit": "Retirar lo seleccionado",
@@ -1777,7 +1920,7 @@
       "secretCopied": "Secreto copiado.",
       "secretSaved": "Ya lo he guardado",
       "secretNotRetrievable": "La solicitud se completó, pero no se pudo mostrar el secreto. Renuévalo si no lo guardaste.",
-      "formHint": "Una solicitud no concede acceso por sí sola. Los administradores revisan cada información y cada usuario da su consentimiento por separado.",
+      "formHint": "El acceso requiere dos pasos: los administradores revisan cada información y después cada usuario da su consentimiento por separado.",
       "name": "Nombre de la aplicación",
       "purpose": "Finalidad",
       "purposeHint": "Explica qué hace la aplicación y por qué necesita la información solicitada.",
@@ -1819,7 +1962,7 @@
       "client": "ID de cliente: {id} · vuelve a {host}",
       "choose": "Elige qué puede leer esta aplicación",
       "limits": "La aplicación solo puede leer la información que marques y que la plataforma haya aprobado. Nunca se comparten documentos de identidad, materiales de verificación ni registros del monedero.",
-      "withdraw": "Puedes retirar el acceso cuando quieras en Aplicaciones autorizadas. No se cierra tu cuenta en la aplicación.",
+      "withdraw": "Puedes retirar el acceso cuando quieras en Aplicaciones autorizadas. Tu cuenta en la aplicación se conserva.",
       "expires": "Esta solicitud es válida hasta el {time}.",
       "approve": "Permitir lo seleccionado ({count})",
       "deny": "Denegar"
@@ -1828,7 +1971,6 @@
   "teacher": {
     "title": "Verificación docente",
     "description": "Envía una prueba de que impartes clases. Un administrador la revisa y vincula tus perfiles docentes del catálogo. Tú eliges qué se muestra públicamente.",
-    "link": "Verificación docente",
     "credentials": "Mis acreditaciones docentes",
     "profiles": "Perfiles docentes vinculados: {names}",
     "validUntil": "Válida hasta el {date}",
@@ -1883,9 +2025,9 @@
     }
   },
   "notifications": {
-    "title": "Notificaciones",
-    "link": "Notificaciones",
-    "description": "Reacciones a tu contenido, resultados de gestión y de verificación.",
+    "title": "Mensajes",
+    "link": "Mensajes",
+    "description": "Interacciones, resultados de revisión, resultados de verificación y avisos del sistema.",
     "unread": "Notificaciones sin leer: {count}",
     "interaction": "Recibir notificaciones de reacciones (respuestas, me gusta)",
     "interactionOn": "Notificaciones de reacciones activadas.",
@@ -1944,6 +2086,16 @@
     "status": {
       "inaccessible": "El elemento relacionado ya no está accesible.",
       "unavailable": "El elemento relacionado no se puede mostrar ahora. Inténtalo más tarde."
+    },
+    "boxesLabel": "Categorías de mensajes",
+    "threads": "Conversaciones",
+    "noThreads": "Aún no hay conversaciones.",
+    "unreadCount": "{count} sin leer",
+    "boxes": {
+      "interaction": "Respuestas y me gusta",
+      "review": "Resultados de revisión",
+      "verification": "Verificación",
+      "system": "Avisos del sistema"
     }
   },
   "search": {
@@ -1971,7 +2123,7 @@
     },
     "popular": {
       "title": "Populares",
-      "description": "Ordenados por visitas, reseñas, favoritos e interacciones recientes. La popularidad se cuenta aparte de las valoraciones: un puesto alto no implica mejores reseñas.",
+      "description": "Ordenados por visitas, reseñas, favoritos e interacciones recientes. La lista refleja la atención recibida; la calidad se ve en las valoraciones de cada elemento.",
       "courses": "Cursos populares",
       "teachers": "Docentes populares",
       "kind": "Clasificación",
@@ -1999,7 +2151,7 @@
       "remove": "Quitar {name} de la comparación",
       "noReviews": "Sin reseñas",
       "samples": "Número de reseñas",
-      "note": "Todas las columnas usan el mismo periodo. Con pocas reseñas se muestra «Datos insuficientes»; nunca se muestran medias exactas.",
+      "note": "Todas las columnas usan el mismo periodo. Las valoraciones se muestran en cinco niveles; con pocas reseñas se muestra «Datos insuficientes».",
       "full": "Puedes comparar hasta {max} a la vez. Quita uno primero.",
       "added": "En la comparación",
       "add": "Añadir a la comparación",

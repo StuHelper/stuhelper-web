@@ -39,6 +39,6 @@ const show = computed(() => count.value > 0 && /^\/(courses|teachers)(\/|$)/.tes
 </template>
 
 <style scoped>
-.tray { position: fixed; inset-inline: .75rem; inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); z-index: 60; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; max-width: 30rem; margin-inline: auto; padding: .5rem .75rem; border-radius: var(--radius-lg); background: var(--glass); box-shadow: var(--shadow-float); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); }
+.tray { position: fixed; inset-inline: .75rem; inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); z-index: 60; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem .75rem; max-width: 30rem; margin-inline: auto; padding: .5rem .75rem; border-radius: var(--radius-lg); background: var(--glass); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
 @media (min-width: 761px) { .tray { inset-block-end: 1rem; } }
 </style>

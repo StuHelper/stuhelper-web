@@ -52,8 +52,8 @@ onBeforeUnmount(() => controller?.abort())
       {{ t('verification.school') }}
     </legend>
     <div class="search-row">
-      <label class="field grow">
-        <span class="sr-only">{{ t('verification.schoolSearch') }}</span>
+      <label class="field search-field">
+        <span class="visually-hidden">{{ t('verification.schoolSearch') }}</span>
         <input
           v-model="query"
           class="input"
@@ -121,3 +121,9 @@ onBeforeUnmount(() => controller?.abort())
     </button>
   </fieldset>
 </template>
+
+<style scoped>
+/* The field takes the remaining width and the button keeps its own; on a narrow screen the button wraps below. */
+.search-row { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.search-field { flex: 1 1 14rem; }
+</style>

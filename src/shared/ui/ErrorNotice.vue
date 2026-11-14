@@ -18,7 +18,7 @@ const errorText = useErrorText()
     <RouterLink
       v-if="code === 'not_found'"
       class="btn btn-sm"
-      to="/"
+      to="/campus"
     >
       {{ t('common.goHome') }}
     </RouterLink>

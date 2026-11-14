@@ -69,8 +69,9 @@ export const catalogByKind: Record<string, ReturnType<typeof obj>[]> = { school:
 export const allObjects = Object.values(catalogByKind).flat()
 
 export const enrollments = [
-  ...['c3', 'c5', 'c8', 'c10'].map((c, i) => ({ id: `e-now-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26f', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26f`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
+  // 接口按学期先后返回选课记录，课表和首页以最后一个学期作为当前学期。
   ...['c1', 'c2', 'c9'].map((c, i) => ({ id: `e-old-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26s', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26s`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
+  ...['c3', 'c5', 'c8', 'c10'].map((c, i) => ({ id: `e-now-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26f', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26f`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
 ]
 
 const aliases = ['小舟', '青禾', '南风', '远山', '白鹭', '落星', '听雨', '长庚']

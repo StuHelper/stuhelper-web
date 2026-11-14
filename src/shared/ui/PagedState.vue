@@ -29,7 +29,22 @@ const { t } = useI18n()
       </slot>
     </template>
   </AsyncState>
-  <template v-else>
+  <!-- A view that filters loaded rows can be empty while later pages still
+       hold matching rows, so an empty page keeps the way to load more. -->
+  <div
+    v-if="count === 0 && status === 'ready' && next"
+    class="paged-more"
+  >
+    <button
+      class="btn"
+      type="button"
+      :disabled="appending"
+      @click="emit('more')"
+    >
+      {{ appending ? t('common.loading') : t('common.loadMore') }}
+    </button>
+  </div>
+  <template v-else-if="count !== 0">
     <slot />
     <ErrorNotice
       v-if="status === 'error'"

@@ -174,7 +174,7 @@ const facts = (row: PublicProfile['affiliations'][number]) => [row.school_name, 
             <label
               v-for="key in switches"
               :key="key"
-              class="check"
+              class="check switch"
             >
               <input
                 v-model="form.visibility[key]"
@@ -202,7 +202,7 @@ const facts = (row: PublicProfile['affiliations'][number]) => [row.school_name, 
             <label
               v-for="key in cardFields"
               :key="key"
-              class="check"
+              class="check switch"
             >
               <input
                 v-model="form.card[key]"

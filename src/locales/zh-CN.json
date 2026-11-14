@@ -6,17 +6,23 @@
   },
   "shell": {
     "skip": "跳至主要内容",
-    "footer": "课程、评价与学习资料的校园信息平台"
+    "footer": "课程、评价与学习资料的校园信息平台",
+    "themeLight": "切换到浅色外观",
+    "themeDark": "切换到深色外观"
   },
   "nav": {
     "primary": "主导航",
     "account": "账号菜单",
-    "home": "首页",
     "courses": "课程",
     "teachers": "教师",
     "resources": "学习资料",
     "contributions": "存储贡献",
-    "me": "我的"
+    "me": "我的",
+    "campus": "校园",
+    "discover": "发现",
+    "campusSections": "校园导航",
+    "products": "产品",
+    "platform": "开放平台"
   },
   "language": {
     "label": "语言"
@@ -26,7 +32,7 @@
     "empty": "暂无内容。",
     "retry": "重试",
     "retryOriginal": "重新提交",
-    "uncertain": "暂时不确定是否提交成功。为避免重复提交，内容已锁定，请点击重新提交。",
+    "uncertain": "提交结果尚未确认。内容已锁定以免重复提交，请点击重新提交。",
     "leaveUnsaved": "有尚未保存的内容，确定离开吗？",
     "leaveUncertain": "提交结果尚未确认，离开后可能无法核对。确定离开吗？",
     "all": "全部",
@@ -64,7 +70,7 @@
     "cancelled": "请求已取消。",
     "incompatible": "服务响应无法识别，请刷新页面后重试。",
     "unavailable": "服务暂时不可用，请稍后重试。",
-    "module_unavailable": "这项功能暂时不可用。",
+    "module_unavailable": "该功能暂时不可用。",
     "identity": "账号服务暂时不可用。",
     "unauthenticated": "请先登录。当前页面的输入会保留。",
     "forbidden": "当前账号不满足此操作的权限或资格条件。",
@@ -74,9 +80,9 @@
     "invalid": "提交的内容有误，请检查后重试。",
     "capacity_exceeded": "内容超过允许的大小或数量。",
     "rate_limited": "操作过于频繁或已达到数量上限，请稍后重试。",
-    "retry_required": "上一次提交还没有确认结果，请先重新提交。",
+    "retry_required": "上一次提交的结果尚未确认，请先重新提交。",
     "edit_window_closed": "已超过允许编辑的时间，无法执行此操作。",
-    "enrollment_required": "没有找到该课程、该学期的本人选课记录，暂不能提交评价。",
+    "enrollment_required": "未找到该课程在该学期的本人选课记录，暂不能提交评价。",
     "disclosure_required": "缺少已获准公开的真实姓名或教师认证信息，暂时不能回复本人任课课程。",
     "identity_owned": "该学生身份已绑定其他账号，请找回原账号或联系管理员。",
     "expired": "申请、验证码或拍摄链接已到期，请重新发起。",
@@ -85,8 +91,8 @@
     "processing": "请求仍在处理中，请稍后刷新或重试。",
     "billing_unavailable": "账务服务暂时不可用，请稍后重试。",
     "billing_invalid_input": "提交的内容不符合要求，请检查后重试。",
-    "billing_forbidden": "当前账号无权执行这项操作。",
-    "billing_not_found": "没有找到这条记录。",
+    "billing_forbidden": "当前账号无权执行此操作。",
+    "billing_not_found": "未找到该记录。",
     "billing_unauthenticated": "请先登录。",
     "billing_insufficient_funds": "Ivory 余额不足。",
     "billing_assets_pending": "还有处理中的订单，请稍后再试。",
@@ -95,8 +101,8 @@
     "provider_failed": "支付服务处理失败，未扣款时可重新下单。",
     "quota_exceeded": "请求过于频繁，已超出配额，请稍后重试。",
     "billing_conflict": "数据已被其他操作更新，请刷新后重试。",
-    "schedule_incomplete": "课表信息还不完整，暂时无法导出日历。学校补充上课时间或作息后即可导出。",
-    "billing_already_accessible": "你已经可以访问这份资料，无需再次付款。"
+    "schedule_incomplete": "课表信息尚不完整，暂时无法导出日历。学校补充上课时间或作息后即可导出。",
+    "billing_already_accessible": "你已拥有该资料的访问权，无需再次付款。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -112,17 +118,17 @@
   },
   "home": {
     "eyebrow": "StuHelper · 北京航空航天大学",
-    "title": "查课程、看评价、找资料",
-    "description": "北航同学的课程评价、教师开课记录和学习资料。完成学生或教师认证后即可使用。",
+    "title": "课程、评价与学习资料",
+    "description": "北航学生的课程评价、教师开课记录和学习资料。完成学生或教师认证后即可使用。",
     "searchLabel": "搜索课程或教师",
     "searchPlaceholder": "输入课程名、课程代码或教师姓名",
-    "searchCourses": "搜课程",
-    "searchTeachers": "搜教师",
+    "searchCourses": "搜索课程",
+    "searchTeachers": "搜索教师",
     "entriesTitle": "常用入口",
     "entries": {
       "courses": {
         "title": "课程与评价",
-        "text": "按学院和类别查课程，看历次开课和五维评价。"
+        "text": "按学院和类别查询课程，查看历次开课和五维评价。"
       },
       "teachers": {
         "title": "教师主页",
@@ -138,7 +144,7 @@
       },
       "contributions": {
         "title": "我的存储贡献",
-        "text": "自愿贡献网盘容量，帮同学保存学习资料。"
+        "text": "自愿贡献网盘容量，用于保存学习资料。"
       },
       "me": {
         "title": "个人中心",
@@ -149,13 +155,138 @@
     "workspaceRetry": "重新加载这些内容",
     "myCourses": "我的课程",
     "viewAll": "查看全部",
-    "noCourses": "还没有同步到本学期的选课记录。",
+    "noCourses": "本学期的选课记录尚未同步。",
     "recent": "最近访问",
     "results": "处理结果"
   },
+  "portal": {
+    "more": "了解 {name}",
+    "visit": "前往 {host}",
+    "tiles": {
+      "campus": "课程与教师评价、学习资料、课表",
+      "api": "多家大模型的统一接口",
+      "store": "GPT 订阅与 Codex 点数代充",
+      "platform": "统一身份认证与第三方应用接入"
+    },
+    "campus": {
+      "name": "StuHelper 校园",
+      "tag": "课程、教师、资料与课表",
+      "lead": "面向在校学生的课程社区。查看课程和教师的评价，查找往年题和笔记，对比备选课程，管理自己的课表。目前面向北京航空航天大学开放。",
+      "action": "进入校园",
+      "points": {
+        "reviews": {
+          "title": "课程与教师评价",
+          "text": "评价来自有选课记录的学生，按五个维度呈现。研究生导师设有单独的评价。"
+        },
+        "resources": {
+          "title": "学习资料",
+          "text": "往年题、笔记和课件按课程归档，学生可以上传和分享。"
+        },
+        "compare": {
+          "title": "课程对比",
+          "text": "把几门备选课程并排，比较各维度评价、学分和任课教师。"
+        },
+        "schedule": {
+          "title": "我的课表",
+          "text": "按学期查看本人课程、任课教师和上课时间地点。"
+        }
+      }
+    },
+    "api": {
+      "tag": "一个接口，多家模型",
+      "lead": "大模型 API 中转服务。不同厂商的模型接入同一个地址，更换模型时客户端只需要修改模型名称。",
+      "points": {
+        "protocols": {
+          "title": "三种协议",
+          "text": "兼容 OpenAI、Anthropic 和 Gemini 的接口，现有 SDK 只需要修改请求地址。"
+        },
+        "tokens": {
+          "title": "可控的令牌",
+          "text": "每个令牌可以单独设置额度上限和可用模型，并随时停用。"
+        },
+        "usage": {
+          "title": "清楚的用量",
+          "text": "每次请求的模型、token 数和费用都有记录，按实际用量计费。"
+        },
+        "models": {
+          "title": "模型广场",
+          "text": "集中查看可用模型、所属厂商和计费方式。"
+        },
+        "playground": {
+          "title": "操练场",
+          "text": "在网页中直接与模型对话，接入前可先确认效果。"
+        },
+        "wallet": {
+          "title": "钱包与套餐",
+          "text": "支持余额充值、兑换码和订阅套餐。"
+        }
+      }
+    },
+    "store": {
+      "tag": "GPT 与 Codex 官方代充",
+      "lead": "为自己的账号开通 ChatGPT 订阅或充值 Codex 点数。支付使用人民币，付款后的每个处理阶段都显示在订单页。",
+      "points": {
+        "gpt": {
+          "title": "GPT 官方代充",
+          "text": "为自己的账号新开或升级 ChatGPT 订阅，覆盖 Go、Plus 和 Pro 方案。"
+        },
+        "codex": {
+          "title": "Codex 点数",
+          "text": "按点数充值，下单前显示所选地区的单价和总价。"
+        },
+        "check": {
+          "title": "下单前校验账号",
+          "text": "实时确认账号类型、当前订阅和账单地区，只显示该账号可以购买的方案。"
+        },
+        "upgrade": {
+          "title": "升级折抵",
+          "text": "已有网页订阅的账号升级时，按剩余订阅时间折抵价格。"
+        },
+        "progress": {
+          "title": "可查看的进度",
+          "text": "订单页显示充值任务所在的阶段。结果不明确时继续核对，每笔订单只扣款一次。"
+        },
+        "receipts": {
+          "title": "票据与续费状态",
+          "text": "完成后可以下载发票和收据，并查看自动续费是否已关闭。"
+        }
+      }
+    },
+    "platform": {
+      "title": "SSO 与开放平台",
+      "tag": "统一身份，开放接入",
+      "lead": "StuHelper 的全部服务建立在同一套身份体系上。统一登录基于标准 OIDC 协议提供身份认证。开放平台供第三方开发者接入自己的应用，并在用户授权后读取学生认证状态、课表等业务数据。",
+      "action": "接入开放平台",
+      "points": {
+        "identity": {
+          "title": "统一身份认证",
+          "text": "注册、登录和找回密码由独立的统一登录服务完成。各应用通过 OIDC 确认用户身份，会话互相独立。"
+        },
+        "apps": {
+          "title": "第三方应用接入",
+          "text": "开发者提交应用资料、用途和申请的数据范围，审核通过后接入。授权流程要求 PKCE。"
+        },
+        "scopes": {
+          "title": "按范围开放数据",
+          "text": "学生认证状态、所属学校、个人资料、课表、课程目录和公开评价，每一项单独申请和审批。"
+        },
+        "consent": {
+          "title": "用户逐项授权",
+          "text": "登录应用与授权数据是两个独立步骤。用户逐项同意，并可以随时在个人中心撤回。"
+        }
+      }
+    },
+    "showcase": {
+      "course": "操作系统",
+      "order": "菲律宾区 · 新开订阅",
+      "signIn": "登录 StuHelper",
+      "continue": "继续",
+      "oneAccount": "一个账号登录全部服务"
+    }
+  },
   "notFound": {
     "code": "404",
-    "title": "这个页面暂不可用",
+    "title": "该页面暂不可用",
     "description": "地址可能有误，或对应功能尚未开放。",
     "home": "返回首页"
   },
@@ -193,8 +324,8 @@
       "reply": "回复"
     },
     "author": {
-      "anonymous": "匿名同学",
-      "anonymousHandle": "匿名同学 · {handle}",
+      "anonymous": "匿名用户",
+      "anonymousHandle": "匿名用户 · {handle}",
       "op": "评价作者"
     },
     "directory": {
@@ -212,7 +343,7 @@
       "courseIntro": "按开课学院和课程分类，寻找适合自己的课程。",
       "teacherIntro": "了解授课经历，阅读课程评价与导师评论。",
       "empty": "目录中暂无记录。",
-      "noMatch": "没有符合条件的结果，可以调整筛选条件。",
+      "noMatch": "未找到符合条件的结果，请调整筛选条件。",
       "filtersRetry": "重新加载筛选项",
       "reloadCourses": "重新加载课程",
       "reloadTeachers": "重新加载教师"
@@ -322,8 +453,8 @@
       "sort": "排序",
       "newest": "最新在前",
       "oldest": "最早在前",
-      "empty": "还没有课程评价。",
-      "emptyMentor": "还没有导师评论。"
+      "empty": "暂无课程评价。",
+      "emptyMentor": "暂无导师评论。"
     },
     "review": {
       "featured": "优质内容",
@@ -341,7 +472,7 @@
       "proposedBody": "建议修改为",
       "panelHint": {
         "report": "同一内容只保留一份处理中的举报，可以补充新的说明。",
-        "edit_request": "超过发布后 5 分钟的修改由管理员处理，提交申请不会直接改变内容。",
+        "edit_request": "发布超过 5 分钟后，修改由管理员处理，处理完成后内容更新。",
         "delete_request": "超过发布后 5 分钟的删除由管理员处理，处理结果会反馈给你。"
       },
       "reportSent": "举报已提交，可以在个人中心查看处理状态。",
@@ -349,12 +480,14 @@
       "deleteTitle": "永久删除",
       "withdrawTitle": "撤回并编辑",
       "deleteRootConfirm": "确认永久删除？删除主评价会同时删除整条讨论，无法恢复。",
-      "deleteReplyConfirm": "确认永久删除这条回复？讨论中的其他内容会保留。",
-      "withdrawConfirm": "撤回后整条讨论暂时隐藏，重新发布保留原发布时间、回复和投票。草稿到期会自动删除。"
+      "deleteReplyConfirm": "确认永久删除该回复？讨论中的其他内容会保留。",
+      "withdrawConfirm": "撤回后整条讨论暂时隐藏，重新发布保留原发布时间、回复和投票。草稿到期会自动删除。",
+      "expand": "展开全文",
+      "collapse": "收起"
     },
     "replies": {
       "title": "讨论回复",
-      "empty": "还没有回复。",
+      "empty": "暂无回复。",
       "replyingTo": "回复 {name}",
       "cancelTarget": "取消指定回复"
     },
@@ -373,15 +506,15 @@
       "teacher": "任课教师",
       "teacherHint": "教师选项来自你所选学期的选课记录，不确定时可以不指定。",
       "moreTerms": "更多学期",
-      "ratingsRequired": "五项评分都选好后才能发布。",
+      "ratingsRequired": "完成全部五项评分后方可发布。",
       "title": "标题",
       "body": "正文",
-      "templateHint": "推荐模板中的主题都不是必填项，可以修改、删减或整段替换。",
+      "templateHint": "推荐模板的主题均为可选，可以修改、删减或整段替换。",
       "mentorTemplate": "导师的指导风格\n\n对博士生的要求\n\n对硕士生的要求\n\n经费和支持\n\n科研\n\n实验室氛围",
       "signed": "使用平台昵称署名",
       "signedHint": "署名只显示平台昵称和头像，认证真实姓名始终保密。",
-      "identitySigned": "这条讨论沿用你的平台昵称。",
-      "identityAnonymous": "这条讨论继续隐藏你的平台昵称。所选认证信息仍会公开。",
+      "identitySigned": "该讨论沿用你的平台昵称。",
+      "identityAnonymous": "该讨论继续隐藏你的平台昵称。所选认证信息仍会公开。",
       "conflict": "另一处已保存了新版本。请比较后选择要保留的内容。",
       "loadLatest": "查看已保存版本",
       "latestUnavailable": "已保存版本暂时不可读取。当前输入仍保留。",
@@ -397,7 +530,7 @@
     },
     "disclosure": {
       "title": "公开的认证信息",
-      "hint": "勾选的信息会随这条内容公开。",
+      "hint": "勾选的信息会随该内容公开。",
       "teacherRequired": "你曾教授这门课程，回复必须显示真实姓名和教师认证标识。",
       "shown": "作者公开的认证信息",
       "labels": {
@@ -416,8 +549,8 @@
     "composer": {
       "ready": "当前满足发布条件。",
       "choose_term": "选择评课学期后，将核对本人选课记录。",
-      "enrollment_required": "还没有该学期的选课记录。可以先保存草稿，课程同步后再发布。",
-      "unauthenticated": "登录后才能发布。",
+      "enrollment_required": "该学期的选课记录尚未同步。可以先保存草稿，课程同步后再发布。",
+      "unauthenticated": "请登录后发布。",
       "forbidden": "当前尚未满足发布条件，请查看上方未满足的项目。",
       "unavailable": "暂时无法确认发布条件，请稍后重试。",
       "disclosure_required": "缺少已获准公开的真实姓名或教师认证信息，暂时不能回复本人任课课程。"
@@ -474,17 +607,17 @@
       "requests": "举报与申请"
     },
     "reviewEmpty": {
-      "entries": "还没有发布过评价。",
+      "entries": "暂无已发布的评价。",
       "drafts": "草稿箱是空的。",
-      "votes": "还没有投票记录。",
-      "requests": "没有举报或申请记录。"
+      "votes": "暂无投票记录。",
+      "requests": "暂无举报或申请记录。"
     },
     "draftsHint": "普通草稿可以随时继续编辑；撤回重编的草稿从撤回时起保留 24 小时，到期后整条讨论会永久删除。",
     "draftNormal": "草稿",
     "draftWithdrawn": "撤回重编",
     "continueEditing": "继续编辑",
     "deleteDraft": "删除草稿",
-    "deleteDraftConfirm": "确认删除这份未发布草稿？",
+    "deleteDraftConfirm": "确认删除该未发布草稿？",
     "updatedAt": "更新于 {time}",
     "decisionReason": "处理说明：{reason}",
     "viewContent": "查看相关内容",
@@ -493,14 +626,14 @@
     "ownEntry": "我的内容详情",
     "backToReviews": "返回我的评价",
     "resources": "我的资料",
-    "resourcesIntro": "查看上传结果和审核状态。资料不提供普通删除，可以更正、提交新版本或申请下架。",
-    "resourcesEmpty": "还没有上传资料。",
+    "resourcesIntro": "查看上传结果和审核状态。资料可以更正、提交新版本或申请下架。",
+    "resourcesEmpty": "暂无上传的资料。",
     "proposal": "待处理版本：",
     "correct": "更正或提交新版本",
     "requestWithdrawal": "申请下架",
     "requests": "我的申请",
     "requestsIntro": "资料下架、侵权投诉与异议的持久回执和当前处理状态。",
-    "requestsEmpty": "还没有提交过申请。",
+    "requestsEmpty": "暂无申请记录。",
     "checkStatus": "查看当前处理状态",
     "retryRequest": "重新处理",
     "links": {
@@ -533,7 +666,7 @@
     },
     "sessions": {
       "title": "登录设备",
-      "hint": "退出只影响 StuHelper，不影响其他应用的登录。",
+      "hint": "退出只结束 StuHelper 的登录，其他应用保持登录。",
       "deviceConfirm": "退出当前设备上的 StuHelper？",
       "allConfirm": "退出所有设备上的 StuHelper 会话？其他设备需要重新登录。"
     },
@@ -557,7 +690,7 @@
       "downloadFolderHint": "只打包当前有权访问的资料，可能分为多个下载包。",
       "groupScope": "分组展示当前页资料；下一页可能还有同组资料。",
       "unknownGroup": "未知／未填写",
-      "empty": "没有符合条件的资料。",
+      "empty": "未找到符合条件的资料。",
       "select": "选择“{title}”",
       "selected": "已选择：{count}",
       "clearSelection": "清空选择",
@@ -574,7 +707,7 @@
     },
     "package": {
       "title": "下载包",
-      "instructions": "本次共有 {count} 个包。下载全部包才能获得列表中的完整内容，每个包可单独重试。",
+      "instructions": "本次共有 {count} 个包。下载全部包后可获得列表中的完整内容，每个包可单独重试。",
       "expires": "下载包有效至 {time}",
       "part": "第 {number} 包",
       "size": "{size} · 文件数：{files}",
@@ -585,7 +718,7 @@
       "search": "在“{label}”中搜索",
       "placeholder": "输入名称搜索",
       "unavailable": "{label}选项暂时无法加载。",
-      "noMatch": "没有匹配的选项",
+      "noMatch": "无匹配的选项",
       "retry": "重新加载选项"
     },
     "detail": {
@@ -593,7 +726,7 @@
       "download": "下载文件",
       "requestOwner": "申请下架或投诉",
       "complain": "侵权或内容投诉",
-      "accessRequired": "当前账号暂时不能下载这份资料。",
+      "accessRequired": "当前账号暂时无法下载该资料。",
       "pendingVersion": "新版本正在处理，当前已发布版本继续提供下载。",
       "noDescription": "未填写简介。",
       "about": "资料信息",
@@ -604,12 +737,12 @@
     "access": {
       "allowed": "可以下载。",
       "not_published": "资料尚未发布，暂不能下载。",
-      "already_accessible": "你已经可以访问这份资料。",
-      "requirements_missing": "需要先满足资料的访问条件，例如完成学生认证。",
-      "resource_unavailable": "这份资料目前无法提供。",
-      "not_purchasable": "这份资料不支持购买。",
+      "already_accessible": "你已拥有该资料的访问权。",
+      "requirements_missing": "需要先满足该资料的访问条件，例如完成学生认证。",
+      "resource_unavailable": "该资料目前无法提供。",
+      "not_purchasable": "该资料不支持购买。",
       "unauthenticated": "请先登录。",
-      "not_found": "没有找到这份资料。"
+      "not_found": "未找到该资料。"
     },
     "accessLevel": {
       "public": "公开资料",
@@ -671,7 +804,7 @@
       "browseFile": "选择文件",
       "noFile": "未选择文件",
       "chooseFile": "选择文件",
-      "saveFirst": "先保存资料信息，再上传文件。",
+      "saveFirst": "请先保存资料信息，再上传文件。",
       "send": "上传选中文件",
       "cancelUpload": "取消本次文件上传",
       "reused": "已复用本人已有文件，无需重复上传。新资料仍需单独提交审核。",
@@ -707,7 +840,7 @@
         "appeal": "异议申请"
       },
       "hints": {
-        "withdrawal": "下架申请由管理员处理，提交后资料不会立即下架；平台已取得的作品许可按条款继续有效。",
+        "withdrawal": "下架申请由管理员处理，处理完成后资料下架；平台已取得的作品许可按条款继续有效。",
         "complaint": "请提供联系方式、权利或授权证明以及侵权说明，平台会登记并通知上传者。",
         "appeal": "说明你对处理结果的异议，并补充新的依据。"
       },
@@ -735,16 +868,16 @@
     },
     "unlock": {
       "title": "购买访问权",
-      "hint": "付款后长期有效，并覆盖这份资料后续的版本；下载时仍需满足当前的资格条件。",
+      "hint": "付款后长期有效，并覆盖该资料后续的版本；下载时仍需满足当前的资格条件。",
       "payWith": "支付方式",
       "buy": "支付 {price}",
       "short": "余额不足，还差 {amount}。",
       "toWallet": "前往钱包",
-      "noPrice": "这份资料暂未开放购买。",
+      "noPrice": "该资料暂未开放购买。",
       "paid": "已付款，正在开通访问权。",
       "granting": "已付款，正在开通访问权，请稍候。也可以稍后在钱包的订单中查看结果。",
       "viewOrder": "查看订单",
-      "refunded": "这份资料暂时无法交付，费用已退回原支付账户。",
+      "refunded": "该资料暂时无法交付，费用已退回原支付账户。",
       "done": "已开通，可以下载了。"
     }
   },
@@ -763,7 +896,7 @@
     "phoneMissing": "未绑定",
     "newcomerReminder": "新生资格将于 {time} 到期，请及时完成普通认证。",
     "start": "开始认证",
-    "noSchools": "暂时没有可用学校。可以提交学校建议。",
+    "noSchools": "暂无可用学校，可以提交学校建议。",
     "school": "学校",
     "method": "认证方式",
     "stage": "学习阶段",
@@ -796,7 +929,7 @@
     "emailCode": "邮件验证码",
     "experiences": "学习经历",
     "validityHelp": "普通认证长期有效。新生资格按实际到期日判断，毕业后保留校友资格。",
-    "noCredentials": "还没有学习经历记录。",
+    "noCredentials": "暂无学习经历记录。",
     "permanent": "长期有效",
     "viewProfile": "查看学校资料",
     "requestRevoke": "申请撤销",
@@ -807,9 +940,9 @@
     "profileTitle": "学校个人资料",
     "collectedAt": "资料采集时间：{time}",
     "applications": "认证申请",
-    "noApplications": "还没有认证申请。",
+    "noApplications": "暂无认证申请。",
     "requests": "撤销与删除申请",
-    "suggestSchool": "找不到学校？提交建议",
+    "suggestSchool": "未找到学校？提交建议",
     "schoolName": "学校名称",
     "website": "学校官网",
     "notice": {
@@ -964,22 +1097,28 @@
     "identityDescription": "实名认证独立于学生认证，用于需要确认本人身份的操作。",
     "identityName": "姓名",
     "identityNumber": "身份证号",
-    "schoolSearch": "搜索学校代码、名称或别名"
+    "schoolSearch": "搜索学校代码、名称或别名",
+    "unified": {
+      "title": "校园认证",
+      "roles": "认证身份",
+      "student": "学生",
+      "teacher": "教师"
+    }
   },
   "contribution": {
     "eyebrow": "共享存储",
-    "description": "自愿贡献闲置的网盘容量，帮同学保存学习资料。",
+    "description": "自愿贡献闲置的网盘容量，用于保存学习资料。",
     "summary": "平台存储概况",
-    "declared": "同学申报的容量",
+    "declared": "用户申报的容量",
     "available": "实际可用",
     "used": "已用容量",
     "reserved": "预留中",
-    "partial": "部分账号的数据还没更新，实际可用容量可能偏低。",
+    "partial": "部分账号的数据尚未更新，实际可用容量可能偏低。",
     "observed": "更新于 {time}",
-    "accepted": "已提交，生效后这里会更新。",
+    "accepted": "已提交，生效后此处会更新。",
     "signInHint": "登录后可以查看和管理你的贡献。",
     "create": "新增存储贡献",
-    "noOptions": "还没有可用的存储。先接入一个网盘账号。",
+    "noOptions": "暂无可用的存储，请先接入一个网盘账号。",
     "storage": "选择已授权存储",
     "option": "{adapter} · {id} · 可用 {capacity}",
     "limit": "共享额度（GB）",
@@ -994,7 +1133,7 @@
     "moreOptions": "下一页可选存储",
     "mine": "我的贡献记录",
     "first": "返回第一页",
-    "empty": "还没有贡献记录。",
+    "empty": "暂无贡献记录。",
     "requested": "正在处理",
     "quota": "共享额度",
     "personal": "个人保留空间",
@@ -1004,7 +1143,7 @@
     "confirm": "确认：{action}",
     "confirmHint": "提交后需要一点时间生效。",
     "exitHint": "退出后不能取消。文件全部迁走后，空间才会释放。",
-    "revokeHint": "撤销后平台会立即停止使用这个账号。恢复时需要重新授权。",
+    "revokeHint": "撤销后平台会立即停止使用该账号。恢复时需要重新授权。",
     "reviewConditions": "共享 {limit}，个人保留 {reserve}，截止 {until}。",
     "unknown": "状态暂不可用，请刷新或联系管理员。",
     "actions": {
@@ -1027,13 +1166,13 @@
       "revoked": "已撤权"
     },
     "reasons": {
-      "observation_stale": "容量数据还没更新。",
+      "observation_stale": "容量数据尚未更新。",
       "consent_expired": "贡献期限已到，等待退出处理。",
       "storage_unavailable": "网盘暂时不可用。",
       "authorization_required": "网盘授权已失效，请重新授权。",
       "storage_conflict": "网盘状态有变化，请刷新后查看。",
-      "binding_unavailable": "这个网盘账号暂时不可用，管理员会协助处理。",
-      "cleanup_unconfirmed": "还有文件没有迁走。",
+      "binding_unavailable": "该网盘账号暂时不可用，管理员会协助处理。",
+      "cleanup_unconfirmed": "仍有文件尚未迁出。",
       "storage_writes_disabled": "存储暂不接受新文件。",
       "capacity_unknown": "暂时读取不到容量。",
       "exit_overdue": "已超过退出目标时间，迁移仍在处理。"
@@ -1041,9 +1180,9 @@
   },
   "custody": {
     "title": "存储账号",
-    "description": "接入网盘账号后，才能选择贡献的容量和期限。",
+    "description": "接入网盘账号后，可选择贡献的容量和期限。",
     "sending": "正在验证账号，请稍候…",
-    "uncertain": "暂时不确定是否提交成功。密码已清除，请先查询结果，不要重复提交。",
+    "uncertain": "提交结果尚未确认。密码已清除，请先查询结果，不要重复提交。",
     "recover": "查询结果",
     "reauthorize": "更新账号授权",
     "connect": "接入存储账号",
@@ -1072,8 +1211,8 @@
     "reasons": {
       "authorization_rejected": "网盘拒绝了登录，请检查账号和密码。",
       "dependency_unavailable": "网盘暂时不可用，请稍后重试。",
-      "result_unknown": "网盘还没有返回结果，请稍后查看。",
-      "conflict": "这个账号已经接入过，或者刚刚有变化，请刷新后查看。",
+      "result_unknown": "网盘尚未返回结果，请稍后查看。",
+      "conflict": "该账号已接入或状态刚发生变化，请刷新后查看。",
       "attempts_exhausted": "多次尝试仍未成功，管理员会协助处理。",
       "credentials_required": "请重新输入账号和密码。"
     }
@@ -1091,7 +1230,7 @@
     },
     "processing": {
       "title": "认证正在处理",
-      "text": "处理通过后即可进入。如果需要补充材料，可以在认证进度中继续。",
+      "text": "审核通过后即可进入。如需补充材料，可以在认证进度中继续。",
       "action": "查看认证进度"
     },
     "expired": {
@@ -1101,14 +1240,14 @@
     },
     "unavailable": {
       "title": "暂时无法确认你的资格",
-      "text": "账号或认证服务没有响应。这不代表你的认证已失效。",
+      "text": "账号或认证服务没有响应。你的认证记录保持原样。",
       "action": "重新检查资格"
     }
   },
   "courses": {
     "title": "我的课程",
     "intro": "按学期查看本人选课记录，并进入课程、教师和资料。",
-    "empty": "还没有选课记录。学校数据同步后会显示在这里。",
+    "empty": "暂无选课记录。学校数据同步后会显示在此处。",
     "reload": "重新加载我的课程",
     "noTeacher": "任课教师未提供",
     "noTime": "上课时间和地点未提供",
@@ -1124,8 +1263,8 @@
     "exportCalendar": "导出到日历",
     "exported": "已生成日历文件，可导入手机或电脑日历。",
     "unplaced": "以下上课时间无法识别，暂未排入课表",
-    "emptyTerm": "这个学期还没有有效的选课记录。",
-    "noLessonsThisWeek": "本周没有课。",
+    "emptyTerm": "该学期暂无有效的选课记录。",
+    "noLessonsThisWeek": "本周无课。",
     "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}"
   },
   "demo": {
@@ -1143,7 +1282,7 @@
     "uploadStatusHint": "上传和审核状态",
     "uploadFirst": "上传第一份",
     "lastTermDone": "上学期已修完",
-    "lastTermDoneHint": "上学期已修完，写下感受能帮到学弟学妹",
+    "lastTermDoneHint": "上学期已修完，你的评价可为后续选课提供参考",
     "nextClassDay": "下一个上课日",
     "nextPage": "下一页",
     "goodAfternoon": "下午好，{name}",
@@ -1154,7 +1293,7 @@
     "personalCenter": "个人中心",
     "profile": "个人资料",
     "fiveDimensions": "五个维度",
-    "featureScheduleText": "今天上什么课、哪门课该写评价，一眼看到。",
+    "featureScheduleText": "查看当天课程和待评价的课程。",
     "todayClasses": "今天的课",
     "instructors": "任课教师",
     "gradingVeryGood": "体验很好",
@@ -1162,7 +1301,7 @@
     "gradingGood": "体验较好",
     "gradingPoor": "体验较差",
     "walletHint": "余额 128，有 20 即将到期",
-    "compareEmptyHint": "先加入两项，就能并排比较五个维度。",
+    "compareEmptyHint": "加入两项后即可并排比较五个维度。",
     "all": "全部",
     "allDepartments": "全部学院",
     "allCourses": "全部课程",
@@ -1187,19 +1326,18 @@
     "beihangVerified": "北京航空航天大学 · 已认证学生",
     "heroEyebrow": "北航学生的课程与资料社区",
     "cancelSelection": "取消选择",
-    "personaGuestHint": "只看到介绍和登录",
+    "personaGuestHint": "仅显示介绍和登录",
     "personaVerifiedHint": "可浏览全部内容",
     "trendByTerm": "各学期推荐度",
-    "heroLead": "同学写的课程评价，按课程整理的学习资料，还有你自己的课表。",
-    "resourcesDescription": "同学整理的试卷、笔记和讲义，按课程查找。",
-    "studentsWatching": "同学都在看",
+    "heroLead": "学生撰写的课程评价、按课程整理的学习资料，以及你的个人课表。",
+    "resourcesDescription": "学生整理的试卷、笔记和讲义，按课程查找。",
+    "studentsWatching": "热门课程",
     "lateNight": "夜深了，{name}",
     "storageContribution": "存储贡献",
     "study": "学习",
     "resources": "学习资料",
-    "studentVerification": "学生认证",
     "department": "学院",
-    "searchNeedsVerification": "完成北航认证后才能搜索课程、教师和资料。",
+    "searchNeedsVerification": "完成北航认证后可搜索课程、教师和资料。",
     "fullTimetable": "完整课表",
     "personaCaption": "审阅工具 · 切换演示身份",
     "compare": "对比",
@@ -1226,7 +1364,7 @@
     "levelStronglyNot": "强烈不推荐",
     "levelStrongly": "强烈推荐",
     "verificationValidHint": "当前有效，至 2027 年 7 月",
-    "featureResourcesText": "往年试卷、笔记和讲义，找到就能下载。",
+    "featureResourcesText": "往年试卷、笔记和讲义，可直接下载。",
     "levelVeryMuch": "很多",
     "levelVeryGood": "很好",
     "levelVeryEasy": "很容易",
@@ -1245,10 +1383,10 @@
     "accountHint": "手机号、QQ 和登录设备",
     "packDownload": "打包下载",
     "batchDownload": "批量下载",
-    "compareEmptyTitle": "把想比较的放在一起看",
+    "compareEmptyTitle": "并排比较课程或教师",
     "byName": "按名称",
     "byDepartment": "按学院",
-    "featureReviewsText": "按课程、教师和学期查看同学的评价。",
+    "featureReviewsText": "按课程、教师和学期查看学生评价。",
     "browseByCourse": "按课程浏览",
     "sort": "排序",
     "levelRecommended": "推荐",
@@ -1288,14 +1426,14 @@
     "hottest": "最热门",
     "recentActivity": "最近动态",
     "recentlyViewed": "最近浏览",
-    "draftTodo": "有 1 篇草稿没写完",
+    "draftTodo": "有 1 篇草稿待完成",
     "personaGuest": "未登录访客",
     "thisPage": "本页",
     "viewDetails": "查看详情",
-    "noMatchFor": "没有找到“{p0}”。",
-    "noMatchTeachers": "没有找到匹配的教师。",
-    "noMatchCourses": "没有找到匹配的课程。",
-    "noMatchResources": "没有找到匹配的资料。",
+    "noMatchFor": "未找到“{p0}”。",
+    "noMatchTeachers": "未找到匹配的教师。",
+    "noMatchCourses": "未找到匹配的课程。",
+    "noMatchResources": "未找到匹配的资料。",
     "browseAllTeachers": "浏览全部教师",
     "browseAllCourses": "浏览全部课程",
     "addCompareItem": "添加对比项",
@@ -1310,9 +1448,9 @@
     "pageNo": "第 {p0} 页",
     "pagePreview": "第 {p0} 页预览示意",
     "periods": "第 {p0}-{p1} 节",
-    "todo": "等你处理",
+    "todo": "待办事项",
     "category": "类别",
-    "reviewTodo": "线性代数还没评价",
+    "reviewTodo": "线性代数待评价",
     "statsCharts": "统计图表",
     "edit": "编辑",
     "zoomOut": "缩小",
@@ -1327,14 +1465,14 @@
     "coursesCount": "课程 {p0}",
     "courseCategory": "课程类别",
     "dimDifficulty": "课程难度",
-    "featureScheduleTitle": "课表和待办放在一起",
+    "featureScheduleTitle": "课表与待办",
     "coursesHint": "课表和选课记录",
     "storageHint": "贡献容量和网盘账号",
     "accountSection": "账号",
     "accountSecurity": "账号与安全",
     "resourcesShort": "资料",
     "resourceCategory": "资料分类",
-    "featureResourcesTitle": "资料都按课程放好",
+    "featureResourcesTitle": "按课程归档的资料",
     "levelMuch": "较多",
     "levelGood": "较好",
     "levelEasy": "较容易",
@@ -1345,8 +1483,8 @@
     "signOut": "退出登录",
     "levelModerate": "适中",
     "selectItem": "选择 {p0}",
-    "heroTitle": "选课、复习、交流，\n都从这里开始。",
-    "featureReviewsTitle": "选课前先看同学怎么说",
+    "heroTitle": "课程评价、学习资料与课表",
+    "featureReviewsTitle": "选课参考",
     "notifications": "通知",
     "notificationsUnread": "通知，{p0} 条未读",
     "item": "项目",
@@ -1363,7 +1501,12 @@
     "categoryCBase": "基础课",
     "categoryCCore": "专业课",
     "interactions": "互动",
-    "points": "积分"
+    "points": "积分",
+    "chatDirect": "私信",
+    "chatGroup": "群聊 · {p0} 人",
+    "chatSample": "示例会话，消息只保存在当前页面。",
+    "chatPlaceholder": "输入消息",
+    "chatSend": "发送"
   },
   "favorites": {
     "title": "收藏",
@@ -1390,12 +1533,12 @@
     "add": "收藏",
     "saved": "已收藏",
     "viewDetails": "查看详情",
-    "noMatch": "没有找到“{p0}”。",
+    "noMatch": "未找到“{p0}”。",
     "clearSearch": "清除搜索",
     "folderEmpty": "“{p0}”还是空的。",
-    "empty": "这里还没有收藏。",
-    "emptyHint": "在课程、教师或资料上点书签图标，就能收藏到这里。",
-    "browseCourses": "去看看课程",
+    "empty": "暂无收藏。",
+    "emptyHint": "在课程、教师或资料页面点击书签图标即可收藏。",
+    "browseCourses": "浏览课程",
     "savedAt": "{p0}收藏",
     "folderCreated": "收藏夹已创建",
     "folderRenamed": "收藏夹已重命名",
@@ -1416,7 +1559,7 @@
     "title": "QQ 绑定",
     "complete": "已完成",
     "progress": "已完成 {done}/{total}",
-    "requirement": "QQ 号、QQ 官方机器人和 QQ 互联三项都绑定后，才算完成 QQ 绑定。",
+    "requirement": "QQ 号、QQ 官方机器人和 QQ 互联三项全部绑定后，QQ 绑定方为完成。",
     "bound": "已绑定",
     "bind": "绑定",
     "authorize": "去授权",
@@ -1431,7 +1574,7 @@
     "expiresIn": "{minutes} 分 {seconds} 秒后失效",
     "expired": "验证码已失效，请重新生成。",
     "ownCodeOnly": "只发送你自己在这里生成的验证码。不要替别人发送验证码，也不要把验证码发给别人，否则你的 QQ 会绑定到对方的账号。",
-    "waiting": "发送后这里会自动更新。",
+    "waiting": "发送后此处会自动更新。",
     "copy": "复制验证码",
     "copied": "已复制验证码",
     "copyFailed": "无法复制，请手动选择验证码。",
@@ -1455,7 +1598,7 @@
     },
     "errors": {
       "already_bound": "这一项已经绑定。",
-      "ownership_conflict": "这个 QQ 身份已绑定到另一个账号。请先找回那个账号，或联系管理员核查。",
+      "ownership_conflict": "该 QQ 身份已绑定到另一个账号。请先找回该账号，或联系管理员核查。",
       "rate_limited": "操作太频繁，请稍后再试。",
       "unavailable": "QQ 绑定服务暂时不可用，请稍后再试。",
       "account_closed": "账号已注销，不能绑定 QQ。",
@@ -1470,12 +1613,12 @@
       "back": "返回账号与安全",
       "working": "正在确认 QQ 授权…",
       "bound": "QQ 互联已绑定。",
-      "declined": "你在 QQ 页面取消了授权，没有绑定 QQ 互联。"
+      "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
     }
   },
   "security": {
     "title": "账号与安全",
-    "description": "实名认证、QQ 绑定、登录设备和账号注销都在这里管理。",
+    "description": "在此管理实名认证、QQ 绑定、登录设备和账号注销。",
     "identity": "身份与绑定",
     "phone": "手机号",
     "phoneBound": "已绑定",
@@ -1492,12 +1635,12 @@
     "signOutAllConfirm": "所有设备上的 StuHelper 登录都会失效，需要重新登录。",
     "closure": {
       "title": "注销账号",
-      "hint": "注销只处理 StuHelper 业务账号，统一身份账号和其他应用不受影响。",
+      "hint": "注销只处理 StuHelper 业务账号，统一身份账号和其他应用照常使用。",
       "request": "申请注销",
       "cooling": "提交后有 7 天冷静期，期间可以撤销申请。冷静期结束后由管理员处理。",
-      "scope": "只注销 StuHelper 业务账号，不删除统一身份账号，也不影响其他应用。",
+      "scope": "只注销 StuHelper 业务账号。统一身份账号保留，其他应用照常使用。",
       "assets": "注销前 Ivory 余额必须为零、退款处理完成；否则申请会等待资产处置。",
-      "content": "署名评价改为匿名显示，公开资料保留正文但不再关联你的账号；收藏和 QQ 绑定会被删除。",
+      "content": "署名评价改为匿名显示，公开资料保留正文但不再关联你的账号；收藏和 QQ 绑定将被删除。",
       "points": "我知道正式注销时会清零长期积分、限时积分和待抵扣记录，不兑换现金或 Ivory。",
       "phrase": "确认注销",
       "typeToConfirm": "输入“{phrase}”继续",
@@ -1508,7 +1651,7 @@
       "cancelled": "注销申请已撤销",
       "states": {
         "cooling": "注销申请冷静期至 {date}，期间可以撤销。",
-        "awaiting_assets": "正在等待资产处置，完成后才能继续注销。",
+        "awaiting_assets": "正在等待资产处置，完成后继续注销。",
         "processing": "管理员正在处理注销。",
         "closed": "账号已注销。"
       },
@@ -1526,12 +1669,12 @@
     "description": "昵称在署名评价和资料中显示。匿名发布的内容不会关联到你。",
     "preview": "预览公开主页",
     "previewHint": "预览显示已保存的公开主页。",
-    "previewSavedOnly": "预览显示已保存的内容，保存后才能看到新的修改。",
+    "previewSavedOnly": "预览显示已保存的内容，新的修改在保存后生效。",
     "previewTitle": "公开主页预览",
     "previewDescription": "其他人看到的样子",
     "nickname": "昵称",
     "nicknameRequired": "请填写昵称。",
-    "tooLong": "不能超过 {max} 个字。",
+    "tooLong": "不得超过 {max} 个字。",
     "bio": "个人简介",
     "publicShows": "公开主页显示",
     "publicHint": "关闭后，公开主页不再显示这一项；相关内容仍按各自的权限显示。",
@@ -1578,8 +1721,8 @@
     "expiringTitle": "即将到期的积分",
     "expiring": "{date} 到期：积分 {points}",
     "pointsAmount": "积分 {amount}",
-    "emptyLedger": "还没有账户明细。",
-    "emptyOrders": "还没有订单。",
+    "emptyLedger": "暂无账户明细。",
+    "emptyOrders": "暂无订单。",
     "paid": "支付 {price}（{channel}）",
     "reason": "说明：{reason}",
     "tabs": {
@@ -1641,7 +1784,7 @@
       "cancelOrder": "取消订单",
       "credited": "已到账 {amount} Ivory。",
       "resume": "继续支付",
-      "unavailable": "当前没有可用的充值方式。"
+      "unavailable": "当前无可用的充值方式。"
     },
     "buy": {
       "action": "兑换积分",
@@ -1662,7 +1805,7 @@
       "amount": "退款金额（Ivory）",
       "limit": "最多 {amount} Ivory",
       "invalidAmount": "请输入大于 0、最多两位小数的金额。",
-      "tooMuch": "不能超过 {amount} Ivory。",
+      "tooMuch": "不得超过 {amount} Ivory。",
       "reason": "退款原因",
       "submit": "提交退款申请",
       "submitted": "退款申请已提交，可在订单中查看进度。"
@@ -1670,7 +1813,7 @@
     "receipt": {
       "action": "填写收款信息",
       "title": "填写收款信息",
-      "hint": "原路退回不可用时，管理员会按这里的收款信息人工付款。",
+      "hint": "原路退回不可用时，管理员会按此处的收款信息人工付款。",
       "label": "收款账户或参考号",
       "submitted": "收款信息已提交。"
     },
@@ -1714,12 +1857,12 @@
     "grants": {
       "title": "授权应用",
       "description": "查看你授权过的第三方应用，可以撤回其中的部分或全部信息。",
-      "empty": "还没有授权过第三方应用。",
+      "empty": "暂无已授权的第三方应用。",
       "expires": "授权有效期至 {date}",
       "scopes": "已授权的信息",
       "revoke": "撤回授权",
       "revokeTitle": "撤回对“{name}”的授权",
-      "revokeHint": "撤回后该应用的旧令牌立即失效，不能再读取所撤回的信息。这不会注销你在该应用中的账号。",
+      "revokeHint": "撤回后该应用的旧令牌立即失效，不能再读取所撤回的信息。你在该应用中的账号继续保留。",
       "revokeScopes": "选择要撤回的信息",
       "revokeAllNotice": "将撤回全部信息，应用需要重新请求授权。",
       "revokeSubmit": "撤回所选信息",
@@ -1730,7 +1873,7 @@
       "title": "开放平台",
       "description": "提交第三方应用接入申请，查看审核结果、凭据和撤回通知。",
       "create": "新建应用",
-      "empty": "还没有提交过应用。",
+      "empty": "暂无已提交的应用。",
       "state": {
         "pending": "审核中",
         "changes_requested": "需要修改",
@@ -1777,17 +1920,17 @@
       "secretCopied": "密钥已复制。",
       "secretSaved": "我已保存",
       "secretNotRetrievable": "请求已完成，但本次未能显示密钥。如未保存，请重新轮换。",
-      "formHint": "应用申请不会授予任何权限。管理员逐项审核，用户再逐项同意。",
+      "formHint": "应用取得权限需要两步：管理员逐项审核申请，用户再逐项同意。",
       "name": "应用名称",
       "purpose": "用途说明",
-      "purposeHint": "说明应用做什么、为什么需要所申请的信息。",
+      "purposeHint": "说明应用的用途，以及需要所申请信息的原因。",
       "submit": "提交审核",
       "submitted": "“{name}”已提交审核。",
       "notices": {
         "open": "撤回通知",
         "title": "“{name}”的撤回通知",
-        "hint": "用户撤回或授权结束后，应用必须停止使用相关数据并按约定删除。请在这里回报处理结果。",
-        "empty": "没有撤回通知。",
+        "hint": "用户撤回或授权结束后，应用必须停止使用相关数据并按约定删除。请在此回报处理结果。",
+        "empty": "暂无撤回通知。",
         "unanswered": "未回报",
         "meta": "用户 {user} · {time}",
         "reason": {
@@ -1813,13 +1956,13 @@
     "consent": {
       "title": "应用授权",
       "invalidTitle": "授权请求无效",
-      "invalid": "这个授权链接缺少必要参数或包含不支持的信息范围。请回到原应用重新发起。",
+      "invalid": "该授权链接缺少必要参数或包含不支持的信息范围。请返回原应用重新发起。",
       "loading": "正在核对授权请求…",
       "heading": "“{name}”请求访问你的 StuHelper 信息",
       "client": "客户端 ID：{id} · 授权后返回 {host}",
       "choose": "选择允许该应用读取的信息",
       "limits": "应用只能读取你勾选并经平台批准的信息。证件、认证材料和钱包记录不会开放。",
-      "withdraw": "你可以随时在“授权应用”中撤回。撤回不会注销你在该应用中的账号。",
+      "withdraw": "你可以随时在“授权应用”中撤回。撤回后，你在该应用中的账号继续保留。",
       "expires": "此授权请求在 {time} 前有效。",
       "approve": "允许所选（{count}）",
       "deny": "拒绝"
@@ -1827,8 +1970,7 @@
   },
   "teacher": {
     "title": "教师认证",
-    "description": "提交任教证明，管理员审核后关联课程目录中的教师档案。公开哪些信息由你决定。",
-    "link": "教师认证",
+    "description": "提交任教证明，管理员审核后关联课程目录中的教师档案。公开的信息范围由你决定。",
     "credentials": "我的教师资格",
     "profiles": "关联教师档案：{names}",
     "validUntil": "有效期至 {date}",
@@ -1883,17 +2025,17 @@
     }
   },
   "notifications": {
-    "title": "通知",
-    "link": "通知",
-    "description": "与你有关的内容互动、处理结果和认证结果。",
-    "unread": "未读通知：{count}",
+    "title": "消息",
+    "link": "消息",
+    "description": "互动、处理结果、认证结果和系统通知。",
+    "unread": "未读消息：{count}",
     "interaction": "接收互动通知（回复、点赞）",
     "interactionOn": "已开启互动通知。",
     "interactionOff": "已关闭互动通知。",
     "always": "处理结果、安全与账号通知始终接收。",
     "readAll": "全部标为已读",
     "allRead": "已全部标为已读。",
-    "empty": "暂时没有通知。",
+    "empty": "暂无通知。",
     "count": "累计：{count}",
     "unreadMark": "未读",
     "titles": {
@@ -1944,6 +2086,16 @@
     "status": {
       "inaccessible": "相关内容已无法访问。",
       "unavailable": "相关内容暂时无法查看，请稍后重试。"
+    },
+    "boxesLabel": "消息分类",
+    "threads": "会话",
+    "noThreads": "暂无会话。",
+    "unreadCount": "{count} 条未读",
+    "boxes": {
+      "interaction": "回复与点赞",
+      "review": "处理结果",
+      "verification": "认证",
+      "system": "系统通知"
     }
   },
   "search": {
@@ -1952,10 +2104,10 @@
     "hotkey": "搜索（Ctrl K）",
     "placeholderShort": "搜索课程、教师、资料",
     "placeholder": "搜索课程、教师、评价或资料",
-    "needsVerification": "完成学生认证或教师认证后才能搜索课程内容。",
+    "needsVerification": "完成学生认证或教师认证后可搜索课程内容。",
     "results": "搜索结果",
     "searching": "正在搜索…",
-    "noMatch": "没有找到相关内容。",
+    "noMatch": "未找到相关内容。",
     "typeToSearch": "输入关键词开始搜索。",
     "allResults": "查看全部结果",
     "all": "全部",
@@ -1971,16 +2123,16 @@
     },
     "popular": {
       "title": "热门",
-      "description": "按近期浏览、评价、收藏和互动排序。热度和评分分开统计，排名靠前不代表评价更好。",
+      "description": "按近期浏览、评价、收藏和互动排序。榜单反映关注度，评价情况以各自的评分为准。",
       "courses": "热门课程",
       "teachers": "热门教师",
       "kind": "榜单类型",
-      "empty": "暂时还没有足够的数据生成榜单。"
+      "empty": "数据不足，暂时无法生成榜单。"
     },
     "votes": {
       "title": "我的投票",
       "description": "本人对评价的有用和没用投票。修改或取消投票请进入对应评价。",
-      "empty": "还没有投过票。",
+      "empty": "暂无投票记录。",
       "review": "评价",
       "up": "有用",
       "down": "没用"
@@ -1991,15 +2143,15 @@
       "courses": "课程（{count}）",
       "teachers": "教师（{count}）",
       "kind": "对比类型",
-      "emptyTitle": "还没有选择要对比的项目",
-      "emptyHint": "在课程或教师页面点“加入对比”，再回到这里查看。",
+      "emptyTitle": "尚未选择对比项目",
+      "emptyHint": "在课程或教师页面点击“加入对比”，然后返回此处查看。",
       "browseCourses": "浏览课程",
       "browseTeachers": "浏览教师",
       "dimension": "评分项",
       "remove": "从对比中移除 {name}",
       "noReviews": "暂无评价",
       "samples": "评价数",
-      "note": "各列使用相同的统计时间范围。评价不足时显示“暂无足够数据”，不显示精确均分。",
+      "note": "各列使用相同的统计时间范围。评分以五级文字显示，评价不足时显示“暂无足够数据”。",
       "full": "最多对比 {max} 项，请先移除一项。",
       "added": "已加入对比",
       "add": "加入对比",
@@ -2011,9 +2163,9 @@
   },
   "groups": {
     "title": "我的群",
-    "description": "已加入或正在申请的 QQ 群，以及入群还差哪些条件。",
+    "description": "已加入或正在申请的 QQ 群，以及入群尚未满足的条件。",
     "refresh": "刷新",
-    "empty": "还没有加入或申请由 StuHelper 管理的 QQ 群。",
+    "empty": "暂未加入或申请由 StuHelper 管理的 QQ 群。",
     "number": "群号 {number}",
     "stateLabel": "状态",
     "deadline": "截止时间",
@@ -2059,7 +2211,7 @@
     "title": "会员",
     "description": "可购买的会员套餐、各自实际覆盖的资料范围，以及你当前的会员。",
     "mine": "我的会员",
-    "none": "还没有会员。",
+    "none": "暂无会员。",
     "unnamed": "会员套餐",
     "until": "有效期至 {date}",
     "ended": "已于 {date} 结束",
@@ -2070,7 +2222,7 @@
     "days": "{count} 天",
     "alternative": "，或 ",
     "covers": "覆盖的资料：",
-    "noCoverage": "这个套餐尚未配置覆盖范围，暂不能购买。",
+    "noCoverage": "该套餐尚未配置覆盖范围，暂不能购买。",
     "coverageUnavailable": "覆盖范围暂时无法读取，请稍后刷新。",
     "school": "指定学校",
     "directory": "指定目录",

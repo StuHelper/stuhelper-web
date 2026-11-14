@@ -24,7 +24,7 @@ memberTest('the search palette finds a course and opens it with the keyboard', a
   const s = catalogue(info).search;
   await academicFixture(page);
   const seen = await searchServer(page, { '/api/v1/search': (q) => ({ items: q.get('q') === 'Test' ? [item('course', 'course', 'Test Course'), item('review', 'review', 'A student review', 'reviews')] : [], next_cursor: '' }) });
-  await page.goto(`${base}/?lang=${info.project.metadata.locale}`);
+  await page.goto(`${base}/campus?lang=${info.project.metadata.locale}`);
   // The shortcut is registered when the layout mounts, after the language catalog loads.
   await expect(page.getByRole('button', { name: s.open, exact: true })).toBeVisible();
   await page.keyboard.press('Control+k');
@@ -81,7 +81,8 @@ memberTest('two teachers added from their pages are compared over one time range
   await page.goto(`${base}/teachers/teacher-b?lang=${info.project.metadata.locale}`);
   await page.getByRole('button', { name: c.add, exact: true }).click();
   await expect(page.getByRole('button', { name: c.added, exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('link', { name: c.start, exact: true }).click();
+  // The campus sub-navigation also links to the comparison page; the button in the tray is meant here.
+  await page.getByRole('region', { name: c.tray }).getByRole('link', { name: c.start, exact: true }).click();
   await expect(page).toHaveURL(/\/compare\?kind=teacher/);
   await expect(page.getByRole('columnheader', { name: /Teacher A/ })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: /Teacher B/ })).toBeVisible();
