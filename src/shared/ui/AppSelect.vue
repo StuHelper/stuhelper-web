@@ -11,7 +11,7 @@ import { computed, Fragment, ref, useAttrs, type VNode } from 'vue'
 defineOptions({ inheritAttrs: false })
 // Pages with a reserved scrollbar gutter and sticky navigation can keep scrolling
 // while the list is open; the default remains unchanged for other consumers.
-const props = defineProps<{ modelValue?: string | number | null; disabled?: boolean; required?: boolean; bodyLock?: boolean }>()
+const props = withDefaults(defineProps<{ modelValue?: string | number | null; disabled?: boolean; required?: boolean; bodyLock?: boolean }>(), { modelValue: undefined, bodyLock: true })
 const emit = defineEmits<{ 'update:modelValue': [value: string]; change: [event: Event] }>()
 const slots = defineSlots<{ default?: () => VNode[] }>()
 const attrs = useAttrs()
@@ -67,7 +67,7 @@ function choose(value: unknown) {
       <SelectPortal>
         <SelectContent
           class="app-popup app-select-content"
-          :body-lock="bodyLock ?? true"
+          :body-lock="bodyLock"
           position="popper"
           :side-offset="6"
           :collision-padding="8"

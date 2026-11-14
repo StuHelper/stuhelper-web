@@ -105,7 +105,8 @@
       "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401"
     ],
     "VERIFICATION-UX-01": [
-      "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed"
+      "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
+      "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification"
     ],
     "VERIFICATION-UX-02": [
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",

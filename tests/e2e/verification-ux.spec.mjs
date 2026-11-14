@@ -120,3 +120,23 @@ test('verification page banner is reserved for loading failures', async ({ page 
   await expect(page.getByRole('alert')).toHaveCount(1);
   await expect(page.locator('form').first().getByRole('alert')).toHaveCount(0);
 });
+
+test('shared selects keep scroll locking by default outside verification', async ({ page }, info) => {
+  await fixture(page); await open(page, info);
+  const select = page.locator('header').getByRole('combobox');
+  // The desktop language selector uses AppSelect without an override.
+  if (await select.count()) {
+    await select.click();
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+  } else {
+    const footerSelect = page.locator('footer').getByRole('combobox');
+    await footerSelect.click();
+    await expect(page.getByRole('listbox')).toBeVisible();
+    await expect(page.locator('body')).toHaveCSS('overflow', 'hidden');
+    await page.keyboard.press('Escape');
+    await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
+  }
+});
