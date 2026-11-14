@@ -1119,6 +1119,19 @@
     "profileSource": "情報源：{source}",
     "methodDescriptions": {
       "real_name_identity_check": "ご本人の情報は今回の本人確認にのみ使用され、学校または第三者の本人確認サービスが提供するデータと照合されます。"
+    },
+    "back": "前の手順に戻る",
+    "emailStep": {
+      "title": "メールの確認コードを入力",
+      "sending": "確認コードを送信しています…",
+      "sent": "{email} に確認コードを送信しました。メールをご確認ください。",
+      "failed": "確認コードを送信できませんでした。再送信するか、別の認証方法を選んでください。",
+      "spamHint": "数分たっても届かない場合は、迷惑メールフォルダを確認してください。",
+      "validFor": "確認コードはあと {time} で無効になります（{until}）。",
+      "expired": "確認コードの有効期限が切れました。再送信してください。",
+      "confirm": "認証する",
+      "resend": "再送信",
+      "resendIn": "{seconds} 秒後に再送信できます"
     }
   },
   "contribution": {

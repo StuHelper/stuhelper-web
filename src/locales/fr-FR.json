@@ -1119,6 +1119,19 @@
     "profileSource": "Source : {source}",
     "methodDescriptions": {
       "real_name_identity_check": "Vos informations d’identité servent uniquement à cette vérification et seront comparées aux données fournies par votre établissement ou un prestataire tiers de vérification d’identité."
+    },
+    "back": "Étape précédente",
+    "emailStep": {
+      "title": "Saisissez le code reçu par e-mail",
+      "sending": "Envoi du code en cours…",
+      "sent": "Un code a été envoyé à {email}. Consultez votre boîte de réception.",
+      "failed": "Le code n’a pas pu être envoyé. Renvoyez-le ou choisissez une autre méthode.",
+      "spamHint": "S’il n’arrive pas d’ici quelques minutes, vérifiez vos courriers indésirables.",
+      "validFor": "Le code expire dans {time} ({until}).",
+      "expired": "Le code a expiré. Envoyez-en un nouveau.",
+      "confirm": "Vérifier",
+      "resend": "Renvoyer",
+      "resendIn": "Renvoyer dans {seconds} s"
     }
   },
   "contribution": {

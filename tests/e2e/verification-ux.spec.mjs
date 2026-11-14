@@ -199,3 +199,110 @@ for (const [method, codes] of Object.entries({ real_name_identity_check: ['real_
     await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   });
 }
+test('school email step shows live sending state, verifies six digits and allows going back', async ({ page }, info) => {
+  const v = messages(info).verification;
+  const mailSchool = { ...school, methods: ['student_email_outbound_otp'] };
+  const mailApplication = { ...application, method: 'student_email_outbound_otp' };
+  let mail = { id: 'mail', application_id: 'application', expires_at: '2030-01-01T00:05:00Z', state: 'queued', masked_email: '20****01@example.edu', target_address: '' };
+  const writes = [];
+  await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
+  await page.route('**/api/v1/verification/**', route => {
+    const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
+    if (request.method() === 'POST') writes.push(endpoint);
+    if (request.method() === 'POST' && endpoint === 'applications') return route.fulfill({ json: mailApplication });
+    if (request.method() === 'POST' && endpoint === 'applications/application/email') return route.fulfill({ json: mail });
+    if (request.method() === 'POST' && endpoint === 'applications/application/email/confirm') return route.fulfill({ json: { ...mailApplication, state: 'approved' } });
+    if (endpoint === 'applications/application/email') {
+      mail = { ...mail, state: 'delivered' };
+      return route.fulfill({ json: mail });
+    }
+    if (endpoint === 'summary') return route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-14T00:00:00Z', revision: 1, next_evaluation_at: null } });
+    return route.fulfill({ json: endpoint === 'schools' ? [mailSchool] : [] });
+  });
+  await open(page, info);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: v.continue }).click();
+
+  // Going back re-enables the method selection without reloading the page.
+  await page.getByRole('button', { name: v.back }).click();
+  await expect(page.getByRole('combobox').nth(0)).toBeEnabled();
+  await page.getByRole('button', { name: v.continue }).click();
+
+  await page.getByLabel(v.studentId).fill('20260001');
+  await page.getByLabel(v.name).fill('Synthetic Student');
+  await page.getByRole('button', { name: v.createChallenge }).click();
+  await expect(page.getByRole('status').filter({ hasText: v.emailStep.sending })).toBeVisible();
+  await expect(page.getByText(v.emailStep.sent.replace('{email}', '20****01@example.edu'))).toBeVisible();
+  // Resending waits for the one-minute server limit and shows the countdown.
+  const resend = page.locator('.email-step .form-actions button').nth(1);
+  await expect(resend).toBeDisabled();
+  await expect(resend).not.toHaveText(v.emailStep.resend);
+
+  const codeInput = page.getByLabel(v.emailCode, { exact: true });
+  await codeInput.fill('482 916');
+  await expect(codeInput).toHaveCount(0);
+  expect(writes).toContain('applications/application/email/confirm');
+});
+
+// A delayed provider status must not permanently disable the explicit resend action.
+test('queued email can be resent after the cooldown without a delivered status', async ({ page }, info) => {
+  const v = messages(info).verification;
+  await page.clock.install({ time: new Date('2026-11-15T01:00:00Z') });
+  await fixture(page, { school: { ...school, methods: ['student_email_outbound_otp'] } });
+  const mailApplication = { ...application, method: 'student_email_outbound_otp' };
+  await page.route('**/api/v1/verification/applications**', route => {
+    const req = route.request(), endpoint = new URL(req.url()).pathname.split('/verification/')[1];
+    if (req.method() === 'POST' && endpoint === 'applications') return route.fulfill({ json: mailApplication });
+    if (endpoint === 'applications/application/email') return route.fulfill({ json: { id: 'queued-mail', application_id: 'application', expires_at: '2026-11-15T01:05:00Z', state: 'queued', masked_email: '20****01@example.edu', target_address: '' } });
+    return route.fulfill({ json: [] });
+  });
+  await open(page, info);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: v.continue }).click();
+  await page.getByLabel(v.studentId).fill('20260001');
+  await page.getByLabel(v.name).fill('Synthetic Student');
+  await page.getByRole('button', { name: v.createChallenge }).click();
+  const resend = page.locator('.email-step .form-actions button').nth(1);
+  await expect(resend).toBeDisabled();
+  await page.clock.fastForward(61_000);
+  await expect(resend).toBeEnabled();
+});
+
+test('school profile renders exactly the three server-projected fields', async ({ page }, info) => {
+  const state = await fixture(page);
+  state.profile.fields = { student_id: '20260001', name: 'Synthetic Student', department: 'Test Department' };
+  state.profile.field_sources = { student_id: 'oracle_students', name: 'oracle_students', department: 'oracle_departments' };
+  await open(page, info);
+  const v = messages(info).verification;
+  await page.getByRole('button', { name: v.viewProfile }).first().click();
+  const card = page.locator('section').filter({ has: page.getByRole('heading', { name: v.profileTitle, exact: true }) });
+  await expect(card.locator('[data-profile-field]')).toHaveCount(3);
+  expect(await card.locator('[data-profile-field]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-profile-field')).sort())).toEqual(['department', 'name', 'student_id']);
+  await expect(card.locator('dd')).toHaveText(['20260001', 'Synthetic Student', 'Test Department']);
+  await expect(card).not.toContainText(messages(info).common.unknown);
+  await shot(page, info, 'projected-profile', card);
+});
+
+test('restored email resend collects identity again before submitting', async ({ page }, info) => {
+  const v = messages(info).verification;
+  await fixture(page, { school: { ...school, methods: ['student_email_outbound_otp'] } });
+  const restored = { ...application, method: 'student_email_outbound_otp' };
+  const writes = [];
+  await page.route('**/api/v1/verification/applications**', route => {
+    const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
+    if (request.method() === 'POST') writes.push(request.postDataJSON());
+    if (endpoint === 'applications') return route.fulfill({ json: [restored] });
+    if (endpoint === 'applications/application/email') return route.fulfill({ json: { id: 'restored-mail', application_id: 'application', expires_at: '2020-01-01T00:00:00Z', state: 'delivered', masked_email: '20****01@example.edu', target_address: '' } });
+    return route.fulfill({ json: [] });
+  });
+  await open(page, info);
+  await page.locator('.list').getByRole('button', { name: v.continue, exact: true }).click();
+  await expect(page.locator('.email-step')).toBeVisible();
+  await page.getByRole('button', { name: v.emailStep.resend, exact: true }).click();
+  await expect(page.getByLabel(v.studentId, { exact: true })).toBeVisible();
+  expect(writes).toEqual([]);
+  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
+  await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
+  expect(writes).toEqual([{ student_id: '20260001', name: 'Synthetic Student' }]);
+});
