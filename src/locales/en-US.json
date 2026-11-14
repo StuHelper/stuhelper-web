@@ -86,7 +86,7 @@
     "disclosure_required": "Authorized real name or teacher verification is missing. You cannot reply to your own course yet.",
     "identity_owned": "This student identity belongs to another account. Recover that account or contact an administrator.",
     "expired": "The application, code or capture link expired. Please start again.",
-    "information_mismatch": "The information did not match. Check it or choose another available method.",
+    "information_mismatch": "The information did not match. Check the number of digits in your student ID, your name and identity document number, and whether the selected study level matches your enrollment record, then try again.",
     "method_unavailable": "This method is unavailable. Choose another available method.",
     "processing": "The request is still processing. Refresh or retry shortly.",
     "billing_unavailable": "The account service is unavailable. Try again later.",
@@ -1064,7 +1064,7 @@
       "school_account": "School account",
       "sso_profile": "School SSO profile",
       "sso_document": "School document query",
-      "academic_profile": "School academic data",
+      "academic_profile": "school academic records",
       "manual_review": "Manual review",
       "mailbox_verification": "Mailbox ownership",
       "self_reported": "User supplied",
@@ -1103,7 +1103,9 @@
       "roles": "Verification role",
       "student": "Student",
       "teacher": "Teacher"
-    }
+    },
+    "verifiedAt": "Verified at: {time}",
+    "profileSource": "From {source}"
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",

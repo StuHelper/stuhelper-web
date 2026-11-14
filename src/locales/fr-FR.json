@@ -86,7 +86,7 @@
     "disclosure_required": "Le nom réel ou la certification autorisée manque. Vous ne pouvez pas répondre à votre cours.",
     "identity_owned": "Cette identité étudiante est liée à un autre compte. Récupérez-le ou contactez un administrateur.",
     "expired": "La demande, le code ou le lien a expiré. Recommencez.",
-    "information_mismatch": "Les informations ne correspondent pas. Vérifiez-les ou choisissez une autre méthode.",
+    "information_mismatch": "Les informations ne correspondent pas. Vérifiez le nombre de chiffres de votre numéro étudiant, votre nom, votre numéro de pièce d’identité et la concordance du cycle d’études sélectionné avec votre inscription, puis réessayez.",
     "method_unavailable": "Cette méthode est indisponible. Choisissez une autre méthode proposée.",
     "processing": "La demande est en cours. Actualisez ou réessayez bientôt.",
     "billing_unavailable": "Le service de compte est indisponible. Réessayez plus tard.",
@@ -1064,7 +1064,7 @@
       "school_account": "Compte scolaire",
       "sso_profile": "Profil SSO scolaire",
       "sso_document": "Document de l’établissement",
-      "academic_profile": "Données académiques",
+      "academic_profile": "données de scolarité de l’établissement",
       "manual_review": "Examen manuel",
       "mailbox_verification": "Propriété du courriel",
       "self_reported": "Saisi par l’utilisateur",
@@ -1103,7 +1103,9 @@
       "roles": "Rôle à vérifier",
       "student": "Étudiant",
       "teacher": "Enseignant"
-    }
+    },
+    "verifiedAt": "Date de vérification : {time}",
+    "profileSource": "Source : {source}"
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",

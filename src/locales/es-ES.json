@@ -86,7 +86,7 @@
     "disclosure_required": "Falta el nombre real o la acreditación autorizada. Aún no puedes responder sobre tu curso.",
     "identity_owned": "Esta identidad estudiantil está vinculada a otra cuenta. Recupérala o contacta con un administrador.",
     "expired": "La solicitud, el código o el enlace caducó. Inicia de nuevo.",
-    "information_mismatch": "Los datos no coinciden. Revísalos o elige otro método disponible.",
+    "information_mismatch": "Los datos no coinciden. Comprueba el número de dígitos de tu número de estudiante, tu nombre, el número de tu documento de identidad y que el nivel de estudios seleccionado coincida con tu matrícula. Después, inténtalo de nuevo.",
     "method_unavailable": "Este método no está disponible. Elige otro.",
     "processing": "La solicitud sigue en proceso. Actualiza o reintenta en breve.",
     "billing_unavailable": "El servicio de cuentas no está disponible. Inténtalo más tarde.",
@@ -1064,7 +1064,7 @@
       "school_account": "Cuenta académica",
       "sso_profile": "Perfil SSO académico",
       "sso_document": "Documento de la institución",
-      "academic_profile": "Datos académicos",
+      "academic_profile": "datos académicos de la institución",
       "manual_review": "Revisión manual",
       "mailbox_verification": "Titularidad del correo",
       "self_reported": "Aportado por el usuario",
@@ -1103,7 +1103,9 @@
       "roles": "Rol a verificar",
       "student": "Estudiante",
       "teacher": "Profesor"
-    }
+    },
+    "verifiedAt": "Fecha de verificación: {time}",
+    "profileSource": "Fuente: {source}"
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",

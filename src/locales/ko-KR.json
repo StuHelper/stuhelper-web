@@ -86,7 +86,7 @@
     "disclosure_required": "공개가 허용된 실명 또는 교원 인증 정보가 없어 담당 과목에 답글을 달 수 없습니다.",
     "identity_owned": "해당 학생 신원은 다른 계정에 연결되어 있습니다. 기존 계정을 복구하거나 관리자에게 문의하세요.",
     "expired": "신청, 코드 또는 촬영 링크가 만료되었습니다. 다시 시작하세요.",
-    "information_mismatch": "정보가 일치하지 않습니다. 확인하거나 다른 가능한 방법을 선택하세요.",
+    "information_mismatch": "정보가 일치하지 않습니다. 학번 자릿수, 이름, 신분증 번호와 선택한 교육 과정이 학적 정보와 일치하는지 확인한 후 다시 시도하세요.",
     "method_unavailable": "이 인증 방법을 사용할 수 없습니다. 다른 가능한 방법을 선택하세요.",
     "processing": "요청이 처리 중입니다. 잠시 후 새로고침하거나 다시 시도하세요.",
     "billing_unavailable": "계정 서비스를 사용할 수 없습니다. 잠시 후 다시 시도하세요.",
@@ -1064,7 +1064,7 @@
       "school_account": "학교 계정",
       "sso_profile": "학교 SSO 정보",
       "sso_document": "학교 신분증 조회",
-      "academic_profile": "학교 학사 정보",
+      "academic_profile": "학교 학사 데이터",
       "manual_review": "수동 심사",
       "mailbox_verification": "메일 소유 확인",
       "self_reported": "사용자 입력",
@@ -1103,7 +1103,9 @@
       "roles": "인증 유형",
       "student": "학생",
       "teacher": "교수"
-    }
+    },
+    "verifiedAt": "인증 시간: {time}",
+    "profileSource": "출처: {source}"
   },
   "contribution": {
     "eyebrow": "공유 저장소",

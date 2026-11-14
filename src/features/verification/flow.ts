@@ -3,6 +3,7 @@ import { ApiError, errorCode } from '../../shared/api/errors'
 import { useVerification, type Application, type Credential, type EmailChallenge, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
 
 type Section = 'schools' | 'applications' | 'credentials' | 'requests'
+type ErrorTarget = Section | 'form' | 'profile' | 'removal' | 'email' | 'school'
 /** Teacher applications share the application list but use the teacher form and review. */
 type StudentApplication = Application & { kind: Kind }
 const isStudentApplication = (application: Application): application is StudentApplication => application.kind !== 'teacher'
@@ -18,6 +19,9 @@ export function useVerificationFlow() {
   const loading = ref(false)
   const busy = ref(false)
   const error = ref('')
+  const loadError = ref('')
+  const errorTarget = ref<ErrorTarget>('form')
+  const profileCredentialId = ref('')
   const notice = ref('')
   const summary = shallowRef<Summary>()
   const schools = ref<School[]>([])
@@ -26,6 +30,7 @@ export function useVerificationFlow() {
   const requests = ref<RemovalRequest[]>([])
   const cursors = reactive<Record<Section, string>>({ schools: '', applications: '', credentials: '', requests: '' })
   const profile = shallowRef<StudentProfile>()
+  const profileCredential = computed(() => credentials.value.find((item) => item.id === profileCredentialId.value))
 
   const mode = ref<'student' | 'identity'>('student')
   const selectedSchool = ref('')
@@ -50,7 +55,8 @@ export function useVerificationFlow() {
   const chooseStudy = computed(() => manual.value || !school.value?.profile_schema || school.value.profile_schema === 'buaa.imported.v1')
   const writable = computed(() => !!active.value && ['in_progress', 'supplement_required'].includes(active.value.state) && !schoolPending.value)
 
-  function fail(failure: unknown) {
+  function fail(failure: unknown, target: ErrorTarget = 'form') {
+    errorTarget.value = target
     error.value = errorCode(failure)
   }
 
@@ -60,8 +66,9 @@ export function useVerificationFlow() {
 
   async function reload() {
     loading.value = true
-    error.value = ''
+    loadError.value = ''
     profile.value = undefined
+    profileCredentialId.value = ''
     try {
       const signal = lifetime.signal
       const [s, a, c, r, state] = await Promise.all([
@@ -85,7 +92,7 @@ export function useVerificationFlow() {
         selectSchool()
       }
     } catch (failure) {
-      if (!lifetime.signal.aborted) fail(failure)
+      if (!lifetime.signal.aborted) loadError.value = errorCode(failure)
       if (failure instanceof ApiError && failure.denied) clearPrivate()
     } finally {
       loading.value = false
@@ -98,6 +105,7 @@ export function useVerificationFlow() {
     credentials.value = []
     requests.value = []
     profile.value = undefined
+    profileCredentialId.value = ''
     active.value = undefined
     materials.value = []
   }
@@ -123,7 +131,7 @@ export function useVerificationFlow() {
         requests.value = merge(requests.value, page.items)
         cursors.requests = page.next
       }
-    })
+    }, section)
   }
 
   function reset() {
@@ -137,6 +145,7 @@ export function useVerificationFlow() {
     form.document_number = ''
     consent.value = false
     notice.value = ''
+    error.value = ''
   }
 
   function selectSchool(chosen?: School) {
@@ -160,15 +169,16 @@ export function useVerificationFlow() {
     reset()
   }
 
-  async function action(work: () => Promise<void>) {
+  async function action(work: () => Promise<void>, target: ErrorTarget = 'form') {
     if (busy.value) return
     busy.value = true
+    errorTarget.value = target
     error.value = ''
     notice.value = ''
     try {
       await work()
     } catch (failure) {
-      fail(failure)
+      fail(failure, target)
     } finally {
       busy.value = false
       // Secrets never outlive a single submission.
@@ -251,7 +261,7 @@ export function useVerificationFlow() {
     form.code = ''
     notice.value = 'verified'
     await reload()
-  })
+  }, 'email')
 
   const refreshApplication = () => action(async () => {
     if (!active.value) return
@@ -278,7 +288,7 @@ export function useVerificationFlow() {
     removal.reason = ''
     notice.value = 'requested'
     await reload()
-  })
+  }, 'removal')
 
   const suggest = () => action(async () => {
     const body: Schemas['SuggestionInput'] = { name: suggestion.name, website: suggestion.website }
@@ -289,8 +299,12 @@ export function useVerificationFlow() {
   })
 
   const showProfile = (id: string) => action(async () => {
-    profile.value = await api.get('StudentProfile', `/api/v1/verification/credentials/${encodeURIComponent(id)}/profile`, lifetime.signal)
-  })
+    profile.value = undefined
+    profileCredentialId.value = ''
+    const result = await api.get('StudentProfile', `/api/v1/verification/credentials/${encodeURIComponent(id)}/profile`, lifetime.signal)
+    profile.value = result
+    profileCredentialId.value = id
+  }, 'profile')
 
   function schoolName(id: string) {
     return schools.value.find((item) => item.id === id)?.name ?? ''
@@ -320,7 +334,7 @@ export function useVerificationFlow() {
     const body: Schemas['SchoolChallengeInput'] = { action: 'cancel', challenge_id: current.id, revision: application.revision, code: '' }
     void api.write('Application', `/api/v1/verification/applications/${encodeURIComponent(application.id)}/school-challenge`, body).catch(() => {
       // Navigation may interrupt cleanup; the short-lived school session expires on its own.
-      if (!lifetime.signal.aborted) error.value = 'network'
+      if (!lifetime.signal.aborted) fail(new ApiError('network'), 'school')
     })
   }
 
@@ -332,7 +346,7 @@ export function useVerificationFlow() {
       notice.value = 'verified'
       await reload()
     }
-  })
+  }, 'school')
 
   async function poll() {
     timer = undefined
@@ -356,7 +370,7 @@ export function useVerificationFlow() {
         await reload()
       } else schedule()
     } catch (failure) {
-      if (!lifetime.signal.aborted) fail(failure)
+      if (!lifetime.signal.aborted) fail(failure, 'school')
     }
   }
 
@@ -380,7 +394,7 @@ export function useVerificationFlow() {
   })
 
   return {
-    loading, busy, error, notice, summary, schools, applications, credentials, requests, cursors, profile,
+    loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, writable,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, confirmEmail, refreshApplication,

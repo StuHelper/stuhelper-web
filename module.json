@@ -103,6 +103,19 @@
       "src/shared/session.test.ts#the retry component backs off and leaves an in-progress form mounted",
       "src/shared/session.test.ts#clears the snapshot after an explicit rejection even after an outage",
       "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401"
+    ],
+    "VERIFICATION-UX-01": [
+      "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
+      "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification"
+    ],
+    "VERIFICATION-UX-02": [
+      "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",
+      "tests/e2e/verification-ux.spec.mjs#verification page banner is reserved for loading failures",
+      "src/features/verification/flow.test.ts#keeps failed verification inputs and separates action errors from loading errors"
+    ],
+    "VERIFICATION-UX-03": [
+      "tests/e2e/verification-ux.spec.mjs#profile hides unknown sources and binds authentication time to the selected credential",
+      "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure"
     ]
   }
 }
