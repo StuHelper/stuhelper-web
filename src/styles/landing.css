@@ -28,7 +28,10 @@
 
 .lp-hero { display: flex; flex-direction: column; align-items: center; padding-block-start: clamp(2.25rem, 7vw, 4.75rem); text-align: center; }
 .lp-wordmark { display: flex; flex-direction: column; align-items: center; gap: 1.125rem; }
-.lp-wordmark > img { width: clamp(96px, 13vw, 160px); height: auto; filter: drop-shadow(0 18px 28px rgb(61 79 224 / 28%)); animation: lp-land .9s var(--ease-out) both, lp-float 6s ease-in-out .9s infinite; }
+/* brand.png keeps about 23% transparent margin above and below the plane. The
+   picture is drawn larger and the margin is pulled back, so the plane grows
+   without pushing the wordmark down. */
+.lp-wordmark > img { --mark: clamp(128px, 18vw, 180px); width: var(--mark); height: auto; margin-block: calc(var(--mark) * -.22); filter: drop-shadow(0 18px 28px rgb(61 79 224 / 28%)); animation: lp-land .9s var(--ease-out) both, lp-float 6s ease-in-out .9s infinite; }
 .lp-wordmark h1 { margin: 0; line-height: 0; }
 .lp-name { display: block; margin-inline: auto; inline-size: min(100%, 44rem); block-size: auto; animation: lp-letter .9s var(--ease-out) .18s both; }
 @keyframes lp-land { from { opacity: 0; transform: translate(-46px, 34px) rotate(-14deg) scale(.6); } }

@@ -58,8 +58,8 @@ const platform = [
         <img
           src="/brand.png"
           alt=""
-          width="160"
-          height="160"
+          width="180"
+          height="180"
         >
         <h1>
           <!-- The designed wordmark; its alt text is the heading's accessible name. -->
