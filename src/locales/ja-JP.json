@@ -102,7 +102,8 @@
     "quota_exceeded": "リクエストが多すぎて上限を超えました。しばらくしてから再試行してください。",
     "billing_conflict": "データが他の操作で更新されました。再読み込みしてから再試行してください。",
     "schedule_incomplete": "時間割の情報が不足しているため、まだカレンダーを書き出せません。学校が授業時間や時限を登録すると書き出せます。",
-    "billing_already_accessible": "この資料には既にアクセスできます。再度支払う必要はありません。"
+    "billing_already_accessible": "この資料には既にアクセスできます。再度支払う必要はありません。",
+    "method_identity_not_allowed": "この認証方法は在学生のみ利用できます。卒業生は実名情報の照合または書類の手動審査をご利用ください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -1013,7 +1014,8 @@
     "materialTypes": {
       "student_card": "学生証・キャンパスカード",
       "admission_letter": "入学許可通知",
-      "enrollment_certificate": "在学証明書"
+      "enrollment_certificate": "在学証明書",
+      "graduation_certificate": "卒業証明書・学位証明書"
     },
     "profileStatus": {
       "complete": "学校が対応する情報を取得済み",

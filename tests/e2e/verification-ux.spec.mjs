@@ -14,13 +14,13 @@ async function fixture(page, options = {}) {
     const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
     if (request.method() === 'POST') {
       state.writes.push(request.postDataJSON());
-      if (endpoint === 'applications') return route.fulfill({ json: application });
-      return route.fulfill({ status: 422, json: { code: 'verification_information_mismatch' } });
+      if (endpoint === 'applications') return route.fulfill({ json: options.school ? { ...application, ...request.postDataJSON() } : application });
+      return route.fulfill({ status: 422, json: { code: options.errorCode ?? 'verification_information_mismatch' } });
     }
     if (endpoint === 'summary') return route.fulfill({ json: { campus_eligibility: true, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-14T00:00:00Z', revision: 1, next_evaluation_at: null } });
     if (options.loadFailure && endpoint === 'schools') return route.fulfill({ status: 503, json: { code: 'unavailable' } });
     if (endpoint.endsWith('/profile')) return route.fulfill({ json: state.profile });
-    return route.fulfill({ json: endpoint === 'schools' ? [school] : endpoint === 'credentials' ? [credential, { ...credential, id: 'second', verified_at: '2025-05-01T00:00:00Z' }] : [] });
+    return route.fulfill({ json: endpoint === 'schools' ? [options.school ?? school] : endpoint === 'credentials' ? [credential, { ...credential, id: 'second', verified_at: '2025-05-01T00:00:00Z' }] : [] });
   });
   return state;
 }
@@ -142,4 +142,37 @@ test('shared selects keep scroll locking by default outside verification', async
     await page.keyboard.press('Escape');
     await expect(page.locator('body')).not.toHaveCSS('overflow', 'hidden');
   }
+});
+
+
+test('school method capability removes stage and explains identity rejection', async ({ page }, info) => {
+  const configured = { ...school, methods: ['school_sso'], method_capabilities: { school_sso: { study_stage_required: false, allowed_kinds: ['student'] } } };
+  const state = await fixture(page, { school: configured, errorCode: 'method_identity_not_allowed' });
+  await open(page, info);
+  const m = messages(info), v = m.verification;
+  await expect(page.getByRole('combobox', { name: v.stage, exact: true })).toHaveCount(0);
+  await page.getByLabel(v.consent).check();
+  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  expect(state.writes[0].stage).toBe('unknown');
+  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
+  await page.getByRole('button', { name: v.submit, exact: true }).click();
+  await expect(page.locator('form').first().getByRole('alert')).toContainText(m.errors.method_identity_not_allowed);
+  await shot(page, info, 'method-capability');
+});
+
+test('manual method keeps identity selection and advertises configured graduate materials', async ({ page }, info) => {
+  const configured = { ...school, methods: ['manual_material_review'], material_types: ['student_card', 'enrollment_certificate', 'graduation_certificate'], method_capabilities: { manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] } } };
+  await fixture(page, { school: configured });
+  await open(page, info);
+  const v = messages(info).verification;
+  await expect(page.getByRole('combobox', { name: v.stage, exact: true })).toHaveCount(0);
+  await expect(page.getByRole('combobox', { name: v.kind, exact: true })).toBeVisible();
+  await page.getByLabel(v.consent).check();
+  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  const materials = page.getByRole('combobox', { name: v.materialType, exact: true });
+  await materials.click();
+  await expect(page.getByRole('option', { name: v.materialTypes.graduation_certificate, exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: v.materialTypes.admission_letter, exact: true })).toHaveCount(0);
+  await page.keyboard.press('Escape');
 });

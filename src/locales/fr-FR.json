@@ -102,7 +102,8 @@
     "quota_exceeded": "Trop de requêtes : le quota est dépassé. Réessayez plus tard.",
     "billing_conflict": "Les données ont changé entre-temps. Actualisez puis réessayez.",
     "schedule_incomplete": "L’emploi du temps est incomplet : l’agenda ne peut pas encore être exporté. Il le sera dès que l’établissement aura ajouté les horaires.",
-    "billing_already_accessible": "Vous avez déjà accès à cette ressource, aucun paiement n’est nécessaire."
+    "billing_already_accessible": "Vous avez déjà accès à cette ressource, aucun paiement n’est nécessaire.",
+    "method_identity_not_allowed": "Cette méthode est réservée aux étudiants actuels. Les anciens étudiants doivent utiliser la vérification d’identité ou l’examen manuel des documents."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -1013,7 +1014,8 @@
     "materialTypes": {
       "student_card": "Carte étudiante ou universitaire",
       "admission_letter": "Lettre d’admission",
-      "enrollment_certificate": "Certificat de scolarité"
+      "enrollment_certificate": "Certificat de scolarité",
+      "graduation_certificate": "Diplôme ou attestation de diplôme"
     },
     "profileStatus": {
       "complete": "Données prises en charge recueillies",

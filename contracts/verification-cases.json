@@ -167,6 +167,66 @@
         "password": "synthetic"
       },
       "accepted": true
+    },
+    {
+      "name": "method capability permits source stage",
+      "kind": "School",
+      "body": {
+        "id": "synthetic-school",
+        "name": "Synthetic School",
+        "enabled": true,
+        "methods": [
+          "manual_material_review"
+        ],
+        "notice_version": "v1",
+        "opening_date": "",
+        "newcomer_days": 90,
+        "email_domain": "",
+        "material_types": [
+          "student_card"
+        ],
+        "revision": 1,
+        "method_capabilities": {
+          "manual_material_review": {
+            "study_stage_required": false,
+            "allowed_kinds": [
+              "student",
+              "alumni"
+            ]
+          }
+        }
+      },
+      "accepted": true
+    },
+    {
+      "name": "stage capability must be a boolean",
+      "kind": "School",
+      "body": {
+        "id": "synthetic-school",
+        "name": "Synthetic School",
+        "enabled": true,
+        "methods": [
+          "manual_material_review"
+        ],
+        "notice_version": "v1",
+        "opening_date": "",
+        "newcomer_days": 90,
+        "email_domain": "",
+        "material_types": [
+          "student_card"
+        ],
+        "revision": 1,
+        "method_capabilities": {
+          "manual_material_review": {
+            "study_stage_required": "false",
+            "allowed_kinds": [
+              "student",
+              "alumni"
+            ]
+          }
+        }
+      },
+      "accepted": false
     }
   ]
 }
