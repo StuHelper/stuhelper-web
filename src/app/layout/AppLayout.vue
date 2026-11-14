@@ -235,6 +235,7 @@ watch(() => route.path, async (_path, previous) => {
           >
             {{ t('nav.platform') }}
           </RouterLink>
+          <a href="mailto:feedback@stuhelper.com">{{ t('shell.contact') }}</a>
         </nav>
         <span class="footer-note">{{ t('shell.footer') }}</span>
         <!-- On narrow phones appearance and language move here, so the bar keeps room for the products. -->
