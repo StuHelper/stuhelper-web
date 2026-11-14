@@ -1,4 +1,4 @@
-import { myCoursesEnabled } from './features'
+import { myCoursesEnabled, teacherDirectoryEnabled } from './features'
 import { beginMorph, endMorph, pendingTitle, trackTitleClicks } from '../shared/ui/pendingTitle'
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from 'vue-router'
@@ -37,7 +37,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
   { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },
   { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { access: 'verified', title: 'nav.courses', section: 'courses' } },
-  { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { access: 'verified', title: 'nav.teachers', section: 'teachers' } },
+  teacherDirectoryEnabled
+    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { access: 'verified', title: 'nav.teachers', section: 'teachers' } }
+    : { path: '/teachers', redirect: '/courses' },
   { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.course', section: 'courses' } },
   { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teacher', section: 'teachers' } },
   { path: '/offerings/:id', component: academic.offering, props: (route) => ({ kind: 'term_course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.offering', section: 'courses' } },

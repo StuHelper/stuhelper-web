@@ -37,28 +37,21 @@ memberTest('the search palette finds a course and opens it with the keyboard', a
   await expect(page).toHaveURL(/\/courses\/course(\?|$)/);
 });
 
-memberTest('the results page keeps the query in the address and filters by type', async ({ page }, info) => {
+memberTest('while the teacher directory is off, search and popular lists show no teachers', async ({ page }, info) => {
   const s = catalogue(info).search;
   await academicFixture(page);
-  const seen = await searchServer(page, { '/api/v1/search': (q) => (q.get('cursor') ? { items: [item('teacher', 'teacher-b', 'Teacher B')], next_cursor: '' } : { items: [item('teacher', 'teacher-a', 'Teacher A')], next_cursor: 'c2' }) });
-  await page.goto(`${base}/search?q=Teacher&lang=${info.project.metadata.locale}`);
-  await expect(page.getByRole('link', { name: /Teacher A/ })).toBeVisible();
-  await page.getByRole('button', { name: catalogue(info).common.loadMore }).click();
-  await expect(page.getByRole('link', { name: /Teacher B/ })).toBeVisible();
-  await page.getByRole('tab', { name: s.kinds.teacher, exact: true }).click();
-  await expect(page).toHaveURL(/kind=teacher/);
-  await expect.poll(() => seen.at(-1)).toBe('/api/v1/search?q=Teacher&kind=teacher&limit=20');
-});
-
-memberTest('popular lists switch between courses and teachers', async ({ page }, info) => {
-  const s = catalogue(info).search;
-  await academicFixture(page);
-  const seen = await searchServer(page, { '/api/v1/search/popular': (q) => ({ items: q.get('kind') === 'teacher' ? [item('teacher', 'teacher-a', 'Teacher A')] : [item('course', 'course', 'Test Course')], next_cursor: '' }) });
+  const seen = await searchServer(page, {
+    '/api/v1/search': () => ({ items: [item('teacher', 'teacher-a', 'Teacher A'), item('course', 'course', 'Test Course')], next_cursor: '' }),
+    '/api/v1/search/popular': () => ({ items: [item('course', 'course', 'Test Course')], next_cursor: '' }),
+  });
+  await page.goto(`${base}/search?q=Test&lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('link', { name: /Test Course/ })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Teacher A/ })).toHaveCount(0);
+  await expect(page.getByRole('tab', { name: s.kinds.teacher, exact: true })).toHaveCount(0);
   await page.goto(`${base}/popular?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('link', { name: /Test Course/ })).toBeVisible();
-  await page.getByRole('tab', { name: s.popular.teachers, exact: true }).click();
-  await expect(page.getByRole('link', { name: /Teacher A/ })).toHaveAttribute('href', '/teachers/teacher-a');
-  expect(seen).toEqual(['/api/v1/search/popular?kind=course&limit=20', '/api/v1/search/popular?kind=teacher&limit=20']);
+  await expect(page.getByRole('tab', { name: s.popular.teachers, exact: true })).toHaveCount(0);
+  expect(seen.filter((path) => path.includes('kind=teacher'))).toEqual([]);
 });
 
 memberTest('my votes show each choice and lead back to the review', async ({ page }, info) => {
