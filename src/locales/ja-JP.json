@@ -1069,7 +1069,9 @@
       "mailbox_verification": "メール所有確認",
       "self_reported": "ユーザー入力",
       "legacy_credential": "過去の認証情報",
-      "synthetic": "テストデータ"
+      "synthetic": "テストデータ",
+      "oracle_students": "学校の教務データ",
+      "oracle_departments": "学校の教務データ"
     },
     "schoolErrors": {
       "credentials_rejected": "学校のアカウントまたはパスワードが拒否されました。",

@@ -1069,7 +1069,9 @@
       "mailbox_verification": "메일 소유 확인",
       "self_reported": "사용자 입력",
       "legacy_credential": "기존 인증 정보",
-      "synthetic": "테스트 데이터"
+      "synthetic": "테스트 데이터",
+      "oracle_students": "학교 학사 데이터",
+      "oracle_departments": "학교 학사 데이터"
     },
     "schoolErrors": {
       "credentials_rejected": "학교 계정 또는 비밀번호가 거부되었습니다.",

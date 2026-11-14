@@ -1069,7 +1069,9 @@
       "mailbox_verification": "Mailbox ownership",
       "self_reported": "User supplied",
       "legacy_credential": "Historical verification",
-      "synthetic": "Test data"
+      "synthetic": "Test data",
+      "oracle_students": "school academic records",
+      "oracle_departments": "school academic records"
     },
     "schoolErrors": {
       "credentials_rejected": "The school rejected the account or password.",

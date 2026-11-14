@@ -1069,7 +1069,9 @@
       "mailbox_verification": "ملكية البريد",
       "self_reported": "إدخال المستخدم",
       "legacy_credential": "بيانات تحقق سابقة",
-      "synthetic": "بيانات اختبار"
+      "synthetic": "بيانات اختبار",
+      "oracle_students": "السجلات الأكاديمية للمؤسسة التعليمية",
+      "oracle_departments": "السجلات الأكاديمية للمؤسسة التعليمية"
     },
     "schoolErrors": {
       "credentials_rejected": "رفضت المؤسسة الحساب أو كلمة المرور.",
