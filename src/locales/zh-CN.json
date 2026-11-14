@@ -1069,7 +1069,9 @@
       "mailbox_verification": "邮箱归属验证",
       "self_reported": "用户填写",
       "legacy_credential": "历史认证资料",
-      "synthetic": "测试资料"
+      "synthetic": "测试资料",
+      "oracle_students": "学校教务数据",
+      "oracle_departments": "学校教务数据"
     },
     "schoolErrors": {
       "credentials_rejected": "学校账号或密码未通过。",

@@ -1069,7 +1069,9 @@
       "mailbox_verification": "Titularidad del correo",
       "self_reported": "Aportado por el usuario",
       "legacy_credential": "Verificación histórica",
-      "synthetic": "Datos de prueba"
+      "synthetic": "Datos de prueba",
+      "oracle_students": "datos académicos de la institución",
+      "oracle_departments": "datos académicos de la institución"
     },
     "schoolErrors": {
       "credentials_rejected": "La institución rechazó la cuenta o contraseña.",
