@@ -3,7 +3,8 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import { ChevronRight, Search } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
+import { usePageFilters } from '../../app/pageFilters'
 import { useFormat } from '../../app/i18n'
 import { useCampusId } from '../account/access'
 import { useAsync, usePaged } from '../../shared/composables/async'
@@ -11,12 +12,10 @@ import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { knownCredits, listSize, useAcademic, type CatalogObject } from './api'
 
-// Course or teacher directory. Filters live in the URL so results can be shared.
+// Course or teacher directory. Search text and filters stay in page state, not the address.
 const props = defineProps<{ kind: 'course' | 'teacher' }>()
 const { t } = useI18n()
 const format = useFormat()
-const route = useRoute()
-const router = useRouter()
 const api = useAcademic()
 const campus = useCampusId()
 const filtersOpen = ref(false)
@@ -25,15 +24,12 @@ type Filters = Record<(typeof keys)[number], string>
 const form = reactive<Filters>({ q: '', department: '', category: '', nature: '', teacher: '' })
 const names = shallowRef(new Map<string, CatalogObject>())
 
-// Filters live in the URL fragment (#department=…): the page stays shareable and
-// the back button still steps through filter changes, while the address path and
-// query stay clean. The fragment is never sent to the server.
-function fromRoute(): Filters {
-  const params = new URLSearchParams(route.hash.replace(/^#/, ''))
-  const read = (key: string) => params.get(key) ?? ''
-  return { q: read('q'), department: read('department'), category: props.kind === 'course' ? read('category') : '', nature: props.kind === 'course' ? read('nature') : '', teacher: props.kind === 'course' ? read('teacher') : '' }
-}
-const applied = computed(fromRoute)
+const page = usePageFilters(keys)
+const applied = computed<Filters>(() => {
+  const f = page.values.value
+  const course = props.kind === 'course'
+  return { q: f.q, department: f.department, category: course ? f.category : '', nature: course ? f.nature : '', teacher: course ? f.teacher : '' }
+})
 const filtered = computed(() => keys.some((key) => applied.value[key]))
 
 const results = usePaged(async (after, signal) => {
@@ -61,19 +57,16 @@ const teacherName = useAsync(async (signal) => (applied.value.teacher ? (await a
 
 function apply(changes: Partial<Filters> = {}) {
   Object.assign(form, changes)
-  const params = new URLSearchParams()
-  for (const key of keys) if (form[key]) params.set(key, form[key])
-  const fragment = params.toString()
-  void router.replace({ path: route.path, query: route.query, hash: fragment ? `#${fragment}` : '' })
+  page.replace({ ...form })
 }
 
 const active = computed(() => (['department', 'category', 'nature'] as const).filter((key) => applied.value[key]).length)
 
-watch(() => [props.kind, route.hash], () => {
-  Object.assign(form, fromRoute())
+watch(() => `${props.kind} ${JSON.stringify(applied.value)}`, () => {
+  Object.assign(form, applied.value)
   void results.reload()
   void teacherName.reload()
-}, { immediate: true, deep: true })
+}, { immediate: true })
 watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate: true })
 </script>
 

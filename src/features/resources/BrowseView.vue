@@ -3,8 +3,9 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Folder, Lock, Search, SlidersHorizontal, X } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { usePageFilters } from '../../app/pageFilters'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -18,20 +19,17 @@ import { parseAttributes, readTrail, rememberTrail } from './browseState'
 import FieldInput from './FieldInput.vue'
 import PackagePanel from './PackagePanel.vue'
 
-// Browse published resources. Search, filters and folder live in the address, so
-// reloading or returning shows the same list. Category fields, filters and
+// Browse published resources. Search, filters and folder live in page state
+// (not the address), so reloading or returning shows the same list. Category fields, filters and
 // grouping come from server configuration; nothing here depends on a category name.
 const { t, locale } = useI18n()
 const format = useFormat()
-const route = useRoute()
-const router = useRouter()
 const api = useResourcesApi()
 const catalog = useAcademic()
 const campus = useCampusId()
 const packing = useMutation()
-const read = (key: string) => (typeof route.query[key] === 'string' ? String(route.query[key]) : '')
-
-const applied = computed(() => ({ q: read('q'), category: read('category'), course: read('course_id'), dir: read('dir'), fields: parseAttributes(read('attrs')) }))
+const page = usePageFilters(['q', 'category', 'course_id', 'dir', 'attrs'] as const)
+const applied = computed(() => { const f = page.values.value; return { q: f.q, category: f.category, course: f.course_id, dir: f.dir, fields: parseAttributes(f.attrs) } })
 const text = ref(applied.value.q)
 const filtering = ref(false)
 const draft = reactive({ category: '', course: '' })
@@ -82,8 +80,9 @@ const chips = computed(() => {
   return list
 })
 
+// Each change adds a history entry, so back leaves a folder or undoes a filter.
 function navigate(changes: Record<string, string | undefined>) {
-  void router.push({ path: route.path, query: { ...route.query, ...changes } })
+  page.push(changes)
 }
 function search() {
   navigate({ q: text.value.trim() || undefined })
@@ -132,8 +131,7 @@ function reload() {
 watch(() => draft.category, (value, previous) => {
   if (previous !== undefined && filtering.value) draftFields.value = {}
 })
-watch(() => route.fullPath, () => {
-  if (route.path !== '/resources') return
+watch(page.signature, () => {
   text.value = applied.value.q
   trail.value = readTrail(applied.value.dir)
   selected.value = []

@@ -4,6 +4,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { withFilters } from '../../app/pageFilters'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync } from '../../shared/composables/async'
 import AsyncState from '../../shared/ui/AsyncState.vue'
@@ -251,7 +252,7 @@ async function exportCalendar() {
                     </RouterLink>
                     <RouterLink
                       class="btn btn-sm"
-                      :to="{ path: '/resources', query: { course_id: row.enrollment.course_id } }"
+                      :to="withFilters('/resources', { course_id: row.enrollment.course_id })"
                     >
                       {{ t('academic.subject.resources') }}
                     </RouterLink>

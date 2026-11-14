@@ -3,7 +3,8 @@ import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, History, Sear
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, type RouteLocationRaw } from 'vue-router'
+import { withFilters } from '../../app/pageFilters'
 import { errorCode } from '../../shared/api/errors'
 import { recentPages } from '../../shared/recent'
 import { useErrorText } from '../../shared/ui/messages'
@@ -72,7 +73,7 @@ watch(open, (value) => {
   } else cancel()
 })
 
-function go(to?: string) {
+function go(to?: RouteLocationRaw) {
   if (!to) return
   open.value = false
   void router.push(to)
@@ -80,7 +81,7 @@ function go(to?: string) {
 function submit() {
   const hit = hits.value[active.value]
   if (hit && (status.value === 'ready' || !q.value.trim())) return go(hit.to)
-  if (q.value.trim()) go(`/search?q=${encodeURIComponent(q.value.trim())}`)
+  if (q.value.trim()) go(withFilters('/search', { q: q.value.trim() }))
 }
 function move(step: number) {
   const count = hits.value.length
@@ -183,7 +184,7 @@ onBeforeUnmount(() => {
           v-if="q.trim() && verified"
           class="all"
           type="button"
-          @click="go(`/search?q=${encodeURIComponent(q.trim())}`)"
+          @click="go(withFilters('/search', { q: q.trim() }))"
         >
           {{ t('search.allResults') }}
         </button>
