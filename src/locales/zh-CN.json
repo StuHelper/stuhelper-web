@@ -1119,6 +1119,19 @@
     "profileSource": "来自{source}",
     "methodDescriptions": {
       "real_name_identity_check": "您的实名信息仅用于本次身份核验，将与学校或第三方认证服务商提供的数据进行比对。"
+    },
+    "back": "返回上一步",
+    "emailStep": {
+      "title": "输入邮箱验证码",
+      "sending": "正在发送验证码，请稍候…",
+      "sent": "验证码已发送至 {email}，请查收。",
+      "failed": "验证码发送失败，请重新发送或更换认证方式。",
+      "spamHint": "如果几分钟内没有收到，请查看垃圾邮件文件夹。",
+      "validFor": "验证码 {time} 后失效（{until}）。",
+      "expired": "验证码已失效，请重新发送。",
+      "confirm": "验证",
+      "resend": "重新发送",
+      "resendIn": "{seconds} 秒后可重新发送"
     }
   },
   "contribution": {

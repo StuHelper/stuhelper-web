@@ -7,6 +7,8 @@ import { qqRoute } from './qq'
 import { notificationsRoute } from './notifications'
 import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
 
+let demoMailAt = 0
+
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
 const KEY = 'stuhelper-demo-persona'
 // Account closure request of the prototype session.
@@ -144,6 +146,14 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
     if (p === '/verification/credentials') return json(eligible ? [d.verification.credential('active')] : who === 'expired' ? [d.verification.credential('expired')] : [])
     if (p === '/verification/applications' && method === 'GET') return json([...(who === 'processing' ? [d.verification.application] : []), ...teacherApplications()])
     if (p === '/verification/applications') return json({ ...d.verification.application, state: 'in_progress' }, 201)
+    // School-email code: queued first, delivered a few seconds later, any six digits confirm.
+    const mail = /^\/verification\/applications\/([^/]+)\/email(\/confirm)?$/.exec(p)
+    if (mail && mail[2]) return json({ ...d.verification.application, id: decodeURIComponent(mail[1]!), state: 'approved' })
+    if (mail) {
+      if (method === 'POST') demoMailAt = Date.now()
+      const delivered = Date.now() - demoMailAt > 3000
+      return json({ id: 'demo-mail', application_id: decodeURIComponent(mail[1]!), expires_at: new Date(demoMailAt + 5 * 60_000).toISOString(), state: delivered ? 'delivered' : 'queued', masked_email: '23****68@buaa.edu.cn', target_address: '' }, method === 'POST' ? 201 : 200)
+    }
     if (p === '/verification/identity') return json({ code: 'pending' }, 400)
     return json([])
   }

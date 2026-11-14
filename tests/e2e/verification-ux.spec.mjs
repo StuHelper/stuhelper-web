@@ -199,3 +199,47 @@ for (const [method, codes] of Object.entries({ real_name_identity_check: ['real_
     await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   });
 }
+test('school email step shows live sending state, verifies six digits and allows going back', async ({ page }, info) => {
+  const v = messages(info).verification;
+  const mailSchool = { ...school, methods: ['student_email_outbound_otp'] };
+  const mailApplication = { ...application, method: 'student_email_outbound_otp' };
+  let mail = { id: 'mail', application_id: 'application', expires_at: '2030-01-01T00:05:00Z', state: 'queued', masked_email: '20****01@example.edu', target_address: '' };
+  const writes = [];
+  await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
+  await page.route('**/api/v1/verification/**', route => {
+    const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
+    if (request.method() === 'POST') writes.push(endpoint);
+    if (request.method() === 'POST' && endpoint === 'applications') return route.fulfill({ json: mailApplication });
+    if (request.method() === 'POST' && endpoint === 'applications/application/email') return route.fulfill({ json: mail });
+    if (request.method() === 'POST' && endpoint === 'applications/application/email/confirm') return route.fulfill({ json: { ...mailApplication, state: 'approved' } });
+    if (endpoint === 'applications/application/email') {
+      mail = { ...mail, state: 'delivered' };
+      return route.fulfill({ json: mail });
+    }
+    if (endpoint === 'summary') return route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-14T00:00:00Z', revision: 1, next_evaluation_at: null } });
+    return route.fulfill({ json: endpoint === 'schools' ? [mailSchool] : [] });
+  });
+  await open(page, info);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: v.continue }).click();
+
+  // Going back re-enables the method selection without reloading the page.
+  await page.getByRole('button', { name: v.back }).click();
+  await expect(page.getByRole('combobox').nth(0)).toBeEnabled();
+  await page.getByRole('button', { name: v.continue }).click();
+
+  await page.getByLabel(v.studentId).fill('20260001');
+  await page.getByLabel(v.name).fill('Synthetic Student');
+  await page.getByRole('button', { name: v.createChallenge }).click();
+  await expect(page.getByRole('status').filter({ hasText: v.emailStep.sending })).toBeVisible();
+  await expect(page.getByText(v.emailStep.sent.replace('{email}', '20****01@example.edu'))).toBeVisible();
+  // Resending waits for the one-minute server limit and shows the countdown.
+  const resend = page.locator('.email-step .form-actions button').nth(1);
+  await expect(resend).toBeDisabled();
+  await expect(resend).not.toHaveText(v.emailStep.resend);
+
+  const codeInput = page.getByLabel(v.emailCode, { exact: true });
+  await codeInput.pressSequentially('48 29 16');
+  await expect(codeInput).toHaveCount(0);
+  expect(writes).toContain('applications/application/email/confirm');
+});
