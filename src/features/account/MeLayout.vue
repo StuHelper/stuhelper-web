@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, GraduationCap, HardDrive, Inbox, LockKeyhole, ShieldCheck, ThumbsUp, UserRound, UserRoundCog, UsersRound, BadgeCheck } from 'lucide-vue-next'
+import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, ShieldCheck, ThumbsUp, UserRound, UserRoundCog, UsersRound, BadgeCheck } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -13,7 +13,7 @@ const { t } = useI18n()
 const route = useRoute()
 const available = useLinkAvailable()
 const covers = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
-// The most specific link wins, so the teacher page does not also mark the verification link.
+// The most specific link wins. Student and teacher verification share one entry.
 const current = (to: string) => covers(to) && !links.some((link) => link.to !== to && link.to.startsWith(`${to}/`) && covers(link.to))
 const links = [
   { to: '/me', label: 'me.overview', icon: UserRound, tile: 'var(--c-gray)' },
@@ -22,8 +22,7 @@ const links = [
   { to: '/me/reviews', label: 'me.reviews', icon: FileText, tile: 'var(--c-blue)' },
   { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
   { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: 'var(--c-indigo)' },
-  { to: '/me/verification', label: 'verification.title', icon: ShieldCheck, tile: 'var(--c-green)' },
-  { to: '/me/verification/teacher', label: 'teacher.link', icon: GraduationCap, tile: 'var(--c-indigo)' },
+  { to: '/me/verification', label: 'verification.unified.title', icon: ShieldCheck, tile: 'var(--c-green)' },
   { to: '/me/groups', label: 'groups.title', icon: UsersRound, tile: 'var(--c-cyan)' },
   { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
   { to: '/me/favorites', label: 'favorites.title', icon: Bookmark, tile: 'var(--c-orange)' },
@@ -88,7 +87,7 @@ const links = [
 .me { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3.5rem); align-items: start; }
 .me-nav { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); display: grid; gap: 2px; }
 .me-nav-title { padding: 0 .625rem .625rem; color: var(--label-3); font-size: .8125rem; font-weight: 550; }
-.me-nav a { display: flex; align-items: center; gap: .625rem; min-height: 42px; padding: .375rem .625rem; border-radius: var(--radius-sm); color: var(--label); font-size: .9375rem; transition: background-color .15s; }
+.me-nav a { display: flex; align-items: center; gap: .625rem; min-height: 42px; padding: .375rem .625rem; border-radius: var(--pill); color: var(--label); font-size: .9375rem; transition: background-color .15s; }
 .me-nav a:hover { background: var(--fill); text-decoration: none; }
 .me-nav a[aria-current="page"] { background: var(--fill-strong); font-weight: 550; }
 .me-nav .icon-tile { width: 26px; height: 26px; border-radius: 7px; }

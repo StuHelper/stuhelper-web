@@ -6,17 +6,23 @@
   },
   "shell": {
     "skip": "Skip to main content",
-    "footer": "Campus information for courses, reviews and learning resources"
+    "footer": "Campus information for courses, reviews and learning resources",
+    "themeLight": "Switch to light appearance",
+    "themeDark": "Switch to dark appearance"
   },
   "nav": {
     "primary": "Main navigation",
     "account": "Account menu",
-    "home": "Home",
     "courses": "Courses",
     "teachers": "Teachers",
     "resources": "Resources",
     "contributions": "Storage contribution",
-    "me": "Me"
+    "me": "Me",
+    "campus": "Campus",
+    "discover": "Discover",
+    "campusSections": "Campus navigation",
+    "products": "Products",
+    "platform": "Open platform"
   },
   "language": {
     "label": "Language"
@@ -26,7 +32,7 @@
     "empty": "Nothing here yet.",
     "retry": "Retry",
     "retryOriginal": "Submit again",
-    "uncertain": "We could not confirm the submission. To avoid duplicates your input is locked. Please submit again.",
+    "uncertain": "The submission is unconfirmed. Your input is locked to prevent duplicates; please submit again.",
     "leaveUnsaved": "You have unsaved changes. Leave anyway?",
     "leaveUncertain": "A submission is not confirmed yet and may be hard to check after leaving. Leave anyway?",
     "all": "All",
@@ -152,6 +158,131 @@
     "noCourses": "No enrollment records have been synced yet.",
     "recent": "Recently viewed",
     "results": "Request results"
+  },
+  "portal": {
+    "more": "Learn about {name}",
+    "visit": "Go to {host}",
+    "tiles": {
+      "campus": "Course and teacher reviews, study resources and timetables",
+      "api": "One interface for many large language models",
+      "store": "GPT subscriptions and Codex credits, topped up for you",
+      "platform": "Single sign-on and third-party app integration"
+    },
+    "campus": {
+      "name": "StuHelper Campus",
+      "tag": "Courses, teachers, resources and timetables",
+      "lead": "A course community for enrolled students. Read reviews of courses and teachers, find past papers and notes, compare the courses you are considering, and keep your own timetable. Currently open to Beihang University.",
+      "action": "Enter Campus",
+      "points": {
+        "reviews": {
+          "title": "Course and teacher reviews",
+          "text": "Reviews come from students with an enrolment record and cover five dimensions. Graduate supervisors have their own reviews."
+        },
+        "resources": {
+          "title": "Study resources",
+          "text": "Past papers, notes and slides are filed by course, and students can upload and share their own."
+        },
+        "compare": {
+          "title": "Course comparison",
+          "text": "Put several candidate courses side by side and compare ratings, credits and teachers."
+        },
+        "schedule": {
+          "title": "My timetable",
+          "text": "See your courses by term, with their teachers, times and places."
+        }
+      }
+    },
+    "api": {
+      "tag": "One interface, many models",
+      "lead": "A relay service for large language model APIs. Models from different vendors sit behind one address, so switching models only means changing the model name in your client.",
+      "points": {
+        "protocols": {
+          "title": "Three protocols",
+          "text": "Compatible with the OpenAI, Anthropic and Gemini interfaces. Existing SDKs only need a different request address."
+        },
+        "tokens": {
+          "title": "Tokens under control",
+          "text": "Each token can have its own quota and list of allowed models, and can be disabled at any time."
+        },
+        "usage": {
+          "title": "Clear usage",
+          "text": "Every request records its model, token count and cost. Billing follows actual usage."
+        },
+        "models": {
+          "title": "Model catalogue",
+          "text": "See the available models, their vendors and how each is billed in one place."
+        },
+        "playground": {
+          "title": "Playground",
+          "text": "Talk to a model directly in the browser and check the result before integrating."
+        },
+        "wallet": {
+          "title": "Wallet and plans",
+          "text": "Supports balance top-ups, redemption codes and subscription plans."
+        }
+      }
+    },
+    "store": {
+      "tag": "Official GPT and Codex top-ups",
+      "lead": "Start a ChatGPT subscription or add Codex credits on your own account. You pay in Chinese yuan, and every processing stage after payment appears on the order page.",
+      "points": {
+        "gpt": {
+          "title": "Official GPT top-up",
+          "text": "Start or upgrade a ChatGPT subscription on your own account, covering the Go, Plus and Pro plans."
+        },
+        "codex": {
+          "title": "Codex credits",
+          "text": "Top up by credits. The unit price and total for the chosen region are shown before you order."
+        },
+        "check": {
+          "title": "Account check before ordering",
+          "text": "The account type, current subscription and billing region are confirmed live, and only plans that account can buy are shown."
+        },
+        "upgrade": {
+          "title": "Upgrade credit",
+          "text": "When an account with a web subscription upgrades, the remaining subscription time is deducted from the price."
+        },
+        "progress": {
+          "title": "Visible progress",
+          "text": "The order page shows the stage the top-up task has reached. An unclear result is checked further, and each order is charged once."
+        },
+        "receipts": {
+          "title": "Receipts and renewal status",
+          "text": "After completion you can download the invoice and receipt, and see whether auto-renewal has been turned off."
+        }
+      }
+    },
+    "platform": {
+      "title": "SSO and open platform",
+      "tag": "One identity, open integration",
+      "lead": "Every StuHelper service is built on one identity system. Single sign-on provides authentication over the standard OIDC protocol. The open platform lets third-party developers connect their own apps and, once the user consents, read business data such as student verification status and timetables.",
+      "action": "Build on the open platform",
+      "points": {
+        "identity": {
+          "title": "Single sign-on",
+          "text": "Registration, sign-in and password recovery are handled by a separate sign-on service. Each app confirms identity through OIDC and keeps its own session."
+        },
+        "apps": {
+          "title": "Third-party apps",
+          "text": "Developers submit their app details, purpose and requested data scopes, and connect after review. The authorization flow requires PKCE."
+        },
+        "scopes": {
+          "title": "Data opened by scope",
+          "text": "Student verification status, school, profile, timetable, course catalogue and public reviews are each requested and approved separately."
+        },
+        "consent": {
+          "title": "Item-by-item consent",
+          "text": "Signing in to an app and sharing data are separate steps. Users agree to each item and can withdraw it in their personal center at any time."
+        }
+      }
+    },
+    "showcase": {
+      "course": "Operating Systems",
+      "order": "Philippines · new subscription",
+      "signIn": "Sign in to StuHelper",
+      "continue": "Continue",
+      "oneAccount": "One account for every service"
+    }
   },
   "notFound": {
     "code": "404",
@@ -341,7 +472,7 @@
       "proposedBody": "Proposed replacement",
       "panelHint": {
         "report": "Only one open report per item is kept; you can add new details.",
-        "edit_request": "Edits after the first 5 minutes are handled by moderators; the request does not change the content.",
+        "edit_request": "After the first 5 minutes, moderators handle edits; the content updates once they finish.",
         "delete_request": "Deletion after the first 5 minutes is handled by moderators, who report the result to you."
       },
       "reportSent": "Report submitted. Track it in your personal center.",
@@ -350,7 +481,9 @@
       "withdrawTitle": "Withdraw and edit",
       "deleteRootConfirm": "Delete permanently? This removes the whole discussion and cannot be undone.",
       "deleteReplyConfirm": "Delete this reply permanently? The rest of the discussion stays.",
-      "withdrawConfirm": "Withdrawal hides the discussion. Republishing preserves the original publication time, replies and votes. Expired drafts are deleted."
+      "withdrawConfirm": "Withdrawal hides the discussion. Republishing preserves the original publication time, replies and votes. Expired drafts are deleted.",
+      "expand": "Show more",
+      "collapse": "Show less"
     },
     "replies": {
       "title": "Replies",
@@ -493,7 +626,7 @@
     "ownEntry": "My entry",
     "backToReviews": "Back to my reviews",
     "resources": "My resources",
-    "resourcesIntro": "See upload and review results. Resources cannot simply be deleted: correct them, submit a new version, or request withdrawal.",
+    "resourcesIntro": "See upload and review results. You can correct a resource, submit a new version, or request withdrawal.",
     "resourcesEmpty": "You have not uploaded any resources yet.",
     "proposal": "Version under review:",
     "correct": "Correct or submit a new version",
@@ -533,7 +666,7 @@
     },
     "sessions": {
       "title": "Signed-in devices",
-      "hint": "Signing out only affects StuHelper, not other apps.",
+      "hint": "Signing out ends your StuHelper session only; other apps stay signed in.",
       "deviceConfirm": "Sign out of StuHelper on this device?",
       "allConfirm": "Sign out of StuHelper on all devices? Other devices will need to sign in again."
     },
@@ -707,7 +840,7 @@
         "appeal": "Appeal"
       },
       "hints": {
-        "withdrawal": "Moderators handle withdrawal; the resource is not removed on submission, and licences already granted continue under the terms.",
+        "withdrawal": "Moderators handle withdrawal and the resource is removed once they finish; licences already granted continue under the terms.",
         "complaint": "Provide contact details, proof of rights and an explanation. The platform records it and notifies the uploader.",
         "appeal": "Explain your objection and add any new grounds."
       },
@@ -964,7 +1097,13 @@
     "identityDescription": "Identity verification is separate from student verification and is used for actions that confirm who you are.",
     "identityName": "Name",
     "identityNumber": "ID number",
-    "schoolSearch": "Search school code, name or alias"
+    "schoolSearch": "Search school code, name or alias",
+    "unified": {
+      "title": "Campus verification",
+      "roles": "Verification role",
+      "student": "Student",
+      "teacher": "Teacher"
+    }
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",
@@ -1101,7 +1240,7 @@
     },
     "unavailable": {
       "title": "Cannot confirm your eligibility right now",
-      "text": "The account or verification service did not respond. This does not mean your verification lapsed.",
+      "text": "The account or verification service did not respond. Your verification record stays as it is.",
       "action": "Check eligibility again"
     }
   },
@@ -1197,7 +1336,6 @@
     "storageContribution": "Storage contribution",
     "study": "Study",
     "resources": "Resources",
-    "studentVerification": "Student verification",
     "department": "School",
     "searchNeedsVerification": "Complete Beihang verification to search courses, teachers and resources.",
     "fullTimetable": "Full timetable",
@@ -1363,7 +1501,12 @@
     "categoryCBase": "Foundation",
     "categoryCCore": "Major",
     "interactions": "Interactions",
-    "points": "Points"
+    "points": "Points",
+    "chatDirect": "Direct message",
+    "chatGroup": "Group chat · {p0} members",
+    "chatSample": "Sample conversation. Messages stay on this page only.",
+    "chatPlaceholder": "Write a message",
+    "chatSend": "Send"
   },
   "favorites": {
     "title": "Saved",
@@ -1492,10 +1635,10 @@
     "signOutAllConfirm": "StuHelper sign-ins on all devices will end, and you will need to sign in again.",
     "closure": {
       "title": "Close account",
-      "hint": "Closing affects only the StuHelper account. Your single sign-on account and other applications are not affected.",
+      "hint": "Closing covers only the StuHelper account. Your single sign-on account and other applications keep working.",
       "request": "Request closure",
       "cooling": "After you submit, there is a 7-day cooling period during which you can cancel. Administrators process the request afterwards.",
-      "scope": "Only the StuHelper account is closed. Your single sign-on account and other applications stay unchanged.",
+      "scope": "Only the StuHelper account is closed. Your single sign-on account is kept and other applications keep working.",
       "assets": "Your Ivory balance must be zero and refunds finished before closure; otherwise the request waits for asset settlement.",
       "content": "Signed reviews become anonymous, and public resources keep their content but no longer link to your account. Favorites and QQ binding are deleted.",
       "points": "I understand that final closure clears long-term points, time-limited points and pending deductions without converting them to cash or Ivory.",
@@ -1719,7 +1862,7 @@
       "scopes": "Authorized information",
       "revoke": "Withdraw access",
       "revokeTitle": "Withdraw access for “{name}”",
-      "revokeHint": "Old tokens stop working immediately and the app can no longer read the withdrawn information. This does not close your account in that app.",
+      "revokeHint": "Old tokens stop working immediately and the app can no longer read the withdrawn information. Your account in that app remains.",
       "revokeScopes": "Information to withdraw",
       "revokeAllNotice": "All information will be withdrawn; the app must ask for authorization again.",
       "revokeSubmit": "Withdraw selected",
@@ -1777,7 +1920,7 @@
       "secretCopied": "Secret copied.",
       "secretSaved": "I have saved it",
       "secretNotRetrievable": "The request completed, but the secret could not be shown. Rotate again if you did not save it.",
-      "formHint": "An application grants no access by itself. Administrators review each scope and users consent to each one.",
+      "formHint": "Access takes two steps: administrators review each scope, then users consent to each one.",
       "name": "App name",
       "purpose": "Purpose",
       "purposeHint": "Explain what the app does and why it needs the requested information.",
@@ -1819,7 +1962,7 @@
       "client": "Client ID: {id} · returns to {host}",
       "choose": "Choose what this app may read",
       "limits": "The app can read only the information you select that the platform also approved. Identity documents, verification materials and wallet records are never shared.",
-      "withdraw": "You can withdraw access at any time under Authorized apps. Withdrawing does not close your account in the app.",
+      "withdraw": "You can withdraw access at any time under Authorized apps. Your account in the app remains afterwards.",
       "expires": "This request is valid until {time}.",
       "approve": "Allow selected ({count})",
       "deny": "Deny"
@@ -1828,7 +1971,6 @@
   "teacher": {
     "title": "Teacher verification",
     "description": "Submit proof of teaching. An administrator reviews it and links your teacher profiles in the course catalog. You choose what is shown publicly.",
-    "link": "Teacher verification",
     "credentials": "My teacher qualifications",
     "profiles": "Linked teacher profiles: {names}",
     "validUntil": "Valid until {date}",
@@ -1883,9 +2025,9 @@
     }
   },
   "notifications": {
-    "title": "Notifications",
-    "link": "Notifications",
-    "description": "Interactions with your content, handling results and verification results.",
+    "title": "Messages",
+    "link": "Messages",
+    "description": "Interactions, review results, verification results and system notices.",
     "unread": "Unread notifications: {count}",
     "interaction": "Receive interaction notifications (replies, likes)",
     "interactionOn": "Interaction notifications are on.",
@@ -1944,6 +2086,16 @@
     "status": {
       "inaccessible": "The related item is no longer accessible.",
       "unavailable": "The related item cannot be shown right now. Try again later."
+    },
+    "boxesLabel": "Message categories",
+    "threads": "Conversations",
+    "noThreads": "No conversations yet.",
+    "unreadCount": "{count} unread",
+    "boxes": {
+      "interaction": "Replies and likes",
+      "review": "Review results",
+      "verification": "Verification",
+      "system": "System notices"
     }
   },
   "search": {
@@ -1971,7 +2123,7 @@
     },
     "popular": {
       "title": "Popular",
-      "description": "Ranked by recent views, reviews, favorites and interactions. Popularity is counted apart from ratings; a high rank does not mean better reviews.",
+      "description": "Ranked by recent views, reviews, favorites and interactions. The ranking reflects attention; see each rating for how it is reviewed.",
       "courses": "Popular courses",
       "teachers": "Popular teachers",
       "kind": "Ranking",
@@ -1999,7 +2151,7 @@
       "remove": "Remove {name} from comparison",
       "noReviews": "No reviews",
       "samples": "Reviews",
-      "note": "Every column uses the same time range. Too few reviews shows “Not enough data”; exact averages are never shown.",
+      "note": "Every column uses the same time range. Ratings appear as five-level wording, and too few reviews shows “Not enough data”.",
       "full": "You can compare up to {max} at a time. Remove one first.",
       "added": "In comparison",
       "add": "Add to compare",

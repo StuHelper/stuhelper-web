@@ -28,7 +28,7 @@ const place = (lesson: Lesson) => ({ gridColumn: String(days.value.indexOf(lesso
 </script>
 
 <template>
-  <div class="sheet card">
+  <div class="week-card card">
     <div
       class="week"
       :style="{ gridTemplateColumns: `minmax(3.5rem, auto) repeat(${days.length}, minmax(5.5rem, 1fr))`, gridTemplateRows: `auto repeat(${periods.length}, minmax(3rem, auto))` }"
@@ -71,7 +71,8 @@ const place = (lesson: Lesson) => ({ gridColumn: String(days.value.indexOf(lesso
 </template>
 
 <style scoped>
-.sheet { overflow-x: auto; padding: .5rem; }
+/* 不使用 sheet 这个类名：全局样式把它定义为固定定位的弹层。 */
+.week-card { overflow-x: auto; padding: .5rem; }
 .week { display: grid; gap: 2px; min-inline-size: 34rem; }
 .day, .period { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: .25rem; font-size: .8rem; color: var(--label-2); }
 .period small { font-size: .7rem; color: var(--label-3); }

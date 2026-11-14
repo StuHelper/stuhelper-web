@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -11,8 +11,9 @@ import StatusTag from '../../shared/ui/StatusTag.vue'
 import { subjectPath, useAcademic, type NamedObject, type Review, type ReviewAction, type Submission } from './api'
 import { reviewLink, safeAvatar, stateTone, useAuthorName } from './presentation'
 import RatingBands from './RatingBands.vue'
+import ReplyPreview from './ReplyPreview.vue'
 
-const props = withDefaults(defineProps<{ review: Review; names?: ReadonlyMap<string, NamedObject>; standalone?: boolean; replyEnabled?: boolean; hideTarget?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false, hideTarget: false })
+const props = withDefaults(defineProps<{ review: Review; names?: ReadonlyMap<string, NamedObject>; standalone?: boolean; replyEnabled?: boolean; hideTarget?: boolean; compact?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false, hideTarget: false, compact: false })
 const emit = defineEmits<{ updated: [review: Review]; removed: [id: string]; reply: [review: Review] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -35,6 +36,20 @@ const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(p
 const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
+// In a list a long body is folded to a few lines. The control appears only when text is actually cut off.
+const bodyElement = ref<HTMLElement>()
+const expanded = ref(false)
+const overflowing = ref(false)
+let bodyObserver: ResizeObserver | undefined
+const measureBody = () => { if (bodyElement.value && !expanded.value) overflowing.value = bodyElement.value.scrollHeight > bodyElement.value.clientHeight + 1 }
+onMounted(() => {
+  if (!props.compact || !bodyElement.value) return
+  measureBody()
+  if (typeof ResizeObserver === 'undefined') return
+  bodyObserver = new ResizeObserver(measureBody)
+  bodyObserver.observe(bodyElement.value)
+})
+onBeforeUnmount(() => bodyObserver?.disconnect())
 
 // What the pending write does once it succeeds, so a retry of the original request finishes it too.
 let finish: (result: never) => void | Promise<void> = () => {}
@@ -183,9 +198,22 @@ async function retry() {
         {{ review.title }}
       </RouterLink>
     </h3>
-    <p class="review-body prewrap">
+    <p
+      ref="bodyElement"
+      class="review-body prewrap"
+      :class="{ clamped: compact && !expanded }"
+    >
       {{ review.body }}
     </p>
+    <button
+      v-if="compact && (overflowing || expanded)"
+      class="review-more"
+      type="button"
+      :aria-expanded="expanded"
+      @click="expanded = !expanded"
+    >
+      {{ t(expanded ? 'academic.review.collapse' : 'academic.review.expand') }}
+    </button>
     <RatingBands
       v-if="review.kind === 'course' && review.ratings.some((level) => level > 0)"
       :bands="review.ratings.map((level) => ({ level, samples: 1, courses: 1 }))"
@@ -364,6 +392,11 @@ async function retry() {
       @retry="retry"
     />
 
+    <ReplyPreview
+      v-if="compact && isRoot && published"
+      :root-id="review.id"
+      :to="reviewLink(review)"
+    />
     <ConfirmDialog
       :open="confirming !== ''"
       :title="t(confirming === 'delete' ? 'academic.review.deleteTitle' : 'academic.review.withdrawTitle')"
@@ -390,6 +423,9 @@ async function retry() {
 .review-title a { color: inherit; }
 .review-title a:hover { color: var(--accent); text-decoration: none; }
 .review-context { color: var(--label-2); }
+.review-body.clamped { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; }
+.review-more { justify-self: start; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: .875rem; font-weight: 550; cursor: pointer; }
+.review-more:hover { text-decoration: underline; text-underline-offset: .15em; }
 .review-actions { gap: .375rem; margin-block-start: .25rem; }
 .review-panel { padding: 1rem; border-radius: var(--radius); background: var(--fill); }
 .review-panel .input, .review-panel .textarea { background: var(--surface); }

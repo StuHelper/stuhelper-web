@@ -112,7 +112,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/profiles/me/closure' && method === 'GET') return closure ? json(closure) : nope('not_found', 404)
   if (p === '/profiles/me/closure') { closure = { id: '00000000-0000-4000-8000-0000000000c1', state: 'cooling', revision: 1, requested_at: new Date().toISOString(), cooling_ends_at: new Date(Date.now() + 7 * 864e5).toISOString(), completed_steps: [], blocker: '', points_policy: 'forfeit_all_points_and_pending_deductions', profile_id: demoProfile.id }; return json(closure) }
   if (p.startsWith('/profiles/me/closure/') && p.endsWith('/cancel') && closure) { closure = { ...closure, state: 'cancelled', revision: closure.revision + 1 }; return json(closure) }
-  if (p === '/system/capabilities') return json({ api_version: 1, capabilities: ['platform.status'] })
+  // 原型为这些可选模块提供了模拟接口，对应页面和入口随之开放。群组和会员没有模拟接口，保持关闭。
+  if (p === '/system/capabilities') return json({ api_version: 1, capabilities: ['platform.status', 'favorites.manage', 'billing.wallet', 'billing.resource-unlock', 'notifications.inbox', 'open-platform.data', 'qq-binding.manage', 'search.query'] })
   if (who === 'guest' && !p.startsWith('/verification/schools')) return nope('unauthenticated', 401)
   const favorite = await favoritesRoute(p, method, u, init, who === 'verified')
   if (favorite) return favorite

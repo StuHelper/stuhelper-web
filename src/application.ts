@@ -5,6 +5,7 @@ import { createAppRouter } from './app/router'
 import { hostFetchKey, sessionFetch } from './shared/api/transport'
 import { accessKey, createAccessStore } from './features/account/access'
 import { createSessionStore, deniedKey, sessionKey } from './shared/session'
+import { installTheme } from './shared/theme'
 import { installTips } from './shared/ui/tips'
 import './styles/base.css'
 import './styles/components.css'
@@ -15,6 +16,7 @@ import './styles/components.css'
  */
 export function createApplication(fetcher: typeof fetch = sessionFetch) {
   installTips()
+  installTheme()
   const session = createSessionStore(fetcher)
   const router = createAppRouter()
   void prepareLocale()

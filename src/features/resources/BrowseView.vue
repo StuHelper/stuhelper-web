@@ -488,7 +488,7 @@ void setup.reload()
 .resource-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .875rem; align-items: start; padding: .875rem 1.125rem; }
 .resource-row + .resource-row { border-block-start: .5px solid var(--separator); }
 .resource-lock { width: 20px; height: 20px; margin-inline: 2px; color: var(--label-3); }
-.selection-bar { position: sticky; inset-block-end: calc(1rem + var(--safe-bottom)); z-index: 30; padding: .625rem .75rem .625rem 1.25rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--shadow-float), inset 0 0 0 .5px var(--separator); backdrop-filter: saturate(180%) blur(24px); -webkit-backdrop-filter: saturate(180%) blur(24px); }
+.selection-bar { position: sticky; inset-block-end: calc(1rem + var(--safe-bottom)); z-index: 30; padding: .625rem .75rem .625rem 1.25rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
 @media (max-width: 760px) {
   .selection-bar { inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); border-radius: var(--radius-lg); }
   /* The search box comes first on phones; secondary links stay in one line. */

@@ -41,6 +41,19 @@ test('the week grid opens on the current teaching week and moves between weeks',
   await expect(page.getByText('08:00–08:45')).toBeVisible();
   await expect(page.getByText(c.unplaced)).toBeVisible();
   await expect(page.getByText('Afternoon, by arrangement', { exact: false })).toBeVisible();
+  // The timetable is a personal page: the campus sub-navigation under the bar belongs to campus pages only.
+  await expect(page.locator('header .subnav')).toHaveCount(0);
+  // The grid is part of the page: it sits below the week picker and above the unplaced list, not in a floating layer.
+  const layout = await page.evaluate(([nextWeek, unplaced]) => {
+    const lesson = document.querySelector('a[href="/courses/course"][aria-label*="Room A"]');
+    let fixed = false;
+    for (let node = lesson; node && node !== document.body; node = node.parentElement) if (getComputedStyle(node).position === 'fixed') fixed = true;
+    const top = (element) => element.getBoundingClientRect().top + scrollY;
+    const picker = [...document.querySelectorAll('button')].find((button) => button.getAttribute('aria-label') === nextWeek || button.textContent.trim() === nextWeek);
+    const list = [...document.querySelectorAll('h2')].find((heading) => heading.textContent.trim() === unplaced);
+    return { fixed, afterPicker: top(lesson) > top(picker), beforeList: top(lesson) < top(list) };
+  }, [c.nextWeek, c.unplaced]);
+  expect(layout).toEqual({ fixed: false, afterPicker: true, beforeList: true });
 
   await page.getByRole('button', { name: c.nextWeek, exact: true }).click();
   await expect(page.getByText(fill(c.weekNumber, { week: number(info, 3) }), { exact: true })).toBeVisible();

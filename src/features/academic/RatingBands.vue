@@ -66,6 +66,14 @@ const text = useRatingText(toRef(props, 'schoolId'))
 .band-meter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
 .band-meter i { height: 4px; border-radius: var(--pill); background: var(--fill-strong); transition: background-color .3s; }
 .band-meter i.on { background: var(--accent-fill); }
+/* Lit segments fill one after another when the ratings appear. */
+.band-meter i.on { transform-origin: left; animation: band-fill .5s var(--ease-out) both; }
+[dir="rtl"] .band-meter i.on { transform-origin: right; }
+.band-meter i:nth-child(2) { animation-delay: .06s; }
+.band-meter i:nth-child(3) { animation-delay: .12s; }
+.band-meter i:nth-child(4) { animation-delay: .18s; }
+.band-meter i:nth-child(5) { animation-delay: .24s; }
+@keyframes band-fill { from { transform: scaleX(0); opacity: .3; } }
 .band small { font-weight: 400; }
 .compact { gap: .375rem; }
 .compact .band { gap: .25rem; padding: .5rem .75rem; background: var(--fill); box-shadow: none; border-radius: var(--radius-sm); }

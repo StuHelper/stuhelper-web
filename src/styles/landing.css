@@ -1,0 +1,116 @@
+/*
+ * Promotional pages: the portal and the product introductions. A product name
+ * is the heading, a short phrase sits below it, and body text explains.
+ */
+.lp { display: flex; flex-direction: column; gap: clamp(4rem, 9vw, 7rem); padding-block-end: 2.5rem; }
+.lp-h1 { font-size: clamp(2.5rem, 5.6vw, 4.25rem); font-weight: 800; line-height: 1.08; letter-spacing: -.04em; text-wrap: balance; }
+.lp-h2 { font-size: clamp(1.75rem, 3.6vw, 2.75rem); font-weight: 780; line-height: 1.15; letter-spacing: -.03em; text-wrap: balance; }
+:root:lang(zh) .lp-h1, :root:lang(ja) .lp-h1, :root:lang(ko) .lp-h1, :root:lang(zh) .lp-h2, :root:lang(ja) .lp-h2, :root:lang(ko) .lp-h2 { letter-spacing: -.02em; }
+:root:lang(ar) .lp-h1, :root:lang(ar) .lp-h2, :root:lang(ar) .lp-wordmark h1 { letter-spacing: 0; }
+.lp-tag { margin-block-start: .875rem; color: var(--label-2); font-size: clamp(1.25rem, 2.4vw, 1.75rem); font-weight: 600; line-height: 1.3; }
+.lp-lead { max-width: 34em; margin-block-start: .875rem; color: var(--label-3); font-size: clamp(1rem, 1.4vw, 1.125rem); line-height: 1.7; text-wrap: pretty; }
+.lp-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1.125rem; margin-block-start: 1.875rem; }
+.lp-cta .btn { min-height: 46px; padding-inline: 1.5rem; font-weight: 600; }
+.lp-link { display: inline-flex; align-items: center; gap: .125rem; color: var(--pc, var(--accent)); font-weight: 600; }
+.lp-link { position: relative; }
+.lp-link::after { content: ""; position: absolute; inset: auto 1.25rem -3px 0; height: 1.5px; border-radius: 1px; background: currentColor; opacity: .5; transform: scaleX(0); transform-origin: left; transition: transform .35s var(--ease-out); }
+[dir="rtl"] .lp-link::after { inset-inline: 0 1.25rem; transform-origin: right; }
+.lp-link:hover { text-decoration: none; }
+.lp-link:hover::after { transform: none; }
+.lp-cta .btn-primary { transition: background-color .2s, box-shadow .3s, transform .35s var(--spring); }
+.lp-cta .btn-primary:hover { box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--accent-fill) 80%, transparent); }
+.lp-cta .btn svg { transition: transform .3s var(--ease-out); }
+.lp-cta .btn:hover svg { transform: translate(2px, -2px); }
+.lp-link svg { width: 17px; height: 17px; transition: transform .25s var(--ease-out); }
+.lp-link:hover svg { transform: translateX(3px); }
+[dir="rtl"] .lp-link svg { transform: scaleX(-1); }
+[dir="rtl"] .lp-link:hover svg { transform: scaleX(-1) translateX(3px); }
+
+.lp-hero { display: flex; flex-direction: column; align-items: center; padding-block-start: clamp(2.25rem, 7vw, 4.75rem); text-align: center; }
+.lp-wordmark { display: flex; flex-direction: column; align-items: center; gap: 1.125rem; }
+/* brand.png keeps about 23% transparent margin above and below the plane. The
+   picture is drawn larger and the margin is pulled back, so the plane grows
+   without pushing the wordmark down. */
+.lp-wordmark > img { --mark: clamp(128px, 18vw, 180px); width: var(--mark); height: auto; margin-block: calc(var(--mark) * -.22); filter: drop-shadow(0 18px 28px rgb(61 79 224 / 28%)); animation: lp-land .9s var(--ease-out) both, lp-float 6s ease-in-out .9s infinite; }
+.lp-wordmark h1 { margin: 0; line-height: 0; }
+.lp-name { display: block; margin-inline: auto; inline-size: min(100%, 44rem); block-size: auto; animation: lp-letter .9s var(--ease-out) .18s both; }
+@keyframes lp-land { from { opacity: 0; transform: translate(-46px, 34px) rotate(-14deg) scale(.6); } }
+@keyframes lp-letter { from { opacity: 0; transform: translateY(.35em); filter: blur(6px); } }
+@keyframes lp-rise { from { opacity: 0; transform: translateY(20px); } }
+@keyframes lp-float { 50% { transform: translateY(-8px) rotate(-2deg); } }
+
+.lp-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; width: 100%; margin-block-start: clamp(2.5rem, 6vw, 4.5rem); text-align: start; }
+.lp-tile { position: relative; overflow: hidden; animation: lp-rise .7s var(--ease-out) both; animation-delay: calc(.55s + var(--i, 0) * 70ms); display: flex; flex-direction: column; gap: .375rem; padding: 1.375rem; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow-card); color: inherit; transition: transform .45s var(--ease-out), box-shadow .45s var(--ease-out); }
+.lp-tile:hover { color: inherit; text-decoration: none; box-shadow: var(--shadow-lift); transform: translateY(-3px); }
+.lp-tile:active { transform: scale(.985); transition-duration: .12s; }
+.lp-tile::before { content: ""; position: absolute; inset: 0; background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 0), color-mix(in srgb, var(--pc) 13%, transparent), transparent 70%); opacity: 0; transition: opacity .35s; pointer-events: none; }
+.lp-tile:hover::before { opacity: 1; }
+.lp-tile > * { position: relative; }
+.lp-tile-go { position: absolute; inset-block-start: 1.375rem; inset-inline-end: 1.25rem; width: 18px; height: 18px; color: var(--label-3); opacity: 0; transform: translate(-6px, 6px); transition: opacity .3s, transform .4s var(--ease-out); }
+[dir="rtl"] .lp-tile-go { transform: translate(6px, 6px) scaleX(-1); }
+.lp-tile:hover .lp-tile-go, .lp-tile:focus-visible .lp-tile-go { opacity: 1; transform: none; }
+[dir="rtl"] .lp-tile:hover .lp-tile-go, [dir="rtl"] .lp-tile:focus-visible .lp-tile-go { transform: scaleX(-1); }
+.lp-tile-icon { transition: transform .5s var(--spring); display: grid; place-items: center; width: 40px; height: 40px; margin-block-end: .5rem; border-radius: 12px; background: var(--pc); color: #fff; }
+.lp-tile-icon svg { width: 20px; height: 20px; }
+.lp-tile:hover .lp-tile-icon { transform: scale(1.08) rotate(-6deg); }
+.lp-tile b { font-size: 1.0625rem; font-weight: 700; }
+.lp-tile p { color: var(--label-3); font-size: .875rem; line-height: 1.6; }
+
+.lp-split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+.lp-split.flip > :first-child { order: 2; }
+.lp-art { perspective: 1100px; display: grid; place-items: center; min-height: 420px; padding: 3rem 2rem; overflow: hidden; border-radius: 32px; background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--pc, var(--accent-fill)) 16%, var(--surface)), var(--surface) 70%); box-shadow: var(--shadow-card); }
+
+.lp-points { display: grid; gap: 1.125rem; margin-block-start: 1.875rem; }
+.lp-point { display: grid; grid-template-columns: 26px 1fr; gap: .75rem; align-items: start; }
+.lp-point svg { width: 20px; height: 20px; margin-block-start: 3px; color: var(--pc, var(--accent)); }
+.lp-point b { font-weight: 650; }
+.lp-point p { margin-block-start: 1px; color: var(--label-3); font-size: .9375rem; line-height: 1.6; }
+
+.lp-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+.lp-cards.four { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-block-start: 3rem; }
+.lp-card { padding: 1.75rem 1.625rem; border-radius: 24px; background: var(--surface); box-shadow: var(--shadow-card); transition: transform .45s var(--ease-out), box-shadow .45s var(--ease-out); }
+.lp-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-3px); }
+.lp-card svg { transition: transform .5s var(--spring); }
+.lp-card:hover svg { transform: scale(1.12) rotate(-6deg); }
+.lp-card svg { width: 26px; height: 26px; color: var(--pc, var(--accent)); }
+.lp-card b { display: block; margin-block: .875rem .375rem; font-size: 1.125rem; font-weight: 720; }
+.lp-card p { color: var(--label-3); font-size: .9375rem; line-height: 1.7; }
+
+/*
+ * Sections rise into place as they scroll into view, and their points and
+ * cards follow one after another.
+ */
+.lp-reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+.lp-reveal.in { opacity: 1; transform: none; }
+.lp-reveal .lp-point, .lp-reveal .lp-card, .lp-reveal .lp-art { opacity: 0; translate: 0 16px; transition: opacity .6s var(--ease-out), translate .6s var(--ease-out), transform .45s var(--ease-out), box-shadow .45s var(--ease-out); }
+.lp-reveal.in .lp-point, .lp-reveal.in .lp-card, .lp-reveal.in .lp-art { opacity: 1; translate: none; }
+.lp-reveal.in :is(.lp-point, .lp-card):nth-child(1) { transition-delay: .12s, .12s, 0s, 0s; }
+.lp-reveal.in :is(.lp-point, .lp-card):nth-child(2) { transition-delay: .2s, .2s, 0s, 0s; }
+.lp-reveal.in :is(.lp-point, .lp-card):nth-child(3) { transition-delay: .28s, .28s, 0s, 0s; }
+.lp-reveal.in :is(.lp-point, .lp-card):nth-child(4) { transition-delay: .36s, .36s, 0s, 0s; }
+.lp-reveal.in :is(.lp-point, .lp-card):nth-child(5) { transition-delay: .44s, .44s, 0s, 0s; }
+.lp-reveal.in :is(.lp-point, .lp-card):nth-child(6) { transition-delay: .52s, .52s, 0s, 0s; }
+.lp-reveal.in .lp-art { transition-delay: .15s, .15s, 0s, 0s; }
+/* Elements of a page's first screen enter in order when the page opens. */
+.lp-enter > * { animation: lp-rise .7s var(--ease-out) both; animation-delay: calc(var(--i, 0) * 80ms); }
+.lp-enter > :nth-child(2) { --i: 1; }
+.lp-enter > :nth-child(3) { --i: 2; }
+.lp-enter > :nth-child(4) { --i: 3; }
+.lp-enter-art { animation: lp-rise .8s var(--ease-out) .2s both; }
+@media (prefers-reduced-motion: reduce) {
+  .lp-reveal, .lp-reveal .lp-point, .lp-reveal .lp-card, .lp-reveal .lp-art { opacity: 1; transform: none; translate: none; }
+  .lp-wordmark img { animation: none; }
+}
+
+@media (max-width: 900px) {
+  .lp-split { grid-template-columns: minmax(0, 1fr); }
+  .lp-split.flip > :first-child { order: 0; }
+  .lp-art { min-height: 0; padding: 1.75rem 1rem; border-radius: 24px; }
+  .lp-tiles, .lp-cards.four { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  .lp-tile { padding: 1rem; border-radius: 18px; }
+  .lp-cards { grid-template-columns: minmax(0, 1fr); }
+  .lp-cards.four { margin-block-start: 2rem; }
+}
+@media (max-width: 420px) {
+  .lp-cards.four { grid-template-columns: minmax(0, 1fr); }
+}

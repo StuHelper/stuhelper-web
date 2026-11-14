@@ -12,6 +12,7 @@ import MeLayout from '../account/MeLayout.vue'
 import { kinds, maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
 import SchoolPicker from './SchoolPicker.vue'
+import VerificationRoles from './VerificationRoles.vue'
 import { useVerificationFlow } from './flow'
 
 // 学生认证和实名认证是两个页面，共用同一套流程。实名认证放在账号与安全下面。
@@ -57,7 +58,7 @@ function profileValue(value: unknown, field: string) {
 
 <template>
   <MeLayout
-    :title="t(scope === 'identity' ? 'verification.identityTitle' : 'verification.title')"
+    :title="t(scope === 'identity' ? 'verification.identityTitle' : 'verification.unified.title')"
     :description="t(scope === 'identity' ? 'verification.identityDescription' : 'verification.description')"
     :back="scope === 'identity' ? '/me/account' : undefined"
     :back-label="scope === 'identity' ? t('me.security') : undefined"
@@ -72,6 +73,10 @@ function profileValue(value: unknown, field: string) {
         {{ t('common.refresh') }}
       </button>
     </template>
+    <VerificationRoles
+      v-if="scope === 'student'"
+      role="student"
+    />
 
     <div class="stack-lg">
       <div
