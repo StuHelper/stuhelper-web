@@ -4,7 +4,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { RouterLink } from 'vue-router'
-import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
 import { useSession, type Profile, type ProfileUpdate } from '../../shared/session'
@@ -18,7 +17,6 @@ import MeLayout from './MeLayout.vue'
 // Personal center overview. Campus eligibility, independent identity and phone
 // binding are separate states and are shown separately.
 const { t } = useI18n()
-const format = useFormat()
 const errorText = useErrorText()
 const session = useSession()
 const verification = useVerification()
@@ -135,9 +133,6 @@ async function signOut() {
             <h2 class="truncate">
               {{ profile.nickname }}
             </h2>
-            <p class="subtle">
-              {{ t('me.profile.sessionExpires') }} · {{ format.dateTime(session.session.value.expires_at) }}
-            </p>
             <StatusTag
               v-if="session.session.value.administrator"
               tone="info"

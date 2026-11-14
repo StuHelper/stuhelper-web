@@ -855,7 +855,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
     Problem:
-      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
@@ -948,11 +948,17 @@ components:
           type: array
           uniqueItems: true
           items: { $ref: '#/components/schemas/Kind' }
+    MethodDescriptionKeys:
+      type: object
+      maxProperties: 5
+      additionalProperties: { type: string, maxLength: 128, pattern: '^verification\.methodDescriptions\.[a-z_]+$' }
+      description: User-visible explanation keys by method. Real-name checks use verification.methodDescriptions.real_name_identity_check for both school and authorized third-party providers.
     School:
       type: object
       additionalProperties: false
       required: [id, name, enabled, methods, notice_version, opening_date, newcomer_days, email_domain, material_types, revision]
       properties:
+        method_description_keys: { $ref: '#/components/schemas/MethodDescriptionKeys' }
         method_capabilities:
           type: object
           readOnly: true
