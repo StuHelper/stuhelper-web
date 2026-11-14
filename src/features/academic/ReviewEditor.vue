@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { myCoursesEnabled } from '../../app/features'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
@@ -111,7 +112,7 @@ watch(() => composer.value?.disclosures, (options) => {
 })
 
 // Steps open in a new tab so the text being written stays here; returning rechecks.
-const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity', course_enrollment: '/me/courses' }
+const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity', ...(myCoursesEnabled ? { course_enrollment: '/me/courses' } : {}) }
 function recheck() {
   if (document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
 }

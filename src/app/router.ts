@@ -1,3 +1,4 @@
+import { myCoursesEnabled } from './features'
 import { beginMorph, endMorph, pendingTitle, trackTitleClicks } from '../shared/ui/pendingTitle'
 import { nextTick } from 'vue'
 import { createRouter, createWebHistory, type Router, type RouteRecordRaw } from 'vue-router'
@@ -63,7 +64,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/groups', component: () => import('../features/groups/MyGroupsView.vue'), meta: { capability: feature.groups, access: 'member', title: 'groups.title', section: 'me' } },
   { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { capability: feature.qq, access: 'member', title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
-  { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } },
+  myCoursesEnabled
+    ? { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } }
+    : { path: '/me/courses', redirect: '/me' },
   { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'member', title: 'me.requests', section: 'me' } },
   { path: '/me/profile', component: () => import('../features/account/ProfileView.vue'), meta: { access: 'member', title: 'profile.title', section: 'me' } },
   { path: '/me/account', component: () => import('../features/account/SecurityView.vue'), meta: { access: 'member', title: 'security.title', section: 'me' } },
