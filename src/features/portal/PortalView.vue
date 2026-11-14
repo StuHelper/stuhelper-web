@@ -19,8 +19,6 @@ const { t } = useI18n()
 const available = useLinkAvailable()
 // The open platform section and tile describe a module that may be switched off.
 const platformOn = computed(() => available('/me/developer'))
-// Letters enter one by one; the heading keeps its full name for assistive technology.
-const letters = [...t('brand.name')]
 const tones = { campus: '#2d5bff', api: '#7a4de8', store: '#0d9467', platform: '#e0662b' }
 const allTiles = [
   { to: '/campus', key: 'campus', name: 'nav.campus', icon: GraduationCap },
@@ -63,13 +61,15 @@ const platform = [
           width="112"
           height="112"
         >
-        <h1 :aria-label="t('brand.name')">
-          <span
-            v-for="(letter, index) in letters"
-            :key="index"
-            :style="{ '--i': index }"
-            aria-hidden="true"
-          >{{ letter }}</span>
+        <h1>
+          <!-- The designed wordmark; its alt text is the heading's accessible name. -->
+          <img
+            class="lp-name"
+            src="/wordmark.svg"
+            :alt="t('brand.name')"
+            width="2516"
+            height="608"
+          >
         </h1>
       </div>
       <nav
