@@ -176,3 +176,25 @@ test('manual method keeps identity selection and advertises configured graduate 
   await expect(page.getByRole('option', { name: v.materialTypes.admission_letter, exact: true })).toHaveCount(0);
   await page.keyboard.press('Escape');
 });
+
+for (const [method, codes] of Object.entries({ real_name_identity_check: ['real_name_mismatch', 'real_name_no_record'], student_email_outbound_otp: ['email_identity_mismatch', 'email_identity_no_record'], school_sso: ['school_credentials_rejected', 'school_account_locked', 'school_account_disabled', 'school_account_unavailable'] })) {
+  for (const code of codes) test(`method-specific verification failure ${code}`, async ({ page }, info) => {
+    await fixture(page, { errorCode: code, school: { ...school, methods: [method], method_capabilities: { [method]: { study_stage_required: false } }, method_description_keys: { real_name_identity_check: 'verification.methodDescriptions.real_name_identity_check' } } });
+    await open(page, info);
+    const m = messages(info), v = m.verification;
+    await expect(page.getByLabel(v.stage, { exact: true })).toHaveCount(0);
+    if (method === 'real_name_identity_check') await expect(page.getByText(v.methodDescriptions.real_name_identity_check, { exact: true })).toBeVisible();
+    await page.getByLabel(v.consent).check();
+    await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+    await page.getByLabel(v.studentId, { exact: true }).fill('ZY2306123');
+    if (method === 'school_sso') await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
+    else await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
+    if (method === 'real_name_identity_check') await page.getByLabel(v.document, { exact: true }).fill('TEST0001');
+    await page.getByRole('button', { name: method === 'student_email_outbound_otp' ? v.createChallenge : v.submit, exact: true }).click();
+    const error = page.locator('form').first().getByRole('alert');
+    await expect(error).toHaveText(m.errors[code]);
+    await expect(page.getByLabel(v.studentId, { exact: true })).toHaveValue('ZY2306123');
+    if (method === 'student_email_outbound_otp') await expect(page.getByLabel(v.document, { exact: true })).toHaveCount(0);
+    await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
+  });
+}

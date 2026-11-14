@@ -28,6 +28,12 @@ if (props.scope === 'identity') flow.selectMode('identity')
 // 实名认证通过后不再需要表单。实名提交只更新状态，不产生认证申请，所以申请和学习经历只在学生认证页显示。
 // 状态确认前不显示实名表单，否则已实名的用户会先看到待实名的页面。
 const showForm = computed(() => props.scope === 'student' || flow.summary.value?.identity_verified === false)
+const methodDescription = computed(() => {
+  const method = flow.mode.value === 'identity' ? 'real_name_identity_check' : flow.selectedMethod.value
+  const configured = flow.school.value?.method_description_keys?.[method]
+  if (configured?.startsWith('verification.methodDescriptions.') && te(configured)) return configured
+  return method === 'real_name_identity_check' ? 'verification.methodDescriptions.real_name_identity_check' : ''
+})
 const masked = computed(() => (flow.summary.value?.identity_verified ? maskedIdentity(flow.summary.value) : undefined))
 
 // Back to the page that required verification, once and only on a real change.
@@ -263,10 +269,10 @@ function profileValue(value: unknown, field: string) {
             {{ t('errors.method_unavailable') }}
           </p>
           <p
-            v-if="!flow.chooseStudy.value && flow.mode.value === 'student'"
+            v-if="methodDescription"
             class="small muted"
           >
-            {{ t('verification.schoolFacts') }}
+            {{ t(methodDescription) }}
           </p>
           <p
             v-if="flow.school.value?.profile_schema === 'bit.v1' && flow.selectedMethod.value === 'school_sso'"

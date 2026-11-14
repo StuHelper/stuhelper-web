@@ -87,7 +87,7 @@
     "disclosure_required": "公開可能な実名または教員認証情報がないため、担当科目には返信できません。",
     "identity_owned": "この学生情報は別のアカウントに紐づいています。元のアカウントを復旧するか、管理者に連絡してください。",
     "expired": "申請・コード・撮影リンクの期限が切れました。再度開始してください。",
-    "information_mismatch": "情報が一致しません。学籍番号の桁数、氏名、本人確認書類の番号、および選択した課程が学籍情報と一致しているかを確認して、再試行してください。",
+    "information_mismatch": "情報の照合に失敗しました。確認して再試行してください。",
     "method_unavailable": "この認証方法は利用できません。別の利用可能な方法を選んでください。",
     "processing": "リクエストを処理中です。少し待って更新または再試行してください。",
     "billing_unavailable": "アカウントサービスを利用できません。しばらくしてから再試行してください。",
@@ -104,7 +104,15 @@
     "billing_conflict": "データが他の操作で更新されました。再読み込みしてから再試行してください。",
     "schedule_incomplete": "時間割の情報が不足しているため、まだカレンダーを書き出せません。学校が授業時間や時限を登録すると書き出せます。",
     "billing_already_accessible": "この資料には既にアクセスできます。再度支払う必要はありません。",
-    "method_identity_not_allowed": "この認証方法は在学生のみ利用できます。卒業生は実名情報の照合または書類の手動審査をご利用ください。"
+    "method_identity_not_allowed": "この認証方法は在学生のみ利用できます。卒業生は実名情報の照合または書類の手動審査をご利用ください。",
+    "real_name_mismatch": "本人情報の照合に失敗しました。入力内容を確認して再試行するか、別の認証方法を選んでください。",
+    "real_name_no_record": "この学籍番号では本人情報の照合を利用できません。別の認証方法を選んでください。",
+    "email_identity_mismatch": "学籍番号と氏名が一致しません。確認して再試行するか、別の認証方法を選んでください。",
+    "email_identity_no_record": "この学籍番号では学校メールによる認証を利用できません。別の認証方法を選んでください。",
+    "school_credentials_rejected": "学校アカウントまたはパスワードが正しくありません。再試行してください。",
+    "school_account_locked": "学校アカウントがロックされています。学校に解除を依頼してから再試行してください。",
+    "school_account_disabled": "学校アカウントが無効になっています。学校に問い合わせるか、別の認証方法を選んでください。",
+    "school_account_unavailable": "学校アカウントは現在認証に利用できません。別の認証方法を選んでください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -655,7 +663,6 @@
       "conflict": "別の端末でプロフィールが更新され、保存済みのニックネームは「{nickname}」です。残す版を選んでください。",
       "useCurrent": "保存済みの版を使う",
       "keepMine": "入力したニックネームで上書き",
-      "sessionExpires": "ログイン有効期限",
       "role": "アカウントの役割",
       "administrator": "管理者"
     },
@@ -904,11 +911,10 @@
     "stage": "課程",
     "kind": "学生区分",
     "moreSchools": "さらに学校を読み込む",
-    "schoolFacts": "学習段階と学籍は学校の記録に基づきます。",
     "bitPrivacy": "北京理工大学のアカウント認証では、学校が提供する氏名、学籍番号、学部・専攻、クラス・学年、本人確認書類、登録連絡先、履修計画を取得して照合します。個人情報は学校別に暗号化して保存します。パスワード、SMSコード、学校のログインセッションは保存しません。",
     "privacy": "入力情報は学校の本人確認に使用します。学校のパスワードは保存しません。新しい審査資料は審査終了後30日間保存し、認証結果と学歴は別に保存します。",
     "consent": "認証に関する説明を読み、入力情報の確認に同意します。",
-    "studentId": "学籍番号・入学番号",
+    "studentId": "学籍番号",
     "name": "氏名",
     "document": "本人確認書類の番号",
     "password": "学校アカウントのパスワード",
@@ -1021,7 +1027,7 @@
     "profileStatus": {
       "complete": "学校が対応する情報を取得済み",
       "partial": "学校から一部の情報のみ提供されています",
-      "reference_only": "学校の教務システムの情報です",
+      "reference_only": "学校から提供された情報",
       "unavailable": "現在利用できる情報はありません"
     },
     "profileFields": {
@@ -1067,14 +1073,14 @@
       "school_account": "学校アカウント",
       "sso_profile": "学校SSO情報",
       "sso_document": "学校の書類照会",
-      "academic_profile": "学校の教務データ",
+      "academic_profile": "学校から提供されたデータ",
       "manual_review": "手動審査",
       "mailbox_verification": "メール所有確認",
       "self_reported": "ユーザー入力",
       "legacy_credential": "過去の認証情報",
       "synthetic": "テストデータ",
-      "oracle_students": "学校の教務データ",
-      "oracle_departments": "学校の教務データ"
+      "oracle_students": "学校から提供されたデータ",
+      "oracle_departments": "学校から提供されたデータ"
     },
     "schoolErrors": {
       "credentials_rejected": "学校のアカウントまたはパスワードが拒否されました。",
@@ -1110,7 +1116,10 @@
       "teacher": "教員"
     },
     "verifiedAt": "認証日時：{time}",
-    "profileSource": "情報源：{source}"
+    "profileSource": "情報源：{source}",
+    "methodDescriptions": {
+      "real_name_identity_check": "ご本人の情報は今回の本人確認にのみ使用され、学校または第三者の本人確認サービスが提供するデータと照合されます。"
+    }
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
