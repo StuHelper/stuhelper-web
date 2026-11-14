@@ -1,3 +1,4 @@
+import { teacherDirectoryEnabled } from '../../app/features'
 import contract from '../../../contracts/search.openapi.json'
 import type { components } from '../../api/search.gen'
 import type { Http } from '../../shared/api/http'
@@ -44,7 +45,8 @@ export class SearchApi {
 
   async search(q: string, kind: SearchKind | '', cursor: string, signal?: AbortSignal, limit = pageSize) {
     const page = await this.http.json('/api/v1/search', parse.page, { query: { q, kind: kind || undefined, cursor: cursor || undefined, limit }, signal })
-    return { items: page.items, next: page.next_cursor }
+    // While the teacher directory is off, teachers are reached only from their courses.
+    return { items: teacherDirectoryEnabled ? page.items : page.items.filter((item) => item.target.kind !== 'teacher'), next: page.next_cursor }
   }
 
   async popular(kind: 'course' | 'teacher', cursor: string, signal?: AbortSignal) {

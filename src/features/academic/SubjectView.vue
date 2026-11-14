@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { teacherDirectoryEnabled } from '../../app/features'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import CompareButton from '../search/CompareButton.vue'
 import { computed, ref, watch } from 'vue'
@@ -88,8 +89,8 @@ function submitted(result: Result) {
     >
       <PageHeader
         class="subject-head"
-        :back="kind === 'course' ? '/courses' : '/teachers'"
-        :back-label="t(kind === 'course' ? 'nav.courses' : 'nav.teachers')"
+        :back="kind === 'course' || !teacherDirectoryEnabled ? '/courses' : '/teachers'"
+        :back-label="t(kind === 'course' || !teacherDirectoryEnabled ? 'nav.courses' : 'nav.teachers')"
         :title="subject.name"
       >
         <p

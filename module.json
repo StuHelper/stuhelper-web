@@ -55,10 +55,10 @@
       "tests/e2e/access.spec.mjs#a verified user enters content; the home page becomes a workspace"
     ],
     "MC-02": [
-      "tests/e2e/access.spec.mjs#my courses separates terms and keeps a data failure apart from having no courses"
+      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent"
     ],
     "MC-04": [
-      "tests/e2e/access.spec.mjs#my courses separates terms and keeps a data failure apart from having no courses"
+      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent"
     ],
     "QQ-01": [
       "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
@@ -112,10 +112,12 @@
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",
       "tests/e2e/verification-ux.spec.mjs#verification page banner is reserved for loading failures",
       "src/features/verification/flow.test.ts#keeps failed verification inputs and separates action errors from loading errors",
-      "src/features/verification/method-errors.test.ts#renders method-specific failure messages in all eight languages"
+      "src/features/verification/method-errors.test.ts#renders method-specific failure messages in all eight languages",
+      "src/features/verification/flow.test.ts#restored email resend reopens identity inputs without submitting hidden empty values",
+      "tests/e2e/verification-ux.spec.mjs#restored email resend collects identity again before submitting"
     ],
     "VERIFICATION-UX-03": [
-      "tests/e2e/verification-ux.spec.mjs#profile hides unknown sources and binds authentication time to the selected credential",
+      "tests/e2e/verification-ux.spec.mjs#profile shows plain field labels and binds authentication time to the selected credential",
       "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure"
     ]
   }

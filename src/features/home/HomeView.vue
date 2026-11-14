@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { myCoursesEnabled, teacherDirectoryEnabled } from '../../app/features'
 import PageSkeleton from '../../shared/ui/PageSkeleton.vue'
 import { BookOpen, ChevronRight, FileText, Flame, FolderOpen, GraduationCap, Scale, Search, ShieldCheck, UserRound } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
@@ -27,7 +28,7 @@ const recent = ref(recentPages())
 const icons = { course: BookOpen, teacher: GraduationCap, resource: FolderOpen }
 const shortcuts = [
   { to: '/courses', title: 'nav.courses', icon: BookOpen, tile: 'var(--c-blue)' },
-  { to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: 'var(--c-purple)' },
+  ...(teacherDirectoryEnabled ? [{ to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: 'var(--c-purple)' }] : []),
   { to: '/popular', title: 'search.popular.title', icon: Flame, tile: 'var(--c-red)' },
   { to: '/compare', title: 'search.compare.title', icon: Scale, tile: 'var(--c-indigo)' },
   { to: '/resources', title: 'nav.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
@@ -43,7 +44,7 @@ const introductions = [
 // Sections fail independently, and one failure must not hide the others.
 const workspace = useAsync(async (signal) => {
   const [courses, drafts, tasks] = await Promise.allSettled([
-    api.myEnrollments(signal),
+    myCoursesEnabled ? api.myEnrollments(signal) : Promise.resolve([]),
     api.myDrafts({ limit: 3 }, signal),
     api.myTasks({ limit: 3 }, signal),
   ])
@@ -172,7 +173,10 @@ const name = (id: string) => workspace.data.value?.names.get(id)?.name ?? t('com
       </div>
 
       <div class="columns">
-        <section class="section">
+        <section
+          v-if="myCoursesEnabled"
+          class="section"
+        >
           <div class="section-head">
             <h2>{{ t('home.myCourses') }}</h2>
             <RouterLink to="/me/courses">

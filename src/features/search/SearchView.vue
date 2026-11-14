@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { teacherDirectoryEnabled } from '../../app/features'
 import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, Search } from 'lucide-vue-next'
 import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -15,7 +16,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const api = useSearchApi()
-const kinds = ['school', 'course', 'teacher', 'review', 'resource'] as const
+const kinds = (['school', 'course', 'teacher', 'review', 'resource'] as const).filter((kind) => teacherDirectoryEnabled || kind !== 'teacher')
 const icons: Record<SearchKind, Component> = { school: Building2, course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
 
 const q = computed(() => (typeof route.query.q === 'string' ? route.query.q.trim().slice(0, 200) : ''))

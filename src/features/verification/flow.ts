@@ -137,6 +137,7 @@ export function useVerificationFlow() {
 
   function reset() {
     stopPolling()
+    stopMailPolling()
     cancelDetached(active.value)
     smsCode.value = ''
     active.value = undefined
@@ -163,6 +164,17 @@ export function useVerificationFlow() {
   function selectMethod() {
     reset()
     if (!manual.value) kind.value = 'student'
+  }
+
+  // Leaves the started application and returns to choosing the method. The draft
+  // stays on the server until it expires; nothing has been verified yet.
+  function backToMethod() {
+    const keep = { school: selectedSchool.value, method: selectedMethod.value, consent: consent.value }
+    reset()
+    selectedSchool.value = keep.school
+    selectedMethod.value = keep.method
+    consent.value = keep.consent
+    form.code = ''
   }
 
   function selectMode(next: 'student' | 'identity') {
@@ -220,6 +232,10 @@ export function useVerificationFlow() {
     }
     email.value = undefined
     if (emailMethod.value) {
+      // A restored challenge does not disclose the previous identity inputs.
+      form.student_id = ''
+      form.name = ''
+      emailSentAt.value = 0
       try {
         email.value = await api.get('EmailChallenge', `/api/v1/verification/applications/${encodeURIComponent(application.id)}/email`)
       } catch (failure) {
@@ -247,6 +263,7 @@ export function useVerificationFlow() {
     } else if (emailMethod.value) {
       const body: Schemas['EmailInput'] = { student_id: form.student_id, name: form.name }
       email.value = await api.write('EmailChallenge', `${path}/email`, body)
+      emailSentAt.value = Date.now()
     } else {
       const body: Schemas['VerifyInput'] = { student_id: form.student_id, name: selectedMethod.value === 'school_sso' ? '' : form.name, document_number: form.document_number, password: form.password }
       active.value = await api.write('Application', `${path}/verify`, body)
@@ -254,14 +271,34 @@ export function useVerificationFlow() {
       notice.value = active.value.state === 'approved' ? 'verified' : 'schoolProgress'
     }
     await reload()
+    if (active.value?.state === 'approved') {
+      const outcome = notice.value
+      backToMethod()
+      notice.value = outcome
+    }
   })
+
+  const resendEmail = async () => {
+    if (busy.value) return
+    if (!form.student_id.trim() || !form.name.trim()) {
+      // Keep the application and let the person re-enter the required facts.
+      stopMailPolling()
+      email.value = undefined
+      form.code = ''
+      error.value = ''
+      return
+    }
+    await submit()
+  }
 
   const confirmEmail = () => action(async () => {
     if (!active.value) return
     active.value = await api.write('Application', `/api/v1/verification/applications/${encodeURIComponent(active.value.id)}/email/confirm`, { code: form.code })
     form.code = ''
-    notice.value = 'verified'
     await reload()
+    // A finished application leaves nothing to edit; start over with the outcome shown.
+    if (active.value?.state === 'approved') backToMethod()
+    notice.value = 'verified'
   }, 'email')
 
   const refreshApplication = () => action(async () => {
@@ -321,6 +358,34 @@ export function useVerificationFlow() {
     if (timer) clearTimeout(timer)
     timer = undefined
   }
+
+  // Outbound mail: show the real sending state. The server queues the message and
+  // records the provider receipt, so poll briefly until it leaves "queued".
+  const emailSentAt = ref(0)
+  let mailTimer: ReturnType<typeof setTimeout> | undefined
+  let mailPolls = 0
+  function stopMailPolling() {
+    if (mailTimer) clearTimeout(mailTimer)
+    mailTimer = undefined
+  }
+  async function pollMail() {
+    mailTimer = undefined
+    const current = email.value
+    if (!current || current.state !== 'queued' || !active.value || lifetime.signal.aborted || mailPolls >= 30) return
+    mailPolls++
+    try {
+      const updated = await api.get('EmailChallenge', `/api/v1/verification/applications/${encodeURIComponent(active.value.id)}/email`)
+      if (email.value?.id === current.id) email.value = updated
+    } catch {
+      // A failed status read keeps the last known state; the next poll or a resend recovers.
+    }
+    if (email.value?.state === 'queued' && mailPolls < 30) mailTimer = setTimeout(() => void pollMail(), 2000)
+  }
+  watch(() => email.value?.id, () => {
+    stopMailPolling()
+    mailPolls = 0
+    if (email.value?.state === 'queued') mailTimer = setTimeout(() => void pollMail(), 1500)
+  })
 
   async function schoolOperation(application: Application, step: 'poll' | 'submit_sms' | 'cancel') {
     const current = application.school_challenge
@@ -390,15 +455,16 @@ export function useVerificationFlow() {
 
   onBeforeUnmount(() => {
     stopPolling()
+    stopMailPolling()
     cancelDetached(active.value)
     lifetime.abort()
   })
 
   return {
     loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
-    isStudentApplication, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
+    isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable,
-    reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, confirmEmail, refreshApplication,
+    reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }
 }

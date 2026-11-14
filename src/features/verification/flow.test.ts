@@ -160,3 +160,25 @@ it('uses method capabilities to hide study stage while preserving manual identit
   await flow.start()
   expect(api.write).toHaveBeenCalledWith('Application', '/api/v1/verification/applications', expect.objectContaining({ stage: 'unknown', kind: 'alumni' }))
 })
+
+it('restored email resend reopens identity inputs without submitting hidden empty values', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.schools.value = [{ ...school('s101'), methods: ['student_email_outbound_otp'] }] as never
+  const restored = { ...pending, method: 'student_email_outbound_otp', school_challenge: undefined }
+  api.get.mockImplementation(async (kind: string) => kind === 'EmailChallenge' ? { id: 'mail', application_id: restored.id, state: 'delivered' } : {})
+  Object.assign(flow.form, { student_id: 'previous-user', name: 'Previous Person' })
+  await flow.resume(restored as never)
+  expect(flow.form.student_id).toBe('')
+  expect(flow.form.name).toBe('')
+  expect(flow.email.value?.id).toBe('mail')
+  await flow.resendEmail()
+  expect(api.write).not.toHaveBeenCalled()
+  expect(flow.email.value).toBeUndefined()
+  expect(flow.active.value?.id).toBe(restored.id)
+  Object.assign(flow.form, { student_id: '20260001', name: 'Synthetic Student' })
+  api.write.mockResolvedValue({ id: 'mail-new', application_id: restored.id, state: 'queued' })
+  await flow.submit()
+  expect(api.write).toHaveBeenCalledWith('EmailChallenge', `/api/v1/verification/applications/${restored.id}/email`, { student_id: '20260001', name: 'Synthetic Student' })
+  expect(flow.email.value?.id).toBe('mail-new')
+})

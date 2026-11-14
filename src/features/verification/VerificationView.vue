@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ActionError from './ActionError.vue'
+import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -34,6 +35,8 @@ const methodDescription = computed(() => {
   if (configured?.startsWith('verification.methodDescriptions.') && te(configured)) return configured
   return method === 'real_name_identity_check' ? 'verification.methodDescriptions.real_name_identity_check' : ''
 })
+// Outbound school-email codes take over the card once the code has been requested.
+const codeStep = computed(() => !!flow.email.value && flow.writable.value && flow.selectedMethod.value === 'student_email_outbound_otp' && flow.mode.value === 'student')
 const masked = computed(() => (flow.summary.value?.identity_verified ? maskedIdentity(flow.summary.value) : undefined))
 
 // Back to the page that required verification, once and only on a real change.
@@ -186,7 +189,9 @@ function profileValue(value: unknown, field: string) {
         v-if="showForm"
         class="card stack"
       >
-        <h2>{{ t('verification.start') }}</h2>
+        <h2 v-if="!codeStep">
+          {{ t('verification.start') }}
+        </h2>
         <p
           v-if="!flow.schools.value.length && !flow.loading.value"
           class="empty"
@@ -194,7 +199,7 @@ function profileValue(value: unknown, field: string) {
           {{ t('verification.noSchools') }}
         </p>
         <form
-          v-else
+          v-else-if="!codeStep"
           class="stack verification-form"
           @submit.prevent="flow.mode.value === 'identity' || flow.active.value ? flow.submit() : flow.start()"
         >
@@ -442,6 +447,15 @@ function profileValue(value: unknown, field: string) {
             >
               {{ t('verification.refreshStatus') }}
             </button>
+            <button
+              v-if="flow.active.value && flow.writable.value && flow.mode.value === 'student'"
+              class="btn btn-ghost"
+              type="button"
+              :disabled="flow.busy.value"
+              @click="flow.backToMethod"
+            >
+              {{ t('verification.back') }}
+            </button>
           </div>
         </form>
 
@@ -503,7 +517,7 @@ function profileValue(value: unknown, field: string) {
         </section>
 
         <div
-          v-if="flow.active.value"
+          v-if="flow.active.value && !codeStep"
           class="notice"
           role="status"
         >
@@ -518,45 +532,29 @@ function profileValue(value: unknown, field: string) {
           >{{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.qualification_expires_at) }) }}</span>
         </div>
 
+        <EmailCodeStep
+          v-if="codeStep && flow.email.value"
+          v-model:code="form.code"
+          :challenge="flow.email.value"
+          :sent-at="flow.emailSentAt.value"
+          :busy="flow.busy.value"
+          :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? flow.error.value : ''"
+          @confirm="flow.confirmEmail"
+          @resend="flow.resendEmail"
+          @back="flow.backToMethod"
+        />
         <section
-          v-if="flow.email.value && flow.writable.value"
+          v-else-if="flow.email.value && flow.writable.value && flow.selectedMethod.value === 'student_email_inbound_challenge'"
           class="notice notice-info stack"
         >
           <p>{{ flow.email.value.masked_email }} · {{ label('verification.states', flow.email.value.state) }}</p>
           <p class="subtle">
             {{ t('verification.expiresAt', { time: format.dateTime(flow.email.value.expires_at) }) }}
           </p>
-          <template v-if="flow.selectedMethod.value === 'student_email_inbound_challenge'">
-            <p class="small">
-              {{ t('verification.inboundHelp') }}
-            </p>
-            <code class="mono">{{ flow.email.value.target_address }}</code>
-          </template>
-          <form
-            v-else
-            class="stack-sm"
-            @submit.prevent="flow.confirmEmail"
-          >
-            <ActionError :code="flow.errorTarget.value === 'email' ? flow.error.value : ''" />
-            <label class="field">
-              <span class="field-label">{{ t('verification.emailCode') }}</span>
-              <input
-                v-model="form.code"
-                class="input"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                pattern="[0-9]{6}"
-                maxlength="6"
-                required
-              >
-            </label>
-            <button
-              class="btn btn-primary"
-              :disabled="flow.busy.value"
-            >
-              {{ t('common.confirm') }}
-            </button>
-          </form>
+          <p class="small">
+            {{ t('verification.inboundHelp') }}
+          </p>
+          <code class="mono">{{ flow.email.value.target_address }}</code>
         </section>
       </section>
 
@@ -701,10 +699,10 @@ function profileValue(value: unknown, field: string) {
           <div
             v-for="(value, field) in flow.profile.value.fields"
             :key="field"
+            :data-profile-field="field"
           >
             <dt>
               {{ label('verification.profileFields', String(field)) }}
-              <small v-if="flow.profile.value.field_sources[field] && te(`verification.profileSources.${flow.profile.value.field_sources[field]}`)"> · {{ t('verification.profileSource', { source: label('verification.profileSources', flow.profile.value.field_sources[field] ?? '') }) }}</small>
             </dt>
             <dd>{{ profileValue(value, String(field)) }}</dd>
           </div>

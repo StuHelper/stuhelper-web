@@ -1119,6 +1119,19 @@
     "profileSource": "Fuente: {source}",
     "methodDescriptions": {
       "real_name_identity_check": "Tus datos de identidad se usan únicamente para esta verificación y se compararán con los datos de tu universidad o de un servicio externo de verificación de identidad."
+    },
+    "back": "Paso anterior",
+    "emailStep": {
+      "title": "Introduce el código del correo",
+      "sending": "Enviando el código, espera…",
+      "sent": "Hemos enviado un código a {email}. Revisa tu bandeja de entrada.",
+      "failed": "No se pudo enviar el código. Vuelve a enviarlo o elige otro método.",
+      "spamHint": "Si no llega en unos minutos, revisa la carpeta de correo no deseado.",
+      "validFor": "El código caduca en {time} ({until}).",
+      "expired": "El código ha caducado. Envía uno nuevo.",
+      "confirm": "Verificar",
+      "resend": "Reenviar",
+      "resendIn": "Reenviar en {seconds} s"
     }
   },
   "contribution": {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { myCoursesEnabled } from '../../app/features'
 import { CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -40,7 +41,7 @@ onMounted(() => {
 })
 
 const links = [
-  { to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: 'var(--c-red)' },
+  ...(myCoursesEnabled ? [{ to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: 'var(--c-red)' }] : []),
   { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews', icon: FileText, tile: 'var(--c-blue)' },
   { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts', icon: PencilLine, tile: 'var(--c-orange)' },
   { to: '/me/resources', title: 'me.resources', text: 'me.links.resources', icon: FolderOpen, tile: '#ffcc00' },

@@ -2,6 +2,10 @@ import fs from 'node:fs';
 import { fixture as academicFixture } from './academic-fixture.mjs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 
+// "My courses" (the timetable page) is switched off until an enrollment-consent flow
+// exists; see src/app/features.ts. Remove this skip when myCoursesEnabled is turned on.
+test.skip(true, 'My courses is disabled pending enrollment consent');
+
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 const fill = (text, values) => Object.entries(values).reduce((out, [key, value]) => out.replaceAll(`{${key}}`, value), text);
