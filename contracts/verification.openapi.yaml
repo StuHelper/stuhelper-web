@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.4.1
+  version: 0.4.2
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
@@ -855,7 +855,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
     Problem:
-      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
@@ -938,11 +938,25 @@ components:
     Kind:
       type: string
       enum: [student, alumni, newcomer, unknown]
+    MethodCapabilities:
+      type: object
+      additionalProperties: false
+      required: [study_stage_required]
+      properties:
+        study_stage_required: { type: boolean, description: When false the applicant stage is ignored and source facts determine the recorded stage. Defaults to true when absent. }
+        allowed_kinds:
+          type: array
+          uniqueItems: true
+          items: { $ref: '#/components/schemas/Kind' }
     School:
       type: object
       additionalProperties: false
       required: [id, name, enabled, methods, notice_version, opening_date, newcomer_days, email_domain, material_types, revision]
       properties:
+        method_capabilities:
+          type: object
+          readOnly: true
+          additionalProperties: { $ref: '#/components/schemas/MethodCapabilities' }
         profile_schema: { type: string, readOnly: true, description: Data schema advertised by the school adapter; independent from the selected authentication method. }
         id: { type: string, minLength: 1, maxLength: 64 }
         name: { type: string, minLength: 1, maxLength: 100 }
@@ -966,7 +980,7 @@ components:
     CreateApplication:
       type: object
       additionalProperties: false
-      required: [school_id, method, stage, kind, notice_version, consent]
+      required: [school_id, method, kind, notice_version, consent]
       properties:
         school_id: { type: string, maxLength: 64 }
         method: { $ref: '#/components/schemas/Method' }

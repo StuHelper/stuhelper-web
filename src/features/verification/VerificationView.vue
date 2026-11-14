@@ -218,7 +218,7 @@ function profileValue(value: unknown, field: string) {
                 </AppSelect>
               </label>
               <label
-                v-if="flow.chooseStudy.value"
+                v-if="flow.chooseStage.value"
                 class="field"
               >
                 <span class="field-label">{{ t('verification.stage') }}</span>
