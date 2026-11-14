@@ -86,7 +86,7 @@
     "disclosure_required": "缺少已获准公开的真实姓名或教师认证信息，暂时不能回复本人任课课程。",
     "identity_owned": "该学生身份已绑定其他账号，请找回原账号或联系管理员。",
     "expired": "申请、验证码或拍摄链接已到期，请重新发起。",
-    "information_mismatch": "信息未匹配，请核对后重试或选择其他已开放方式。",
+    "information_mismatch": "信息未匹配。请核对学号位数、姓名、证件号，以及所选学习阶段是否与学籍一致，然后重试。",
     "method_unavailable": "该认证方式当前不可用，请选择其他已开放方式。",
     "processing": "请求仍在处理中，请稍后刷新或重试。",
     "billing_unavailable": "账务服务暂时不可用，请稍后重试。",
@@ -1064,7 +1064,7 @@
       "school_account": "学校账号",
       "sso_profile": "学校统一认证资料",
       "sso_document": "学校证件查询",
-      "academic_profile": "学校教务资料",
+      "academic_profile": "学校教务数据",
       "manual_review": "人工审核",
       "mailbox_verification": "邮箱归属验证",
       "self_reported": "用户填写",
@@ -1103,7 +1103,9 @@
       "roles": "认证身份",
       "student": "学生",
       "teacher": "教师"
-    }
+    },
+    "verifiedAt": "认证时间：{time}",
+    "profileSource": "来自{source}"
   },
   "contribution": {
     "eyebrow": "共享存储",

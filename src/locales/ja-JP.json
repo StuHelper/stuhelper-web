@@ -86,7 +86,7 @@
     "disclosure_required": "公開可能な実名または教員認証情報がないため、担当科目には返信できません。",
     "identity_owned": "この学生情報は別のアカウントに紐づいています。元のアカウントを復旧するか、管理者に連絡してください。",
     "expired": "申請・コード・撮影リンクの期限が切れました。再度開始してください。",
-    "information_mismatch": "情報が一致しません。内容を確認するか、別の利用可能な方法を選んでください。",
+    "information_mismatch": "情報が一致しません。学籍番号の桁数、氏名、本人確認書類の番号、および選択した課程が学籍情報と一致しているかを確認して、再試行してください。",
     "method_unavailable": "この認証方法は利用できません。別の利用可能な方法を選んでください。",
     "processing": "リクエストを処理中です。少し待って更新または再試行してください。",
     "billing_unavailable": "アカウントサービスを利用できません。しばらくしてから再試行してください。",
@@ -1064,7 +1064,7 @@
       "school_account": "学校アカウント",
       "sso_profile": "学校SSO情報",
       "sso_document": "学校の書類照会",
-      "academic_profile": "学校の教務情報",
+      "academic_profile": "学校の教務データ",
       "manual_review": "手動審査",
       "mailbox_verification": "メール所有確認",
       "self_reported": "ユーザー入力",
@@ -1103,7 +1103,9 @@
       "roles": "認証する立場",
       "student": "学生",
       "teacher": "教員"
-    }
+    },
+    "verifiedAt": "認証日時：{time}",
+    "profileSource": "情報源：{source}"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",

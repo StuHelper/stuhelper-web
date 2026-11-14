@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ActionError from './ActionError.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -99,8 +100,8 @@ function profileValue(value: unknown, field: string) {
         {{ t('verification.returnHint') }}
       </p>
       <ErrorNotice
-        v-if="flow.error.value"
-        :code="flow.error.value"
+        v-if="flow.loadError.value"
+        :code="flow.loadError.value"
         @retry="flow.reload"
       />
       <p
@@ -188,7 +189,7 @@ function profileValue(value: unknown, field: string) {
         </p>
         <form
           v-else
-          class="stack"
+          class="stack verification-form"
           @submit.prevent="flow.mode.value === 'identity' || flow.active.value ? flow.submit() : flow.start()"
         >
           <SchoolPicker
@@ -203,6 +204,7 @@ function profileValue(value: unknown, field: string) {
                 <span class="field-label">{{ t('verification.method') }}</span>
                 <AppSelect
                   v-model="flow.selectedMethod.value"
+                  :body-lock="false"
                   class="select"
                   :disabled="flow.busy.value || !!flow.active.value"
                   required
@@ -222,6 +224,7 @@ function profileValue(value: unknown, field: string) {
                 <span class="field-label">{{ t('verification.stage') }}</span>
                 <AppSelect
                   v-model="flow.stage.value"
+                  :body-lock="false"
                   class="select"
                   :disabled="!!flow.active.value || flow.busy.value"
                 >
@@ -239,6 +242,7 @@ function profileValue(value: unknown, field: string) {
                 <span class="field-label">{{ t('verification.kind') }}</span>
                 <AppSelect
                   v-model="flow.kind.value"
+                  :body-lock="false"
                   class="select"
                   :disabled="!!flow.active.value || flow.busy.value"
                 >
@@ -367,6 +371,7 @@ function profileValue(value: unknown, field: string) {
                 <span class="field-label">{{ t('verification.materialType') }}</span>
                 <AppSelect
                   v-model="form.material_type"
+                  :body-lock="false"
                   class="select"
                   required
                   :disabled="flow.busy.value"
@@ -412,6 +417,7 @@ function profileValue(value: unknown, field: string) {
             </ul>
           </div>
 
+          <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
           <div class="form-actions">
             <button
               v-if="!flow.active.value || flow.writable.value || flow.mode.value === 'identity'"
@@ -448,6 +454,7 @@ function profileValue(value: unknown, field: string) {
               {{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.school_challenge.expires_at) }) }}
             </p>
           </div>
+          <ActionError :code="flow.errorTarget.value === 'school' ? flow.error.value : ''" />
           <form
             v-if="flow.active.value.school_challenge.state === 'waiting_sms'"
             class="stack-sm"
@@ -521,9 +528,10 @@ function profileValue(value: unknown, field: string) {
           </template>
           <form
             v-else
-            class="row"
+            class="stack-sm"
             @submit.prevent="flow.confirmEmail"
           >
+            <ActionError :code="flow.errorTarget.value === 'email' ? flow.error.value : ''" />
             <label class="field">
               <span class="field-label">{{ t('verification.emailCode') }}</span>
               <input
@@ -625,6 +633,7 @@ function profileValue(value: unknown, field: string) {
                   required
                 />
               </label>
+              <ActionError :code="flow.errorTarget.value === 'removal' ? flow.error.value : ''" />
               <div class="row">
                 <button
                   class="btn btn-sm btn-primary"
@@ -643,6 +652,7 @@ function profileValue(value: unknown, field: string) {
             </form>
           </li>
         </ul>
+        <ActionError :code="flow.errorTarget.value === 'credentials' ? flow.error.value : ''" />
         <button
           v-if="flow.cursors.credentials"
           class="btn"
@@ -654,6 +664,7 @@ function profileValue(value: unknown, field: string) {
         </button>
       </section>
 
+      <ActionError :code="flow.errorTarget.value === 'profile' ? flow.error.value : ''" />
       <section
         v-if="flow.profile.value"
         class="card stack"
@@ -668,14 +679,17 @@ function profileValue(value: unknown, field: string) {
             {{ t('common.close') }}
           </button>
         </div>
-        <p class="small">
-          {{ label('verification.profileStatus', flow.profile.value.data_status) }}
+        <p
+          v-if="flow.profile.value.data_status === 'unavailable' || !Object.keys(flow.profile.value.fields).length"
+          class="small"
+        >
+          {{ t('verification.profileStatus.unavailable') }}
         </p>
         <p
-          v-if="flow.profile.value.collected_at"
+          v-if="flow.profileCredential.value"
           class="subtle"
         >
-          {{ t('verification.collectedAt', { time: format.dateTime(flow.profile.value.collected_at) }) }}
+          <time :datetime="flow.profileCredential.value.verified_at">{{ t('verification.verifiedAt', { time: format.dateTime(flow.profileCredential.value.verified_at) }) }}</time>
         </p>
         <dl class="facts">
           <div
@@ -684,7 +698,7 @@ function profileValue(value: unknown, field: string) {
           >
             <dt>
               {{ label('verification.profileFields', String(field)) }}
-              <small v-if="flow.profile.value.field_sources[field]"> · {{ label('verification.profileSources', flow.profile.value.field_sources[field] ?? '') }}</small>
+              <small v-if="flow.profile.value.field_sources[field] && te(`verification.profileSources.${flow.profile.value.field_sources[field]}`)"> · {{ t('verification.profileSource', { source: label('verification.profileSources', flow.profile.value.field_sources[field] ?? '') }) }}</small>
             </dt>
             <dd>{{ profileValue(value, String(field)) }}</dd>
           </div>
@@ -728,6 +742,7 @@ function profileValue(value: unknown, field: string) {
             </button>
           </li>
         </ul>
+        <ActionError :code="flow.errorTarget.value === 'applications' ? flow.error.value : ''" />
         <button
           v-if="flow.cursors.applications"
           class="btn"
@@ -767,6 +782,7 @@ function profileValue(value: unknown, field: string) {
             </p>
           </li>
         </ul>
+        <ActionError :code="flow.errorTarget.value === 'requests' ? flow.error.value : ''" />
         <button
           v-if="flow.cursors.requests"
           class="btn"

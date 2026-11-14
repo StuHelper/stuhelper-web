@@ -34,3 +34,5 @@ jobs:
       - run: make build
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm browser
+      - name: Verification layout with classic scrollbars
+        run: xvfb-run -a pnpm exec playwright test verification-ux --headed --project=desktop-zh-CN --project=desktop-ar-EG -g 'zero layout'
