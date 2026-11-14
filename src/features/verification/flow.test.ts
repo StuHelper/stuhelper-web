@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 import { createI18n } from 'vue-i18n'
+import { ApiError } from '../../shared/api/errors'
 import CameraCapture from './CameraCapture.vue'
 import { useVerificationFlow } from './flow'
 
@@ -109,4 +110,38 @@ it('serializes camera startup and releases a stream returned after unmount', asy
   finish(stream)
   await settle()
   expect(stop).toHaveBeenCalledTimes(1)
+})
+
+it('keeps failed verification inputs and separates action errors from loading errors', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  await flow.resume({ ...pending, school_challenge: undefined } as never)
+  Object.assign(flow.form, { student_id: '20260001', name: 'Synthetic Student', document_number: 'TEST0001' })
+  api.write.mockRejectedValue(new ApiError('information_mismatch'))
+  await flow.submit()
+  expect(flow.error.value).toBe('information_mismatch')
+  expect(flow.loadError.value).toBe('')
+  expect(flow.form).toMatchObject({ student_id: '20260001', name: 'Synthetic Student', document_number: 'TEST0001' })
+  api.list.mockRejectedValue(new ApiError('network'))
+  await flow.reload()
+  expect(flow.loadError.value).toBe('network')
+  expect(flow.form.student_id).toBe('20260001')
+})
+
+it('uses only the selected credential time and clears profile context on refresh and failure', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.credentials.value = [{ id: 'a', verified_at: '2026-11-14T00:00:00Z' }, { id: 'b', verified_at: '2025-01-01T00:00:00Z' }] as never
+  api.get.mockResolvedValue({ fields: {}, collected_at: '2020-01-01T00:00:00Z' })
+  await flow.showProfile('b')
+  expect(flow.profileCredential.value?.verified_at).toBe('2025-01-01T00:00:00Z')
+  await flow.showProfile('missing')
+  expect(flow.profileCredential.value).toBeUndefined()
+  api.get.mockRejectedValue(new ApiError('unavailable'))
+  await flow.showProfile('a')
+  expect(flow.profile.value).toBeUndefined()
+  expect(flow.profileCredential.value).toBeUndefined()
+  expect(flow.errorTarget.value).toBe('profile')
+  await flow.reload()
+  expect(flow.profileCredential.value).toBeUndefined()
 })

@@ -9,7 +9,9 @@ import { computed, Fragment, ref, useAttrs, type VNode } from 'vue'
  * 所以调用方可以继续读取 target.value 和调用 setCustomValidity。
  */
 defineOptions({ inheritAttrs: false })
-const props = defineProps<{ modelValue?: string | number | null; disabled?: boolean; required?: boolean }>()
+// Pages with a reserved scrollbar gutter and sticky navigation can keep scrolling
+// while the list is open; the default remains unchanged for other consumers.
+const props = withDefaults(defineProps<{ modelValue?: string | number | null; disabled?: boolean; required?: boolean; bodyLock?: boolean }>(), { modelValue: undefined, bodyLock: true })
 const emit = defineEmits<{ 'update:modelValue': [value: string]; change: [event: Event] }>()
 const slots = defineSlots<{ default?: () => VNode[] }>()
 const attrs = useAttrs()
@@ -65,6 +67,7 @@ function choose(value: unknown) {
       <SelectPortal>
         <SelectContent
           class="app-popup app-select-content"
+          :body-lock="bodyLock"
           position="popper"
           :side-offset="6"
           :collision-padding="8"
