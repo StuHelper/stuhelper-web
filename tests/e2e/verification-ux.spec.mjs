@@ -282,3 +282,27 @@ test('school profile renders exactly the three server-projected fields', async (
   await expect(card).not.toContainText(messages(info).common.unknown);
   await shot(page, info, 'projected-profile', card);
 });
+
+test('restored email resend collects identity again before submitting', async ({ page }, info) => {
+  const v = messages(info).verification;
+  await fixture(page, { school: { ...school, methods: ['student_email_outbound_otp'] } });
+  const restored = { ...application, method: 'student_email_outbound_otp' };
+  const writes = [];
+  await page.route('**/api/v1/verification/applications**', route => {
+    const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
+    if (request.method() === 'POST') writes.push(request.postDataJSON());
+    if (endpoint === 'applications') return route.fulfill({ json: [restored] });
+    if (endpoint === 'applications/application/email') return route.fulfill({ json: { id: 'restored-mail', application_id: 'application', expires_at: '2020-01-01T00:00:00Z', state: 'delivered', masked_email: '20****01@example.edu', target_address: '' } });
+    return route.fulfill({ json: [] });
+  });
+  await open(page, info);
+  await page.locator('.list').getByRole('button', { name: v.continue, exact: true }).click();
+  await expect(page.locator('.email-step')).toBeVisible();
+  await page.getByRole('button', { name: v.emailStep.resend, exact: true }).click();
+  await expect(page.getByLabel(v.studentId, { exact: true })).toBeVisible();
+  expect(writes).toEqual([]);
+  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
+  await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
+  expect(writes).toEqual([{ student_id: '20260001', name: 'Synthetic Student' }]);
+});

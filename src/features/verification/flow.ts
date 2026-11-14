@@ -232,6 +232,10 @@ export function useVerificationFlow() {
     }
     email.value = undefined
     if (emailMethod.value) {
+      // A restored challenge does not disclose the previous identity inputs.
+      form.student_id = ''
+      form.name = ''
+      emailSentAt.value = 0
       try {
         email.value = await api.get('EmailChallenge', `/api/v1/verification/applications/${encodeURIComponent(application.id)}/email`)
       } catch (failure) {
@@ -273,6 +277,19 @@ export function useVerificationFlow() {
       notice.value = outcome
     }
   })
+
+  const resendEmail = async () => {
+    if (busy.value) return
+    if (!form.student_id.trim() || !form.name.trim()) {
+      // Keep the application and let the person re-enter the required facts.
+      stopMailPolling()
+      email.value = undefined
+      form.code = ''
+      error.value = ''
+      return
+    }
+    await submit()
+  }
 
   const confirmEmail = () => action(async () => {
     if (!active.value) return
@@ -447,7 +464,7 @@ export function useVerificationFlow() {
     loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable,
-    reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, confirmEmail, refreshApplication,
+    reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }
 }

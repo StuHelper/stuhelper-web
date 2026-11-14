@@ -540,7 +540,7 @@ function profileValue(value: unknown, field: string) {
           :busy="flow.busy.value"
           :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? flow.error.value : ''"
           @confirm="flow.confirmEmail"
-          @resend="flow.submit"
+          @resend="flow.resendEmail"
           @back="flow.backToMethod"
         />
         <section
