@@ -25,8 +25,12 @@ type Filters = Record<(typeof keys)[number], string>
 const form = reactive<Filters>({ q: '', department: '', category: '', nature: '', teacher: '' })
 const names = shallowRef(new Map<string, CatalogObject>())
 
+// Filters live in the URL fragment (#department=…): the page stays shareable and
+// the back button still steps through filter changes, while the address path and
+// query stay clean. The fragment is never sent to the server.
 function fromRoute(): Filters {
-  const read = (key: string) => (typeof route.query[key] === 'string' ? String(route.query[key]) : '')
+  const params = new URLSearchParams(route.hash.replace(/^#/, ''))
+  const read = (key: string) => params.get(key) ?? ''
   return { q: read('q'), department: read('department'), category: props.kind === 'course' ? read('category') : '', nature: props.kind === 'course' ? read('nature') : '', teacher: props.kind === 'course' ? read('teacher') : '' }
 }
 const applied = computed(fromRoute)
@@ -35,8 +39,12 @@ const filtered = computed(() => keys.some((key) => applied.value[key]))
 const results = usePaged(async (after, signal) => {
   const f = applied.value
   const page = await api.objects({ kind: props.kind, q: f.q, school_id: campus.value, department_id: f.department, category_id: f.category, nature_id: f.nature, teacher_id: f.teacher, after, limit: listSize }, signal)
-  const found = await api.lookup(page.items.flatMap((item) => [item.department_id]), signal)
-  names.value = new Map([...(after ? names.value : []), ...found])
+  // Department names usually come from the filter options already loaded; only
+  // departments missing there are looked up, so a page costs one request.
+  const known = new Map((scoped.data.value?.departments ?? []).map((row) => [row.id, row] as const))
+  const missing = [...new Set(page.items.map((item) => item.department_id).filter((id) => id && !known.has(id) && !names.value.has(id)))]
+  const found = missing.length ? await api.lookup(missing, signal) : new Map<string, CatalogObject>()
+  names.value = new Map([...(after ? names.value : []), ...known, ...found])
   return { items: page.items, next: page.next }
 })
 
@@ -53,15 +61,15 @@ const teacherName = useAsync(async (signal) => (applied.value.teacher ? (await a
 
 function apply(changes: Partial<Filters> = {}) {
   Object.assign(form, changes)
-  const query: Record<string, string> = {}
-  for (const key of keys) if (form[key]) query[key] = form[key]
-  if (typeof route.query.lang === 'string') query.lang = route.query.lang
-  void router.replace({ path: route.path, query })
+  const params = new URLSearchParams()
+  for (const key of keys) if (form[key]) params.set(key, form[key])
+  const fragment = params.toString()
+  void router.replace({ path: route.path, query: route.query, hash: fragment ? `#${fragment}` : '' })
 }
 
 const active = computed(() => (['department', 'category', 'nature'] as const).filter((key) => applied.value[key]).length)
 
-watch(() => [props.kind, route.query], () => {
+watch(() => [props.kind, route.hash], () => {
   Object.assign(form, fromRoute())
   void results.reload()
   void teacherName.reload()
