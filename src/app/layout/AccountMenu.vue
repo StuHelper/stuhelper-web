@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { myCoursesEnabled } from '../features'
 import { Bookmark, CalendarDays, CircleAlert, FileText, FolderOpen, LogOut, Settings, ShieldCheck } from 'lucide-vue-next'
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuSeparator, DropdownMenuTrigger } from 'reka-ui'
 import { computed } from 'vue'
@@ -19,7 +20,7 @@ const available = useLinkAvailable()
 const statusKey = computed(() => ({ verified: 'account.status.verified', unverified: 'account.status.unverified', processing: 'account.status.processing', expired: 'account.status.expired', unavailable: 'me.status.unknown', guest: '', loading: '' }[access.state.value]))
 const nextStep = computed(() => ({ unverified: 'gate.unverified.action', processing: 'gate.processing.action', expired: 'gate.expired.action' } as Record<string, string>)[access.state.value])
 const content = computed(() => [
-  { to: '/me/courses', label: 'courses.title', icon: CalendarDays },
+  ...(myCoursesEnabled ? [{ to: '/me/courses', label: 'courses.title', icon: CalendarDays }] : []),
   { to: '/me/favorites', label: 'account.menu.favorites', icon: Bookmark },
   { to: '/me/reviews', label: 'me.reviews', icon: FileText },
   { to: '/me/resources', label: 'me.resources', icon: FolderOpen },

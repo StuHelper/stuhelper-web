@@ -96,14 +96,15 @@ test('verification failure stays beside submit with focus and retained input', a
   await shot(page, info, 'inline-error');
 });
 
-test('profile hides unknown sources and binds authentication time to the selected credential', async ({ page }, info) => {
+test('profile shows plain field labels and binds authentication time to the selected credential', async ({ page }, info) => {
   const state = await fixture(page); await open(page, info);
   const m = messages(info), v = m.verification;
   await page.getByRole('button', { name: v.viewProfile }).first().click();
   const card = page.locator('section').filter({ has: page.getByRole('heading', { name: v.profileTitle, exact: true }) });
   await expect(card).not.toContainText(m.common.unknown);
-  await expect(card).toContainText(v.profileSources.academic_profile);
-  for (const field of ['student_id', 'department']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toContainText(v.profileSources.academic_profile);
+  // Field labels stand alone; no data-source annotation is shown.
+  await expect(card).not.toContainText(v.profileSources.academic_profile);
+  for (const field of ['student_id', 'department']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toHaveText(v.profileFields[field]);
   await expect(card.locator('dt').filter({ hasText: v.profileFields.name })).toHaveText(v.profileFields.name);
   await expect(card.locator('dt').filter({ hasText: v.profileFields.contact_email })).toHaveText(v.profileFields.contact_email);
   await expect(card).not.toContainText(v.profileStatus.partial);

@@ -65,10 +65,13 @@ memberTest('a verified user enters content; the home page becomes a workspace', 
   await academicFixture(page);
   await page.goto(`${base}/courses/course?lang=${locale}`);
   await expect(page.getByRole('heading', { level: 1, name: 'Test Course' })).toBeVisible();
+  // "My courses" is switched off until the person consents to reading enrollment records.
+  const enrollmentReads = [];
+  page.on('request', (request) => { if (request.url().includes('/catalog/me/')) enrollmentReads.push(request.url()); });
   await page.goto(`${base}/campus?lang=${locale}`);
-  await expect(page.getByRole('heading', { name: all.home.myCourses, exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Test Course', exact: true }).first()).toBeVisible();
   await expect(page.getByRole('heading', { name: all.home.recent, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: all.home.myCourses, exact: true })).toHaveCount(0);
+  expect(enrollmentReads).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -95,19 +98,15 @@ memberTest('a failed list shows one page-level recovery action', async ({ page }
   await expect(page.getByRole('main').getByRole('alert')).toHaveCount(1);
 });
 
-memberTest('my courses separates terms and keeps a data failure apart from having no courses', async ({ page }, info) => {
-  const all = catalogue(info), locale = info.project.metadata.locale;
+memberTest('my courses stays off and reads no enrollment records without consent', async ({ page }, info) => {
+  const locale = info.project.metadata.locale;
   await academicFixture(page);
+  const enrollmentReads = [];
+  page.on('request', (request) => { if (request.url().includes('/catalog/me/')) enrollmentReads.push(request.url()); });
   await page.goto(`${base}/me/courses?lang=${locale}`);
-  await expect(page.getByRole('tab', { name: 'Spring semester', exact: true })).toHaveAttribute('aria-selected', 'true');
-  await page.getByRole('tab', { name: 'Fall semester', exact: true }).click();
-  await page.getByRole('tab', { name: all.courses.listView, exact: true }).click();
-  await expect(page.getByRole('link', { name: 'Teacher A', exact: true })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Teacher B', exact: true })).toHaveCount(0);
-  await page.route('**/api/v1/catalog/me/enrollments?**', (route) => route.fulfill({ status: 503, json: { code: 'unavailable' } }));
-  await page.reload();
-  await expect(page.getByRole('button', { name: all.courses.reload, exact: true })).toBeVisible();
-  await expect(page.getByText(all.courses.empty, { exact: true })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/me(\?|$)/);
+  await expect(page.locator('a[href="/me/courses"]')).toHaveCount(0);
+  expect(enrollmentReads).toEqual([]);
 });
 
 memberTest('identity page waits for the real state and only shows masked identity', async ({ page }, info) => {

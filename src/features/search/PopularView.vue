@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { teacherDirectoryEnabled } from '../../app/features'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -15,7 +16,7 @@ const { t } = useI18n()
 const format = useFormat()
 const api = useSearchApi()
 const kind = ref<'course' | 'teacher'>('course')
-const tabs = computed(() => [{ value: 'course' as const, label: t('search.popular.courses') }, { value: 'teacher' as const, label: t('search.popular.teachers') }])
+const tabs = computed(() => [{ value: 'course' as const, label: t('search.popular.courses') }, ...(teacherDirectoryEnabled ? [{ value: 'teacher' as const, label: t('search.popular.teachers') }] : [])])
 const list = usePaged<SearchItem>((cursor, signal) => api.popular(kind.value, cursor, signal))
 watch(kind, () => void list.reload(), { immediate: true })
 </script>

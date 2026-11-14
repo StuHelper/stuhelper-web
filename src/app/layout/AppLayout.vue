@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { teacherDirectoryEnabled } from '../features'
 import { BookOpen, Compass, FolderOpen, GraduationCap, Scale, UserRound } from 'lucide-vue-next'
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch, watchEffect, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -38,7 +39,7 @@ const productLinks = [
 const subnav: { to: string; label: string; icon: Component; active: () => boolean }[] = [
   { to: '/campus', label: 'nav.discover', icon: Compass, active: () => section.value === 'home' },
   { to: '/courses', label: 'nav.courses', icon: BookOpen, active: () => section.value === 'courses' && route.path !== '/compare' },
-  { to: '/teachers', label: 'nav.teachers', icon: GraduationCap, active: () => section.value === 'teachers' },
+  ...(teacherDirectoryEnabled ? [{ to: '/teachers', label: 'nav.teachers', icon: GraduationCap, active: () => section.value === 'teachers' }] : []),
   { to: '/resources', label: 'nav.resources', icon: FolderOpen, active: () => section.value === 'resources' },
   { to: '/compare', label: 'search.compare.title', icon: Scale, active: () => route.path === '/compare' },
 ]
@@ -47,7 +48,7 @@ const subnav: { to: string; label: string; icon: Component; active: () => boolea
 const tabs: { to: string; label: string; section: string; icon: Component }[] = [
   { to: '/campus', label: 'nav.discover', section: 'home', icon: Compass },
   { to: '/courses', label: 'nav.courses', section: 'courses', icon: BookOpen },
-  { to: '/teachers', label: 'nav.teachers', section: 'teachers', icon: GraduationCap },
+  ...(teacherDirectoryEnabled ? [{ to: '/teachers', label: 'nav.teachers', section: 'teachers', icon: GraduationCap }] : []),
   { to: '/resources', label: 'nav.resources', section: 'resources', icon: FolderOpen },
   { to: '/me', label: 'nav.me', section: 'me', icon: UserRound },
 ]

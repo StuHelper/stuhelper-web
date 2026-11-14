@@ -704,7 +704,6 @@ function profileValue(value: unknown, field: string) {
           >
             <dt>
               {{ label('verification.profileFields', String(field)) }}
-              <small v-if="flow.profile.value.field_sources[field] && te(`verification.profileSources.${flow.profile.value.field_sources[field]}`)"> · {{ t('verification.profileSource', { source: label('verification.profileSources', flow.profile.value.field_sources[field] ?? '') }) }}</small>
             </dt>
             <dd>{{ profileValue(value, String(field)) }}</dd>
           </div>
