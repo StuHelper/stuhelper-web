@@ -102,7 +102,8 @@
     "quota_exceeded": "Too many requests. The quota was exceeded; try again later.",
     "billing_conflict": "The data changed in the meantime. Refresh and try again.",
     "schedule_incomplete": "The timetable is incomplete, so the calendar cannot be exported yet. It will be available once the school adds class times or period times.",
-    "billing_already_accessible": "You already have access to this resource. No payment is needed."
+    "billing_already_accessible": "You already have access to this resource. No payment is needed.",
+    "method_identity_not_allowed": "This method is available only to current students. Alumni should use real-name information verification or manual document review."
   },
   "connection": {
     "label": "Service connection status",
@@ -1013,7 +1014,8 @@
     "materialTypes": {
       "student_card": "Student or campus card",
       "admission_letter": "Admission letter",
-      "enrollment_certificate": "Enrollment certificate"
+      "enrollment_certificate": "Enrollment certificate",
+      "graduation_certificate": "Graduation or degree certificate"
     },
     "profileStatus": {
       "complete": "Supported school data collected",

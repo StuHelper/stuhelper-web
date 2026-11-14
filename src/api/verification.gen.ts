@@ -868,7 +868,15 @@ export interface components {
         Stage: "bachelor" | "master" | "doctor" | "other" | "unknown";
         /** @enum {string} */
         Kind: "student" | "alumni" | "newcomer" | "unknown";
+        MethodCapabilities: {
+            /** @description When false the applicant stage is ignored and source facts determine the recorded stage. Defaults to true when absent. */
+            study_stage_required: boolean;
+            allowed_kinds?: components["schemas"]["Kind"][];
+        };
         School: {
+            readonly method_capabilities?: {
+                [key: string]: components["schemas"]["MethodCapabilities"];
+            };
             /** @description Data schema advertised by the school adapter; independent from the selected authentication method. */
             readonly profile_schema?: string;
             id: string;
@@ -888,7 +896,7 @@ export interface components {
         CreateApplication: {
             school_id: string;
             method: components["schemas"]["Method"];
-            stage: components["schemas"]["Stage"];
+            stage?: components["schemas"]["Stage"];
             kind: components["schemas"]["Kind"];
             notice_version: string;
             /** @enum {boolean} */
@@ -1161,7 +1169,7 @@ export interface components {
                 "application/json": components["schemas"]["Problem"];
             };
         };
-        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
+        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
         Problem: {
             headers: {
                 [name: string]: unknown;

@@ -102,7 +102,8 @@
     "quota_exceeded": "Demasiadas solicitudes: se superó la cuota. Inténtalo más tarde.",
     "billing_conflict": "Los datos cambiaron mientras tanto. Actualiza e inténtalo de nuevo.",
     "schedule_incomplete": "El horario está incompleto y todavía no se puede exportar el calendario. Estará disponible cuando el centro añada las horas de clase.",
-    "billing_already_accessible": "Ya tienes acceso a este recurso; no hace falta pagar de nuevo."
+    "billing_already_accessible": "Ya tienes acceso a este recurso; no hace falta pagar de nuevo.",
+    "method_identity_not_allowed": "Este método solo está disponible para estudiantes actuales. Los antiguos alumnos deben usar la verificación de identidad o la revisión manual de documentos."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -1013,7 +1014,8 @@
     "materialTypes": {
       "student_card": "Carné de estudiante",
       "admission_letter": "Carta de admisión",
-      "enrollment_certificate": "Certificado de matrícula"
+      "enrollment_certificate": "Certificado de matrícula",
+      "graduation_certificate": "Certificado de graduación o título"
     },
     "profileStatus": {
       "complete": "Se han recopilado los datos disponibles",

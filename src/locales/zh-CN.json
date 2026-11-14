@@ -102,7 +102,8 @@
     "quota_exceeded": "请求过于频繁，已超出配额，请稍后重试。",
     "billing_conflict": "数据已被其他操作更新，请刷新后重试。",
     "schedule_incomplete": "课表信息尚不完整，暂时无法导出日历。学校补充上课时间或作息后即可导出。",
-    "billing_already_accessible": "你已拥有该资料的访问权，无需再次付款。"
+    "billing_already_accessible": "你已拥有该资料的访问权，无需再次付款。",
+    "method_identity_not_allowed": "此认证方式仅适用于在读学生。校友请改用实名信息校验或人工材料审核。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -1013,7 +1014,8 @@
     "materialTypes": {
       "student_card": "学生证或校园卡",
       "admission_letter": "录取通知书",
-      "enrollment_certificate": "在读证明"
+      "enrollment_certificate": "在读证明",
+      "graduation_certificate": "毕业证书或学位证书"
     },
     "profileStatus": {
       "complete": "已取得该校支持的资料",

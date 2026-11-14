@@ -145,3 +145,18 @@ it('uses only the selected credential time and clears profile context on refresh
   await flow.reload()
   expect(flow.profileCredential.value).toBeUndefined()
 })
+
+it('uses method capabilities to hide study stage while preserving manual identity selection', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.schools.value.push({ ...school('configured'), enabled: true, opening_date: '', newcomer_days: 90, email_domain: '', revision: 1, methods: ['manual_material_review'], profile_schema: 'custom.v1', method_capabilities: { manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] } } })
+  flow.selectedSchool.value = 'configured'
+  flow.selectedMethod.value = 'manual_material_review'
+  await settle()
+  expect(flow.chooseStudy.value).toBe(true)
+  expect(flow.chooseStage.value).toBe(false)
+  flow.kind.value = 'alumni'
+  flow.consent.value = true
+  await flow.start()
+  expect(api.write).toHaveBeenCalledWith('Application', '/api/v1/verification/applications', expect.objectContaining({ stage: 'unknown', kind: 'alumni' }))
+})

@@ -53,6 +53,7 @@ export function useVerificationFlow() {
   const schoolPending = computed(() => !!active.value?.school_challenge && pendingChallenge.includes(active.value.school_challenge.state))
   // Schools with an imported profile record study facts from school evidence instead of user choice.
   const chooseStudy = computed(() => manual.value || !school.value?.profile_schema || school.value.profile_schema === 'buaa.imported.v1')
+  const chooseStage = computed(() => chooseStudy.value && school.value?.method_capabilities?.[selectedMethod.value]?.study_stage_required !== false)
   const writable = computed(() => !!active.value && ['in_progress', 'supplement_required'].includes(active.value.state) && !schoolPending.value)
 
   function fail(failure: unknown, target: ErrorTarget = 'form') {
@@ -188,7 +189,7 @@ export function useVerificationFlow() {
 
   const start = () => action(async () => {
     if (!school.value || !consent.value) throw new ApiError('invalid_input')
-    const body: Schemas['CreateApplication'] = { school_id: school.value.id, method: selectedMethod.value, stage: chooseStudy.value ? stage.value : 'unknown', kind: chooseStudy.value ? kind.value : 'unknown', consent: true, notice_version: school.value.notice_version }
+    const body: Schemas['CreateApplication'] = { school_id: school.value.id, method: selectedMethod.value, stage: chooseStage.value ? stage.value : 'unknown', kind: chooseStudy.value ? kind.value : 'unknown', consent: true, notice_version: school.value.notice_version }
     active.value = await api.write('Application', '/api/v1/verification/applications', body)
     await reload()
   })
@@ -396,7 +397,7 @@ export function useVerificationFlow() {
   return {
     loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
-    school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, writable,
+    school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }
