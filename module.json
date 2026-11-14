@@ -111,14 +111,12 @@
     "VERIFICATION-UX-02": [
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",
       "tests/e2e/verification-ux.spec.mjs#verification page banner is reserved for loading failures",
-      "src/features/verification/flow.test.ts#keeps failed verification inputs and separates action errors from loading errors"
+      "src/features/verification/flow.test.ts#keeps failed verification inputs and separates action errors from loading errors",
+      "src/features/verification/method-errors.test.ts#renders method-specific failure messages in all eight languages"
     ],
     "VERIFICATION-UX-03": [
       "tests/e2e/verification-ux.spec.mjs#profile hides unknown sources and binds authentication time to the selected credential",
       "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure"
-    ],
-    "VERIFICATION-U2-01": [
-      "src/features/verification/method-errors.test.ts#renders method-specific failure messages in all eight languages"
     ]
   }
 }
