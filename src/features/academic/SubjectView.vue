@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { withFilters } from '../../shared/pageFilters'
 import { ApiError } from '../../shared/api/errors'
 import { useAsync, usePaged } from '../../shared/composables/async'
 import { rememberPage } from '../../shared/recent'
@@ -134,7 +135,7 @@ function submitted(result: Result) {
           <RouterLink
             v-if="kind === 'course'"
             class="btn"
-            :to="{ path: '/resources', query: { course_id: subject.id } }"
+            :to="withFilters('/resources', { course_id: subject.id })"
           >
             {{ t('academic.subject.resources') }}
           </RouterLink>
@@ -270,7 +271,7 @@ function submitted(result: Result) {
                     v-for="category in entry.data.value.categories"
                     :key="category.id"
                     class="tag tag-info"
-                    :to="{ path: '/courses', query: { category: category.id } }"
+                    :to="withFilters('/courses', { category: category.id })"
                   >
                     {{ category.name }}
                   </RouterLink>
@@ -284,7 +285,7 @@ function submitted(result: Result) {
                     v-for="nature in entry.data.value.natures"
                     :key="nature.id"
                     class="tag tag-info"
-                    :to="{ path: '/courses', query: { nature: nature.id } }"
+                    :to="withFilters('/courses', { nature: nature.id })"
                   >
                     {{ nature.name }}
                   </RouterLink>
@@ -309,7 +310,7 @@ function submitted(result: Result) {
           <RouterLink
             v-if="kind === 'teacher'"
             class="btn btn-sm"
-            :to="{ path: '/courses', query: { teacher: subject.id } }"
+            :to="withFilters('/courses', { teacher: subject.id })"
           >
             {{ t('academic.subject.findCourses') }}
           </RouterLink>

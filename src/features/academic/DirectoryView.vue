@@ -3,7 +3,8 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import { ChevronRight, Search } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
+import { usePageFilters } from '../../shared/pageFilters'
 import { useFormat } from '../../app/i18n'
 import { useCampusId } from '../account/access'
 import { useAsync, usePaged } from '../../shared/composables/async'
@@ -11,12 +12,10 @@ import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { knownCredits, listSize, useAcademic, type CatalogObject } from './api'
 
-// Course or teacher directory. Filters live in the URL so results can be shared.
+// Course or teacher directory. Search text and filters stay in page state, not the address.
 const props = defineProps<{ kind: 'course' | 'teacher' }>()
 const { t } = useI18n()
 const format = useFormat()
-const route = useRoute()
-const router = useRouter()
 const api = useAcademic()
 const campus = useCampusId()
 const filtersOpen = ref(false)
@@ -25,18 +24,24 @@ type Filters = Record<(typeof keys)[number], string>
 const form = reactive<Filters>({ q: '', department: '', category: '', nature: '', teacher: '' })
 const names = shallowRef(new Map<string, CatalogObject>())
 
-function fromRoute(): Filters {
-  const read = (key: string) => (typeof route.query[key] === 'string' ? String(route.query[key]) : '')
-  return { q: read('q'), department: read('department'), category: props.kind === 'course' ? read('category') : '', nature: props.kind === 'course' ? read('nature') : '', teacher: props.kind === 'course' ? read('teacher') : '' }
-}
-const applied = computed(fromRoute)
+const page = usePageFilters(keys)
+const applied = computed<Filters>(() => {
+  const f = page.values.value
+  const course = props.kind === 'course'
+  return { q: f.q, department: f.department, category: course ? f.category : '', nature: course ? f.nature : '', teacher: course ? f.teacher : '' }
+})
 const filtered = computed(() => keys.some((key) => applied.value[key]))
 
 const results = usePaged(async (after, signal) => {
   const f = applied.value
   const page = await api.objects({ kind: props.kind, q: f.q, school_id: campus.value, department_id: f.department, category_id: f.category, nature_id: f.nature, teacher_id: f.teacher, after, limit: listSize }, signal)
-  const found = await api.lookup(page.items.flatMap((item) => [item.department_id]), signal)
-  names.value = new Map([...(after ? names.value : []), ...found])
+  // Department names usually come from the filter options already loaded; only
+  // departments missing there are looked up, so a page costs one request.
+  const known = new Map((scoped.data.value?.departments ?? []).map((row) => [row.id, row] as const))
+  const missing = [...new Set(page.items.map((item) => item.department_id).filter((id) => id && !known.has(id) && !names.value.has(id)))]
+  const found = missing.length ? await api.lookup(missing, signal) : new Map<string, CatalogObject>()
+  // Keep earlier names: they were used above to skip lookups. Departments are few.
+  names.value = new Map([...names.value, ...known, ...found])
   return { items: page.items, next: page.next }
 })
 
@@ -53,19 +58,16 @@ const teacherName = useAsync(async (signal) => (applied.value.teacher ? (await a
 
 function apply(changes: Partial<Filters> = {}) {
   Object.assign(form, changes)
-  const query: Record<string, string> = {}
-  for (const key of keys) if (form[key]) query[key] = form[key]
-  if (typeof route.query.lang === 'string') query.lang = route.query.lang
-  void router.replace({ path: route.path, query })
+  page.replace({ ...form })
 }
 
 const active = computed(() => (['department', 'category', 'nature'] as const).filter((key) => applied.value[key]).length)
 
-watch(() => [props.kind, route.query], () => {
-  Object.assign(form, fromRoute())
+watch(() => `${props.kind} ${JSON.stringify(applied.value)}`, () => {
+  Object.assign(form, applied.value)
   void results.reload()
   void teacherName.reload()
-}, { immediate: true, deep: true })
+}, { immediate: true })
 watch(() => [props.kind, campus.value], () => void scoped.reload(), { immediate: true })
 </script>
 

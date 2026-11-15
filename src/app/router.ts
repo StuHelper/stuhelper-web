@@ -124,7 +124,9 @@ export function createAppRouter() {
   const router = createRouter({
     history: createWebHistory(),
     routes: [...extras.routes, ...routes],
-    scrollBehavior: (to, _from, saved) => (saved ? restore(saved.top) : to.hash ? { el: to.hash, behavior: 'smooth' } : { top: 0 }),
+    // Fragments name an element (#platform) or carry list filters (#department=06);
+    // only the former scrolls. Changing filters on the same page keeps the position.
+    scrollBehavior: (to, from, saved) => (saved ? restore(saved.top) : /^#[\w-]+$/.test(to.hash) ? { el: to.hash, behavior: 'smooth' } : to.path === from.path ? false : { top: 0 }),
   })
   installPageTransition(router)
   return router
