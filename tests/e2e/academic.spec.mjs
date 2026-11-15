@@ -102,3 +102,16 @@ test('directory filters stay out of the address and survive reload and back', as
   await expect.poll(() => listCalls.at(-1)).toBe('dept');
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
 });
+
+test('the teacher directory is open and lists teachers from the server', async ({ page }, info) => {
+  await academicFixture(page);
+  const kinds = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/v1/catalog/objects') kinds.push(url.searchParams.get('kind'));
+  });
+  await page.goto(`http://127.0.0.1:18787/teachers?lang=${info.project.metadata.locale}`);
+  await expect(page).toHaveURL(/\/teachers(\?|$)/);
+  await expect(page.getByRole('link', { name: /Teacher A/ }).first()).toBeVisible();
+  expect(kinds).toContain('teacher');
+});

@@ -7,8 +7,9 @@
 export const myCoursesEnabled = false
 
 /**
- * The teacher directory lists every staff record from the school, including
- * administrative and service staff that should not be public. It stays off until
- * the list is filtered; teacher pages reached from a course remain available.
+ * The teacher directory. The server returns only teachers marked by the catalog
+ * module (taught a recorded class, or matched to the school's faculty homepage
+ * site), from backend v0.1.27 / Next v0.1.21 on. The switch stays so the list can
+ * be turned off again without touching every entry point.
  */
-export const teacherDirectoryEnabled = false
+export const teacherDirectoryEnabled = true
