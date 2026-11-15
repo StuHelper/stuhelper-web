@@ -69,7 +69,7 @@ memberTest('a verified user enters content; the home page becomes a workspace', 
   const enrollmentReads = [];
   page.on('request', (request) => { if (request.url().includes('/catalog/me/')) enrollmentReads.push(request.url()); });
   await page.goto(`${base}/campus?lang=${locale}`);
-  await expect(page.getByRole('heading', { name: all.home.recent, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: all.browse.recentlyViewed, exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: all.home.myCourses, exact: true })).toHaveCount(0);
   expect(enrollmentReads).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -77,18 +77,17 @@ memberTest('a verified user enters content; the home page becomes a workspace', 
 
 
 memberTest('resource search and filters survive a reload', async ({ page }, info) => {
-  const all = catalogue(info), s = fixture();
+  const s = fixture();
   await routes(page, s);
   await page.goto(`${base}/resources?lang=${info.project.metadata.locale}`);
+  // Typing searches after a short pause; there is no separate search button.
   await page.getByRole('searchbox').fill('notes');
-  await page.getByRole('button', { name: all.resources.browse.find, exact: true }).click();
   // The search stays in page state; the address shows only the page.
   await expect.poll(() => s.calls.some((call) => call.path === '' && call.query?.query === 'notes')).toBe(true);
   expect(new URL(page.url()).searchParams.has('q')).toBe(false);
   await page.reload();
   await expect(page.getByRole('searchbox')).toHaveValue('notes');
   expect(s.calls.filter((call) => call.path === '' && call.query?.query === 'notes').length).toBeGreaterThan(1);
-  await expect(page.getByRole('button', { name: all.resources.browse.find, exact: true })).toHaveCount(1);
 });
 
 memberTest('a failed list shows one page-level recovery action', async ({ page }, info) => {

@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { Folder, Lock, Search, SlidersHorizontal, X } from 'lucide-vue-next'
-import { computed, reactive, ref, shallowRef, watch } from 'vue'
+import { Download, FileText, FileType2, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
+import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { usePageFilters } from '../../shared/pageFilters'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
+import FilterBar from '../../shared/ui/FilterBar.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
+import RowMore from '../../shared/ui/RowMore.vue'
+import SearchField from '../../shared/ui/SearchField.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
+import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { useAcademic } from '../academic/api'
 import { useCampusId } from '../account/access'
 import { attributeText, localName, useResourcesApi, type Directory, type Package, type Resource, type Value } from './api'
@@ -20,10 +24,12 @@ import FieldInput from './FieldInput.vue'
 import PackagePanel from './PackagePanel.vue'
 
 // Browse published resources. Search, filters and folder live in page state
-// (not the address), so reloading or returning shows the same list. Category fields, filters and
+// (not the address), so reloading or returning shows the same list. The course
+// list on the side is the viewer's recently visited courses, not a fixed list. Category fields, filters and
 // grouping come from server configuration; nothing here depends on a category name.
 const { t, locale } = useI18n()
 const format = useFormat()
+const router = useRouter()
 const api = useResourcesApi()
 const catalog = useAcademic()
 const campus = useCampusId()
@@ -47,10 +53,12 @@ const appliedCategory = computed(() => setup.data.value?.categories.find((item) 
 const draftCategory = computed(() => setup.data.value?.categories.find((item) => item.id === draft.category))
 const directory = computed(() => trail.value.at(-1))
 
+const total = ref(0)
 const results = usePaged(async (after, signal) => {
   const f = applied.value
   const attributes = Object.keys(f.fields).length ? JSON.stringify(f.fields) : undefined
-  const page = await api.list({ school_id: campus.value, course_id: f.course, category_id: f.category, query: f.q, attributes, directory_id: f.dir || undefined, after }, signal)
+  const page = await api.list({ school_id: campus.value, course_id: f.course, category_id: f.category, query: f.q, attributes, directory_id: f.dir || undefined, sort: 'newest', after }, signal)
+  if (!after) total.value = page.total
   return { items: page.items, next: page.next_cursor }
 })
 const directories = usePaged(async (after, signal) => {
@@ -141,280 +149,463 @@ watch(page.signature, () => {
   void courseName.reload()
 }, { immediate: true })
 void setup.reload()
+
+// Recently visited courses (only the viewer's own; at most 20, kept 90 days). The server
+// records a visit when a course page is read.
+const recent = useAsync((signal) => catalog.recentCourses(signal))
+void recent.reload()
+const clearingRecent = ref(false)
+async function clearRecent() {
+  clearingRecent.value = true
+  try {
+    await catalog.clearRecentCourses()
+    if (applied.value.course && recent.data.value?.items.some((row) => row.course.id === applied.value.course)) navigate({ course_id: undefined, dir: undefined })
+    await recent.reload()
+  } catch {
+    // The list stays as it was; a failed clear is shown by the unchanged list.
+  } finally {
+    clearingRecent.value = false
+  }
+}
+const recentRows = computed(() => recent.data.value?.items ?? [])
+const courseLabel = computed(() => recentRows.value.find((row) => row.course.id === applied.value.course)?.course.name ?? courseName.data.value ?? '')
+
+// Typing waits for a pause and replaces the current entry, so back does not step
+// through every key press. Enter searches immediately.
+let typing: ReturnType<typeof setTimeout> | undefined
+// A pending search must not write into another page's state after this one is left.
+onBeforeUnmount(() => clearTimeout(typing))
+watch(text, (value) => {
+  clearTimeout(typing)
+  if (value.trim() === applied.value.q) return
+  typing = setTimeout(() => page.replace({ q: value.trim() || undefined }), 300)
+})
+
+// Batch download starts with an explicit selection mode, as in the list design.
+const selecting = ref(false)
+function toggleSelecting() {
+  selecting.value = !selecting.value
+  selected.value = []
+}
+const activeFilters = computed(() => [
+  ...chips.value.map((chip) => ({ key: chip.key, label: chip.label, clear: () => navigate(chip.clear) })),
+  ...(applied.value.q ? [{ key: 'q', label: `“${applied.value.q}”`, clear: () => { text.value = ''; navigate({ q: undefined }) } }] : []),
+])
+function clearAll() {
+  text.value = ''
+  navigate({ q: undefined, category: undefined, course_id: undefined, attrs: undefined, dir: undefined })
+}
+const extension = (item: Resource) => (item.current?.file?.filename.split('.').at(-1) ?? '').slice(0, 5)
+const tints = ['var(--c-red)', 'var(--c-orange)', 'var(--c-blue)', 'var(--c-green)', 'var(--c-purple)', 'var(--c-indigo)']
+const tint = (item: Resource) => tints[[...(item.current?.category.id ?? '')].reduce((sum, c) => sum + c.charCodeAt(0), 0) % tints.length]
+function ago(iso?: string) {
+  if (!iso) return ''
+  const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
+  if (!Number.isFinite(minutes)) return ''
+  if (minutes < 60) return format.value.relative(-Math.max(minutes, 1), 'minute')
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return format.value.relative(-hours, 'hour')
+  const days = Math.round(hours / 24)
+  return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
+}
+const meta = (item: Resource) => [item.current?.metadata.associations.course_id === applied.value.course ? '' : recentRows.value.find((row) => row.course.id === item.current?.metadata.associations.course_id)?.course.name, localName(item.current?.category.names ?? {}, locale.value), item.current?.file ? format.value.bytes(item.current.file.size) : '', ago(item.current?.created_at)].filter(Boolean).join(' · ')
+const downloading = ref('')
+async function download(item: Resource) {
+  const file = item.current?.file
+  if (!file || downloading.value) return
+  downloading.value = item.id
+  try {
+    await api.download(item.id, file.filename, file.size)
+  } catch {
+    // The detail page explains the reason; send the viewer there.
+    void router.push(`/resources/items/${encodeURIComponent(item.id)}`)
+  } finally {
+    downloading.value = ''
+  }
+}
 </script>
 
 <template>
-  <div class="browse">
-    <PageHeader :title="t('nav.resources')">
+  <div class="stack-lg">
+    <PageHeader
+      :title="t('nav.resources')"
+      :description="t('browse.resourcesDescription')"
+    >
       <template #actions>
         <RouterLink
-          class="btn btn-primary"
-          :to="{ path: '/resources/new', query: { course_id: applied.course || undefined } }"
-        >
-          {{ t('resources.upload') }}
-        </RouterLink>
-        <RouterLink
-          class="btn"
+          class="btn btn-sm"
           to="/me/resources"
         >
           {{ t('me.resources') }}
         </RouterLink>
+        <RouterLink
+          class="btn btn-sm btn-primary"
+          :to="{ path: '/resources/new', query: { course_id: applied.course || undefined } }"
+        >
+          <Upload aria-hidden="true" />{{ t('resources.upload') }}
+        </RouterLink>
       </template>
     </PageHeader>
 
-    <form
-      class="search-bar"
-      role="search"
-      @submit.prevent="search"
-    >
-      <label class="search-field">
-        <span class="visually-hidden">{{ t('resources.browse.keyword') }}</span>
-        <Search aria-hidden="true" />
-        <input
+    <div class="stack">
+      <div class="row filters">
+        <SearchField
           v-model="text"
-          class="input"
-          type="search"
-          maxlength="200"
-          :placeholder="t('resources.browse.placeholder')"
+          :aria-label="t('browse.searchResourcesLabel')"
+          :placeholder="t('browse.searchResourcesHint')"
+          @keydown.enter="search"
+        />
+        <AppSelect
+          v-if="recentRows.length"
+          :model-value="applied.course"
+          class="select mini narrow-only"
+          :aria-label="t('browse.recentCourses')"
+          @update:model-value="(value: string) => navigate({ course_id: value || undefined, dir: undefined })"
         >
-      </label>
-      <button
-        class="btn btn-primary"
-        type="submit"
-      >
-        {{ t('resources.browse.find') }}
-      </button>
-      <button
-        class="btn"
-        type="button"
-        :disabled="!setup.data.value"
-        @click="openFilters"
-      >
-        <SlidersHorizontal aria-hidden="true" />
-        {{ chips.length ? t('common.filtersCount', { count: format.number(chips.length) }) : t('common.filters') }}
-      </button>
-    </form>
-
-    <ul
-      v-if="chips.length"
-      class="chips"
-      :aria-label="t('resources.browse.activeFilters')"
-    >
-      <li
-        v-for="chip in chips"
-        :key="chip.key"
-      >
-        <button
-          class="chip"
-          type="button"
-          :aria-label="t('resources.browse.removeFilter', { name: chip.label })"
-          @click="navigate(chip.clear)"
-        >
-          <span class="truncate">{{ chip.label }}</span>
-          <X aria-hidden="true" />
-        </button>
-      </li>
-    </ul>
-
-    <p
-      v-if="setup.status.value === 'error' && results.status.value !== 'error'"
-      class="field-error row"
-      role="alert"
-    >
-      <span>{{ t('resources.browse.filtersFailed') }}</span>
-      <button
-        class="btn btn-sm btn-ghost"
-        type="button"
-        @click="setup.reload"
-      >
-        {{ t('resources.browse.filtersRetry') }}
-      </button>
-    </p>
-
-    <section
-      v-if="results.status.value !== 'error' && (directory || directories.items.value.length || directories.next.value)"
-      class="folders"
-      :aria-label="t('resources.browse.folders')"
-    >
-      <nav
-        v-if="directory"
-        class="row small"
-        :aria-label="t('resources.browse.folderPath')"
-      >
-        <button
-          class="btn btn-sm btn-ghost"
-          type="button"
-          @click="leaveTo(0)"
-        >
-          {{ t('resources.browse.root') }}
-        </button>
-        <template
-          v-for="(item, index) in trail"
-          :key="item.id"
-        >
-          <span aria-hidden="true">/</span>
-          <button
-            v-if="index < trail.length - 1"
-            class="btn btn-sm btn-ghost"
-            type="button"
-            @click="leaveTo(index + 1)"
+          <option value="">
+            {{ t('browse.allResources') }}
+          </option>
+          <option
+            v-if="applied.course && !recentRows.some((row) => row.course.id === applied.course)"
+            :value="applied.course"
           >
-            {{ localName(item.names, locale) }}
-          </button>
-          <span
-            v-else
-            aria-current="location"
-          >{{ localName(item.names, locale) || t('resources.browse.currentFolder') }}</span>
-        </template>
-      </nav>
-      <div class="row">
+            {{ courseLabel || t('academic.course') }}
+          </option>
+          <option
+            v-for="row in recentRows"
+            :key="row.course.id"
+            :value="row.course.id"
+          >
+            {{ row.course.name }}
+          </option>
+        </AppSelect>
         <button
-          v-for="item in directories.items.value"
-          :key="item.id"
           class="btn btn-sm"
           type="button"
-          @click="enter(item)"
+          :disabled="!setup.data.value"
+          @click="openFilters"
         >
-          <Folder aria-hidden="true" />{{ localName(item.names, locale) }}
+          <SlidersHorizontal aria-hidden="true" />{{ t('common.filters') }}
         </button>
+      </div>
+      <div class="row-between">
+        <div
+          class="d-chips"
+          role="group"
+          :aria-label="t('browse.resourceCategory')"
+        >
+          <button
+            class="d-chip"
+            type="button"
+            :aria-pressed="!applied.category"
+            @click="navigate({ category: undefined, attrs: undefined })"
+          >
+            {{ t('browse.all') }}
+          </button>
+          <button
+            v-for="c in setup.data.value?.categories"
+            :key="c.id"
+            class="d-chip"
+            type="button"
+            :aria-pressed="applied.category === c.id"
+            @click="navigate({ category: c.id, attrs: undefined })"
+          >
+            {{ localName(c.names, locale) }}
+          </button>
+        </div>
         <button
-          v-if="directories.next.value"
+          class="btn btn-sm"
+          type="button"
+          :aria-pressed="selecting"
+          @click="toggleSelecting"
+        >
+          {{ selecting ? t('browse.cancelSelection') : t('browse.batchDownload') }}
+        </button>
+      </div>
+      <FilterBar
+        :items="activeFilters"
+        :total="results.status.value === 'ready' ? t('browse.totalFiles', { p0: format.number(total) }) : undefined"
+        @clear-all="clearAll"
+      />
+      <p
+        v-if="setup.status.value === 'error' && results.status.value !== 'error'"
+        class="field-error row"
+        role="alert"
+      >
+        <span>{{ t('resources.browse.filtersFailed') }}</span>
+        <button
           class="btn btn-sm btn-ghost"
           type="button"
-          @click="directories.loadMore"
+          @click="setup.reload"
         >
-          {{ t('common.loadMore') }}
+          {{ t('resources.browse.filtersRetry') }}
         </button>
-      </div>
-      <div
-        v-if="directory"
-        class="row"
+      </p>
+    </div>
+
+    <div class="layout">
+      <nav
+        class="tree card"
+        :aria-label="t('browse.recentCourses')"
       >
         <button
-          class="btn btn-sm btn-primary"
+          class="node"
           type="button"
-          :disabled="packing.busy.value || packing.uncertain.value"
-          @click="createPackage(true)"
+          :aria-pressed="!applied.course"
+          @click="navigate({ course_id: undefined, dir: undefined })"
         >
-          {{ t('resources.browse.downloadFolder') }}
+          <span>{{ t('browse.allResources') }}</span>
         </button>
-        <span class="subtle">{{ t('resources.browse.downloadFolderHint') }}</span>
-      </div>
-    </section>
-
-    <MutationNotice
-      :busy="packing.busy.value"
-      :error="packing.error.value"
-      :uncertain="packing.uncertain.value"
-      @retry="retryPackage"
-    />
-    <PackagePanel
-      v-if="pack && setup.data.value"
-      :pack="pack"
-      :limit="setup.data.value.capabilities.max_package_bytes"
-    />
-
-    <p
-      v-if="appliedCategory?.group_by && results.items.value.length"
-      class="small muted"
-    >
-      {{ t('resources.browse.groupScope') }}
-    </p>
-    <PagedState
-      :status="results.status.value"
-      :error="results.error.value"
-      :count="results.items.value.length"
-      :next="results.next.value"
-      :appending="results.appending.value"
-      :empty-text="t('resources.browse.empty')"
-      :retry-label="t('resources.browse.reload')"
-      @retry="reload"
-      @more="results.loadMore"
-    >
-      <div class="stack-lg">
-        <section
-          v-for="[label, rows] in groups"
-          :key="label"
-          class="section"
-        >
-          <h2 v-if="label">
-            {{ label }}
-          </h2>
-          <ul class="group">
-            <li
-              v-for="item in rows"
-              :key="item.id"
-              class="resource-row"
-            >
-              <input
-                v-if="item.download_allowed"
-                v-model="selected"
-                class="pick"
-                type="checkbox"
-                :value="item.id"
-                :aria-label="t('resources.browse.select', { title: item.current?.metadata.title ?? '' })"
-                :disabled="packing.busy.value || packing.uncertain.value"
-              >
-              <Lock
-                v-else
-                class="resource-lock"
-                aria-hidden="true"
-              />
-              <div class="stack-sm">
-                <RouterLink
-                  class="card-title"
-                  :to="`/resources/items/${encodeURIComponent(item.id)}`"
-                >
-                  {{ item.current?.metadata.title }}
-                </RouterLink>
-                <p
-                  v-if="item.current?.metadata.description"
-                  class="small muted clamp-2"
-                >
-                  {{ item.current.metadata.description }}
-                </p>
-                <div class="row subtle">
-                  <span class="tag">{{ localName(item.current?.category.names ?? {}, locale) }}</span>
-                  <span
-                    v-if="item.current?.file"
-                    class="tag"
-                  >{{ format.bytes(item.current.file.size) }}</span>
-                  <span
-                    v-for="tag in item.current?.metadata.tags"
-                    :key="tag"
-                    class="tag tag-info"
-                  >{{ tag }}</span>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </section>
-      </div>
-    </PagedState>
-
-    <div
-      v-if="selected.length"
-      class="selection-bar row-between"
-    >
-      <span>{{ t('resources.browse.selected', { count: format.number(selected.length) }) }}</span>
-      <div class="row">
+        <p class="tree-label subtle">
+          {{ t('browse.recentCourses') }}
+        </p>
         <button
-          class="btn btn-sm"
+          v-for="row in recentRows"
+          :key="row.course.id"
+          class="node"
           type="button"
-          @click="selected = []"
+          :aria-pressed="applied.course === row.course.id"
+          @click="navigate({ course_id: row.course.id, dir: undefined })"
         >
-          {{ t('resources.browse.clearSelection') }}
+          <span class="truncate">{{ row.course.name }}</span>
+          <span
+            v-if="recent.data.value?.resources_state === 'available' && row.resource_count !== null"
+            class="subtle"
+          >{{ format.number(row.resource_count ?? 0) }}</span>
         </button>
+        <p
+          v-if="recent.status.value === 'ready' && !recentRows.length"
+          class="subtle tree-empty"
+        >
+          {{ t('browse.noRecentCourses') }}
+        </p>
+        <p
+          v-else-if="recent.status.value === 'error'"
+          class="subtle tree-empty"
+        >
+          {{ t('browse.recentUnavailable') }}
+        </p>
+        <button
+          v-if="recentRows.length"
+          class="btn btn-sm btn-ghost clear-recent"
+          type="button"
+          :disabled="clearingRecent"
+          @click="clearRecent"
+        >
+          {{ t('browse.clearRecent') }}
+        </button>
+      </nav>
+
+      <div class="results stack">
+        <section
+          v-if="results.status.value !== 'error' && (directory || directories.items.value.length || directories.next.value)"
+          class="folders"
+          :aria-label="t('resources.browse.folders')"
+        >
+          <nav
+            v-if="directory"
+            class="row small"
+            :aria-label="t('resources.browse.folderPath')"
+          >
+            <button
+              class="btn btn-sm btn-ghost"
+              type="button"
+              @click="leaveTo(0)"
+            >
+              {{ t('resources.browse.root') }}
+            </button>
+            <template
+              v-for="(item, index) in trail"
+              :key="item.id"
+            >
+              <span aria-hidden="true">/</span>
+              <button
+                v-if="index < trail.length - 1"
+                class="btn btn-sm btn-ghost"
+                type="button"
+                @click="leaveTo(index + 1)"
+              >
+                {{ localName(item.names, locale) }}
+              </button>
+              <span
+                v-else
+                aria-current="location"
+              >{{ localName(item.names, locale) || t('resources.browse.currentFolder') }}</span>
+            </template>
+          </nav>
+          <div class="row">
+            <button
+              v-for="item in directories.items.value"
+              :key="item.id"
+              class="btn btn-sm"
+              type="button"
+              @click="enter(item)"
+            >
+              <Folder aria-hidden="true" />{{ localName(item.names, locale) }}
+            </button>
+            <button
+              v-if="directories.next.value"
+              class="btn btn-sm btn-ghost"
+              type="button"
+              @click="directories.loadMore"
+            >
+              {{ t('common.loadMore') }}
+            </button>
+          </div>
+          <div
+            v-if="directory"
+            class="row"
+          >
+            <button
+              class="btn btn-sm btn-primary"
+              type="button"
+              :disabled="packing.busy.value || packing.uncertain.value"
+              @click="createPackage(true)"
+            >
+              {{ t('resources.browse.downloadFolder') }}
+            </button>
+            <span class="subtle">{{ t('resources.browse.downloadFolderHint') }}</span>
+          </div>
+        </section>
+
+        <MutationNotice
+          :busy="packing.busy.value"
+          :error="packing.error.value"
+          :uncertain="packing.uncertain.value"
+          @retry="retryPackage"
+        />
+        <PackagePanel
+          v-if="pack && setup.data.value"
+          :pack="pack"
+          :limit="setup.data.value.capabilities.max_package_bytes"
+        />
+        <p
+          v-if="appliedCategory?.group_by && results.items.value.length"
+          class="small muted"
+        >
+          {{ t('resources.browse.groupScope') }}
+        </p>
+        <PagedState
+          :status="results.status.value"
+          :error="results.error.value"
+          :count="results.items.value.length"
+          :next="results.next.value"
+          :appending="results.appending.value"
+          :empty-text="t(activeFilters.length ? 'browse.noMatchResources' : 'resources.browse.empty')"
+          :retry-label="t('resources.browse.reload')"
+          @retry="reload"
+          @more="results.loadMore"
+        >
+          <div
+            :key="`${applied.category}|${applied.course}`"
+            class="stack d-list-in"
+          >
+            <section
+              v-for="[label, rows] in groups"
+              :key="label"
+              class="stack-sm"
+            >
+              <h2
+                v-if="label"
+                class="d-title"
+              >
+                {{ label }}
+              </h2>
+              <ul class="files">
+                <li
+                  v-for="item in rows"
+                  :key="item.id"
+                  class="card file"
+                >
+                  <label
+                    v-if="selecting && item.download_allowed"
+                    class="pick-wrap"
+                  ><input
+                    v-model="selected"
+                    class="pick"
+                    type="checkbox"
+                    :value="item.id"
+                    :aria-label="t('resources.browse.select', { title: item.current?.metadata.title ?? '' })"
+                    :disabled="packing.busy.value || packing.uncertain.value"
+                  ></label>
+                  <span
+                    class="thumb"
+                    :style="{ '--c': tint(item) }"
+                    aria-hidden="true"
+                  ><FileType2 v-if="['doc', 'docx'].includes(extension(item).toLowerCase())" /><FileText v-else /><i>{{ extension(item) }}</i></span>
+                  <div class="group-body body">
+                    <RouterLink
+                      class="card-title"
+                      :to="`/resources/items/${encodeURIComponent(item.id)}`"
+                    >
+                      {{ item.current?.metadata.title }}
+                    </RouterLink>
+                    <p
+                      v-if="item.current?.metadata.description"
+                      class="muted small clamp-2"
+                    >
+                      {{ item.current.metadata.description }}
+                    </p>
+                    <p class="subtle">
+                      {{ meta(item) }}
+                    </p>
+                  </div>
+                  <div
+                    v-if="!selecting"
+                    class="ops"
+                  >
+                    <button
+                      v-if="item.download_allowed && item.current?.file"
+                      class="btn btn-sm btn-icon desk"
+                      type="button"
+                      :disabled="downloading === item.id"
+                      :aria-label="t('browse.downloadItem', { p0: item.current.metadata.title })"
+                      @click="download(item)"
+                    >
+                      <Download aria-hidden="true" />
+                    </button>
+                    <RouterLink
+                      v-else
+                      class="btn btn-sm btn-icon desk"
+                      :to="`/resources/items/${encodeURIComponent(item.id)}`"
+                      :aria-label="t('browse.unlockItem', { p0: item.current?.metadata.title ?? '' })"
+                    >
+                      <Lock aria-hidden="true" />
+                    </RouterLink>
+                    <FavoriteButton
+                      :id="item.id"
+                      kind="resource"
+                    />
+                    <RowMore
+                      v-if="item.download_allowed && item.current?.file"
+                      :label="t('browse.moreActionsFor', { p0: item.current.metadata.title })"
+                      :items="[{ label: t('browse.download'), icon: Download, action: () => download(item) }]"
+                    />
+                  </div>
+                </li>
+              </ul>
+            </section>
+          </div>
+        </PagedState>
+      </div>
+    </div>
+
+    <Transition name="page">
+      <div
+        v-if="selecting && selected.length"
+        class="selection-bar row-between"
+      >
+        <span>{{ t('resources.browse.selected', { count: format.number(selected.length) }) }}</span>
         <button
           class="btn btn-sm btn-primary"
           type="button"
           :disabled="packing.busy.value || packing.uncertain.value"
           @click="createPackage(false)"
         >
-          {{ t('resources.browse.downloadSelected') }}
+          {{ t('browse.packDownload') }}
         </button>
       </div>
-    </div>
+    </Transition>
 
     <SheetDialog
       :open="filtering"
@@ -474,24 +665,35 @@ void setup.reload()
 </template>
 
 <style scoped>
-.browse { display: grid; gap: 1rem; }
-.search-bar { display: flex; flex-wrap: wrap; gap: .5rem; }
-.search-field { position: relative; display: flex; flex: 1 1 14rem; align-items: center; min-width: 0; }
-.search-field svg { position: absolute; inset-inline-start: .875rem; width: 1.125rem; height: 1.125rem; color: var(--label-3); pointer-events: none; }
-.search-field .input { padding-inline-start: 2.5rem; border-radius: var(--pill); }
-.chips { display: flex; flex-wrap: wrap; gap: .375rem; }
-.chip { display: inline-flex; align-items: center; gap: .25rem; max-width: 16rem; min-height: 30px; padding: .125rem .5rem .125rem .75rem; border: 0; border-radius: var(--pill); background: var(--accent-soft); color: var(--accent); font: inherit; font-size: .8125rem; cursor: pointer; }
-.chip svg { flex: none; width: .875rem; height: .875rem; }
-.folders { display: grid; gap: .5rem; }
-.resource-row { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .875rem; align-items: start; padding: .875rem 1.125rem; }
-.resource-row + .resource-row { border-block-start: .5px solid var(--separator); }
-.resource-lock { width: 20px; height: 20px; margin-inline: 2px; color: var(--label-3); }
-.selection-bar { position: sticky; inset-block-end: calc(1rem + var(--safe-bottom)); z-index: 30; padding: .625rem .75rem .625rem 1.25rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
-@media (max-width: 760px) {
-  .selection-bar { inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); border-radius: var(--radius-lg); }
-  /* The search box comes first on phones; secondary links stay in one line. */
-  .browse :deep(.page-actions .btn) { min-height: 36px; padding-block: .25rem; font-size: .875rem; }
-  .search-field { flex-basis: 100%; }
-  .search-bar .btn { flex: 1; }
+.filters { gap: .5rem; }
+.mini { width: auto; min-height: 42px; padding-block: .375rem; border-radius: var(--pill); background-color: var(--surface); box-shadow: var(--shadow-card); font-size: .9375rem; flex: 0 1 13rem; }
+.files { display: grid; gap: .625rem; }
+.file { display: flex; align-items: flex-start; gap: .875rem; padding: 1rem; transition: box-shadow .3s; }
+.file:hover { box-shadow: var(--shadow-lift); }
+.body { gap: .25rem; }
+.clamp-2 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.thumb { position: relative; display: grid; flex: none; justify-items: center; align-content: center; gap: 1px; width: 52px; height: 64px; border-radius: 10px; background: color-mix(in srgb, var(--c) 13%, transparent); color: var(--c); }
+.thumb svg { width: 22px; height: 22px; }
+.thumb i { color: color-mix(in srgb, var(--c) 62%, var(--label)); font-size: .625rem; font-style: normal; font-weight: 700; text-transform: uppercase; }
+.ops { position: relative; display: flex; flex: none; gap: .25rem; }
+@media (hover: hover) and (min-width: 761px) {
+  .ops .btn { opacity: 0; transition: opacity .15s; }
+  .file:hover .ops .btn, .file:focus-within .ops .btn, .ops .btn[aria-pressed="true"] { opacity: 1; }
 }
+@media (max-width: 760px) { .ops .desk { display: none; } }
+@media (max-width: 640px) { .file { flex-wrap: nowrap; gap: .625rem; padding: .875rem; } .thumb { width: 38px; height: 48px; } .thumb svg { width: 18px; height: 18px; } .ops { gap: .125rem; } .file .body { flex: 1 1 0; min-width: 0; } }
+.layout { display: grid; gap: 1rem; }
+.results { min-width: 0; }
+.folders { display: grid; gap: .5rem; }
+.tree { display: none; padding: .5rem; align-self: start; position: sticky; inset-block-start: 4.5rem; }
+.tree-label { padding: .5rem .625rem .25rem; font-size: .75rem; }
+.tree-empty { padding: .25rem .625rem .5rem; font-size: .8125rem; }
+.clear-recent { width: 100%; justify-content: flex-start; margin-block-start: .25rem; }
+.node { display: flex; align-items: center; justify-content: space-between; gap: .5rem; width: 100%; min-height: 34px; padding: .25rem .625rem; border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--label); font: inherit; font-size: .875rem; text-align: start; cursor: pointer; }
+.node:hover { background: var(--fill); }
+.node[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 550; }
+@media (min-width: 1000px) { .layout { grid-template-columns: 14rem minmax(0, 1fr); } .tree { display: block; } .narrow-only { display: none; } }
+.pick-wrap { display: flex; align-self: center; }
+.selection-bar { position: sticky; inset-block-end: calc(1rem + var(--safe-bottom)); z-index: 30; padding: .625rem .75rem .625rem 1.25rem; border-radius: var(--pill); background: var(--glass); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
+@media (max-width: 760px) { .selection-bar { inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); border-radius: var(--radius-lg); } }
 </style>

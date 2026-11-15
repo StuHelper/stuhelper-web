@@ -22,7 +22,7 @@ test('course change discards the previous directory cursor', async ({ page }, in
   await page.goto(`http://127.0.0.1:18787/resources?school_id=school&course_id=course&lang=${locale}`);
   await page.getByRole('button', { name: all.common.loadMore, exact: true }).first().click();
   await expect.poll(() => seen.at(-1)?.after).toBe('old-page');
-  await page.getByRole('search').getByRole('button', { name: new RegExp(all.common.filters) }).click();
+  await page.getByRole('button', { name: all.common.filters, exact: true }).click();
   await page.getByRole('dialog').getByRole('combobox', { name: all.academic.course, exact: true }).click();
   await page.getByRole('listbox').getByRole('option', { name: all.common.all, exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: all.resources.browse.find, exact: true }).click();

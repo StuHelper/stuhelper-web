@@ -35,7 +35,7 @@ async function describe(page, m, title) {
 test('configured category field filters and grouping follow server configuration', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info);
   await expect(page.getByRole('link', { name: 'Fixture notes', exact: true })).toBeVisible();
-  await page.getByRole('search').getByRole('button', { name: new RegExp(all.common.filters) }).click();
+  await page.getByRole('button', { name: all.common.filters, exact: true }).click();
   await page.getByRole('combobox', { name: m.category, exact: true }).click();
   await page.getByRole('option', { name: fixtureName(locale, '自定义', 'Custom') }).click();
   await page.getByLabel(fixtureName(locale, '自定义年份', 'Custom year'), { exact: true }).fill('2025');
@@ -125,4 +125,26 @@ test('owned file reuse avoids content transfer and keeps separate review', async
   await page.getByRole('button', { name: m.editor.submit, exact: true }).click();
   await expect(page.getByText(m.versionState.pending, { exact: true })).toBeVisible();
   await layout(page, errors, locale);
+});
+
+test('the side list shows recently visited courses, filters by one and can be cleared', async ({ page }, info) => {
+  const locale = info.project.metadata.locale;
+  const b = JSON.parse(fs.readFileSync(`src/locales/${locale}.json`, 'utf8')).browse;
+  const s = fixture(), deletes = [];
+  await routes(page, s);
+  await page.route('**/api/v1/catalog/me/recent-courses', (route) => {
+    if (route.request().method() === 'DELETE') { deletes.push(1); return route.fulfill({ json: { cleared: true } }); }
+    const items = deletes.length ? [] : [{ course: { id: 'course', kind: 'course', school_id: 'school', name: 'Visited course', credits: null, aliases: [], revision: 1, updated_at: '2026-11-15T00:00:00Z' }, visited_at: '2026-11-15T00:00:00Z', resource_count: 3 }];
+    return route.fulfill({ json: { items, resources_state: 'available' } });
+  });
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(`http://127.0.0.1:18787/resources?lang=${locale}`);
+  const side = page.getByRole('navigation', { name: b.recentCourses });
+  await side.getByRole('button', { name: /Visited course/ }).click();
+  await expect(side.getByRole('button', { name: /Visited course/ })).toHaveAttribute('aria-pressed', 'true');
+  await expect.poll(() => s.calls.some((call) => call.path === '' && call.query?.course_id === 'course')).toBe(true);
+  expect(new URL(page.url()).searchParams.has('course_id')).toBe(false);
+  await side.getByRole('button', { name: b.clearRecent, exact: true }).click();
+  await expect(side.getByText(b.noRecentCourses, { exact: true })).toBeVisible();
+  expect(deletes).toHaveLength(1);
 });

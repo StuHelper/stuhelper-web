@@ -363,7 +363,7 @@ export async function routes(page, s) {
       return route.fulfill({ json: s.resource });
     }
     if (['', '/me', '/manage'].includes(path))
-      return route.fulfill({ json: { items: [s.resource], next_cursor: '' } });
+      return route.fulfill({ json: { items: [s.resource], next_cursor: '', total: 1 } });
     return route.fulfill({
       status: 404,
       json: { code: 'resources_not_found' },

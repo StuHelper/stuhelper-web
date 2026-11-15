@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { myCoursesEnabled } from '../../app/features'
-import { CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine } from 'lucide-vue-next'
+import { BadgeCheck, CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine, PenLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useLinkAvailable } from '../../shared/capabilities'
+import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { RouterLink } from 'vue-router'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
@@ -12,6 +12,14 @@ import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
+import { useFormat } from '../../app/i18n'
+import { isolate } from '../../shared/format'
+import { useAcademic } from '../academic/api'
+import { useFavoritesApi } from '../favorites/api'
+import { titleMessage, useNotificationsApi, type Notification } from '../notifications/api'
+import { useResourcesApi } from '../resources/api'
+import { useWalletApi } from '../wallet/api'
+import { useAccess } from './access'
 import { useVerification } from '../verification/api'
 import MeLayout from './MeLayout.vue'
 
@@ -32,6 +40,57 @@ const signOutBusy = ref(false)
 const available = useLinkAvailable()
 
 const summary = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
+const format = useFormat()
+const access = useAccess()
+const verified = computed(() => access.state.value === 'verified')
+const academic = useAcademic()
+const resources = useResourcesApi()
+const favorites = useFavoritesApi()
+const wallet = useWalletApi()
+const notifications = useNotificationsApi()
+
+// Personal numbers and recent activity. Each loads on its own; a missing number shows a
+// dash instead of hiding the card, so the layout does not jump.
+const overview = useAsync((signal) => academic.overview(signal))
+const ownResources = useAsync((signal) => resources.mySummary(signal))
+const favoriteCount = useAsync(async (signal) => (await favorites.folders('', signal)).items.reduce((sum, folder) => sum + folder.item_count, 0))
+// Ivory is stored in hundredths; the card shows the balance in whole units with any cents.
+const balance = useAsync(async (signal) => (await wallet.wallet(signal)).ivory_minor / 100)
+const activity = useAsync(async (signal) => (await notifications.list('', signal)).items.slice(0, 4))
+// Optional modules (favorites, wallet, notifications) are only read when this deployment
+// runs them; their numbers and links are hidden otherwise.
+const capabilities = useCapabilities()
+const known = computed(() => capabilities.status.value === 'ready' || capabilities.status.value === 'error')
+watch(() => [verified.value, known.value] as const, ([value, ready]) => {
+  if (!value || !ready) return
+  void overview.reload()
+  void ownResources.reload()
+  if (capabilities.has(feature.favorites)) void favoriteCount.reload()
+  if (capabilities.has(feature.wallet)) void balance.reload()
+  if (capabilities.has(feature.notifications)) void activity.reload()
+}, { immediate: true })
+const dash = '\u2014'
+const stats = computed(() => [
+  { to: '/me/reviews', label: 'browse.reviews', value: overview.data.value?.review_count },
+  { to: '/me/resources', label: 'browse.resourcesShort', value: ownResources.data.value?.resource_count },
+  ...(capabilities.has(feature.favorites) && available('/me/favorites') ? [{ to: '/me/favorites', label: 'browse.favorites', value: favoriteCount.data.value }] : []),
+  ...(capabilities.has(feature.wallet) && available('/me/wallet') ? [{ to: '/me/wallet', label: 'browse.ivory', value: balance.data.value }] : []),
+])
+const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
+const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count)
+function noticeTitle(item: Notification) {
+  // Identifiers are left-to-right; isolating them keeps right-to-left sentences in order.
+  return t(titleMessage(item.title_key), Object.fromEntries(Object.entries(item.title_params).map(([key, value]) => [key, isolate(value)])))
+}
+function ago(iso: string) {
+  const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
+  if (!Number.isFinite(minutes)) return ''
+  if (minutes < 60) return format.value.relative(-Math.max(minutes, 1), 'minute')
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return format.value.relative(-hours, 'hour')
+  const days = Math.round(hours / 24)
+  return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
+}
 const profile = computed(() => session.session.value?.profile)
 watch(() => session.state.value, (state) => {
   if (state === 'member') void summary.reload()
@@ -134,6 +193,12 @@ async function signOut() {
             <h2 class="truncate">
               {{ profile.nickname }}
             </h2>
+            <p
+              v-if="verified"
+              class="row subtle badge"
+            >
+              <BadgeCheck aria-hidden="true" />{{ t('browse.verifiedStudent') }}
+            </p>
             <StatusTag
               v-if="session.session.value.administrator"
               tone="info"
@@ -224,72 +289,104 @@ async function signOut() {
         </p>
       </section>
 
-      <section class="section">
-        <div class="section-head">
-          <h2>{{ t('me.status.title') }}</h2>
-          <span class="row">
-            <RouterLink to="/me/verification">
-              {{ t('me.status.manage') }}
-            </RouterLink>
-            <RouterLink to="/me/account/identity">
-              {{ t('me.status.manageIdentity') }}
-            </RouterLink>
-          </span>
-        </div>
-        <p
-          v-if="summary.status.value === 'error'"
-          class="notice notice-error"
-          role="alert"
+      <nav
+        v-if="verified"
+        class="stats"
+        :aria-label="t('browse.myStats')"
+      >
+        <RouterLink
+          v-for="s in stats"
+          :key="s.to"
+          class="card stat"
+          :to="s.to"
         >
-          {{ errorText(summary.error.value) }}
-          <button
-            class="btn btn-sm"
-            type="button"
-            @click="summary.reload"
-          >
-            {{ t('common.retry') }}
-          </button>
-        </p>
-        <div class="group">
-          <div class="group-row">
-            <span class="group-body group-title">{{ t('verification.campus') }}</span>
-            <StatusTag
-              v-if="summary.data.value"
-              :tone="summary.data.value.campus_eligibility ? 'success' : 'neutral'"
-            >
-              {{ t(summary.data.value.campus_eligibility ? 'verification.eligible' : 'verification.notEligible') }}
-            </StatusTag>
-            <span
-              v-else
-              class="subtle"
-            >{{ t(summary.status.value === 'loading' ? 'common.loading' : 'me.status.unknown') }}</span>
-          </div>
-          <div class="group-row">
-            <span class="group-body group-title">{{ t('verification.identity') }}</span>
-            <StatusTag
-              v-if="summary.data.value"
-              :tone="summary.data.value.identity_verified ? 'success' : 'neutral'"
-            >
-              {{ t(summary.data.value.identity_verified ? 'verification.identityVerified' : 'verification.identityMissing') }}
-            </StatusTag>
-            <span
-              v-else
-              class="subtle"
-            >{{ t(summary.status.value === 'loading' ? 'common.loading' : 'me.status.unknown') }}</span>
-          </div>
-          <div class="group-row">
-            <span class="group-body">
-              <span class="group-title">{{ t('verification.phone') }}</span>
-              <span class="group-detail">{{ t('me.status.phoneHint') }}</span>
-            </span>
-            <StatusTag :tone="session.session.value.phone_bound ? 'success' : 'neutral'">
-              {{ t(session.session.value.phone_bound ? 'verification.phoneBound' : 'verification.phoneMissing') }}
-            </StatusTag>
-          </div>
-        </div>
+          <b class="d-stat">{{ s.value === undefined ? dash : format.number(s.value) }}</b><span class="subtle">{{ t(s.label) }}</span>
+        </RouterLink>
+      </nav>
+
+      <section
+        v-if="verified && hasTodos"
+        class="card stack desk-only"
+        aria-labelledby="me-todo"
+      >
+        <h2
+          id="me-todo"
+          class="d-title"
+        >
+          {{ t('browse.todo') }}
+        </h2>
+        <RouterLink
+          v-if="pending?.count"
+          class="todo"
+          :to="pending.items[0] ? `/courses/${encodeURIComponent(pending.items[0].course_id)}` : '/me/reviews'"
+        >
+          <span
+            class="icon-tile"
+            style="--tile:var(--c-indigo)"
+          ><PenLine aria-hidden="true" /></span>
+          <span class="group-body"><b>{{ t('browse.pendingReviews', { count: format.number(pending.count) }) }}</b><span class="subtle">{{ t('browse.lastTermDoneHint') }}</span></span>
+          <ChevronRight
+            class="chevron"
+            aria-hidden="true"
+          />
+        </RouterLink>
+        <RouterLink
+          v-if="overview.data.value?.draft_count"
+          class="todo"
+          to="/me/reviews?tab=drafts"
+        >
+          <span
+            class="icon-tile"
+            style="--tile:var(--c-orange)"
+          ><FileText aria-hidden="true" /></span>
+          <span class="group-body"><b>{{ t('browse.draftsPending', { count: format.number(overview.data.value.draft_count) }) }}</b></span>
+          <ChevronRight
+            class="chevron"
+            aria-hidden="true"
+          />
+        </RouterLink>
       </section>
 
-      <section class="section">
+      <section
+        v-if="verified && activity.data.value?.length"
+        class="stack desk-only"
+        aria-labelledby="me-recent"
+      >
+        <div class="row-between">
+          <h2
+            id="me-recent"
+            class="d-title"
+          >
+            {{ t('browse.recentActivity') }}
+          </h2>
+          <RouterLink
+            class="small"
+            to="/notifications"
+          >
+            {{ t('browse.allNotifications') }}
+          </RouterLink>
+        </div>
+        <ul class="group">
+          <li
+            v-for="n in activity.data.value"
+            :key="n.id"
+          >
+            <RouterLink
+              class="group-row"
+              to="/notifications"
+            >
+              <span class="group-body"><span class="group-title">{{ noticeTitle(n) }}</span></span>
+              <span class="subtle when">{{ ago(n.created_at) }}</span>
+            </RouterLink>
+          </li>
+        </ul>
+      </section>
+
+
+      <section
+        class="section"
+        :class="{ 'phone-only': verified }"
+      >
         <h2>{{ t('me.content') }}</h2>
         <ul class="group">
           <li
@@ -372,4 +469,18 @@ async function signOut() {
 .profile-copy h2 { max-width: 100%; }
 .sign-out { justify-content: center; color: var(--accent); font-weight: 500; }
 .sign-out.danger { color: var(--danger); }
+.badge { gap: .25rem; margin: 0; }
+.badge svg { width: 1rem; height: 1rem; color: var(--accent); }
+.stats { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 7rem), 1fr)); }
+.stat { display: grid; gap: .125rem; padding: .875rem 1rem; color: inherit; transition: transform .3s var(--spring); }
+.stat:hover { text-decoration: none; transform: translateY(-2px); }
+.todo { display: flex; align-items: center; gap: .75rem; color: inherit; }
+.todo:hover { text-decoration: none; }
+.todo:hover b { color: var(--accent); }
+.todo b { font-size: .9375rem; font-weight: 550; }
+.when { flex: none; }
+.desk-only { display: grid; }
+.phone-only { display: none; }
+/* Phones have no side menu, so this page carries the links there. */
+@media (max-width: 760px) { .desk-only { display: none; } .phone-only { display: grid; } }
 </style>

@@ -30,9 +30,19 @@ export async function fixture(page, { courseMissing = false } = {}){
       if(kind==='teacher'&&u.searchParams.get('class_id'))items=[teacher];
       return fulfill(route,{items,next:''});
     }
+    if(p==='/api/v1/catalog/directory'){
+      const kind=u.searchParams.get('kind'),dep=u.searchParams.get('department_id'),q=(u.searchParams.get('q')??'').toLowerCase();
+      const rows=(objects[kind]??[]).filter(()=>!dep||dep==='dept').filter(item=>!q||item.name.toLowerCase().includes(q)).map(object=>({object,departments:[objects.department[0]],categories:kind==='course'?objects.category:[],review_count:kind==='course'?1:0,recommendation:kind==='course'?'recommended':'unrated',dimensions,heat:1}));
+      const facet=(o)=>({id:o.id,name:o.name,count:rows.length,review_count:kind==='course'?rows.length:0});
+      return fulfill(route,{items:rows,next:'',total:rows.length,facet_total:rows.length,category_facets:kind==='course'?objects.category.map(facet):[],department_facets:objects.department.map(facet),generated_at:'2026-11-15T00:00:00Z'});
+    }
+    if(p==='/api/v1/reviews/summaries'){
+      const ids=(u.searchParams.get('ids')??'').split(',').filter(Boolean),kind=u.searchParams.get('kind');
+      return fulfill(route,{items:ids.map(id=>({target_id:id,kind,review_count:1,dimensions,recommendation:'recommended',distribution:Array.from({length:5},()=>({samples:2,weights:[0,0,10,20,0]})),terms:[{term_id:'fall',term_name:'Fall semester',review_count:1,dimensions,recommendation:'recommended'}]})),policy:{status:'Accepted',minimum_samples:3,strongly_recommended_at:4.5,recommended_at:3.5,average_at:2.5},generated_at:'2026-11-15T00:00:00Z'});
+    }
     if(p==='/api/v1/catalog/objects/lookup'){const ids=(u.searchParams.get('ids')??'').split(',');const items=Object.values(objects).flat().filter(item=>ids.includes(item.id));return fulfill(route,{items,missing_ids:ids.filter(id=>!items.some(item=>item.id===id))});}
     if(courseMissing && (p==='/api/v1/catalog/objects/course' || p==='/api/v1/catalog/objects/course/summary' || p.startsWith('/api/v1/reviews'))) return fulfill(route,{code:'not_found'},404);
-    if(p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(objects).flat().find(item=>item.id===id);return fulfill(route,{object:entry,school,department:entry.kind==='course'?objects.department[0]:null,categories:entry.kind==='course'?objects.category:[],natures:entry.kind==='course'?objects.nature:[],course_count:1,teacher_count:entry.kind==='course'?2:1,offering_count:entry.kind==='course'?2:1});}
+    if(p.startsWith('/api/v1/catalog/objects/')&&p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(objects).flat().find(item=>item.id===id);return fulfill(route,{object:entry,school,department:entry.kind==='course'?objects.department[0]:null,categories:entry.kind==='course'?objects.category:[],natures:entry.kind==='course'?objects.nature:[],course_count:1,teacher_count:entry.kind==='course'?2:1,offering_count:entry.kind==='course'?2:1});}
     if(p.startsWith('/api/v1/catalog/objects/')){const id=p.split('/').at(-1);return fulfill(route,Object.values(objects).flat().find(v=>v.id===id)??course);}
     if(p==='/api/v1/catalog/me/enrollments')return fulfill(route,enrollments);
     if(p==='/api/v1/catalog/me/schedule')return fulfill(route,{items:enrollments.filter(row=>row.term_id===u.searchParams.get('term_id')).map(row=>({enrollment:row,course_name:'Test Course',meetings:[{id:`${row.id}-m`,time_text:'Monday 09:00',location:'Room A'}]})),next:''});
