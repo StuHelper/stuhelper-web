@@ -10,26 +10,17 @@ function watch(page) {
   return errors;
 }
 
-test('archived course keeps its reviews readable and disables public writing', async ({ page }, info) => {
-  const locale = info.project.metadata.locale, a = catalogue(info).academic, errors = watch(page);
-  await academicFixture(page, { archived: true });
-  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await expect(page.getByRole('heading', { level: 1, name: 'Test Course' })).toBeVisible();
-  await expect(page.getByText(a.subject.archiveNotice, { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: a.subject.writeCourse, exact: true })).toHaveCount(0);
-  await expect(page.getByText('Useful course content.', { exact: true })).toBeVisible();
-  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
-  await expect(page.getByText(a.subject.archiveNotice, { exact: true })).toBeVisible();
-  await expect(page.getByText('Useful course content.', { exact: true })).toBeVisible();
-  await expect(page.locator('.discussion form')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: a.review.reply, exact: true })).toHaveCount(0);
-  const actions = page.locator('.review-actions');
-  const votes = actions.locator('button[aria-pressed]');
-  await expect(votes).toHaveCount(2);
-  await expect(votes.nth(0)).toBeDisabled();
-  await expect(votes.nth(1)).toBeDisabled();
-  await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar-EG' ? 'rtl' : 'ltr');
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+test('invisible course and discussion show the standard not-found state', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), errors = watch(page);
+  await academicFixture(page, { courseMissing: true });
+  for (const path of ['/courses/course', '/reviews/review']) {
+    await page.goto(`http://127.0.0.1:18787${path}?lang=${locale}`);
+    await expect(page.getByText(all.errors.not_found, { exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: 'Test Course' })).toHaveCount(0);
+    await expect(page.getByText('Useful course content.', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: all.academic.subject.writeCourse, exact: true })).toHaveCount(0);
+    await expect(page.locator('.discussion form')).toHaveCount(0);
+  }
   expect(errors).toEqual([]);
 });
 

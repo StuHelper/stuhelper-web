@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, shallowRef, watch } from 'vue'
+import { nextTick, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAsync, usePaged } from '../../shared/composables/async'
@@ -30,10 +30,6 @@ const root = useAsync(async (signal) => {
     await router.replace({ path: `/reviews/${encodeURIComponent(entry.root_id)}`, query: route.query, hash: `#review-${entry.id}` })
   }
   return { entry, names: await api.lookup([entry.target_id, entry.term_id, entry.teacher_id], signal) }
-})
-const readOnly = computed(() => {
-  const data = root.data.value
-  return data?.names.get(data.entry.target_id)?.read_only === true
 })
 const replies = usePaged(async (after, signal) => {
   const page = await api.reviews({ kind: 'reply', root_id: props.id, sort: 'oldest', after, limit: listSize }, signal)
@@ -90,12 +86,6 @@ async function removeRoot() {
         v-if="root.data.value"
         class="stack-lg"
       >
-        <p
-          v-if="readOnly"
-          class="notice notice-info"
-        >
-          {{ t('academic.subject.archiveNotice') }}
-        </p>
         <ReviewCard
           :review="root.data.value.entry"
           :names="root.data.value.names"
@@ -137,7 +127,6 @@ async function removeRoot() {
         </section>
 
         <section
-          v-if="!readOnly"
           ref="editor"
           class="stack"
         >

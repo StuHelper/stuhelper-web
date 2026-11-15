@@ -12,16 +12,17 @@ const dimensions=Array.from({length:5},()=>({level:3,samples:2,courses:1}));
 const review={id:'review',root_id:'review',kind:'course',school_id:'school',target_id:'course',term_id:'fall',title:'A student review',body:'Useful course content.',ratings:[3,3,3,3,3],author:{anonymous:true,handle:'anonymous'},revision:1,published_at:'2026-10-27T00:00:00Z',upvotes:0,downvotes:0,my_vote:0,mine:false,state:'published',can_edit:false};
 const enrollments=terms.map((term,i)=>({id:`enrollment-${i}`,subject:'synthetic',school_id:'school',course_id:'course',term_id:term.id,teacher_ids:[i===0?'teacher-a':'teacher-b'],active:true}));
 const fulfill=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
-export async function fixture(page, { archived = false } = {}){
+export async function fixture(page, { courseMissing = false } = {}){
   const objects = structuredClone(directory);
-  if (archived) objects.course[0].read_only = true;
+  if (courseMissing) for (const kind of ['course', 'term_course', 'class', 'schedule', 'term', 'category', 'nature']) objects[kind] = [];
   await page.route('**/api/v1/**',async route=>{
     const u=new URL(route.request().url()),p=u.pathname;
     if(p==='/api/v1/auth/session'||p.startsWith('/api/v1/verification/'))return route.fallback();
     if(p==='/api/v1/catalog/filter-options'){
       const kind=u.searchParams.get('kind');
-      const options=(name)=>objects[name].map(item=>({id:item.id,name:item.name,count:kind==='teacher'?2:1}));
-      return fulfill(route,{kind,total:kind==='teacher'?2:1,departments:options('department'),categories:kind==='course'?options('category'):[],natures:kind==='course'?options('nature'):[]});
+      const count=kind==='teacher'?2:objects.course.length;
+      const options=(name)=>count?objects[name].map(item=>({id:item.id,name:item.name,count})):[];
+      return fulfill(route,{kind,total:count,departments:options('department'),categories:kind==='course'?options('category'):[],natures:kind==='course'?options('nature'):[]});
     }
     if(p==='/api/v1/catalog/objects'){
       const kind=u.searchParams.get('kind');let items=objects[kind]??[];
@@ -30,6 +31,7 @@ export async function fixture(page, { archived = false } = {}){
       return fulfill(route,{items,next:''});
     }
     if(p==='/api/v1/catalog/objects/lookup'){const ids=(u.searchParams.get('ids')??'').split(',');const items=Object.values(objects).flat().filter(item=>ids.includes(item.id));return fulfill(route,{items,missing_ids:ids.filter(id=>!items.some(item=>item.id===id))});}
+    if(courseMissing && (p==='/api/v1/catalog/objects/course' || p==='/api/v1/catalog/objects/course/summary' || p.startsWith('/api/v1/reviews'))) return fulfill(route,{code:'not_found'},404);
     if(p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(objects).flat().find(item=>item.id===id);return fulfill(route,{object:entry,school,department:entry.kind==='course'?objects.department[0]:null,categories:entry.kind==='course'?objects.category:[],natures:entry.kind==='course'?objects.nature:[],course_count:1,teacher_count:entry.kind==='course'?2:1,offering_count:entry.kind==='course'?2:1});}
     if(p.startsWith('/api/v1/catalog/objects/')){const id=p.split('/').at(-1);return fulfill(route,Object.values(objects).flat().find(v=>v.id===id)??course);}
     if(p==='/api/v1/catalog/me/enrollments')return fulfill(route,enrollments);

@@ -106,12 +106,6 @@ function submitted(result: Result) {
         >
           {{ t('academic.subject.inactiveNotice') }}
         </p>
-        <p
-          v-if="subject.read_only"
-          class="notice notice-info small"
-        >
-          {{ t('academic.subject.archiveNotice') }}
-        </p>
         <template #actions>
           <component
             :is="action"
@@ -131,7 +125,7 @@ function submitted(result: Result) {
             :kind="kind"
           />
           <button
-            v-if="!composing && !subject.inactive && !subject.read_only"
+            v-if="!composing && !subject.inactive"
             class="btn btn-primary"
             type="button"
             @click="composing = true"
@@ -157,7 +151,7 @@ function submitted(result: Result) {
       </p>
 
       <ReviewEditor
-        v-if="composing && !subject.read_only"
+        v-if="composing"
         :key="id"
         :kind="kind === 'course' ? 'course' : 'mentor'"
         :target-id="id"

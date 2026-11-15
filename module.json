@@ -124,7 +124,7 @@
       "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure"
     ],
     "WEB-CATALOG-01": [
-      "tests/e2e/academic.spec.mjs#archived course keeps its reviews readable and disables public writing"
+      "tests/e2e/academic.spec.mjs#invisible course and discussion show the standard not-found state"
     ],
     "WEB-CATALOG-02": [
       "tests/e2e/academic.spec.mjs#semester choices preserve the server order including summer"

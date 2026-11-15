@@ -35,7 +35,7 @@ export type Submission = Moderation['schemas']['Submission']
 export type Task = Moderation['schemas']['TaskView']
 export type Reference = Reviews['schemas']['Reference']
 /** The name fields a review card shows. Catalog objects and own-record references both provide them. */
-export type NamedObject = { id: string; kind: string; name: string; read_only?: boolean }
+export type NamedObject = { id: string; kind: string; name: string }
 
 const catalog = catalogContract.components.schemas
 const reviews = reviewsContract.components.schemas
