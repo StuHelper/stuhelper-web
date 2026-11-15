@@ -5,6 +5,24 @@ import { AcademicApi, knownCredits } from './api'
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status })
 
 describe('academic boundary', () => {
+  it('loads nonzero options for the requested directory without selected filters', async () => {
+    const fetcher = vi.fn<typeof fetch>(async () => json({ kind: 'teacher', total: 2, departments: [{ id: 'd', name: 'College', count: 2 }], categories: [], natures: [] }))
+    const options = await new AcademicApi(new Http(fetcher)).filterOptions('teacher', 'school')
+    expect(options.departments[0]?.count).toBe(2)
+    const url = new URL(String(fetcher.mock.calls[0]?.[0]), 'https://example.test')
+    expect(url.pathname).toBe('/api/v1/catalog/filter-options')
+    expect(url.searchParams.get('kind')).toBe('teacher')
+    expect(url.searchParams.get('school_id')).toBe('school')
+    expect(url.searchParams.has('department_id')).toBe(false)
+  })
+
+  it('rejects zero-count or unexpected private fields in selector responses', async () => {
+    for (const option of [{ id: 'd', name: 'Empty', count: 0 }, { id: 'd', name: 'College', count: 2, staff_number: 'synthetic' }]) {
+      const api = new AcademicApi(new Http(async () => json({ kind: 'course', total: 2, departments: [option], categories: [], natures: [] })))
+      await expect(api.filterOptions('course')).rejects.toMatchObject({ code: 'incompatible' })
+    }
+  })
+
   it('rejects unexpected identity fields in catalog responses', async () => {
     const api = new AcademicApi(new Http(async () => json({ items: [], next: '', subject: 'secret' })))
     await expect(api.objects({})).rejects.toMatchObject({ code: 'incompatible' })
