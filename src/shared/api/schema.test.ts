@@ -58,5 +58,22 @@ describe('schemas without a type', () => {
     // Neither branch holds when both prices are absent.
     expect(validates({ points: null, ivory: null }, plan, {})).toBe(false)
   })
-})
+  it('accepts null for a nullable reference and still checks a present value', () => {
+    const set = {
+      Holder: { type: 'object', required: ['latest'], properties: { latest: { $ref: '#/components/schemas/Inner', nullable: true } } },
+      Inner: { type: 'object', required: ['id'], properties: { id: { type: 'string' } } },
+    }
+    const holder = { $ref: '#/components/schemas/Holder' }
+    expect(validates({ latest: null }, holder, set)).toBe(true)
+    expect(validates({ latest: { id: 'run' } }, holder, set)).toBe(true)
+    expect(validates({ latest: { id: 1 } }, holder, set)).toBe(false)
+    expect(validates({ latest: null }, { $ref: '#/components/schemas/Inner' }, set)).toBe(false)
+  })
 
+  it('accepts a teacher summary whose department is null', async () => {
+    const contract = (await import('../../../contracts/catalog.openapi.json')).default
+    const teacher = { id: 't', kind: 'teacher', school_id: 's', name: 'Teacher', credits: null, aliases: [], revision: 1, updated_at: '2026-11-15T00:00:00Z' }
+    const summary = { object: teacher, school: { ...teacher, id: 's', kind: 'school' }, department: null, categories: [], natures: [], course_count: 1, teacher_count: 1, offering_count: 1 }
+    expect(validates(summary, { $ref: '#/components/schemas/Summary' }, contract.components.schemas)).toBe(true)
+  })
+})
