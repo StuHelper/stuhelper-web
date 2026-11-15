@@ -44,6 +44,7 @@ const moderation = moderationContract.components.schemas
 const parse = {
   object: schemaOf<CatalogObject>(catalog, 'Object'),
   objectPage: schemaOf<ObjectPage>(catalog, 'Page'),
+  filterOptions: schemaOf<Catalog['schemas']['FilterOptions']>(catalog, 'FilterOptions'),
   summary: schemaOf<ObjectSummary>(catalog, 'Summary'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
@@ -79,6 +80,10 @@ export class AcademicApi {
 
   objects(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/catalog/objects', parse.objectPage, { query, signal })
+  }
+
+  filterOptions(kind: 'course' | 'teacher', schoolId?: string, signal?: AbortSignal) {
+    return this.http.json('/api/v1/catalog/filter-options', parse.filterOptions, { query: { kind, school_id: schoolId }, signal })
   }
 
   object(id: string, signal?: AbortSignal) {

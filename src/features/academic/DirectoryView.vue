@@ -22,7 +22,7 @@ const filtersOpen = ref(false)
 const keys = ['q', 'department', 'category', 'nature', 'teacher'] as const
 type Filters = Record<(typeof keys)[number], string>
 const form = reactive<Filters>({ q: '', department: '', category: '', nature: '', teacher: '' })
-const names = shallowRef(new Map<string, CatalogObject>())
+const names = shallowRef(new Map<string, { name: string }>())
 
 const page = usePageFilters(keys)
 const applied = computed<Filters>(() => {
@@ -45,15 +45,7 @@ const results = usePaged(async (after, signal) => {
   return { items: page.items, next: page.next }
 })
 
-const scoped = useAsync(async (signal) => {
-  const school = campus.value
-  const [departments, categories, natures] = await Promise.all([
-    api.options({ kind: 'department', school_id: school }, signal),
-    props.kind === 'course' ? api.options({ kind: 'category', school_id: school }, signal) : Promise.resolve([]),
-    props.kind === 'course' ? api.options({ kind: 'nature', school_id: school }, signal) : Promise.resolve([]),
-  ])
-  return { departments, categories, natures }
-})
+const scoped = useAsync((signal) => api.filterOptions(props.kind, campus.value, signal))
 const teacherName = useAsync(async (signal) => (applied.value.teacher ? (await api.lookup([applied.value.teacher], signal)).get(applied.value.teacher)?.name ?? '' : ''))
 
 function apply(changes: Partial<Filters> = {}) {
