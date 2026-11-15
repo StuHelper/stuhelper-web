@@ -1,23 +1,19 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAsync } from '../../shared/composables/async'
-import { useHttp } from '../../shared/session'
-import { getCapabilities } from './api'
+import { useCapabilities } from '../../shared/capabilities'
 
 // Tells visitors when the platform does not answer. A working connection needs no message.
 const { t, te } = useI18n()
-const http = useHttp()
-const capabilities = useAsync((signal) => getCapabilities(http, signal))
+const capabilities = useCapabilities()
 const message = computed(() => {
   if (capabilities.status.value === 'ready') return t('connection.ready')
   if (capabilities.status.value === 'error') {
-    const key = `connection.errors.${capabilities.error.value}`
+    const key = `connection.errors.${capabilities.failure.value}`
     return te(key) ? t(key) : t('connection.errors.unavailable')
   }
   return t('connection.loading')
 })
-onMounted(capabilities.reload)
 </script>
 
 <template>
@@ -42,7 +38,7 @@ onMounted(capabilities.reload)
       v-if="capabilities.status.value === 'error'"
       class="btn btn-sm"
       type="button"
-      @click="capabilities.reload"
+      @click="capabilities.load"
     >
       {{ t('connection.retry') }}
     </button>
