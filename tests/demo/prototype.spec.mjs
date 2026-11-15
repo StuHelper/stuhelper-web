@@ -2,7 +2,6 @@ import fs from 'node:fs';
 import { test, expect } from 'playwright/test';
 
 const catalogue = (locale) => JSON.parse(fs.readFileSync(`src/locales/${locale}.json`, 'utf8'));
-const push = (page, path) => page.evaluate((to) => document.querySelector('#app').__vue_app__.config.globalProperties.$router.push(to), path);
 const persona = (page, value) => page.addInitScript((who) => localStorage.setItem('stuhelper-demo-persona', who), value);
 const overflow = (page) => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 
@@ -31,16 +30,11 @@ test('switching the draft tab asks before destroying unsaved input', async ({ pa
   await expect(page).toHaveURL(/tab=drafts/);
 });
 
-test('the course filter follows the address, including back navigation', async ({ page }) => {
-  await page.goto('/courses?dept=d-cs&lang=zh-CN');
+test('the course directory takes an old department link and keeps the address clean', async ({ page }) => {
+  await page.goto('/courses?department=d-cs&lang=zh-CN');
   await expect(page.getByRole('combobox').filter({ hasText: '计算机' }).first()).toBeVisible();
-  await push(page, '/courses?dept=d-auto&lang=zh-CN');
-  await expect(page).toHaveURL(/dept=d-auto/);
-  const selected = await page.evaluate(() => new URL(location.href).searchParams.get('dept'));
-  expect(selected).toBe('d-auto');
-  await expect(page.getByRole('combobox').filter({ hasText: '自动化' }).first()).toBeVisible();
-  await page.evaluate(() => { document.querySelector('#app').__vue_app__.config.globalProperties.$router.back(); });
-  await expect(page).toHaveURL(/dept=d-cs/);
+  await expect.poll(() => new URL(page.url()).searchParams.has('department')).toBe(false);
+  await page.reload();
   await expect(page.getByRole('combobox').filter({ hasText: '计算机' }).first()).toBeVisible();
 });
 

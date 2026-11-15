@@ -128,6 +128,12 @@
     ],
     "WEB-CATALOG-02": [
       "tests/e2e/academic.spec.mjs#semester choices preserve the server order including summer"
+    ],
+    "BROWSE-DIRECTORY-01": [
+      "tests/e2e/academic.spec.mjs#the course directory shows category tabs, grouping and a quick view with rating charts"
+    ],
+    "BROWSE-RESOURCES-01": [
+      "tests/e2e/resources.spec.mjs#the side list shows recently visited courses, filters by one and can be cleared"
     ]
   }
 }

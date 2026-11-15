@@ -115,7 +115,7 @@ test('directory filters stay out of the address and survive reload and back', as
   const listCalls = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
-    if (url.pathname === '/api/v1/catalog/objects' && url.searchParams.get('kind') === 'course') listCalls.push(url.searchParams.get('department_id'));
+    if (url.pathname === '/api/v1/catalog/directory' && url.searchParams.get('kind') === 'course' && url.searchParams.get('limit') !== '1') listCalls.push(url.searchParams.get('department_id'));
   });
   const locale = info.project.metadata.locale;
   // An older shared link with the filter in the fragment still applies it.
@@ -140,7 +140,7 @@ test('the teacher directory is open and lists teachers from the server', async (
   const kinds = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
-    if (url.pathname === '/api/v1/catalog/objects') kinds.push(url.searchParams.get('kind'));
+    if (url.pathname === '/api/v1/catalog/directory') kinds.push(url.searchParams.get('kind'));
   });
   await page.goto(`http://127.0.0.1:18787/teachers?lang=${info.project.metadata.locale}`);
   await expect(page).toHaveURL(/\/teachers(\?|$)/);
@@ -150,16 +150,15 @@ test('the teacher directory is open and lists teachers from the server', async (
 
 test('course and teacher directories keep filters independent across navigation', async ({ page }, info) => {
   await academicFixture(page);
-  const messages = catalogue(info), calls = [];
+  const b = catalogue(info).browse, calls = [];
   page.on('request', (request) => {
     const url = new URL(request.url());
-    if (url.pathname === '/api/v1/catalog/objects' && ['course', 'teacher'].includes(url.searchParams.get('kind'))) {
+    // The one-row request only supplies department counts; it is not the list.
+    if (url.pathname === '/api/v1/catalog/directory' && url.searchParams.get('limit') !== '1') {
       calls.push({ kind: url.searchParams.get('kind'), q: url.searchParams.get('q'), department: url.searchParams.get('department_id') });
     }
   });
-  const form = page.getByRole('search');
-  const search = form.getByRole('searchbox');
-  const submit = () => form.getByRole('button', { name: messages.common.search, exact: true }).click();
+  const search = page.getByRole('searchbox');
   const navigate = (route) => page.locator(`a[href="${route}"]:visible`).first().click();
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}#q=Course&department=dept`);
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Course', department: 'dept' });
@@ -167,24 +166,19 @@ test('course and teacher directories keep filters independent across navigation'
   await expect(search).toHaveValue('');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: null, department: null });
   await search.fill('Teacher');
-  await submit();
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher', department: null });
-  const department = form.getByRole('combobox').first();
-  if (!await department.isVisible()) await form.getByRole('button', { name: messages.common.filters, exact: true }).click();
-  await department.click();
+  await page.getByRole('combobox', { name: b.offeringDepartment }).click();
   await page.getByRole('option', { name: 'Test College', exact: true }).click();
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher', department: 'dept' });
-  await form.getByRole('button', { name: messages.common.clearFilters, exact: true }).click();
+  await page.getByRole('button', { name: b.clearAll, exact: true }).click();
   await expect(search).toHaveValue('');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: null, department: null });
   await search.fill('Teacher retained');
-  await submit();
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher retained', department: null });
   await navigate('/courses');
   await expect(search).toHaveValue('');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: null, department: null });
   await search.fill('Fresh course');
-  await submit();
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Fresh course', department: null });
   await page.goBack();
   await expect(search).toHaveValue('Teacher retained');
@@ -194,4 +188,30 @@ test('course and teacher directories keep filters independent across navigation'
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Course', department: 'dept' });
   expect(new URL(page.url()).hash).toBe('');
   expect(new URL(page.url()).searchParams.has('q')).toBe(false);
+});
+
+test('the course directory shows category tabs, grouping and a quick view with rating charts', async ({ page }, info) => {
+  await academicFixture(page);
+  const b = catalogue(info).browse;
+  const errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const tabs = page.getByRole('group', { name: b.courseCategory });
+  await expect(tabs.getByRole('button', { name: /Test Seminar/ })).toBeVisible();
+  await tabs.getByRole('button', { name: /Test Seminar/ }).click();
+  await expect(tabs.getByRole('button', { name: /Test Seminar/ })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.byDepartment }).click();
+  await expect(page.getByRole('heading', { name: 'Test College' })).toBeVisible();
+  const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
+  if (await quick.isVisible()) await quick.click();
+  else {
+    await page.getByRole('button', { name: b.moreActionsFor.replace('{p0}', 'Test Course') }).click();
+    await page.getByRole('menuitem', { name: b.quickView }).click();
+  }
+  const drawer = page.getByRole('dialog');
+  await expect(drawer.getByRole('heading', { name: 'Test Course' })).toBeVisible();
+  await expect(drawer.getByRole('img').first()).toBeVisible();
+  await expect(drawer.getByRole('heading', { name: b.recommendationDist })).toBeVisible();
+  await expect(drawer.getByRole('link', { name: b.viewDetails })).toHaveAttribute('href', '/courses/course');
+  expect(errors).toEqual([]);
 });

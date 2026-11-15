@@ -17,6 +17,13 @@ export type Enrollment = Catalog['schemas']['Enrollment']
 export type OwnSchedule = Catalog['schemas']['OwnSchedule']
 export type ScheduleMeeting = Catalog['schemas']['ScheduleMeeting']
 export type Timetable = Catalog['schemas']['Timetable']
+export type DirectoryPage = Catalog['schemas']['DirectoryPage']
+export type DirectoryItem = Catalog['schemas']['DirectoryItem']
+export type DirectoryFacet = Catalog['schemas']['DirectoryFacet']
+export type DirectorySort = 'hot' | 'recommend' | 'reviews' | 'name'
+export type Recommendation = Catalog['schemas']['Recommendation']
+export type RecentCourses = Catalog['schemas']['RecentCourses']
+export type NextClassDay = Catalog['schemas']['NextClassDay']
 export type Review = Reviews['schemas']['View']
 export type ReviewKind = ReviewInput['kind']
 export type ReviewInput = Reviews['schemas']['Input']
@@ -34,6 +41,9 @@ export type PresentationView = Reviews['schemas']['PresentationView']
 export type Submission = Moderation['schemas']['Submission']
 export type Task = Moderation['schemas']['TaskView']
 export type Reference = Reviews['schemas']['Reference']
+export type ReviewSummary = Reviews['schemas']['ReviewSummary']
+export type ReviewSummaries = Reviews['schemas']['ReviewSummaries']
+export type OwnOverview = Reviews['schemas']['OwnOverview']
 /** The name fields a review card shows. Catalog objects and own-record references both provide them. */
 export type NamedObject = { id: string; kind: string; name: string }
 
@@ -49,6 +59,11 @@ const parse = {
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
   schedule: schemaOf<Catalog['schemas']['OwnSchedulePage']>(catalog, 'OwnSchedulePage'),
+  directory: schemaOf<DirectoryPage>(catalog, 'DirectoryPage'),
+  recent: schemaOf<RecentCourses>(catalog, 'RecentCourses'),
+  recentRecorded: schemaOf<Catalog['schemas']['RecentRecorded']>(catalog, 'RecentRecorded'),
+  recentCleared: schemaOf<Catalog['schemas']['RecentCleared']>(catalog, 'RecentCleared'),
+  nextClassDay: schemaOf<NextClassDay>(catalog, 'NextClassDay'),
   review: schemaOf<Review>(reviews, 'View'),
   reviewList: schemaOf<Review[]>(reviews, 'View', true),
   reviewPage: schemaOf<ReviewPage>(reviews, 'Page'),
@@ -59,6 +74,8 @@ const parse = {
   composer: schemaOf<Composer>(reviews, 'Composer'),
   references: schemaOf<Reviews['schemas']['References']>(reviews, 'References'),
   presentation: schemaOf<PresentationView>(reviews, 'PresentationView'),
+  summaries: schemaOf<ReviewSummaries>(reviews, 'ReviewSummaries'),
+  overview: schemaOf<OwnOverview>(reviews, 'OwnOverview'),
   task: schemaOf<Task>(moderation, 'TaskView'),
   tasks: schemaOf<Task[]>(moderation, 'TaskView', true),
 }
@@ -84,6 +101,32 @@ export class AcademicApi {
 
   filterOptions(kind: 'course' | 'teacher', schoolId?: string, signal?: AbortSignal) {
     return this.http.json('/api/v1/catalog/filter-options', parse.filterOptions, { query: { kind, school_id: schoolId }, signal })
+  }
+
+  /**
+   * Course or teacher directory rows with department, category, review count, rating bands
+   * and heat, plus facet counts under the current filters. The server applies visibility
+   * (content state, school, teacher marks); the client only renders what it returns.
+   */
+  directory(query: Query & { kind: 'course' | 'teacher'; sort?: DirectorySort }, signal?: AbortSignal) {
+    return this.http.json('/api/v1/catalog/directory', parse.directory, { query, signal })
+  }
+
+  /** The caller's recently visited courses with resource counts (at most 20, kept 90 days). */
+  recentCourses(signal?: AbortSignal) {
+    return this.http.json('/api/v1/catalog/me/recent-courses', parse.recent, { signal })
+  }
+
+  recordRecentCourse(id: string) {
+    return this.http.json(`/api/v1/catalog/me/recent-courses/${segment(id)}`, parse.recentRecorded, { method: 'PUT', body: {} })
+  }
+
+  clearRecentCourses() {
+    return this.http.json('/api/v1/catalog/me/recent-courses', parse.recentCleared, { method: 'DELETE' })
+  }
+
+  nextClassDay(signal?: AbortSignal) {
+    return this.http.json('/api/v1/catalog/me/next-class-day', parse.nextClassDay, { signal })
   }
 
   object(id: string, signal?: AbortSignal) {
@@ -181,6 +224,19 @@ export class AcademicApi {
 
   statistics(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/reviews/statistics', parse.statistics, { query, signal })
+  }
+
+  /**
+   * Rating summaries for up to 100 courses or teachers. With charts the response also carries
+   * the five-band distribution (relative bar lengths, not counts) and per-term summaries.
+   */
+  summaries(kind: 'course' | 'teacher', ids: string[], charts: boolean, signal?: AbortSignal) {
+    return this.http.json('/api/v1/reviews/summaries', parse.summaries, { query: { kind, ids: ids.slice(0, 100).join(','), include_charts: charts ? 'true' : undefined }, signal })
+  }
+
+  /** The caller's review count, draft count and courses still waiting for a review. */
+  overview(signal?: AbortSignal) {
+    return this.http.json('/api/v1/reviews/me/overview', parse.overview, { signal })
   }
 
   composer(query: Query, signal?: AbortSignal) {

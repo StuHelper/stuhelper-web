@@ -1,4 +1,4 @@
-/* 原型页面共用样式，只使用全站设计变量。 */
+/* Shared list, chip, drawer and chart primitives used by the browse pages (prefix d-). Only site design tokens. */
 .d-grid { display: grid; gap: 1rem; grid-template-columns: repeat(12, minmax(0, 1fr)); }
 .d-span-8 { grid-column: span 8; } .d-span-7 { grid-column: span 7; } .d-span-6 { grid-column: span 6; } .d-span-5 { grid-column: span 5; } .d-span-4 { grid-column: span 4; } .d-span-12 { grid-column: span 12; }
 @media (max-width: 900px) { .d-span-8, .d-span-7, .d-span-6, .d-span-5, .d-span-4 { grid-column: span 12; } }
