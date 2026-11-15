@@ -305,7 +305,10 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/resources/requests' && method === 'GET') return json({ items: d.receipts, next_cursor: '' })
   if (p.startsWith('/resources/requests/')) return json(d.receipts[0])
   if (p === '/resources/me/summary') return json({ resource_count: resources.filter((r) => r.owned).length, published_count: resources.filter((r) => r.owned && r.current).length })
-  if (p === '/resources/me') return json({ items: resources.filter((r) => r.owned), next_cursor: '' })
+  if (p === '/resources/me') {
+    const items = resources.filter((r) => r.owned)
+    return json({ items, next_cursor: '', total: items.length })
+  }
   if (p === '/resources/packages') return json({ id: 'pack', parts: [{ number: 1, bytes: 1000, files: [(resources[0]!.current as any).file] }], expires_at: '2030-01-01T00:00:00Z' })
   if (p === '/resources' && method === 'GET') {
     const q = u.searchParams

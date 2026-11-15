@@ -60,7 +60,7 @@ const results = usePaged<DirectoryItem>(async (after, signal) => {
   const result = await api.directory(query(after), signal)
   if (!after) facets.value = { total: result.total, facetTotal: result.facet_total, categories: result.category_facets, departments: result.department_facets }
   return { items: result.items, next: result.next }
-})
+}, { resetOnConflict: true })
 // Department facets keep every condition, so with a department chosen the other departments
 // would all count zero. A one-row request without the department supplies their counts.
 const otherDepartments = useAsync(async (signal) => (applied.value.department ? (await api.directory(query('', { department_id: undefined, limit: 1 }), signal)).department_facets : undefined))

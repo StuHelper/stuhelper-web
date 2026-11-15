@@ -54,7 +54,7 @@ export interface PageResult<T> {
  * Cursor pagination that appends pages. Reloading starts again from the first
  * page; a failed "load more" keeps the rows that were already shown.
  */
-export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Promise<PageResult<T>>) {
+export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Promise<PageResult<T>>, options: { resetOnConflict?: boolean } = {}) {
   const items = shallowRef<T[]>([])
   const next = ref('')
   const status = ref<LoadStatus>('idle')
@@ -62,7 +62,7 @@ export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Pro
   const appending = ref(false)
   let current: AbortController | undefined
 
-  async function load(cursor: string) {
+  async function load(cursor: string): Promise<void> {
     current?.abort()
     const controller = new AbortController()
     current = controller
@@ -82,6 +82,12 @@ export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Pro
       status.value = 'ready'
     } catch (failure) {
       if (current !== controller) return
+      // A version-bound cursor cannot be retried after the directory changes.
+      // Reset once; a failure of the first page follows the normal error path.
+      if (cursor && options.resetOnConflict && failure instanceof ApiError && failure.status === 409) {
+        await load('')
+        return
+      }
       error.value = errorCode(failure)
       if (failure instanceof ApiError && failure.denied) {
         items.value = []
