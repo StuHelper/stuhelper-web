@@ -65,3 +65,14 @@ describe('page filters', () => {
     app.unmount()
   })
 })
+
+describe('page filters after leaving the page', () => {
+  it('does not write into the next page when a delayed change arrives late', async () => {
+    window.history.replaceState(null, '', '/')
+    const { page, router, app } = await mount('/courses')
+    await router.push('/other')
+    page.replace({ q: 'late' })
+    expect((window.history.state as { filters?: unknown }).filters).toBeUndefined()
+    app.unmount()
+  })
+})

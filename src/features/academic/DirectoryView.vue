@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronDown, Eye, Scale } from 'lucide-vue-next'
-import { computed, ref, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -80,6 +80,8 @@ watch(() => `${props.kind} ${campus.value} ${JSON.stringify(applied.value)}`, ()
 
 // Typing waits for a pause so each key press does not start a request.
 let typing: ReturnType<typeof setTimeout> | undefined
+// A pending search must not write into another page's state after this one is left.
+onBeforeUnmount(() => clearTimeout(typing))
 watch(text, (value) => {
   clearTimeout(typing)
   if (value.trim() === applied.value.q) return

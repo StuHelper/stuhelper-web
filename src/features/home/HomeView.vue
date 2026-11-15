@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { myCoursesEnabled, teacherDirectoryEnabled } from '../../app/features'
 import { useFormat } from '../../app/i18n'
-import { useLinkAvailable } from '../../shared/capabilities'
+import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { useAsync } from '../../shared/composables/async'
 import { withFilters } from '../../shared/pageFilters'
 import { recentPages } from '../../shared/recent'
@@ -64,9 +64,13 @@ const latestDraft = useAsync(async (signal) => (await api.myDrafts({ limit: 1 },
 const unread = useAsync((signal) => notifications.unread(signal))
 const hot = useAsync(async (signal) => (await api.directory({ kind: 'course', school_id: campus.value, sort: 'hot', limit: 5 }, signal)).items)
 const fresh = useAsync(async (signal) => (await resources.list({ school_id: campus.value, sort: 'newest', limit: 4 }, signal)).items.slice(0, 4))
-watch(verified, (value) => {
-  if (!value) return
-  for (const part of [classDay, overview, latestDraft, unread, hot, fresh]) void part.reload()
+// Notifications are an optional module; the unread count is read only when it runs.
+const capabilities = useCapabilities()
+const known = computed(() => capabilities.status.value === 'ready' || capabilities.status.value === 'error')
+watch(() => [verified.value, known.value] as const, ([value, ready]) => {
+  if (!value || !ready) return
+  for (const part of [classDay, overview, latestDraft, hot, fresh]) void part.reload()
+  if (capabilities.has(feature.notifications)) void unread.reload()
 }, { immediate: true })
 
 const showClassDay = computed(() => myCoursesEnabled && classDay.data.value?.state === 'available' && classDay.data.value.items.length > 0)

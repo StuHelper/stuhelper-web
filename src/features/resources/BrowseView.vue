@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Download, FileText, FileType2, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
-import { computed, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -173,6 +173,8 @@ const courseLabel = computed(() => recentRows.value.find((row) => row.course.id 
 // Typing waits for a pause and replaces the current entry, so back does not step
 // through every key press. Enter searches immediately.
 let typing: ReturnType<typeof setTimeout> | undefined
+// A pending search must not write into another page's state after this one is left.
+onBeforeUnmount(() => clearTimeout(typing))
 watch(text, (value) => {
   clearTimeout(typing)
   if (value.trim() === applied.value.q) return

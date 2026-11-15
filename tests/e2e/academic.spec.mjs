@@ -215,3 +215,14 @@ test('the course directory shows category tabs, grouping and a quick view with r
   await expect(drawer.getByRole('link', { name: b.viewDetails })).toHaveAttribute('href', '/courses/course');
   expect(errors).toEqual([]);
 });
+
+test('the teacher quick view reads the most upvoted course review attributed to the teacher', async ({ page }, info) => {
+  await academicFixture(page);
+  const b = catalogue(info).browse, reviewQueries = [];
+  page.on('request', (request) => { const url = new URL(request.url()); if (url.pathname === '/api/v1/reviews' && url.searchParams.get('sort') === 'upvotes') reviewQueries.push(Object.fromEntries(url.searchParams)); });
+  await page.goto(`http://127.0.0.1:18787/teachers?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: b.quickView, exact: true }).first().click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect.poll(() => reviewQueries.at(-1)?.kind).toBe('course');
+  expect(reviewQueries.at(-1)?.teacher_id).toBe('teacher-a');
+});

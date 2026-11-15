@@ -35,7 +35,8 @@ const people = useAsync(async (signal) => {
   const page = await api.objects(props.kind === 'course' ? { kind: 'teacher', course_id: props.id, limit: 12 } : { kind: 'course', teacher_id: props.id, limit: 12 }, signal)
   return page.items
 })
-const top = useAsync(async (signal) => (props.id ? (await api.reviews({ kind: props.kind, ...(props.kind === 'course' ? { target_id: props.id } : { teacher_id: props.id }), sort: 'upvotes', limit: 1 }, signal)).items[0] : undefined))
+// Teacher ratings come from course reviews attributed to the teacher, so both kinds query course reviews.
+const top = useAsync(async (signal) => (props.id ? (await api.reviews({ kind: 'course', ...(props.kind === 'course' ? { target_id: props.id } : { teacher_id: props.id }), sort: 'upvotes', limit: 1 }, signal)).items[0] : undefined))
 const files = useAsync(async (signal) => (props.id && props.kind === 'course' ? (await resources.list({ school_id: campus.value, course_id: props.id, sort: 'newest' }, signal)).items.slice(0, 3) : []))
 
 watch(() => props.id, (id) => {

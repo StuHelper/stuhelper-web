@@ -3,7 +3,7 @@ import { myCoursesEnabled } from '../../app/features'
 import { BadgeCheck, CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine, PenLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useLinkAvailable } from '../../shared/capabilities'
+import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { RouterLink } from 'vue-router'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
@@ -57,16 +57,24 @@ const favoriteCount = useAsync(async (signal) => (await favorites.folders('', si
 // Ivory is stored in hundredths; the card shows the balance in whole units with any cents.
 const balance = useAsync(async (signal) => (await wallet.wallet(signal)).ivory_minor / 100)
 const activity = useAsync(async (signal) => (await notifications.list('', signal)).items.slice(0, 4))
-watch(verified, (value) => {
-  if (!value) return
-  for (const part of [overview, ownResources, favoriteCount, balance, activity]) void part.reload()
+// Optional modules (favorites, wallet, notifications) are only read when this deployment
+// runs them; their numbers and links are hidden otherwise.
+const capabilities = useCapabilities()
+const known = computed(() => capabilities.status.value === 'ready' || capabilities.status.value === 'error')
+watch(() => [verified.value, known.value] as const, ([value, ready]) => {
+  if (!value || !ready) return
+  void overview.reload()
+  void ownResources.reload()
+  if (capabilities.has(feature.favorites)) void favoriteCount.reload()
+  if (capabilities.has(feature.wallet)) void balance.reload()
+  if (capabilities.has(feature.notifications)) void activity.reload()
 }, { immediate: true })
 const dash = '\u2014'
 const stats = computed(() => [
   { to: '/me/reviews', label: 'browse.reviews', value: overview.data.value?.review_count },
   { to: '/me/resources', label: 'browse.resourcesShort', value: ownResources.data.value?.resource_count },
-  { to: '/me/favorites', label: 'browse.favorites', value: favoriteCount.data.value },
-  ...(available('/me/wallet') ? [{ to: '/me/wallet', label: 'browse.ivory', value: balance.data.value }] : []),
+  ...(capabilities.has(feature.favorites) && available('/me/favorites') ? [{ to: '/me/favorites', label: 'browse.favorites', value: favoriteCount.data.value }] : []),
+  ...(capabilities.has(feature.wallet) && available('/me/wallet') ? [{ to: '/me/wallet', label: 'browse.ivory', value: balance.data.value }] : []),
 ])
 const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count)
