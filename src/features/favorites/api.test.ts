@@ -8,6 +8,21 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 beforeEach(resetFavorites)
 
+it('loads every folder page before calculating the personal favorite total', async () => {
+  const cursors: string[] = []
+  const api = new FavoritesApi(new Http(async (input) => {
+    const cursor = new URL(String(input), 'http://localhost').searchParams.get('after') ?? ''
+    cursors.push(cursor)
+    const folder = (id: string, count: number) => ({ id, name: id, is_default: false, revision: 1, item_count: count })
+    return Response.json(cursor ? { items: [folder('last', 7)], next: '' } : {
+      items: Array.from({ length: 100 }, (_, index) => folder(`folder-${index}`, 2)), next: 'second',
+    })
+  }))
+  const folders = await api.allFolders()
+  expect(cursors).toEqual(['', 'second'])
+  expect(folders.reduce((sum, folder) => sum + folder.item_count, 0)).toBe(207)
+})
+
 it('looks up favorites of many targets with one request per 100 targets', async () => {
   const urls: URL[] = []
   const api = new FavoritesApi(new Http(async (input) => {

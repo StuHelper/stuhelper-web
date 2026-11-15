@@ -2,10 +2,18 @@
 import { expect, it } from 'vitest'
 import { installDemoFetch } from './server'
 import { teacherLevels } from './store'
+import { Http } from '../shared/api/http'
+import { ResourcesApi } from '../features/resources/api'
 
 it('uses one statistics source for a teacher', async () => {
   installDemoFetch()
   const response = await window.fetch('/api/v1/reviews/statistics?target_id=p3')
   const body = await response.json() as { dimensions: { level: number }[] }
   expect(body.dimensions.map((row) => row.level)).toEqual(teacherLevels('p3'))
+})
+
+it('returns a contract-valid personal resource page in demo mode', async () => {
+  installDemoFetch()
+  const page = await new ResourcesApi(new Http(window.fetch.bind(window))).mine({})
+  expect(page.total).toBe(page.items.length)
 })

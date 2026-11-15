@@ -1,4 +1,4 @@
-import { periods as periodStarts, teacherLevels, timetable } from './store'
+import { distribution, periods as periodStarts, teacherLevels, timetable, trend } from './store'
 import * as d from './data'
 import { favoritesRoute } from './favorites'
 import { billingRoute } from './billing'
@@ -90,6 +90,68 @@ function statistics(u: URL) {
   return json({ dimensions, courses: seed ? [{ course_id: seed[0], dimensions }] : related, next: '', from: u.searchParams.get('from'), until: u.searchParams.get('until') })
 }
 
+/** Directory rows and facets in the shape of GET /catalog/directory, built from the demo seeds. */
+const recommendationOf = (level: number) => (level >= 5 ? 'strongly_recommended' : level === 4 ? 'recommended' : level === 3 ? 'average' : level > 0 ? 'not_recommended' : 'unrated')
+const bands = (levels: number[]) => levels.map((level) => ({ level, samples: level ? 6 : 0, courses: 1 }))
+function directory(u: URL) {
+  const q = u.searchParams
+  const kind = q.get('kind') === 'teacher' ? 'teacher' : 'course'
+  const text = (q.get('q') ?? '').trim().toLowerCase()
+  const dept = q.get('department_id') ?? ''
+  const cat = q.get('category_id') ?? ''
+  const teacher = q.get('teacher_id') ?? ''
+  const reviewCount = (id: string) => [...d.reviews].filter((r) => r.target_id === id || r.teacher_id === id).length
+  const deptObj = (id: string) => d.allObjects.find((o) => o.id === id)
+  type Row = { object: Record<string, any>; dept: string; cat: string; levels: number[]; heat: number }
+  const rows: Row[] = kind === 'course'
+    ? d.courseSeeds.map((r) => ({ object: d.allObjects.find((o) => o.id === r[0])!, dept: r[3], cat: r[4], levels: r[8], heat: r[7] }))
+    : d.teachers.map((t) => ({ object: t, dept: String((t as Record<string, any>).department_id ?? ''), cat: '', levels: teacherLevels(t.id), heat: Math.max(0, ...d.teachesIn.filter(([, p]) => p === t.id).map(([c]) => d.courseSeeds.find((r) => r[0] === c)?.[7] ?? 0)) }))
+  const base = rows.filter((r) => (!text || String(r.object.name).toLowerCase().includes(text)) && (!teacher || d.teachesIn.some(([c, p]) => c === r.object.id && p === teacher)))
+  const withDept = base.filter((r) => !dept || r.dept === dept)
+  const listed = withDept.filter((r) => !cat || r.cat === cat)
+  const sort = q.get('sort')
+  listed.sort((a, b) => (sort === 'name' ? String(a.object.name).localeCompare(String(b.object.name), 'zh-CN') : sort === 'reviews' ? reviewCount(b.object.id) - reviewCount(a.object.id) : sort === 'recommend' ? (b.levels[0] ?? 0) - (a.levels[0] ?? 0) : b.heat - a.heat))
+  const facet = (list: Row[], key: 'dept' | 'cat') => [...new Set(list.map((r) => r[key]).filter(Boolean))].map((id) => ({ id, name: String(deptObj(id)?.name ?? id), count: list.filter((r) => r[key] === id).length, review_count: list.filter((r) => r[key] === id).reduce((s, r) => s + reviewCount(r.object.id), 0) }))
+  const limit = Number(q.get('limit') ?? 20)
+  const start = Number(q.get('after') ?? 0)
+  const page = listed.slice(start, start + limit)
+  return json({
+    items: page.map((r) => ({ object: r.object, departments: deptObj(r.dept) ? [deptObj(r.dept)] : [], categories: deptObj(r.cat) ? [deptObj(r.cat)] : [], review_count: reviewCount(r.object.id), recommendation: recommendationOf(r.levels[0] ?? 0), dimensions: bands(r.levels), heat: r.heat })),
+    next: start + limit < listed.length ? String(start + limit) : '',
+    total: listed.length,
+    facet_total: withDept.length,
+    category_facets: kind === 'course' ? facet(withDept, 'cat') : [],
+    department_facets: facet(listed, 'dept'),
+    generated_at: new Date().toISOString(),
+  })
+}
+
+/** Rating summaries in the shape of GET /reviews/summaries, from the demo levels. */
+function summaries(u: URL) {
+  const kind = u.searchParams.get('kind') === 'teacher' ? 'teacher' : 'course'
+  const ids = (u.searchParams.get('ids') ?? '').split(',').filter(Boolean)
+  const charts = u.searchParams.get('include_charts') === 'true'
+  return json({
+    items: ids.map((id) => {
+      const levels = kind === 'course' ? (d.courseSeeds.find((r) => r[0] === id)?.[8] ?? [0, 0, 0, 0, 0]) : teacherLevels(id)
+      const dist = distribution(id, levels[0] ?? 0)
+      const max = Math.max(1, ...dist)
+      return {
+        target_id: id, kind, review_count: dist.reduce((a, b) => a + b, 0), dimensions: bands(levels), recommendation: recommendationOf(levels[0] ?? 0),
+        ...(charts ? {
+          distribution: levels.map(() => ({ samples: dist.reduce((a, b) => a + b, 0), weights: dist.map((n) => Math.round((n / max) * 20)) })),
+          terms: trend(id, levels[0] ?? 0).map((row, i) => ({ term_id: `t${i}`, term_name: row.term, review_count: row.samples, dimensions: bands(levels), recommendation: recommendationOf(row.level) })),
+        } : {}),
+      }
+    }),
+    policy: { status: 'Accepted', minimum_samples: 3, strongly_recommended_at: 4.5, recommended_at: 3.5, average_at: 2.5 },
+    generated_at: new Date().toISOString(),
+  })
+}
+
+/** Courses the demo viewer has opened recently, newest first. */
+const recentCourses = ['c3', 'c1', 'c2', 'c5', 'c10']
+
 async function body(init?: RequestInit) {
   try { return JSON.parse(String(init?.body ?? '{}')) as Record<string, any> } catch { return {} }
 }
@@ -166,6 +228,10 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (who !== 'verified' && !p.startsWith('/storage')) return nope('verification_required', 403)
 
   if (p === '/catalog/objects') return catalog(u)
+  if (p === '/catalog/directory') return directory(u)
+  if (p === '/catalog/me/next-class-day') return json({ state: 'unavailable', reason: 'enrollment_display_not_granted', date: '', time_zone: 'Asia/Shanghai', items: [] })
+  if (p === '/catalog/me/recent-courses' && method === 'DELETE') { recentCourses.length = 0; return json({ cleared: true }) }
+  if (p === '/catalog/me/recent-courses') return json({ resources_state: 'available', items: recentCourses.map((id, i) => ({ course: d.allObjects.find((o) => o.id === id), visited_at: new Date(Date.now() - i * 36e5).toISOString(), resource_count: resources.filter((r) => r.current?.metadata.associations.course_id === id).length })) })
   if (p === '/catalog/objects/lookup') {
     const ids = (u.searchParams.get('ids') ?? '').split(',')
     const items = d.allObjects.filter((o) => ids.includes(o.id))
@@ -179,6 +245,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
 
   if (p === '/reviews/presentation') return json({ effective: { school_id: d.SCHOOL, revision: 0, rating_texts: {} }, configured: null, source: 'default' })
   if (p === '/reviews/statistics') return statistics(u)
+  if (p === '/reviews/summaries') return summaries(u)
+  if (p === '/reviews/me/overview') return json({ review_count: reviews.filter((r) => r.mine).length, draft_count: drafts.length, pending_courses: { state: 'unavailable', reason: 'enrollment_display_not_granted', count: null, items: [] } })
   if (p === '/search' || p === '/search/popular') return json({ items: search(u, p === '/search/popular'), next_cursor: '' })
   if (p === '/search/my-votes') return json({ items: d.reviews.slice(0, 3).map((r, i) => ({ target: { source: 'reviews', id: r.id, kind: 'review' }, choice: i === 1 ? 'down' : 'up' })), next_cursor: '' })
   if (p === '/reviews/compose') {
@@ -236,12 +304,17 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/resources/directories') return json({ items: d.directories.filter((x) => !u.searchParams.get('course_id') || x.course_id === u.searchParams.get('course_id')), next_cursor: '' })
   if (p === '/resources/requests' && method === 'GET') return json({ items: d.receipts, next_cursor: '' })
   if (p.startsWith('/resources/requests/')) return json(d.receipts[0])
-  if (p === '/resources/me') return json({ items: resources.filter((r) => r.owned), next_cursor: '' })
+  if (p === '/resources/me/summary') return json({ resource_count: resources.filter((r) => r.owned).length, published_count: resources.filter((r) => r.owned && r.current).length })
+  if (p === '/resources/me') {
+    const items = resources.filter((r) => r.owned)
+    return json({ items, next_cursor: '', total: items.length })
+  }
   if (p === '/resources/packages') return json({ id: 'pack', parts: [{ number: 1, bytes: 1000, files: [(resources[0]!.current as any).file] }], expires_at: '2030-01-01T00:00:00Z' })
   if (p === '/resources' && method === 'GET') {
     const q = u.searchParams
     const text = (q.get('query') ?? '').trim()
-    return json({ items: resources.filter((r) => { const v = r.current; if (!v) return false; const m = v.metadata; return (!q.get('course_id') || m.associations.course_id === q.get('course_id')) && (!q.get('category_id') || m.category_id === q.get('category_id')) && (!text || m.title.includes(text)) }), next_cursor: '' })
+    const items = resources.filter((r) => { const v = r.current; if (!v) return false; const m = v.metadata; return (!q.get('course_id') || m.associations.course_id === q.get('course_id')) && (!q.get('category_id') || m.category_id === q.get('category_id')) && (!text || m.title.includes(text)) })
+    return json({ items, next_cursor: '', total: items.length })
   }
   if (p === '/resources') { const b = await body(init); const row = { id: nid('x'), revision: 1, state: 'draft', proposal: { id: nid('v'), number: 1, metadata: b.metadata ?? b, category: d.resCategories[0], state: 'draft', created_at: new Date().toISOString() }, download_allowed: false, access_reason: 'allowed', owned: true }; resources.unshift(row); return json(row, 201) }
   if (p.startsWith('/resources/items/')) {

@@ -110,6 +110,8 @@ export function usePageFilters<K extends string>(keys: readonly K[]) {
   const signature = computed(() => JSON.stringify(values.value))
 
   function replace(changes: Partial<Record<K, string | undefined>>) {
+    // history.state belongs to the current entry; after leaving the page it is another page's.
+    if (router.currentRoute.value.path !== path) return
     writeState(clean({ ...values.value, ...changes }, keys))
     version.value++
   }

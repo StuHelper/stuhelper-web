@@ -9,6 +9,7 @@ import { installTheme } from './shared/theme'
 import { installTips } from './shared/ui/tips'
 import './styles/base.css'
 import './styles/components.css'
+import './styles/browse.css'
 
 /**
  * Create the Web application. A host may pass its authenticated transport;

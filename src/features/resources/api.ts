@@ -30,6 +30,7 @@ const parse = {
   resource: schemaOf<Resource>(resources, 'Resource'),
   coverage: schemaOf<Coverage>(resources, 'Coverage'),
   page: schemaOf<Schema['ResourcePage']>(resources, 'ResourcePage'),
+  ownSummary: schemaOf<Schema['OwnResourceSummary']>(resources, 'OwnResourceSummary'),
   directories: schemaOf<Schema['DirectoryPage']>(resources, 'DirectoryPage'),
   package: schemaOf<Package>(resources, 'Package'),
   receipt: schemaOf<Receipt>(resources, 'RequestReceipt'),
@@ -93,6 +94,11 @@ export class ResourcesApi {
 
   mine(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/resources/me', parse.page, { query: { limit: pageSize, ...query }, signal })
+  }
+
+  /** The viewer's own resource count and how many of them are published. */
+  mySummary(signal?: AbortSignal) {
+    return this.http.json('/api/v1/resources/me/summary', parse.ownSummary, { signal })
   }
 
   item(id: string, signal?: AbortSignal) {
