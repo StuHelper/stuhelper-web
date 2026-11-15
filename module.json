@@ -18,6 +18,9 @@
     "README.md"
   ],
   "scenario_tests": {
+    "DIRECTORY-NAVIGATION-01": [
+      "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"
+    ],
     "RES-CLIENT-01": [
       "src/features/resources/api.test.ts#retries unknown writes with the frozen nested payload and original key",
       "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again"
