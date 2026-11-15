@@ -115,3 +115,51 @@ test('the teacher directory is open and lists teachers from the server', async (
   await expect(page.getByRole('link', { name: /Teacher A/ }).first()).toBeVisible();
   expect(kinds).toContain('teacher');
 });
+
+test('course and teacher directories keep filters independent across navigation', async ({ page }, info) => {
+  await academicFixture(page);
+  const messages = catalogue(info), calls = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/v1/catalog/objects' && ['course', 'teacher'].includes(url.searchParams.get('kind'))) {
+      calls.push({ kind: url.searchParams.get('kind'), q: url.searchParams.get('q'), department: url.searchParams.get('department_id') });
+    }
+  });
+  const form = page.getByRole('search');
+  const search = form.getByRole('searchbox');
+  const submit = () => form.getByRole('button', { name: messages.common.search, exact: true }).click();
+  const navigate = (route) => page.locator(`a[href="${route}"]:visible`).first().click();
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}#q=Course&department=dept`);
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Course', department: 'dept' });
+  await navigate('/teachers');
+  await expect(search).toHaveValue('');
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: null, department: null });
+  await search.fill('Teacher');
+  await submit();
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher', department: null });
+  const department = form.getByRole('combobox').first();
+  if (!await department.isVisible()) await form.getByRole('button', { name: messages.common.filters, exact: true }).click();
+  await department.click();
+  await page.getByRole('option', { name: 'Test College', exact: true }).click();
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher', department: 'dept' });
+  await form.getByRole('button', { name: messages.common.clearFilters, exact: true }).click();
+  await expect(search).toHaveValue('');
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: null, department: null });
+  await search.fill('Teacher retained');
+  await submit();
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher retained', department: null });
+  await navigate('/courses');
+  await expect(search).toHaveValue('');
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: null, department: null });
+  await search.fill('Fresh course');
+  await submit();
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Fresh course', department: null });
+  await page.goBack();
+  await expect(search).toHaveValue('Teacher retained');
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher retained', department: null });
+  await page.goBack();
+  await expect(search).toHaveValue('Course');
+  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Course', department: 'dept' });
+  expect(new URL(page.url()).hash).toBe('');
+  expect(new URL(page.url()).searchParams.has('q')).toBe(false);
+});

@@ -36,9 +36,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
   { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },
-  { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { access: 'verified', title: 'nav.courses', section: 'courses' } },
+  { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { remountOnPath: true, access: 'verified', title: 'nav.courses', section: 'courses' } },
   teacherDirectoryEnabled
-    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { access: 'verified', title: 'nav.teachers', section: 'teachers' } }
+    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { remountOnPath: true, access: 'verified', title: 'nav.teachers', section: 'teachers' } }
     : { path: '/teachers', redirect: '/courses' },
   { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.course', section: 'courses' } },
   { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teacher', section: 'teachers' } },
