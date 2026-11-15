@@ -19,6 +19,7 @@ import { levelKeys, recommendationLevel } from '../academic/ratings/levels'
 import RatingLevel from '../academic/ratings/RatingLevel.vue'
 import { useNotificationsApi } from '../notifications/api'
 import { localName, useResourcesApi } from '../resources/api'
+import ConnectionStatus from '../platform/ConnectionStatus.vue'
 
 // Signed-out and not yet verified visitors see what the site offers and how to get in.
 // Verified users see a daily workspace: next class day, to-dos, popular courses, new
@@ -102,6 +103,7 @@ function search() {
 </script>
 
 <template>
+  <ConnectionStatus />
   <PageSkeleton
     v-if="access.state.value === 'loading'"
     variant="home"
