@@ -5,6 +5,37 @@ import { ApiError } from '../api/errors'
 import { useAsync, usePaged } from './async'
 
 describe('loading state', () => {
+  it('restarts a versioned directory after a stale cursor without appending old rows', async () => {
+    const scope = effectScope()
+    const cursors: string[] = []
+    const paged = scope.run(() => usePaged(async (cursor) => {
+      cursors.push(cursor)
+      if (cursor) throw new ApiError('conflict', false, 409)
+      return cursors.length === 1 ? { items: ['old'], next: 'stale' } : { items: ['new'], next: '' }
+    }, { resetOnConflict: true }))!
+    await paged.reload()
+    await paged.loadMore()
+    expect(cursors).toEqual(['', 'stale', ''])
+    expect(paged.items.value).toEqual(['new'])
+    expect(paged.status.value).toBe('ready')
+    expect(paged.next.value).toBe('')
+    scope.stop()
+  })
+
+  it('does not loop when the first page also rejects a reset', async () => {
+    const scope = effectScope()
+    let reads = 0
+    const paged = scope.run(() => usePaged(async () => {
+      if (++reads > 1) throw new ApiError('conflict', false, 409)
+      return { items: ['old'], next: 'stale' }
+    }, { resetOnConflict: true }))!
+    await paged.reload()
+    await paged.loadMore()
+    expect(reads).toBe(3)
+    expect(paged.items.value).toEqual([])
+    expect(paged.status.value).toBe('error')
+    scope.stop()
+  })
   it('appends pages and keeps shown rows when the next page fails', async () => {
     const scope = effectScope()
     let fail = false

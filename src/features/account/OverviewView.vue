@@ -53,7 +53,7 @@ const notifications = useNotificationsApi()
 // dash instead of hiding the card, so the layout does not jump.
 const overview = useAsync((signal) => academic.overview(signal))
 const ownResources = useAsync((signal) => resources.mySummary(signal))
-const favoriteCount = useAsync(async (signal) => (await favorites.folders('', signal)).items.reduce((sum, folder) => sum + folder.item_count, 0))
+const favoriteCount = useAsync(async (signal) => (await favorites.allFolders(signal)).reduce((sum, folder) => sum + folder.item_count, 0))
 // Ivory is stored in hundredths; the card shows the balance in whole units with any cents.
 const balance = useAsync(async (signal) => (await wallet.wallet(signal)).ivory_minor / 100)
 const activity = useAsync(async (signal) => (await notifications.list('', signal)).items.slice(0, 4))
