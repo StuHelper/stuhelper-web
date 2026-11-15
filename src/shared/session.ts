@@ -4,6 +4,7 @@ import type { components } from '../api/session.gen'
 import { ApiError } from './api/errors'
 import { Http } from './api/http'
 import { extras } from './extras'
+import { keepFiltersForReturn } from './pageFilters'
 import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
 import { useHostFetch } from './api/transport'
@@ -81,6 +82,7 @@ export function createSessionStore(fetcher: typeof fetch) {
   function signIn() {
     if (extras.signIn) return extras.signIn()
     const target = window.location.href.split('#')[0] ?? window.location.origin
+    keepFiltersForReturn()
     window.location.assign(`/api/v1/auth/login?return_to=${encodeURIComponent(target)}`)
   }
 

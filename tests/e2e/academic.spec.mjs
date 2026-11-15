@@ -77,3 +77,28 @@ test('publish conditions only appear when the author does not meet them', async 
   await expect(conditions).toContainText(a.composer.forbidden);
   expect(errors).toEqual([]);
 });
+
+test('directory filters stay out of the address and survive reload and back', async ({ page }, info) => {
+  await academicFixture(page);
+  const listCalls = [];
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/v1/catalog/objects' && url.searchParams.get('kind') === 'course') listCalls.push(url.searchParams.get('department_id'));
+  });
+  const locale = info.project.metadata.locale;
+  // An older shared link with the filter in the fragment still applies it.
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${locale}#department=dept`);
+  await expect(page.getByRole('link', { name: /Test Course/ }).first()).toBeVisible();
+  await expect.poll(() => listCalls.at(-1)).toBe('dept');
+  // The address keeps only the page; the filter lives in history state.
+  await expect.poll(() => new URL(page.url()).hash).toBe('');
+  expect(new URL(page.url()).searchParams.has('department')).toBe(false);
+  await page.reload();
+  await expect.poll(() => listCalls.at(-1)).toBe('dept');
+  await page.getByRole('link', { name: /Test Course/ }).first().click();
+  await expect(page).toHaveURL(/\/courses\/course/);
+  listCalls.length = 0;
+  await page.goBack();
+  await expect.poll(() => listCalls.at(-1)).toBe('dept');
+  expect(new URL(page.url()).searchParams.has('department')).toBe(false);
+});

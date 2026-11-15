@@ -82,7 +82,9 @@ memberTest('resource search and filters survive a reload', async ({ page }, info
   await page.goto(`${base}/resources?lang=${info.project.metadata.locale}`);
   await page.getByRole('searchbox').fill('notes');
   await page.getByRole('button', { name: all.resources.browse.find, exact: true }).click();
-  await expect(page).toHaveURL(/q=notes/);
+  // The search stays in page state; the address shows only the page.
+  await expect.poll(() => s.calls.some((call) => call.path === '' && call.query?.query === 'notes')).toBe(true);
+  expect(new URL(page.url()).searchParams.has('q')).toBe(false);
   await page.reload();
   await expect(page.getByRole('searchbox')).toHaveValue('notes');
   expect(s.calls.filter((call) => call.path === '' && call.query?.query === 'notes').length).toBeGreaterThan(1);

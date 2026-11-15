@@ -3,28 +3,28 @@ import { teacherDirectoryEnabled } from '../../app/features'
 import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, Search } from 'lucide-vue-next'
 import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
+import { usePageFilters } from '../../shared/pageFilters'
 import { usePaged } from '../../shared/composables/async'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { targetRoute, useSearchApi, type SearchItem, type SearchKind } from './api'
 
-// Full search results with a type filter. The query and filter live in the
-// address so a result list can be shared and survives a reload.
+// Full search results with a type filter. The query and filter live in page
+// state, so the address stays /search while reload and back keep the results.
 const { t } = useI18n()
-const route = useRoute()
-const router = useRouter()
+const page = usePageFilters(['q', 'kind'] as const)
 const api = useSearchApi()
 const kinds = (['school', 'course', 'teacher', 'review', 'resource'] as const).filter((kind) => teacherDirectoryEnabled || kind !== 'teacher')
 const icons: Record<SearchKind, Component> = { school: Building2, course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
 
-const q = computed(() => (typeof route.query.q === 'string' ? route.query.q.trim().slice(0, 200) : ''))
-const kind = computed<SearchKind | ''>(() => (kinds as readonly string[]).includes(String(route.query.kind)) ? route.query.kind as SearchKind : '')
+const q = computed(() => page.values.value.q.trim().slice(0, 200))
+const kind = computed<SearchKind | ''>(() => (kinds as readonly string[]).includes(page.values.value.kind) ? page.values.value.kind as SearchKind : '')
 const draft = ref(q.value)
 const filter = computed({
   get: () => kind.value || 'all',
-  set: (value: string) => void router.replace({ query: { ...route.query, kind: value === 'all' ? undefined : value } }),
+  set: (value: string) => page.replace({ kind: value === 'all' ? undefined : value }),
 })
 const tabs = computed(() => [{ value: 'all', label: t('search.all') }, ...kinds.map((value) => ({ value, label: t(`search.kinds.${value}`) }))])
 
@@ -36,7 +36,7 @@ watch([q, kind], () => {
 
 function submit() {
   const text = draft.value.trim()
-  if (text) void router.replace({ query: { ...route.query, q: text } })
+  if (text) page.replace({ q: text })
 }
 </script>
 
