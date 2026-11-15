@@ -63,7 +63,8 @@
     "filtersCount": "Filters ({count})",
     "goHome": "Back to home",
     "undo": "Undo",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "shownOf": "Showing {shown} of {total}"
   },
   "errors": {
     "network": "The connection failed or timed out. Valid input is kept; please try again.",

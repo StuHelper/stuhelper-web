@@ -7,7 +7,7 @@ defineProps<{ label: string; items: { label: string; icon: Component; action: ()
 <template>
   <DropdownMenuRoot>
     <DropdownMenuTrigger
-      class="btn btn-sm btn-icon d-row-more"
+      class="btn btn-sm btn-icon btn-quiet d-row-more"
       :aria-label="label"
     >
       <MoreHorizontal aria-hidden="true" />

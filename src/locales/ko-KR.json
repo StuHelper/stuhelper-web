@@ -63,7 +63,8 @@
     "filtersCount": "필터({count})",
     "goHome": "홈으로 돌아가기",
     "undo": "실행 취소",
-    "clearSearch": "검색 지우기"
+    "clearSearch": "검색 지우기",
+    "shownOf": "{total}개 중 {shown}개 표시"
   },
   "errors": {
     "network": "연결에 실패했거나 시간이 초과되었습니다. 유효한 입력은 유지됩니다. 다시 시도하세요.",

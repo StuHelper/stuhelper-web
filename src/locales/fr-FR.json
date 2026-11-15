@@ -63,7 +63,8 @@
     "filtersCount": "Filtres ({count})",
     "goHome": "Retour à l’accueil",
     "undo": "Annuler",
-    "clearSearch": "Effacer la recherche"
+    "clearSearch": "Effacer la recherche",
+    "shownOf": "{shown} sur {total} affichés"
   },
   "errors": {
     "network": "La connexion a échoué ou expiré. Les saisies valides sont conservées ; réessayez.",

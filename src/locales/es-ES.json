@@ -63,7 +63,8 @@
     "filtersCount": "Filtros ({count})",
     "goHome": "Volver al inicio",
     "undo": "Deshacer",
-    "clearSearch": "Borrar búsqueda"
+    "clearSearch": "Borrar búsqueda",
+    "shownOf": "Mostrando {shown} de {total}"
   },
   "errors": {
     "network": "La conexión falló o caducó. Se conservan los datos válidos; inténtalo de nuevo.",

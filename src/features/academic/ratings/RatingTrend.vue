@@ -13,10 +13,18 @@ const format = useFormat()
 const h = 132
 // Drawn at the container's real width so text does not shrink with scaling.
 const w = ref(320)
-const AXIS = 92
-const x = (i: number) => AXIS + 24 + (i * (w.value - AXIS - 60)) / Math.max(1, props.terms.length - 1)
 const y = (lv: number) => 10 + ((5 - lv) * 76) / 4
 const levelName = (lv: number) => t(levelKeys.recommendation[lv] ?? 'browse.levelNone')
+// The level words differ a lot in length between languages, so the axis column is as wide as
+// the longest one. Without a canvas (unit tests) the width is estimated from the characters.
+function textWidth(text: string) {
+  const context = typeof document === 'undefined' ? null : document.createElement('canvas').getContext?.('2d')
+  if (!context) return [...text].reduce((sum, char) => sum + (char.charCodeAt(0) > 0x2e7f ? 11 : 6.2), 0)
+  context.font = `11px ${getComputedStyle(document.body).fontFamily}`
+  return context.measureText(text).width
+}
+const AXIS = computed(() => Math.min(Math.max(72, 18 + Math.ceil(Math.max(...[1, 2, 3, 4, 5].map((lv) => textWidth(levelName(lv))))) + 12), w.value * .48))
+const x = (i: number) => AXIS.value + 24 + (i * (w.value - AXIS.value - 60)) / Math.max(1, props.terms.length - 1)
 const pointTitle = (p: { name: string; level: number }) => t('browse.termLevel', { term: p.name, level: levelName(p.level) })
 const line = computed(() => props.terms.flatMap((p, i) => (p.level ? [`${x(i)},${y(p.level)}`] : [])).join(' '))
 const label = computed(() => props.terms.map((p) => `${p.name}: ${p.level ? levelName(p.level) : t('browse.notEnoughData')}, ${p.samples}`).join('; '))
@@ -99,7 +107,8 @@ onBeforeUnmount(() => observer?.disconnect())
   </svg>
 </template>
 <style scoped>
-.trend { display: block; width: 100%; }
+/* Drawn left-to-right in every language: the axis words keep clear of the faces and of the plot. */
+.trend { display: block; width: 100%; direction: ltr; }
 .line { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .in .line { animation: trend-draw .7s var(--ease-out) forwards; }
 circle { opacity: 0; }

@@ -33,8 +33,20 @@
 }
 .btn-danger { background: var(--danger-soft); color: var(--danger); }
 .btn-danger:hover { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
-.btn-ghost { background: var(--fill); color: var(--label); }
-.btn-ghost:hover { background: var(--fill-strong); color: var(--label); }
+/* Three weights: primary for the main action, the default fill for ordinary actions, ghost for quiet ones beside them. */
+.btn-ghost { background: transparent; box-shadow: none; color: var(--label-2); }
+.btn-ghost:hover { background: var(--fill); color: var(--label); }
+/* Icon actions repeated on every row of a list stay quiet until pointed at or switched on. */
+.btn-quiet { background: transparent; box-shadow: none; color: var(--label-2); }
+.btn-quiet:hover { background: var(--fill); color: var(--label); }
+.btn.btn-quiet[aria-pressed="true"] { background: transparent; color: var(--accent); }
+.btn.btn-quiet[aria-pressed="true"]:hover { background: var(--accent-soft); }
+/* A working button keeps its size and shows a spinner in place of its label. */
+.btn[aria-busy="true"] { position: relative; color: transparent; pointer-events: none; }
+.btn[aria-busy="true"]:disabled { opacity: 1; }
+.btn[aria-busy="true"]::after { content: ""; position: absolute; inset: 0; width: 1.125rem; height: 1.125rem; margin: auto; border: 2px solid var(--label-2); border-inline-end-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+.btn-primary[aria-busy="true"]::after { border-color: var(--on-accent); border-inline-end-color: transparent; }
+@keyframes spin { to { transform: rotate(360deg); } }
 .btn-sm { min-height: 34px; padding: .3125rem .875rem; font-size: .875rem; }
 .btn-icon { width: 36px; min-height: 36px; padding: 0; border-radius: 50%; }
 .btn[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
@@ -276,6 +288,12 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 .skeleton span[aria-hidden]:nth-of-type(2) { width: 88%; }
 .skeleton span[aria-hidden]:nth-of-type(3) { width: 72%; }
 .empty { padding: 2.5rem 1rem; color: var(--label-3); text-align: center; }
+/* Empty state with a symbol: says what is missing and, where one exists, offers the next step. */
+.empty-state { display: grid; justify-items: center; gap: .625rem; padding: 2.25rem 1rem; text-align: center; animation: panel-in .24s var(--ease-out); }
+.empty-state .empty { padding: 0; color: var(--label-2); }
+.empty-state-icon { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; background: var(--fill); color: var(--label-3); }
+.empty-state-icon svg { width: 24px; height: 24px; }
+.empty-state-hint { max-width: 28rem; color: var(--label-3); font-size: .875rem; line-height: 1.45; }
 
 /* Route change */
 .page-enter-active { transition: opacity .32s var(--ease-out), transform .42s var(--ease-out); }

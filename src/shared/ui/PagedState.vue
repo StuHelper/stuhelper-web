@@ -2,13 +2,16 @@
 import { useI18n } from 'vue-i18n'
 import type { LoadStatus } from '../composables/async'
 import AsyncState from './AsyncState.vue'
+import EmptyState from './EmptyState.vue'
 import ErrorNotice from './ErrorNotice.vue'
 
 // States of a cursor-paged list. Rows already shown stay visible while the next
 // page loads or after it fails.
-withDefaults(defineProps<{ status: LoadStatus; error: string; count: number; next: string; appending: boolean; emptyText?: string; retryLabel?: string }>(), { emptyText: '', retryLabel: '' })
+// `total` is the size of the whole result when the endpoint reports it; the footer then
+// says how many rows are shown. `filtered` marks an empty result of a search or filter.
+withDefaults(defineProps<{ status: LoadStatus; error: string; count: number; next: string; appending: boolean; emptyText?: string; retryLabel?: string; total?: number; filtered?: boolean }>(), { emptyText: '', retryLabel: '', total: undefined, filtered: false })
 const emit = defineEmits<{ retry: []; more: [] }>()
-const { t } = useI18n()
+const { t, n } = useI18n()
 </script>
 
 <template>
@@ -23,9 +26,10 @@ const { t } = useI18n()
   >
     <template #empty>
       <slot name="empty">
-        <p class="empty">
-          {{ emptyText || t('common.empty') }}
-        </p>
+        <EmptyState
+          :text="emptyText || t('common.empty')"
+          :tone="filtered ? 'search' : 'inbox'"
+        />
       </slot>
     </template>
   </AsyncState>
@@ -39,9 +43,10 @@ const { t } = useI18n()
       class="btn"
       type="button"
       :disabled="appending"
+      :aria-busy="appending"
       @click="emit('more')"
     >
-      {{ appending ? t('common.loading') : t('common.loadMore') }}
+      {{ t('common.loadMore') }}
     </button>
   </div>
   <template v-else-if="count !== 0">
@@ -55,18 +60,23 @@ const { t } = useI18n()
       v-else-if="next"
       class="paged-more"
     >
+      <span
+        v-if="total !== undefined && total > count"
+        class="subtle"
+      >{{ t('common.shownOf', { shown: n(count), total: n(total) }) }}</span>
       <button
         class="btn"
         type="button"
         :disabled="appending"
+        :aria-busy="appending"
         @click="emit('more')"
       >
-        {{ appending ? t('common.loading') : t('common.loadMore') }}
+        {{ t('common.loadMore') }}
       </button>
     </div>
   </template>
 </template>
 
 <style scoped>
-.paged-more { display: flex; justify-content: center; }
+.paged-more { display: flex; flex-direction: column; align-items: center; gap: .5rem; }
 </style>

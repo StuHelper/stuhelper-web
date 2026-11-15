@@ -63,7 +63,8 @@
     "filtersCount": "絞り込み（{count}）",
     "goHome": "ホームに戻る",
     "undo": "元に戻す",
-    "clearSearch": "検索を解除"
+    "clearSearch": "検索を解除",
+    "shownOf": "{total} 件中 {shown} 件を表示"
   },
   "errors": {
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
