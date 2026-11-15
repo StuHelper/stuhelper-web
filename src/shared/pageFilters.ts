@@ -34,6 +34,35 @@ function writeState(filters: PageFilters) {
   window.history.replaceState({ ...(typeof state === 'object' && state !== null ? state : {}), [KEY]: filters }, '')
 }
 
+// Sign-in leaves the site and comes back as a new history entry, which has no
+// state. The filters of the page being left are parked in sessionStorage and
+// picked up once by the same page path on return.
+const returnKey = 'stuhelper.returnFilters'
+
+export function keepFiltersForReturn() {
+  const state: unknown = window.history.state
+  const raw = typeof state === 'object' && state !== null ? (state as Record<string, unknown>)[KEY] : undefined
+  try {
+    if (typeof raw === 'object' && raw !== null && Object.keys(raw).length) sessionStorage.setItem(returnKey, JSON.stringify({ path: window.location.pathname, filters: raw }))
+    else sessionStorage.removeItem(returnKey)
+  } catch {
+    // Storage is optional; the page then opens unfiltered after sign-in.
+  }
+}
+
+function takeReturnFilters(path: string, keys: readonly string[]): PageFilters {
+  try {
+    const parsed: unknown = JSON.parse(sessionStorage.getItem(returnKey) ?? 'null')
+    if (typeof parsed !== 'object' || parsed === null) return {}
+    const entry = parsed as { path?: unknown; filters?: unknown }
+    if (entry.path !== path || typeof entry.filters !== 'object' || entry.filters === null) return {}
+    sessionStorage.removeItem(returnKey)
+    return clean(entry.filters as Record<string, string | undefined>, keys)
+  } catch {
+    return {}
+  }
+}
+
 /** A link that opens a list page with filters applied, without putting them in the address. */
 export function withFilters(path: string, filters: Record<string, string | undefined>): RouteLocationRaw {
   return { path, state: { [KEY]: clean(filters, Object.keys(filters)) }, force: true }
@@ -61,6 +90,8 @@ export function usePageFilters<K extends string>(keys: readonly K[]) {
     const hashed = fragment.get(key)
     if (hashed !== null) legacy[key] = hashed
   }
+  const returned = Object.keys(stored(keys)).length ? {} : takeReturnFilters(path, keys)
+  if (Object.keys(returned).length) writeState(returned)
   if (Object.keys(legacy).length || fragment.size) {
     // Write the state first so the first read already sees the migrated values.
     const merged = clean({ ...stored(keys), ...legacy }, keys)

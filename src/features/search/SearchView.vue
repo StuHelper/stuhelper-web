@@ -4,7 +4,7 @@ import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, Search } from
 import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
-import { usePageFilters } from '../../app/pageFilters'
+import { usePageFilters } from '../../shared/pageFilters'
 import { usePaged } from '../../shared/composables/async'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'

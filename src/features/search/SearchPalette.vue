@@ -4,7 +4,7 @@ import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } f
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
-import { withFilters } from '../../app/pageFilters'
+import { withFilters } from '../../shared/pageFilters'
 import { errorCode } from '../../shared/api/errors'
 import { recentPages } from '../../shared/recent'
 import { useErrorText } from '../../shared/ui/messages'

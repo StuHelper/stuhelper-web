@@ -4,7 +4,7 @@ import { ChevronRight, Search } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
-import { usePageFilters } from '../../app/pageFilters'
+import { usePageFilters } from '../../shared/pageFilters'
 import { useFormat } from '../../app/i18n'
 import { useCampusId } from '../account/access'
 import { useAsync, usePaged } from '../../shared/composables/async'
@@ -40,7 +40,8 @@ const results = usePaged(async (after, signal) => {
   const known = new Map((scoped.data.value?.departments ?? []).map((row) => [row.id, row] as const))
   const missing = [...new Set(page.items.map((item) => item.department_id).filter((id) => id && !known.has(id) && !names.value.has(id)))]
   const found = missing.length ? await api.lookup(missing, signal) : new Map<string, CatalogObject>()
-  names.value = new Map([...(after ? names.value : []), ...known, ...found])
+  // Keep earlier names: they were used above to skip lookups. Departments are few.
+  names.value = new Map([...names.value, ...known, ...found])
   return { items: page.items, next: page.next }
 })
 
