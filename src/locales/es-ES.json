@@ -379,7 +379,8 @@
       "creditsUnknown": "Créditos no indicados",
       "aliases": "Otros nombres",
       "biography": "Descripción",
-      "findCourses": "Cursos de este profesor"
+      "findCourses": "Cursos de este profesor",
+      "archiveNotice": "Este curso está archivado y es de solo lectura. Las reseñas y conversaciones existentes siguen disponibles."
     },
     "offerings": {
       "title": "Ediciones del curso",

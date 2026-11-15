@@ -10,6 +10,47 @@ function watch(page) {
   return errors;
 }
 
+test('archived course keeps its reviews readable and disables public writing', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic, errors = watch(page);
+  await academicFixture(page, { archived: true });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await expect(page.getByRole('heading', { level: 1, name: 'Test Course' })).toBeVisible();
+  await expect(page.getByText(a.subject.archiveNotice, { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: a.subject.writeCourse, exact: true })).toHaveCount(0);
+  await expect(page.getByText('Useful course content.', { exact: true })).toBeVisible();
+  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
+  await expect(page.getByText(a.subject.archiveNotice, { exact: true })).toBeVisible();
+  await expect(page.getByText('Useful course content.', { exact: true })).toBeVisible();
+  await expect(page.locator('.discussion form')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: a.review.reply, exact: true })).toHaveCount(0);
+  const actions = page.locator('.review-actions');
+  const votes = actions.locator('button[aria-pressed]');
+  await expect(votes).toHaveCount(2);
+  await expect(votes.nth(0)).toBeDisabled();
+  await expect(votes.nth(1)).toBeDisabled();
+  await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar-EG' ? 'rtl' : 'ltr');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('semester choices preserve the server order including summer', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic;
+  await academicFixture(page);
+  const terms = [
+    ['fall-2026', '2026 Autumn', 20263], ['summer-2026', '2026 Summer', 20262],
+    ['spring-2026', '2026 Spring', 20261], ['fall-2025', '2025 Autumn', 20253],
+  ];
+  await page.route('**/api/v1/catalog/objects?*', (route) => {
+    if (new URL(route.request().url()).searchParams.get('kind') !== 'term') return route.fallback();
+    return route.fulfill({ json: { items: terms.map(([id, name, term_order_key]) => ({ id, name, term_order_key, kind: 'term', school_id: 'school', credits: null, aliases: [], revision: 1, updated_at: '2026-11-15T00:00:00Z' })), next: '' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form');
+  const choices = editor.getByRole('group', { name: a.editor.term, exact: true });
+  await expect(choices.locator('label')).toHaveText(terms.map((term) => term[1]));
+});
+
 test('course review offers teachers from the chosen semester enrollment and publishes once', async ({ page }, info) => {
   const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, errors = watch(page), posts = [];
   await academicFixture(page);

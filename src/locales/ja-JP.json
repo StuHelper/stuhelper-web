@@ -379,7 +379,8 @@
       "creditsUnknown": "単位数は未提供",
       "aliases": "別名",
       "biography": "概要",
-      "findCourses": "この教員の授業"
+      "findCourses": "この教員の授業",
+      "archiveNotice": "この科目は過去の記録として保存され、閲覧専用になっています。既存のレビューや議論は引き続き閲覧できます。"
     },
     "offerings": {
       "title": "開講履歴",

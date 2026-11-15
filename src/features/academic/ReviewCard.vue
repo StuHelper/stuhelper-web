@@ -30,6 +30,7 @@ const proposed = ref('')
 const success = ref('')
 
 const target = computed(() => props.names.get(props.review.target_id))
+const readOnly = computed(() => target.value?.read_only === true)
 const teacher = computed(() => (props.review.teacher_id ? props.names.get(props.review.teacher_id) : undefined))
 const term = computed(() => (props.review.term_id ? props.names.get(props.review.term_id) : undefined))
 const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(props.review.author.profile?.avatar)))
@@ -247,7 +248,7 @@ async function retry() {
           class="btn btn-sm"
           type="button"
           :aria-pressed="review.my_vote === 1"
-          :disabled="locked"
+          :disabled="locked || (readOnly && review.my_vote !== 1)"
           :data-pop="popped === 1 || undefined"
           @click="vote(1)"
           @animationend="popped = 0"
@@ -258,7 +259,7 @@ async function retry() {
           class="btn btn-sm"
           type="button"
           :aria-pressed="review.my_vote === -1"
-          :disabled="locked"
+          :disabled="locked || (readOnly && review.my_vote !== -1)"
           :data-pop="popped === -1 || undefined"
           @click="vote(-1)"
           @animationend="popped = 0"
@@ -266,7 +267,7 @@ async function retry() {
           <ThumbsDown aria-hidden="true" />{{ t('academic.review.downvote', { count: format.number(review.downvotes) }) }}
         </button>
         <button
-          v-if="replyEnabled"
+          v-if="replyEnabled && !readOnly"
           class="btn btn-sm"
           type="button"
           :disabled="locked"

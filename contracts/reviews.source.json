@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-reviews",
-  "revision": "995e6d087fd69fc29ac5a7d223efed35b5538e30",
-  "version": "0.5.1",
+  "revision": "ec1ec881d3494b80a62a9cb5edb92dba45191fa1",
+  "version": "0.6.0",
   "files": {
     "contracts/reviews.openapi.json": "contracts/reviews.openapi.json",
     "sdk/reviews.gen.ts": "src/api/reviews.gen.ts"
   },
   "sha256": {
-    "contracts/reviews.openapi.json": "3c476f0032833ada75461ed10bfea9d6c4928dc9b4ddb2fe3abd10e0d8e99caf",
-    "src/api/reviews.gen.ts": "24526f7c02eea287c883079c9433ed862be5308a6fbcd9479fe296b7b2500134"
+    "contracts/reviews.openapi.json": "daf6cd9f50bd8959f05ebbcf7eba3941e07415f0116b0d8a74d49c62fae82051",
+    "src/api/reviews.gen.ts": "3f0bb1cac68a8357ec91ac8a6230d86b175b48fa02b398f15c9b7d960cd2b209"
   }
 }

@@ -379,7 +379,8 @@
       "creditsUnknown": "学分未提供",
       "aliases": "其他名称",
       "biography": "简介",
-      "findCourses": "查看该教师的课程"
+      "findCourses": "查看该教师的课程",
+      "archiveNotice": "这门课程仅保留历史内容，当前为只读状态。已有评价和讨论仍可查看。"
     },
     "offerings": {
       "title": "历次开课",

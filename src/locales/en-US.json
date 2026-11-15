@@ -379,7 +379,8 @@
       "creditsUnknown": "Credits not provided",
       "aliases": "Other names",
       "biography": "Overview",
-      "findCourses": "Courses by this teacher"
+      "findCourses": "Courses by this teacher",
+      "archiveNotice": "This course is archived and read-only. Existing reviews and discussions remain available."
     },
     "offerings": {
       "title": "Course offerings",

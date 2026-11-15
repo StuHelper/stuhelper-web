@@ -379,7 +379,8 @@
       "creditsUnknown": "학점 정보 없음",
       "aliases": "다른 이름",
       "biography": "소개",
-      "findCourses": "이 교수의 강의"
+      "findCourses": "이 교수의 강의",
+      "archiveNotice": "이 강좌는 과거 기록으로 보관되어 읽기 전용입니다. 기존 후기와 토론은 계속 볼 수 있습니다."
     },
     "offerings": {
       "title": "개설 이력",

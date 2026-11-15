@@ -35,7 +35,7 @@ export type Submission = Moderation['schemas']['Submission']
 export type Task = Moderation['schemas']['TaskView']
 export type Reference = Reviews['schemas']['Reference']
 /** The name fields a review card shows. Catalog objects and own-record references both provide them. */
-export type NamedObject = { id: string; kind: string; name: string }
+export type NamedObject = { id: string; kind: string; name: string; read_only?: boolean }
 
 const catalog = catalogContract.components.schemas
 const reviews = reviewsContract.components.schemas
@@ -44,6 +44,7 @@ const moderation = moderationContract.components.schemas
 const parse = {
   object: schemaOf<CatalogObject>(catalog, 'Object'),
   objectPage: schemaOf<ObjectPage>(catalog, 'Page'),
+  filterOptions: schemaOf<Catalog['schemas']['FilterOptions']>(catalog, 'FilterOptions'),
   summary: schemaOf<ObjectSummary>(catalog, 'Summary'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
@@ -79,6 +80,10 @@ export class AcademicApi {
 
   objects(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/catalog/objects', parse.objectPage, { query, signal })
+  }
+
+  filterOptions(kind: 'course' | 'teacher', schoolId?: string, signal?: AbortSignal) {
+    return this.http.json('/api/v1/catalog/filter-options', parse.filterOptions, { query: { kind, school_id: schoolId }, signal })
   }
 
   object(id: string, signal?: AbortSignal) {

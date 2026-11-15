@@ -379,7 +379,8 @@
       "creditsUnknown": "Crédits non renseignés",
       "aliases": "Autres noms",
       "biography": "Présentation",
-      "findCourses": "Cours de cet enseignant"
+      "findCourses": "Cours de cet enseignant",
+      "archiveNotice": "Ce cours est archivé et accessible en lecture seule. Les avis et discussions existants restent consultables."
     },
     "offerings": {
       "title": "Sessions du cours",
