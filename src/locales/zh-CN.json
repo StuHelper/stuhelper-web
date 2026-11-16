@@ -537,7 +537,9 @@
       "saveDraft": "保存草稿",
       "draftSaved": "草稿已保存。",
       "pending": "已提交，等待审核。",
-      "published": "已发布。"
+      "published": "已发布。",
+      "missing": "发布前还需填写：{items}",
+      "ratingsDone": "评分（已选 {done}/{total}）"
     },
     "disclosure": {
       "title": "公开的认证信息",
@@ -1299,7 +1301,9 @@
     "unplaced": "以下上课时间无法识别，暂未排入课表",
     "emptyTerm": "该学期暂无有效的选课记录。",
     "noLessonsThisWeek": "本周无课。",
-    "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}"
+    "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}",
+    "thisWeek": "回到本周",
+    "textOnly": "这个学期的上课时间只有文字说明，无法排成周课表，下面按课程列出。"
   },
   "demo": {
     "deptCredits": "{p0} · {p1} 学分",

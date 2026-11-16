@@ -537,7 +537,9 @@
       "saveDraft": "Guardar borrador",
       "draftSaved": "Borrador guardado.",
       "pending": "Enviado a moderación.",
-      "published": "Publicado."
+      "published": "Publicado.",
+      "missing": "Falta por completar antes de publicar: {items}",
+      "ratingsDone": "valoraciones ({done} de {total} elegidas)"
     },
     "disclosure": {
       "title": "Información verificada que se mostrará",
@@ -1299,7 +1301,9 @@
     "unplaced": "Estos horarios no se pudieron leer y aún no están en el horario",
     "emptyTerm": "No hay matrículas activas en este periodo.",
     "noLessonsThisWeek": "No hay clases esta semana.",
-    "lessonLabel": "{course}, {day}, franjas {start}–{end}, {location}"
+    "lessonLabel": "{course}, {day}, franjas {start}–{end}, {location}",
+    "thisWeek": "Esta semana",
+    "textOnly": "Los horarios de este semestre solo están disponibles como texto, por lo que no se pueden mostrar por semanas. Las asignaturas aparecen a continuación."
   },
   "demo": {
     "deptCredits": "{p0} · Créditos: {p1}",

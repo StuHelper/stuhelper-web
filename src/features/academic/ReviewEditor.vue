@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { myCoursesEnabled } from '../../app/features'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useNow } from '../../shared/composables/clock'
@@ -88,6 +88,22 @@ const showEligibility = computed(() => {
 // 课程评价发布时五个维度都要评分。草稿可以只填一部分。
 const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.some((level) => !level))
 const canPublish = computed(() => !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+// What the author still has to fill in before publishing, named next to the disabled button.
+// Eligibility is decided by the server and explained in its own section above.
+const missing = computed(() => {
+  const items: string[] = []
+  if (props.kind === 'course' && !term.value) items.push(t('academic.editor.term'))
+  if (ratingsMissing.value) items.push(t('academic.editor.ratingsDone', { done: format.value.number(ratings.value.filter((level) => level > 0).length), total: format.value.number(ratings.value.length) }))
+  if (props.kind !== 'reply' && !title.value.trim()) items.push(t('academic.editor.title'))
+  if (!body.value.trim()) items.push(t('academic.editor.body'))
+  return items
+})
+const titleLimit = 200
+const bodyLimit = 16000
+// The counters sit beside the labels but are not part of them, so each field keeps its plain name.
+const titleId = useId()
+const bodyId = useId()
+const counter = (value: string, limit: number) => `${format.value.number([...value].length)} / ${format.value.number(limit)}`
 const remaining = computed(() => {
   if (!expires.value) return ''
   const minutes = Math.max(0, Math.ceil((Date.parse(expires.value) - now.value) / 60_000))
@@ -287,17 +303,23 @@ async function cancel() {
       {{ remaining }}
     </p>
 
+    <!-- A course review has two parts: when and how it was (term, teacher, ratings) and what to say.
+         On a wide form they sit side by side, so the text field is not stretched across the page. -->
     <fieldset
-      class="stack"
+      class="editor-grid"
+      :class="{ split: kind === 'course' }"
       :disabled="locked"
     >
-      <p
-        v-if="composer?.state === 'choose_term'"
-        class="small muted"
+      <div
+        v-if="kind === 'course'"
+        class="stack editor-side"
       >
-        {{ t('academic.composer.choose_term') }}
-      </p>
-      <template v-if="kind === 'course'">
+        <p
+          v-if="composer?.state === 'choose_term'"
+          class="small muted"
+        >
+          {{ t('academic.composer.choose_term') }}
+        </p>
         <ChoiceGroup
           v-model="term"
           :label="t('academic.editor.term')"
@@ -324,95 +346,115 @@ async function cancel() {
           />
           <span class="field-hint">{{ t('academic.editor.teacherHint') }}</span>
         </div>
-      </template>
-
-      <RatingInput
-        v-if="kind === 'course'"
-        v-model="ratings"
-        :school-id="schoolId"
-        :disabled="locked"
-      />
-      <p
-        v-if="ratingsMissing"
-        class="field-hint"
-      >
-        {{ t('academic.editor.ratingsRequired') }}
-      </p>
-
-      <label
-        v-if="kind !== 'reply'"
-        class="field"
-      >
-        <span class="field-label">{{ t('academic.editor.title') }}</span>
-        <input
-          v-model="title"
-          class="input"
-          maxlength="200"
-          required
-        >
-      </label>
-      <label class="field">
-        <span class="field-label">{{ t('academic.editor.body') }}</span>
-        <textarea
-          v-model="body"
-          class="textarea"
-          :rows="kind === 'reply' ? 4 : 10"
-          maxlength="16000"
-          required
+        <RatingInput
+          v-model="ratings"
+          :school-id="schoolId"
+          :disabled="locked"
         />
-      </label>
-      <p
-        v-if="kind === 'mentor'"
-        class="field-hint"
-      >
-        {{ t('academic.editor.templateHint') }}
-      </p>
-
-      <label
-        v-if="identity === 'choice'"
-        class="check switch"
-      >
-        <input
-          v-model="signed"
-          type="checkbox"
+        <p
+          v-if="ratingsMissing"
+          class="field-hint"
         >
-        <span>{{ t('academic.editor.signed') }}</span>
-      </label>
-      <p
-        v-if="identity === 'choice'"
-        class="field-hint"
-      >
-        {{ t('academic.editor.signedHint') }}
-      </p>
-      <p
-        v-else
-        class="small muted"
-      >
-        {{ t(identity === 'signed' ? 'academic.editor.identitySigned' : 'academic.editor.identityAnonymous') }}
-      </p>
-
-      <fieldset
-        v-if="composer?.disclosures?.length"
-        class="stack-sm"
-      >
-        <legend>{{ t('academic.disclosure.title') }}</legend>
-        <p class="field-hint">
-          {{ t(composer.teacher_reply ? 'academic.disclosure.teacherRequired' : 'academic.disclosure.hint') }}
+          {{ t('academic.editor.ratingsRequired') }}
         </p>
+      </div>
+
+      <div class="stack editor-main">
+        <div
+          v-if="kind !== 'reply'"
+          class="field"
+        >
+          <div class="field-head">
+            <label
+              class="field-label"
+              :for="titleId"
+            >{{ t('academic.editor.title') }}</label>
+            <span
+              class="counter"
+              aria-hidden="true"
+            >{{ counter(title, titleLimit) }}</span>
+          </div>
+          <input
+            :id="titleId"
+            v-model="title"
+            class="input"
+            :maxlength="titleLimit"
+            required
+          >
+        </div>
+        <div class="field">
+          <div class="field-head">
+            <label
+              class="field-label"
+              :for="bodyId"
+            >{{ t('academic.editor.body') }}</label>
+            <span
+              class="counter"
+              aria-hidden="true"
+            >{{ counter(body, bodyLimit) }}</span>
+          </div>
+          <textarea
+            :id="bodyId"
+            v-model="body"
+            class="textarea"
+            :rows="kind === 'reply' ? 4 : 10"
+            :maxlength="bodyLimit"
+            required
+          />
+        </div>
+        <p
+          v-if="kind === 'mentor'"
+          class="field-hint"
+        >
+          {{ t('academic.editor.templateHint') }}
+        </p>
+
         <label
-          v-for="option in composer.disclosures"
-          :key="option.key"
-          class="check"
+          v-if="identity === 'choice'"
+          class="check switch"
         >
           <input
-            v-model="disclosures"
+            v-model="signed"
             type="checkbox"
-            :value="option.key"
-            :disabled="option.required"
           >
-          <span>{{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key === 'enrollment'"> · {{ t(`academic.disclosure.enrollment.${option.value}`) }}</template><template v-else-if="option.key !== 'teacher'"> · {{ option.value }}</template></span>
+          <span>{{ t('academic.editor.signed') }}</span>
         </label>
-      </fieldset>
+        <p
+          v-if="identity === 'choice'"
+          class="field-hint"
+        >
+          {{ t('academic.editor.signedHint') }}
+        </p>
+        <p
+          v-else
+          class="small muted"
+        >
+          {{ t(identity === 'signed' ? 'academic.editor.identitySigned' : 'academic.editor.identityAnonymous') }}
+        </p>
+
+        <fieldset
+          v-if="composer?.disclosures?.length"
+          class="stack-sm"
+        >
+          <legend>{{ t('academic.disclosure.title') }}</legend>
+          <p class="field-hint">
+            {{ t(composer.teacher_reply ? 'academic.disclosure.teacherRequired' : 'academic.disclosure.hint') }}
+          </p>
+          <label
+            v-for="option in composer.disclosures"
+            :key="option.key"
+            class="check"
+          >
+            <input
+              v-model="disclosures"
+              type="checkbox"
+              :value="option.key"
+              :disabled="option.required"
+            >
+            <span>{{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key === 'enrollment'"> · {{ t(`academic.disclosure.enrollment.${option.value}`) }}</template><template v-else-if="option.key !== 'teacher'"> · {{ option.value }}</template></span>
+          </label>
+        </fieldset>
+      </div>
     </fieldset>
 
     <MutationNotice
@@ -470,11 +512,19 @@ async function cancel() {
       </div>
     </section>
 
+    <p
+      v-if="missing.length && !locked"
+      class="field-hint missing"
+      aria-live="polite"
+    >
+      {{ t('academic.editor.missing', { items: format.list(missing) }) }}
+    </p>
     <div class="form-actions">
       <button
         class="btn btn-primary"
         type="submit"
         :disabled="!canPublish"
+        :aria-busy="write.busy.value || undefined"
       >
         {{ t(withdrawn ? 'academic.editor.republish' : 'academic.editor.publish') }}
       </button>
@@ -500,6 +550,17 @@ async function cancel() {
 </template>
 
 <style scoped>
-.editor { box-shadow: var(--shadow-lift); animation: reveal .45s var(--ease-out); }
+.editor { container-type: inline-size; box-shadow: var(--shadow-lift); animation: reveal .45s var(--ease-out); }
+.editor-grid { display: grid; gap: 1rem; }
+/* Without ratings beside it, the text column keeps a comfortable line length. */
+.editor-grid:not(.split) .editor-main { max-width: var(--reading); }
+@container (min-width: 58rem) {
+  .editor-grid.split { grid-template-columns: minmax(0, 30rem) minmax(0, 1fr); gap: 2rem; }
+  .editor-grid.split .editor-main { align-content: start; padding-inline-start: 2rem; border-inline-start: .5px solid var(--separator); }
+  .editor-grid.split .editor-main .textarea { min-height: 19rem; }
+}
+.field-head { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
+.counter { color: var(--label-3); font-size: .75rem; font-variant-numeric: tabular-nums; font-weight: 400; }
+.missing { margin-block-end: -.375rem; }
 .eligibility { display: grid; gap: .5rem; padding: .875rem 1rem; border-radius: var(--radius); background: var(--fill); }
 </style>

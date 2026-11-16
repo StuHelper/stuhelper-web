@@ -51,3 +51,22 @@ export function currentWeek(timetable: Timetable | undefined, last: number, now 
   if (!Number.isFinite(days)) return 1
   return Math.min(Math.max(Math.floor(days / 7) + 1, 1), Math.max(last, 1))
 }
+
+/**
+ * Where today falls in the term: its teaching week and weekday (1 Monday to 7 Sunday) in the
+ * school's time zone. Undefined before week one, or without a timetable; the caller decides
+ * whether a week after the last lesson still counts.
+ */
+export function todayInTerm(timetable: Timetable | undefined, now = new Date()) {
+  if (!timetable) return undefined
+  const days = Math.floor((Date.parse(schoolToday(now, timetable.timezone)) - Date.parse(timetable.week_one_start)) / 86_400_000)
+  if (!Number.isFinite(days) || days < 0) return undefined
+  return { week: Math.floor(days / 7) + 1, weekday: (days % 7) + 1 }
+}
+
+/** The seven calendar dates (YYYY-MM-DD, Monday first) of one teaching week. Empty without a timetable. */
+export function weekDates(timetable: Timetable | undefined, week: number) {
+  const start = timetable ? Date.parse(timetable.week_one_start) : Number.NaN
+  if (!Number.isFinite(start)) return []
+  return Array.from({ length: 7 }, (_, day) => new Date(start + ((week - 1) * 7 + day) * 86_400_000).toISOString().slice(0, 10))
+}

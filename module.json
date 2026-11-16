@@ -57,11 +57,20 @@
     "AE-ACCESS-04": [
       "tests/e2e/access.spec.mjs#a verified user enters content; the home page becomes a workspace"
     ],
+    "MC-01": [
+      "tests/demo/my-courses.spec.mjs#the week grid opens on the current teaching week, marks today and moves between weeks",
+      "tests/demo/my-courses.spec.mjs#a phone shows the five weekdays without sideways scrolling",
+      "tests/demo/my-courses.spec.mjs#the home page shows the next class day and courses waiting for a review"
+    ],
     "MC-02": [
-      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent"
+      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent",
+      "tests/demo/my-courses.spec.mjs#a term with only original time text opens as a list and cannot be exported"
     ],
     "MC-04": [
       "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent"
+    ],
+    "MC-05": [
+      "tests/demo/my-courses.spec.mjs#a term with only original time text opens as a list and cannot be exported"
     ],
     "QQ-01": [
       "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
