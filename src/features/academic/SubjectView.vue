@@ -87,7 +87,7 @@ function submitted(result: Result) {
   >
     <div
       v-if="entry.data.value && subject"
-      class="stack-lg"
+      class="stack-lg appear"
     >
       <PageHeader
         class="subject-head"

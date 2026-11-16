@@ -391,6 +391,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--fill-strong) transparent; }
 .field .select, .field .input, .field .textarea { font-size: 1rem; }
 .field .select { min-height: 44px; background-color: var(--fill); box-shadow: none; }
 .field .select .app-select-trigger { padding-block: .625rem; }
+/* 内容替换占位时淡入并轻微上移，让人看到变化，又不产生跳动。 */
+.appear { animation: panel-in .24s var(--ease-out); }
 /* 标签页内容和轻量切换使用同一个淡入。 */
 [role="tabpanel"] > * { animation: panel-in .18s var(--ease-out); }
 @keyframes panel-in { from { opacity: 0; transform: translateY(4px); } }

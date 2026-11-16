@@ -110,7 +110,7 @@ const timeOf = (lesson: Lesson) => {
 .period-label { display: grid; justify-items: center; width: var(--period-column); padding-block-start: .375rem; color: var(--label-2); font-size: .8125rem; line-height: 1.2; }
 .period-label b { font-weight: 550; }
 .period-label small { color: var(--label-3); font-size: .6875rem; font-variant-numeric: tabular-nums; }
-.lesson { position: relative; display: flex; flex-direction: column; gap: .125rem; min-width: 0; margin-block: 3px 2px; padding: .375rem .5rem .375rem .625rem; overflow: hidden; border-radius: 10px; background: color-mix(in srgb, var(--c) 14%, var(--surface)); box-shadow: inset 3px 0 0 var(--c); color: var(--label); font-size: .8125rem; line-height: 1.3; text-decoration: none; transition: transform .3s var(--spring), box-shadow .3s; }
+.lesson { position: relative; display: flex; flex-direction: column; gap: .125rem; min-width: 0; margin-block: 3px 2px; padding: .375rem .5rem; padding-inline-start: .625rem; overflow: hidden; border-radius: 10px; background: color-mix(in srgb, var(--c) 14%, var(--surface)); box-shadow: inset 3px 0 0 var(--c); color: var(--label); font-size: .8125rem; line-height: 1.3; text-decoration: none; transition: transform .3s var(--spring), box-shadow .3s; }
 [dir="rtl"] .lesson { box-shadow: inset -3px 0 0 var(--c); }
 .lesson b { display: -webkit-box; overflow: hidden; font-weight: 600; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
 .lesson .where { color: var(--label-2); font-size: .75rem; overflow-wrap: anywhere; }
@@ -126,7 +126,7 @@ const timeOf = (lesson: Lesson) => {
   .week-card { --period-column: 2.25rem; --day-column: 0px; --period-row: 3.5rem; padding-inline: .375rem; }
   .week { column-gap: 2px; }
   .week.wide { --day-column: 3.5rem; }
-  .lesson { padding: .25rem .25rem .25rem .4375rem; border-radius: 8px; font-size: .6875rem; line-height: 1.25; }
+  .lesson { padding: .25rem; padding-inline-start: .4375rem; border-radius: 8px; font-size: .6875rem; line-height: 1.25; }
   .lesson b { -webkit-line-clamp: 4; line-clamp: 4; }
   .lesson .where { font-size: .625rem; }
   .lesson .when { display: none; }

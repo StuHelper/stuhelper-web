@@ -278,7 +278,7 @@ function search() {
         </div>
         <ol
           v-if="hot.data.value?.length"
-          class="group"
+          class="group appear"
         >
           <li
             v-for="(row, i) in hot.data.value"
@@ -423,7 +423,7 @@ function search() {
         </div>
         <ul
           v-if="fresh.data.value?.length"
-          class="group"
+          class="group appear"
         >
           <li
             v-for="row in fresh.data.value"

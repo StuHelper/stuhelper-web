@@ -113,7 +113,7 @@ function compare() {
     <template v-else-if="ratings.data.value?.review_count">
       <!-- The verdict in words first; the charts below give the shape and the trend. -->
       <section
-        class="card verdict"
+        class="card verdict appear"
         :aria-label="t('browse.recommendation')"
       >
         <div class="verdict-main">
