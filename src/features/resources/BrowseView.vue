@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { Download, FileText, FileType2, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
+import { Download, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
@@ -21,6 +21,7 @@ import { attributeText, localName, useResourcesApi, type Directory, type Package
 import CatalogPicker from './CatalogPicker.vue'
 import { parseAttributes, readTrail, rememberTrail } from './browseState'
 import FieldInput from './FieldInput.vue'
+import FileThumb from './FileThumb.vue'
 import PackagePanel from './PackagePanel.vue'
 
 // Browse published resources. Search, filters and folder live in page state
@@ -195,9 +196,6 @@ function clearAll() {
   text.value = ''
   navigate({ q: undefined, category: undefined, course_id: undefined, attrs: undefined, dir: undefined })
 }
-const extension = (item: Resource) => (item.current?.file?.filename.split('.').at(-1) ?? '').slice(0, 5)
-const tints = ['var(--c-red)', 'var(--c-orange)', 'var(--c-blue)', 'var(--c-green)', 'var(--c-purple)', 'var(--c-indigo)']
-const tint = (item: Resource) => tints[[...(item.current?.category.id ?? '')].reduce((sum, c) => sum + c.charCodeAt(0), 0) % tints.length]
 function ago(iso?: string) {
   if (!iso) return ''
   const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
@@ -492,6 +490,8 @@ async function download(item: Resource) {
           :next="results.next.value"
           :appending="results.appending.value"
           :empty-text="t(activeFilters.length ? 'browse.noMatchResources' : 'resources.browse.empty')"
+          :filtered="activeFilters.length > 0"
+          :total="total"
           :retry-label="t('resources.browse.reload')"
           @retry="reload"
           @more="results.loadMore"
@@ -528,11 +528,10 @@ async function download(item: Resource) {
                     :aria-label="t('resources.browse.select', { title: item.current?.metadata.title ?? '' })"
                     :disabled="packing.busy.value || packing.uncertain.value"
                   ></label>
-                  <span
-                    class="thumb"
-                    :style="{ '--c': tint(item) }"
-                    aria-hidden="true"
-                  ><FileType2 v-if="['doc', 'docx'].includes(extension(item).toLowerCase())" /><FileText v-else /><i>{{ extension(item) }}</i></span>
+                  <FileThumb
+                    :filename="item.current?.file?.filename"
+                    :seed="item.current?.category.id"
+                  />
                   <div class="group-body body">
                     <RouterLink
                       class="card-title"
@@ -556,9 +555,10 @@ async function download(item: Resource) {
                   >
                     <button
                       v-if="item.download_allowed && item.current?.file"
-                      class="btn btn-sm btn-icon desk"
+                      class="btn btn-sm btn-icon btn-quiet desk"
                       type="button"
                       :disabled="downloading === item.id"
+                      :aria-busy="downloading === item.id"
                       :aria-label="t('browse.downloadItem', { p0: item.current.metadata.title })"
                       @click="download(item)"
                     >
@@ -566,7 +566,7 @@ async function download(item: Resource) {
                     </button>
                     <RouterLink
                       v-else
-                      class="btn btn-sm btn-icon desk"
+                      class="btn btn-sm btn-icon btn-quiet desk"
                       :to="`/resources/items/${encodeURIComponent(item.id)}`"
                       :aria-label="t('browse.unlockItem', { p0: item.current?.metadata.title ?? '' })"
                     >
@@ -575,6 +575,7 @@ async function download(item: Resource) {
                     <FavoriteButton
                       :id="item.id"
                       kind="resource"
+                      quiet
                     />
                     <RowMore
                       v-if="item.download_allowed && item.current?.file"
@@ -672,20 +673,18 @@ async function download(item: Resource) {
 .file:hover { box-shadow: var(--shadow-lift); }
 .body { gap: .25rem; }
 .clamp-2 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.thumb { position: relative; display: grid; flex: none; justify-items: center; align-content: center; gap: 1px; width: 52px; height: 64px; border-radius: 10px; background: color-mix(in srgb, var(--c) 13%, transparent); color: var(--c); }
-.thumb svg { width: 22px; height: 22px; }
-.thumb i { color: color-mix(in srgb, var(--c) 62%, var(--label)); font-size: .625rem; font-style: normal; font-weight: 700; text-transform: uppercase; }
 .ops { position: relative; display: flex; flex: none; gap: .25rem; }
+/* Downloading is the reason to be here, so the actions are always visible; they only get stronger on hover. */
 @media (hover: hover) and (min-width: 761px) {
-  .ops .btn { opacity: 0; transition: opacity .15s; }
+  .ops .btn { opacity: .7; transition: opacity .15s, background-color .2s, color .2s; }
   .file:hover .ops .btn, .file:focus-within .ops .btn, .ops .btn[aria-pressed="true"] { opacity: 1; }
 }
 @media (max-width: 760px) { .ops .desk { display: none; } }
-@media (max-width: 640px) { .file { flex-wrap: nowrap; gap: .625rem; padding: .875rem; } .thumb { width: 38px; height: 48px; } .thumb svg { width: 18px; height: 18px; } .ops { gap: .125rem; } .file .body { flex: 1 1 0; min-width: 0; } }
+@media (max-width: 640px) { .file { flex-wrap: nowrap; gap: .625rem; padding: .875rem; } .ops { gap: .125rem; } .file .body { flex: 1 1 0; min-width: 0; } }
 .layout { display: grid; gap: 1rem; }
 .results { min-width: 0; }
 .folders { display: grid; gap: .5rem; }
-.tree { display: none; padding: .5rem; align-self: start; position: sticky; inset-block-start: 4.5rem; }
+.tree { display: none; padding: .5rem; align-self: start; position: sticky; inset-block-start: calc(var(--nav-height) + 1rem); max-height: calc(100dvh - var(--nav-height) - 2rem); overflow-y: auto; }
 .tree-label { padding: .5rem .625rem .25rem; font-size: .75rem; }
 .tree-empty { padding: .25rem .625rem .5rem; font-size: .8125rem; }
 .clear-recent { width: 100%; justify-content: flex-start; margin-block-start: .25rem; }
