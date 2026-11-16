@@ -680,7 +680,11 @@
       "deviceConfirm": "退出当前设备上的 StuHelper？",
       "allConfirm": "退出所有设备上的 StuHelper 会话？其他设备需要重新登录。"
     },
-    "security": "账号与安全"
+    "security": "账号与安全",
+    "groups": {
+      "account": "账号",
+      "services": "更多服务"
+    }
   },
   "resources": {
     "eyebrow": "资料共享",

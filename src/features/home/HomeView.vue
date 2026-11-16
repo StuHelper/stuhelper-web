@@ -18,6 +18,7 @@ import { knownCredits, useAcademic } from '../academic/api'
 import { levelKeys, recommendationLevel } from '../academic/ratings/levels'
 import RatingLevel from '../academic/ratings/RatingLevel.vue'
 import { useNotificationsApi } from '../notifications/api'
+import { refreshUnread, unreadCount as sharedUnread } from '../notifications/unread'
 import { localName, useResourcesApi } from '../resources/api'
 import ConnectionStatus from '../platform/ConnectionStatus.vue'
 
@@ -62,7 +63,6 @@ const introductions = [
 const classDay = useAsync((signal) => (myCoursesEnabled ? api.nextClassDay(signal) : Promise.resolve(undefined)))
 const overview = useAsync((signal) => api.overview(signal))
 const latestDraft = useAsync(async (signal) => (await api.myDrafts({ limit: 1 }, signal))[0])
-const unread = useAsync((signal) => notifications.unread(signal))
 const hot = useAsync(async (signal) => (await api.directory({ kind: 'course', school_id: campus.value, sort: 'hot', limit: 5 }, signal)).items)
 const fresh = useAsync(async (signal) => (await resources.list({ school_id: campus.value, sort: 'newest', limit: 4 }, signal)).items.slice(0, 4))
 // Notifications are an optional module; the unread count is read only when it runs.
@@ -71,12 +71,13 @@ const known = computed(() => capabilities.status.value === 'ready' || capabiliti
 watch(() => [verified.value, known.value] as const, ([value, ready]) => {
   if (!value || !ready) return
   for (const part of [classDay, overview, latestDraft, hot, fresh]) void part.reload()
-  if (capabilities.has(feature.notifications)) void unread.reload()
+  // The navigation bell reads the same count; the shared store sends one request for both.
+  if (capabilities.has(feature.notifications)) void refreshUnread(() => notifications.unread())
 }, { immediate: true })
 
 const showClassDay = computed(() => myCoursesEnabled && classDay.data.value?.state === 'available' && classDay.data.value.items.length > 0)
 const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
-const unreadCount = computed(() => unread.data.value ?? 0)
+const unreadCount = computed(() => sharedUnread.value ?? 0)
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count || unreadCount.value > 0)
 const timeOf = (iso: string) => format.value.dateTime(iso, { hour: '2-digit', minute: '2-digit' })
 const tints = ['var(--c-blue)', 'var(--c-orange)', 'var(--c-purple)', 'var(--c-green)', 'var(--c-pink)']

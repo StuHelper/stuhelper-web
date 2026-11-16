@@ -680,7 +680,11 @@
       "deviceConfirm": "この端末の StuHelper からログアウトしますか？",
       "allConfirm": "すべての端末の StuHelper からログアウトしますか？他の端末は再ログインが必要です。"
     },
-    "security": "アカウントとセキュリティ"
+    "security": "アカウントとセキュリティ",
+    "groups": {
+      "account": "アカウント",
+      "services": "その他のサービス"
+    }
   },
   "resources": {
     "eyebrow": "資料共有",

@@ -1,6 +1,5 @@
 import { tr } from './tr'
 import { extras } from '../shared/extras'
-import Chrome from './pages/Chrome.vue'
 import Floating from './pages/Floating.vue'
 import { installDemoFetch, setPersona } from './server'
 import { chatThreads } from './chat'
@@ -10,7 +9,6 @@ export function installDemo() {
   installDemoFetch()
   extras.remountOnLocale = true
   extras.signIn = () => { setPersona('verified'); window.location.reload() }
-  extras.navTools.push(Chrome)
   extras.floating.push(Floating)
   extras.threads.push(...chatThreads())
   extras.routes.push(

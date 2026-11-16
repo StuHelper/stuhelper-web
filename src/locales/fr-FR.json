@@ -680,7 +680,11 @@
       "deviceConfirm": "Se déconnecter de StuHelper sur cet appareil ?",
       "allConfirm": "Se déconnecter de StuHelper partout ? Les autres appareils devront se reconnecter."
     },
-    "security": "Compte et sécurité"
+    "security": "Compte et sécurité",
+    "groups": {
+      "account": "Compte",
+      "services": "Autres services"
+    }
   },
   "resources": {
     "eyebrow": "Partage de ressources",

@@ -680,7 +680,11 @@
       "deviceConfirm": "Sign out of StuHelper on this device?",
       "allConfirm": "Sign out of StuHelper on all devices? Other devices will need to sign in again."
     },
-    "security": "Account and security"
+    "security": "Account and security",
+    "groups": {
+      "account": "Account",
+      "services": "More services"
+    }
   },
   "resources": {
     "eyebrow": "Resource sharing",

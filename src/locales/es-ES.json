@@ -680,7 +680,11 @@
       "deviceConfirm": "¿Cerrar sesión de StuHelper en este dispositivo?",
       "allConfirm": "¿Cerrar sesión de StuHelper en todos los dispositivos? Los demás deberán volver a entrar."
     },
-    "security": "Cuenta y seguridad"
+    "security": "Cuenta y seguridad",
+    "groups": {
+      "account": "Cuenta",
+      "services": "Más servicios"
+    }
   },
   "resources": {
     "eyebrow": "Materiales compartidos",

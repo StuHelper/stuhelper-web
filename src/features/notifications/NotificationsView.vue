@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { BadgeCheck, Bell, CheckCheck, ClipboardCheck, MessageCircleHeart, UsersRound } from 'lucide-vue-next'
-import { computed, ref, type Component } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -15,6 +15,7 @@ import { useLinkAvailable } from '../../shared/capabilities'
 import { extras } from '../../shared/extras'
 import MeLayout from '../account/MeLayout.vue'
 import { boxOf, boxes, targetRoute, titleMessage, useNotificationsApi, type Box, type Notification } from './api'
+import { setUnread } from './unread'
 
 // The message center. Notifications are filed into boxes by what they are
 // about: three boxes sit on top as entries, and the conversation list below
@@ -37,6 +38,8 @@ const list = usePaged<Notification>((cursor, signal) => api.list(cursor, signal)
 void list.reload()
 const unread = useAsync((signal) => api.unread(signal))
 void unread.reload()
+// The bell in the navigation shows the same number, so every change here reaches it.
+watch(() => unread.data.value, (value) => { if (typeof value === 'number') setUnread(value) })
 const preferences = useAsync((signal) => api.preferences(signal))
 void preferences.reload()
 
