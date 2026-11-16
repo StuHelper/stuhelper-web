@@ -426,7 +426,9 @@ async function retry() {
 .review-body.clamped { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; }
 .review-more { justify-self: start; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: .875rem; font-weight: 550; cursor: pointer; }
 .review-more:hover { text-decoration: underline; text-underline-offset: .15em; }
-.review-actions { gap: .375rem; margin-block-start: .25rem; }
+.review-actions { gap: .25rem .375rem; margin-block-start: .25rem; }
+/* The quiet actions take less room, so the four actions of a review fit one line on most phones. */
+.review-actions .btn-ghost { padding-inline: .625rem; }
 .review-panel { padding: 1rem; border-radius: var(--radius); background: var(--fill); }
 .review-panel .input, .review-panel .textarea { background: var(--surface); }
 </style>

@@ -508,7 +508,7 @@ li.line:hover { background: var(--fill); }
 /* With a mouse the row actions appear on hover or keyboard focus. The quick view stays faintly visible so it can be found. */
 @media (hover: hover) {
   .ops .btn { opacity: 0; transition: opacity .15s, background-color .2s, color .2s; }
-  .ops .btn.peek { opacity: .5; }
+  .ops .btn.peek { opacity: .7; }
   li.line:hover .ops .btn, li.line:focus-within .ops .btn, .ops .btn[aria-pressed="true"] { opacity: 1; }
 }
 .more { display: flex; align-items: center; justify-content: center; gap: .25rem; width: 100%; min-height: 40px; border: 0; border-block-start: .5px solid var(--separator); background: transparent; color: var(--accent); font: inherit; font-size: .875rem; cursor: pointer; }
