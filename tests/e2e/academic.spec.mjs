@@ -226,3 +226,143 @@ test('the teacher quick view reads the most upvoted course review attributed to 
   await expect.poll(() => reviewQueries.at(-1)?.kind).toBe('course');
   expect(reviewQueries.at(-1)?.teacher_id).toBe('teacher-a');
 });
+
+// A two-page course directory in the shape of GET /catalog/directory, for the list states below.
+const directoryObject = (id, kind, name) => ({ id, kind, name, school_id: 'school', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z' });
+const directoryRow = (id, name, recommendation) => ({ object: directoryObject(id, 'course', name), departments: [directoryObject('dept', 'department', 'Test College')], categories: [directoryObject('seminar', 'category', 'Test Seminar')], review_count: 2, recommendation, dimensions: Array.from({ length: 5 }, () => ({ level: 4, samples: 2, courses: 1 })), heat: 1 });
+const directoryPage = (rows, next, total) => ({ items: rows, next, total, facet_total: total, category_facets: [{ id: 'seminar', name: 'Test Seminar', count: total, review_count: total }], department_facets: [{ id: 'dept', name: 'Test College', count: total, review_count: total }], generated_at: '2026-11-15T00:00:00Z' });
+
+test('course rows show the recommendation in words and the list says how many rows are shown', async ({ page }, info) => {
+  const all = catalogue(info), b = all.browse, errors = watch(page);
+  const number = (value) => new Intl.NumberFormat(info.project.metadata.locale).format(value);
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    if (query.get('limit') === '1') return route.fallback();
+    return route.fulfill({ json: query.get('after') ? directoryPage([directoryRow('c', 'Course C', 'unrated')], '', 3) : directoryPage([directoryRow('a', 'Course A', 'strongly_recommended'), directoryRow('b', 'Course B', 'average')], 'page-2', 3) });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const rows = page.locator('main li.line');
+  await expect(rows).toHaveCount(2);
+  // The level is a word, never a score, and exactly one copy of it is visible in either layout.
+  await expect(rows.nth(0).locator('.d-level:visible')).toHaveText(b.levelStrongly);
+  await expect(rows.nth(1).locator('.d-level:visible')).toHaveText(b.levelAverage);
+  await expect(page.getByRole('main')).not.toContainText(/\d[.,]\d/);
+  const progress = all.common.shownOf.replace('{shown}', number(2)).replace('{total}', number(3));
+  await expect(page.getByText(progress, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: all.common.loadMore, exact: true }).click();
+  await expect(rows).toHaveCount(3);
+  // A course without enough reviews shows no level, and a complete list shows no progress line.
+  await expect(rows.nth(2).locator('.d-level:visible')).toHaveCount(0);
+  await expect(page.getByText(progress, { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: all.common.loadMore, exact: true })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('a new search keeps the previous rows until the result arrives and clears them when it fails', async ({ page }, info) => {
+  const all = catalogue(info), errors = watch(page);
+  let release, outcome = 'ok';
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', async (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    if (query.get('limit') === '1') return route.fallback();
+    if (!query.get('q')) return route.fulfill({ json: directoryPage([directoryRow('a', 'Course A', 'recommended')], '', 1) });
+    await new Promise((resolve) => { release = resolve; });
+    return outcome === 'ok' ? route.fulfill({ json: directoryPage([directoryRow('b', 'Course B', 'recommended')], '', 1) }) : route.fulfill({ status: 503, json: { code: 'unavailable' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const list = page.locator('main .sections');
+  await expect(page.locator('main a[href="/courses/a"]')).toBeVisible();
+  await page.getByRole('searchbox').fill('B');
+  // While the request is open the old row stays, marked busy; no placeholder replaces the list.
+  await expect(list).toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('main a[href="/courses/a"]')).toBeVisible();
+  await expect(page.locator('main .skeleton')).toHaveCount(0);
+  await expect.poll(() => typeof release).toBe('function');
+  release();
+  await expect(page.locator('main a[href="/courses/b"]')).toBeVisible();
+  await expect(page.locator('main a[href="/courses/a"]')).toHaveCount(0);
+  await expect(page.locator('main .sections')).not.toHaveAttribute('aria-busy', 'true');
+  // A failed search must not leave rows the server did not confirm.
+  outcome = 'fail';
+  release = undefined;
+  await page.getByRole('searchbox').fill('C');
+  await expect.poll(() => typeof release).toBe('function');
+  release();
+  await expect(page.getByRole('main').getByRole('alert')).toBeVisible();
+  await expect(page.locator('main a[href^="/courses/"]')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: all.academic.directory.reloadCourses, exact: true })).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('the quick view names the course at once, gives a verdict in words and retries a failed overview', async ({ page }, info) => {
+  const all = catalogue(info), b = all.browse, errors = watch(page);
+  let summaries = 0, held, healthy = false;
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/objects/course/summary', async (route) => {
+    summaries += 1;
+    if (healthy) return route.fallback();
+    await new Promise((resolve) => { held = resolve; });
+    return route.fulfill({ status: 503, json: { code: 'unavailable' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  await expect(page.locator('main li.line')).toHaveCount(1);
+  const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
+  if (await quick.isVisible()) await quick.click();
+  else {
+    await page.getByRole('button', { name: b.moreActionsFor.replace('{p0}', 'Test Course') }).click();
+    await page.getByRole('menuitem', { name: b.quickView }).click();
+  }
+  const drawer = page.getByRole('dialog');
+  // The heading comes from the row, before the overview request has answered.
+  await expect(drawer.getByRole('heading', { name: 'Test Course' })).toBeVisible();
+  expect(summaries).toBe(1);
+  // Ratings load on their own: the verdict names the level in words for every dimension.
+  const verdict = drawer.getByRole('region', { name: b.recommendation, exact: true });
+  await expect(verdict.locator('.d-level').first()).toHaveText(b.levelRecommended);
+  await expect(verdict.locator('.d-level')).toHaveCount(5);
+  await expect(verdict).not.toContainText(/\d[.,]\d/);
+  held();
+  await expect(drawer.getByRole('alert')).toContainText(b.quickViewUnavailable);
+  await expect(drawer.getByRole('heading', { name: 'Test Course' })).toBeVisible();
+  healthy = true;
+  await drawer.getByRole('alert').getByRole('button', { name: all.common.retry, exact: true }).click();
+  await expect(drawer.getByRole('alert')).toHaveCount(0);
+  await expect(drawer.getByRole('link', { name: b.viewDetails })).toHaveAttribute('href', '/courses/course');
+  // On a phone the drawer is a sheet attached to the bottom edge; on a wide screen it is a side panel.
+  const box = await drawer.boundingBox(), viewport = page.viewportSize();
+  expect(Math.round(box.y + box.height)).toBe(viewport.height);
+  if (viewport.width <= 640) expect(box.y).toBeGreaterThan(0);
+  else expect(box.y).toBe(0);
+  await page.keyboard.press('Escape');
+  await expect(drawer).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('the editor names what is still missing and keeps plain field names beside the counters', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic, errors = watch(page);
+  const number = (value) => new Intl.NumberFormat(locale).format(value);
+  const list = (items) => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(items);
+  const ratings = (done) => a.editor.ratingsDone.replace('{done}', number(done)).replace('{total}', number(5));
+  const missing = (items) => a.editor.missing.replace('{items}', list(items));
+  await academicFixture(page);
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  const publish = editor.getByRole('button', { name: a.editor.publish, exact: true });
+  await expect(editor.getByText(missing([a.editor.term, ratings(0), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();
+  await expect(publish).toBeDisabled();
+  await pick(editor, 'spring');
+  for (const name of ['recommendation', 'quality']) await editor.locator(`label:has(input[name="rating-${name}"][value="4"])`).click();
+  await expect(editor.getByText(missing([ratings(2), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();
+  for (const name of ['difficulty', 'workload', 'grading']) await editor.locator(`label:has(input[name="rating-${name}"][value="3"])`).click();
+  // The counters are not part of the labels, so both fields are still found by their plain names.
+  await editor.getByLabel(a.editor.title, { exact: true }).fill('Clear title');
+  await expect(editor.getByText(missing([a.editor.body]), { exact: true })).toBeVisible();
+  await expect(editor.getByText(`${number(11)} / ${number(200)}`, { exact: true })).toBeVisible();
+  await editor.getByLabel(a.editor.body, { exact: true }).fill('Useful text.');
+  await expect(editor.getByText(a.editor.missing.split('{items}')[0].trim(), { exact: false })).toHaveCount(0);
+  await expect(publish).toBeEnabled();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
