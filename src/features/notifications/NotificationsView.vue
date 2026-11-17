@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { useNotificationTitle } from './title'
 import { BadgeCheck, Bell, CheckCheck, ClipboardCheck, MessageCircleHeart, UsersRound } from 'lucide-vue-next'
-import { computed, ref, type Component } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
-import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, usePaged } from '../../shared/composables/async'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -14,7 +14,8 @@ import { useErrorText } from '../../shared/ui/messages'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { extras } from '../../shared/extras'
 import MeLayout from '../account/MeLayout.vue'
-import { boxOf, boxes, targetRoute, titleMessage, useNotificationsApi, type Box, type Notification } from './api'
+import { boxOf, boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
+import { setUnread } from './unread'
 
 // The message center. Notifications are filed into boxes by what they are
 // about: three boxes sit on top as entries, and the conversation list below
@@ -37,6 +38,8 @@ const list = usePaged<Notification>((cursor, signal) => api.list(cursor, signal)
 void list.reload()
 const unread = useAsync((signal) => api.unread(signal))
 void unread.reload()
+// The bell in the navigation shows the same number, so every change here reaches it.
+watch(() => unread.data.value, (value) => { if (typeof value === 'number') setUnread(value) })
 const preferences = useAsync((signal) => api.preferences(signal))
 void preferences.reload()
 
@@ -61,10 +64,7 @@ const chats = computed(() => [...extras.threads].sort((a, b) => b.at.localeCompa
 const shown = computed(() => (open.value ? filed.value[open.value] : []))
 const busy = ref(false)
 
-function title(item: Notification) {
-  // Identifiers are left-to-right; isolating them keeps right-to-left sentences in order.
-  return t(titleMessage(item.title_key), Object.fromEntries(Object.entries(item.title_params).map(([key, value]) => [key, isolate(value)])))
-}
+const title = useNotificationTitle()
 function stamp(at: string) {
   return format.value.dateTime(at)
 }

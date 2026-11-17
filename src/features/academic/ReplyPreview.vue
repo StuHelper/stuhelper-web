@@ -5,10 +5,11 @@ import { RouterLink } from 'vue-router'
 import { useAcademic, type Review } from './api'
 import { useAuthorName } from './presentation'
 
-// The first replies of a discussion, shown under its review in a list. They are
-// read when the review scrolls into view, so a long list asks only for what is
-// seen. The whole discussion stays one click away.
-const props = defineProps<{ rootId: string; to: string }>()
+// The first replies of a discussion, shown under its review in a list. Lists read
+// with include_reply_preview (reviews 0.7) carry the preview and the reply count, so
+// nothing more is requested. Older servers send neither; then the replies are read
+// when the review scrolls into view. The whole discussion stays one click away.
+const props = defineProps<{ rootId: string; to: string; preview?: Review[]; count?: number }>()
 const shownCount = 2
 const { t } = useI18n()
 const api = useAcademic()
@@ -30,6 +31,11 @@ async function load() {
   }
 }
 onMounted(() => {
+  if (props.preview) {
+    replies.value = props.preview.slice(0, shownCount)
+    more.value = (props.count ?? props.preview.length) > shownCount
+    return
+  }
   if (typeof IntersectionObserver === 'undefined' || !root.value) {
     void load()
     return

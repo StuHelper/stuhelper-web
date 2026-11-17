@@ -17,6 +17,10 @@ defineEmits<{ close: [] }>()
         class="d-drawer"
         :aria-describedby="note ? undefined : ''"
       >
+        <span
+          class="d-drawer-grabber"
+          aria-hidden="true"
+        />
         <header class="d-drawer-head">
           <div class="stack-sm">
             <DialogTitle as="h2">

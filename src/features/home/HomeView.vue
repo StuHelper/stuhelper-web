@@ -18,7 +18,9 @@ import { knownCredits, useAcademic } from '../academic/api'
 import { levelKeys, recommendationLevel } from '../academic/ratings/levels'
 import RatingLevel from '../academic/ratings/RatingLevel.vue'
 import { useNotificationsApi } from '../notifications/api'
+import { refreshUnread, unreadCount as sharedUnread } from '../notifications/unread'
 import { localName, useResourcesApi } from '../resources/api'
+import FileThumb from '../resources/FileThumb.vue'
 import ConnectionStatus from '../platform/ConnectionStatus.vue'
 
 // Signed-out and not yet verified visitors see what the site offers and how to get in.
@@ -62,7 +64,6 @@ const introductions = [
 const classDay = useAsync((signal) => (myCoursesEnabled ? api.nextClassDay(signal) : Promise.resolve(undefined)))
 const overview = useAsync((signal) => api.overview(signal))
 const latestDraft = useAsync(async (signal) => (await api.myDrafts({ limit: 1 }, signal))[0])
-const unread = useAsync((signal) => notifications.unread(signal))
 const hot = useAsync(async (signal) => (await api.directory({ kind: 'course', school_id: campus.value, sort: 'hot', limit: 5 }, signal)).items)
 const fresh = useAsync(async (signal) => (await resources.list({ school_id: campus.value, sort: 'newest', limit: 4 }, signal)).items.slice(0, 4))
 // Notifications are an optional module; the unread count is read only when it runs.
@@ -71,14 +72,31 @@ const known = computed(() => capabilities.status.value === 'ready' || capabiliti
 watch(() => [verified.value, known.value] as const, ([value, ready]) => {
   if (!value || !ready) return
   for (const part of [classDay, overview, latestDraft, hot, fresh]) void part.reload()
-  if (capabilities.has(feature.notifications)) void unread.reload()
+  // The navigation bell reads the same count; the shared store sends one request for both.
+  if (capabilities.has(feature.notifications)) void refreshUnread(() => notifications.unread())
 }, { immediate: true })
 
 const showClassDay = computed(() => myCoursesEnabled && classDay.data.value?.state === 'available' && classDay.data.value.items.length > 0)
 const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
-const unreadCount = computed(() => unread.data.value ?? 0)
+const unreadCount = computed(() => sharedUnread.value ?? 0)
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count || unreadCount.value > 0)
 const timeOf = (iso: string) => format.value.dateTime(iso, { hour: '2-digit', minute: '2-digit' })
+// "Today" or "tomorrow" in the school's time zone, then the weekday and date; later days show the date only.
+const classDate = computed(() => {
+  const day = classDay.data.value
+  if (!day?.date || !/^\d{4}-\d{2}-\d{2}$/.test(day.date)) return ''
+  let today = new Date().toISOString().slice(0, 10)
+  try {
+    today = new Intl.DateTimeFormat('en-CA', { timeZone: day.time_zone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date())
+  } catch {
+    // An unknown zone falls back to the UTC date.
+  }
+  const ahead = Math.round((Date.parse(day.date) - Date.parse(today)) / 86_400_000)
+  const date = format.value.date(`${day.date}T04:00:00Z`, { weekday: 'short', month: 'short', day: 'numeric' })
+  return ahead === 0 || ahead === 1 ? `${format.value.relative(ahead, 'day')} · ${date}` : date
+})
+// A block that failed can be read again on its own.
+const blocks = { hot, fresh, overview }
 const tints = ['var(--c-blue)', 'var(--c-orange)', 'var(--c-purple)', 'var(--c-green)', 'var(--c-pink)']
 function ago(iso?: string) {
   if (!iso) return ''
@@ -210,6 +228,12 @@ function search() {
             {{ t('browse.fullTimetable') }}
           </RouterLink>
         </div>
+        <p
+          v-if="classDate"
+          class="subtle day-date"
+        >
+          {{ classDate }}
+        </p>
         <ol class="timeline">
           <li
             v-for="(row, i) in classDay.data.value.items"
@@ -220,7 +244,7 @@ function search() {
               class="lesson"
               :style="{ '--c': tints[i % tints.length] }"
             >
-              <span class="time">{{ row.start_period ? t('browse.periods', { p0: format.number(row.start_period), p1: format.number(row.end_period) }) : timeOf(row.starts_at) }}</span>
+              <span class="time"><b>{{ timeOf(row.starts_at) }}</b><span>{{ row.start_period ? t('browse.periods', { p0: format.number(row.start_period), p1: format.number(row.end_period) }) : timeOf(row.ends_at) }}</span></span>
               <span class="group-body"><b>{{ row.course_name }}</b><span class="subtle row"><MapPin
                 class="pin"
                 aria-hidden="true"
@@ -254,7 +278,7 @@ function search() {
         </div>
         <ol
           v-if="hot.data.value?.length"
-          class="group"
+          class="group appear"
         >
           <li
             v-for="(row, i) in hot.data.value"
@@ -273,11 +297,35 @@ function search() {
             </RouterLink>
           </li>
         </ol>
+        <div
+          v-else-if="hot.status.value === 'loading' || hot.status.value === 'idle'"
+          class="skeleton block-skeleton"
+          aria-busy="true"
+        >
+          <span class="visually-hidden">{{ t('common.loading') }}</span>
+          <span
+            class="block-tall"
+            aria-hidden="true"
+          />
+        </div>
         <p
           v-else-if="hot.status.value === 'error'"
-          class="muted small"
+          class="muted small row"
         >
           {{ t('browse.blockUnavailable') }}
+          <button
+            class="btn btn-sm btn-ghost"
+            type="button"
+            @click="blocks.hot.reload()"
+          >
+            {{ t('common.retry') }}
+          </button>
+        </p>
+        <p
+          v-else
+          class="muted small"
+        >
+          {{ t('academic.directory.empty') }}
         </p>
       </section>
 
@@ -339,9 +387,17 @@ function search() {
         </RouterLink>
         <p
           v-if="!hasTodos && overview.status.value !== 'loading'"
-          class="muted small"
+          class="muted small row"
         >
           {{ overview.status.value === 'error' ? t('browse.blockUnavailable') : t('browse.noTodos') }}
+          <button
+            v-if="overview.status.value === 'error'"
+            class="btn btn-sm btn-ghost"
+            type="button"
+            @click="blocks.overview.reload()"
+          >
+            {{ t('common.retry') }}
+          </button>
         </p>
       </section>
 
@@ -367,16 +423,21 @@ function search() {
         </div>
         <ul
           v-if="fresh.data.value?.length"
-          class="group"
+          class="group appear"
         >
           <li
             v-for="row in fresh.data.value"
             :key="row.id"
           >
             <RouterLink
-              class="group-row"
+              class="group-row fresh-row"
               :to="`/resources/items/${encodeURIComponent(row.id)}`"
             >
+              <FileThumb
+                small
+                :filename="row.current?.file?.filename"
+                :seed="row.current?.category.id"
+              />
               <span class="group-body"><span class="group-title clamp-2">{{ row.current?.metadata.title }}</span><span class="subtle">{{ [localName(row.current?.category.names ?? {}, locale), ago(row.current?.created_at)].filter(Boolean).join(' · ') }}</span></span>
             </RouterLink>
           </li>
@@ -389,10 +450,28 @@ function search() {
         </p>
         <p
           v-else-if="fresh.status.value === 'error'"
-          class="muted small"
+          class="muted small row"
         >
           {{ t('browse.blockUnavailable') }}
+          <button
+            class="btn btn-sm btn-ghost"
+            type="button"
+            @click="blocks.fresh.reload()"
+          >
+            {{ t('common.retry') }}
+          </button>
         </p>
+        <div
+          v-else
+          class="skeleton block-skeleton"
+          aria-busy="true"
+        >
+          <span class="visually-hidden">{{ t('common.loading') }}</span>
+          <span
+            class="block-tall"
+            aria-hidden="true"
+          />
+        </div>
       </section>
 
       <section
@@ -433,11 +512,16 @@ function search() {
 .lead { max-width: 36rem; color: var(--label-2); font-size: clamp(1.0625rem, 1rem + .4vw, 1.3125rem); line-height: 1.45; }
 .intro { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
 .intro li { display: grid; gap: .5rem; align-content: start; }
+/* Each block is as tall as its own content; a short to-do list does not stretch beside a long one. */
+.d-grid { align-items: start; }
 .d-grid > section { align-content: start; }
+.block-skeleton span.block-tall[aria-hidden] { height: 15rem; }
+.fresh-row { gap: .75rem; }
+.day-date { margin-block: -.625rem -.25rem; }
 .top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .875rem 2rem; }
 .hello { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem); }
 .home-search { display: flex; flex: 0 1 26rem; }
-.shortcuts { display: flex; gap: .5rem; overflow-x: auto; margin-block-start: calc(-1 * clamp(.75rem, 2vw, 1.5rem)); scrollbar-width: none; }
+.shortcuts { display: flex; gap: .5rem; overflow-x: auto; margin-block: calc(-1 * clamp(.25rem, 1vw, .625rem)) 0; padding-block: 2px; scrollbar-width: none; }
 .shortcut { display: inline-flex; flex: none; align-items: center; gap: .5rem; padding: .375rem .875rem .375rem .375rem; border-radius: var(--pill); background: var(--surface); box-shadow: var(--shadow-card); color: var(--label); font-size: .875rem; font-weight: 500; transition: transform .35s var(--spring); }
 .shortcut:hover { text-decoration: none; transform: translateY(-1px); }
 .shortcut .icon-tile { width: 26px; height: 26px; border-radius: 50%; }
@@ -446,7 +530,8 @@ function search() {
 .lesson { display: flex; align-items: center; gap: .875rem; padding: .625rem .875rem; border-inline-start: 4px solid var(--c); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--c) 9%, transparent); color: inherit; transition: transform .3s var(--spring); }
 .lesson:hover { text-decoration: none; transform: translateX(2px); }
 .lesson b { font-weight: 600; }
-.time { flex: none; width: 5rem; color: var(--label-2); font-size: .8125rem; font-variant-numeric: tabular-nums; }
+.time { display: grid; flex: none; width: 5rem; color: var(--label-2); font-size: .75rem; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.time b { color: var(--label); font-size: .9375rem; font-weight: 600; }
 .pin { width: .8125rem; height: .8125rem; }
 .day-icon { width: 1.125rem; height: 1.125rem; color: var(--c-red); }
 .subtle.row { gap: .1875rem; }

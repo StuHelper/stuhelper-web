@@ -72,7 +72,8 @@ export class NotificationsApi {
   constructor(private readonly http: Http) {}
 
   async list(cursor: string, signal?: AbortSignal) {
-    const page = await this.http.json('/api/v1/notifications', parse.page, { query: { cursor: cursor || undefined, limit: pageSize }, signal })
+    // Ask for the current names of the content the notifications are about (readable titles).
+    const page = await this.http.json('/api/v1/notifications', parse.page, { query: { cursor: cursor || undefined, limit: pageSize, include_content_names: 'true' }, signal })
     return { items: page.items, next: page.next_cursor }
   }
 

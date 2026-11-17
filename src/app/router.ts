@@ -27,7 +27,6 @@ declare module 'vue-router' {
 const academic = {
   directory: () => import('../features/academic/DirectoryView.vue'),
   subject: () => import('../features/academic/SubjectView.vue'),
-  offering: () => import('../features/academic/OfferingView.vue'),
   discussion: () => import('../features/academic/DiscussionView.vue'),
 }
 
@@ -42,8 +41,9 @@ const routes: RouteRecordRaw[] = [
     : { path: '/teachers', redirect: '/courses' },
   { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.course', section: 'courses' } },
   { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teacher', section: 'teachers' } },
-  { path: '/offerings/:id', component: academic.offering, props: (route) => ({ kind: 'term_course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.offering', section: 'courses' } },
-  { path: '/classes/:id', component: academic.offering, props: (route) => ({ kind: 'class', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teachingClass', section: 'courses' } },
+  // Offering and teaching-class pages are closed; old links land on the course directory.
+  { path: '/offerings/:id', redirect: '/courses' },
+  { path: '/classes/:id', redirect: '/courses' },
   { path: '/reviews/:id', component: academic.discussion, props: true, meta: { access: 'verified', title: 'academic.discussion', section: 'courses' } },
   { path: '/resources', component: () => import('../features/resources/BrowseView.vue'), meta: { access: 'verified', title: 'nav.resources', section: 'resources' } },
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },

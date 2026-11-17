@@ -72,6 +72,34 @@ describe('loading state', () => {
     scope.stop()
   })
 
+  it('keeps the previous rows while a reload is in flight and clears them when it fails', async () => {
+    const scope = effectScope()
+    const pending: { resolve: (value: { items: string[]; next: string }) => void; reject: (failure: unknown) => void }[] = []
+    const paged = scope.run(() => usePaged<string>(() => new Promise((resolve, reject) => pending.push({ resolve, reject })), { keepRows: true }))!
+    const first = paged.reload()
+    // Nothing was shown yet, so the first load is an ordinary empty loading state.
+    expect(paged.refreshing.value).toBe(false)
+    pending[0]?.resolve({ items: ['old'], next: 'old-cursor' })
+    await first
+    const second = paged.reload()
+    expect(paged.items.value).toEqual(['old'])
+    expect(paged.refreshing.value).toBe(true)
+    // The cursor of the previous result must not be offered during the reload.
+    expect(paged.next.value).toBe('')
+    pending[1]?.resolve({ items: ['new'], next: '' })
+    await second
+    expect(paged.items.value).toEqual(['new'])
+    expect(paged.refreshing.value).toBe(false)
+    const third = paged.reload()
+    expect(paged.items.value).toEqual(['new'])
+    pending[2]?.reject(new ApiError('network'))
+    await third
+    expect(paged.items.value).toEqual([])
+    expect(paged.status.value).toBe('error')
+    expect(paged.refreshing.value).toBe(false)
+    scope.stop()
+  })
+
   it('ignores a stale response after a newer load', async () => {
     const scope = effectScope()
     const resolvers: ((value: string) => void)[] = []

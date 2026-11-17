@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description 读取当前学校的可展示目录投影，当前内容权限在每次请求时检查。课程须在服务端截止学期（默认 2023 秋）及以后有开课记录。kind=term 仅返回截止学期及以后且有可见课程的学期，按 term_order_key 降序、ID 升序分页；前端保持返回顺序。其他类型按 ID 升序。 */
+        /** @description 读取当前学校的可展示目录投影，当前内容权限在每次请求时检查。课程须在服务端截止学期（默认 2023 秋）及以后有开课记录。kind=term 仅返回截止学期及以后且有可见课程的学期，按 term_order_key 降序、ID 升序分页；前端保持返回顺序。其他类型按 ID 升序。 体育项目作为 kind=course 条目返回 course_type=sports_project。按项目 course_id 查询教师，筛选计数按项目去重。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 kind=teacher&course_id=…、kind=course&teacher_id=… 和 kind=term 保持可用；授课事实只用于计算关联，不返回教学班。 */
         get: operations["listObjects"];
         put?: never;
         post?: never;
@@ -28,7 +28,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 Courses outside the current visible directory projection return not_found, including direct links. */
+        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 Courses outside the current visible directory projection return not_found, including direct links. 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
         get: operations["getObject"];
         put?: never;
         post?: never;
@@ -62,6 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description 只返回当前用户的有效选课，按 term_order_key 倒序、选课 ID 升序。未知学期键为 0。after 绑定本人且须符合当前筛选，返回后续记录。 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 */
         get: operations["myEnrollments"];
         put?: never;
         post?: never;
@@ -78,7 +79,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 */
+        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 教学班相关 ID 与未知 ID 一样列入 missing_ids，不返回其对象。混合查询仍返回其余可见课程和教师。 */
         get: operations["lookupObjects"];
         put?: never;
         post?: never;
@@ -95,7 +96,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 Courses outside the current visible directory projection return not_found, including direct links. */
+        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 Courses outside the current visible directory projection return not_found, including direct links. 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
         get: operations["getObjectSummary"];
         put?: never;
         post?: never;
@@ -192,7 +193,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 */
+        /** @description Requires current content admission in the served school: valid campus eligibility or verified teacher status. Missing admission returns 403; unavailable required facts return 503. No preview, content, counts or statistics are returned on rejection. 教师公开查询由服务端目录标记过滤：有授课记录或已匹配官网名单即可保留。列表、详情、批量查询、筛选选项及计数使用相同依据。未标记的教师详情返回 not_found。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
         get: operations["resolveObject"];
         put?: never;
         post?: never;
@@ -294,7 +295,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Login and ownership only. Returns names for IDs referenced by the caller own current or historical enrollment records; current content admission is not required. An unowned requested ID rejects the entire request with 404. At most 100 IDs. This response never includes biographies, scores, schedules or other public detail. */
+        /** @description Login and ownership only. Returns names for IDs referenced by the caller own current or historical enrollment records; current content admission is not required. An unowned requested ID rejects the entire request with 404. At most 100 IDs. This response never includes biographies, scores, schedules or other public detail. 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 */
         get: operations["myCatalogReferences"];
         put?: never;
         post?: never;
@@ -311,6 +312,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 */
         get: operations["mySchedule"];
         put?: never;
         post?: never;
@@ -362,7 +364,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Current visible course/teacher directory, stable sort with ID tie-break and filter-bound cursor. Categories count distinct courses after all filters except category_id. Department groups respect all current filters. Classification filters apply to the same offering/class. Teacher rows and counts require T2 persisted marking; absent marker enforcement returns 503. Scores are read in bounded batches from owning modules, without per-row queries. Catalog membership is cached with transactional revision invalidation; ratings and heat are always current. 目录成员和分面来自同一持久投影版本，实时评分与热度按 ID 关联。游标绑定投影版本，重建后使用旧游标返回 409，应从第一页重新读取。 */
+        /** @description Current visible course/teacher directory, stable sort with ID tie-break and filter-bound cursor. Categories count distinct courses after all filters except category_id. Department groups respect all current filters. Classification filters apply to the same offering/class. Teacher rows and counts require T2 persisted marking; absent marker enforcement returns 503. Scores are read in bounded batches from owning modules, without per-row queries. Catalog membership is cached with transactional revision invalidation; ratings and heat are always current. 目录成员和分面来自同一持久投影版本，实时评分与热度按 ID 关联。游标绑定投影版本，重建后使用旧游标返回 409，应从第一页重新读取。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
         get: operations["listDirectory"];
         put?: never;
         post?: never;
@@ -431,7 +433,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description 读取与公开列表相同投影版本的筛选选项，只返回数量大于零的项。课程截止学期、内容状态、学校和教师标记均已应用；当前内容权限在每次请求时检查。 */
+        /** @description 读取与公开列表相同投影版本的筛选选项，只返回数量大于零的项。课程截止学期、内容状态、学校和教师标记均已应用；当前内容权限在每次请求时检查。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
         get: operations["getFilterOptions"];
         put?: never;
         post?: never;
@@ -509,10 +511,17 @@ export interface components {
             inactive?: boolean;
             canonical_id?: string;
             schedule_time?: components["schemas"]["ScheduleTime"];
-            /** @description 学期结构化排序键：自然年乘 10 加季节（春 1、夏 2、秋 3）。来自学校适配器解析的学年与学期序号；无法可靠解析的学期不返回。 */
+            /** @description 结构化时间排序键，与截止学期使用同一规则：自然年 × 10 + 季节（春 1、夏 2、秋 3），例如 20243 表示 2024 秋。不是学年起始年份。学期选项按键倒序、ID 升序；公开目录投影不返回无法解析的学期。 */
             readonly term_order_key?: number;
             /** @description 课程在当前目录投影中最近一次开课的学期 ID，按结构化学期排序键确定。 */
             readonly latest_term_id?: string;
+            /**
+             * @description 体育项目使用 kind=course 和稳定的项目 ID。普通课程省略此字段。项目详情、教师、学期及评价复用课程接口；编号体育课程原 ID 返回不存在。
+             * @enum {string}
+             */
+            readonly course_type?: "sports_project";
+            /** @description 仅教学班导入使用的来源体育项目代码。由学校适配器读取明确字段，目录规则通过配置将代码映射到项目；不从场地或教师推断。 */
+            sports_project_code?: string;
         };
         Page: {
             items: components["schemas"]["Object"][];
@@ -531,6 +540,8 @@ export interface components {
             /** Format: date-time */
             fetched_at?: string;
             active: boolean;
+            /** @description 选课学期的结构化排序键，与 Object.term_order_key 相同。0 表示来源缺失或无法解析，排在已知学期后。列表按此键倒序、选课 ID 升序；after 仍传上一页最后一个选课 ID。 仅 include_term_order=true 的 HTTP 请求返回。 */
+            readonly term_order_key?: number;
         };
         Import: {
             school_id: string;
@@ -564,6 +575,7 @@ export interface components {
             items: components["schemas"]["Object"][];
             missing_ids: string[];
         };
+        /** @description 管理端与受信进程内服务使用的完整摘要；offering_count 仅供这些调用方读取。 */
         Summary: {
             object: components["schemas"]["Object"];
             school: components["schemas"]["Object"];
@@ -841,6 +853,41 @@ export interface components {
             /** Format: date-time */
             observed_at: string | null;
         };
+        /** @description 普通目录课程或教师摘要。仅保留课程与教师数量，不包含 offering_count 或其他教学班粒度计数。 */
+        PublicSummary: {
+            object: components["schemas"]["Object"];
+            school: components["schemas"]["Object"];
+            department: {
+                id: string;
+                /** @enum {string} */
+                kind: "school" | "department" | "category" | "nature" | "term" | "course" | "teacher" | "term_course" | "class" | "assignment" | "schedule";
+                school_id: string;
+                name: string;
+                code?: string;
+                department_id?: string;
+                category_id?: string;
+                nature_id?: string;
+                course_id?: string;
+                term_id?: string;
+                term_course_id?: string;
+                class_id?: string;
+                teacher_id?: string;
+                credits: number | null;
+                biography?: string;
+                location?: string;
+                time_text?: string;
+                aliases: string[];
+                revision: number;
+                /** Format: date-time */
+                updated_at: string;
+            } | null;
+            categories: components["schemas"]["Object"][];
+            natures: components["schemas"]["Object"][];
+            /** @description 当前目录投影中关联的可展示课程数量。 */
+            course_count: number;
+            /** @description 当前目录投影中关联的可展示教师数量。 */
+            teacher_count: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -853,6 +900,7 @@ export interface operations {
     listObjects: {
         parameters: {
             query?: {
+                /** @description 普通目录支持 school、department、category、nature、term、course、teacher；请求其余四类教学班对象返回 403 forbidden。 */
                 kind?: string;
                 school_id?: string;
                 department_id?: string;
@@ -865,9 +913,9 @@ export interface operations {
                 q?: string;
                 after?: string;
                 limit?: number;
-                /** @description Restrict relationships to this offering or teaching class. */
+                /** @description 普通目录禁止使用此教学班粒度筛选，返回 403 forbidden；管理端使用 /catalog/admin/objects。 */
                 term_course_id?: string;
-                /** @description Restrict relationships to this offering or teaching class. */
+                /** @description 普通目录禁止使用此教学班粒度筛选，返回 403 forbidden；管理端使用 /catalog/admin/objects。 */
                 class_id?: string;
                 include_inactive?: boolean;
             };
@@ -904,7 +952,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Not permitted */
+            /** @description forbidden：内容准入被拒，或请求 term_course、class、assignment、schedule 类型。普通列表与目录也拒绝 term_course_id、class_id 筛选。 */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -989,7 +1037,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Not found */
+            /** @description not_found：对象不存在、当前不可见，或 ID（含合并前别名）指向 term_course、class、assignment、schedule。 */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1188,6 +1236,8 @@ export interface operations {
                 term_id?: string;
                 after?: string;
                 limit?: number;
+                /** @description 在选课对象中返回 term_order_key。默认 false，保留旧客户端的封闭 Enrollment 结构。返回顺序始终按结构化时间倒序。 */
+                include_term_order?: boolean;
             };
             header?: never;
             path?: never;
@@ -1354,7 +1404,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Summary"];
+                    "application/json": components["schemas"]["PublicSummary"];
                 };
             };
             /** @description Invalid input */
@@ -1384,7 +1434,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Not found */
+            /** @description not_found：对象不存在、当前不可见，或 ID（含合并前别名）指向 term_course、class、assignment、schedule。 */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -1866,7 +1916,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Not found */
+            /** @description not_found：对象不存在、当前不可见，或 ID（含合并前别名）指向 term_course、class、assignment、schedule。 */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -2375,6 +2425,8 @@ export interface operations {
                 term_id: string;
                 after?: string;
                 limit?: number;
+                /** @description 在选课对象中返回 term_order_key。默认 false，保留旧客户端的封闭 Enrollment 结构。返回顺序始终按结构化时间倒序。 */
+                include_term_order?: boolean;
             };
             header?: never;
             path?: never;
@@ -2737,7 +2789,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Not permitted */
+            /** @description forbidden：内容准入被拒，或请求 term_course、class、assignment、schedule 类型。普通列表与目录也拒绝 term_course_id、class_id 筛选。 */
             403: {
                 headers: {
                     [name: string]: unknown;
@@ -3112,7 +3164,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Not permitted */
+            /** @description forbidden：内容准入被拒，或请求 term_course、class、assignment、schedule 类型。普通列表与目录也拒绝 term_course_id、class_id 筛选。 */
             403: {
                 headers: {
                     [name: string]: unknown;

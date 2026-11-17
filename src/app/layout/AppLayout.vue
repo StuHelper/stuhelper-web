@@ -8,6 +8,7 @@ import { extras } from '../../shared/extras'
 import ToastHost from '../../shared/ui/ToastHost.vue'
 import CompareTray from '../../features/search/CompareTray.vue'
 import SearchPalette from '../../features/search/SearchPalette.vue'
+import NotificationBell from '../../features/notifications/NotificationBell.vue'
 import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { products } from '../products'
 import AccountMenu from './AccountMenu.vue'
@@ -170,6 +171,7 @@ watch(() => route.path, async (_path, previous) => {
               v-for="(tool, index) in extras.navTools"
               :key="index"
             />
+            <NotificationBell v-if="!promotional" />
             <ThemeToggle class="bar-setting" />
             <LocaleSelect class="bar-setting" />
             <AccountMenu />

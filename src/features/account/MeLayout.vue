@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { myCoursesEnabled } from '../../app/features'
-import { AppWindow, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, ShieldCheck, ThumbsUp, UserRound, UserRoundCog, UsersRound, BadgeCheck } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import { useLinkAvailable } from '../../shared/capabilities'
+import { meLinks } from './links'
 import RequireSignIn from './RequireSignIn.vue'
 
 // Shared frame of the personal center: one heading, section links and the
@@ -16,25 +15,7 @@ const available = useLinkAvailable()
 const covers = (to: string) => route.path === to || (to !== '/me' && route.path.startsWith(`${to}/`))
 // The most specific link wins. Student and teacher verification share one entry.
 const current = (to: string) => covers(to) && !links.some((link) => link.to !== to && link.to.startsWith(`${to}/`) && covers(link.to))
-const links = [
-  { to: '/me', label: 'me.overview', icon: UserRound, tile: 'var(--c-gray)' },
-  { to: '/notifications', label: 'notifications.link', icon: Bell, tile: 'var(--c-red)' },
-  ...(myCoursesEnabled ? [{ to: '/me/courses', label: 'courses.title', icon: CalendarDays, tile: 'var(--c-red)' }] : []),
-  { to: '/me/reviews', label: 'me.reviews', icon: FileText, tile: 'var(--c-blue)' },
-  { to: '/me/resources', label: 'me.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
-  { to: '/me/requests', label: 'me.requests', icon: Inbox, tile: 'var(--c-indigo)' },
-  { to: '/me/verification', label: 'verification.unified.title', icon: ShieldCheck, tile: 'var(--c-green)' },
-  { to: '/me/groups', label: 'groups.title', icon: UsersRound, tile: 'var(--c-cyan)' },
-  { to: '/me/storage', label: 'nav.contributions', icon: HardDrive, tile: 'var(--c-cyan)' },
-  { to: '/me/favorites', label: 'favorites.title', icon: Bookmark, tile: 'var(--c-orange)' },
-  { to: '/me/votes', label: 'search.votes.title', icon: ThumbsUp, tile: 'var(--c-blue)' },
-  { to: '/me/wallet', label: 'wallet.title', icon: Coins, tile: 'var(--c-flame)' },
-  { to: '/me/membership', label: 'membership.title', icon: BadgeCheck, tile: 'var(--c-indigo)' },
-  { to: '/me/apps', label: 'platform.grants.title', icon: AppWindow, tile: 'var(--c-cyan)' },
-  { to: '/me/developer', label: 'platform.developer.title', icon: Code2, tile: 'var(--c-gray)' },
-  { to: '/me/profile', label: 'profile.title', icon: UserRoundCog, tile: 'var(--c-pink)' },
-  { to: '/me/account', label: 'security.title', icon: LockKeyhole, tile: 'var(--c-gray)' },
-] as const
+const links = meLinks.filter((link) => !link.phoneOnly)
 </script>
 
 <template>

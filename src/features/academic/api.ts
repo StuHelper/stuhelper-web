@@ -12,7 +12,7 @@ import { useHttp } from '../../shared/session'
 export type CatalogObject = Catalog['schemas']['Object']
 export type ObjectKind = CatalogObject['kind']
 export type ObjectPage = Catalog['schemas']['Page']
-export type ObjectSummary = Catalog['schemas']['Summary']
+export type ObjectSummary = Catalog['schemas']['PublicSummary']
 export type Enrollment = Catalog['schemas']['Enrollment']
 export type OwnSchedule = Catalog['schemas']['OwnSchedule']
 export type ScheduleMeeting = Catalog['schemas']['ScheduleMeeting']
@@ -55,7 +55,7 @@ const parse = {
   object: schemaOf<CatalogObject>(catalog, 'Object'),
   objectPage: schemaOf<ObjectPage>(catalog, 'Page'),
   filterOptions: schemaOf<Catalog['schemas']['FilterOptions']>(catalog, 'FilterOptions'),
-  summary: schemaOf<ObjectSummary>(catalog, 'Summary'),
+  summary: schemaOf<ObjectSummary>(catalog, 'PublicSummary'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
   schedule: schemaOf<Catalog['schemas']['OwnSchedulePage']>(catalog, 'OwnSchedulePage'),
@@ -185,7 +185,7 @@ export class AcademicApi {
     const items: Enrollment[] = []
     let after = ''
     for (let page = 0; page < 10; page++) {
-      const rows = await this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query: { after: after || undefined, limit: 100 }, signal })
+      const rows = await this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query: { after: after || undefined, limit: 100, include_term_order: 'true' }, signal })
       items.push(...rows)
       if (rows.length < 100) return items
       const last = rows.at(-1)?.id ?? ''
@@ -318,7 +318,7 @@ export function arrayCursor<T>(rows: T[], id: (row: T) => string) {
   return rows.length === listSize && last !== undefined ? id(last) : ''
 }
 
-const subjectPrefixes: Partial<Record<ObjectKind, string>> = { course: 'courses', teacher: 'teachers', term_course: 'offerings', class: 'classes' }
+const subjectPrefixes: Partial<Record<ObjectKind, string>> = { course: 'courses', teacher: 'teachers' }
 
 export function subjectPath(object: { id: string; kind: string }) {
   const base = subjectPrefixes[object.kind as ObjectKind]

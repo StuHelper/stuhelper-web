@@ -361,8 +361,10 @@ export interface components {
         Input: {
             /** @enum {string} */
             kind: "course" | "mentor" | "reply";
+            /** @description 体育项目评价继续使用 kind=course，target_id 为 catalog 返回的体育项目 ID。原编号体育课程被隐藏后返回 404。 */
             target_id: string;
             term_id?: string;
+            /** @description 体育项目评价必须选择一个教师，并且教师来自本人同一项目、同一学期的有效教学班；缺少教师返回 invalid_input，越权教师返回 forbidden。 */
             teacher_id?: string;
             title: string;
             body: string;
@@ -401,8 +403,10 @@ export interface components {
             parent_id?: string;
             kind: string;
             school_id: string;
+            /** @description 体育项目评价继续使用 kind=course，target_id 为 catalog 返回的体育项目 ID。原编号体育课程被隐藏后返回 404。 */
             target_id: string;
             term_id?: string;
+            /** @description 体育项目评价必须选择一个教师，并且教师来自本人同一项目、同一学期的有效教学班；缺少教师返回 invalid_input，越权教师返回 forbidden。 */
             teacher_id?: string;
             title: string;
             body: string;
@@ -416,6 +420,10 @@ export interface components {
             my_vote: number;
             mine: boolean;
             featured?: boolean;
+            /** @description 评价列表中的根评价附带当前请求人可见的已发布回复总数，包括嵌套回复。删除、隐藏、撤回、到期及必需实名授权撤销的回复不计入。本人列表仅在仍有当前内容阅读权限时提供；详情和回复行可省略。 仅 include_reply_preview=true 时返回。 */
+            readonly reply_count?: number;
+            /** @description 与 reply_count 一起提供，按创建时间升序、ID 升序的最早 3 条可见回复。无回复时为空数组。预览回复不再嵌套预览，使用与回复列表相同的当前匿名、署名与公开标签规则。 仅 include_reply_preview=true 时返回。 */
+            readonly reply_preview?: components["schemas"]["View"][];
         };
         Page: {
             items: components["schemas"]["View"][];
@@ -496,6 +504,8 @@ export interface components {
             rule_version: string;
             disclosures?: components["schemas"]["DisclosureOption"][];
             teacher_reply?: boolean;
+            /** @description true 表示评价对象为体育项目，发布时必须提交一个 teacher_id。选项仍为本人的 teacher_ids。普通课程省略或返回 false。 */
+            teacher_required?: boolean;
         };
         AdminEntry: {
             id: string;
@@ -596,6 +606,8 @@ export interface components {
             dimensions: components["schemas"]["Band"][];
             recommendation: components["schemas"]["Recommendation"];
             term_name: string;
+            /** @description catalog 的自然年 × 10 + 季节排序键（春 1、夏 2、秋 3）；0 为未知。terms 按键倒序、term_id 升序。 */
+            term_order_key?: number;
         };
         ReviewSummary: {
             target_id: string;
@@ -653,6 +665,8 @@ export interface operations {
                 sort?: "id" | "newest" | "oldest" | "upvotes";
                 /** @description Course reviews attributed to this teacher at publication. */
                 teacher_id?: string;
+                /** @description 为当前可读根评价批量返回 reply_count 与最多三条 reply_preview。默认 false，保留旧客户端的封闭 View 结构。 */
+                include_reply_preview?: boolean;
             };
             header?: never;
             path?: never;
@@ -1138,6 +1152,8 @@ export interface operations {
                 kind?: string;
                 target_id?: string;
                 term_id?: string;
+                /** @description 为当前可读根评价批量返回 reply_count 与最多三条 reply_preview。默认 false，保留旧客户端的封闭 View 结构。 */
+                include_reply_preview?: boolean;
             };
             header?: never;
             path?: never;

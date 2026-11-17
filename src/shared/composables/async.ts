@@ -53,13 +53,19 @@ export interface PageResult<T> {
 /**
  * Cursor pagination that appends pages. Reloading starts again from the first
  * page; a failed "load more" keeps the rows that were already shown.
+ *
+ * With `keepRows` a reload leaves the rows of the previous result on screen, marked
+ * by `refreshing`, until the first page of the new result arrives, so changing a
+ * filter does not flash an empty list. Any failure of that reload clears them, so
+ * rows the server no longer confirms never stay.
  */
-export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Promise<PageResult<T>>, options: { resetOnConflict?: boolean } = {}) {
+export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Promise<PageResult<T>>, options: { resetOnConflict?: boolean; keepRows?: boolean } = {}) {
   const items = shallowRef<T[]>([])
   const next = ref('')
   const status = ref<LoadStatus>('idle')
   const error = ref('')
   const appending = ref(false)
+  const refreshing = ref(false)
   let current: AbortController | undefined
 
   async function load(cursor: string): Promise<void> {
@@ -69,8 +75,11 @@ export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Pro
     status.value = 'loading'
     error.value = ''
     appending.value = cursor !== ''
+    const kept = !cursor && !!options.keepRows && items.value.length > 0
+    refreshing.value = kept
     if (!cursor) {
-      items.value = []
+      if (!kept) items.value = []
+      // The old cursor belongs to the old result and must not be followed any more.
       next.value = ''
     }
     try {
@@ -89,13 +98,16 @@ export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Pro
         return
       }
       error.value = errorCode(failure)
-      if (failure instanceof ApiError && failure.denied) {
+      if (kept || (failure instanceof ApiError && failure.denied)) {
         items.value = []
         next.value = ''
       }
       status.value = 'error'
     } finally {
-      if (current === controller) appending.value = false
+      if (current === controller) {
+        appending.value = false
+        refreshing.value = false
+      }
     }
   }
 
@@ -106,6 +118,8 @@ export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Pro
     next.value = ''
     error.value = ''
     status.value = 'idle'
+    appending.value = false
+    refreshing.value = false
   }
 
   onScopeDispose(clear)
@@ -115,6 +129,7 @@ export function usePaged<T>(loader: (cursor: string, signal: AbortSignal) => Pro
     status: readonly(status),
     error: readonly(error),
     appending: readonly(appending),
+    refreshing: readonly(refreshing),
     reload: () => load(''),
     loadMore: () => (next.value ? load(next.value) : Promise.resolve()),
     clear,

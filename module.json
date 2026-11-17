@@ -57,11 +57,20 @@
     "AE-ACCESS-04": [
       "tests/e2e/access.spec.mjs#a verified user enters content; the home page becomes a workspace"
     ],
+    "MC-01": [
+      "tests/demo/my-courses.spec.mjs#the week grid opens on the current teaching week, marks today and moves between weeks",
+      "tests/demo/my-courses.spec.mjs#a phone shows the five weekdays without sideways scrolling",
+      "tests/demo/my-courses.spec.mjs#the home page shows the next class day and courses waiting for a review"
+    ],
     "MC-02": [
-      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent"
+      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent",
+      "tests/demo/my-courses.spec.mjs#a term with only original time text opens as a list and cannot be exported"
     ],
     "MC-04": [
       "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent"
+    ],
+    "MC-05": [
+      "tests/demo/my-courses.spec.mjs#a term with only original time text opens as a list and cannot be exported"
     ],
     "QQ-01": [
       "tests/e2e/groups.spec.mjs#an application missing a QQ binding links to the binding and shows the deadline",
@@ -109,7 +118,15 @@
     ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
-      "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification"
+      "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification",
+      "tests/e2e/verification-ux.spec.mjs#verification status leads the page and opens the steps on request",
+      "tests/e2e/verification-ux.spec.mjs#method cards keep methods an identity cannot use visible with the reason",
+      "src/features/verification/flow.test.ts#offers each identity only the methods the school allows it and keeps the choice valid",
+      "src/features/verification/flow.test.ts#derives one standing from the summary, the applications and the credentials",
+      "src/features/verification/flow.test.ts#moves a created inbound email challenge to step three, where its one-time address is shown",
+      "src/features/verification/flow.test.ts#holds step three only while the school login waits and returns to the form after it ends",
+      "tests/e2e/verification-ux.spec.mjs#an inbound email challenge moves to the last step and shows its one-time address",
+      "tests/e2e/verification-ux.spec.mjs#a failed school login returns the open application to the form for another try"
     ],
     "VERIFICATION-UX-02": [
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",
@@ -121,7 +138,9 @@
     ],
     "VERIFICATION-UX-03": [
       "tests/e2e/verification-ux.spec.mjs#profile shows plain field labels and binds authentication time to the selected credential",
-      "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure"
+      "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure",
+      "src/features/verification/flow.test.ts#keeps a failed profile request on the credential that asked for it",
+      "tests/e2e/verification-ux.spec.mjs#a failed school profile is reported once, under the credential that asked for it"
     ],
     "WEB-CATALOG-01": [
       "tests/e2e/academic.spec.mjs#invisible course and discussion show the standard not-found state"
@@ -134,6 +153,45 @@
     ],
     "BROWSE-RESOURCES-01": [
       "tests/e2e/resources.spec.mjs#the side list shows recently visited courses, filters by one and can be cleared"
+    ],
+    "MC-SWITCH-01": [
+      "src/app/features.test.ts#keeps my courses off outside the review prototype",
+      "tests/e2e/access.spec.mjs#my courses stays off and reads no enrollment records without consent",
+      "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
+    ],
+    "BROWSE-DIRECTORY-02": [
+      "tests/e2e/academic.spec.mjs#course rows show the recommendation in words and the next page arrives without a button",
+      "tests/e2e/academic.spec.mjs#each department in the grouped view reads its own rows and shows all of them on request"
+    ],
+    "BROWSE-DIRECTORY-03": [
+      "tests/e2e/academic.spec.mjs#a new search keeps the previous rows until the result arrives and clears them when it fails",
+      "src/shared/composables/async.test.ts#keeps the previous rows while a reload is in flight and clears them when it fails"
+    ],
+    "BROWSE-QUICKVIEW-01": [
+      "tests/e2e/academic.spec.mjs#the quick view names the course at once, gives a verdict in words and retries a failed overview"
+    ],
+    "REVIEW-EDITOR-01": [
+      "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters"
+    ],
+    "NOTIFY-BELL-01": [
+      "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center",
+      "tests/e2e/notifications.spec.mjs#a failed unread count leaves the bell without a number and breaks nothing",
+      "src/features/notifications/unread.test.ts#shares one request, reuses a fresh count and reads again when forced or stale",
+      "src/features/notifications/unread.test.ts#keeps the last known count when a read fails and never goes below zero",
+      "src/features/notifications/unread.test.ts#keeps a newer mark-all-read result when an older count request finishes",
+      "src/features/notifications/unread.test.ts#does not restore a cleared count from a request started before the reset"
+    ],
+    "ME-MENU-01": [
+      "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
+    ],
+    "NOTIFY-NAME-01": [
+      "src/features/notifications/title.test.ts#uses the current content name when the server provides it",
+      "src/features/notifications/title.test.ts#shows a state instead of a name for removed or unreadable content",
+      "src/features/notifications/title.test.ts#keeps the identifier for servers that send no name",
+      "src/features/notifications/title.test.ts#names the item of a system notice that refers to content"
+    ],
+    "REVIEW-REPLY-PREVIEW-01": [
+      "tests/e2e/academic.spec.mjs#review cards show the reply preview from the list without asking for replies one by one"
     ]
   }
 }

@@ -63,7 +63,8 @@
     "filtersCount": "絞り込み（{count}）",
     "goHome": "ホームに戻る",
     "undo": "元に戻す",
-    "clearSearch": "検索を解除"
+    "clearSearch": "検索を解除",
+    "shownOf": "{total} 件中 {shown} 件を表示"
   },
   "errors": {
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
@@ -379,7 +380,8 @@
       "creditsUnknown": "単位数は未提供",
       "aliases": "別名",
       "biography": "概要",
-      "findCourses": "この教員の授業"
+      "findCourses": "この教員の授業",
+      "sportsProject": "体育種目"
     },
     "offerings": {
       "title": "開講履歴",
@@ -515,6 +517,7 @@
       "termsUnavailable": "学期一覧を読み込めませんでした。しばらくして再試行してください。",
       "teacher": "担当教員",
       "teacherHint": "教員は選択した学期の履修記録から表示されます。指定しなくてもかまいません。",
+      "teacherRequiredHint": "体育種目の評価では担当教員を選んでください。選択した学期のこの種目の履修記録から表示されます。",
       "moreTerms": "他の学期",
       "ratingsRequired": "5 項目すべてを評価すると公開できます。",
       "title": "タイトル",
@@ -536,7 +539,9 @@
       "saveDraft": "下書きを保存",
       "draftSaved": "下書きを保存しました。",
       "pending": "投稿を受け付けました。審査待ちです。",
-      "published": "投稿しました。"
+      "published": "投稿しました。",
+      "missing": "公開する前に入力が必要です：{items}",
+      "ratingsDone": "評価（{total} 項目中 {done} 項目を選択）"
     },
     "disclosure": {
       "title": "公開する認証情報",
@@ -679,7 +684,11 @@
       "deviceConfirm": "この端末の StuHelper からログアウトしますか？",
       "allConfirm": "すべての端末の StuHelper からログアウトしますか？他の端末は再ログインが必要です。"
     },
-    "security": "アカウントとセキュリティ"
+    "security": "アカウントとセキュリティ",
+    "groups": {
+      "account": "アカウント",
+      "services": "その他のサービス"
+    }
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -801,7 +810,7 @@
       "tags": "タグ",
       "tagsHint": "複数のタグはカンマで区切ります。",
       "associations": "授業との関連",
-      "associationsHint": "確実な関連だけを入力してください。学期や教員が不明なら未指定のままにします。",
+      "associationsHint": "科目を選ぶだけで十分です。資料に時期の制約がある場合や、特定の学期・教員の授業にだけ当てはまる場合は、学期と教員も指定できます（任意）。",
       "directory": "希望のフォルダ",
       "directoryHint": "任意です。フォルダは管理者が整理し、提案は参考にされます。",
       "create": "保存して下書きを作成",
@@ -1097,7 +1106,7 @@
       "processing": "学校で確認中",
       "waiting_sms": "SMSコードを待機中",
       "authenticated": "学校での確認が完了しました",
-      "failed": "確認に失敗しました。やり直してください",
+      "failed": "学校での確認が完了しませんでした。もう一度入力して送信してください。",
       "cancelled": "学校認証をキャンセルしました",
       "expired": "期限が切れました。やり直してください"
     },
@@ -1132,7 +1141,57 @@
       "confirm": "認証する",
       "resend": "再送信",
       "resendIn": "{seconds} 秒後に再送信できます"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "キャンパス認証は完了しています",
+        "text": "授業の評価、教員、学習資料を閲覧できます。"
+      },
+      "review": {
+        "title": "提出書類を審査中です",
+        "text": "書類は提出済みです。結果は通知でお知らせします。それまで操作は不要です。"
+      },
+      "supplement": {
+        "title": "書類の追加が必要です",
+        "text": "審査担当者が書類の追加または再撮影を求めています。追加して再提出してください。"
+      },
+      "draft": {
+        "title": "未完了の認証があります",
+        "text": "前回の続きから再開するか、下で方法を選び直せます。"
+      },
+      "rejected": {
+        "title": "前回の認証は承認されませんでした",
+        "text": "審査コメントに沿って修正し再提出するか、別の方法をお試しください。"
+      },
+      "lapsed": {
+        "title": "認証の有効期限が切れています",
+        "text": "もう一度認証すると引き続き利用できます。"
+      },
+      "none": {
+        "title": "まだ認証されていません",
+        "text": "下で方法を選び、手順に沿って進めてください。"
+      },
+      "reviewNote": "審査コメント",
+      "restart": "もう一度認証する",
+      "startAnother": "新しい認証を始める"
+    },
+    "steps": {
+      "label": "認証の手順",
+      "choose": "方法を選ぶ",
+      "fill": "情報を入力",
+      "finish": "確認を完了"
+    },
+    "picker": {
+      "unavailable": "選択した身分では利用できません"
+    },
+    "needs": {
+      "real_name_identity_check": "学籍番号・氏名・証明書番号を入力。結果はすぐに出ます",
+      "school_sso": "学校の統合認証アカウントとパスワードで確認。パスワードは保存されません",
+      "student_email_outbound_otp": "学校メールに 6 桁のコードを送信します",
+      "student_email_inbound_challenge": "学校メールから指定アドレスにメールを 1 通送ります",
+      "manual_material_review": "学生証などを撮影し、管理者が審査します"
+    },
+    "changeSchool": "学校を変更"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
@@ -1294,7 +1353,9 @@
     "unplaced": "次の授業時間は読み取れなかったため、時間割に入っていません",
     "emptyTerm": "この学期の有効な履修記録はありません。",
     "noLessonsThisWeek": "今週は授業がありません。",
-    "lessonLabel": "{course}、{day} {start}〜{end} 限、{location}"
+    "lessonLabel": "{course}、{day} {start}〜{end} 限、{location}",
+    "thisWeek": "今週に戻る",
+    "textOnly": "この学期の授業時間は文字による説明のみのため、週間時間割にできません。以下に科目ごとに表示します。"
   },
   "demo": {
     "deptCredits": "{p0} · {p1} 単位",
@@ -1535,7 +1596,9 @@
     "chatGroup": "グループチャット · {p0} 人",
     "chatSample": "サンプルの会話です。メッセージはこのページにのみ保存されます。",
     "chatPlaceholder": "メッセージを入力",
-    "chatSend": "送信"
+    "chatSend": "送信",
+    "personaRejected": "認証が不承認",
+    "personaRejectedHint": "認証ページに理由を表示"
   },
   "favorites": {
     "title": "保存済み",
@@ -2125,7 +2188,10 @@
       "review": "審査結果",
       "verification": "認証",
       "system": "システム通知"
-    }
+    },
+    "namedContent": "「{name}」",
+    "contentUnavailable": "（利用できない内容）",
+    "contentNameUnavailable": "（名前を取得できません）"
   },
   "search": {
     "title": "検索",
@@ -2395,6 +2461,8 @@
     "unreadNotices": "未読の通知：{count}",
     "upvotes": "賛同 {p0} 人",
     "verifiedStudent": "認証済みの学生",
-    "viewDetails": "詳細を見る"
+    "viewDetails": "詳細を見る",
+    "unassignedCourses": "リスト表示では、学院未設定の科目を含むすべての検索結果を確認できます。",
+    "showInList": "一覧で表示"
   }
 }

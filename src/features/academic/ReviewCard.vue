@@ -243,8 +243,9 @@ async function retry() {
 
     <div class="row review-actions">
       <template v-if="published">
+        <!-- On a narrow phone the two votes show the thumb and the number; the full wording stays the button's name. -->
         <button
-          class="btn btn-sm"
+          class="btn btn-sm vote"
           type="button"
           :aria-pressed="review.my_vote === 1"
           :disabled="locked"
@@ -252,10 +253,13 @@ async function retry() {
           @click="vote(1)"
           @animationend="popped = 0"
         >
-          <ThumbsUp aria-hidden="true" />{{ t('academic.review.upvote', { count: format.number(review.upvotes) }) }}
+          <ThumbsUp aria-hidden="true" /><span class="vote-word">{{ t('academic.review.upvote', { count: format.number(review.upvotes) }) }}</span><span
+            class="vote-count"
+            aria-hidden="true"
+          >{{ format.number(review.upvotes) }}</span>
         </button>
         <button
-          class="btn btn-sm"
+          class="btn btn-sm vote"
           type="button"
           :aria-pressed="review.my_vote === -1"
           :disabled="locked"
@@ -263,7 +267,10 @@ async function retry() {
           @click="vote(-1)"
           @animationend="popped = 0"
         >
-          <ThumbsDown aria-hidden="true" />{{ t('academic.review.downvote', { count: format.number(review.downvotes) }) }}
+          <ThumbsDown aria-hidden="true" /><span class="vote-word">{{ t('academic.review.downvote', { count: format.number(review.downvotes) }) }}</span><span
+            class="vote-count"
+            aria-hidden="true"
+          >{{ format.number(review.downvotes) }}</span>
         </button>
         <button
           v-if="replyEnabled"
@@ -396,6 +403,8 @@ async function retry() {
       v-if="compact && isRoot && published"
       :root-id="review.id"
       :to="reviewLink(review)"
+      :preview="review.reply_preview"
+      :count="review.reply_count"
     />
     <ConfirmDialog
       :open="confirming !== ''"
@@ -426,7 +435,15 @@ async function retry() {
 .review-body.clamped { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 5; line-clamp: 5; -webkit-box-orient: vertical; }
 .review-more { justify-self: start; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: .875rem; font-weight: 550; cursor: pointer; }
 .review-more:hover { text-decoration: underline; text-underline-offset: .15em; }
-.review-actions { gap: .375rem; margin-block-start: .25rem; }
+.review-actions { gap: .25rem .375rem; margin-block-start: .25rem; }
+/* The quiet actions take less room, so the four actions of a review fit one line on phones. */
+.review-actions .btn-ghost { padding-inline: .625rem; }
+.vote { position: relative; }
+.vote-count { display: none; font-variant-numeric: tabular-nums; }
+@media (max-width: 480px) {
+  .vote-word { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .vote-count { display: inline; }
+}
 .review-panel { padding: 1rem; border-radius: var(--radius); background: var(--fill); }
 .review-panel .input, .review-panel .textarea { background: var(--surface); }
 </style>

@@ -63,7 +63,8 @@
     "filtersCount": "筛选（{count}）",
     "goHome": "返回首页",
     "undo": "撤销",
-    "clearSearch": "清除搜索"
+    "clearSearch": "清除搜索",
+    "shownOf": "已显示 {shown} / {total}"
   },
   "errors": {
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
@@ -379,7 +380,8 @@
       "creditsUnknown": "学分未提供",
       "aliases": "其他名称",
       "biography": "简介",
-      "findCourses": "查看该教师的课程"
+      "findCourses": "查看该教师的课程",
+      "sportsProject": "体育项目"
     },
     "offerings": {
       "title": "历次开课",
@@ -515,6 +517,7 @@
       "termsUnavailable": "学期列表暂时无法加载，请稍后重试。",
       "teacher": "任课教师",
       "teacherHint": "教师选项来自你所选学期的选课记录，不确定时可以不指定。",
+      "teacherRequiredHint": "体育项目评价需要选择任课教师，选项来自你所选学期该项目的选课记录。",
       "moreTerms": "更多学期",
       "ratingsRequired": "完成全部五项评分后方可发布。",
       "title": "标题",
@@ -536,7 +539,9 @@
       "saveDraft": "保存草稿",
       "draftSaved": "草稿已保存。",
       "pending": "已提交，等待审核。",
-      "published": "已发布。"
+      "published": "已发布。",
+      "missing": "发布前还需填写：{items}",
+      "ratingsDone": "评分（已选 {done}/{total}）"
     },
     "disclosure": {
       "title": "公开的认证信息",
@@ -679,7 +684,11 @@
       "deviceConfirm": "退出当前设备上的 StuHelper？",
       "allConfirm": "退出所有设备上的 StuHelper 会话？其他设备需要重新登录。"
     },
-    "security": "账号与安全"
+    "security": "账号与安全",
+    "groups": {
+      "account": "账号",
+      "services": "更多服务"
+    }
   },
   "resources": {
     "eyebrow": "资料共享",
@@ -801,7 +810,7 @@
       "tags": "标签",
       "tagsHint": "多个标签用逗号分隔。",
       "associations": "关联课程信息",
-      "associationsHint": "只填写确定的关联。学期、教师等无法判断时保持未指定。",
+      "associationsHint": "选择资料对应的课程即可。如果资料有时效性，或只适用于某个学期、某位老师的课，可以再标注学期和教师（可选）。",
       "directory": "建议目录",
       "directoryHint": "可选。目录由管理员整理，你的建议仅供参考。",
       "create": "保存并创建草稿",
@@ -1097,7 +1106,7 @@
       "processing": "学校正在核验",
       "waiting_sms": "等待学校短信验证码",
       "authenticated": "学校核验已完成",
-      "failed": "学校核验未完成，请重新开始",
+      "failed": "学校核验未完成，请重新输入后再提交",
       "cancelled": "学校验证已取消",
       "expired": "学校验证已过期，请重新开始"
     },
@@ -1132,7 +1141,57 @@
       "confirm": "验证",
       "resend": "重新发送",
       "resendIn": "{seconds} 秒后可重新发送"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "已通过校园认证",
+        "text": "可以浏览课程评价、教师和学习资料。"
+      },
+      "review": {
+        "title": "材料审核中",
+        "text": "材料已提交。审核有结果后会通知你，在此之前不需要其他操作。"
+      },
+      "supplement": {
+        "title": "需要补充材料",
+        "text": "审核人员需要你补充或重新拍摄材料，补充后再次提交即可。"
+      },
+      "draft": {
+        "title": "有一份未完成的认证",
+        "text": "可以接着上次的进度继续，也可以在下面重新选择方式。"
+      },
+      "rejected": {
+        "title": "上次认证未通过",
+        "text": "可以按审核说明修改后重新提交，或换一种认证方式。"
+      },
+      "lapsed": {
+        "title": "认证已失效",
+        "text": "重新完成认证后即可继续使用。"
+      },
+      "none": {
+        "title": "尚未认证",
+        "text": "在下面选择一种方式，按步骤完成认证。"
+      },
+      "reviewNote": "审核说明",
+      "restart": "重新认证",
+      "startAnother": "发起新的认证"
+    },
+    "steps": {
+      "label": "认证步骤",
+      "choose": "选择方式",
+      "fill": "填写信息",
+      "finish": "完成核验"
+    },
+    "picker": {
+      "unavailable": "不适用于所选身份"
+    },
+    "needs": {
+      "real_name_identity_check": "填写学号、姓名和证件号码，提交后即时出结果",
+      "school_sso": "用学校统一认证账号和密码核验，密码不会保存",
+      "student_email_outbound_otp": "向你的学校邮箱发送 6 位验证码",
+      "student_email_inbound_challenge": "从你的学校邮箱向指定地址发一封邮件",
+      "manual_material_review": "拍摄学生证等材料，由管理员审核"
+    },
+    "changeSchool": "更换学校"
   },
   "contribution": {
     "eyebrow": "共享存储",
@@ -1294,7 +1353,9 @@
     "unplaced": "以下上课时间无法识别，暂未排入课表",
     "emptyTerm": "该学期暂无有效的选课记录。",
     "noLessonsThisWeek": "本周无课。",
-    "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}"
+    "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}",
+    "thisWeek": "回到本周",
+    "textOnly": "这个学期的上课时间只有文字说明，无法排成周课表，下面按课程列出。"
   },
   "demo": {
     "deptCredits": "{p0} · {p1} 学分",
@@ -1535,7 +1596,9 @@
     "chatGroup": "群聊 · {p0} 人",
     "chatSample": "示例会话，消息只保存在当前页面。",
     "chatPlaceholder": "输入消息",
-    "chatSend": "发送"
+    "chatSend": "发送",
+    "personaRejected": "认证未通过",
+    "personaRejectedHint": "认证页显示未通过原因"
   },
   "favorites": {
     "title": "收藏",
@@ -2125,7 +2188,10 @@
       "review": "处理结果",
       "verification": "认证",
       "system": "系统通知"
-    }
+    },
+    "namedContent": "「{name}」",
+    "contentUnavailable": "（内容不可用）",
+    "contentNameUnavailable": "（名称暂不可用）"
   },
   "search": {
     "title": "搜索",
@@ -2395,6 +2461,8 @@
     "unreadNotices": "未读通知：{count}",
     "upvotes": "{p0} 人赞同",
     "verifiedStudent": "已认证学生",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "unassignedCourses": "列表模式显示全部结果，包括未归属学院的课程。",
+    "showInList": "在列表中查看"
   }
 }

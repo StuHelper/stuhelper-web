@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDown, Eye, Scale } from 'lucide-vue-next'
+import { Eye, Scale } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -10,13 +10,14 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import FilterBar from '../../shared/ui/FilterBar.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
-import RowMore from '../../shared/ui/RowMore.vue'
 import SearchField from '../../shared/ui/SearchField.vue'
 import { toast } from '../../shared/ui/toast'
 import { useCampusId } from '../account/access'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { compareList, maxCompare, toggleCompare } from '../search/compare'
-import { knownCredits, listSize, useAcademic, type DirectoryFacet, type DirectoryItem, type DirectorySort } from './api'
+import { knownCredits, useAcademic, type DirectoryFacet, type DirectoryItem, type DirectorySort } from './api'
+import DirectoryCourseRows from './DirectoryCourseRows.vue'
+import DirectoryGroup from './DirectoryGroup.vue'
 import QuickView from './QuickView.vue'
 import { recommendationLevel } from './ratings/levels'
 import RatingLevel from './ratings/RatingLevel.vue'
@@ -44,7 +45,8 @@ const applied = computed(() => {
   }
 })
 const text = ref(applied.value.q)
-const quick = ref<string>()
+// The row already knows the name, so the quick view shows its heading before anything loads.
+const quick = ref<{ id: string; name: string; note: string }>()
 
 // The grouped view is a per-browser display choice, not a filter.
 const groupedKey = 'stuhelper.directory.grouped'
@@ -52,15 +54,25 @@ const grouped = ref((() => { try { return localStorage.getItem(groupedKey) === '
 watch(grouped, (value) => { try { localStorage.setItem(groupedKey, value ? '1' : '0') } catch { /* private windows keep the default */ } })
 
 const facets = shallowRef<{ total: number; facetTotal: number; categories: DirectoryFacet[]; departments: DirectoryFacet[] }>({ total: 0, facetTotal: 0, categories: [], departments: [] })
+// Scrolling reads the next page well before the end, so larger pages only cut the number of
+// requests. The grouped view reads rows per department and needs only the facets here.
+const pageSize = computed(() => (props.kind === 'teacher' ? 100 : grouped.value ? 1 : 50))
 const query = (after: string, overrides: Record<string, string | number | undefined> = {}) => {
   const f = applied.value
-  return { kind: props.kind, school_id: campus.value, q: f.q || undefined, category_id: f.category || undefined, department_id: f.department || undefined, teacher_id: f.teacher || undefined, sort: f.sort, after: after || undefined, limit: listSize, ...overrides }
+  return { kind: props.kind, school_id: campus.value, q: f.q || undefined, category_id: f.category || undefined, department_id: f.department || undefined, teacher_id: f.teacher || undefined, sort: f.sort, after: after || undefined, limit: pageSize.value, ...overrides }
 }
+// Each arrival of a first page replays the list entrance; appended pages do not.
+const arrival = ref(0)
+// While a search or filter change loads, the previous rows stay on screen dimmed instead of
+// flashing a skeleton. A failed reload clears them.
 const results = usePaged<DirectoryItem>(async (after, signal) => {
   const result = await api.directory(query(after), signal)
-  if (!after) facets.value = { total: result.total, facetTotal: result.facet_total, categories: result.category_facets, departments: result.department_facets }
+  if (!after) {
+    facets.value = { total: result.total, facetTotal: result.facet_total, categories: result.category_facets, departments: result.department_facets }
+    arrival.value += 1
+  }
   return { items: result.items, next: result.next }
-}, { resetOnConflict: true })
+}, { resetOnConflict: true, keepRows: true })
 // Department facets keep every condition, so with a department chosen the other departments
 // would all count zero. A one-row request without the department supplies their counts.
 const otherDepartments = useAsync(async (signal) => (applied.value.department ? (await api.directory(query('', { department_id: undefined, limit: 1 }), signal)).department_facets : undefined))
@@ -71,7 +83,7 @@ const departments = computed(() => (otherDepartments.data.value ?? facets.value.
 const departmentName = (id: string) => departments.value.find((f) => f.id === id)?.name ?? facets.value.departments.find((f) => f.id === id)?.name ?? ''
 const count = computed(() => facets.value.total)
 
-watch(() => `${props.kind} ${campus.value} ${JSON.stringify(applied.value)}`, () => {
+watch(() => `${props.kind} ${campus.value} ${pageSize.value} ${JSON.stringify(applied.value)}`, () => {
   text.value = applied.value.q
   void results.reload()
   void otherDepartments.reload()
@@ -97,44 +109,30 @@ const activeFilters = computed(() => [
   ...(applied.value.q ? [{ key: 'q', label: `“${applied.value.q}”`, clear: () => { text.value = ''; set({ q: undefined }) } }] : []),
 ])
 
-// Grouping applies to the rows loaded so far; header counts come from the department facets,
-// so a group shows its full size even before every row is loaded.
+// The grouped view lists every department of the current result. Each department reads its own
+// rows, so the header counts and "show all" always cover the whole department.
 const PREVIEW = 5
-const expanded = ref(new Set<string>())
-const groups = computed(() => {
-  const rows = results.items.value
-  if (!grouped.value || props.kind !== 'course') return [{ id: '', name: '', rows, count: 0, reviews: 0 }]
-  const map = new Map<string, DirectoryItem[]>()
-  for (const row of rows) {
-    const id = row.departments[0]?.id ?? ''
-    map.set(id, [...(map.get(id) ?? []), row])
-  }
-  return [...map].map(([id, list]) => {
-    const facet = facets.value.departments.find((f) => f.id === id)
-    return { id: id || '-', name: facet?.name ?? list[0]?.departments[0]?.name ?? t('common.unknown'), rows: list, count: facet?.count ?? list.length, reviews: facet?.review_count ?? 0 }
-  })
-})
-const visible = (group: { id: string; rows: DirectoryItem[] }) => (!group.id || expanded.value.has(group.id) ? group.rows : group.rows.slice(0, PREVIEW))
-function toggleGroup(id: string) {
-  const next = new Set(expanded.value)
-  if (next.has(id)) next.delete(id)
-  else next.add(id)
-  expanded.value = next
+const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
+// Department facets can overlap. Keep a route to every result without inferring an
+// unassigned count from those non-exclusive totals.
+async function loadDepartment(id: string, after: string, limit: number, signal: AbortSignal) {
+  const result = await api.directory(query(after, { department_id: id, limit }), signal)
+  return { items: result.items, next: result.next }
 }
 const reviewText = (n: number) => (n ? t('browse.reviewCount', { p0: format.value.number(n) }) : t('browse.noReviews'))
 const sub = (row: DirectoryItem) => {
   const credits = knownCredits(row.object)
   return [row.object.code, credits === undefined ? '' : t('academic.subject.credits', { credits: format.value.number(credits) })].filter(Boolean).join(' · ')
 }
-const listKey = computed(() => `${applied.value.category}|${applied.value.department}|${applied.value.sort}|${grouped.value}`)
+const listKey = computed(() => `${arrival.value}|${grouped.value}`)
+const level = (row: DirectoryItem) => recommendationLevel[row.recommendation]
+const open = (row: DirectoryItem) => { quick.value = { id: row.object.id, name: row.object.name, note: props.kind === 'course' ? [sub(row), row.departments[0]?.name].filter(Boolean).join(' · ') : row.departments[0]?.name ?? '' } }
 const palette = ['var(--c-blue)', 'var(--c-purple)', 'var(--c-orange)', 'var(--c-green)', 'var(--c-pink)', 'var(--c-indigo)', 'var(--c-cyan)']
 // White initials need a darkened background for contrast.
 const tint = (id: string) => `color-mix(in srgb, ${palette[[...id].reduce((sum, c) => sum + c.charCodeAt(0), 0) % palette.length]} 72%, black)`
 function compare(id: string) {
   if (!toggleCompare(props.kind, id)) toast(t('browse.compareLimit', { p0: format.value.number(maxCompare) }))
 }
-// An em dash marks "no reviews" in the narrow count column; it is a symbol, not text.
-const dash = '\u2014'
 const inCompare = (id: string) => compareList[props.kind].includes(id)
 </script>
 
@@ -256,10 +254,13 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
       :status="results.status.value"
       :error="results.error.value"
       :count="results.items.value.length"
-      :next="results.next.value"
+      :next="grouped && kind === 'course' ? '' : results.next.value"
+      auto
       :appending="results.appending.value"
       :retry-label="t(kind === 'course' ? 'academic.directory.reloadCourses' : 'academic.directory.reloadTeachers')"
       :empty-text="t(activeFilters.length ? (kind === 'course' ? 'browse.noMatchCourses' : 'browse.noMatchTeachers') : 'academic.directory.empty')"
+      :total="count"
+      :filtered="activeFilters.length > 0"
       @retry="results.reload"
       @more="results.loadMore"
     >
@@ -267,6 +268,8 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
         v-if="kind === 'teacher'"
         :key="listKey"
         class="cards d-list-in"
+        :class="{ stale: results.refreshing.value }"
+        :aria-busy="results.refreshing.value || undefined"
       >
         <li
           v-for="row in results.items.value"
@@ -289,23 +292,24 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
             <FavoriteButton
               :id="row.object.id"
               kind="teacher"
+              quiet
             />
           </div>
           <span
             v-if="row.object.biography"
             class="muted small clamp-2"
           >{{ row.object.biography }}</span>
-          <span class="dims"><small>{{ t('browse.teacherOverallScore') }}</small><RatingLevel :level="recommendationLevel[row.recommendation]" /></span>
+          <span class="dims"><small>{{ t('browse.teacherOverallScore') }}</small><RatingLevel :level="level(row)" /></span>
           <div class="foot">
             <button
               class="btn btn-sm"
               type="button"
-              @click="quick = row.object.id"
+              @click="open(row)"
             >
               <Eye aria-hidden="true" />{{ t('browse.quickView') }}
             </button>
             <button
-              class="btn btn-sm"
+              class="btn btn-sm btn-ghost"
               type="button"
               :aria-pressed="inCompare(row.object.id)"
               @click="compare(row.object.id)"
@@ -316,102 +320,63 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
         </li>
       </ul>
       <div
+        v-else-if="grouped"
+        :key="listKey"
+        class="sections split d-list-in"
+        :class="{ stale: results.refreshing.value }"
+        :aria-busy="results.refreshing.value || undefined"
+      >
+        <DirectoryGroup
+          v-for="group in groups"
+          :key="group.id"
+          v-slot="{ rows }"
+          :name="group.name"
+          :count="group.count"
+          :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
+          :preview="PREVIEW"
+          :load="(after, limit, signal) => loadDepartment(group.id, after, limit, signal)"
+        >
+          <DirectoryCourseRows
+            :rows="rows"
+            compact
+            @open="open"
+            @compare="compare"
+          />
+        </DirectoryGroup>
+        <p
+          class="card unassigned"
+        >
+          <span class="subtle">{{ t('browse.unassignedCourses') }}</span>
+          <button
+            class="btn btn-sm"
+            type="button"
+            @click="grouped = false"
+          >
+            {{ t('browse.showInList') }}
+          </button>
+        </p>
+      </div>
+      <div
         v-else
         :key="listKey"
         class="sections d-list-in"
-        :class="{ split: grouped }"
+        :class="{ stale: results.refreshing.value }"
+        :aria-busy="results.refreshing.value || undefined"
       >
-        <section
-          v-for="group in groups"
-          :key="group.id"
-          class="card flush"
-          :aria-label="group.name || undefined"
-        >
-          <header
-            v-if="group.id"
-            class="group-head"
-          >
-            <h2 class="card-title">
-              {{ group.name }}
-            </h2>
-            <span class="subtle">{{ t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) }) }}</span>
-          </header>
-          <div
-            v-else
-            class="line head"
-            aria-hidden="true"
-          >
-            <span>{{ t('nav.courses') }}</span><span>{{ t('browse.department') }}</span><span>{{ t('browse.category') }}</span><span>{{ t('browse.reviews') }}</span><span />
-          </div>
-          <ul>
-            <li
-              v-for="r in visible(group)"
-              :key="r.object.id"
-              class="line"
-              :class="{ compact: group.id }"
-            >
-              <span class="main">
-                <RouterLink
-                  class="name truncate"
-                  :to="`/courses/${encodeURIComponent(r.object.id)}`"
-                >{{ r.object.name }}</RouterLink>
-                <span class="subtle truncate">{{ sub(r) }}</span>
-                <span class="subtle truncate phone">{{ [r.categories[0]?.name, reviewText(r.review_count)].filter(Boolean).join(' · ') }}</span>
-              </span>
-              <template v-if="!group.id">
-                <span class="cell small truncate">{{ r.departments[0]?.name ?? '' }}</span>
-                <span class="cell"><span
-                  v-if="r.categories[0]"
-                  class="tag"
-                >{{ r.categories[0].name }}</span></span>
-                <span
-                  class="cell small"
-                  :class="{ none: !r.review_count }"
-                >{{ r.review_count ? format.number(r.review_count) : dash }}</span>
-              </template>
-              <span class="ops">
-                <button
-                  class="btn btn-sm btn-icon desk"
-                  type="button"
-                  :aria-label="t('browse.quickViewItem', { p0: r.object.name })"
-                  @click="quick = r.object.id"
-                ><Eye aria-hidden="true" /></button>
-                <button
-                  class="btn btn-sm btn-icon desk"
-                  type="button"
-                  :aria-label="inCompare(r.object.id) ? t('browse.removeItemFromCompare', { p0: r.object.name }) : t('browse.compareItem', { p0: r.object.name })"
-                  :aria-pressed="inCompare(r.object.id)"
-                  @click="compare(r.object.id)"
-                ><Scale aria-hidden="true" /></button>
-                <FavoriteButton
-                  :id="r.object.id"
-                  kind="course"
-                />
-                <RowMore
-                  :label="t('browse.moreActionsFor', { p0: r.object.name })"
-                  :items="[{ label: t('browse.quickView'), icon: Eye, action: () => { quick = r.object.id } }, { label: inCompare(r.object.id) ? t('browse.removeFromCompare') : t('browse.addToCompare'), icon: Scale, action: () => compare(r.object.id) }]"
-                />
-              </span>
-            </li>
-          </ul>
-          <button
-            v-if="group.id && group.rows.length > PREVIEW"
-            class="more"
-            type="button"
-            :aria-expanded="expanded.has(group.id)"
-            @click="toggleGroup(group.id)"
-          >
-            <ChevronDown
-              :class="{ flip: expanded.has(group.id) }"
-              aria-hidden="true"
-            />{{ expanded.has(group.id) ? t('browse.collapse') : t('browse.expandAll', { p0: format.number(group.rows.length) }) }}
-          </button>
+        <section class="card flush">
+          <DirectoryCourseRows
+            :rows="results.items.value"
+            @open="open"
+            @compare="compare"
+          />
         </section>
       </div>
     </PagedState>
     <QuickView
-      :id="quick"
+      :id="quick?.id"
       :kind="kind"
+      :name="quick?.name"
+      :note="quick?.note"
       @close="quick = undefined"
     />
   </div>
@@ -435,50 +400,11 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
 .clamp-2 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .dims { margin-block-start: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .25rem .75rem; }
 .dims small { color: var(--label-2); font-size: .8125rem; }
-.foot { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.foot { display: flex; flex-wrap: wrap; gap: .375rem; }
+/* Rows of the previous result stay while the next one loads, dimmed so they read as not current. */
+.stale { opacity: .5; pointer-events: none; transition: opacity .2s .15s; }
 .sections { display: grid; gap: .875rem; }
+.unassigned { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
 .sections.split { grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); align-items: start; }
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
-.group-head { display: grid; gap: .0625rem; padding: .75rem 1rem; border-block-end: .5px solid var(--separator); background: var(--fill); }
-.line { position: relative; display: grid; align-items: center; gap: .75rem; min-height: 44px; padding: .25rem 1rem; grid-template-columns: minmax(0, 1fr) 12rem 6.5rem 3.5rem 7rem; }
-.line.compact { grid-template-columns: minmax(0, 1fr) 7rem; }
-li.line + li.line { border-block-start: .5px solid var(--separator); }
-li.line:hover { background: var(--fill); }
-.head { min-height: 34px; padding-block: .25rem; border-block-end: .5px solid var(--separator); color: var(--label-3); font-size: .8125rem; }
-.main { display: grid; min-width: 0; line-height: 1.3; }
-.name { color: var(--label); font-size: .9375rem; font-weight: 550; }
-.name::after { content: ""; position: absolute; inset: 0; }
-.name:hover { color: var(--accent); text-decoration: none; }
-.main .subtle { font-size: .75rem; }
-.phone { display: none; }
-@container (min-width: 30rem) {
-  li.line.compact { min-height: 40px; padding-block: .125rem; }
-  .line.compact .main { display: flex; align-items: baseline; gap: .625rem; }
-  .line.compact .main .subtle { flex: none; }
-}
-@container (min-width: 58rem) {
-  li.line:not(.compact) { min-height: 40px; padding-block: .125rem; }
-  .line:not(.compact) .main { display: flex; align-items: baseline; gap: .625rem; }
-  .line:not(.compact) .main .subtle { flex: none; }
-}
-.cell { min-width: 0; color: var(--label-2); font-variant-numeric: tabular-nums; }
-.cell.none { color: var(--label-3); }
-.ops { position: relative; z-index: 1; display: flex; justify-content: flex-end; gap: .25rem; }
-@media (hover: hover) {
-  .ops .btn { opacity: 0; transition: opacity .15s; }
-  li.line:hover .ops .btn, li.line:focus-within .ops .btn, .ops .btn[aria-pressed="true"] { opacity: 1; }
-}
-.more { display: flex; align-items: center; justify-content: center; gap: .25rem; width: 100%; min-height: 40px; border: 0; border-block-start: .5px solid var(--separator); background: transparent; color: var(--accent); font: inherit; font-size: .875rem; cursor: pointer; }
-.more:hover { background: var(--fill); }
-.more svg { width: 1rem; height: 1rem; transition: transform .2s; }
-.more svg.flip { transform: rotate(180deg); }
-@media (max-width: 760px) {
-  .line, .line.compact { grid-template-columns: minmax(0, 1fr) auto; }
-  .head, .cell { display: none; }
-  .phone { display: block; }
-  .name { white-space: normal; }
-  .line { padding-inline: .875rem; }
-  .ops .btn { opacity: 1; }
-  .ops .desk { display: none; }
-}
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { myCoursesEnabled } from '../../app/features'
-import { BadgeCheck, CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine, PenLine } from 'lucide-vue-next'
+import { useNotificationTitle } from '../notifications/title'
+import { BadgeCheck, ChevronRight, FileText, PenLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
@@ -13,14 +13,14 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import { useFormat } from '../../app/i18n'
-import { isolate } from '../../shared/format'
 import { useAcademic } from '../academic/api'
 import { useFavoritesApi } from '../favorites/api'
-import { titleMessage, useNotificationsApi, type Notification } from '../notifications/api'
+import { useNotificationsApi } from '../notifications/api'
 import { useResourcesApi } from '../resources/api'
 import { useWalletApi } from '../wallet/api'
 import { useAccess } from './access'
 import { useVerification } from '../verification/api'
+import { meGroups, meLinks } from './links'
 import MeLayout from './MeLayout.vue'
 
 // Personal center overview. Campus eligibility, independent identity and phone
@@ -78,10 +78,7 @@ const stats = computed(() => [
 ])
 const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count)
-function noticeTitle(item: Notification) {
-  // Identifiers are left-to-right; isolating them keeps right-to-left sentences in order.
-  return t(titleMessage(item.title_key), Object.fromEntries(Object.entries(item.title_params).map(([key, value]) => [key, isolate(value)])))
-}
+const noticeTitle = useNotificationTitle()
 function ago(iso: string) {
   const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
   if (!Number.isFinite(minutes)) return ''
@@ -99,14 +96,8 @@ onMounted(() => {
   nickname.value = profile.value?.nickname ?? ''
 })
 
-const links = [
-  ...(myCoursesEnabled ? [{ to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: 'var(--c-red)' }] : []),
-  { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews', icon: FileText, tile: 'var(--c-blue)' },
-  { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts', icon: PencilLine, tile: 'var(--c-orange)' },
-  { to: '/me/resources', title: 'me.resources', text: 'me.links.resources', icon: FolderOpen, tile: '#ffcc00' },
-  { to: '/me/requests', title: 'me.requests', text: 'me.links.requests', icon: Inbox, tile: 'var(--c-indigo)' },
-  { to: '/me/storage', title: 'nav.contributions', text: 'me.links.storage', icon: HardDrive, tile: 'var(--c-cyan)' },
-] as const
+// Phones have no side navigation, so this page lists every personal page, grouped like a settings menu.
+const menu = computed(() => meGroups.map((group) => ({ ...group, links: meLinks.filter((link) => link.group === group.id && available(link.to)) })).filter((group) => group.links.length))
 
 function startEdit() {
   nickname.value = profile.value?.nickname ?? ''
@@ -383,14 +374,23 @@ async function signOut() {
       </section>
 
 
+      <!-- The content group also shows on wide screens until the account is verified, where the page has little else. -->
       <section
+        v-for="group in menu"
+        :key="group.id"
         class="section"
-        :class="{ 'phone-only': verified }"
+        :class="{ 'phone-only': verified || group.id !== 'content' }"
+        :aria-labelledby="`me-group-${group.id}`"
       >
-        <h2>{{ t('me.content') }}</h2>
+        <h2
+          :id="`me-group-${group.id}`"
+          class="d-title"
+        >
+          {{ t(group.title) }}
+        </h2>
         <ul class="group">
           <li
-            v-for="link in links.filter((item) => available(item.to))"
+            v-for="link in group.links"
             :key="link.to"
           >
             <RouterLink
@@ -405,8 +405,11 @@ async function signOut() {
                 aria-hidden="true"
               /></span>
               <span class="group-body">
-                <span class="group-title">{{ t(link.title) }}</span>
-                <span class="group-detail">{{ t(link.text) }}</span>
+                <span class="group-title">{{ t(link.label) }}</span>
+                <span
+                  v-if="link.detail"
+                  class="group-detail"
+                >{{ t(link.detail) }}</span>
               </span>
               <ChevronRight
                 class="chevron"
@@ -418,7 +421,9 @@ async function signOut() {
       </section>
 
       <section class="section">
-        <h2>{{ t('me.sessions.title') }}</h2>
+        <h2 class="d-title">
+          {{ t('me.sessions.title') }}
+        </h2>
         <div class="group">
           <button
             class="group-row sign-out"

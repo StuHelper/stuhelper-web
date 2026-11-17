@@ -63,7 +63,8 @@
     "filtersCount": "Filters ({count})",
     "goHome": "Back to home",
     "undo": "Undo",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "shownOf": "Showing {shown} of {total}"
   },
   "errors": {
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
@@ -379,7 +380,8 @@
       "creditsUnknown": "Credits not provided",
       "aliases": "Other names",
       "biography": "Overview",
-      "findCourses": "Courses by this teacher"
+      "findCourses": "Courses by this teacher",
+      "sportsProject": "Sports activity"
     },
     "offerings": {
       "title": "Course offerings",
@@ -515,6 +517,7 @@
       "termsUnavailable": "The semester list could not load. Please try again later.",
       "teacher": "Teaching staff",
       "teacherHint": "Teachers come from your enrollment for the selected term. You can leave this unspecified.",
+      "teacherRequiredHint": "Sports reviews must name a teacher. The choices come from your enrollment in this sport for the selected term.",
       "moreTerms": "More semesters",
       "ratingsRequired": "Rate all five items to publish.",
       "title": "Title",
@@ -536,7 +539,9 @@
       "saveDraft": "Save draft",
       "draftSaved": "Draft saved.",
       "pending": "Submitted for moderation.",
-      "published": "Published."
+      "published": "Published.",
+      "missing": "Still needed before publishing: {items}",
+      "ratingsDone": "ratings ({done} of {total} chosen)"
     },
     "disclosure": {
       "title": "Verified information to display",
@@ -679,7 +684,11 @@
       "deviceConfirm": "Sign out of StuHelper on this device?",
       "allConfirm": "Sign out of StuHelper on all devices? Other devices will need to sign in again."
     },
-    "security": "Account and security"
+    "security": "Account and security",
+    "groups": {
+      "account": "Account",
+      "services": "More services"
+    }
   },
   "resources": {
     "eyebrow": "Resource sharing",
@@ -801,7 +810,7 @@
       "tags": "Tags",
       "tagsHint": "Separate tags with commas.",
       "associations": "Course associations",
-      "associationsHint": "Fill in only associations you are sure of. Leave the semester or teacher unspecified if unknown.",
+      "associationsHint": "Choosing the course is enough. If the material is time-sensitive or only fits a certain term or teacher, you can also add the term and teacher (optional).",
       "directory": "Suggested folder",
       "directoryHint": "Optional. Moderators organise folders; your suggestion is advisory.",
       "create": "Save and create draft",
@@ -1097,7 +1106,7 @@
       "processing": "School verification in progress",
       "waiting_sms": "Waiting for the school SMS code",
       "authenticated": "School verification completed",
-      "failed": "School verification failed; please restart",
+      "failed": "School check was not completed. Enter your details again and resubmit.",
       "cancelled": "School verification cancelled",
       "expired": "School verification expired; please restart"
     },
@@ -1132,7 +1141,57 @@
       "confirm": "Verify",
       "resend": "Resend",
       "resendIn": "Resend in {seconds} s"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "Campus verification passed",
+        "text": "You can browse course reviews, teachers and study resources."
+      },
+      "review": {
+        "title": "Your materials are under review",
+        "text": "Your materials were submitted. You will be notified of the result; nothing else is needed until then."
+      },
+      "supplement": {
+        "title": "More material is needed",
+        "text": "The reviewer asked for additional or retaken material. Add it and submit again."
+      },
+      "draft": {
+        "title": "You have an unfinished verification",
+        "text": "Continue where you left off, or choose a method again below."
+      },
+      "rejected": {
+        "title": "Your last verification was not approved",
+        "text": "Correct it as the review note says and submit again, or use another method."
+      },
+      "lapsed": {
+        "title": "Your verification is no longer valid",
+        "text": "Verify again to continue."
+      },
+      "none": {
+        "title": "Not verified yet",
+        "text": "Choose a method below and follow the steps."
+      },
+      "reviewNote": "Review note",
+      "restart": "Verify again",
+      "startAnother": "Start another verification"
+    },
+    "steps": {
+      "label": "Verification steps",
+      "choose": "Choose a method",
+      "fill": "Enter your details",
+      "finish": "Finish"
+    },
+    "picker": {
+      "unavailable": "Not available for the chosen identity"
+    },
+    "needs": {
+      "real_name_identity_check": "Student ID, name and document number; the result is immediate",
+      "school_sso": "Sign in with your school account and password; the password is not kept",
+      "student_email_outbound_otp": "A 6-digit code is sent to your school mailbox",
+      "student_email_inbound_challenge": "Send one message from your school mailbox to a given address",
+      "manual_material_review": "Photograph your student card or other proof for a reviewer"
+    },
+    "changeSchool": "Change school"
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",
@@ -1294,7 +1353,9 @@
     "unplaced": "These class times could not be read and are not on the timetable yet",
     "emptyTerm": "No active enrollments for this term.",
     "noLessonsThisWeek": "No classes this week.",
-    "lessonLabel": "{course}, {day}, periods {start}–{end}, {location}"
+    "lessonLabel": "{course}, {day}, periods {start}–{end}, {location}",
+    "thisWeek": "This week",
+    "textOnly": "Class times for this term are plain text only, so they cannot be laid out as a week. The courses are listed below."
   },
   "demo": {
     "deptCredits": "{p0} · Credits: {p1}",
@@ -1535,7 +1596,9 @@
     "chatGroup": "Group chat · {p0} members",
     "chatSample": "Sample conversation. Messages stay on this page only.",
     "chatPlaceholder": "Write a message",
-    "chatSend": "Send"
+    "chatSend": "Send",
+    "personaRejected": "Verification rejected",
+    "personaRejectedHint": "The verification page shows the reason"
   },
   "favorites": {
     "title": "Saved",
@@ -2125,7 +2188,10 @@
       "review": "Review results",
       "verification": "Verification",
       "system": "System notices"
-    }
+    },
+    "namedContent": "“{name}”",
+    "contentUnavailable": "(content unavailable)",
+    "contentNameUnavailable": "(name unavailable right now)"
   },
   "search": {
     "title": "Search",
@@ -2395,6 +2461,8 @@
     "unreadNotices": "Unread notifications: {count}",
     "upvotes": "Upvotes: {p0}",
     "verifiedStudent": "Verified student",
-    "viewDetails": "View details"
+    "viewDetails": "View details",
+    "unassignedCourses": "List view shows every result, including courses without a department.",
+    "showInList": "Show in list"
   }
 }

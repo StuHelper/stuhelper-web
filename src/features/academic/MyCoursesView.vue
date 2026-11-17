@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CalendarPlus, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { CalendarPlus, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -13,7 +13,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import { toast } from '../../shared/ui/toast'
 import MeLayout from '../account/MeLayout.vue'
 import { useAcademic, type OwnSchedule } from './api'
-import { arrange, currentWeek, timetableOf } from './schedule'
+import { arrange, currentWeek, timetableOf, todayInTerm, weekDates } from './schedule'
 import ScheduleWeek from './ScheduleWeek.vue'
 
 // Personal timetable by term, from trusted enrollment records. Structured
@@ -26,6 +26,8 @@ const api = useAcademic()
 const term = ref('')
 const mode = ref<'week' | 'list'>('week')
 const week = ref(1)
+const exporting = ref(false)
+const exportError = ref('')
 
 const enrollments = useAsync(async (signal) => {
   const rows = (await api.myEnrollments(signal)).filter((row) => row.active)
@@ -33,8 +35,15 @@ const enrollments = useAsync(async (signal) => {
   return { rows, names }
 })
 const terms = computed(() => {
-  // Enrollments arrive oldest term first. The newest term is listed first and opens by default.
-  const seen = [...new Set((enrollments.data.value?.rows ?? []).map((row) => row.term_id))].reverse()
+  // Newest term first, by term_order_key (year × 10 + season; 0 for an unknown term,
+  // which sorts last). Servers without the key keep the order they return, reversed,
+  // because enrollments then arrive oldest term first.
+  const rows = enrollments.data.value?.rows ?? []
+  const keyed = rows.some((row) => typeof row.term_order_key === 'number')
+  const keys = new Map(rows.map((row) => [row.term_id, row.term_order_key ?? 0]))
+  const seen = keyed
+    ? [...new Set(rows.map((row) => row.term_id))].sort((a, b) => (keys.get(b) ?? 0) - (keys.get(a) ?? 0) || a.localeCompare(b))
+    : [...new Set(rows.map((row) => row.term_id))].reverse()
   return seen.map((value) => ({ value, label: enrollments.data.value?.names.get(value)?.name ?? t('academic.offerings.unknownTerm') }))
 })
 const schedule = useAsync<OwnSchedule[]>((signal) => api.mySchedule(term.value, signal))
@@ -43,11 +52,29 @@ const arranged = computed(() => arrange(rows.value))
 const timetable = computed(() => timetableOf(rows.value))
 const lastWeek = computed(() => Math.max(1, ...arranged.value.lessons.flatMap((lesson) => lesson.weeks)))
 const fetched = computed(() => rows.value.map((row) => row.enrollment.fetched_at).filter((value): value is string => !!value).sort().at(-1))
+// A term whose times are all plain text has nothing to put on the grid, so it opens as a list.
+const gridless = computed(() => rows.value.length > 0 && arranged.value.lessons.length === 0)
+const view = computed(() => (gridless.value ? 'list' : mode.value))
+
+// Today within the shown term. The week picker offers a way back to it, and the grid marks the day.
+const today = computed(() => {
+  const now = todayInTerm(timetable.value)
+  return now && now.week <= lastWeek.value ? now : undefined
+})
+const dates = computed(() => weekDates(timetable.value, week.value))
+const range = computed(() => {
+  const first = dates.value[0]
+  const last = dates.value[6]
+  // 04:00 UTC is noon at the school, so both ends keep their calendar date. The year is left out to stay short.
+  const short = (date: string) => format.value.date(`${date}T04:00:00Z`, { month: 'short', day: 'numeric' })
+  return first && last ? `${short(first)} – ${short(last)}` : ''
+})
 
 watch(terms, (list) => {
   if (!list.some((item) => item.value === term.value)) term.value = list[0]?.value ?? ''
 })
 watch(term, (value) => {
+  exportError.value = ''
   if (value) void schedule.reload()
 })
 watch(schedule.data, () => {
@@ -56,8 +83,6 @@ watch(schedule.data, () => {
 onMounted(enrollments.reload)
 
 const teacher = (id: string) => enrollments.data.value?.names.get(id)?.name
-const exporting = ref(false)
-const exportError = ref('')
 async function exportCalendar() {
   if (exporting.value) return
   exporting.value = true
@@ -96,6 +121,7 @@ async function exportCalendar() {
             id-prefix="my-courses"
           />
           <TabBar
+            v-if="!gridless"
             v-model="mode"
             :tabs="[{ value: 'week' as const, label: t('courses.weekView') }, { value: 'list' as const, label: t('courses.listView') }]"
             :label="t('courses.viewMode')"
@@ -118,8 +144,8 @@ async function exportCalendar() {
             <div class="stack">
               <div class="row-between wrap">
                 <div
-                  v-if="mode === 'week'"
-                  class="row"
+                  v-if="view === 'week'"
+                  class="row picker"
                   role="group"
                   :aria-label="t('courses.weekPicker')"
                 >
@@ -135,7 +161,13 @@ async function exportCalendar() {
                       aria-hidden="true"
                     />
                   </button>
-                  <span aria-live="polite">{{ t('courses.weekNumber', { week: format.number(week) }) }}</span>
+                  <span
+                    class="picker-week"
+                    aria-live="polite"
+                  ><b>{{ t('courses.weekNumber', { week: format.number(week) }) }}</b><small
+                    v-if="range"
+                    class="subtle"
+                  >{{ range }}</small></span>
                   <button
                     class="btn btn-sm btn-icon"
                     type="button"
@@ -148,12 +180,27 @@ async function exportCalendar() {
                       aria-hidden="true"
                     />
                   </button>
+                  <button
+                    v-if="today && today.week !== week"
+                    class="btn btn-sm btn-ghost"
+                    type="button"
+                    @click="week = today.week"
+                  >
+                    {{ t('courses.thisWeek') }}
+                  </button>
                 </div>
+                <p
+                  v-else-if="gridless"
+                  class="small muted gridless"
+                >
+                  {{ t('courses.textOnly') }}
+                </p>
                 <span v-else />
                 <button
                   class="btn btn-sm"
                   type="button"
                   :disabled="exporting"
+                  :aria-busy="exporting || undefined"
                   @click="exportCalendar"
                 >
                   <CalendarPlus aria-hidden="true" />{{ t('courses.exportCalendar') }}
@@ -167,13 +214,15 @@ async function exportCalendar() {
                 {{ errorText(exportError) }}
               </p>
               <ScheduleWeek
-                v-if="mode === 'week'"
+                v-if="view === 'week'"
                 :lessons="arranged.lessons"
                 :timetable="timetable"
                 :week="week"
+                :dates="dates"
+                :today="today && today.week === week ? today.weekday : undefined"
               />
               <section
-                v-if="mode === 'week' && arranged.unplaced.length"
+                v-if="view === 'week' && arranged.unplaced.length"
                 class="stack-sm"
               >
                 <h2 class="small">
@@ -193,65 +242,61 @@ async function exportCalendar() {
                 </ul>
               </section>
               <ul
-                v-if="mode === 'list'"
-                class="list"
+                v-if="view === 'list'"
+                class="courses"
               >
                 <li
                   v-for="row in rows"
                   :key="row.enrollment.id"
-                  class="card stack-sm"
+                  class="card course"
                 >
-                  <RouterLink
-                    class="card-title"
-                    :to="`/courses/${encodeURIComponent(row.enrollment.course_id)}`"
-                  >
-                    {{ row.course_name }}
-                  </RouterLink>
-                  <p class="small muted">
-                    <template v-if="row.enrollment.teacher_ids.length">
-                      <template
-                        v-for="(id, index) in row.enrollment.teacher_ids"
-                        :key="id"
-                      >
-                        <template v-if="index">
-                          ·
+                  <div class="course-head">
+                    <RouterLink
+                      class="card-title"
+                      :to="`/courses/${encodeURIComponent(row.enrollment.course_id)}`"
+                    >
+                      {{ row.course_name }}
+                    </RouterLink>
+                    <p class="small muted">
+                      <template v-if="row.enrollment.teacher_ids.length">
+                        <template
+                          v-for="(id, index) in row.enrollment.teacher_ids"
+                          :key="id"
+                        >
+                          <template v-if="index">
+                            ·
+                          </template>
+                          <RouterLink :to="`/teachers/${encodeURIComponent(id)}`">
+                            {{ teacher(id) ?? t('common.unknown') }}
+                          </RouterLink>
                         </template>
-                        <RouterLink :to="`/teachers/${encodeURIComponent(id)}`">
-                          {{ teacher(id) ?? t('common.unknown') }}
-                        </RouterLink>
                       </template>
-                    </template>
-                    <template v-else>
-                      {{ t('courses.noTeacher') }}
-                    </template>
-                  </p>
-                  <p
+                      <template v-else>
+                        {{ t('courses.noTeacher') }}
+                      </template>
+                    </p>
+                  </div>
+                  <ul
                     v-if="row.meetings.length"
-                    class="small"
+                    class="meetings"
                   >
-                    <template
+                    <li
                       v-for="meeting in row.meetings"
                       :key="meeting.id"
                     >
-                      {{ meeting.time_text || t('common.notProvided') }} · {{ meeting.location || t('common.notProvided') }}<br>
-                    </template>
-                  </p>
+                      <span><Clock aria-hidden="true" />{{ meeting.time_text || t('common.notProvided') }}</span>
+                      <span><MapPin aria-hidden="true" />{{ meeting.location || t('common.notProvided') }}</span>
+                    </li>
+                  </ul>
                   <p
                     v-else
                     class="small muted"
                   >
                     {{ t('courses.noTime') }}
                   </p>
-                  <div class="row">
+                  <div class="row course-links">
                     <RouterLink
-                      v-if="row.enrollment.class_id"
-                      class="btn btn-sm"
-                      :to="`/classes/${encodeURIComponent(row.enrollment.class_id)}`"
-                    >
-                      {{ t('courses.classLink') }}
-                    </RouterLink>
-                    <RouterLink
-                      class="btn btn-sm"
+                      class="btn btn-sm btn-ghost"
                       :to="withFilters('/resources', { course_id: row.enrollment.course_id })"
                     >
                       {{ t('academic.subject.resources') }}
@@ -275,4 +320,17 @@ async function exportCalendar() {
 
 <style scoped>
 .wrap { flex-wrap: wrap; gap: .5rem; }
+.picker { flex-wrap: nowrap; gap: .375rem; min-width: 0; }
+.picker-week { display: grid; justify-items: center; min-width: 6.5rem; line-height: 1.25; }
+.picker-week b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.picker-week small { font-size: .75rem; white-space: nowrap; }
+.gridless { flex: 1 1 16rem; }
+.courses { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); }
+.course { display: flex; flex-direction: column; gap: .625rem; }
+.course-head { display: grid; gap: .125rem; }
+.meetings { display: grid; gap: .375rem; font-size: .875rem; }
+.meetings li { display: flex; flex-wrap: wrap; gap: .25rem 1rem; }
+.meetings span { display: inline-flex; align-items: center; gap: .3125rem; min-width: 0; overflow-wrap: anywhere; }
+.meetings svg { flex: none; width: .9375rem; height: .9375rem; color: var(--label-3); }
+.course-links { margin-block-start: auto; }
 </style>

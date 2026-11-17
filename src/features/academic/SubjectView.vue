@@ -2,6 +2,7 @@
 import { teacherDirectoryEnabled } from '../../app/features'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import CompareButton from '../search/CompareButton.vue'
+import { PenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -14,7 +15,6 @@ import AsyncState from '../../shared/ui/AsyncState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { knownCredits, listSize, useAcademic, type Result } from './api'
-import OfferingsList from './OfferingsList.vue'
 import ReviewEditor from './ReviewEditor.vue'
 import ReviewFeed from './ReviewFeed.vue'
 import StatisticsPanel from './StatisticsPanel.vue'
@@ -22,7 +22,7 @@ import { extras } from '../../shared/extras'
 import { feature, useCapabilities } from '../../shared/capabilities'
 import TabBar from '../../shared/ui/TabBar.vue'
 
-// Course home or teacher home: facts, rating summary, reviews and offerings.
+// Course home or teacher home: facts, rating summary, reviews and the related teachers or courses.
 const props = defineProps<{ kind: 'course' | 'teacher'; id: string }>()
 const { t } = useI18n()
 const capabilities = useCapabilities()
@@ -30,11 +30,12 @@ const format = useFormat()
 const api = useAcademic()
 const composing = ref(false)
 const published = ref('')
-const tab = ref<'reviews' | 'mentor' | 'offerings' | 'related'>('reviews')
+// Teaching classes, their times and places are not shown to users; a course lists its
+// teachers and a teacher lists the courses taught.
+const tab = ref<'reviews' | 'mentor' | 'related'>('reviews')
 const tabs = computed(() => [
   { value: 'reviews' as const, label: t(props.kind === 'course' ? 'academic.subject.courseReviews' : 'academic.subject.teacherCourseReviews') },
   ...(props.kind === 'teacher' ? [{ value: 'mentor' as const, label: t('academic.subject.mentorReviews') }] : []),
-  { value: 'offerings' as const, label: t('academic.offerings.title') },
   { value: 'related' as const, label: t(props.kind === 'course' ? 'academic.subject.teachers' : 'academic.subject.courses') },
 ])
 const statistics = ref<InstanceType<typeof StatisticsPanel>>()
@@ -86,7 +87,7 @@ function submitted(result: Result) {
   >
     <div
       v-if="entry.data.value && subject"
-      class="stack-lg"
+      class="stack-lg appear"
     >
       <PageHeader
         class="subject-head"
@@ -94,6 +95,12 @@ function submitted(result: Result) {
         :back-label="t(kind === 'course' || !teacherDirectoryEnabled ? 'nav.courses' : 'nav.teachers')"
         :title="subject.name"
       >
+        <p
+          v-if="subject.course_type === 'sports_project'"
+          class="muted"
+        >
+          <span class="tag">{{ t('academic.subject.sportsProject') }}</span>
+        </p>
         <p
           v-if="entry.data.value.department"
           class="muted"
@@ -124,14 +131,6 @@ function submitted(result: Result) {
             :id="id"
             :kind="kind"
           />
-          <button
-            v-if="!composing && !subject.inactive"
-            class="btn btn-primary"
-            type="button"
-            @click="composing = true"
-          >
-            {{ t(kind === 'course' ? 'academic.subject.writeCourse' : 'academic.subject.writeMentor') }}
-          </button>
           <RouterLink
             v-if="kind === 'course'"
             class="btn"
@@ -139,6 +138,15 @@ function submitted(result: Result) {
           >
             {{ t('academic.subject.resources') }}
           </RouterLink>
+          <!-- The main action closes the row on wide screens and leads it on phones, where the row scrolls. -->
+          <button
+            v-if="!composing && !subject.inactive"
+            class="btn btn-primary write"
+            type="button"
+            @click="composing = true"
+          >
+            <PenLine aria-hidden="true" />{{ t(kind === 'course' ? 'academic.subject.writeCourse' : 'academic.subject.writeMentor') }}
+          </button>
         </template>
       </PageHeader>
 
@@ -202,12 +210,6 @@ function submitted(result: Result) {
                 ref="mentorFeed"
                 kind="mentor"
                 :target-id="id"
-                :school-id="subject.school_id"
-              />
-              <OfferingsList
-                v-else-if="tab === 'offerings'"
-                :course-id="kind === 'course' ? id : undefined"
-                :teacher-id="kind === 'teacher' ? id : undefined"
                 :school-id="subject.school_id"
               />
               <PagedState
@@ -326,6 +328,7 @@ function submitted(result: Result) {
   .subject-head, .subject-head :deep(.page-header-main) { min-width: 0; max-width: 100%; }
   .subject-head :deep(.page-actions) { flex-wrap: nowrap; width: 100%; min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .subject-head :deep(.page-actions .btn) { flex: none; min-height: 38px; padding-block: .25rem; font-size: .875rem; }
+  .subject-head :deep(.page-actions .write) { order: -1; }
 }
 .related { list-style: none; }
 .facts-card h2 { font-size: 1.0625rem; }
