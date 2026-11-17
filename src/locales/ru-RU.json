@@ -383,7 +383,11 @@
       "aliases": "Другие названия",
       "biography": "Описание",
       "findCourses": "Курсы этого преподавателя",
-      "sportsProject": "Вид спорта"
+      "sportsProject": "Вид спорта",
+      "englishName": "Название на английском",
+      "formerCodes": "Прежние коды курса",
+      "formerNames": "Прежние названия",
+      "hours": "Учебные часы"
     },
     "offerings": {
       "title": "Проведения курса",

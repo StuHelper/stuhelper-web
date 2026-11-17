@@ -383,7 +383,11 @@
       "aliases": "其他名称",
       "biography": "简介",
       "findCourses": "查看该教师的课程",
-      "sportsProject": "体育项目"
+      "sportsProject": "体育项目",
+      "englishName": "英文名",
+      "formerCodes": "曾用课程号",
+      "formerNames": "曾用名",
+      "hours": "学时"
     },
     "offerings": {
       "title": "历次开课",
