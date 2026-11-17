@@ -11,7 +11,8 @@ import { favoriteFailed, favoriteOf, rememberFavorite, requestFavorite } from '.
 
 // Saves or removes one course, teacher or resource. The state comes from one batched
 // lookup per kind; while it is unknown the button stays disabled instead of guessing.
-const props = defineProps<{ kind: FavoriteKind; id: string; text?: boolean }>()
+// `quiet` is for rows of a list, where the mark has no surface until it is pointed at or switched on.
+const props = defineProps<{ kind: FavoriteKind; id: string; text?: boolean; quiet?: boolean }>()
 const { t } = useI18n()
 const errorText = useErrorText()
 const api = useFavoritesApi()
@@ -76,7 +77,7 @@ const label = computed(() => (failed.value ? t('favorites.unknown') : on.value ?
 <template>
   <button
     class="btn"
-    :class="text ? '' : 'btn-sm btn-icon'"
+    :class="[text ? '' : 'btn-sm btn-icon', { 'btn-quiet': quiet }]"
     type="button"
     :aria-pressed="on"
     :aria-label="text ? undefined : label"

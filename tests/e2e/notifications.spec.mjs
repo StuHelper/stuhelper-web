@@ -127,3 +127,36 @@ test('an empty box keeps loading later pages that hold its notifications', async
   await expect(page.getByRole('button', { name: fill(n.titles.interaction.reply, { content_id: isolate('rev-2') }) })).toBeVisible();
   await expect(page.getByRole('button', { name: common.loadMore, exact: true })).toHaveCount(0);
 });
+
+test('the navigation bell shows the unread count on every page and follows the message center', async ({ page }, info) => {
+  const n = catalogue(info).notifications, locale = info.project.metadata.locale;
+  const state = await server(page, [
+    note({ id: 'n2', type: 'interaction', target: { kind: 'review', id: 'rev-1' }, title_key: 'notifications.interaction.reply', title_params: { content_id: 'rev-1' } }),
+    note({ id: 'n1', target: { kind: 'resource', id: 'res-9' }, title_key: 'notifications.content.removed', title_params: { content_id: 'res-9' } }),
+  ]);
+  const counts = [];
+  page.on('request', (request) => { if (new URL(request.url()).pathname.endsWith('/notifications/unread-count')) counts.push(request.url()); });
+  // The bell is part of the navigation, so a personal page outside the message center shows it too.
+  await page.goto(`${base}/me/account?lang=${locale}`);
+  const bell = page.getByRole('link', { name: fill(n.unread, { count: number(info, 2) }), exact: true });
+  await expect(bell).toHaveAttribute('href', '/notifications');
+  await expect(bell).toContainText(number(info, 2));
+  expect(counts).toHaveLength(1);
+  await bell.click();
+  await expect(page).toHaveURL(/\/notifications/);
+  await page.getByRole('button', { name: n.readAll, exact: true }).click();
+  await expect.poll(() => state.writes.some((write) => write.path === '/read-all')).toBe(true);
+  // With nothing unread the bell keeps its plain name and shows no number.
+  await expect(page.locator('header a[href="/notifications"]')).toHaveAccessibleName(n.link);
+  await expect(page.locator('header a[href="/notifications"] .d-unread')).toHaveCount(0);
+});
+
+test('a failed unread count leaves the bell without a number and breaks nothing', async ({ page }, info) => {
+  const n = catalogue(info).notifications, errors = [];
+  page.on('pageerror', (error) => errors.push(error.message));
+  await page.route('**/api/v1/notifications/unread-count', (route) => route.fulfill({ status: 503, json: { code: 'unavailable' } }));
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  await expect(page.locator('header a[href="/notifications"]')).toHaveAccessibleName(n.link);
+  await expect(page.locator('header a[href="/notifications"] .d-unread')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

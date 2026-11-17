@@ -63,7 +63,8 @@
     "filtersCount": "Filters ({count})",
     "goHome": "Back to home",
     "undo": "Undo",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "shownOf": "Showing {shown} of {total}"
   },
   "errors": {
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
@@ -536,7 +537,9 @@
       "saveDraft": "Save draft",
       "draftSaved": "Draft saved.",
       "pending": "Submitted for moderation.",
-      "published": "Published."
+      "published": "Published.",
+      "missing": "Still needed before publishing: {items}",
+      "ratingsDone": "ratings ({done} of {total} chosen)"
     },
     "disclosure": {
       "title": "Verified information to display",
@@ -679,7 +682,11 @@
       "deviceConfirm": "Sign out of StuHelper on this device?",
       "allConfirm": "Sign out of StuHelper on all devices? Other devices will need to sign in again."
     },
-    "security": "Account and security"
+    "security": "Account and security",
+    "groups": {
+      "account": "Account",
+      "services": "More services"
+    }
   },
   "resources": {
     "eyebrow": "Resource sharing",
@@ -1294,7 +1301,9 @@
     "unplaced": "These class times could not be read and are not on the timetable yet",
     "emptyTerm": "No active enrollments for this term.",
     "noLessonsThisWeek": "No classes this week.",
-    "lessonLabel": "{course}, {day}, periods {start}–{end}, {location}"
+    "lessonLabel": "{course}, {day}, periods {start}–{end}, {location}",
+    "thisWeek": "This week",
+    "textOnly": "Class times for this term are plain text only, so they cannot be laid out as a week. The courses are listed below."
   },
   "demo": {
     "deptCredits": "{p0} · Credits: {p1}",

@@ -2,6 +2,7 @@
 import { teacherDirectoryEnabled } from '../../app/features'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import CompareButton from '../search/CompareButton.vue'
+import { PenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -86,7 +87,7 @@ function submitted(result: Result) {
   >
     <div
       v-if="entry.data.value && subject"
-      class="stack-lg"
+      class="stack-lg appear"
     >
       <PageHeader
         class="subject-head"
@@ -124,14 +125,6 @@ function submitted(result: Result) {
             :id="id"
             :kind="kind"
           />
-          <button
-            v-if="!composing && !subject.inactive"
-            class="btn btn-primary"
-            type="button"
-            @click="composing = true"
-          >
-            {{ t(kind === 'course' ? 'academic.subject.writeCourse' : 'academic.subject.writeMentor') }}
-          </button>
           <RouterLink
             v-if="kind === 'course'"
             class="btn"
@@ -139,6 +132,15 @@ function submitted(result: Result) {
           >
             {{ t('academic.subject.resources') }}
           </RouterLink>
+          <!-- The main action closes the row on wide screens and leads it on phones, where the row scrolls. -->
+          <button
+            v-if="!composing && !subject.inactive"
+            class="btn btn-primary write"
+            type="button"
+            @click="composing = true"
+          >
+            <PenLine aria-hidden="true" />{{ t(kind === 'course' ? 'academic.subject.writeCourse' : 'academic.subject.writeMentor') }}
+          </button>
         </template>
       </PageHeader>
 
@@ -326,6 +328,7 @@ function submitted(result: Result) {
   .subject-head, .subject-head :deep(.page-header-main) { min-width: 0; max-width: 100%; }
   .subject-head :deep(.page-actions) { flex-wrap: nowrap; width: 100%; min-width: 0; overflow-x: auto; scrollbar-width: none; }
   .subject-head :deep(.page-actions .btn) { flex: none; min-height: 38px; padding-block: .25rem; font-size: .875rem; }
+  .subject-head :deep(.page-actions .write) { order: -1; }
 }
 .related { list-style: none; }
 .facts-card h2 { font-size: 1.0625rem; }

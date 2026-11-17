@@ -4,11 +4,20 @@ import { useI18n } from 'vue-i18n'
 import { useInView } from '../../../shared/composables/inView'
 import { dimensionLabelKeys, dimensionNames } from './levels'
 // Five dimensions as a radar of band levels (0-5). Several series can be overlaid for comparison.
-const props = withDefaults(defineProps<{ series: { name: string; values: number[] }[]; size?: number }>(), { size: 260 })
+// The drawing is always left-to-right with explicit anchors, so labels sit outside the
+// shape in right-to-left languages too; the label text itself keeps its own direction.
+const props = withDefaults(defineProps<{ series: { name: string; values: number[] }[]; size?: number }>(), { size: 340 })
 const { t } = useI18n()
 const colors = ['var(--accent-fill)', 'var(--c-pink)', 'var(--c-green)', 'var(--c-orange)', 'var(--c-purple)']
 const c = 130
 const R = 84
+// A long label breaks at the space nearest its middle, so side labels stay inside the drawing.
+function lines(label: string) {
+  if (label.length <= 12 || !label.includes(' ')) return [label]
+  const middle = label.length / 2
+  const at = [...label.matchAll(/ /g)].map((match) => match.index).sort((a, b) => Math.abs(a - middle) - Math.abs(b - middle))[0] ?? -1
+  return at < 0 ? [label] : [label.slice(0, at), label.slice(at + 1)]
+}
 const labels = computed(() => dimensionNames.map((name) => t(dimensionLabelKeys[name])))
 const pt = (i: number, r: number) => { const a = (Math.PI * 2 * i) / 5 - Math.PI / 2; return [c + Math.cos(a) * r, c + Math.sin(a) * r] as const }
 // Side labels align outward so they do not cover the vertices.
@@ -24,7 +33,7 @@ const seen = useInView(root)
     <svg
       ref="root"
       :class="{ in: seen }"
-      viewBox="-34 0 328 260"
+      viewBox="-70 0 400 264"
       :style="{ maxWidth: `${size}px` }"
       role="img"
       :aria-label="text"
@@ -70,13 +79,17 @@ const seen = useInView(root)
       <text
         v-for="(l, i) in labels"
         :key="l"
-        :x="pt(i, R + 12)[0]"
-        :y="pt(i, R + 16)[1]"
+        :y="pt(i, R + 16)[1] - (i === 0 ? (lines(l).length - 1) * 15 : 0)"
         :text-anchor="anchor(i)"
         dominant-baseline="middle"
-        font-size="11"
+        font-size="13"
         fill="var(--label-2)"
-      >{{ l }}</text>
+      ><tspan
+        v-for="(line, row) in lines(l)"
+        :key="row"
+        :x="pt(i, R + 12)[0]"
+        :dy="row ? 15 : 0"
+      >{{ line }}</tspan></text>
     </svg>
     <figcaption v-if="series.length > 1">
       <span
@@ -90,7 +103,7 @@ const seen = useInView(root)
 .shape { opacity: 0; transform: scale(.6); transform-origin: 130px 130px; transition: opacity .35s, transform .55s var(--ease-out); }
 .in .shape { opacity: 1; transform: none; }
 .radar { min-width: 0; }
-svg { display: block; width: 100%; margin-inline: auto; }
+svg { display: block; width: 100%; margin-inline: auto; overflow: visible; direction: ltr; }
 figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1rem; margin-block-start: .5rem; color: var(--label-2); font-size: .8125rem; }
 figcaption span { display: inline-flex; align-items: center; gap: .375rem; }
 figcaption i { width: 10px; height: 10px; border-radius: 50%; }

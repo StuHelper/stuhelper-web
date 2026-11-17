@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Scale } from 'lucide-vue-next'
+import { MessageSquareDashed, Scale } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync } from '../../shared/composables/async'
+import EmptyState from '../../shared/ui/EmptyState.vue'
 import SideDrawer from '../../shared/ui/SideDrawer.vue'
 import { toast } from '../../shared/ui/toast'
 import { useCampusId } from '../account/access'
@@ -12,15 +13,17 @@ import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { useResourcesApi } from '../resources/api'
 import { compareList, maxCompare, toggleCompare } from '../search/compare'
 import { knownCredits, useAcademic } from './api'
-import { recommendationLevel } from './ratings/levels'
+import { dimensionLabelKeys, dimensionNames, recommendationLevel } from './ratings/levels'
 import RatingDistribution from './ratings/RatingDistribution.vue'
+import RatingLevel from './ratings/RatingLevel.vue'
 import RatingRadar from './ratings/RatingRadar.vue'
 import RatingTrend from './ratings/RatingTrend.vue'
 
 // Key facts about a course or teacher without leaving the list: ratings by dimension,
 // distribution, per-term trend, related people, the most upvoted review and resources.
 // Each block loads on its own so one failed source does not hide the others.
-const props = defineProps<{ kind: 'course' | 'teacher'; id?: string }>()
+// The list passes the name and subtitle it already shows, so the heading is there at once.
+const props = defineProps<{ kind: 'course' | 'teacher'; id?: string; name?: string; note?: string }>()
 defineEmits<{ close: [] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -39,16 +42,18 @@ const people = useAsync(async (signal) => {
 const top = useAsync(async (signal) => (props.id ? (await api.reviews({ kind: 'course', ...(props.kind === 'course' ? { target_id: props.id } : { teacher_id: props.id }), sort: 'upvotes', limit: 1 }, signal)).items[0] : undefined))
 const files = useAsync(async (signal) => (props.id && props.kind === 'course' ? (await resources.list({ school_id: campus.value, course_id: props.id, sort: 'newest' }, signal)).items.slice(0, 3) : []))
 
-watch(() => props.id, (id) => {
-  if (!id) return
+function load() {
   for (const part of [summary, ratings, people, top, files]) void part.reload()
+}
+watch(() => props.id, (id) => {
+  if (id) load()
 }, { immediate: true })
 
 const object = computed(() => summary.data.value?.object)
-const name = computed(() => object.value?.name ?? '')
+const name = computed(() => object.value?.name ?? props.name ?? '')
 const note = computed(() => {
   const s = summary.data.value
-  if (!s) return ''
+  if (!s) return props.note ?? ''
   const credits = knownCredits(s.object)
   return [s.object.code, s.department?.name, credits === undefined ? '' : t('academic.subject.credits', { credits: format.value.number(credits) })].filter(Boolean).join(' · ')
 })
@@ -69,24 +74,72 @@ function compare() {
     :note="note"
     @close="$emit('close')"
   >
-    <p
+    <div
       v-if="summary.status.value === 'error'"
-      class="field-error"
+      class="notice notice-error"
       role="alert"
     >
-      {{ t('browse.quickViewUnavailable') }}
-    </p>
+      <span>{{ t('browse.quickViewUnavailable') }}</span>
+      <button
+        class="btn btn-sm"
+        type="button"
+        @click="load"
+      >
+        {{ t('common.retry') }}
+      </button>
+    </div>
     <p
       v-if="object?.biography"
       class="muted small"
     >
       {{ object.biography }}
     </p>
-    <template v-if="ratings.data.value?.review_count">
-      <RatingRadar
-        :series="[{ name, values: levels }]"
-        :size="240"
+    <!-- The placeholder has the outline of the rating blocks, so the drawer does not jump when they arrive. -->
+    <div
+      v-if="ratings.status.value === 'loading'"
+      class="skeleton quick-skeleton"
+      aria-busy="true"
+    >
+      <span class="visually-hidden">{{ t('common.loading') }}</span>
+      <span
+        class="quick-skeleton-card"
+        aria-hidden="true"
       />
+      <span
+        class="block-tall"
+        aria-hidden="true"
+      />
+    </div>
+    <template v-else-if="ratings.data.value?.review_count">
+      <!-- The verdict in words first; the charts below give the shape and the trend. -->
+      <section
+        class="card verdict appear"
+        :aria-label="t('browse.recommendation')"
+      >
+        <div class="verdict-main">
+          <span class="subtle">{{ t('browse.recommendation') }}</span>
+          <RatingLevel
+            class="verdict-level"
+            :level="recommendation"
+          />
+          <span class="subtle">{{ t('browse.totalReviews', { p0: format.number(ratings.data.value.review_count) }) }}</span>
+        </div>
+        <dl class="verdict-dims">
+          <div
+            v-for="(dimension, index) in dimensionNames.slice(1)"
+            :key="dimension"
+          >
+            <dt>{{ t(dimensionLabelKeys[dimension]) }}</dt>
+            <dd>
+              <RatingLevel
+                :level="levels[index + 1] ?? 0"
+                :dim="dimension"
+              />
+            </dd>
+          </div>
+        </dl>
+      </section>
+      <RatingRadar :series="[{ name, values: levels }]" />
       <section
         v-if="distribution"
         class="stack-sm"
@@ -110,12 +163,11 @@ function compare() {
         <RatingTrend :terms="terms" />
       </section>
     </template>
-    <p
+    <EmptyState
       v-else-if="ratings.status.value === 'ready'"
-      class="muted small"
-    >
-      {{ t('browse.noReviews') }}
-    </p>
+      :text="t('browse.noReviews')"
+      :icon="MessageSquareDashed"
+    />
     <section
       v-if="people.data.value?.length"
       class="stack-sm"
@@ -195,6 +247,18 @@ function compare() {
 </template>
 
 <style scoped>
+.verdict { display: grid; gap: .875rem; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); align-items: center; }
+.verdict-main { display: grid; gap: .25rem; justify-items: start; }
+.verdict-level { font-size: 1.375rem; font-weight: 680; white-space: normal; }
+.verdict-level :deep(svg) { width: 1.5rem; height: 1.5rem; }
+.verdict-dims { display: grid; gap: .5rem .875rem; grid-template-columns: repeat(2, minmax(0, 1fr)); padding-inline-start: .875rem; border-inline-start: .5px solid var(--separator); }
+.verdict-dims dt { color: var(--label-3); font-size: .75rem; }
+.verdict-dims :deep(.d-level) { white-space: normal; }
+@media (max-width: 420px) {
+  .verdict { grid-template-columns: minmax(0, 1fr); }
+  .verdict-dims { padding-inline-start: 0; padding-block-start: .75rem; border-inline-start: 0; border-block-start: .5px solid var(--separator); }
+}
+.quick-skeleton span.quick-skeleton-card[aria-hidden] { width: 100%; height: 6.5rem; }
 .links { display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .9375rem; }
 .links.column { display: grid; }
 .quote { display: grid; gap: .25rem; padding: .75rem 1rem; border-radius: var(--radius-sm); background: var(--fill); color: inherit; text-decoration: none; }

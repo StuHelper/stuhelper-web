@@ -63,7 +63,8 @@
     "filtersCount": "絞り込み（{count}）",
     "goHome": "ホームに戻る",
     "undo": "元に戻す",
-    "clearSearch": "検索を解除"
+    "clearSearch": "検索を解除",
+    "shownOf": "{total} 件中 {shown} 件を表示"
   },
   "errors": {
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
@@ -536,7 +537,9 @@
       "saveDraft": "下書きを保存",
       "draftSaved": "下書きを保存しました。",
       "pending": "投稿を受け付けました。審査待ちです。",
-      "published": "投稿しました。"
+      "published": "投稿しました。",
+      "missing": "公開する前に入力が必要です：{items}",
+      "ratingsDone": "評価（{total} 項目中 {done} 項目を選択）"
     },
     "disclosure": {
       "title": "公開する認証情報",
@@ -679,7 +682,11 @@
       "deviceConfirm": "この端末の StuHelper からログアウトしますか？",
       "allConfirm": "すべての端末の StuHelper からログアウトしますか？他の端末は再ログインが必要です。"
     },
-    "security": "アカウントとセキュリティ"
+    "security": "アカウントとセキュリティ",
+    "groups": {
+      "account": "アカウント",
+      "services": "その他のサービス"
+    }
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -1294,7 +1301,9 @@
     "unplaced": "次の授業時間は読み取れなかったため、時間割に入っていません",
     "emptyTerm": "この学期の有効な履修記録はありません。",
     "noLessonsThisWeek": "今週は授業がありません。",
-    "lessonLabel": "{course}、{day} {start}〜{end} 限、{location}"
+    "lessonLabel": "{course}、{day} {start}〜{end} 限、{location}",
+    "thisWeek": "今週に戻る",
+    "textOnly": "この学期の授業時間は文字による説明のみのため、週間時間割にできません。以下に科目ごとに表示します。"
   },
   "demo": {
     "deptCredits": "{p0} · {p1} 単位",

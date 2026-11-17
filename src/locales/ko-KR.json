@@ -63,7 +63,8 @@
     "filtersCount": "필터({count})",
     "goHome": "홈으로 돌아가기",
     "undo": "실행 취소",
-    "clearSearch": "검색 지우기"
+    "clearSearch": "검색 지우기",
+    "shownOf": "{total}개 중 {shown}개 표시"
   },
   "errors": {
     "network": "연결에 실패했거나 시간이 초과되었습니다. 유효한 입력은 유지됩니다. 다시 시도하세요.",
@@ -536,7 +537,9 @@
       "saveDraft": "초안 저장",
       "draftSaved": "초안을 저장했습니다.",
       "pending": "제출되었으며 검토 대기 중입니다.",
-      "published": "게시되었습니다."
+      "published": "게시되었습니다.",
+      "missing": "게시하려면 다음을 입력하세요: {items}",
+      "ratingsDone": "평가({total}개 중 {done}개 선택)"
     },
     "disclosure": {
       "title": "공개할 인증 정보",
@@ -679,7 +682,11 @@
       "deviceConfirm": "이 기기에서 StuHelper 로그아웃할까요?",
       "allConfirm": "모든 기기에서 StuHelper 로그아웃할까요? 다른 기기는 다시 로그인해야 합니다."
     },
-    "security": "계정 및 보안"
+    "security": "계정 및 보안",
+    "groups": {
+      "account": "계정",
+      "services": "기타 서비스"
+    }
   },
   "resources": {
     "eyebrow": "자료 공유",
@@ -1294,7 +1301,9 @@
     "unplaced": "다음 수업 시간은 인식할 수 없어 시간표에 넣지 못했습니다",
     "emptyTerm": "이 학기의 유효한 수강 기록이 없습니다.",
     "noLessonsThisWeek": "이번 주에는 수업이 없습니다.",
-    "lessonLabel": "{course}, {day} {start}–{end}교시, {location}"
+    "lessonLabel": "{course}, {day} {start}–{end}교시, {location}",
+    "thisWeek": "이번 주로",
+    "textOnly": "이번 학기의 수업 시간은 글로만 제공되어 주간 시간표로 표시할 수 없습니다. 아래에 과목별로 표시합니다."
   },
   "demo": {
     "deptCredits": "{p0} · {p1}학점",

@@ -3,8 +3,13 @@
  * person's enrollment records, which needs the person's explicit consent; until
  * that consent flow exists the page, its entries and its background reads stay off.
  * Review eligibility is still checked on the server and is unaffected.
+ *
+ * Production and every other normal build keep it off: without VITE_DEMO the
+ * expression is the constant false and the page is not bundled. Only the review
+ * prototype (VITE_DEMO, in-memory mock backend, no real records) started with
+ * VITE_DEMO_MY_COURSES=1 shows the page, so the closed design can be reviewed and tested.
  */
-export const myCoursesEnabled = false
+export const myCoursesEnabled = !!import.meta.env.VITE_DEMO && import.meta.env.VITE_DEMO_MY_COURSES === '1'
 
 /**
  * The teacher directory. The server returns only teachers marked by the catalog

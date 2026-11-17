@@ -6,6 +6,7 @@ import { openPlatformRoute } from './open-platform'
 import { qqRoute } from './qq'
 import { notificationsRoute } from './notifications'
 import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
+import { myCoursesEnabled } from '../app/features'
 
 let demoMailAt = 0
 
@@ -229,7 +230,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
 
   if (p === '/catalog/objects') return catalog(u)
   if (p === '/catalog/directory') return directory(u)
-  if (p === '/catalog/me/next-class-day') return json({ state: 'unavailable', reason: 'enrollment_display_not_granted', date: '', time_zone: 'Asia/Shanghai', items: [] })
+  if (p === '/catalog/me/next-class-day') return json(myCoursesEnabled ? nextClassDay() : { state: 'unavailable', reason: 'enrollment_display_not_granted', date: '', time_zone: 'Asia/Shanghai', items: [] })
   if (p === '/catalog/me/recent-courses' && method === 'DELETE') { recentCourses.length = 0; return json({ cleared: true }) }
   if (p === '/catalog/me/recent-courses') return json({ resources_state: 'available', items: recentCourses.map((id, i) => ({ course: d.allObjects.find((o) => o.id === id), visited_at: new Date(Date.now() - i * 36e5).toISOString(), resource_count: resources.filter((r) => r.current?.metadata.associations.course_id === id).length })) })
   if (p === '/catalog/objects/lookup') {
@@ -241,12 +242,13 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p.startsWith('/catalog/objects/')) { const o = d.allObjects.find((x) => x.id === decodeURIComponent(p.split('/').at(-1)!)); return o ? json(o) : nope('not_found', 404) }
   if (p === '/catalog/me/enrollments') return json(d.enrollments)
   if (p === '/catalog/me/schedule') return json({ items: schedule(u.searchParams.get('term_id') ?? ''), next: '' })
-  if (p === '/catalog/me/schedule/calendar') return new Response('BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//StuHelper Demo//EN\r\nEND:VCALENDAR\r\n', { headers: { 'content-type': 'text/calendar' } })
+  // 只有当前学期带结构化时间和作息。其余学期只有时间原文，按规格返回 schedule_incomplete。
+  if (p === '/catalog/me/schedule/calendar') return u.searchParams.get('term_id') === CURRENT_TERM ? new Response('BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//StuHelper Demo//EN\r\nEND:VCALENDAR\r\n', { headers: { 'content-type': 'text/calendar' } }) : nope('schedule_incomplete', 422)
 
   if (p === '/reviews/presentation') return json({ effective: { school_id: d.SCHOOL, revision: 0, rating_texts: {} }, configured: null, source: 'default' })
   if (p === '/reviews/statistics') return statistics(u)
   if (p === '/reviews/summaries') return summaries(u)
-  if (p === '/reviews/me/overview') return json({ review_count: reviews.filter((r) => r.mine).length, draft_count: drafts.length, pending_courses: { state: 'unavailable', reason: 'enrollment_display_not_granted', count: null, items: [] } })
+  if (p === '/reviews/me/overview') return json({ review_count: reviews.filter((r) => r.mine).length, draft_count: drafts.length, pending_courses: myCoursesEnabled ? pendingCourses() : { state: 'unavailable', reason: 'enrollment_display_not_granted', count: null, items: [] } })
   if (p === '/search' || p === '/search/popular') return json({ items: search(u, p === '/search/popular'), next_cursor: '' })
   if (p === '/search/my-votes') return json({ items: d.reviews.slice(0, 3).map((r, i) => ({ target: { source: 'reviews', id: r.id, kind: 'review' }, choice: i === 1 ? 'down' : 'up' })), next_cursor: '' })
   if (p === '/reviews/compose') {
@@ -358,18 +360,41 @@ export function installDemoFetch() {
   }
 }
 
+const CURRENT_TERM = 't-26f'
+// 每节 45 分钟。
+const plus45 = (time: string) => { const total = Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) + 45; return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}` }
+
+// 以下两项只在演示开关打开「我的课程」时使用，数据来自演示周课表和演示选课记录。
+/** 下一个上课日：今天还有课就是今天，否则是之后最近的有课日期。时间按北京时间给出。 */
+function nextClassDay() {
+  const today = new Date(Date.now() + 8 * 36e5)
+  const weekday = today.getUTCDay() || 7
+  const offset = [0, 1, 2, 3, 4, 5, 6].find((days) => timetable.some((row) => row.day === ((weekday - 1 + days) % 7) + 1)) ?? 0
+  const date = new Date(today.getTime() + offset * 864e5).toISOString().slice(0, 10)
+  const day = ((weekday - 1 + offset) % 7) + 1
+  const items = timetable.filter((row) => row.day === day).sort((a, b) => a.start - b.start).map((row) => ({
+    course_id: row.course, course_name: row.name, teachers: d.teachers.filter((t) => t.name === row.teacher), location: row.place,
+    starts_at: `${date}T${periodStarts[row.start - 1]}:00+08:00`, ends_at: `${date}T${plus45(periodStarts[row.end - 1]!)}:00+08:00`, start_period: row.start, end_period: row.end,
+  }))
+  return { state: items.length ? 'available' : 'empty', reason: '', date, time_zone: 'Asia/Shanghai', items }
+}
+/** 上学期修过、本人还没有评价的课程。 */
+function pendingCourses() {
+  const mine = new Set(reviews.filter((r) => r.mine).map((r) => r.target_id))
+  const items = d.enrollments.filter((e) => e.term_id !== CURRENT_TERM && !mine.has(e.course_id)).map((e) => ({ course_id: e.course_id, course_name: String(d.allObjects.find((o) => o.id === e.course_id)?.name ?? e.course_id), term_id: e.term_id, term_name: String(d.terms.find((t) => t.id === e.term_id)?.name ?? e.term_id) }))
+  return { state: 'available', reason: '', count: items.length, items }
+}
+
 // 本人课表：当前学期按演示周课表生成结构化时间，往期学期只有原文时间。
 function schedule(term: string) {
   const range = (text: string) => { const [a, b] = text.replace(/[^\d-]/g, '').split('-').map(Number); return Array.from({ length: b! - a! + 1 }, (_, i) => a! + i) }
-  // 每节 45 分钟。
-  const plus45 = (time: string) => { const total = Number(time.slice(0, 2)) * 60 + Number(time.slice(3)) + 45; return `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}` }
   const periods = periodStarts.map((start, i) => ({ number: i + 1, start, end: plus45(start) }))
   return d.enrollments.filter((e) => e.term_id === term).map((e) => {
     const rows = timetable.filter((row) => row.course === e.course_id)
-    const meetings = term === 't-26f'
+    const meetings = term === CURRENT_TERM
       ? rows.map((row, i) => ({ id: `${e.id}-m${i}`, time_text: `周${'一二三四五六日'[row.day - 1]} 第${row.start}-${row.end}节 第${row.weeks.replace(' 周', '')}周`, location: row.place, schedule_time: { weekday: row.day, start_period: row.start, end_period: row.end, weeks: range(row.weeks) } }))
       : [{ id: `${e.id}-m0`, time_text: '周三 下午', location: '' }]
-    return { enrollment: e, course_name: d.allObjects.find((o) => o.id === e.course_id)?.name ?? e.course_id, meetings, ...(term === 't-26f' ? { timetable: { school_id: d.SCHOOL, term_id: term, revision: 1, week_one_start: '2026-09-07', timezone: 'Asia/Shanghai', periods } } : {}) }
+    return { enrollment: { ...e, fetched_at: d.ago(0, 6) }, course_name: d.allObjects.find((o) => o.id === e.course_id)?.name ?? e.course_id, meetings, ...(term === CURRENT_TERM ? { timetable: { school_id: d.SCHOOL, term_id: term, revision: 1, week_one_start: '2026-09-07', timezone: 'Asia/Shanghai', periods } } : {}) }
   })
 }
 

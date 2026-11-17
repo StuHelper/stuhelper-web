@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import type { LoadStatus } from '../composables/async'
+import EmptyState from './EmptyState.vue'
 import ErrorNotice from './ErrorNotice.vue'
 import PageSkeleton from './PageSkeleton.vue'
 
@@ -25,9 +26,7 @@ const { t } = useI18n()
       v-if="empty"
       name="empty"
     >
-      <p class="empty">
-        {{ emptyText || t('common.empty') }}
-      </p>
+      <EmptyState :text="emptyText || t('common.empty')" />
     </slot>
     <slot v-else />
   </template>

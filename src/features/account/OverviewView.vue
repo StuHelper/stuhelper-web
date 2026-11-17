@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { myCoursesEnabled } from '../../app/features'
-import { BadgeCheck, CalendarDays, ChevronRight, FileText, FolderOpen, HardDrive, Inbox, PencilLine, PenLine } from 'lucide-vue-next'
+import { BadgeCheck, ChevronRight, FileText, PenLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
@@ -21,6 +20,7 @@ import { useResourcesApi } from '../resources/api'
 import { useWalletApi } from '../wallet/api'
 import { useAccess } from './access'
 import { useVerification } from '../verification/api'
+import { meGroups, meLinks } from './links'
 import MeLayout from './MeLayout.vue'
 
 // Personal center overview. Campus eligibility, independent identity and phone
@@ -99,14 +99,8 @@ onMounted(() => {
   nickname.value = profile.value?.nickname ?? ''
 })
 
-const links = [
-  ...(myCoursesEnabled ? [{ to: '/me/courses', title: 'courses.title', text: 'me.links.courses', icon: CalendarDays, tile: 'var(--c-red)' }] : []),
-  { to: '/me/reviews', title: 'me.reviews', text: 'me.links.reviews', icon: FileText, tile: 'var(--c-blue)' },
-  { to: '/me/reviews?tab=drafts', title: 'me.reviewTabs.drafts', text: 'me.links.drafts', icon: PencilLine, tile: 'var(--c-orange)' },
-  { to: '/me/resources', title: 'me.resources', text: 'me.links.resources', icon: FolderOpen, tile: '#ffcc00' },
-  { to: '/me/requests', title: 'me.requests', text: 'me.links.requests', icon: Inbox, tile: 'var(--c-indigo)' },
-  { to: '/me/storage', title: 'nav.contributions', text: 'me.links.storage', icon: HardDrive, tile: 'var(--c-cyan)' },
-] as const
+// Phones have no side navigation, so this page lists every personal page, grouped like a settings menu.
+const menu = computed(() => meGroups.map((group) => ({ ...group, links: meLinks.filter((link) => link.group === group.id && available(link.to)) })).filter((group) => group.links.length))
 
 function startEdit() {
   nickname.value = profile.value?.nickname ?? ''
@@ -383,14 +377,23 @@ async function signOut() {
       </section>
 
 
+      <!-- The content group also shows on wide screens until the account is verified, where the page has little else. -->
       <section
+        v-for="group in menu"
+        :key="group.id"
         class="section"
-        :class="{ 'phone-only': verified }"
+        :class="{ 'phone-only': verified || group.id !== 'content' }"
+        :aria-labelledby="`me-group-${group.id}`"
       >
-        <h2>{{ t('me.content') }}</h2>
+        <h2
+          :id="`me-group-${group.id}`"
+          class="d-title"
+        >
+          {{ t(group.title) }}
+        </h2>
         <ul class="group">
           <li
-            v-for="link in links.filter((item) => available(item.to))"
+            v-for="link in group.links"
             :key="link.to"
           >
             <RouterLink
@@ -405,8 +408,11 @@ async function signOut() {
                 aria-hidden="true"
               /></span>
               <span class="group-body">
-                <span class="group-title">{{ t(link.title) }}</span>
-                <span class="group-detail">{{ t(link.text) }}</span>
+                <span class="group-title">{{ t(link.label) }}</span>
+                <span
+                  v-if="link.detail"
+                  class="group-detail"
+                >{{ t(link.detail) }}</span>
               </span>
               <ChevronRight
                 class="chevron"
@@ -418,7 +424,9 @@ async function signOut() {
       </section>
 
       <section class="section">
-        <h2>{{ t('me.sessions.title') }}</h2>
+        <h2 class="d-title">
+          {{ t('me.sessions.title') }}
+        </h2>
         <div class="group">
           <button
             class="group-row sign-out"

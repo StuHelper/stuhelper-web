@@ -63,7 +63,8 @@
     "filtersCount": "筛选（{count}）",
     "goHome": "返回首页",
     "undo": "撤销",
-    "clearSearch": "清除搜索"
+    "clearSearch": "清除搜索",
+    "shownOf": "已显示 {shown} / {total}"
   },
   "errors": {
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
@@ -536,7 +537,9 @@
       "saveDraft": "保存草稿",
       "draftSaved": "草稿已保存。",
       "pending": "已提交，等待审核。",
-      "published": "已发布。"
+      "published": "已发布。",
+      "missing": "发布前还需填写：{items}",
+      "ratingsDone": "评分（已选 {done}/{total}）"
     },
     "disclosure": {
       "title": "公开的认证信息",
@@ -679,7 +682,11 @@
       "deviceConfirm": "退出当前设备上的 StuHelper？",
       "allConfirm": "退出所有设备上的 StuHelper 会话？其他设备需要重新登录。"
     },
-    "security": "账号与安全"
+    "security": "账号与安全",
+    "groups": {
+      "account": "账号",
+      "services": "更多服务"
+    }
   },
   "resources": {
     "eyebrow": "资料共享",
@@ -1294,7 +1301,9 @@
     "unplaced": "以下上课时间无法识别，暂未排入课表",
     "emptyTerm": "该学期暂无有效的选课记录。",
     "noLessonsThisWeek": "本周无课。",
-    "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}"
+    "lessonLabel": "{course}，{day} 第 {start}–{end} 节，{location}",
+    "thisWeek": "回到本周",
+    "textOnly": "这个学期的上课时间只有文字说明，无法排成周课表，下面按课程列出。"
   },
   "demo": {
     "deptCredits": "{p0} · {p1} 学分",
