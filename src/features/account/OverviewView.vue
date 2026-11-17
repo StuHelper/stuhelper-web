@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useNotificationTitle } from '../notifications/title'
 import { BadgeCheck, ChevronRight, FileText, PenLine } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,10 +13,9 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import { useFormat } from '../../app/i18n'
-import { isolate } from '../../shared/format'
 import { useAcademic } from '../academic/api'
 import { useFavoritesApi } from '../favorites/api'
-import { titleMessage, useNotificationsApi, type Notification } from '../notifications/api'
+import { useNotificationsApi } from '../notifications/api'
 import { useResourcesApi } from '../resources/api'
 import { useWalletApi } from '../wallet/api'
 import { useAccess } from './access'
@@ -78,10 +78,7 @@ const stats = computed(() => [
 ])
 const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count)
-function noticeTitle(item: Notification) {
-  // Identifiers are left-to-right; isolating them keeps right-to-left sentences in order.
-  return t(titleMessage(item.title_key), Object.fromEntries(Object.entries(item.title_params).map(([key, value]) => [key, isolate(value)])))
-}
+const noticeTitle = useNotificationTitle()
 function ago(iso: string) {
   const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
   if (!Number.isFinite(minutes)) return ''

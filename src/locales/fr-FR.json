@@ -2134,7 +2134,10 @@
       "review": "Résultats de modération",
       "verification": "Vérification",
       "system": "Notifications système"
-    }
+    },
+    "namedContent": "« {name} »",
+    "contentUnavailable": "(contenu indisponible)",
+    "contentNameUnavailable": "(nom momentanément indisponible)"
   },
   "search": {
     "title": "Recherche",

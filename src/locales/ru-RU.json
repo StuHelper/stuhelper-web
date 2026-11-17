@@ -2134,7 +2134,10 @@
       "review": "Результаты рассмотрения",
       "verification": "Подтверждение",
       "system": "Системные уведомления"
-    }
+    },
+    "namedContent": "«{name}»",
+    "contentUnavailable": "(содержимое недоступно)",
+    "contentNameUnavailable": "(название пока недоступно)"
   },
   "search": {
     "title": "Поиск",

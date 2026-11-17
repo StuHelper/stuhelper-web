@@ -35,8 +35,15 @@ const enrollments = useAsync(async (signal) => {
   return { rows, names }
 })
 const terms = computed(() => {
-  // Enrollments arrive oldest term first. The newest term is listed first and opens by default.
-  const seen = [...new Set((enrollments.data.value?.rows ?? []).map((row) => row.term_id))].reverse()
+  // Newest term first, by term_order_key (year × 10 + season; 0 for an unknown term,
+  // which sorts last). Servers without the key keep the order they return, reversed,
+  // because enrollments then arrive oldest term first.
+  const rows = enrollments.data.value?.rows ?? []
+  const keyed = rows.some((row) => typeof row.term_order_key === 'number')
+  const keys = new Map(rows.map((row) => [row.term_id, row.term_order_key ?? 0]))
+  const seen = keyed
+    ? [...new Set(rows.map((row) => row.term_id))].sort((a, b) => (keys.get(b) ?? 0) - (keys.get(a) ?? 0) || a.localeCompare(b))
+    : [...new Set(rows.map((row) => row.term_id))].reverse()
   return seen.map((value) => ({ value, label: enrollments.data.value?.names.get(value)?.name ?? t('academic.offerings.unknownTerm') }))
 })
 const schedule = useAsync<OwnSchedule[]>((signal) => api.mySchedule(term.value, signal))
