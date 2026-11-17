@@ -451,3 +451,21 @@ test('review cards show the reply preview from the list without asking for repli
   expect(reviewQueries.some((q) => q.kind === 'course' && q.include_reply_preview === 'true')).toBe(true);
   expect(reviewQueries.filter((q) => q.kind === 'reply')).toEqual([]);
 });
+
+test('course and teacher pages show no teaching classes and old class links lead to the directory', async ({ page }, info) => {
+  const all = catalogue(info), errors = watch(page), seen = [];
+  await academicFixture(page);
+  page.on('request', (request) => { const url = new URL(request.url()); if (url.pathname === '/api/v1/catalog/objects') seen.push(url.searchParams.get('kind')); });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  const sections = page.getByRole('tablist', { name: all.academic.subject.sections });
+  await expect(sections.getByRole('tab', { name: all.academic.subject.teachers, exact: true })).toBeVisible();
+  await expect(sections.getByRole('tab', { name: all.academic.offerings.title, exact: true })).toHaveCount(0);
+  await sections.getByRole('tab', { name: all.academic.subject.teachers, exact: true }).click();
+  await expect(page.getByRole('link', { name: 'Teacher A' })).toBeVisible();
+  for (const path of ['/classes/class-one', '/offerings/offering-fall']) {
+    await page.goto(`http://127.0.0.1:18787${path}?lang=${info.project.metadata.locale}`);
+    await expect(page).toHaveURL(/\/courses(\?|$)/);
+  }
+  expect(seen.filter((kind) => ['term_course', 'class', 'schedule', 'assignment'].includes(kind ?? ''))).toEqual([]);
+  expect(errors).toEqual([]);
+});

@@ -365,15 +365,6 @@ function uploadMessage(state: string) {
                   :school="metadata.associations.school_id || undefined"
                 />
                 <CatalogPicker
-                  v-model="metadata.associations.offering_id"
-                  kind="term_course"
-                  :label="t('academic.offering')"
-                  :school="metadata.associations.school_id || undefined"
-                  :course="metadata.associations.course_id || undefined"
-                  :term="metadata.associations.term_id || undefined"
-                  :disabled="!metadata.associations.course_id"
-                />
-                <CatalogPicker
                   v-model="metadata.associations.teacher_id"
                   kind="teacher"
                   :label="t('academic.teacher')"
