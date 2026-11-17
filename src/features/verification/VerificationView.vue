@@ -44,8 +44,8 @@ const codeStep = computed(() => !!flow.email.value && flow.writable.value && flo
 const masked = computed(() => (flow.summary.value?.identity_verified ? maskedIdentity(flow.summary.value) : undefined))
 
 // The three steps of the student flow. An application exists from step two on; step three is
-// whatever waits for something outside the form: the mail code, the school's SMS, or a reviewer.
-const step = computed(() => (!flow.active.value ? 1 : codeStep.value || flow.active.value.school_challenge || !flow.writable.value ? 3 : 2))
+// whatever waits for something outside the form: the mail, the school's SMS, or a reviewer.
+const step = flow.step
 const stepNames = ['choose', 'fill', 'finish'] as const
 // Someone already verified, or waiting for review, sees the outcome first and opens the steps on request.
 const adding = ref(false)
@@ -375,6 +375,15 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
         >
           <p class="chosen">
             {{ chosen }}
+          </p>
+          <!-- A school login that failed, was cancelled or expired leaves the application open for another try. -->
+          <p
+            v-if="flow.active.value?.school_challenge && ['failed', 'cancelled', 'expired'].includes(flow.active.value.school_challenge.state)"
+            class="notice notice-warning stack-sm"
+            role="status"
+          >
+            <span>{{ label('verification.schoolStates', flow.active.value.school_challenge.state) }}</span>
+            <span v-if="flow.active.value.school_challenge.code">{{ label('verification.schoolErrors', flow.active.value.school_challenge.code) }}</span>
           </p>
           <div class="form-grid">
             <label class="field">
@@ -854,7 +863,8 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
                 </button>
               </div>
             </form>
-            <ActionError :code="flow.errorTarget.value === 'profile' && removal.id !== credential.id && (flow.profileCredential.value?.id ?? credential.id) === credential.id ? flow.error.value : ''" />
+            <!-- A failed profile request is reported under the credential it was asked for, and nowhere else. -->
+            <ActionError :code="flow.errorTarget.value === 'profile' && flow.profileRequestId.value === credential.id ? flow.error.value : ''" />
             <!-- The school profile opens under the credential it belongs to. -->
             <section
               v-if="flow.profile.value && flow.profileCredential.value?.id === credential.id"

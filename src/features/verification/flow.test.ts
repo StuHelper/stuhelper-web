@@ -243,3 +243,58 @@ it('derives one standing from the summary, the applications and the credentials'
   // A teacher application never changes the student standing.
   expect(await standing({ applications: [record('pending_review', '2026-11-03T00:00:00Z', { kind: 'teacher' })] })).toBe('none')
 })
+
+it('moves a created inbound email challenge to step three, where its one-time address is shown', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.schools.value = [{ ...school('s101'), methods: ['student_email_inbound_challenge'] }] as never
+  const inbound = { ...pending, method: 'student_email_inbound_challenge', school_challenge: undefined }
+  api.get.mockImplementation(async (kind: string) => { if (kind === 'EmailChallenge') throw new ApiError('not_found'); return {} })
+  await flow.resume(inbound as never)
+  expect(flow.step.value).toBe(2)
+  Object.assign(flow.form, { student_id: '20260001', name: 'Synthetic Student' })
+  api.write.mockResolvedValue({ id: 'mail', application_id: inbound.id, state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-1@example.edu' })
+  await flow.submit()
+  expect(flow.email.value?.target_address).toBe('verify-1@example.edu')
+  expect(flow.writable.value).toBe(true)
+  expect(flow.step.value).toBe(3)
+})
+
+it('holds step three only while the school login waits and returns to the form after it ends', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  await flow.resume(pending as never)
+  expect(flow.step.value).toBe(3)
+  flow.active.value = { ...pending, school_challenge: { ...pending.school_challenge, state: 'processing' } } as never
+  expect(flow.step.value).toBe(3)
+  for (const state of ['failed', 'cancelled', 'expired']) {
+    flow.active.value = { ...pending, school_challenge: { ...pending.school_challenge, state, code: 'school_credentials_rejected' } } as never
+    expect(flow.writable.value).toBe(true)
+    expect(flow.step.value).toBe(2)
+  }
+  // Continuing the same application from the records also opens the form for another try.
+  flow.backToMethod()
+  await flow.resume({ ...pending, school_challenge: { ...pending.school_challenge, state: 'expired' } } as never)
+  expect(flow.step.value).toBe(2)
+  // An application that left the form waits on step three whatever its challenge.
+  flow.active.value = { ...pending, state: 'pending_review', school_challenge: { ...pending.school_challenge, state: 'failed' } } as never
+  expect(flow.step.value).toBe(3)
+})
+
+it('keeps a failed profile request on the credential that asked for it', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.credentials.value = [{ id: 'a', verified_at: '2026-11-14T00:00:00Z' }, { id: 'b', verified_at: '2025-01-01T00:00:00Z' }] as never
+  api.get.mockRejectedValue(new ApiError('unavailable'))
+  await flow.showProfile('b')
+  expect(flow.errorTarget.value).toBe('profile')
+  expect(flow.error.value).toBe('unavailable')
+  expect(flow.profileRequestId.value).toBe('b')
+  expect(flow.profileCredential.value).toBeUndefined()
+  api.get.mockResolvedValue({ fields: {}, collected_at: '2020-01-01T00:00:00Z' })
+  await flow.showProfile('a')
+  expect(flow.profileRequestId.value).toBe('a')
+  expect(flow.error.value).toBe('')
+  await flow.reload()
+  expect(flow.profileRequestId.value).toBe('')
+})

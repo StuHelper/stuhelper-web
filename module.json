@@ -122,7 +122,11 @@
       "tests/e2e/verification-ux.spec.mjs#verification status leads the page and opens the steps on request",
       "tests/e2e/verification-ux.spec.mjs#method cards keep methods an identity cannot use visible with the reason",
       "src/features/verification/flow.test.ts#offers each identity only the methods the school allows it and keeps the choice valid",
-      "src/features/verification/flow.test.ts#derives one standing from the summary, the applications and the credentials"
+      "src/features/verification/flow.test.ts#derives one standing from the summary, the applications and the credentials",
+      "src/features/verification/flow.test.ts#moves a created inbound email challenge to step three, where its one-time address is shown",
+      "src/features/verification/flow.test.ts#holds step three only while the school login waits and returns to the form after it ends",
+      "tests/e2e/verification-ux.spec.mjs#an inbound email challenge moves to the last step and shows its one-time address",
+      "tests/e2e/verification-ux.spec.mjs#a failed school login returns the open application to the form for another try"
     ],
     "VERIFICATION-UX-02": [
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",
@@ -134,7 +138,9 @@
     ],
     "VERIFICATION-UX-03": [
       "tests/e2e/verification-ux.spec.mjs#profile shows plain field labels and binds authentication time to the selected credential",
-      "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure"
+      "src/features/verification/flow.test.ts#uses only the selected credential time and clears profile context on refresh and failure",
+      "src/features/verification/flow.test.ts#keeps a failed profile request on the credential that asked for it",
+      "tests/e2e/verification-ux.spec.mjs#a failed school profile is reported once, under the credential that asked for it"
     ],
     "WEB-CATALOG-01": [
       "tests/e2e/academic.spec.mjs#invisible course and discussion show the standard not-found state"

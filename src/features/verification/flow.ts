@@ -22,6 +22,9 @@ export function useVerificationFlow() {
   const loadError = ref('')
   const errorTarget = ref<ErrorTarget>('form')
   const profileCredentialId = ref('')
+  // The credential whose profile was last asked for. It is kept when the request fails, so the
+  // failure is shown under that one credential; profileCredentialId is set only on success.
+  const profileRequestId = ref('')
   const notice = ref('')
   const summary = shallowRef<Summary>()
   const schools = ref<School[]>([])
@@ -55,6 +58,15 @@ export function useVerificationFlow() {
   const chooseStudy = computed(() => manual.value || !school.value?.profile_schema || school.value.profile_schema === 'buaa.imported.v1')
   const chooseStage = computed(() => chooseStudy.value && school.value?.method_capabilities?.[selectedMethod.value]?.study_stage_required !== false)
   const writable = computed(() => !!active.value && ['in_progress', 'supplement_required'].includes(active.value.state) && !schoolPending.value)
+  // An email challenge that has been created waits outside the form: for the code (outbound) or for
+  // the person's own mail to the one-time address (inbound).
+  const emailWaiting = computed(() => !!email.value && writable.value && mode.value === 'student' && emailMethod.value)
+  /**
+   * The step of the student flow: 1 choose, 2 fill in, 3 wait for something outside the form.
+   * A school login challenge holds step three only while it is processing or waiting for the SMS;
+   * after it fails, is cancelled or expires, an application still open returns to the form for a retry.
+   */
+  const step = computed<1 | 2 | 3>(() => (!active.value ? 1 : emailWaiting.value || schoolPending.value || !writable.value ? 3 : 2))
 
   // The page asks who the person is before it lists the methods. A school asks when it takes study
   // facts from the person's own choice for at least one method. Temporary newcomers exist only in manual review.
@@ -103,6 +115,7 @@ export function useVerificationFlow() {
     loadError.value = ''
     profile.value = undefined
     profileCredentialId.value = ''
+    profileRequestId.value = ''
     try {
       const signal = lifetime.signal
       const [s, a, c, r, state] = await Promise.all([
@@ -140,6 +153,7 @@ export function useVerificationFlow() {
     requests.value = []
     profile.value = undefined
     profileCredentialId.value = ''
+    profileRequestId.value = ''
     active.value = undefined
     materials.value = []
   }
@@ -390,6 +404,7 @@ export function useVerificationFlow() {
   const showProfile = (id: string) => action(async () => {
     profile.value = undefined
     profileCredentialId.value = ''
+    profileRequestId.value = id
     const result = await api.get('StudentProfile', `/api/v1/verification/credentials/${encodeURIComponent(id)}/profile`, lifetime.signal)
     profile.value = result
     profileCredentialId.value = id
@@ -514,7 +529,7 @@ export function useVerificationFlow() {
   return {
     loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
-    school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable,
+    school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable, step, profileRequestId,
     asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,

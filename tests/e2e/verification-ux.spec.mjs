@@ -19,7 +19,7 @@ async function fixture(page, options = {}) {
     }
     if (endpoint === 'summary') return route.fulfill({ json: { campus_eligibility: true, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-14T00:00:00Z', revision: 1, next_evaluation_at: null } });
     if (options.loadFailure && endpoint === 'schools') return route.fulfill({ status: 503, json: { code: 'unavailable' } });
-    if (endpoint.endsWith('/profile')) return route.fulfill({ json: state.profile });
+    if (endpoint.endsWith('/profile')) return options.profileFailure?.(endpoint) ? route.fulfill({ status: 503, json: { code: 'unavailable' } }) : route.fulfill({ json: state.profile });
     return route.fulfill({ json: endpoint === 'schools' ? [options.school ?? school] : endpoint === 'credentials' ? [credential, { ...credential, id: 'second', verified_at: '2025-05-01T00:00:00Z' }] : [] });
   });
   return state;
@@ -385,4 +385,63 @@ test('restored email resend collects identity again before submitting', async ({
   await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
   expect(writes).toEqual([{ student_id: '20260001', name: 'Synthetic Student' }]);
+});
+
+test('a failed school profile is reported once, under the credential that asked for it', async ({ page }, info) => {
+  await fixture(page, { profileFailure: endpoint => endpoint.startsWith('credentials/second/') });
+  await open(page, info);
+  const m = messages(info), v = m.verification;
+  const cards = experiences(page, info).getByRole('listitem');
+  await expect(cards).toHaveCount(2);
+  // The delete form of the same credential is open; the failure still shows under that credential.
+  await cards.nth(1).getByRole('button', { name: v.requestDelete, exact: true }).click();
+  await cards.nth(1).getByRole('button', { name: v.viewProfile, exact: true }).click();
+  await expect(experiences(page, info).getByRole('alert')).toHaveCount(1);
+  await expect(cards.nth(1).getByRole('alert')).toContainText(m.errors.unavailable);
+  await expect(cards.nth(1).getByRole('alert')).toBeFocused();
+  await expect(cards.nth(0).getByRole('alert')).toHaveCount(0);
+  // A later success elsewhere clears it.
+  await cards.nth(0).getByRole('button', { name: v.viewProfile, exact: true }).click();
+  await expect(profileCard(page, info)).toBeVisible();
+  await expect(experiences(page, info).getByRole('alert')).toHaveCount(0);
+});
+
+test('an inbound email challenge moves to the last step and shows its one-time address', async ({ page }, info) => {
+  const v = messages(info).verification;
+  await fixture(page, { school: { ...school, methods: ['student_email_inbound_challenge'] } });
+  const challenge = { id: 'mail', application_id: 'application', expires_at: '2030-01-01T00:05:00Z', state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-7f3a@example.edu' };
+  await page.route('**/api/v1/verification/applications/application/email', route => route.request().method() === 'POST' ? route.fulfill({ json: challenge }) : route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await open(page, info, { steps: true });
+  await page.getByLabel(v.consent).check();
+  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
+  await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
+  await expect(page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]')).toHaveText(new RegExp(v.steps.finish));
+  await expect(page.getByText(challenge.target_address, { exact: true })).toBeVisible();
+  await expect(page.getByText(v.inboundHelp, { exact: true })).toBeVisible();
+});
+
+test('a failed school login returns the open application to the form for another try', async ({ page }, info) => {
+  const v = messages(info).verification;
+  await fixture(page, { school: { ...school, methods: ['school_sso'], method_capabilities: { school_sso: { study_stage_required: false } } } });
+  const verifies = [];
+  await page.route('**/api/v1/verification/applications/application/verify', route => {
+    verifies.push(route.request().postDataJSON());
+    return route.fulfill({ json: { ...application, method: 'school_sso', stage: 'unknown', school_challenge: { id: 'challenge', state: 'failed', code: 'school_credentials_rejected', expires_at: '2030-01-01T00:00:00Z', masked_phone: '' } } });
+  });
+  await open(page, info, { steps: true });
+  await page.getByLabel(v.consent).check();
+  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
+  await page.getByRole('button', { name: v.submit, exact: true }).click();
+  await expect(page.getByRole('status').filter({ hasText: v.schoolStates.failed })).toBeVisible();
+  await expect(page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]')).toHaveText(new RegExp(v.steps.fill));
+  // The password is cleared after each attempt and can be entered again for the same application.
+  await expect(page.getByLabel(v.password, { exact: true })).toHaveValue('');
+  await page.getByLabel(v.password, { exact: true }).fill('synthetic-password-2');
+  await page.getByRole('button', { name: v.submit, exact: true }).click();
+  await expect.poll(() => verifies.length).toBe(2);
+  expect(verifies[1]).toMatchObject({ student_id: '20260001', password: 'synthetic-password-2' });
 });
