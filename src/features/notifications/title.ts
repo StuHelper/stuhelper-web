@@ -18,9 +18,12 @@ export function useNotificationTitle() {
       if (typeof value === 'string' && key !== 'content_name' && key !== 'content_name_state') params[key] = isolate(value)
     }
     const state = raw.content_name_state
-    if ('content_id' in params && state) {
+    // Content notifications name the item in content_id; system notifications about a
+    // review, comment or resource use reference_id. Both are replaced the same way.
+    const slot = 'content_id' in params ? 'content_id' : 'reference_id' in params ? 'reference_id' : ''
+    if (slot && state) {
       // Identifiers and names are isolated so right-to-left sentences keep their order.
-      params.content_id = state === 'available' && raw.content_name
+      params[slot] = state === 'available' && raw.content_name
         ? t('notifications.namedContent', { name: isolate(raw.content_name) })
         : t(state === 'inaccessible' ? 'notifications.contentUnavailable' : 'notifications.contentNameUnavailable')
     }
