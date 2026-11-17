@@ -96,6 +96,12 @@ function submitted(result: Result) {
         :title="subject.name"
       >
         <p
+          v-if="subject.course_type === 'sports_project'"
+          class="muted"
+        >
+          <span class="tag">{{ t('academic.subject.sportsProject') }}</span>
+        </p>
+        <p
           v-if="entry.data.value.department"
           class="muted"
         >

@@ -60,8 +60,11 @@ const teacherOptions = computed(() => {
   return withdrawn && teacher.value && !ids.includes(teacher.value) ? [...ids, teacher.value] : ids
 })
 const termChoices = computed(() => (terms.data.value ?? []).map((item) => ({ value: item.id, label: item.name })))
+// A sports project review names one of the author's own teachers for that term, so the
+// "unspecified" choice is left out and publishing waits for a teacher.
+const teacherRequired = computed(() => props.kind === 'course' && composer.value?.teacher_required === true)
 const teacherChoices = computed(() => [
-  { value: '', label: t('academic.review.noTeacher') },
+  ...(teacherRequired.value ? [] : [{ value: '', label: t('academic.review.noTeacher') }]),
   ...teacherOptions.value.map((id) => ({ value: id, label: context.data.value?.names.get(id)?.name ?? t('common.unknown') })),
 ])
 
@@ -87,12 +90,13 @@ const showEligibility = computed(() => {
 })
 // 课程评价发布时五个维度都要评分。草稿可以只填一部分。
 const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.some((level) => !level))
-const canPublish = computed(() => !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+const canPublish = computed(() => !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && (!teacherRequired.value || !!teacher.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
 // What the author still has to fill in before publishing, named next to the disabled button.
 // Eligibility is decided by the server and explained in its own section above.
 const missing = computed(() => {
   const items: string[] = []
   if (props.kind === 'course' && !term.value) items.push(t('academic.editor.term'))
+  if (teacherRequired.value && !teacher.value) items.push(t('academic.editor.teacher'))
   if (ratingsMissing.value) items.push(t('academic.editor.ratingsDone', { done: format.value.number(ratings.value.filter((level) => level > 0).length), total: format.value.number(ratings.value.length) }))
   if (props.kind !== 'reply' && !title.value.trim()) items.push(t('academic.editor.title'))
   if (!body.value.trim()) items.push(t('academic.editor.body'))
@@ -110,6 +114,10 @@ const remaining = computed(() => {
   return t('academic.editor.remaining', { hours: format.value.number(Math.floor(minutes / 60)), minutes: format.value.number(minutes % 60) })
 })
 
+// With a single allowed teacher there is nothing to choose.
+watch(() => [teacherRequired.value, composer.value?.teacher_ids] as const, ([required, ids]) => {
+  if (required && !teacher.value && ids?.length === 1) teacher.value = ids[0]!
+})
 watch(term, () => {
   if (!withdrawn && !restoring) teacher.value = ''
   if (props.kind === 'course') void context.reload()
@@ -344,7 +352,7 @@ async function cancel() {
             :options="teacherChoices"
             :disabled="withdrawn"
           />
-          <span class="field-hint">{{ t('academic.editor.teacherHint') }}</span>
+          <span class="field-hint">{{ t(teacherRequired ? 'academic.editor.teacherRequiredHint' : 'academic.editor.teacherHint') }}</span>
         </div>
         <RatingInput
           v-model="ratings"
