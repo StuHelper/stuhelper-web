@@ -64,7 +64,8 @@
     "goHome": "Retour à l’accueil",
     "undo": "Annuler",
     "clearSearch": "Effacer la recherche",
-    "shownOf": "{shown} sur {total} affichés"
+    "shownOf": "{shown} sur {total} affichés",
+    "opensInNewTab": "(s’ouvre dans un nouvel onglet)"
   },
   "errors": {
     "network": "La connexion a échoué ou expiré. Les saisies valides sont conservées ; réessayez.",
@@ -321,7 +322,8 @@
       "unverified": "Non vérifié",
       "processing": "Vérification en cours",
       "expired": "Vérification expirée"
-    }
+    },
+    "signInWithQq": "Se connecter avec QQ"
   },
   "academic": {
     "course": "Cours",
@@ -1754,6 +1756,11 @@
         "authorizations_unavailable": "Les autorisations d’applications ne peuvent pas être retirées pour le moment. Le traitement reprendra quand le service sera rétabli.",
         "content_unavailable": "Le contenu personnel ne peut pas être traité pour le moment. Le traitement reprendra quand le service sera rétabli."
       }
+    },
+    "qqLogin": {
+      "title": "Connexion QQ",
+      "hint": "La connexion QQ est facultative. Les comptes liés à QQ peuvent se connecter avec QQ sur la page de connexion. Liez ou déliez QQ dans la section des connexions tierces du centre de compte.",
+      "manage": "Gérer la connexion QQ"
     }
   },
   "profile": {

@@ -64,7 +64,8 @@
     "goHome": "ホームに戻る",
     "undo": "元に戻す",
     "clearSearch": "検索を解除",
-    "shownOf": "{total} 件中 {shown} 件を表示"
+    "shownOf": "{total} 件中 {shown} 件を表示",
+    "opensInNewTab": "（新しいタブで開きます）"
   },
   "errors": {
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
@@ -321,7 +322,8 @@
       "unverified": "未認証",
       "processing": "認証審査中",
       "expired": "認証期限切れ"
-    }
+    },
+    "signInWithQq": "QQ でログイン"
   },
   "academic": {
     "course": "授業",
@@ -1754,6 +1756,11 @@
         "authorizations_unavailable": "現在、アプリの認可を取り消せません。サービスの回復後に処理を続けます。",
         "content_unavailable": "現在、個人のコンテンツを処理できません。サービスの回復後に処理を続けます。"
       }
+    },
+    "qqLogin": {
+      "title": "QQ ログイン",
+      "hint": "QQ ログインは任意です。QQ を連携したアカウントはログイン画面で QQ を使ってログインできます。連携と解除はアカウントセンターの外部ログイン欄で行います。",
+      "manage": "QQ ログイン連携を管理"
     }
   },
   "profile": {
