@@ -810,7 +810,7 @@
       "tags": "Etiquetas",
       "tagsHint": "Separa las etiquetas con comas.",
       "associations": "Relación con cursos",
-      "associationsHint": "Indica solo relaciones seguras. Deja el semestre o el profesor sin especificar si no lo sabes.",
+      "associationsHint": "Basta con elegir el curso. Si el material caduca o solo sirve para un periodo o docente concreto, también puedes indicar el periodo y el docente (opcional).",
       "directory": "Carpeta sugerida",
       "directoryHint": "Opcional. Moderación organiza las carpetas; tu sugerencia es orientativa.",
       "create": "Guardar y crear borrador",
@@ -1106,7 +1106,7 @@
       "processing": "Verificación en curso",
       "waiting_sms": "Esperando el código SMS",
       "authenticated": "Verificación completada",
-      "failed": "La verificación ha fallado; reinicia",
+      "failed": "La verificación del centro no se completó. Vuelve a introducir los datos y envíalos de nuevo.",
       "cancelled": "Verificación cancelada",
       "expired": "La verificación ha caducado; reinicia"
     },

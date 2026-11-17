@@ -810,7 +810,7 @@
       "tags": "Étiquettes",
       "tagsHint": "Séparez les étiquettes par des virgules.",
       "associations": "Liens avec les cours",
-      "associationsHint": "Ne renseignez que les liens certains. Laissez semestre ou enseignant vides s’ils sont inconnus.",
+      "associationsHint": "Choisir le cours suffit. Si le document est daté ou ne vaut que pour un semestre ou un enseignant précis, vous pouvez aussi indiquer le semestre et l’enseignant (facultatif).",
       "directory": "Dossier suggéré",
       "directoryHint": "Facultatif. Les modérateurs organisent les dossiers ; votre suggestion est indicative.",
       "create": "Enregistrer et créer le brouillon",
@@ -1106,7 +1106,7 @@
       "processing": "Vérification en cours",
       "waiting_sms": "En attente du code SMS",
       "authenticated": "Vérification terminée",
-      "failed": "Échec de la vérification ; recommencez",
+      "failed": "La vérification par l’école n’a pas abouti. Saisissez à nouveau vos informations puis renvoyez.",
       "cancelled": "Vérification annulée",
       "expired": "Vérification expirée ; recommencez"
     },

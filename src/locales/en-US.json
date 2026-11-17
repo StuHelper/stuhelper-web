@@ -810,7 +810,7 @@
       "tags": "Tags",
       "tagsHint": "Separate tags with commas.",
       "associations": "Course associations",
-      "associationsHint": "Fill in only associations you are sure of. Leave the semester or teacher unspecified if unknown.",
+      "associationsHint": "Choosing the course is enough. If the material is time-sensitive or only fits a certain term or teacher, you can also add the term and teacher (optional).",
       "directory": "Suggested folder",
       "directoryHint": "Optional. Moderators organise folders; your suggestion is advisory.",
       "create": "Save and create draft",
@@ -1106,7 +1106,7 @@
       "processing": "School verification in progress",
       "waiting_sms": "Waiting for the school SMS code",
       "authenticated": "School verification completed",
-      "failed": "School verification failed; please restart",
+      "failed": "School check was not completed. Enter your details again and resubmit.",
       "cancelled": "School verification cancelled",
       "expired": "School verification expired; please restart"
     },
