@@ -273,11 +273,13 @@ test('each department in the grouped view reads its own rows and shows all of th
     const query = new URL(route.request().url()).searchParams;
     seen.push(Object.fromEntries(query));
     const department = query.get('department_id');
-    const size = department === 'dept' ? 7 : 1;
-    const rows = Array.from({ length: department ? size : 1 }, (_, i) => directoryRow(`${department ?? 'x'}-${i}`, `${department ?? 'x'} course ${i}`, 'recommended'));
+    const assigned = Array.from({ length: 7 }, (_, i) => directoryRow(`dept-${i}`, `dept course ${i}`, 'recommended'));
+    const unassigned = directoryRow('unassigned', 'No department course', 'recommended');
+    const rows = department === 'dept' ? assigned : department === 'dept-2' ? [assigned[0]] : [...assigned, unassigned];
     const limit = Number(query.get('limit'));
-    // One course of nine has no department, so no section holds it.
-    return route.fulfill({ json: { ...directoryPage(rows.slice(0, limit), rows.length > limit ? 'more' : '', 9), department_facets: departments } });
+    // One course belongs to both departments. Another has no department: the facet sum
+    // equals the total even though one result cannot appear in either section.
+    return route.fulfill({ json: { ...directoryPage(rows.slice(0, limit), rows.length > limit ? 'more' : '', 8), department_facets: departments } });
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
   const first = page.getByRole('region', { name: 'Test College' });
@@ -292,8 +294,9 @@ test('each department in the grouped view reads its own rows and shows all of th
   expect(seen.some((q) => q.department_id === 'dept' && q.limit === '100')).toBe(true);
   await first.getByRole('button', { name: b.collapse, exact: true }).click();
   await expect(first.locator('li.line')).toHaveCount(5);
-  await expect(page.getByText(b.unassignedCourses.replace('{p0}', number(1)), { exact: true })).toBeVisible();
+  await expect(page.getByText(b.unassignedCourses, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: b.showInList, exact: true }).click();
+  await expect(page.getByText('No department course', { exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Test College' })).toHaveCount(0);
   await expect(page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.byDepartment })).toHaveAttribute('aria-pressed', 'false');
   expect(errors).toEqual([]);

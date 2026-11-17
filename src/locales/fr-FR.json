@@ -2462,7 +2462,7 @@
     "upvotes": "Approbations : {p0}",
     "verifiedStudent": "Étudiant vérifié",
     "viewDetails": "Voir les détails",
-    "unassignedCourses": "Cours sans école : {p0}",
+    "unassignedCourses": "La vue en liste affiche tous les résultats, y compris les cours sans département.",
     "showInList": "Voir dans la liste"
   }
 }

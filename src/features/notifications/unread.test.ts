@@ -31,3 +31,24 @@ it('keeps the last known count when a read fails and never goes below zero', asy
   setUnread(undefined)
   expect(unreadCount.value).toBeUndefined()
 })
+
+it('keeps a newer mark-all-read result when an older count request finishes', async () => {
+  let finish!: (value: number) => void
+  const pending = refreshUnread(() => new Promise<number>((resolve) => { finish = resolve }), true)
+  setUnread(0)
+  finish(7)
+  await pending
+  expect(unreadCount.value).toBe(0)
+  const read = vi.fn(() => Promise.resolve(7))
+  await refreshUnread(read)
+  expect(read).not.toHaveBeenCalled()
+})
+
+it('does not restore a cleared count from a request started before the reset', async () => {
+  let finish!: (value: number) => void
+  const pending = refreshUnread(() => new Promise<number>((resolve) => { finish = resolve }), true)
+  setUnread(undefined)
+  finish(7)
+  await pending
+  expect(unreadCount.value).toBeUndefined()
+})

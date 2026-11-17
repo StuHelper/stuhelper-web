@@ -113,9 +113,8 @@ const activeFilters = computed(() => [
 // rows, so the header counts and "show all" always cover the whole department.
 const PREVIEW = 5
 const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
-// Courses without a department belong to no section. Department facets count a course once per
-// department, so a total above their sum means some courses can only be found in the list view.
-const unassigned = computed(() => Math.max(0, count.value - groups.value.reduce((sum, g) => sum + g.count, 0)))
+// Department facets can overlap. Keep a route to every result without inferring an
+// unassigned count from those non-exclusive totals.
 async function loadDepartment(id: string, after: string, limit: number, signal: AbortSignal) {
   const result = await api.directory(query(after, { department_id: id, limit }), signal)
   return { items: result.items, next: result.next }
@@ -345,10 +344,9 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           />
         </DirectoryGroup>
         <p
-          v-if="unassigned"
           class="card unassigned"
         >
-          <span class="subtle">{{ t('browse.unassignedCourses', { p0: format.number(unassigned) }) }}</span>
+          <span class="subtle">{{ t('browse.unassignedCourses') }}</span>
           <button
             class="btn btn-sm"
             type="button"
