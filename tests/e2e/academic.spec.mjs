@@ -472,3 +472,21 @@ test('course and teacher pages show no teaching classes and old class links lead
   expect(seen.filter((kind) => ['term_course', 'class', 'schedule', 'assignment'].includes(kind ?? ''))).toEqual([]);
   expect(errors).toEqual([]);
 });
+
+test('a course shows its English name and former codes, and an old course id opens the current course', async ({ page }, info) => {
+  const all = catalogue(info), s = all.academic.subject, errors = watch(page);
+  await academicFixture(page, { course: { english_name: 'Synthetic Course', former_codes: ['OLD101'], former_names: ['Old Course'], hours: 32, aliases: ['Synthetic Course'] } });
+  await page.route('**/api/v1/catalog/objects/old-course/summary', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.route('**/api/v1/catalog/objects/old-course/resolution', (route) => route.fulfill({ json: { object: { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', canonical_id: 'course' }, ids: ['course', 'old-course'] } }));
+  await page.goto(`http://127.0.0.1:18787/courses/old-course?lang=${info.project.metadata.locale}`);
+  await expect(page).toHaveURL(/\/courses\/course(\?|$)/);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
+  const facts = page.locator('dl.facts');
+  await expect(facts.getByText(s.englishName, { exact: true })).toBeVisible();
+  await expect(facts.getByText('Synthetic Course', { exact: true })).toBeVisible();
+  await expect(facts.getByText('OLD101', { exact: true })).toBeVisible();
+  await expect(facts.getByText('Old Course', { exact: true })).toBeVisible();
+  // The English name is no longer listed again as an alias of the course.
+  await expect(facts.getByText(s.aliases, { exact: true })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

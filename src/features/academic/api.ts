@@ -56,6 +56,7 @@ const parse = {
   objectPage: schemaOf<ObjectPage>(catalog, 'Page'),
   filterOptions: schemaOf<Catalog['schemas']['FilterOptions']>(catalog, 'FilterOptions'),
   summary: schemaOf<ObjectSummary>(catalog, 'PublicSummary'),
+  resolution: schemaOf<Catalog['schemas']['Resolution']>(catalog, 'Resolution'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
   schedule: schemaOf<Catalog['schemas']['OwnSchedulePage']>(catalog, 'OwnSchedulePage'),
@@ -135,6 +136,11 @@ export class AcademicApi {
 
   summary(id: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/catalog/objects/${segment(id)}/summary`, parse.summary, { signal })
+  }
+
+  /** The current object for an id, including an old course id kept after a code change. */
+  resolution(id: string, signal?: AbortSignal) {
+    return this.http.json(`/api/v1/catalog/objects/${segment(id)}/resolution`, parse.resolution, { signal })
   }
 
   /** Resolve display names for up to 100 objects in one request. */

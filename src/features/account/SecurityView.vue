@@ -24,6 +24,8 @@ const capabilities = useCapabilities()
 // Account and security: identity facts, QQ binding, signing out everywhere and closing
 // the StuHelper account. Each section loads and fails on its own.
 const { t } = useI18n()
+// The shared account centre where third-party sign-in such as QQ is linked or unlinked.
+const accountCentre = 'https://sso.stuhelper.com/account'
 const format = useFormat()
 const errorText = useErrorText()
 const session = useSession()
@@ -158,6 +160,32 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
     </section>
 
     <QqBinding v-if="capabilities.has(feature.qq)" />
+
+    <!-- QQ sign-in is linked in the shared account centre, separate from the QQ binding module above. -->
+    <section
+      class="section"
+      aria-labelledby="security-qq-login"
+    >
+      <h2
+        id="security-qq-login"
+        class="d-title"
+      >
+        {{ t('security.qqLogin.title') }}
+      </h2>
+      <div class="card row-between">
+        <p class="muted small grow">
+          {{ t('security.qqLogin.hint') }}
+        </p>
+        <a
+          class="btn btn-sm"
+          :href="accountCentre"
+          target="_blank"
+          rel="noopener"
+        >
+          {{ t('security.qqLogin.manage') }}<span class="visually-hidden"> {{ t('common.opensInNewTab') }}</span>
+        </a>
+      </div>
+    </section>
 
     <section
       class="section"

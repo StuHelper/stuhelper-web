@@ -5,7 +5,7 @@ import CompareButton from '../search/CompareButton.vue'
 import { PenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { withFilters } from '../../shared/pageFilters'
 import { ApiError } from '../../shared/api/errors'
@@ -28,6 +28,8 @@ const { t } = useI18n()
 const capabilities = useCapabilities()
 const format = useFormat()
 const api = useAcademic()
+const route = useRoute()
+const router = useRouter()
 const composing = ref(false)
 const published = ref('')
 // Teaching classes, their times and places are not shown to users; a course lists its
@@ -42,11 +44,34 @@ const statistics = ref<InstanceType<typeof StatisticsPanel>>()
 const courseFeed = ref<InstanceType<typeof ReviewFeed>>()
 const mentorFeed = ref<InstanceType<typeof ReviewFeed>>()
 
+// A course that changed its code keeps its old id as a reference. Opening an old id resolves it
+// and replaces the address with the current course, keeping the query; only the old id is replaced.
+async function current(id: string, signal: AbortSignal) {
+  if (props.kind !== 'course') return undefined
+  try {
+    const resolved = await api.resolution(id, signal)
+    const target = resolved.object.canonical_id || resolved.object.id
+    return target !== id && resolved.object.kind === 'course' ? target : undefined
+  } catch {
+    return undefined
+  }
+}
 const entry = useAsync(async (signal) => {
-  const data = await api.summary(props.id, signal)
-  // An id of another kind must not render as this page.
-  if (data.object.kind !== props.kind) throw new ApiError('not_found')
-  return data
+  try {
+    const data = await api.summary(props.id, signal)
+    // An id of another kind must not render as this page.
+    if (data.object.kind !== props.kind) throw new ApiError('not_found')
+    const target = data.object.canonical_id && data.object.canonical_id !== props.id ? data.object.canonical_id : undefined
+    if (target) void router.replace({ path: `/courses/${encodeURIComponent(target)}`, query: route.query, hash: route.hash })
+    return data
+  } catch (failure) {
+    const target = failure instanceof ApiError && failure.code === 'not_found' ? await current(props.id, signal) : undefined
+    if (target) {
+      void router.replace({ path: `/courses/${encodeURIComponent(target)}`, query: route.query, hash: route.hash })
+      return await api.summary(target, signal)
+    }
+    throw failure
+  }
 })
 const subject = computed(() => entry.data.value?.object)
 const credits = computed(() => (subject.value ? knownCredits(subject.value) : undefined))
@@ -295,7 +320,29 @@ function submitted(result: Result) {
                 </dd>
               </div>
             </template>
-            <div v-if="subject.aliases.length">
+            <!-- A course shows its English name, former codes and former names in their own rows;
+                 the generic aliases stay for teachers. Each row hides when the value is missing. -->
+            <template v-if="kind === 'course'">
+              <div v-if="subject.english_name">
+                <dt>{{ t('academic.subject.englishName') }}</dt>
+                <dd>{{ subject.english_name }}</dd>
+              </div>
+              <div v-if="subject.former_codes?.length">
+                <dt>{{ t('academic.subject.formerCodes') }}</dt>
+                <dd class="mono">
+                  {{ format.list(subject.former_codes) }}
+                </dd>
+              </div>
+              <div v-if="subject.former_names?.length">
+                <dt>{{ t('academic.subject.formerNames') }}</dt>
+                <dd>{{ format.list(subject.former_names) }}</dd>
+              </div>
+              <div v-if="typeof subject.hours === 'number'">
+                <dt>{{ t('academic.subject.hours') }}</dt>
+                <dd>{{ format.number(subject.hours) }}</dd>
+              </div>
+            </template>
+            <div v-else-if="subject.aliases.length">
               <dt>{{ t('academic.subject.aliases') }}</dt>
               <dd>{{ format.list(subject.aliases) }}</dd>
             </div>

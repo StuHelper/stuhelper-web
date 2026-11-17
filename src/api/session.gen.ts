@@ -652,6 +652,8 @@ export interface operations {
         parameters: {
             query: {
                 return_to: string;
+                /** @description Omit for the regular Casdoor sign-in page. Only qq is accepted, once only; empty, repeated and other values return invalid_input. The server maps qq to its configured Casdoor provider name. */
+                provider?: "qq";
             };
             header?: never;
             path?: never;
@@ -666,12 +668,23 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Return URL is outside configured frontend origins */
+            /** @description invalid_input for an invalid or malformed provider; invalid_return_url for a return URL outside configured frontend origins */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description dependency_unavailable when QQ has no configured provider name or the login flow cannot be saved */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };

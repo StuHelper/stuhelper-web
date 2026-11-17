@@ -1,6 +1,6 @@
 import { inject, readonly, ref, shallowRef, type InjectionKey } from 'vue'
 import contract from '../../contracts/session.openapi.json'
-import type { components } from '../api/session.gen'
+import type { components, operations } from '../api/session.gen'
 import { ApiError } from './api/errors'
 import { Http } from './api/http'
 import { extras } from './extras'
@@ -8,6 +8,9 @@ import { keepFiltersForReturn } from './pageFilters'
 import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
 import { useHostFetch } from './api/transport'
+
+// Sign-in providers the login endpoint accepts besides the regular page (session contract 0.5.0).
+type LoginProvider = NonNullable<NonNullable<operations['startLogin']['parameters']['query']>['provider']>
 
 export type Session = components['schemas']['Session']
 export type Profile = components['schemas']['Profile']
@@ -79,12 +82,17 @@ export function createSessionStore(fetcher: typeof fetch) {
   }
 
   function invalidate(){generation++;session.value=null;state.value='guest';unavailable.value=false;failures=0;retryAt=0;}
-  function signIn() {
+  function startSignIn(provider?: LoginProvider) {
     if (extras.signIn) return extras.signIn()
     const target = window.location.href.split('#')[0] ?? window.location.origin
     keepFiltersForReturn()
-    window.location.assign(`/api/v1/auth/login?return_to=${encodeURIComponent(target)}`)
+    // The server maps the allowed provider to the identity provider's direct sign-in page and keeps
+    // its own state, nonce and PKCE checks; an older server ignores the parameter.
+    window.location.assign(`/api/v1/auth/login?return_to=${encodeURIComponent(target)}${provider ? `&provider=${provider}` : ''}`)
   }
+  // Both are used directly as click handlers, so neither takes the event as an argument.
+  const signIn = () => startSignIn()
+  const signInWithQq = () => startSignIn('qq')
 
   /** End this application's session on this device or on all devices. */
   async function signOut(all: boolean) {
@@ -105,7 +113,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     return saved
   }
 
-  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signOut, currentProfile, saveProfile }
+  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, currentProfile, saveProfile }
 }
 
 export type SessionStore = ReturnType<typeof createSessionStore>
