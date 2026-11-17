@@ -118,7 +118,11 @@
     ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
-      "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification"
+      "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification",
+      "tests/e2e/verification-ux.spec.mjs#verification status leads the page and opens the steps on request",
+      "tests/e2e/verification-ux.spec.mjs#method cards keep methods an identity cannot use visible with the reason",
+      "src/features/verification/flow.test.ts#offers each identity only the methods the school allows it and keeps the choice valid",
+      "src/features/verification/flow.test.ts#derives one standing from the summary, the applications and the credentials"
     ],
     "VERIFICATION-UX-02": [
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",

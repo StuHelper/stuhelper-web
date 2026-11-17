@@ -25,11 +25,27 @@ async function fixture(page, options = {}) {
   return state;
 }
 const messages = info => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
-async function open(page, info) {
+// Opens the page and waits until loading has settled. With `steps`, the verification steps are
+// opened as well: someone already verified sees the status first and starts a new verification on request.
+async function open(page, info, { steps = false } = {}) {
   await page.goto(`${base}/me/verification?lang=${info.project.metadata.locale}`);
-  await expect(page.getByRole('combobox').first()).toBeVisible();
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.locator('[aria-busy="true"]')).toHaveCount(0);
+  if (steps) {
+    const start = page.getByRole('button', { name: messages(info).verification.status.startAnother, exact: true });
+    if (await start.isVisible()) await start.click();
+    await expect(page.getByRole('region', { name: messages(info).verification.start, exact: true })).toBeVisible();
+    // Opening the steps scrolls them into view smoothly; layout measurements start once the scroll has stopped.
+    await page.waitForFunction(() => new Promise(resolve => {
+      let y = scrollY, still = 0;
+      const tick = () => { still = scrollY === y ? still + 1 : 0; y = scrollY; if (still >= 10) resolve(document.getAnimations().every(animation => animation.playState !== 'running')); else requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }));
+  }
   await page.evaluate(() => document.fonts.ready);
 }
+const experiences = (page, info) => page.getByRole('region', { name: messages(info).verification.experiences, exact: true });
+const profileCard = (page, info) => page.getByRole('region', { name: messages(info).verification.profileTitle, exact: true });
 async function shot(page, info, name, target = page) {
   if (!process.env.VERIFICATION_SCREENSHOTS) return;
   fs.mkdirSync(process.env.VERIFICATION_SCREENSHOTS, { recursive: true });
@@ -37,12 +53,14 @@ async function shot(page, info, name, target = page) {
 }
 
 test('verification dropdowns have zero layout displacement when opened and closed', async ({ page, headless }, info) => {
-  await fixture(page); await open(page, info);
+  await fixture(page); await open(page, info, { steps: true });
   // A real reserved gutter exercises the desktop scrollbar compensation even in headless Chromium.
   await page.addStyleTag({ content: 'html { overflow-y: scroll; scrollbar-width: auto; } ::-webkit-scrollbar { width: 16px; }' });
   if (!headless && !info.project.name.startsWith('mobile')) expect(await page.evaluate(() => innerWidth - document.documentElement.clientWidth)).toBeGreaterThan(0);
+  // One school needs no picker and identities are radio buttons, so the study stage is the one dropdown left in step one.
   const controls = page.locator('form').first().getByRole('combobox');
-  for (let index = 0; index < 3; index++) {
+  await expect(controls).toHaveCount(1);
+  for (let index = 0; index < await controls.count(); index++) {
     const control = controls.nth(index);
     // Center the target before measuring so Playwright's click auto-scroll is outside the observation.
     await control.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
@@ -57,7 +75,7 @@ test('verification dropdowns have zero layout displacement when opened and close
     expect(await measure()).toEqual(before);
   }
   // Keyboard selection updates the value and restores focus without submitting the form.
-  const stage = controls.nth(1);
+  const stage = controls.first();
   await stage.focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('option', { name: messages(info).verification.stages.bachelor, exact: true })).toBeFocused();
@@ -67,13 +85,13 @@ test('verification dropdowns have zero layout displacement when opened and close
   await expect(stage).toBeFocused();
   await expect(stage).toContainText(messages(info).verification.stages.master);
   await shot(page, info, 'dropdowns');
-  await controls.first().click();
+  await stage.click();
   await expect(page.getByRole('listbox')).toBeVisible();
   await shot(page, info, 'dropdown-open');
 });
 
 test('verification failure stays beside submit with focus and retained input', async ({ page }, info) => {
-  const state = await fixture(page); await open(page, info);
+  const state = await fixture(page); await open(page, info, { steps: true });
   const m = messages(info), v = m.verification;
   await page.getByLabel(v.consent).check();
   await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
@@ -99,8 +117,11 @@ test('verification failure stays beside submit with focus and retained input', a
 test('profile shows plain field labels and binds authentication time to the selected credential', async ({ page }, info) => {
   const state = await fixture(page); await open(page, info);
   const m = messages(info), v = m.verification;
-  await page.getByRole('button', { name: v.viewProfile }).first().click();
-  const card = page.locator('section').filter({ has: page.getByRole('heading', { name: v.profileTitle, exact: true }) });
+  // The status card opens the profile of the active credential, under that credential.
+  await page.getByRole('region', { name: v.statusTitle, exact: true }).getByRole('button', { name: v.viewProfile }).click();
+  const card = profileCard(page, info);
+  await expect(card).toHaveCount(1);
+  await expect(experiences(page, info).getByRole('listitem').first().getByRole('region', { name: v.profileTitle, exact: true })).toBeVisible();
   await expect(card).not.toContainText(m.common.unknown);
   // Field labels stand alone; no data-source annotation is shown.
   await expect(card).not.toContainText(v.profileSources.academic_profile);
@@ -113,16 +134,70 @@ test('profile shows plain field labels and binds authentication time to the sele
   await expect(card).toContainText(m.common.notProvided);
   await shot(page, info, 'profile', card);
   state.profile.fields.major_name = 'Test Major';
-  await page.getByRole('button', { name: v.viewProfile }).nth(1).click();
+  await experiences(page, info).getByRole('button', { name: v.viewProfile }).nth(1).click();
+  await expect(card).toHaveCount(1);
+  await expect(experiences(page, info).getByRole('listitem').nth(1).getByRole('region', { name: v.profileTitle, exact: true })).toBeVisible();
   await expect(card.locator('time')).toHaveAttribute('datetime', '2025-05-01T00:00:00Z');
   await expect(card).not.toContainText(v.profileStatus.partial);
   await expect(card).not.toContainText(m.common.notProvided);
 });
 
 test('verification page banner is reserved for loading failures', async ({ page }, info) => {
-  await fixture(page, { loadFailure: true }); await open(page, info);
+  const options = { loadFailure: true };
+  await fixture(page, options); await open(page, info);
   await expect(page.getByRole('alert')).toHaveCount(1);
   await expect(page.locator('form').first().getByRole('alert')).toHaveCount(0);
+  // Retrying after the service recovers replaces the banner with the status.
+  options.loadFailure = false;
+  await page.getByRole('alert').getByRole('button', { name: messages(info).common.retry, exact: true }).click();
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.getByRole('region', { name: messages(info).verification.statusTitle, exact: true })).toContainText(messages(info).verification.status.verified.title);
+});
+
+test('verification status leads the page and opens the steps on request', async ({ page }, info) => {
+  await fixture(page); await open(page, info);
+  const m = messages(info), v = m.verification;
+  const status = page.getByRole('region', { name: v.statusTitle, exact: true });
+  await expect(status.getByRole('heading', { level: 2 })).toHaveText(v.status.verified.title);
+  await expect(status).toContainText(credential.student_display);
+  // A verified person sees the outcome first; the steps stay closed until asked for.
+  const steps = page.getByRole('region', { name: v.start, exact: true });
+  await expect(steps).toHaveCount(0);
+  await page.getByRole('button', { name: v.status.startAnother, exact: true }).click();
+  await expect(steps).toBeVisible();
+  await expect(steps.getByRole('heading', { name: v.start, exact: true })).toBeFocused();
+  const current = page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]');
+  await expect(current).toHaveCount(1);
+  await expect(current).toHaveText(new RegExp(v.steps.choose));
+  await shot(page, info, 'status-and-steps');
+  await steps.getByRole('button', { name: m.common.cancel, exact: true }).click();
+  await expect(steps).toHaveCount(0);
+  await expect(page.getByRole('button', { name: v.status.startAnother, exact: true })).toBeVisible();
+});
+
+test('method cards keep methods an identity cannot use visible with the reason', async ({ page }, info) => {
+  const configured = { ...school, method_capabilities: { real_name_identity_check: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] }, school_sso: { study_stage_required: false, allowed_kinds: ['student'] } } };
+  await fixture(page, { school: configured }); await open(page, info, { steps: true });
+  const v = messages(info).verification;
+  const realName = page.getByRole('radio', { name: v.methods.real_name_identity_check }), sso = page.getByRole('radio', { name: v.methods.school_sso });
+  await expect(realName).toBeChecked();
+  await expect(sso).toHaveAccessibleDescription(v.needs.school_sso);
+  // The arrow keys move the choice between method cards, as in any radio group.
+  await realName.focus();
+  await page.keyboard.press('ArrowDown');
+  await expect(sso).toBeChecked();
+  await expect(sso).toBeFocused();
+  await page.getByLabel(v.consent).check();
+  // An alumnus cannot use the school account: the card stays, says why, and the choice and the consent reset.
+  await page.getByRole('radio', { name: v.kinds.student, exact: true }).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByRole('radio', { name: v.kinds.alumni, exact: true })).toBeChecked();
+  await expect(sso).toBeDisabled();
+  await expect(sso).toHaveAccessibleDescription(v.picker.unavailable);
+  await expect(realName).toBeChecked();
+  await expect(page.getByLabel(v.consent)).not.toBeChecked();
+  await expect(page.locator('form').first().getByRole('button', { name: v.continue, exact: true })).toBeDisabled();
+  await shot(page, info, 'method-cards');
 });
 
 test('shared selects keep scroll locking by default outside verification', async ({ page }, info) => {
@@ -149,7 +224,7 @@ test('shared selects keep scroll locking by default outside verification', async
 test('school method capability removes stage and explains identity rejection', async ({ page }, info) => {
   const configured = { ...school, methods: ['school_sso'], method_capabilities: { school_sso: { study_stage_required: false, allowed_kinds: ['student'] } } };
   const state = await fixture(page, { school: configured, errorCode: 'method_identity_not_allowed' });
-  await open(page, info);
+  await open(page, info, { steps: true });
   const m = messages(info), v = m.verification;
   await expect(page.getByRole('combobox', { name: v.stage, exact: true })).toHaveCount(0);
   await page.getByLabel(v.consent).check();
@@ -165,10 +240,11 @@ test('school method capability removes stage and explains identity rejection', a
 test('manual method keeps identity selection and advertises configured graduate materials', async ({ page }, info) => {
   const configured = { ...school, methods: ['manual_material_review'], material_types: ['student_card', 'enrollment_certificate', 'graduation_certificate'], method_capabilities: { manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] } } };
   await fixture(page, { school: configured });
-  await open(page, info);
+  await open(page, info, { steps: true });
   const v = messages(info).verification;
   await expect(page.getByRole('combobox', { name: v.stage, exact: true })).toHaveCount(0);
-  await expect(page.getByRole('combobox', { name: v.kind, exact: true })).toBeVisible();
+  await expect(page.getByRole('group', { name: v.kind, exact: true })).toBeVisible();
+  await expect(page.getByRole('radio', { name: v.kinds.student, exact: true })).toBeChecked();
   await page.getByLabel(v.consent).check();
   await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
   const materials = page.getByRole('combobox', { name: v.materialType, exact: true });
@@ -181,7 +257,7 @@ test('manual method keeps identity selection and advertises configured graduate 
 for (const [method, codes] of Object.entries({ real_name_identity_check: ['real_name_mismatch', 'real_name_no_record'], student_email_outbound_otp: ['email_identity_mismatch', 'email_identity_no_record'], school_sso: ['school_credentials_rejected', 'school_account_locked', 'school_account_disabled', 'school_account_unavailable'] })) {
   for (const code of codes) test(`method-specific verification failure ${code}`, async ({ page }, info) => {
     await fixture(page, { errorCode: code, school: { ...school, methods: [method], method_capabilities: { [method]: { study_stage_required: false } }, method_description_keys: { real_name_identity_check: 'verification.methodDescriptions.real_name_identity_check' } } });
-    await open(page, info);
+    await open(page, info, { steps: true });
     const m = messages(info), v = m.verification;
     await expect(page.getByLabel(v.stage, { exact: true })).toHaveCount(0);
     if (method === 'real_name_identity_check') await expect(page.getByText(v.methodDescriptions.real_name_identity_check, { exact: true })).toBeVisible();
@@ -219,18 +295,22 @@ test('school email step shows live sending state, verifies six digits and allows
     if (endpoint === 'summary') return route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-14T00:00:00Z', revision: 1, next_evaluation_at: null } });
     return route.fulfill({ json: endpoint === 'schools' ? [mailSchool] : [] });
   });
-  await open(page, info);
+  await open(page, info, { steps: true });
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: v.continue }).click();
 
   // Going back re-enables the method selection without reloading the page.
   await page.getByRole('button', { name: v.back }).click();
-  await expect(page.getByRole('combobox').nth(0)).toBeEnabled();
+  await expect(page.getByRole('radio', { name: v.methods.student_email_outbound_otp })).toBeEnabled();
+  await expect(page.getByRole('radio', { name: v.methods.student_email_outbound_otp })).toBeChecked();
   await page.getByRole('button', { name: v.continue }).click();
+  const current = page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]');
+  await expect(current).toHaveText(new RegExp(v.steps.fill));
 
   await page.getByLabel(v.studentId).fill('20260001');
   await page.getByLabel(v.name).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge }).click();
+  await expect(current).toHaveText(new RegExp(v.steps.finish));
   await expect(page.getByRole('status').filter({ hasText: v.emailStep.sending })).toBeVisible();
   await expect(page.getByText(v.emailStep.sent.replace('{email}', '20****01@example.edu'))).toBeVisible();
   // Resending waits for the one-minute server limit and shows the countdown.
@@ -256,7 +336,7 @@ test('queued email can be resent after the cooldown without a delivered status',
     if (endpoint === 'applications/application/email') return route.fulfill({ json: { id: 'queued-mail', application_id: 'application', expires_at: '2026-11-15T01:05:00Z', state: 'queued', masked_email: '20****01@example.edu', target_address: '' } });
     return route.fulfill({ json: [] });
   });
-  await open(page, info);
+  await open(page, info, { steps: true });
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: v.continue }).click();
   await page.getByLabel(v.studentId).fill('20260001');
@@ -274,8 +354,8 @@ test('school profile renders exactly the three server-projected fields', async (
   state.profile.field_sources = { student_id: 'oracle_students', name: 'oracle_students', department: 'oracle_departments' };
   await open(page, info);
   const v = messages(info).verification;
-  await page.getByRole('button', { name: v.viewProfile }).first().click();
-  const card = page.locator('section').filter({ has: page.getByRole('heading', { name: v.profileTitle, exact: true }) });
+  await experiences(page, info).getByRole('button', { name: v.viewProfile }).first().click();
+  const card = profileCard(page, info);
   await expect(card.locator('[data-profile-field]')).toHaveCount(3);
   expect(await card.locator('[data-profile-field]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-profile-field')).sort())).toEqual(['department', 'name', 'student_id']);
   await expect(card.locator('dd')).toHaveText(['20260001', 'Synthetic Student', 'Test Department']);
@@ -296,7 +376,7 @@ test('restored email resend collects identity again before submitting', async ({
     return route.fulfill({ json: [] });
   });
   await open(page, info);
-  await page.locator('.list').getByRole('button', { name: v.continue, exact: true }).click();
+  await page.getByRole('region', { name: v.applications, exact: true }).getByRole('button', { name: v.continue, exact: true }).click();
   await expect(page.locator('.email-step')).toBeVisible();
   await page.getByRole('button', { name: v.emailStep.resend, exact: true }).click();
   await expect(page.getByLabel(v.studentId, { exact: true })).toBeVisible();

@@ -52,21 +52,25 @@ const adding = ref(false)
 const pickingSchool = ref(false)
 const showSteps = computed(() => props.scope === 'student' && !!flow.summary.value && (adding.value || !!flow.active.value || !['verified', 'review'].includes(flow.standing.value)))
 const activeCredential = computed(() => flow.credentials.value.find((row) => row.state === 'active'))
+// While the person is working through the steps, the unfinished application is the one on screen; the status does not point at it again.
+const shownStanding = computed(() => (flow.active.value && flow.standing.value === 'draft' ? 'none' : flow.standing.value))
 const chosen = computed(() => [flow.school.value?.name, flow.asksKind.value && flow.chooseStudy.value ? t(`verification.kinds.${flow.kind.value}`) : '', t(`verification.methods.${flow.selectedMethod.value}`)].filter(Boolean).join(' · '))
 
 // Each step starts at its heading, for the keyboard and for screen readers.
 const stepsCard = ref<HTMLElement>()
+// Scrolling follows the reduced-motion setting; an explicit smooth scroll would ignore the CSS rule.
+const scrolling = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')
 const stepTitle = ref<HTMLElement>()
 watch(step, async (now, before) => {
   if (now === before) return
   await nextTick()
   stepTitle.value?.focus({ preventScroll: true })
-  stepsCard.value?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  stepsCard.value?.scrollIntoView({ block: 'nearest', behavior: scrolling() })
 })
 async function openSteps() {
   adding.value = true
   await nextTick()
-  stepsCard.value?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  stepsCard.value?.scrollIntoView({ block: 'start', behavior: scrolling() })
   stepTitle.value?.focus({ preventScroll: true })
 }
 function closeSteps() {
@@ -172,9 +176,9 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
       <!-- 1. Where the person stands, and the one action that follows from it. -->
       <VerificationStatus
         v-if="scope === 'student' && (flow.summary.value || flow.loading.value)"
-        :standing="flow.standing.value"
+        :standing="shownStanding"
         :credential="activeCredential"
-        :application="flow.standingApplication.value"
+        :application="shownStanding === flow.standing.value ? flow.standingApplication.value : undefined"
         :school="flow.schoolName((flow.standing.value === 'verified' ? activeCredential?.school_id : flow.standingApplication.value?.school_id) ?? '')"
         :busy="flow.busy.value"
         :reminder="flow.summary.value?.next_evaluation_at ? t('verification.newcomerReminder', { time: format.dateTime(flow.summary.value.next_evaluation_at) }) : ''"
@@ -250,409 +254,404 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
           {{ t(step === 1 ? 'verification.start' : codeStep ? 'verification.emailStep.title' : `verification.steps.${stepNames[step - 1]}`) }}
         </h2>
 
-        <Transition
-          name="step"
-          mode="out-in"
+        <p
+          v-if="!flow.schools.value.length && !flow.loading.value"
+          key="none"
+          class="empty"
         >
-          <p
-            v-if="!flow.schools.value.length && !flow.loading.value"
-            key="none"
-            class="empty"
-          >
-            {{ t('verification.noSchools') }}
-          </p>
+          {{ t('verification.noSchools') }}
+        </p>
 
-          <form
-            v-else-if="step === 1"
-            key="choose"
-            class="stack step-body"
-            @submit.prevent="flow.start()"
+        <form
+          v-else-if="step === 1"
+          key="choose"
+          class="stack step-body"
+          @submit.prevent="flow.start()"
+        >
+          <!-- One school needs no search box; the picker opens on request. -->
+          <div
+            v-if="flow.school.value && !pickingSchool"
+            class="school-line"
           >
-            <!-- One school needs no search box; the picker opens on request. -->
-            <div
-              v-if="flow.school.value && !pickingSchool"
-              class="school-line"
-            >
-              <span class="field-label">{{ t('verification.school') }}</span>
-              <b>{{ flow.school.value.name }}</b>
-              <button
-                class="btn btn-sm btn-ghost"
-                type="button"
-                :disabled="flow.busy.value"
-                @click="pickingSchool = true"
-              >
-                {{ t('verification.changeSchool') }}
-              </button>
-            </div>
-            <SchoolPicker
-              v-else
-              :model-value="flow.selectedSchool.value"
-              :schools="flow.schools.value"
+            <span class="field-label">{{ t('verification.school') }}</span>
+            <b>{{ flow.school.value.name }}</b>
+            <button
+              class="btn btn-sm btn-ghost"
+              type="button"
               :disabled="flow.busy.value"
-              @select="(school) => { flow.selectSchool(school); pickingSchool = false }"
-            />
-            <MethodPicker
-              :kinds="flow.kindChoices.value"
-              :kind="flow.kind.value"
-              :methods="flow.availableMethods.value"
-              :method="flow.selectedMethod.value"
-              :allowed="flow.methodAllowed"
-              :disabled="flow.busy.value"
-              @kind="flow.chooseKind"
-              @method="flow.chooseMethod"
-            />
-            <label
-              v-if="flow.chooseStage.value"
-              class="field stage-field"
+              @click="pickingSchool = true"
             >
-              <span class="field-label">{{ t('verification.stage') }}</span>
-              <AppSelect
-                v-model="flow.stage.value"
-                :body-lock="false"
-                class="select"
-                :disabled="flow.busy.value"
-              >
-                <option
-                  v-for="item in stages"
-                  :key="item"
-                  :value="item"
-                >{{ t(`verification.stages.${item}`) }}</option>
-              </AppSelect>
-            </label>
-            <div class="terms">
-              <p
-                v-if="methodDescription"
-                class="small"
-              >
-                {{ t(methodDescription) }}
-              </p>
-              <p
-                v-if="flow.school.value?.profile_schema === 'bit.v1' && flow.selectedMethod.value === 'school_sso'"
-                class="small"
-              >
-                {{ t('verification.bitPrivacy') }}
-              </p>
-              <p class="small muted">
-                {{ t('verification.privacy') }}
-              </p>
-              <label class="check">
-                <input
-                  v-model="flow.consent.value"
-                  type="checkbox"
-                  :disabled="flow.busy.value"
-                  required
-                >
-                <span>{{ t('verification.consent') }}</span>
-              </label>
-            </div>
-            <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
-            <div class="form-actions">
-              <button
-                class="btn btn-primary"
-                type="submit"
-                :disabled="flow.busy.value || !flow.school.value || !flow.consent.value || !flow.availableMethods.value.length || !flow.methodAllowed(flow.selectedMethod.value)"
-                :aria-busy="flow.busy.value || undefined"
-              >
-                {{ t('verification.continue') }}
-              </button>
-              <button
-                v-if="adding && ['verified', 'review'].includes(flow.standing.value)"
-                class="btn btn-ghost"
-                type="button"
-                :disabled="flow.busy.value"
-                @click="closeSteps"
-              >
-                {{ t('common.cancel') }}
-              </button>
-            </div>
-          </form>
-
-          <form
-            v-else-if="step === 2"
-            key="fill"
-            class="stack step-body verification-form"
-            @submit.prevent="flow.submit()"
+              {{ t('verification.changeSchool') }}
+            </button>
+          </div>
+          <SchoolPicker
+            v-else
+            :model-value="flow.selectedSchool.value"
+            :schools="flow.schools.value"
+            :disabled="flow.busy.value"
+            @select="(school) => { flow.selectSchool(school); pickingSchool = false }"
+          />
+          <MethodPicker
+            :kinds="flow.kindChoices.value"
+            :kind="flow.kind.value"
+            :methods="flow.availableMethods.value"
+            :method="flow.selectedMethod.value"
+            :allowed="flow.methodAllowed"
+            :disabled="flow.busy.value"
+            @kind="flow.chooseKind"
+            @method="flow.chooseMethod"
+          />
+          <label
+            v-if="flow.chooseStage.value"
+            class="field stage-field"
           >
-            <p class="chosen">
-              {{ chosen }}
+            <span class="field-label">{{ t('verification.stage') }}</span>
+            <AppSelect
+              v-model="flow.stage.value"
+              :body-lock="false"
+              class="select"
+              :disabled="flow.busy.value"
+            >
+              <option
+                v-for="item in stages"
+                :key="item"
+                :value="item"
+              >{{ t(`verification.stages.${item}`) }}</option>
+            </AppSelect>
+          </label>
+          <div class="terms">
+            <p
+              v-if="methodDescription"
+              class="small"
+            >
+              {{ t(methodDescription) }}
             </p>
-            <div class="form-grid">
-              <label class="field">
-                <span class="field-label">{{ t('verification.studentId') }}</span>
-                <input
-                  v-model.trim="form.student_id"
-                  class="input"
-                  autocomplete="off"
-                  maxlength="64"
-                  required
-                  :disabled="flow.busy.value"
-                >
-              </label>
-              <label
-                v-if="flow.selectedMethod.value !== 'school_sso'"
-                class="field"
+            <p
+              v-if="flow.school.value?.profile_schema === 'bit.v1' && flow.selectedMethod.value === 'school_sso'"
+              class="small"
+            >
+              {{ t('verification.bitPrivacy') }}
+            </p>
+            <p class="small muted">
+              {{ t('verification.privacy') }}
+            </p>
+            <label class="check">
+              <input
+                v-model="flow.consent.value"
+                type="checkbox"
+                :disabled="flow.busy.value"
+                required
               >
-                <span class="field-label">{{ t('verification.name') }}</span>
+              <span>{{ t('verification.consent') }}</span>
+            </label>
+          </div>
+          <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
+          <div class="form-actions">
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="flow.busy.value || !flow.school.value || !flow.consent.value || !flow.availableMethods.value.length || !flow.methodAllowed(flow.selectedMethod.value)"
+              :aria-busy="flow.busy.value || undefined"
+            >
+              {{ t('verification.continue') }}
+            </button>
+            <button
+              v-if="adding && ['verified', 'review'].includes(flow.standing.value)"
+              class="btn btn-ghost"
+              type="button"
+              :disabled="flow.busy.value"
+              @click="closeSteps"
+            >
+              {{ t('common.cancel') }}
+            </button>
+          </div>
+        </form>
+
+        <form
+          v-else-if="step === 2"
+          key="fill"
+          class="stack step-body verification-form"
+          @submit.prevent="flow.submit()"
+        >
+          <p class="chosen">
+            {{ chosen }}
+          </p>
+          <div class="form-grid">
+            <label class="field">
+              <span class="field-label">{{ t('verification.studentId') }}</span>
+              <input
+                v-model.trim="form.student_id"
+                class="input"
+                autocomplete="off"
+                maxlength="64"
+                required
+                :disabled="flow.busy.value"
+              >
+            </label>
+            <label
+              v-if="flow.selectedMethod.value !== 'school_sso'"
+              class="field"
+            >
+              <span class="field-label">{{ t('verification.name') }}</span>
+              <input
+                v-model.trim="form.name"
+                class="input"
+                autocomplete="name"
+                maxlength="100"
+                required
+                :disabled="flow.busy.value"
+              >
+            </label>
+            <label
+              v-if="flow.selectedMethod.value === 'real_name_identity_check'"
+              class="field"
+            >
+              <span class="field-label">{{ t('verification.document') }}</span>
+              <input
+                v-model.trim="form.document_number"
+                class="input"
+                autocomplete="off"
+                maxlength="32"
+                required
+                :disabled="flow.busy.value"
+              >
+            </label>
+            <label
+              v-if="flow.selectedMethod.value === 'school_sso'"
+              class="field"
+            >
+              <span class="field-label">{{ t('verification.password') }}</span>
+              <input
+                v-model="form.password"
+                class="input"
+                type="password"
+                autocomplete="off"
+                maxlength="256"
+                required
+                :disabled="flow.busy.value"
+              >
+            </label>
+            <template v-if="flow.manual.value">
+              <label class="field">
+                <span class="field-label">{{ t('verification.department') }}</span>
                 <input
-                  v-model.trim="form.name"
+                  v-model.trim="form.department"
                   class="input"
-                  autocomplete="name"
                   maxlength="100"
                   required
                   :disabled="flow.busy.value"
                 >
               </label>
-              <label
-                v-if="flow.selectedMethod.value === 'real_name_identity_check'"
-                class="field"
-              >
-                <span class="field-label">{{ t('verification.document') }}</span>
+              <label class="field">
+                <span class="field-label">{{ t('verification.contactEmail') }}</span>
                 <input
-                  v-model.trim="form.document_number"
+                  v-model.trim="form.email"
                   class="input"
-                  autocomplete="off"
-                  maxlength="32"
+                  type="email"
+                  maxlength="254"
                   required
                   :disabled="flow.busy.value"
                 >
               </label>
-              <label
-                v-if="flow.selectedMethod.value === 'school_sso'"
-                class="field"
-              >
-                <span class="field-label">{{ t('verification.password') }}</span>
-                <input
-                  v-model="form.password"
-                  class="input"
-                  type="password"
-                  autocomplete="off"
-                  maxlength="256"
+              <label class="field">
+                <span class="field-label">{{ t('verification.materialType') }}</span>
+                <AppSelect
+                  v-model="form.material_type"
+                  :body-lock="false"
+                  class="select"
                   required
                   :disabled="flow.busy.value"
                 >
+                  <option
+                    v-for="type in flow.school.value?.material_types"
+                    :key="type"
+                    :value="type"
+                  >{{ label('verification.materialTypes', type, type) }}</option>
+                </AppSelect>
               </label>
-              <template v-if="flow.manual.value">
-                <label class="field">
-                  <span class="field-label">{{ t('verification.department') }}</span>
-                  <input
-                    v-model.trim="form.department"
-                    class="input"
-                    maxlength="100"
-                    required
-                    :disabled="flow.busy.value"
-                  >
-                </label>
-                <label class="field">
-                  <span class="field-label">{{ t('verification.contactEmail') }}</span>
-                  <input
-                    v-model.trim="form.email"
-                    class="input"
-                    type="email"
-                    maxlength="254"
-                    required
-                    :disabled="flow.busy.value"
-                  >
-                </label>
-                <label class="field">
-                  <span class="field-label">{{ t('verification.materialType') }}</span>
-                  <AppSelect
-                    v-model="form.material_type"
-                    :body-lock="false"
-                    class="select"
-                    required
-                    :disabled="flow.busy.value"
-                  >
-                    <option
-                      v-for="type in flow.school.value?.material_types"
-                      :key="type"
-                      :value="type"
-                    >{{ label('verification.materialTypes', type, type) }}</option>
-                  </AppSelect>
-                </label>
-              </template>
-            </div>
-            <p
-              v-if="methodDescription"
-              class="small muted"
-            >
-              {{ t(methodDescription) }}
+            </template>
+          </div>
+          <p
+            v-if="methodDescription"
+            class="small muted"
+          >
+            {{ t(methodDescription) }}
+          </p>
+
+          <div
+            v-if="flow.manual.value && flow.active.value"
+            class="stack-sm"
+          >
+            <CameraCapture
+              :key="flow.active.value.id"
+              :application-id="flow.active.value.id"
+              @captured="flow.captured"
+            />
+            <p class="small">
+              {{ t('verification.materials', { count: format.number(flow.materials.value.length) }) }}
             </p>
-
-            <div
-              v-if="flow.manual.value && flow.active.value"
-              class="stack-sm"
-            >
-              <CameraCapture
-                :key="flow.active.value.id"
-                :application-id="flow.active.value.id"
-                @captured="flow.captured"
-              />
-              <p class="small">
-                {{ t('verification.materials', { count: format.number(flow.materials.value.length) }) }}
-              </p>
-              <ul class="list-plain">
-                <li
-                  v-for="(material, index) in flow.materials.value"
-                  :key="material.id"
-                  class="row"
+            <ul class="list-plain">
+              <li
+                v-for="(material, index) in flow.materials.value"
+                :key="material.id"
+                class="row"
+              >
+                <span>{{ t('verification.photo', { index: format.number(index + 1) }) }}</span>
+                <button
+                  class="btn btn-sm btn-ghost"
+                  type="button"
+                  :disabled="flow.busy.value"
+                  @click="flow.removeMaterial(material.id)"
                 >
-                  <span>{{ t('verification.photo', { index: format.number(index + 1) }) }}</span>
-                  <button
-                    class="btn btn-sm btn-ghost"
-                    type="button"
-                    :disabled="flow.busy.value"
-                    @click="flow.removeMaterial(material.id)"
-                  >
-                    {{ t('common.remove') }}
-                  </button>
-                </li>
-              </ul>
-            </div>
+                  {{ t('common.remove') }}
+                </button>
+              </li>
+            </ul>
+          </div>
 
+          <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
+          <div class="form-actions">
+            <button
+              class="btn btn-primary"
+              type="submit"
+              :disabled="flow.busy.value || (flow.manual.value && !flow.materials.value.length)"
+              :aria-busy="flow.busy.value || undefined"
+            >
+              {{ t(flow.emailMethod.value ? 'verification.createChallenge' : 'verification.submit') }}
+            </button>
+            <button
+              class="btn btn-ghost"
+              type="button"
+              :disabled="flow.busy.value"
+              @click="flow.backToMethod"
+            >
+              {{ t('verification.back') }}
+            </button>
+          </div>
+        </form>
+
+        <div
+          v-else
+          key="finish"
+          class="stack step-body"
+        >
+          <EmailCodeStep
+            v-if="codeStep && flow.email.value"
+            v-model:code="form.code"
+            :challenge="flow.email.value"
+            :sent-at="flow.emailSentAt.value"
+            :busy="flow.busy.value"
+            :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? flow.error.value : ''"
+            @confirm="flow.confirmEmail"
+            @resend="flow.resendEmail"
+            @back="flow.backToMethod"
+          />
+          <section
+            v-if="flow.active.value?.school_challenge"
+            class="notice notice-info stack"
+            aria-live="polite"
+          >
+            <div class="stack-sm">
+              <h3>{{ t('verification.schoolProgress') }}</h3>
+              <p>{{ label('verification.schoolStates', flow.active.value.school_challenge.state) }}</p>
+              <p v-if="flow.active.value.school_challenge.code">
+                {{ label('verification.schoolErrors', flow.active.value.school_challenge.code) }}
+              </p>
+              <p class="subtle">
+                {{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.school_challenge.expires_at) }) }}
+              </p>
+            </div>
+            <ActionError :code="flow.errorTarget.value === 'school' ? flow.error.value : ''" />
+            <form
+              v-if="flow.active.value.school_challenge.state === 'waiting_sms'"
+              class="stack-sm"
+              @submit.prevent="flow.continueSchool('submit_sms')"
+            >
+              <p class="small">
+                {{ t('verification.schoolSmsHelp', { phone: flow.active.value.school_challenge.masked_phone }) }}
+              </p>
+              <div class="row">
+                <label class="field">
+                  <span class="field-label">{{ t('verification.schoolSms') }}</span>
+                  <input
+                    v-model="flow.smsCode.value"
+                    class="input"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                    pattern="[0-9]{4,8}"
+                    maxlength="8"
+                    required
+                    :disabled="flow.busy.value"
+                  >
+                </label>
+                <button
+                  class="btn btn-primary"
+                  :disabled="flow.busy.value"
+                >
+                  {{ t('common.confirm') }}
+                </button>
+              </div>
+            </form>
+            <button
+              v-if="flow.schoolPending.value"
+              class="btn btn-sm"
+              type="button"
+              :disabled="flow.busy.value"
+              @click="flow.continueSchool('cancel')"
+            >
+              {{ t('verification.cancelSchool') }}
+            </button>
+          </section>
+          <template v-if="flow.active.value && !codeStep">
+            <div
+              class="notice"
+              role="status"
+            >
+              <span>{{ t('verification.applicationState', { state: label('verification.states', flow.active.value.state) }) }}</span>
+              <span
+                v-if="flow.active.value.review_note"
+                class="small"
+              >{{ flow.active.value.review_note }}</span>
+              <span
+                v-if="flow.active.value.qualification_expires_at"
+                class="subtle"
+              >{{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.qualification_expires_at) }) }}</span>
+            </div>
             <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
             <div class="form-actions">
               <button
-                class="btn btn-primary"
-                type="submit"
-                :disabled="flow.busy.value || (flow.manual.value && !flow.materials.value.length)"
-                :aria-busy="flow.busy.value || undefined"
+                class="btn"
+                type="button"
+                :disabled="flow.busy.value"
+                @click="flow.refreshApplication"
               >
-                {{ t(flow.emailMethod.value ? 'verification.createChallenge' : 'verification.submit') }}
+                {{ t('verification.refreshStatus') }}
               </button>
               <button
+                v-if="!flow.schoolPending.value"
                 class="btn btn-ghost"
                 type="button"
                 :disabled="flow.busy.value"
-                @click="flow.backToMethod"
+                @click="closeSteps"
               >
-                {{ t('verification.back') }}
+                {{ t('common.close') }}
               </button>
             </div>
-          </form>
-
-          <div
-            v-else
-            key="finish"
-            class="stack step-body"
+          </template>
+          <section
+            v-if="flow.email.value && flow.writable.value && flow.selectedMethod.value === 'student_email_inbound_challenge'"
+            class="notice notice-info stack"
           >
-            <EmailCodeStep
-              v-if="codeStep && flow.email.value"
-              v-model:code="form.code"
-              :challenge="flow.email.value"
-              :sent-at="flow.emailSentAt.value"
-              :busy="flow.busy.value"
-              :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? flow.error.value : ''"
-              @confirm="flow.confirmEmail"
-              @resend="flow.resendEmail"
-              @back="flow.backToMethod"
-            />
-            <section
-              v-if="flow.active.value?.school_challenge"
-              class="notice notice-info stack"
-              aria-live="polite"
-            >
-              <div class="stack-sm">
-                <h3>{{ t('verification.schoolProgress') }}</h3>
-                <p>{{ label('verification.schoolStates', flow.active.value.school_challenge.state) }}</p>
-                <p v-if="flow.active.value.school_challenge.code">
-                  {{ label('verification.schoolErrors', flow.active.value.school_challenge.code) }}
-                </p>
-                <p class="subtle">
-                  {{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.school_challenge.expires_at) }) }}
-                </p>
-              </div>
-              <ActionError :code="flow.errorTarget.value === 'school' ? flow.error.value : ''" />
-              <form
-                v-if="flow.active.value.school_challenge.state === 'waiting_sms'"
-                class="stack-sm"
-                @submit.prevent="flow.continueSchool('submit_sms')"
-              >
-                <p class="small">
-                  {{ t('verification.schoolSmsHelp', { phone: flow.active.value.school_challenge.masked_phone }) }}
-                </p>
-                <div class="row">
-                  <label class="field">
-                    <span class="field-label">{{ t('verification.schoolSms') }}</span>
-                    <input
-                      v-model="flow.smsCode.value"
-                      class="input"
-                      inputmode="numeric"
-                      autocomplete="one-time-code"
-                      pattern="[0-9]{4,8}"
-                      maxlength="8"
-                      required
-                      :disabled="flow.busy.value"
-                    >
-                  </label>
-                  <button
-                    class="btn btn-primary"
-                    :disabled="flow.busy.value"
-                  >
-                    {{ t('common.confirm') }}
-                  </button>
-                </div>
-              </form>
-              <button
-                v-if="flow.schoolPending.value"
-                class="btn btn-sm"
-                type="button"
-                :disabled="flow.busy.value"
-                @click="flow.continueSchool('cancel')"
-              >
-                {{ t('verification.cancelSchool') }}
-              </button>
-            </section>
-            <template v-if="flow.active.value && !codeStep">
-              <div
-                class="notice"
-                role="status"
-              >
-                <span>{{ t('verification.applicationState', { state: label('verification.states', flow.active.value.state) }) }}</span>
-                <span
-                  v-if="flow.active.value.review_note"
-                  class="small"
-                >{{ flow.active.value.review_note }}</span>
-                <span
-                  v-if="flow.active.value.qualification_expires_at"
-                  class="subtle"
-                >{{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.qualification_expires_at) }) }}</span>
-              </div>
-              <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
-              <div class="form-actions">
-                <button
-                  class="btn"
-                  type="button"
-                  :disabled="flow.busy.value"
-                  @click="flow.refreshApplication"
-                >
-                  {{ t('verification.refreshStatus') }}
-                </button>
-                <button
-                  v-if="!flow.schoolPending.value"
-                  class="btn btn-ghost"
-                  type="button"
-                  :disabled="flow.busy.value"
-                  @click="closeSteps"
-                >
-                  {{ t('common.close') }}
-                </button>
-              </div>
-            </template>
-            <section
-              v-if="flow.email.value && flow.writable.value && flow.selectedMethod.value === 'student_email_inbound_challenge'"
-              class="notice notice-info stack"
-            >
-              <p>{{ flow.email.value.masked_email }} · {{ label('verification.states', flow.email.value.state) }}</p>
-              <p class="subtle">
-                {{ t('verification.expiresAt', { time: format.dateTime(flow.email.value.expires_at) }) }}
-              </p>
-              <p class="small">
-                {{ t('verification.inboundHelp') }}
-              </p>
-              <code class="mono">{{ flow.email.value.target_address }}</code>
-            </section>
-          </div>
-        </Transition>
+            <p>{{ flow.email.value.masked_email }} · {{ label('verification.states', flow.email.value.state) }}</p>
+            <p class="subtle">
+              {{ t('verification.expiresAt', { time: format.dateTime(flow.email.value.expires_at) }) }}
+            </p>
+            <p class="small">
+              {{ t('verification.inboundHelp') }}
+            </p>
+            <code class="mono">{{ flow.email.value.target_address }}</code>
+          </section>
+        </div>
       </section>
       <button
         v-else-if="scope === 'student' && flow.summary.value"
@@ -762,9 +761,13 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
       <section
         v-if="scope === 'student' && flow.credentials.value.length"
         class="section"
+        aria-labelledby="verification-experiences"
       >
         <div class="section-head">
-          <h2 class="d-title">
+          <h2
+            id="verification-experiences"
+            class="d-title"
+          >
             {{ t('verification.experiences') }}
           </h2>
         </div>
@@ -856,9 +859,13 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <section
               v-if="flow.profile.value && flow.profileCredential.value?.id === credential.id"
               class="profile"
+              :aria-labelledby="`verification-profile-${credential.id}`"
             >
               <div class="row-between">
-                <h3 class="d-title">
+                <h3
+                  :id="`verification-profile-${credential.id}`"
+                  class="d-title"
+                >
                   {{ t('verification.profileTitle') }}
                 </h3>
                 <button
@@ -908,8 +915,12 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
       <section
         v-if="scope === 'student' && flow.applications.value.length"
         class="section"
+        aria-labelledby="verification-applications"
       >
-        <h2 class="d-title">
+        <h2
+          id="verification-applications"
+          class="d-title"
+        >
           {{ t('verification.applications') }}
         </h2>
         <ul class="list applications">
@@ -928,7 +939,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
               <span class="subtle">{{ format.dateTime(application.updated_at) }}</span>
             </div>
             <button
-              v-if="flow.isStudentApplication(application) && ['in_progress', 'supplement_required'].includes(application.state)"
+              v-if="flow.isStudentApplication(application) && ['in_progress', 'supplement_required'].includes(application.state) && flow.active.value?.id !== application.id"
               class="btn btn-sm"
               type="button"
               :disabled="flow.busy.value"
@@ -953,8 +964,12 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
       <section
         v-if="scope === 'student' && flow.requests.value.length"
         class="section"
+        aria-labelledby="verification-requests"
       >
-        <h2 class="d-title">
+        <h2
+          id="verification-requests"
+          class="d-title"
+        >
           {{ t('verification.requests') }}
         </h2>
         <ul class="list">
@@ -1011,11 +1026,9 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
 .step-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .step-title { font-size: clamp(1.25rem, 1.1rem + .6vw, 1.5rem); }
 .step-title:focus { outline: none; }
-.step-body { gap: 1.125rem; }
-.step-enter-active { transition: opacity .22s var(--ease-out), transform .28s var(--ease-out); }
-.step-leave-active { transition: opacity .12s ease-in; }
-.step-enter-from { opacity: 0; transform: translateY(8px); }
-.step-leave-to { opacity: 0; }
+/* Each step fades in as it replaces the previous one. A CSS animation needs no script timing, so it also plays in tests that control the clock. */
+.step-body { gap: 1.125rem; animation: step-in .26s var(--ease-out); }
+@keyframes step-in { from { opacity: 0; transform: translateY(8px); } }
 .school-line { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem .75rem; }
 .school-line b { font-weight: 600; }
 .stage-field { max-width: 16rem; }
