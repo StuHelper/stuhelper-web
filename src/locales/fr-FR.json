@@ -1141,7 +1141,57 @@
       "confirm": "Vérifier",
       "resend": "Renvoyer",
       "resendIn": "Renvoyer dans {seconds} s"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "Vérification du campus validée",
+        "text": "Vous pouvez consulter les avis sur les cours, les enseignants et les ressources."
+      },
+      "review": {
+        "title": "Vos documents sont en cours d'examen",
+        "text": "Vos documents ont été envoyés. Vous serez informé du résultat ; aucune autre action n'est requise d'ici là."
+      },
+      "supplement": {
+        "title": "Des documents complémentaires sont requis",
+        "text": "L'examinateur demande des documents supplémentaires ou de nouvelles photos. Ajoutez-les puis soumettez à nouveau."
+      },
+      "draft": {
+        "title": "Une vérification est restée inachevée",
+        "text": "Reprenez là où vous vous êtes arrêté, ou choisissez de nouveau une méthode ci-dessous."
+      },
+      "rejected": {
+        "title": "Votre dernière vérification n'a pas été approuvée",
+        "text": "Corrigez selon la note d'examen puis soumettez à nouveau, ou utilisez une autre méthode."
+      },
+      "lapsed": {
+        "title": "Votre vérification n'est plus valide",
+        "text": "Effectuez de nouveau la vérification pour continuer."
+      },
+      "none": {
+        "title": "Pas encore vérifié",
+        "text": "Choisissez une méthode ci-dessous et suivez les étapes."
+      },
+      "reviewNote": "Note d'examen",
+      "restart": "Vérifier à nouveau",
+      "startAnother": "Lancer une autre vérification"
+    },
+    "steps": {
+      "label": "Étapes de vérification",
+      "choose": "Choisir une méthode",
+      "fill": "Saisir vos informations",
+      "finish": "Terminer"
+    },
+    "picker": {
+      "unavailable": "Indisponible pour le statut choisi"
+    },
+    "needs": {
+      "real_name_identity_check": "Numéro d'étudiant, nom et numéro de pièce ; résultat immédiat",
+      "school_sso": "Connexion avec le compte et le mot de passe de l'école ; le mot de passe n'est pas conservé",
+      "student_email_outbound_otp": "Un code à 6 chiffres est envoyé à votre adresse de l'école",
+      "student_email_inbound_challenge": "Envoyez un message depuis votre adresse de l'école vers une adresse indiquée",
+      "manual_material_review": "Photographiez votre carte d'étudiant ou un autre justificatif pour examen"
+    },
+    "changeSchool": "Changer d'école"
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",
@@ -1546,7 +1596,9 @@
     "chatGroup": "Discussion de groupe · {p0} membres",
     "chatSample": "Conversation d’exemple. Les messages restent sur cette page.",
     "chatPlaceholder": "Écrire un message",
-    "chatSend": "Envoyer"
+    "chatSend": "Envoyer",
+    "personaRejected": "Vérification refusée",
+    "personaRejectedHint": "La page de vérification affiche le motif"
   },
   "favorites": {
     "title": "Favoris",

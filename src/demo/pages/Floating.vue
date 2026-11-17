@@ -12,6 +12,7 @@ const options = computed<{ value: Persona; label: string; hint: string }[]>(() =
   { value: 'unverified', label: tr('demo.personaUnverified'), hint: tr('demo.personaUnverifiedHint') },
   { value: 'processing', label: tr('demo.personaProcessing'), hint: tr('demo.personaProcessingHint') },
   { value: 'expired', label: tr('demo.personaExpired'), hint: tr('demo.personaExpiredHint') },
+  { value: 'rejected', label: tr('demo.personaRejected'), hint: tr('demo.personaRejectedHint') },
 ])
 function pick(value: Persona) { setPersona(value); window.location.reload() }
 </script>

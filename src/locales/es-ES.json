@@ -1141,7 +1141,57 @@
       "confirm": "Verificar",
       "resend": "Reenviar",
       "resendIn": "Reenviar en {seconds} s"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "Verificación del campus aprobada",
+        "text": "Puedes consultar reseñas de asignaturas, profesores y materiales de estudio."
+      },
+      "review": {
+        "title": "Tus materiales están en revisión",
+        "text": "Tus materiales se enviaron. Te avisaremos del resultado; hasta entonces no hace falta nada más."
+      },
+      "supplement": {
+        "title": "Se necesitan más materiales",
+        "text": "El revisor pide materiales adicionales o nuevas fotos. Añádelos y vuelve a enviar."
+      },
+      "draft": {
+        "title": "Tienes una verificación sin terminar",
+        "text": "Continúa donde lo dejaste o elige de nuevo un método más abajo."
+      },
+      "rejected": {
+        "title": "Tu última verificación no fue aprobada",
+        "text": "Corrígela según la nota de revisión y vuelve a enviarla, o usa otro método."
+      },
+      "lapsed": {
+        "title": "Tu verificación ya no es válida",
+        "text": "Verifícate de nuevo para continuar."
+      },
+      "none": {
+        "title": "Aún sin verificar",
+        "text": "Elige un método abajo y sigue los pasos."
+      },
+      "reviewNote": "Nota de revisión",
+      "restart": "Verificar de nuevo",
+      "startAnother": "Iniciar otra verificación"
+    },
+    "steps": {
+      "label": "Pasos de verificación",
+      "choose": "Elegir método",
+      "fill": "Introducir datos",
+      "finish": "Finalizar"
+    },
+    "picker": {
+      "unavailable": "No disponible para la condición elegida"
+    },
+    "needs": {
+      "real_name_identity_check": "Número de estudiante, nombre y documento; resultado inmediato",
+      "school_sso": "Accede con tu cuenta y contraseña de la universidad; la contraseña no se guarda",
+      "student_email_outbound_otp": "Se envía un código de 6 dígitos a tu correo de la universidad",
+      "student_email_inbound_challenge": "Envía un mensaje desde tu correo de la universidad a una dirección indicada",
+      "manual_material_review": "Fotografía tu carné u otro justificante para que lo revisen"
+    },
+    "changeSchool": "Cambiar de universidad"
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -1546,7 +1596,9 @@
     "chatGroup": "Chat de grupo · {p0} miembros",
     "chatSample": "Conversación de ejemplo. Los mensajes solo se guardan en esta página.",
     "chatPlaceholder": "Escribe un mensaje",
-    "chatSend": "Enviar"
+    "chatSend": "Enviar",
+    "personaRejected": "Verificación rechazada",
+    "personaRejectedHint": "La página de verificación muestra el motivo"
   },
   "favorites": {
     "title": "Guardados",

@@ -182,3 +182,119 @@ it('restored email resend reopens identity inputs without submitting hidden empt
   expect(api.write).toHaveBeenCalledWith('EmailChallenge', `/api/v1/verification/applications/${restored.id}/email`, { student_id: '20260001', name: 'Synthetic Student' })
   expect(flow.email.value?.id).toBe('mail-new')
 })
+
+// A school in the shape of the BUAA configuration: no study stage, the school account only for current students.
+const buaa = {
+  id: 'buaa', name: 'buaa', profile_schema: 'buaa.imported.v1', notice_version: 'v3', material_types: ['student_card'],
+  methods: ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'manual_material_review'],
+  method_capabilities: {
+    real_name_identity_check: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] },
+    school_sso: { study_stage_required: false, allowed_kinds: ['student'] },
+    student_email_outbound_otp: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] },
+    manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni', 'newcomer'] },
+  },
+}
+const record = (state: string, updated_at: string, values: Record<string, unknown> = {}) => ({ id: `${state}-${updated_at}`, school_id: 'buaa', method: 'manual_material_review', stage: 'unknown', kind: 'student', state, revision: 1, updated_at, ...values })
+function serve(values: { applications?: unknown[]; credentials?: unknown[]; eligible?: boolean }) {
+  api.list.mockImplementation(async (kind: string) => ({ items: kind === 'School' ? [buaa] : kind === 'Application' ? values.applications ?? [] : kind === 'Credential' ? values.credentials ?? [] : [], next: '' }))
+  api.get.mockResolvedValue({ campus_eligibility: values.eligible ?? false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null })
+}
+
+it('offers each identity only the methods the school allows it and keeps the choice valid', async () => {
+  serve({})
+  const flow = mountFlow()
+  await flow.reload()
+  expect(flow.kindChoices.value).toEqual(['student', 'alumni', 'newcomer'])
+  expect(flow.chooseStage.value).toBe(false)
+  // A current student may use all four methods.
+  expect(flow.availableMethods.value.filter(flow.methodAllowed)).toEqual(buaa.methods)
+  flow.chooseMethod('school_sso')
+  flow.consent.value = true
+  // An alumnus loses the school account; the selection moves to a method that is allowed, and consent is asked again.
+  flow.chooseKind('alumni')
+  expect(flow.availableMethods.value.filter(flow.methodAllowed)).toEqual(['real_name_identity_check', 'student_email_outbound_otp', 'manual_material_review'])
+  expect(flow.selectedMethod.value).toBe('real_name_identity_check')
+  expect(flow.consent.value).toBe(false)
+  flow.chooseMethod('school_sso')
+  expect(flow.selectedMethod.value).toBe('real_name_identity_check')
+  // A temporary newcomer exists only in manual review.
+  flow.chooseKind('newcomer')
+  expect(flow.availableMethods.value.filter(flow.methodAllowed)).toEqual(['manual_material_review'])
+  expect(flow.selectedMethod.value).toBe('manual_material_review')
+  // The application carries the chosen identity and no study stage; the server decides the rest.
+  flow.consent.value = true
+  await flow.start()
+  expect(api.write).toHaveBeenCalledWith('Application', '/api/v1/verification/applications', expect.objectContaining({ method: 'manual_material_review', kind: 'newcomer', stage: 'unknown', consent: true, notice_version: 'v3' }))
+})
+
+it('derives one standing from the summary, the applications and the credentials', async () => {
+  const flow = mountFlow()
+  const standing = async (values: Parameters<typeof serve>[0]) => { serve(values); await flow.reload(); return flow.standing.value }
+  expect(flow.standing.value).toBe('unknown')
+  expect(await standing({})).toBe('none')
+  expect(await standing({ eligible: true, applications: [record('rejected', '2026-11-02T00:00:00Z')] })).toBe('verified')
+  expect(await standing({ applications: [record('rejected', '2026-11-02T00:00:00Z'), record('pending_review', '2026-11-01T00:00:00Z')] })).toBe('review')
+  expect(await standing({ applications: [record('supplement_required', '2026-11-01T00:00:00Z'), record('in_progress', '2026-11-02T00:00:00Z')] })).toBe('supplement')
+  expect(await standing({ applications: [record('in_progress', '2026-11-01T00:00:00Z')] })).toBe('draft')
+  // Only the latest outcome counts as a rejection; an older one followed by an expiry does not.
+  expect(await standing({ applications: [record('rejected', '2026-11-02T00:00:00Z', { review_note: 'blurred' }), record('expired', '2026-11-01T00:00:00Z')] })).toBe('rejected')
+  expect(flow.standingApplication.value?.review_note).toBe('blurred')
+  expect(await standing({ applications: [record('rejected', '2026-11-01T00:00:00Z'), record('expired', '2026-11-02T00:00:00Z')], credentials: [{ id: 'c', school_id: 'buaa', state: 'expired' }] })).toBe('lapsed')
+  // A teacher application never changes the student standing.
+  expect(await standing({ applications: [record('pending_review', '2026-11-03T00:00:00Z', { kind: 'teacher' })] })).toBe('none')
+})
+
+it('moves a created inbound email challenge to step three, where its one-time address is shown', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.schools.value = [{ ...school('s101'), methods: ['student_email_inbound_challenge'] }] as never
+  const inbound = { ...pending, method: 'student_email_inbound_challenge', school_challenge: undefined }
+  api.get.mockImplementation(async (kind: string) => { if (kind === 'EmailChallenge') throw new ApiError('not_found'); return {} })
+  await flow.resume(inbound as never)
+  expect(flow.step.value).toBe(2)
+  Object.assign(flow.form, { student_id: '20260001', name: 'Synthetic Student' })
+  api.write.mockResolvedValue({ id: 'mail', application_id: inbound.id, state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-1@example.edu' })
+  await flow.submit()
+  expect(flow.email.value?.target_address).toBe('verify-1@example.edu')
+  expect(flow.writable.value).toBe(true)
+  expect(flow.step.value).toBe(3)
+})
+
+it('holds step three only while the school login waits and returns to the form after it ends', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  await flow.resume(pending as never)
+  expect(flow.step.value).toBe(3)
+  flow.active.value = { ...pending, school_challenge: { ...pending.school_challenge, state: 'processing' } } as never
+  expect(flow.step.value).toBe(3)
+  for (const state of ['failed', 'cancelled', 'expired']) {
+    flow.active.value = { ...pending, school_challenge: { ...pending.school_challenge, state, code: 'school_credentials_rejected' } } as never
+    expect(flow.writable.value).toBe(true)
+    expect(flow.step.value).toBe(2)
+  }
+  // Continuing the same application from the records also opens the form for another try.
+  flow.backToMethod()
+  await flow.resume({ ...pending, school_challenge: { ...pending.school_challenge, state: 'expired' } } as never)
+  expect(flow.step.value).toBe(2)
+  // An application that left the form waits on step three whatever its challenge.
+  flow.active.value = { ...pending, state: 'pending_review', school_challenge: { ...pending.school_challenge, state: 'failed' } } as never
+  expect(flow.step.value).toBe(3)
+})
+
+it('keeps a failed profile request on the credential that asked for it', async () => {
+  const flow = mountFlow()
+  await flow.reload()
+  flow.credentials.value = [{ id: 'a', verified_at: '2026-11-14T00:00:00Z' }, { id: 'b', verified_at: '2025-01-01T00:00:00Z' }] as never
+  api.get.mockRejectedValue(new ApiError('unavailable'))
+  await flow.showProfile('b')
+  expect(flow.errorTarget.value).toBe('profile')
+  expect(flow.error.value).toBe('unavailable')
+  expect(flow.profileRequestId.value).toBe('b')
+  expect(flow.profileCredential.value).toBeUndefined()
+  api.get.mockResolvedValue({ fields: {}, collected_at: '2020-01-01T00:00:00Z' })
+  await flow.showProfile('a')
+  expect(flow.profileRequestId.value).toBe('a')
+  expect(flow.error.value).toBe('')
+  await flow.reload()
+  expect(flow.profileRequestId.value).toBe('')
+})

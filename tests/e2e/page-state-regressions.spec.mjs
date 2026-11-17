@@ -36,7 +36,10 @@ test('verification routes reused by the router show their own flow in both direc
   await expect(page.getByText(m.stage, { exact: true })).toHaveCount(0);
   await push(page, `/me/verification?lang=${locale}`);
   await expect(page.getByRole('heading', { level: 1, name: m.unified.title, exact: true })).toBeVisible();
-  await expect(page.getByText(m.method, { exact: true }).first()).toBeVisible();
+  // The fixture student is verified, so the student page leads with the status and opens the steps on request.
+  await expect(page.getByRole('region', { name: m.statusTitle, exact: true })).toContainText(m.status.verified.title);
+  await page.getByRole('button', { name: m.status.startAnother, exact: true }).click();
+  await expect(page.getByRole('group', { name: m.method, exact: true })).toBeVisible();
 });
 
 test('a successful vote retry shows the result the first attempt lost', async ({ page }, info) => {

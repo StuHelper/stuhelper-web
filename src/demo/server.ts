@@ -7,10 +7,10 @@ import { qqRoute } from './qq'
 import { notificationsRoute } from './notifications'
 import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
 import { myCoursesEnabled } from '../app/features'
+import { studentCaptured, studentMaterialDeleted, verificationRoute } from './verification'
 
-let demoMailAt = 0
 
-export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired'
+export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired' | 'rejected'
 const KEY = 'stuhelper-demo-persona'
 // Account closure request of the prototype session.
 let closure: Record<string, any> | undefined
@@ -195,28 +195,18 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (teacher) return teacher
 
   if (p.startsWith('/verification')) {
-    const eligible = who === 'verified'
     if (p === '/verification/capture' && method === 'POST') {
-      const material = teacherCaptured(init?.body instanceof Blob ? init.body.size : 1)
+      const size = init?.body instanceof Blob ? init.body.size : 1
+      const material = teacherCaptured(size) ?? studentCaptured(size)
       return material ? json(material, 201) : nope('not_found', 404)
     }
     if (p.startsWith('/verification/materials/') && method === 'DELETE') {
-      const removed = teacherMaterialDeleted(decodeURIComponent(p.slice('/verification/materials/'.length)))
+      const id = decodeURIComponent(p.slice('/verification/materials/'.length))
+      const removed = teacherMaterialDeleted(id) ?? studentMaterialDeleted(id)
       return removed ? json(removed) : nope('not_found', 404)
     }
-    if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8` } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
-    if (p === '/verification/schools') return json([d.verification.school])
-    if (p === '/verification/credentials') return json(eligible ? [d.verification.credential('active')] : who === 'expired' ? [d.verification.credential('expired')] : [])
-    if (p === '/verification/applications' && method === 'GET') return json([...(who === 'processing' ? [d.verification.application] : []), ...teacherApplications()])
-    if (p === '/verification/applications') return json({ ...d.verification.application, state: 'in_progress' }, 201)
-    // School-email code: queued first, delivered a few seconds later, any six digits confirm.
-    const mail = /^\/verification\/applications\/([^/]+)\/email(\/confirm)?$/.exec(p)
-    if (mail && mail[2]) return json({ ...d.verification.application, id: decodeURIComponent(mail[1]!), state: 'approved' })
-    if (mail) {
-      if (method === 'POST') demoMailAt = Date.now()
-      const delivered = Date.now() - demoMailAt > 3000
-      return json({ id: 'demo-mail', application_id: decodeURIComponent(mail[1]!), expires_at: new Date(demoMailAt + 5 * 60_000).toISOString(), state: delivered ? 'delivered' : 'queued', masked_email: '23****68@buaa.edu.cn', target_address: '' }, method === 'POST' ? 201 : 200)
-    }
+    const student = verificationRoute(p, method, init, who, teacherApplications())
+    if (student) return student
     if (p === '/verification/identity') return json({ code: 'pending' }, 400)
     return json([])
   }
