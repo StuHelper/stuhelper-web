@@ -2407,6 +2407,8 @@
     "unreadNotices": "未读通知：{count}",
     "upvotes": "{p0} 人赞同",
     "verifiedStudent": "已认证学生",
-    "viewDetails": "查看详情"
+    "viewDetails": "查看详情",
+    "unassignedCourses": "未归属学院的课程：{p0}",
+    "showInList": "在列表中查看"
   }
 }

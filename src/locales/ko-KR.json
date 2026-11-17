@@ -2407,6 +2407,8 @@
     "unreadNotices": "읽지 않은 알림: {count}",
     "upvotes": "공감 {p0}명",
     "verifiedStudent": "인증된 학생",
-    "viewDetails": "자세히 보기"
+    "viewDetails": "자세히 보기",
+    "unassignedCourses": "소속 단과대학이 없는 과목: {p0}",
+    "showInList": "목록으로 보기"
   }
 }

@@ -113,6 +113,9 @@ const activeFilters = computed(() => [
 // rows, so the header counts and "show all" always cover the whole department.
 const PREVIEW = 5
 const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
+// Courses without a department belong to no section. Department facets count a course once per
+// department, so a total above their sum means some courses can only be found in the list view.
+const unassigned = computed(() => Math.max(0, count.value - groups.value.reduce((sum, g) => sum + g.count, 0)))
 async function loadDepartment(id: string, after: string, limit: number, signal: AbortSignal) {
   const result = await api.directory(query(after, { department_id: id, limit }), signal)
   return { items: result.items, next: result.next }
@@ -341,6 +344,19 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
             @compare="compare"
           />
         </DirectoryGroup>
+        <p
+          v-if="unassigned"
+          class="card unassigned"
+        >
+          <span class="subtle">{{ t('browse.unassignedCourses', { p0: format.number(unassigned) }) }}</span>
+          <button
+            class="btn btn-sm"
+            type="button"
+            @click="grouped = false"
+          >
+            {{ t('browse.showInList') }}
+          </button>
+        </p>
       </div>
       <div
         v-else
@@ -390,6 +406,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
 /* Rows of the previous result stay while the next one loads, dimmed so they read as not current. */
 .stale { opacity: .5; pointer-events: none; transition: opacity .2s .15s; }
 .sections { display: grid; gap: .875rem; }
+.unassigned { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
 .sections.split { grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); align-items: start; }
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
 </style>
