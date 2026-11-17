@@ -407,6 +407,34 @@ test('the editor names what is still missing and keeps plain field names beside 
   expect(errors).toEqual([]);
 });
 
+test('a sports project review needs one of the author\'s teachers before it can be published', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic, errors = watch(page);
+  const list = (items) => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(items);
+  await academicFixture(page, { course: { course_type: 'sports_project' } });
+  await page.route('**/api/v1/reviews/compose*', (route) => {
+    const term = new URL(route.request().url()).searchParams.get('term_id');
+    return route.fulfill({ json: { allowed: !!term, state: term ? 'ready' : 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], teacher_ids: term ? ['teacher-a', 'teacher-b'] : [], teacher_required: !!term, identity: 'choice', rule_version: 'fixture' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await expect(page.getByText(a.subject.sportsProject, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await pick(editor, 'spring');
+  for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) await editor.locator(`label:has(input[name="rating-${name}"][value="4"])`).click();
+  await editor.getByLabel(a.editor.title, { exact: true }).fill('Clear title');
+  await editor.getByLabel(a.editor.body, { exact: true }).fill('Useful text.');
+  await expect(editor.getByText(a.editor.teacherRequiredHint, { exact: true })).toBeVisible();
+  await expect(editor.getByText(a.editor.missing.replace('{items}', list([a.editor.teacher])), { exact: true })).toBeVisible();
+  const publish = editor.getByRole('button', { name: a.editor.publish, exact: true });
+  await expect(publish).toBeDisabled();
+  // The "unspecified" choice is not offered for a sports project.
+  await expect(editor.getByText('Teacher A', { exact: true })).toBeVisible();
+  await expect(editor.getByText(a.review.noTeacher, { exact: true })).toHaveCount(0);
+  await pick(editor, 'teacher-b');
+  await expect(publish).toBeEnabled();
+  expect(errors).toEqual([]);
+});
+
 test('review cards show the reply preview from the list without asking for replies one by one', async ({ page }, info) => {
   await academicFixture(page);
   const reviewQueries = [];

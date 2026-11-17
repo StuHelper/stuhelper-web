@@ -380,7 +380,8 @@
       "creditsUnknown": "Créditos no indicados",
       "aliases": "Otros nombres",
       "biography": "Descripción",
-      "findCourses": "Cursos de este profesor"
+      "findCourses": "Cursos de este profesor",
+      "sportsProject": "Actividad deportiva"
     },
     "offerings": {
       "title": "Ediciones del curso",
@@ -516,6 +517,7 @@
       "termsUnavailable": "No se pudo cargar la lista de semestres. Inténtalo más tarde.",
       "teacher": "Docentes del curso",
       "teacherHint": "Los docentes provienen de tu matrícula del periodo. Puedes no especificarlo.",
+      "teacherRequiredHint": "Una reseña de deporte debe indicar un docente de tu matrícula en ese deporte para el periodo elegido.",
       "moreTerms": "Más semestres",
       "ratingsRequired": "Valora los cinco aspectos para publicar.",
       "title": "Título",

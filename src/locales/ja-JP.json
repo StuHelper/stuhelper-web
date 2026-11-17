@@ -380,7 +380,8 @@
       "creditsUnknown": "単位数は未提供",
       "aliases": "別名",
       "biography": "概要",
-      "findCourses": "この教員の授業"
+      "findCourses": "この教員の授業",
+      "sportsProject": "体育種目"
     },
     "offerings": {
       "title": "開講履歴",
@@ -516,6 +517,7 @@
       "termsUnavailable": "学期一覧を読み込めませんでした。しばらくして再試行してください。",
       "teacher": "担当教員",
       "teacherHint": "教員は選択した学期の履修記録から表示されます。指定しなくてもかまいません。",
+      "teacherRequiredHint": "体育種目の評価では担当教員を選んでください。選択した学期のこの種目の履修記録から表示されます。",
       "moreTerms": "他の学期",
       "ratingsRequired": "5 項目すべてを評価すると公開できます。",
       "title": "タイトル",

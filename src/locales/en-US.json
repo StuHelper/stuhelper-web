@@ -380,7 +380,8 @@
       "creditsUnknown": "Credits not provided",
       "aliases": "Other names",
       "biography": "Overview",
-      "findCourses": "Courses by this teacher"
+      "findCourses": "Courses by this teacher",
+      "sportsProject": "Sports activity"
     },
     "offerings": {
       "title": "Course offerings",
@@ -516,6 +517,7 @@
       "termsUnavailable": "The semester list could not load. Please try again later.",
       "teacher": "Teaching staff",
       "teacherHint": "Teachers come from your enrollment for the selected term. You can leave this unspecified.",
+      "teacherRequiredHint": "Sports reviews must name a teacher. The choices come from your enrollment in this sport for the selected term.",
       "moreTerms": "More semesters",
       "ratingsRequired": "Rate all five items to publish.",
       "title": "Title",

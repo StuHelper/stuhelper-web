@@ -380,7 +380,8 @@
       "creditsUnknown": "学分未提供",
       "aliases": "其他名称",
       "biography": "简介",
-      "findCourses": "查看该教师的课程"
+      "findCourses": "查看该教师的课程",
+      "sportsProject": "体育项目"
     },
     "offerings": {
       "title": "历次开课",
@@ -516,6 +517,7 @@
       "termsUnavailable": "学期列表暂时无法加载，请稍后重试。",
       "teacher": "任课教师",
       "teacherHint": "教师选项来自你所选学期的选课记录，不确定时可以不指定。",
+      "teacherRequiredHint": "体育项目评价需要选择任课教师，选项来自你所选学期该项目的选课记录。",
       "moreTerms": "更多学期",
       "ratingsRequired": "完成全部五项评分后方可发布。",
       "title": "标题",

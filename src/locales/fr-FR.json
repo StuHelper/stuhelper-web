@@ -380,7 +380,8 @@
       "creditsUnknown": "Crédits non renseignés",
       "aliases": "Autres noms",
       "biography": "Présentation",
-      "findCourses": "Cours de cet enseignant"
+      "findCourses": "Cours de cet enseignant",
+      "sportsProject": "Activité sportive"
     },
     "offerings": {
       "title": "Sessions du cours",
@@ -516,6 +517,7 @@
       "termsUnavailable": "La liste des semestres n’a pas pu se charger. Réessayez plus tard.",
       "teacher": "Équipe enseignante",
       "teacherHint": "Les enseignants proviennent de votre inscription au semestre. Vous pouvez ne pas préciser.",
+      "teacherRequiredHint": "Un avis sur un sport doit indiquer un enseignant, choisi parmi votre inscription à ce sport pour le semestre.",
       "moreTerms": "Plus de semestres",
       "ratingsRequired": "Notez les cinq critères pour publier.",
       "title": "Titre",
