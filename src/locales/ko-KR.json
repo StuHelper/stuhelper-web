@@ -1141,7 +1141,57 @@
       "confirm": "인증",
       "resend": "다시 보내기",
       "resendIn": "{seconds}초 후 다시 보낼 수 있습니다"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "캠퍼스 인증 완료",
+        "text": "강의 평가, 교수, 학습 자료를 볼 수 있습니다."
+      },
+      "review": {
+        "title": "제출 자료 심사 중",
+        "text": "자료가 제출되었습니다. 결과가 나오면 알려 드리며, 그때까지 추가 작업은 필요 없습니다."
+      },
+      "supplement": {
+        "title": "자료 보완이 필요합니다",
+        "text": "심사자가 자료 보완 또는 재촬영을 요청했습니다. 보완한 뒤 다시 제출하세요."
+      },
+      "draft": {
+        "title": "완료하지 않은 인증이 있습니다",
+        "text": "이전 단계부터 이어서 진행하거나 아래에서 방식을 다시 선택할 수 있습니다."
+      },
+      "rejected": {
+        "title": "지난 인증이 승인되지 않았습니다",
+        "text": "심사 의견에 따라 수정해 다시 제출하거나 다른 방식을 이용하세요."
+      },
+      "lapsed": {
+        "title": "인증이 더 이상 유효하지 않습니다",
+        "text": "다시 인증하면 계속 이용할 수 있습니다."
+      },
+      "none": {
+        "title": "아직 인증하지 않았습니다",
+        "text": "아래에서 방식을 선택하고 단계에 따라 진행하세요."
+      },
+      "reviewNote": "심사 의견",
+      "restart": "다시 인증",
+      "startAnother": "새 인증 시작"
+    },
+    "steps": {
+      "label": "인증 단계",
+      "choose": "방식 선택",
+      "fill": "정보 입력",
+      "finish": "확인 완료"
+    },
+    "picker": {
+      "unavailable": "선택한 신분으로는 이용할 수 없습니다"
+    },
+    "needs": {
+      "real_name_identity_check": "학번, 이름, 신분증 번호 입력. 결과는 즉시 확인",
+      "school_sso": "학교 통합 인증 계정과 비밀번호로 확인. 비밀번호는 저장하지 않습니다",
+      "student_email_outbound_otp": "학교 이메일로 6자리 코드를 보냅니다",
+      "student_email_inbound_challenge": "학교 이메일에서 지정된 주소로 메일 한 통을 보냅니다",
+      "manual_material_review": "학생증 등의 자료를 촬영하면 관리자가 심사합니다"
+    },
+    "changeSchool": "학교 변경"
   },
   "contribution": {
     "eyebrow": "공유 저장소",

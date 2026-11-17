@@ -56,6 +56,39 @@ export function useVerificationFlow() {
   const chooseStage = computed(() => chooseStudy.value && school.value?.method_capabilities?.[selectedMethod.value]?.study_stage_required !== false)
   const writable = computed(() => !!active.value && ['in_progress', 'supplement_required'].includes(active.value.state) && !schoolPending.value)
 
+  // The page asks who the person is before it lists the methods. A school asks when it takes study
+  // facts from the person's own choice for at least one method. Temporary newcomers exist only in manual review.
+  const asksKind = computed(() => !!school.value && (availableMethods.value.includes('manual_material_review') || !school.value.profile_schema || school.value.profile_schema === 'buaa.imported.v1'))
+  const kindChoices = computed<Kind[]>(() => (asksKind.value ? ['student', 'alumni', ...(availableMethods.value.includes('manual_material_review') ? ['newcomer' as const] : [])] : []))
+  /**
+   * Whether the school offers a method to the chosen identity, from the school's own capability
+   * list. This only greys out choices the server would refuse; the server checks again on submit.
+   */
+  function methodAllowed(method: Method) {
+    if (!asksKind.value) return true
+    if (kind.value === 'newcomer') return method === 'manual_material_review'
+    const allowed = school.value?.method_capabilities?.[method]?.allowed_kinds
+    return !allowed || allowed.includes(kind.value)
+  }
+
+  /** What the person's student verification amounts to right now, most decisive fact first. */
+  const standing = computed(() => {
+    if (!summary.value) return 'unknown' as const
+    if (summary.value.campus_eligibility) return 'verified' as const
+    const own = applications.value.filter(isStudentApplication)
+    for (const [state, name] of [['pending_review', 'review'], ['supplement_required', 'supplement'], ['in_progress', 'draft']] as const) if (own.some((row) => row.state === state)) return name
+    const latest = [...own].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0]
+    if (latest?.state === 'rejected') return 'rejected' as const
+    if (credentials.value.some((row) => row.state === 'expired' || row.state === 'revoked')) return 'lapsed' as const
+    return 'none' as const
+  })
+  /** The application the current standing is about: the open one, or the latest rejected one. */
+  const standingApplication = computed(() => {
+    const own = applications.value.filter(isStudentApplication)
+    const state = { review: 'pending_review', supplement: 'supplement_required', draft: 'in_progress', rejected: 'rejected' }[standing.value as string]
+    return state ? [...own].sort((a, b) => b.updated_at.localeCompare(a.updated_at)).find((row) => row.state === state) : undefined
+  })
+
   function fail(failure: unknown, target: ErrorTarget = 'form') {
     errorTarget.value = target
     error.value = errorCode(failure)
@@ -164,6 +197,24 @@ export function useVerificationFlow() {
   function selectMethod() {
     reset()
     if (!manual.value) kind.value = 'student'
+  }
+
+  /** Choose the identity first; a method this identity may not use gives way to the first one it may. */
+  function chooseKind(next: Kind) {
+    if (active.value || kind.value === next) return
+    kind.value = next
+    if (!methodAllowed(selectedMethod.value)) {
+      const fallback = availableMethods.value.find(methodAllowed)
+      if (fallback) selectedMethod.value = fallback
+    }
+    reset()
+  }
+
+  /** Choose a method the current identity may use. Consent belongs to one method's notice, so it is asked again. */
+  function chooseMethod(method: Method) {
+    if (active.value || selectedMethod.value === method || !methodAllowed(method)) return
+    selectedMethod.value = method
+    reset()
   }
 
   // Leaves the started application and returns to choosing the method. The draft
@@ -464,6 +515,7 @@ export function useVerificationFlow() {
     loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable,
+    asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }

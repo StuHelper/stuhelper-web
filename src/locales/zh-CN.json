@@ -1141,7 +1141,57 @@
       "confirm": "验证",
       "resend": "重新发送",
       "resendIn": "{seconds} 秒后可重新发送"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "已通过校园认证",
+        "text": "可以浏览课程评价、教师和学习资料。"
+      },
+      "review": {
+        "title": "材料审核中",
+        "text": "材料已提交。审核有结果后会通知你，在此之前不需要其他操作。"
+      },
+      "supplement": {
+        "title": "需要补充材料",
+        "text": "审核人员需要你补充或重新拍摄材料，补充后再次提交即可。"
+      },
+      "draft": {
+        "title": "有一份未完成的认证",
+        "text": "可以接着上次的进度继续，也可以在下面重新选择方式。"
+      },
+      "rejected": {
+        "title": "上次认证未通过",
+        "text": "可以按审核说明修改后重新提交，或换一种认证方式。"
+      },
+      "lapsed": {
+        "title": "认证已失效",
+        "text": "重新完成认证后即可继续使用。"
+      },
+      "none": {
+        "title": "尚未认证",
+        "text": "在下面选择一种方式，按步骤完成认证。"
+      },
+      "reviewNote": "审核说明",
+      "restart": "重新认证",
+      "startAnother": "发起新的认证"
+    },
+    "steps": {
+      "label": "认证步骤",
+      "choose": "选择方式",
+      "fill": "填写信息",
+      "finish": "完成核验"
+    },
+    "picker": {
+      "unavailable": "不适用于所选身份"
+    },
+    "needs": {
+      "real_name_identity_check": "填写学号、姓名和证件号码，提交后即时出结果",
+      "school_sso": "用学校统一认证账号和密码核验，密码不会保存",
+      "student_email_outbound_otp": "向你的学校邮箱发送 6 位验证码",
+      "student_email_inbound_challenge": "从你的学校邮箱向指定地址发一封邮件",
+      "manual_material_review": "拍摄学生证等材料，由管理员审核"
+    },
+    "changeSchool": "更换学校"
   },
   "contribution": {
     "eyebrow": "共享存储",

@@ -1141,7 +1141,57 @@
       "confirm": "Verify",
       "resend": "Resend",
       "resendIn": "Resend in {seconds} s"
-    }
+    },
+    "status": {
+      "verified": {
+        "title": "Campus verification passed",
+        "text": "You can browse course reviews, teachers and study resources."
+      },
+      "review": {
+        "title": "Your materials are under review",
+        "text": "Your materials were submitted. You will be notified of the result; nothing else is needed until then."
+      },
+      "supplement": {
+        "title": "More material is needed",
+        "text": "The reviewer asked for additional or retaken material. Add it and submit again."
+      },
+      "draft": {
+        "title": "You have an unfinished verification",
+        "text": "Continue where you left off, or choose a method again below."
+      },
+      "rejected": {
+        "title": "Your last verification was not approved",
+        "text": "Correct it as the review note says and submit again, or use another method."
+      },
+      "lapsed": {
+        "title": "Your verification is no longer valid",
+        "text": "Verify again to continue."
+      },
+      "none": {
+        "title": "Not verified yet",
+        "text": "Choose a method below and follow the steps."
+      },
+      "reviewNote": "Review note",
+      "restart": "Verify again",
+      "startAnother": "Start another verification"
+    },
+    "steps": {
+      "label": "Verification steps",
+      "choose": "Choose a method",
+      "fill": "Enter your details",
+      "finish": "Finish"
+    },
+    "picker": {
+      "unavailable": "Not available for the chosen identity"
+    },
+    "needs": {
+      "real_name_identity_check": "Student ID, name and document number; the result is immediate",
+      "school_sso": "Sign in with your school account and password; the password is not kept",
+      "student_email_outbound_otp": "A 6-digit code is sent to your school mailbox",
+      "student_email_inbound_challenge": "Send one message from your school mailbox to a given address",
+      "manual_material_review": "Photograph your student card or other proof for a reviewer"
+    },
+    "changeSchool": "Change school"
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",
