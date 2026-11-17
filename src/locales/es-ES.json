@@ -2407,6 +2407,8 @@
     "unreadNotices": "Notificaciones sin leer: {count}",
     "upvotes": "Votos a favor: {p0}",
     "verifiedStudent": "Estudiante verificado",
-    "viewDetails": "Ver detalles"
+    "viewDetails": "Ver detalles",
+    "unassignedCourses": "Cursos sin facultad: {p0}",
+    "showInList": "Ver en la lista"
   }
 }

@@ -2407,6 +2407,8 @@
     "unreadNotices": "إشعارات غير مقروءة: {count}",
     "upvotes": "الموافقات: {p0}",
     "verifiedStudent": "طالب موثَّق",
-    "viewDetails": "عرض التفاصيل"
+    "viewDetails": "عرض التفاصيل",
+    "unassignedCourses": "مقررات بلا كلية: {p0}",
+    "showInList": "عرض في القائمة"
   }
 }

@@ -2407,6 +2407,8 @@
     "unreadNotices": "Непрочитанные уведомления: {count}",
     "upvotes": "Согласны: {p0}",
     "verifiedStudent": "Подтверждённый студент",
-    "viewDetails": "Подробнее"
+    "viewDetails": "Подробнее",
+    "unassignedCourses": "Курсы без факультета: {p0}",
+    "showInList": "Показать списком"
   }
 }

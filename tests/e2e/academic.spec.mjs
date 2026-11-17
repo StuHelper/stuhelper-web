@@ -202,6 +202,8 @@ test('the course directory shows category tabs, grouping and a quick view with r
   await expect(tabs.getByRole('button', { name: /Test Seminar/ })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.byDepartment }).click();
   await expect(page.getByRole('heading', { name: 'Test College' })).toBeVisible();
+  // The department reads its own rows after its heading appears.
+  await expect(page.getByRole('region', { name: 'Test College' }).getByRole('link', { name: 'Test Course' })).toBeVisible();
   const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
   if (await quick.isVisible()) await quick.click();
   else {
@@ -232,14 +234,16 @@ const directoryObject = (id, kind, name) => ({ id, kind, name, school_id: 'schoo
 const directoryRow = (id, name, recommendation) => ({ object: directoryObject(id, 'course', name), departments: [directoryObject('dept', 'department', 'Test College')], categories: [directoryObject('seminar', 'category', 'Test Seminar')], review_count: 2, recommendation, dimensions: Array.from({ length: 5 }, () => ({ level: 4, samples: 2, courses: 1 })), heat: 1 });
 const directoryPage = (rows, next, total) => ({ items: rows, next, total, facet_total: total, category_facets: [{ id: 'seminar', name: 'Test Seminar', count: total, review_count: total }], department_facets: [{ id: 'dept', name: 'Test College', count: total, review_count: total }], generated_at: '2026-11-15T00:00:00Z' });
 
-test('course rows show the recommendation in words and the list says how many rows are shown', async ({ page }, info) => {
+test('course rows show the recommendation in words and the next page arrives without a button', async ({ page }, info) => {
   const all = catalogue(info), b = all.browse, errors = watch(page);
-  const number = (value) => new Intl.NumberFormat(info.project.metadata.locale).format(value);
+  let release;
   await academicFixture(page);
-  await page.route('**/api/v1/catalog/directory**', (route) => {
+  await page.route('**/api/v1/catalog/directory**', async (route) => {
     const query = new URL(route.request().url()).searchParams;
     if (query.get('limit') === '1') return route.fallback();
-    return route.fulfill({ json: query.get('after') ? directoryPage([directoryRow('c', 'Course C', 'unrated')], '', 3) : directoryPage([directoryRow('a', 'Course A', 'strongly_recommended'), directoryRow('b', 'Course B', 'average')], 'page-2', 3) });
+    if (!query.get('after')) return route.fulfill({ json: directoryPage([directoryRow('a', 'Course A', 'strongly_recommended'), directoryRow('b', 'Course B', 'average')], 'page-2', 3) });
+    await new Promise((resolve) => { release = resolve; });
+    return route.fulfill({ json: directoryPage([directoryRow('c', 'Course C', 'unrated')], '', 3) });
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
   const rows = page.locator('main li.line');
@@ -248,14 +252,50 @@ test('course rows show the recommendation in words and the list says how many ro
   await expect(rows.nth(0).locator('.d-level:visible')).toHaveText(b.levelStrongly);
   await expect(rows.nth(1).locator('.d-level:visible')).toHaveText(b.levelAverage);
   await expect(page.getByRole('main')).not.toContainText(/\d[.,]\d/);
-  const progress = all.common.shownOf.replace('{shown}', number(2)).replace('{total}', number(3));
-  await expect(page.getByText(progress, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: all.common.loadMore, exact: true }).click();
-  await expect(rows).toHaveCount(3);
-  // A course without enough reviews shows no level, and a complete list shows no progress line.
-  await expect(rows.nth(2).locator('.d-level:visible')).toHaveCount(0);
-  await expect(page.getByText(progress, { exact: true })).toHaveCount(0);
+  // The end of the list is already in reach, so the next page loads by itself.
+  await expect(page.getByRole('main').getByRole('status').filter({ hasText: all.common.loading })).toBeVisible();
   await expect(page.getByRole('button', { name: all.common.loadMore, exact: true })).toHaveCount(0);
+  release();
+  await expect(rows).toHaveCount(3);
+  // A course without enough reviews shows no level.
+  await expect(rows.nth(2).locator('.d-level:visible')).toHaveCount(0);
+  await expect(page.getByRole('main').getByRole('status').filter({ hasText: all.common.loading })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('each department in the grouped view reads its own rows and shows all of them on request', async ({ page }, info) => {
+  const all = catalogue(info), b = all.browse, errors = watch(page), seen = [];
+  const number = (value) => new Intl.NumberFormat(info.project.metadata.locale).format(value);
+  const departments = [{ id: 'dept', name: 'Test College', count: 7, review_count: 7 }, { id: 'dept-2', name: 'Second College', count: 1, review_count: 0 }];
+  await page.addInitScript(() => localStorage.setItem('stuhelper.directory.grouped', '1'));
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    seen.push(Object.fromEntries(query));
+    const department = query.get('department_id');
+    const size = department === 'dept' ? 7 : 1;
+    const rows = Array.from({ length: department ? size : 1 }, (_, i) => directoryRow(`${department ?? 'x'}-${i}`, `${department ?? 'x'} course ${i}`, 'recommended'));
+    const limit = Number(query.get('limit'));
+    // One course of nine has no department, so no section holds it.
+    return route.fulfill({ json: { ...directoryPage(rows.slice(0, limit), rows.length > limit ? 'more' : '', 9), department_facets: departments } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const first = page.getByRole('region', { name: 'Test College' });
+  const second = page.getByRole('region', { name: 'Second College' });
+  await expect(first.locator('li.line')).toHaveCount(5);
+  await expect(second.locator('li.line')).toHaveCount(1);
+  // A department with no more rows than the preview has nothing to expand, and no list-wide button exists.
+  await expect(second.locator('button.more')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: all.common.loadMore, exact: true })).toHaveCount(0);
+  await first.getByRole('button', { name: b.expandAll.replace('{p0}', number(7)), exact: true }).click();
+  await expect(first.locator('li.line')).toHaveCount(7);
+  expect(seen.some((q) => q.department_id === 'dept' && q.limit === '100')).toBe(true);
+  await first.getByRole('button', { name: b.collapse, exact: true }).click();
+  await expect(first.locator('li.line')).toHaveCount(5);
+  await expect(page.getByText(b.unassignedCourses.replace('{p0}', number(1)), { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: b.showInList, exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Test College' })).toHaveCount(0);
+  await expect(page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.byDepartment })).toHaveAttribute('aria-pressed', 'false');
   expect(errors).toEqual([]);
 });
 
