@@ -2,6 +2,7 @@
 import { LockKeyhole } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useSession } from '../../shared/session'
+import QqSignInButton from './QqSignInButton.vue'
 
 // Personal pages render only for a signed-in session. The server still checks
 // every request; this only avoids showing an empty private page to guests.
@@ -40,6 +41,7 @@ const session = useSession()
     >
       {{ t('account.signIn') }}
     </button>
+    <QqSignInButton v-if="session.state.value === 'guest'" />
     <button
       v-else
       class="btn"

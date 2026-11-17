@@ -64,7 +64,8 @@
     "goHome": "Volver al inicio",
     "undo": "Deshacer",
     "clearSearch": "Borrar búsqueda",
-    "shownOf": "Mostrando {shown} de {total}"
+    "shownOf": "Mostrando {shown} de {total}",
+    "opensInNewTab": "(se abre en una pestaña nueva)"
   },
   "errors": {
     "network": "La conexión falló o caducó. Se conservan los datos válidos; inténtalo de nuevo.",
@@ -321,7 +322,8 @@
       "unverified": "Sin verificar",
       "processing": "Verificación en revisión",
       "expired": "Verificación caducada"
-    }
+    },
+    "signInWithQq": "Iniciar sesión con QQ"
   },
   "academic": {
     "course": "Curso",
@@ -1754,6 +1756,11 @@
         "authorizations_unavailable": "Ahora no se pueden revocar las autorizaciones de aplicaciones. El proceso seguirá cuando el servicio se recupere.",
         "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere."
       }
+    },
+    "qqLogin": {
+      "title": "Inicio de sesión con QQ",
+      "hint": "El inicio de sesión con QQ es opcional. Las cuentas vinculadas a QQ pueden entrar con QQ en la página de inicio de sesión. Vincula o desvincula QQ en la sección de inicios de sesión externos del centro de cuentas.",
+      "manage": "Gestionar el inicio de sesión con QQ"
     }
   },
   "profile": {

@@ -64,7 +64,8 @@
     "goHome": "홈으로 돌아가기",
     "undo": "실행 취소",
     "clearSearch": "검색 지우기",
-    "shownOf": "{total}개 중 {shown}개 표시"
+    "shownOf": "{total}개 중 {shown}개 표시",
+    "opensInNewTab": "(새 탭에서 열림)"
   },
   "errors": {
     "network": "연결에 실패했거나 시간이 초과되었습니다. 유효한 입력은 유지됩니다. 다시 시도하세요.",
@@ -321,7 +322,8 @@
       "unverified": "미인증",
       "processing": "인증 심사 중",
       "expired": "인증 만료"
-    }
+    },
+    "signInWithQq": "QQ로 로그인"
   },
   "academic": {
     "course": "강의",
@@ -1754,6 +1756,11 @@
         "authorizations_unavailable": "지금은 앱 승인을 철회할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다.",
         "content_unavailable": "지금은 개인 콘텐츠를 처리할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다."
       }
+    },
+    "qqLogin": {
+      "title": "QQ 로그인",
+      "hint": "QQ 로그인은 선택 사항입니다. QQ를 연결한 계정은 로그인 화면에서 QQ로 로그인할 수 있습니다. 연결과 해제는 계정 센터의 외부 로그인 항목에서 합니다.",
+      "manage": "QQ 로그인 연결 관리"
     }
   },
   "profile": {

@@ -64,7 +64,8 @@
     "goHome": "返回首页",
     "undo": "撤销",
     "clearSearch": "清除搜索",
-    "shownOf": "已显示 {shown} / {total}"
+    "shownOf": "已显示 {shown} / {total}",
+    "opensInNewTab": "（在新标签页打开）"
   },
   "errors": {
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
@@ -321,7 +322,8 @@
       "unverified": "尚未认证",
       "processing": "认证审核中",
       "expired": "认证已过期"
-    }
+    },
+    "signInWithQq": "QQ 登录"
   },
   "academic": {
     "course": "课程",
@@ -1754,6 +1756,11 @@
         "authorizations_unavailable": "暂时无法撤回应用授权，处理会在恢复后继续。",
         "content_unavailable": "暂时无法处理个人内容，处理会在恢复后继续。"
       }
+    },
+    "qqLogin": {
+      "title": "QQ 登录",
+      "hint": "QQ 登录是可选的。已绑定 QQ 的账号可以在登录页直接用 QQ 登录；绑定或解绑请到账号中心的第三方登录区操作。",
+      "manage": "管理 QQ 登录绑定"
     }
   },
   "profile": {
