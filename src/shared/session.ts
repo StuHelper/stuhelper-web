@@ -1,6 +1,6 @@
 import { inject, readonly, ref, shallowRef, type InjectionKey } from 'vue'
 import contract from '../../contracts/session.openapi.json'
-import type { components } from '../api/session.gen'
+import type { components, operations } from '../api/session.gen'
 import { ApiError } from './api/errors'
 import { Http } from './api/http'
 import { extras } from './extras'
@@ -8,6 +8,9 @@ import { keepFiltersForReturn } from './pageFilters'
 import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
 import { useHostFetch } from './api/transport'
+
+// Sign-in providers the login endpoint accepts besides the regular page (session contract 0.5.0).
+type LoginProvider = NonNullable<NonNullable<operations['startLogin']['parameters']['query']>['provider']>
 
 export type Session = components['schemas']['Session']
 export type Profile = components['schemas']['Profile']
@@ -79,7 +82,7 @@ export function createSessionStore(fetcher: typeof fetch) {
   }
 
   function invalidate(){generation++;session.value=null;state.value='guest';unavailable.value=false;failures=0;retryAt=0;}
-  function startSignIn(provider?: 'qq') {
+  function startSignIn(provider?: LoginProvider) {
     if (extras.signIn) return extras.signIn()
     const target = window.location.href.split('#')[0] ?? window.location.origin
     keepFiltersForReturn()
