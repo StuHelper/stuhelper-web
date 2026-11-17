@@ -12,7 +12,7 @@ import { useHttp } from '../../shared/session'
 export type CatalogObject = Catalog['schemas']['Object']
 export type ObjectKind = CatalogObject['kind']
 export type ObjectPage = Catalog['schemas']['Page']
-export type ObjectSummary = Catalog['schemas']['Summary']
+export type ObjectSummary = Catalog['schemas']['PublicSummary']
 export type Enrollment = Catalog['schemas']['Enrollment']
 export type OwnSchedule = Catalog['schemas']['OwnSchedule']
 export type ScheduleMeeting = Catalog['schemas']['ScheduleMeeting']
@@ -55,7 +55,7 @@ const parse = {
   object: schemaOf<CatalogObject>(catalog, 'Object'),
   objectPage: schemaOf<ObjectPage>(catalog, 'Page'),
   filterOptions: schemaOf<Catalog['schemas']['FilterOptions']>(catalog, 'FilterOptions'),
-  summary: schemaOf<ObjectSummary>(catalog, 'Summary'),
+  summary: schemaOf<ObjectSummary>(catalog, 'PublicSummary'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
   schedule: schemaOf<Catalog['schemas']['OwnSchedulePage']>(catalog, 'OwnSchedulePage'),
