@@ -383,7 +383,11 @@
       "aliases": "Other names",
       "biography": "Overview",
       "findCourses": "Courses by this teacher",
-      "sportsProject": "Sports activity"
+      "sportsProject": "Sports activity",
+      "englishName": "English name",
+      "formerCodes": "Former course codes",
+      "formerNames": "Former names",
+      "hours": "Class hours"
     },
     "offerings": {
       "title": "Course offerings",

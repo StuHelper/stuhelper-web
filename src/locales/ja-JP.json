@@ -383,7 +383,11 @@
       "aliases": "別名",
       "biography": "概要",
       "findCourses": "この教員の授業",
-      "sportsProject": "体育種目"
+      "sportsProject": "体育種目",
+      "englishName": "英語名",
+      "formerCodes": "旧科目番号",
+      "formerNames": "旧名称",
+      "hours": "時間数"
     },
     "offerings": {
       "title": "開講履歴",

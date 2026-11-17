@@ -383,7 +383,11 @@
       "aliases": "다른 이름",
       "biography": "소개",
       "findCourses": "이 교수의 강의",
-      "sportsProject": "체육 종목"
+      "sportsProject": "체육 종목",
+      "englishName": "영문명",
+      "formerCodes": "이전 과목 번호",
+      "formerNames": "이전 이름",
+      "hours": "수업 시간"
     },
     "offerings": {
       "title": "개설 이력",

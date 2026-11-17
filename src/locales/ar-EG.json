@@ -383,7 +383,11 @@
       "aliases": "أسماء أخرى",
       "biography": "نبذة",
       "findCourses": "مقررات هذا الأستاذ",
-      "sportsProject": "نشاط رياضي"
+      "sportsProject": "نشاط رياضي",
+      "englishName": "الاسم بالإنجليزية",
+      "formerCodes": "رموز المقرر السابقة",
+      "formerNames": "الأسماء السابقة",
+      "hours": "الساعات الدراسية"
     },
     "offerings": {
       "title": "مرات طرح المقرر",

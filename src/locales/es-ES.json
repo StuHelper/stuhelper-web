@@ -383,7 +383,11 @@
       "aliases": "Otros nombres",
       "biography": "Descripción",
       "findCourses": "Cursos de este profesor",
-      "sportsProject": "Actividad deportiva"
+      "sportsProject": "Actividad deportiva",
+      "englishName": "Nombre en inglés",
+      "formerCodes": "Códigos anteriores",
+      "formerNames": "Nombres anteriores",
+      "hours": "Horas lectivas"
     },
     "offerings": {
       "title": "Ediciones del curso",
