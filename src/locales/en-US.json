@@ -1546,7 +1546,9 @@
     "chatGroup": "Group chat · {p0} members",
     "chatSample": "Sample conversation. Messages stay on this page only.",
     "chatPlaceholder": "Write a message",
-    "chatSend": "Send"
+    "chatSend": "Send",
+    "personaRejected": "Verification rejected",
+    "personaRejectedHint": "The verification page shows the reason"
   },
   "favorites": {
     "title": "Saved",

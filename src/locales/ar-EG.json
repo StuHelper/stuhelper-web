@@ -1546,7 +1546,9 @@
     "chatGroup": "محادثة جماعية · {p0} عضوًا",
     "chatSample": "محادثة تجريبية. تُحفظ الرسائل في هذه الصفحة فقط.",
     "chatPlaceholder": "اكتب رسالة",
-    "chatSend": "إرسال"
+    "chatSend": "إرسال",
+    "personaRejected": "رُفض التحقق",
+    "personaRejectedHint": "تعرض صفحة التحقق سبب الرفض"
   },
   "favorites": {
     "title": "المحفوظات",

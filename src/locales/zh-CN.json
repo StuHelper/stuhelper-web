@@ -1546,7 +1546,9 @@
     "chatGroup": "群聊 · {p0} 人",
     "chatSample": "示例会话，消息只保存在当前页面。",
     "chatPlaceholder": "输入消息",
-    "chatSend": "发送"
+    "chatSend": "发送",
+    "personaRejected": "认证未通过",
+    "personaRejectedHint": "认证页显示未通过原因"
   },
   "favorites": {
     "title": "收藏",

@@ -1546,7 +1546,9 @@
     "chatGroup": "Discussion de groupe · {p0} membres",
     "chatSample": "Conversation d’exemple. Les messages restent sur cette page.",
     "chatPlaceholder": "Écrire un message",
-    "chatSend": "Envoyer"
+    "chatSend": "Envoyer",
+    "personaRejected": "Vérification refusée",
+    "personaRejectedHint": "La page de vérification affiche le motif"
   },
   "favorites": {
     "title": "Favoris",

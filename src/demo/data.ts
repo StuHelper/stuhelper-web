@@ -162,7 +162,19 @@ export const custody = {
   items: [{ id: '00000000-0000-4000-8000-000000000001', adapter: 'bhpan', revision: 1, state: 'ready', authorization_expires_at: '2027-06-30T00:00:00Z', request_id: '00000000-0000-4000-8000-000000000001', last_error: '' }],
 }
 export const verification = {
-  school: { id: SCHOOL, name: '北京航空航天大学', enabled: true, methods: ['school_sso', 'student_email_outbound_otp', 'manual_material_review'], notice_version: 'v1', opening_date: '2026-09-01', newcomer_days: 30, email_domain: 'buaa.edu.cn', material_types: ['student_card'], revision: 1 },
+  // 北航：四种方式都不选择学习阶段；学校账号核验只给在读学生，临时新生只能走人工审核。
+  school: {
+    id: SCHOOL, name: '北京航空航天大学', enabled: true, profile_schema: 'buaa.imported.v1', notice_version: 'v3', opening_date: '2026-09-01', newcomer_days: 30, email_domain: 'buaa.edu.cn', revision: 3,
+    methods: ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'manual_material_review'],
+    material_types: ['student_card', 'enrollment_certificate', 'graduation_certificate'],
+    method_capabilities: {
+      real_name_identity_check: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] },
+      school_sso: { study_stage_required: false, allowed_kinds: ['student'] },
+      student_email_outbound_otp: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] },
+      manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni', 'newcomer'] },
+    },
+    method_description_keys: { real_name_identity_check: 'verification.methodDescriptions.real_name_identity_check' },
+  },
   credential: (state: string) => ({ id: 'cred', school_id: SCHOOL, method: 'school_sso', stage: 'bachelor', kind: 'student', state, student_display: '23****17', revision: 1, verified_at: ago(50), expires_at: state === 'expired' ? ago(3) : '2027-07-01T00:00:00Z' }),
   application: { id: 'app1', school_id: SCHOOL, method: 'manual_material_review', stage: 'bachelor', kind: 'student', state: 'pending_review', revision: 2, created_at: ago(1), updated_at: ago(0, 5), expires_at: '2027-01-01T00:00:00Z', credential_id: '', result_code: '' },
 }

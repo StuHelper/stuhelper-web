@@ -1546,7 +1546,9 @@
     "chatGroup": "グループチャット · {p0} 人",
     "chatSample": "サンプルの会話です。メッセージはこのページにのみ保存されます。",
     "chatPlaceholder": "メッセージを入力",
-    "chatSend": "送信"
+    "chatSend": "送信",
+    "personaRejected": "認証が不承認",
+    "personaRejectedHint": "認証ページに理由を表示"
   },
   "favorites": {
     "title": "保存済み",

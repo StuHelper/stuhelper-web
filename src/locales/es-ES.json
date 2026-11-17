@@ -1546,7 +1546,9 @@
     "chatGroup": "Chat de grupo · {p0} miembros",
     "chatSample": "Conversación de ejemplo. Los mensajes solo se guardan en esta página.",
     "chatPlaceholder": "Escribe un mensaje",
-    "chatSend": "Enviar"
+    "chatSend": "Enviar",
+    "personaRejected": "Verificación rechazada",
+    "personaRejectedHint": "La página de verificación muestra el motivo"
   },
   "favorites": {
     "title": "Guardados",

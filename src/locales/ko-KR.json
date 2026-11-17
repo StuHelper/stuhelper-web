@@ -1546,7 +1546,9 @@
     "chatGroup": "그룹 채팅 · {p0}명",
     "chatSample": "예시 대화입니다. 메시지는 이 페이지에만 저장됩니다.",
     "chatPlaceholder": "메시지 입력",
-    "chatSend": "보내기"
+    "chatSend": "보내기",
+    "personaRejected": "인증 반려",
+    "personaRejectedHint": "인증 페이지에 사유 표시"
   },
   "favorites": {
     "title": "저장함",
