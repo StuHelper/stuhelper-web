@@ -2462,7 +2462,7 @@
     "upvotes": "Upvotes: {p0}",
     "verifiedStudent": "Verified student",
     "viewDetails": "View details",
-    "unassignedCourses": "Courses without a department: {p0}",
+    "unassignedCourses": "List view shows every result, including courses without a department.",
     "showInList": "Show in list"
   }
 }

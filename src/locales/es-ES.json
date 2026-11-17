@@ -2462,7 +2462,7 @@
     "upvotes": "Votos a favor: {p0}",
     "verifiedStudent": "Estudiante verificado",
     "viewDetails": "Ver detalles",
-    "unassignedCourses": "Cursos sin facultad: {p0}",
+    "unassignedCourses": "La vista de lista muestra todos los resultados, incluidos los cursos sin facultad.",
     "showInList": "Ver en la lista"
   }
 }

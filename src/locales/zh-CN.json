@@ -2462,7 +2462,7 @@
     "upvotes": "{p0} 人赞同",
     "verifiedStudent": "已认证学生",
     "viewDetails": "查看详情",
-    "unassignedCourses": "未归属学院的课程：{p0}",
+    "unassignedCourses": "列表模式显示全部结果，包括未归属学院的课程。",
     "showInList": "在列表中查看"
   }
 }

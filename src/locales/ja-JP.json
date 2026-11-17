@@ -2462,7 +2462,7 @@
     "upvotes": "賛同 {p0} 人",
     "verifiedStudent": "認証済みの学生",
     "viewDetails": "詳細を見る",
-    "unassignedCourses": "学院未設定の科目：{p0}",
+    "unassignedCourses": "リスト表示では、学院未設定の科目を含むすべての検索結果を確認できます。",
     "showInList": "一覧で表示"
   }
 }

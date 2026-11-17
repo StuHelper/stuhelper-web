@@ -2462,7 +2462,7 @@
     "upvotes": "الموافقات: {p0}",
     "verifiedStudent": "طالب موثَّق",
     "viewDetails": "عرض التفاصيل",
-    "unassignedCourses": "مقررات بلا كلية: {p0}",
+    "unassignedCourses": "يعرض وضع القائمة جميع النتائج، بما فيها المقررات غير التابعة لكلية.",
     "showInList": "عرض في القائمة"
   }
 }
