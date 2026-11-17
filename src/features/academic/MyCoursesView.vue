@@ -296,13 +296,6 @@ async function exportCalendar() {
                   </p>
                   <div class="row course-links">
                     <RouterLink
-                      v-if="row.enrollment.class_id"
-                      class="btn btn-sm"
-                      :to="`/classes/${encodeURIComponent(row.enrollment.class_id)}`"
-                    >
-                      {{ t('courses.classLink') }}
-                    </RouterLink>
-                    <RouterLink
                       class="btn btn-sm btn-ghost"
                       :to="withFilters('/resources', { course_id: row.enrollment.course_id })"
                     >

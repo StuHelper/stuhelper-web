@@ -15,7 +15,6 @@ import AsyncState from '../../shared/ui/AsyncState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { knownCredits, listSize, useAcademic, type Result } from './api'
-import OfferingsList from './OfferingsList.vue'
 import ReviewEditor from './ReviewEditor.vue'
 import ReviewFeed from './ReviewFeed.vue'
 import StatisticsPanel from './StatisticsPanel.vue'
@@ -23,7 +22,7 @@ import { extras } from '../../shared/extras'
 import { feature, useCapabilities } from '../../shared/capabilities'
 import TabBar from '../../shared/ui/TabBar.vue'
 
-// Course home or teacher home: facts, rating summary, reviews and offerings.
+// Course home or teacher home: facts, rating summary, reviews and the related teachers or courses.
 const props = defineProps<{ kind: 'course' | 'teacher'; id: string }>()
 const { t } = useI18n()
 const capabilities = useCapabilities()
@@ -31,11 +30,12 @@ const format = useFormat()
 const api = useAcademic()
 const composing = ref(false)
 const published = ref('')
-const tab = ref<'reviews' | 'mentor' | 'offerings' | 'related'>('reviews')
+// Teaching classes, their times and places are not shown to users; a course lists its
+// teachers and a teacher lists the courses taught.
+const tab = ref<'reviews' | 'mentor' | 'related'>('reviews')
 const tabs = computed(() => [
   { value: 'reviews' as const, label: t(props.kind === 'course' ? 'academic.subject.courseReviews' : 'academic.subject.teacherCourseReviews') },
   ...(props.kind === 'teacher' ? [{ value: 'mentor' as const, label: t('academic.subject.mentorReviews') }] : []),
-  { value: 'offerings' as const, label: t('academic.offerings.title') },
   { value: 'related' as const, label: t(props.kind === 'course' ? 'academic.subject.teachers' : 'academic.subject.courses') },
 ])
 const statistics = ref<InstanceType<typeof StatisticsPanel>>()
@@ -210,12 +210,6 @@ function submitted(result: Result) {
                 ref="mentorFeed"
                 kind="mentor"
                 :target-id="id"
-                :school-id="subject.school_id"
-              />
-              <OfferingsList
-                v-else-if="tab === 'offerings'"
-                :course-id="kind === 'course' ? id : undefined"
-                :teacher-id="kind === 'teacher' ? id : undefined"
                 :school-id="subject.school_id"
               />
               <PagedState

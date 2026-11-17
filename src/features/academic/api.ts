@@ -318,7 +318,7 @@ export function arrayCursor<T>(rows: T[], id: (row: T) => string) {
   return rows.length === listSize && last !== undefined ? id(last) : ''
 }
 
-const subjectPrefixes: Partial<Record<ObjectKind, string>> = { course: 'courses', teacher: 'teachers', term_course: 'offerings', class: 'classes' }
+const subjectPrefixes: Partial<Record<ObjectKind, string>> = { course: 'courses', teacher: 'teachers' }
 
 export function subjectPath(object: { id: string; kind: string }) {
   const base = subjectPrefixes[object.kind as ObjectKind]
