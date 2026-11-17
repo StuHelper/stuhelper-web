@@ -170,6 +170,15 @@
     ],
     "ME-MENU-01": [
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
+    ],
+    "NOTIFY-NAME-01": [
+      "src/features/notifications/title.test.ts#uses the current content name when the server provides it",
+      "src/features/notifications/title.test.ts#shows a state instead of a name for removed or unreadable content",
+      "src/features/notifications/title.test.ts#keeps the identifier for servers that send no name",
+      "src/features/notifications/title.test.ts#names the item of a system notice that refers to content"
+    ],
+    "REVIEW-REPLY-PREVIEW-01": [
+      "tests/e2e/academic.spec.mjs#review cards show the reply preview from the list without asking for replies one by one"
     ]
   }
 }

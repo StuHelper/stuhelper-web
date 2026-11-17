@@ -2134,7 +2134,10 @@
       "review": "نتائج المراجعة",
       "verification": "التحقق",
       "system": "إشعارات النظام"
-    }
+    },
+    "namedContent": "«{name}»",
+    "contentUnavailable": "(محتوى غير متاح)",
+    "contentNameUnavailable": "(الاسم غير متاح حاليًا)"
   },
   "search": {
     "title": "البحث",

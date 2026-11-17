@@ -2134,7 +2134,10 @@
       "review": "審査結果",
       "verification": "認証",
       "system": "システム通知"
-    }
+    },
+    "namedContent": "「{name}」",
+    "contentUnavailable": "（利用できない内容）",
+    "contentNameUnavailable": "（名前を取得できません）"
   },
   "search": {
     "title": "検索",

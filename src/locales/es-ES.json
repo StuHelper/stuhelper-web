@@ -2134,7 +2134,10 @@
       "review": "Resultados de revisión",
       "verification": "Verificación",
       "system": "Avisos del sistema"
-    }
+    },
+    "namedContent": "«{name}»",
+    "contentUnavailable": "(contenido no disponible)",
+    "contentNameUnavailable": "(nombre no disponible por ahora)"
   },
   "search": {
     "title": "Búsqueda",

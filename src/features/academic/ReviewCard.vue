@@ -403,6 +403,8 @@ async function retry() {
       v-if="compact && isRoot && published"
       :root-id="review.id"
       :to="reviewLink(review)"
+      :preview="review.reply_preview"
+      :count="review.reply_count"
     />
     <ConfirmDialog
       :open="confirming !== ''"

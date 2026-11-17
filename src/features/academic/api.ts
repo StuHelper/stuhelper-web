@@ -185,7 +185,7 @@ export class AcademicApi {
     const items: Enrollment[] = []
     let after = ''
     for (let page = 0; page < 10; page++) {
-      const rows = await this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query: { after: after || undefined, limit: 100 }, signal })
+      const rows = await this.http.json('/api/v1/catalog/me/enrollments', parse.enrollments, { query: { after: after || undefined, limit: 100, include_term_order: 'true' }, signal })
       items.push(...rows)
       if (rows.length < 100) return items
       const last = rows.at(-1)?.id ?? ''

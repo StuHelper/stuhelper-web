@@ -366,3 +366,20 @@ test('the editor names what is still missing and keeps plain field names beside 
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('review cards show the reply preview from the list without asking for replies one by one', async ({ page }, info) => {
+  await academicFixture(page);
+  const reviewQueries = [];
+  await page.route('**/api/v1/reviews?*', async (route) => {
+    const url = new URL(route.request().url());
+    reviewQueries.push(Object.fromEntries(url.searchParams));
+    if (url.searchParams.get('kind') !== 'course') return route.fallback();
+    const reply = { id: 'reply-1', root_id: 'review', parent_id: 'review', kind: 'reply', school_id: 'school', target_id: 'course', title: '', body: 'Preview reply body', ratings: [0, 0, 0, 0, 0], author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-28T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false };
+    const review = { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'A student review', body: 'Useful course content.', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-27T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false, reply_count: 1, reply_preview: [reply] };
+    return route.fulfill({ json: { items: [review], next: '' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  await expect(page.getByText('Preview reply body')).toBeVisible();
+  expect(reviewQueries.some((q) => q.kind === 'course' && q.include_reply_preview === 'true')).toBe(true);
+  expect(reviewQueries.filter((q) => q.kind === 'reply')).toEqual([]);
+});

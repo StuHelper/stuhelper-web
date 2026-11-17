@@ -2134,7 +2134,10 @@
       "review": "处理结果",
       "verification": "认证",
       "system": "系统通知"
-    }
+    },
+    "namedContent": "「{name}」",
+    "contentUnavailable": "（内容不可用）",
+    "contentNameUnavailable": "（名称暂不可用）"
   },
   "search": {
     "title": "搜索",

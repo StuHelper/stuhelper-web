@@ -2134,7 +2134,10 @@
       "review": "Review results",
       "verification": "Verification",
       "system": "System notices"
-    }
+    },
+    "namedContent": "“{name}”",
+    "contentUnavailable": "(content unavailable)",
+    "contentNameUnavailable": "(name unavailable right now)"
   },
   "search": {
     "title": "Search",
