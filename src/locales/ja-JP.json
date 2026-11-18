@@ -472,7 +472,8 @@
       "newest": "新しい順",
       "oldest": "古い順",
       "empty": "授業評価はまだありません。",
-      "emptyMentor": "指導教員評価はまだありません。"
+      "emptyMentor": "指導教員評価はまだありません。",
+      "upvotes": "賛同の多い順"
     },
     "review": {
       "featured": "おすすめの投稿",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "アカウント",
       "services": "その他のサービス"
-    }
+    },
+    "pendingCoursesTitle": "評価待ちの授業",
+    "writePendingReview": "評価を書く"
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -2264,7 +2267,12 @@
       "tray": "比較リスト",
       "progress": "{count} / {max} 件を選択中",
       "start": "比較する",
-      "pickMore": "もう 1 件選ぶと比較できます"
+      "pickMore": "もう 1 件選ぶと比較できます",
+      "clear": "比較をクリア",
+      "addCourse": "比較する授業を検索して追加",
+      "addTeacher": "比較する教員を検索して追加",
+      "taughtCourses": "担当授業数",
+      "ratedCourses": "集計対象授業数"
     }
   },
   "groups": {

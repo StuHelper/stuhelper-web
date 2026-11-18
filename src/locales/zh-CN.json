@@ -472,7 +472,8 @@
       "newest": "最新在前",
       "oldest": "最早在前",
       "empty": "暂无课程评价。",
-      "emptyMentor": "暂无导师评论。"
+      "emptyMentor": "暂无导师评论。",
+      "upvotes": "赞同最多"
     },
     "review": {
       "featured": "优质内容",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "账号",
       "services": "更多服务"
-    }
+    },
+    "pendingCoursesTitle": "待评价课程",
+    "writePendingReview": "去写评价"
   },
   "resources": {
     "eyebrow": "资料共享",
@@ -2264,7 +2267,12 @@
       "tray": "对比列表",
       "progress": "已选 {count} / {max} 项",
       "start": "开始对比",
-      "pickMore": "再选一项即可对比"
+      "pickMore": "再选一项即可对比",
+      "clear": "清空对比",
+      "addCourse": "搜索并添加对比课程",
+      "addTeacher": "搜索并添加对比教师",
+      "taughtCourses": "所授课程数",
+      "ratedCourses": "计入统计课程数"
     }
   },
   "groups": {

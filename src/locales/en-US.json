@@ -472,7 +472,8 @@
       "newest": "Newest first",
       "oldest": "Oldest first",
       "empty": "No course reviews yet.",
-      "emptyMentor": "No mentor comments yet."
+      "emptyMentor": "No mentor comments yet.",
+      "upvotes": "Most upvoted"
     },
     "review": {
       "featured": "Featured content",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "Account",
       "services": "More services"
-    }
+    },
+    "pendingCoursesTitle": "Courses waiting for your review",
+    "writePendingReview": "Write review"
   },
   "resources": {
     "eyebrow": "Resource sharing",
@@ -2264,7 +2267,12 @@
       "tray": "Comparison list",
       "progress": "{count} of {max} selected",
       "start": "Compare now",
-      "pickMore": "Pick one more to compare"
+      "pickMore": "Pick one more to compare",
+      "clear": "Clear comparison",
+      "addCourse": "Search and add a course to compare",
+      "addTeacher": "Search and add a teacher to compare",
+      "taughtCourses": "Courses taught",
+      "ratedCourses": "Courses in rating"
     }
   },
   "groups": {

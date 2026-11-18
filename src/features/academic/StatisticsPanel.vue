@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -11,6 +11,9 @@ import CollapseSection from '../../shared/ui/CollapseSection.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import { useAcademic, type CatalogObject, type Statistics } from './api'
 import RatingBands from './RatingBands.vue'
+import { recommendationLevel } from './ratings/levels'
+import RatingDistribution from './ratings/RatingDistribution.vue'
+import RatingTrend from './ratings/RatingTrend.vue'
 
 // Course statistics use every visible review of the course. Teacher statistics
 // average course means of reviews attributed to the teacher, one course at a time.
@@ -39,6 +42,27 @@ const summary = useAsync(async (signal) => {
   return stats
 })
 
+const charts = useAsync(async (signal) => {
+  if (range.value !== 'all') return undefined
+  return (await api.summaries(props.kind, [props.targetId], true, signal)).items[0]
+})
+
+const recommendation = computed(() => recommendationLevel[charts.data.value?.recommendation ?? 'unrated'])
+const distribution = computed(() => (charts.data.value?.review_count ? charts.data.value.distribution?.[0] : undefined))
+const trendTerms = computed(() => {
+  if (!charts.data.value?.review_count) return []
+  const list = [...(charts.data.value.terms ?? [])]
+  if (list.some((term) => typeof term.term_order_key === 'number')) {
+    list.sort((a, b) => (a.term_order_key || Number.MAX_SAFE_INTEGER) - (b.term_order_key || Number.MAX_SAFE_INTEGER) || a.term_id.localeCompare(b.term_id))
+  }
+  return list.map((term) => ({ name: term.term_name, level: recommendationLevel[term.recommendation], samples: term.review_count }))
+})
+
+function refreshAll() {
+  void summary.reload()
+  void charts.reload()
+}
+
 async function more() {
   if (!next.value || loadingMore.value) return
   loadingMore.value = true
@@ -56,13 +80,13 @@ async function more() {
   }
 }
 
-watch(range, () => void summary.reload())
+watch(range, refreshAll)
 watch(() => [props.kind, props.targetId], () => {
   range.value = 'all'
-  void summary.reload()
+  refreshAll()
 })
-onMounted(summary.reload)
-defineExpose({ refresh: summary.reload })
+onMounted(refreshAll)
+defineExpose({ refresh: refreshAll })
 </script>
 
 <template>
@@ -102,6 +126,33 @@ defineExpose({ refresh: summary.reload })
           :school-id="schoolId"
           :show-courses="kind === 'teacher'"
         />
+        <div
+          v-if="range === 'all' && (distribution || trendTerms.length)"
+          class="stats-charts"
+        >
+          <section
+            v-if="distribution"
+            class="card stack-sm chart-card"
+          >
+            <h3 class="d-title">
+              {{ t('browse.recommendationDist') }}
+            </h3>
+            <RatingDistribution
+              :weights="distribution.weights"
+              :samples="distribution.samples"
+              :level="recommendation"
+            />
+          </section>
+          <section
+            v-if="trendTerms.length"
+            class="card stack-sm chart-card"
+          >
+            <h3 class="d-title">
+              {{ t('browse.trendByTerm') }}
+            </h3>
+            <RatingTrend :terms="trendTerms" />
+          </section>
+        </div>
         <CollapseSection
           v-if="kind === 'teacher' && courses.length"
           :label="t('academic.stats.byCourse')"
@@ -147,4 +198,9 @@ defineExpose({ refresh: summary.reload })
 
 <style scoped>
 .range { width: auto; min-height: 34px; }
+.stats-charts { display: grid; gap: .875rem; grid-template-columns: minmax(0, 1fr); }
+.chart-card { min-width: 0; overflow: hidden; }
+@media (min-width: 720px) {
+  .stats-charts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); align-items: start; }
+}
 </style>
