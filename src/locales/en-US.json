@@ -2241,6 +2241,7 @@
       "empty": "You have not voted yet.",
       "review": "Review",
       "up": "Helpful",
+      "cancel": "Withdraw vote",
       "down": "Not helpful"
     },
     "compare": {

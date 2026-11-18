@@ -44,7 +44,7 @@ export function useCustody(admin = false, api = useCustodyApi()) {
   async function mutation(run: (signal: AbortSignal) => Promise<CustodyBinding>, pending: { key: string; item?: CustodyBinding }) {
     if (sending.value || disposed || !data.value) return;
     read?.abort(); const controller = new AbortController(); write = controller;
-    const timer = setTimeout(() => controller.abort(), 70_000);
+    const timer = setTimeout(() => controller.abort(), 105_000);
     sending.value = true; error.value = null; recovery.value = pending;
     try {
       await run(controller.signal);

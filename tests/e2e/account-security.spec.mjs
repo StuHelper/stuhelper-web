@@ -20,7 +20,7 @@ function qq(page, initial = {}) {
     const body = request.postDataJSON();
     state.writes.push({ path, body, key: request.headers()['idempotency-key'] });
     if (path === '/codes') { state.codeRequests++; return route.fulfill({ json: { code: 'ABCDEFGHIJKLMNOP', expires_at: new Date(Date.now() + 300_000).toISOString(), notice_key: 'qq_binding.only_own_code' } }); }
-    if (path === '/connect/start') return route.fulfill({ json: { url: `${base}/me/qq/callback?state=s1&code=c1`, expires_at: new Date(Date.now() + 300_000).toISOString() } });
+    if (path === '/connect/start') return route.fulfill({ json: { url: 'https://qq.example.invalid/authorize', expires_at: new Date(Date.now() + 300_000).toISOString() } });
     if (path === '/connect/confirm') { state.parts.connect = { bound: true, revision: 1 }; return route.fulfill({ json: status() }); }
     if (path === '/connect/cancel') return route.fulfill({ json: status() });
     const unlink = /^\/bindings\/(\w+)\/unlink$/.exec(path);
@@ -53,6 +53,9 @@ test('QQ binding shows three parts and completes after the bot code and QQ Conne
   await expect(page.getByText(q.ownCodeOnly)).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0, { timeout: 10_000 });
   expect(state.writes[0]).toMatchObject({ path: '/codes', body: { kind: 'official' } });
+  await page.route('https://qq.example.invalid/authorize', route => route.fulfill({
+    status: 302, headers: { location: `${base}/me/qq/callback?state=s1&code=c1` },
+  }));
   await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }) }).click();
   await expect(page.getByText(q.callback.bound)).toBeVisible();
   await expect(page).not.toHaveURL(/code=/);

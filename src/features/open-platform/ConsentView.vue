@@ -7,7 +7,7 @@ import { useFormat } from '../../app/i18n'
 import { useMutation } from '../../shared/composables/async'
 import { useErrorText } from '../../shared/ui/messages'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
-import { readAuthorization, scopes, usePlatformApi, type Consent, type Scope } from './api'
+import { readAuthorization, validConsentTarget, scopes, usePlatformApi, type Consent, type Scope } from './api'
 
 // OAuth authorization page. The server binds the request to the signed-in person,
 // the application revision, the exact redirect address, the state and the PKCE
@@ -57,11 +57,16 @@ async function retryDecision() {
   if (result) leave((result as { redirect_uri: string }).redirect_uri)
 }
 // The server returns the application's registered address with the code or the denial.
+const invalidCallback = ref(false)
 function leave(target: string) {
+  if (!request || consent.value?.redirect_uri !== request.redirect_uri || !validConsentTarget(target, request.redirect_uri)) {
+    invalidCallback.value = true
+    return
+  }
   leaving.value = true
   window.location.assign(target)
 }
-const locked = computed(() => deciding.busy.value || deciding.uncertain.value || leaving.value)
+const locked = computed(() => deciding.busy.value || deciding.uncertain.value || leaving.value || invalidCallback.value)
 </script>
 
 <template>
@@ -156,6 +161,13 @@ const locked = computed(() => deciding.busy.value || deciding.uncertain.value ||
         :uncertain="deciding.uncertain.value"
         @retry="retryDecision"
       />
+      <p
+        v-if="invalidCallback"
+        role="alert"
+        class="notice notice-error"
+      >
+        {{ errorText('incompatible') }}
+      </p>
       <div class="form-actions">
         <button
           class="btn btn-primary"
