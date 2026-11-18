@@ -15,12 +15,13 @@ async function setup(page, info) {
     if (state.reject) return route.fulfill({ status: state.reject, json: { code: 'denied' } });
     if (request.method() === 'POST') {
       const body = request.postDataJSON(), key = request.headers()['idempotency-key']; state.posts.push({ body, key });
+      if (state.offline) return route.abort();
       const old = state.items[0];
       state.items = [{ id: old?.id ?? key, adapter: 'bhpan', revision: (old?.revision ?? 0) + 1, state: 'ready', authorization_expires_at: body.until ?? old.authorization_expires_at, request_id: key ?? old.request_id, last_error: '' }];
       if (state.lose) { state.lose = false; return route.abort(); }
       return route.fulfill({ status: 202, json: state.items[0] });
     }
-    if (url.pathname.includes('/requests/')) { state.lookups++; return route.fulfill({ json: state.items[0] }); }
+    if (url.pathname.includes('/requests/')) { state.lookups++; return state.items.length ? route.fulfill({ json: state.items[0] }) : route.fulfill({ status: 404, json: { code: 'not_found' } }); }
     return route.fulfill({ json: { items: state.items, next_cursor: '' } });
   });
   await page.goto(`http://127.0.0.1:18787/me/storage?tab=accounts&lang=${info.project.metadata.locale}`);
@@ -86,4 +87,20 @@ test('an existing blocked custody request resumes without new credentials', asyn
   await page.getByRole('button', { name: m.resume, exact: true }).click();
   await expect(page.locator('article')).toContainText(m.states.ready);
   expect(state.posts).toHaveLength(1); expect(state.posts[0].body).toEqual({ request_id: item.request_id, revision: 1 }); expect(errors).toEqual([]);
+});
+
+
+test('a missing custody request unlocks re-entry without resending a password', async ({ page }, info) => {
+  const { m, state } = await setup(page, info);
+  state.offline = true;
+  await fill(page, m);
+  await page.getByRole('checkbox').check();
+  const submit = page.getByRole('button', { name: m.submit, exact: true });
+  await submit.click();
+  await page.getByRole('button', { name: m.recover, exact: true }).click();
+  await expect(page.getByLabel(m.password, { exact: true })).toBeEnabled();
+  await expect(page.getByLabel(m.password, { exact: true })).toHaveValue('');
+  expect(state.lookups).toBe(1);
+  expect(state.items).toEqual([]);
+  expect(state.posts).toHaveLength(1);
 });
