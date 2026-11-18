@@ -1013,7 +1013,9 @@
       "scan": "Escanea con el móvil para fotografiar",
       "ticketExpiry": "Enlace de captura válido hasta {time}",
       "open": "Abrir página de captura",
-      "done": "Foto enviada. Vuelve al dispositivo original, actualiza los documentos y continúa la solicitud."
+      "done": "Foto enviada. Vuelve al dispositivo original, actualiza los documentos y continúa la solicitud.",
+      "sync": "Comprobar fotos subidas",
+      "waitingPhone": "Al enviarlas desde el teléfono, las fotos se sincronizan aquí automáticamente."
     },
     "methods": {
       "real_name_identity_check": "Cotejo de identidad académica",
@@ -1219,7 +1221,10 @@
       "student_email_inbound_challenge": "Envía un mensaje desde tu correo de la universidad a una dirección indicada",
       "manual_material_review": "Fotografía tu carné u otro justificante para que lo revisen"
     },
-    "changeSchool": "Cambiar de universidad"
+    "changeSchool": "Cambiar de universidad",
+    "copyInboundAddress": "Copiar dirección de destino",
+    "inboundAddressCopied": "Dirección de destino copiada.",
+    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección."
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",

@@ -1013,7 +1013,9 @@
       "scan": "スマートフォンで読み取って撮影",
       "ticketExpiry": "撮影リンクの有効期限：{time}",
       "open": "撮影ページを開く",
-      "done": "写真を送信しました。元の端末で資料一覧を更新し、申請を続けてください。"
+      "done": "写真を送信しました。元の端末で資料一覧を更新し、申請を続けてください。",
+      "sync": "送信済み写真を確認",
+      "waitingPhone": "スマートフォンで送信すると、この画面に自動反映されます。"
     },
     "methods": {
       "real_name_identity_check": "学校の本人情報と照合",
@@ -1219,7 +1221,10 @@
       "student_email_inbound_challenge": "学校メールから指定アドレスにメールを 1 通送ります",
       "manual_material_review": "学生証などを撮影し、管理者が審査します"
     },
-    "changeSchool": "学校を変更"
+    "changeSchool": "学校を変更",
+    "copyInboundAddress": "宛先アドレスをコピー",
+    "inboundAddressCopied": "宛先アドレスをコピーしました。",
+    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",

@@ -1013,7 +1013,9 @@
       "scan": "휴대전화로 스캔하여 촬영",
       "ticketExpiry": "촬영 링크 유효 기간: {time}",
       "open": "촬영 페이지 열기",
-      "done": "사진을 제출했습니다. 원래 기기로 돌아가 자료 목록을 새로고침한 후 신청을 계속하세요."
+      "done": "사진을 제출했습니다. 원래 기기로 돌아가 자료 목록을 새로고침한 후 신청을 계속하세요.",
+      "sync": "업로드된 사진 확인",
+      "waitingPhone": "휴대폰에서 제출하면 이 화면에 자동으로 동기화됩니다."
     },
     "methods": {
       "real_name_identity_check": "학교 신원 정보 대조",
@@ -1219,7 +1221,10 @@
       "student_email_inbound_challenge": "학교 이메일에서 지정된 주소로 메일 한 통을 보냅니다",
       "manual_material_review": "학생증 등의 자료를 촬영하면 관리자가 심사합니다"
     },
-    "changeSchool": "학교 변경"
+    "changeSchool": "학교 변경",
+    "copyInboundAddress": "수신 주소 복사",
+    "inboundAddressCopied": "수신 주소가 복사되었습니다.",
+    "inboundCopyFailed": "자동으로 복사할 수 없습니다. 주소를 직접 선택해 복사해 주세요."
   },
   "contribution": {
     "eyebrow": "공유 저장소",
