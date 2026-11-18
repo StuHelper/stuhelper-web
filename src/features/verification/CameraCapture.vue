@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import QRCode from 'qrcode'
-import { onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { ApiError, errorCode } from '../../shared/api/errors'
@@ -9,7 +9,7 @@ import { useVerification, type Material } from './api'
 
 // Live capture of verification material on this device or, through a
 // single-use link, on a phone. Files cannot be picked from storage on purpose.
-const props = withDefaults(defineProps<{ applicationId?: string; ticket?: string }>(), { applicationId: undefined, ticket: undefined })
+const props = withDefaults(defineProps<{ applicationId?: string; ticket?: string; existingIds?: readonly string[] }>(), { applicationId: undefined, ticket: undefined, existingIds: () => [] })
 const emit = defineEmits<{ captured: [material: Material] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -18,6 +18,7 @@ const api = useVerification()
 const video = ref<HTMLVideoElement>()
 const active = ref(false)
 const busy = ref(false)
+const syncing = ref(false)
 const error = ref('')
 const preview = ref('')
 const qr = ref('')
@@ -26,6 +27,11 @@ const expires = ref('')
 let stream: MediaStream | undefined
 let photo: Blob | undefined
 let generation = 0
+let pollTimer: ReturnType<typeof setTimeout> | undefined
+let phoneSession: AbortController | undefined
+let pollCount = 0
+let seenIds = new Set<string>()
+const maxPhonePolls = 100
 
 function stop() {
   generation++
@@ -38,6 +44,64 @@ function clearPreview() {
   if (preview.value) URL.revokeObjectURL(preview.value)
   preview.value = ''
   photo = undefined
+}
+
+function stopPhoneSync() {
+  phoneSession?.abort()
+  phoneSession = undefined
+  syncing.value = false
+  if (pollTimer) clearTimeout(pollTimer)
+  pollTimer = undefined
+  document.removeEventListener('visibilitychange', onVisibilitySync)
+  window.removeEventListener('focus', onFocusSync)
+}
+
+function collapsePhone() {
+  stopPhoneSync()
+  qr.value = ''
+  link.value = ''
+  expires.value = ''
+}
+
+function schedulePhonePoll() {
+  if (pollTimer) clearTimeout(pollTimer)
+  pollTimer = undefined
+  if (!phoneSession || !qr.value || !props.applicationId || pollCount >= maxPhonePolls) return
+  pollTimer = setTimeout(() => void syncPhoneMaterials(false), 3000)
+}
+
+async function syncPhoneMaterials(manual: boolean) {
+  const session = phoneSession
+  if (!session || !props.applicationId || !qr.value || syncing.value) return
+  syncing.value = true
+  if (manual) error.value = ''
+  if (!manual) pollCount++
+  try {
+    const page = await api.list('Material', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/materials`, { signal: session.signal })
+    if (session.signal.aborted) return
+    for (const id of props.existingIds) seenIds.add(id)
+    const fresh = page.items.filter((item) => !seenIds.has(item.id))
+    if (fresh.length) {
+      for (const item of fresh) {
+        seenIds.add(item.id)
+        emit('captured', item)
+      }
+      collapsePhone()
+      return
+    }
+  } catch (failure) {
+    if (!session.signal.aborted && manual) error.value = errorCode(failure)
+  } finally {
+    if (!session.signal.aborted) syncing.value = false
+  }
+  if (!session.signal.aborted) schedulePhonePoll()
+}
+
+function onVisibilitySync() {
+  if (document.visibilityState === 'visible') void syncPhoneMaterials(false)
+}
+function onFocusSync() {
+  void syncPhoneMaterials(false)
 }
 
 async function start() {
@@ -112,6 +176,7 @@ async function upload() {
   try {
     const material = await api.upload(await captureToken(), photo)
     clearPreview()
+    seenIds.add(material.id)
     emit('captured', material)
   } catch (failure) {
     error.value = errorCode(failure)
@@ -124,22 +189,36 @@ async function phone() {
   if (!props.applicationId || busy.value) return
   busy.value = true
   error.value = ''
+  collapsePhone()
+  const controller = new AbortController()
+  phoneSession = controller
   try {
-    const session = await api.write('CaptureSession', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/capture`)
+    seenIds = new Set(props.existingIds)
+    pollCount = 0
+    const session = await api.write('CaptureSession', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/capture`, undefined, 'POST', controller.signal)
+    if (controller.signal.aborted) return
     // The token travels in the fragment so it is not sent to servers or logs.
     const target = new URL('/verification/capture', location.origin)
     target.hash = session.token
     link.value = target.toString()
     expires.value = session.expires_at
-    qr.value = await QRCode.toDataURL(link.value, { width: 240, margin: 2, errorCorrectionLevel: 'M' })
+    const encoded = await QRCode.toDataURL(link.value, { width: 240, margin: 2, errorCorrectionLevel: 'M' })
+    if (controller.signal.aborted) return
+    qr.value = encoded
+    document.addEventListener('visibilitychange', onVisibilitySync)
+    window.addEventListener('focus', onFocusSync)
+    schedulePhonePoll()
   } catch (failure) {
-    error.value = errorCode(failure)
+    if (!controller.signal.aborted) error.value = errorCode(failure)
   } finally {
     busy.value = false
   }
 }
 
+watch(() => props.applicationId, collapsePhone)
+
 onBeforeUnmount(() => {
+  stopPhoneSync()
   stop()
   clearPreview()
 })
@@ -238,13 +317,26 @@ onBeforeUnmount(() => {
         height="200"
       >
       <p class="subtle">
+        {{ t('verification.capture.waitingPhone') }}
+      </p>
+      <p class="subtle">
         {{ t('verification.capture.ticketExpiry', { time: format.dateTime(expires) }) }}
       </p>
-      <a
-        :href="link"
-        target="_blank"
-        rel="noreferrer"
-      >{{ t('verification.capture.open') }}</a>
+      <div class="row">
+        <a
+          :href="link"
+          target="_blank"
+          rel="noreferrer"
+        >{{ t('verification.capture.open') }}</a>
+        <button
+          class="btn btn-sm"
+          type="button"
+          :disabled="syncing"
+          @click="syncPhoneMaterials(true)"
+        >
+          {{ t('verification.capture.sync') }}
+        </button>
+      </div>
     </div>
   </section>
 </template>

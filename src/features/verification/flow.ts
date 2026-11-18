@@ -376,7 +376,9 @@ export function useVerificationFlow() {
   })
 
   function captured(material: Material) {
-    materials.value = [...materials.value, material]
+    if (!materials.value.some((item) => item.id === material.id)) {
+      materials.value = [...materials.value, material]
+    }
   }
 
   const removeMaterial = (id: string) => action(async () => {

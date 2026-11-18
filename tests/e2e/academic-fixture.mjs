@@ -43,7 +43,7 @@ export async function fixture(page, { courseMissing = false, course: courseExtra
     }
     if(p==='/api/v1/catalog/objects/lookup'){const ids=(u.searchParams.get('ids')??'').split(',');const items=Object.values(objects).flat().filter(item=>ids.includes(item.id));return fulfill(route,{items,missing_ids:ids.filter(id=>!items.some(item=>item.id===id))});}
     if(courseMissing && (p==='/api/v1/catalog/objects/course' || p==='/api/v1/catalog/objects/course/summary' || p.startsWith('/api/v1/reviews'))) return fulfill(route,{code:'not_found'},404);
-    if(p.startsWith('/api/v1/catalog/objects/')&&p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(objects).flat().find(item=>item.id===id);return fulfill(route,{object:entry,school,department:entry.kind==='course'?objects.department[0]:null,categories:entry.kind==='course'?objects.category:[],natures:entry.kind==='course'?objects.nature:[],course_count:1,teacher_count:entry.kind==='course'?2:1});}
+    if(p.startsWith('/api/v1/catalog/objects/')&&p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(objects).flat().find(item=>item.id===id);if(!entry)return fulfill(route,{code:'not_found'},404);return fulfill(route,{object:entry,school,department:entry.kind==='course'?objects.department[0]:null,categories:entry.kind==='course'?objects.category:[],natures:entry.kind==='course'?objects.nature:[],course_count:1,teacher_count:entry.kind==='course'?2:1});}
     if(p.startsWith('/api/v1/catalog/objects/')){const id=p.split('/').at(-1);return fulfill(route,Object.values(objects).flat().find(v=>v.id===id)??course);}
     if(p==='/api/v1/catalog/me/enrollments')return fulfill(route,enrollments);
     if(p==='/api/v1/catalog/me/schedule')return fulfill(route,{items:enrollments.filter(row=>row.term_id===u.searchParams.get('term_id')).map(row=>({enrollment:row,course_name:'Test Course',meetings:[{id:`${row.id}-m`,time_text:'Monday 09:00',location:'Room A'}]})),next:''});
@@ -55,6 +55,7 @@ export async function fixture(page, { courseMissing = false, course: courseExtra
     if(p==='/api/v1/reviews/statistics')return fulfill(route,{dimensions,courses:[{course_id:'course',dimensions}],next:'',from:u.searchParams.get('from'),until:u.searchParams.get('until')});
     if(p==='/api/v1/reviews'&&route.request().method()==='GET')return fulfill(route,{items:u.searchParams.get('kind')==='course'?[review]:[],next:''});
     if(p==='/api/v1/reviews/review')return fulfill(route,review);
+    if(p==='/api/v1/reviews/me/overview')return fulfill(route,{review_count:0,draft_count:0,pending_courses:{state:'available',reason:'',count:0,items:[]}});
     if(p==='/api/v1/reviews/me/entries')return fulfill(route,{items:[],next:''});
     if(p.startsWith('/api/v1/reviews/me/')||p==='/api/v1/moderation/tasks')return fulfill(route,[]);
     return fulfill(route,{code:'not_found'},404);

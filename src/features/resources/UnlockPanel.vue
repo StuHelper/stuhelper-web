@@ -5,6 +5,7 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
+import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
@@ -24,6 +25,7 @@ const wallet = useWalletApi()
 const price = useAsync((signal) => wallet.resourcePrice(props.resourceId, signal))
 const balance = useAsync((signal) => wallet.wallet(signal))
 void price.reload()
+void balance.reload()
 const accounts = computed<PayAccount[]>(() => {
   const value = price.data.value
   if (!value) return []
@@ -36,6 +38,17 @@ watch(accounts, (list) => {
 // Ivory is a product name and stays untranslated, as on the wallet page.
 const ivory = (minor: number) => `${minorText(minor)} Ivory`
 const priceText = (kind: PayAccount) => (kind === 'points' ? t('wallet.pointsAmount', { amount: format.value.number(price.data.value?.points ?? 0) }) : ivory(price.data.value?.ivory_minor ?? 0))
+const currentBalanceText = computed(() => {
+  const have = balance.data.value
+  if (!have) return ''
+  return account.value === 'points'
+    ? t('wallet.pointsAmount', { amount: format.value.number(have.points) })
+    : ivory(have.ivory_minor)
+})
+const confirming = ref(false)
+const confirmMessage = computed(() => (currentBalanceText.value
+  ? t('resources.unlock.confirmMessageWithBalance', { price: priceText(account.value), balance: currentBalanceText.value })
+  : t('resources.unlock.confirmMessage', { price: priceText(account.value) })))
 
 const write = useMutation()
 const order = ref<Order>()
@@ -65,6 +78,7 @@ watch(() => write.error.value, (code) => {
 })
 
 async function buy() {
+  confirming.value = false
   const result = await write.run(`unlock:${props.resourceId}:${account.value}`, { resource_id: props.resourceId, account: account.value }, (body, key) => wallet.unlockResource(body, key))
   if (result) follow(result)
 }
@@ -143,6 +157,12 @@ const pending = computed(() => order.value && !finalStates.includes(order.value.
         </label>
       </fieldset>
       <p
+        v-if="currentBalanceText"
+        class="muted small"
+      >
+        {{ t('resources.unlock.currentBalance', { balance: currentBalanceText }) }}
+      </p>
+      <p
         v-if="write.error.value"
         class="notice notice-error"
         role="alert"
@@ -169,11 +189,19 @@ const pending = computed(() => order.value && !finalStates.includes(order.value.
           class="btn btn-primary"
           type="button"
           :disabled="write.busy.value"
-          @click="void buy()"
+          @click="confirming = true"
         >
           {{ t('resources.unlock.buy', { price: priceText(account) }) }}
         </button>
       </div>
+      <ConfirmDialog
+        :open="confirming"
+        :title="t('resources.unlock.confirmTitle')"
+        :message="confirmMessage"
+        :busy="write.busy.value"
+        @confirm="void buy()"
+        @cancel="confirming = false"
+      />
     </template>
     <p
       v-else-if="!accounts.length"

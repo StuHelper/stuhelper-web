@@ -2,7 +2,7 @@
 import ActionError from './ActionError.vue'
 import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { CircleCheck, RefreshCw } from 'lucide-vue-next'
+import { CircleCheck, Copy, RefreshCw } from 'lucide-vue-next'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -10,10 +10,12 @@ import { useFormat } from '../../app/i18n'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
+import { toast } from '../../shared/ui/toast'
 import { safeNext, useAccess } from '../account/access'
 import MeLayout from '../account/MeLayout.vue'
 import { maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
+import MaterialThumb from './MaterialThumb.vue'
 import MethodPicker from './MethodPicker.vue'
 import SchoolPicker from './SchoolPicker.vue'
 import VerificationRoles from './VerificationRoles.vue'
@@ -58,6 +60,14 @@ const chosen = computed(() => [flow.school.value?.name, flow.asksKind.value && f
 
 // Each step starts at its heading, for the keyboard and for screen readers.
 const stepsCard = ref<HTMLElement>()
+async function copyInbound(address: string) {
+  try {
+    await navigator.clipboard.writeText(address)
+    toast(t('verification.inboundAddressCopied'))
+  } catch {
+    toast(t('verification.inboundCopyFailed'))
+  }
+}
 // Scrolling follows the reduced-motion setting; an explicit smooth scroll would ignore the CSS rule.
 const scrolling = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')
 const stepTitle = ref<HTMLElement>()
@@ -494,6 +504,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <CameraCapture
               :key="flow.active.value.id"
               :application-id="flow.active.value.id"
+              :existing-ids="flow.materials.value.map((item) => item.id)"
               @captured="flow.captured"
             />
             <p class="small">
@@ -505,6 +516,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
                 :key="material.id"
                 class="row"
               >
+                <MaterialThumb
+                  :material="material"
+                  :alt="t('verification.photo', { index: format.number(index + 1) })"
+                />
                 <span>{{ t('verification.photo', { index: format.number(index + 1) }) }}</span>
                 <button
                   class="btn btn-sm btn-ghost"
@@ -658,7 +673,16 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <p class="small">
               {{ t('verification.inboundHelp') }}
             </p>
-            <code class="mono">{{ flow.email.value.target_address }}</code>
+            <div class="row">
+              <code class="mono">{{ flow.email.value.target_address }}</code>
+              <button
+                class="btn btn-sm"
+                type="button"
+                @click="copyInbound(flow.email.value.target_address)"
+              >
+                <Copy aria-hidden="true" />{{ t('verification.copyInboundAddress') }}
+              </button>
+            </div>
           </section>
         </div>
       </section>

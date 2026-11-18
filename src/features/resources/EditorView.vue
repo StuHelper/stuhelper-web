@@ -13,9 +13,10 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
-import { localName, Upload, useResourcesApi, type Metadata, type Resource } from './api'
+import { localName, typeLabel, Upload, useResourcesApi, type Metadata, type Resource } from './api'
 import { useCampusId } from '../account/access'
 import CatalogPicker from './CatalogPicker.vue'
+import DirectoryPicker from './DirectoryPicker.vue'
 import FieldInput from './FieldInput.vue'
 
 /**
@@ -41,9 +42,19 @@ const file = shallowRef<File>()
 const uploadState = ref('')
 const uploadError = ref('')
 const uploadBusy = ref(false)
+const uploadedBytes = ref(0)
+const uploadTotalBytes = ref(0)
+const dragging = ref(false)
 const reused = ref(false)
 const submitted = ref(false)
 let upload: Upload | undefined
+
+function initialDirectory() {
+  if (props.id) return undefined
+  const stateDir: unknown = typeof window !== 'undefined' && typeof window.history.state === 'object' && window.history.state !== null ? (window.history.state as Record<string, unknown>).directory_id : undefined
+  const raw = typeof stateDir === 'string' && stateDir ? stateDir : typeof route.query.directory_id === 'string' ? route.query.directory_id : ''
+  return raw && raw.length <= 128 ? raw : undefined
+}
 
 const metadata = ref<Metadata>({
   title: '',
@@ -53,6 +64,7 @@ const metadata = ref<Metadata>({
   category_revision: 1,
   attributes: {},
   associations: { school_id: campus.value, course_id: typeof route.query.course_id === 'string' ? route.query.course_id : '' },
+  directory_id: initialDirectory(),
   access: 'public',
   origin: { kind: 'unknown' },
 })
@@ -85,8 +97,10 @@ const step = computed(() => (!entry.value || dirty.value ? 1 : !proposal.value?.
 // 一次只显示当前步骤。上传完成后文件状态仍和提交审核一起显示。已完成的步骤可以点回去修改。
 const viewStep = ref(step.value)
 watch(step, (value) => { viewStep.value = value })
-const typeNames: Record<string, string> = { 'application/pdf': 'PDF', 'image/png': 'PNG', 'image/jpeg': 'JPG', 'text/plain': 'TXT', 'application/zip': 'ZIP', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX', 'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX' }
-const typeLabel = (type: string) => typeNames[type] ?? type.split('/').at(-1)?.toUpperCase() ?? type
+watch(() => metadata.value.associations.course_id, (next, previous) => {
+  if (baseline.value !== '' && next !== previous) metadata.value.directory_id = undefined
+})
+const fileDisabled = computed(() => !entry.value || dirty.value || uploadBusy.value || (!!uploadState.value && !['cancelled', 'attached'].includes(uploadState.value)))
 const canSubmit = computed(() => !!proposal.value?.file && !dirty.value && !['pending', 'preparing'].includes(proposal.value.state))
 const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value)
 const anyUncertain = computed(() => saving.uncertain.value || attaching.uncertain.value || submitting.uncertain.value)
@@ -124,13 +138,26 @@ function saved(result: Resource) {
   if (!props.id) void router.replace(`/resources/items/${encodeURIComponent(result.id)}/edit`)
 }
 
-function chooseFile(event: Event) {
-  if (!(event.target instanceof HTMLInputElement)) return
-  file.value = event.target.files?.[0]
+function pickFile(chosen: File | undefined) {
+  file.value = chosen
   upload = undefined
   uploadState.value = ''
   uploadError.value = ''
+  uploadedBytes.value = 0
+  uploadTotalBytes.value = 0
   reused.value = false
+}
+
+function chooseFile(event: Event) {
+  if (!(event.target instanceof HTMLInputElement)) return
+  pickFile(event.target.files?.[0])
+}
+
+function dropFile(event: DragEvent) {
+  dragging.value = false
+  if (fileDisabled.value) return
+  const dropped = event.dataTransfer?.files?.[0]
+  if (dropped) pickFile(dropped)
 }
 
 async function sendFile() {
@@ -145,9 +172,14 @@ async function sendFile() {
     return
   }
   uploadBusy.value = true
+  uploadedBytes.value = 0
+  uploadTotalBytes.value = chosen.size
   try {
     upload ??= new Upload(api, chosen, purpose)
-    const version = await upload.run()
+    const version = await upload.run((loaded, total) => {
+      uploadedBytes.value = loaded
+      uploadTotalBytes.value = total
+    })
     uploadState.value = version.state
     reused.value = version.reused === true
     if (['awaiting_approval', 'approved'].includes(version.state)) await attach(version.id)
@@ -371,17 +403,12 @@ function uploadMessage(state: string) {
                   :school="metadata.associations.school_id || undefined"
                   :course="metadata.associations.course_id || undefined"
                 />
-                <div class="field">
-                  <label class="field">
-                    <span class="field-label">{{ t('resources.editor.directory') }}</span>
-                    <input
-                      v-model="metadata.directory_id"
-                      class="input"
-                      maxlength="128"
-                    >
-                  </label>
-                  <span class="field-hint">{{ t('resources.editor.directoryHint') }}</span>
-                </div>
+                <DirectoryPicker
+                  v-model="metadata.directory_id"
+                  :school="metadata.associations.school_id || undefined"
+                  :course="metadata.associations.course_id || undefined"
+                  :disabled="saving.busy.value || saving.uncertain.value"
+                />
               </div>
             </fieldset>
 
@@ -501,18 +528,37 @@ function uploadMessage(state: string) {
             >
               {{ t('resources.editor.currentFile', { name: proposal.file.filename, size: format.bytes(proposal.file.size) }) }}
             </p>
-            <label class="field app-file">
+            <label
+              class="field app-file dropzone"
+              :data-dragging="dragging || undefined"
+              @dragenter.prevent="!fileDisabled && (dragging = true)"
+              @dragover.prevent="!fileDisabled && (dragging = true)"
+              @dragleave.prevent="dragging = false"
+              @drop.prevent="dropFile"
+            >
               <span class="field-label">{{ t('resources.editor.chooseFile') }}</span>
               <input
                 class="app-file-input"
                 :aria-label="t('resources.editor.chooseFile')"
                 type="file"
                 :accept="capabilities.allowed_types.join(',')"
-                :disabled="!entry || dirty || uploadBusy || (!!uploadState && !['cancelled', 'attached'].includes(uploadState))"
+                :disabled="fileDisabled"
                 @change="chooseFile"
               >
-              <span class="app-file-row"><span class="btn btn-sm">{{ t('resources.editor.browseFile') }}</span><span class="subtle truncate">{{ file?.name ?? t('resources.editor.noFile') }}</span></span>
+              <span class="app-file-row"><span class="btn btn-sm">{{ t('resources.editor.browseFile') }}</span><span class="subtle truncate">{{ file?.name ?? t('resources.editor.dropOrBrowse') }}</span></span>
             </label>
+            <div
+              v-if="uploadBusy && uploadTotalBytes > 0"
+              class="stack-sm"
+              role="status"
+            >
+              <progress
+                class="upload-progress"
+                :value="uploadedBytes"
+                :max="uploadTotalBytes"
+              />
+              <span class="subtle">{{ t('resources.editor.uploadProgress', { loaded: format.bytes(uploadedBytes), total: format.bytes(uploadTotalBytes), percent: format.percent(uploadedBytes / uploadTotalBytes) }) }}</span>
+            </div>
             <p
               v-if="dirty || !entry"
               class="field-hint"
@@ -621,6 +667,8 @@ function uploadMessage(state: string) {
 .stepper-item:disabled { opacity: .5; cursor: default; }
 .origin-choice { justify-content: flex-start; gap: .5rem; padding: .375rem .875rem; border-radius: var(--pill); background: var(--fill); }
 .origin-choice > span { order: 0; padding: 0; }
+.dropzone[data-dragging] .app-file-row { outline: 2px dashed var(--accent); background: var(--accent-soft); }
+.upload-progress { width: 100%; height: .5rem; accent-color: var(--accent-fill); }
 .layout-aside > aside { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); }
 @media (max-width: 960px) { .layout-aside > aside { position: static; } }
 </style>

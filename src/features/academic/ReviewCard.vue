@@ -37,30 +37,41 @@ const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
 const editWindowMs = 5 * 60_000
-const mountedAt = Date.now()
-const now = ref(mountedAt)
-let clockTimer: ReturnType<typeof setInterval> | undefined
-const windowEnd = computed(() => {
-  if (!props.review.can_edit || !props.review.published_at) return NaN
-  const ms = Date.parse(props.review.published_at)
-  return Number.isFinite(ms) ? ms + editWindowMs : NaN
-})
-const hasLiveWindow = computed(() => Number.isFinite(windowEnd.value) && windowEnd.value > mountedAt)
-const editSecondsLeft = computed(() => (hasLiveWindow.value ? Math.max(0, Math.ceil((windowEnd.value - now.value) / 1000)) : 0))
-const canDirectEdit = computed(() => (hasLiveWindow.value ? editSecondsLeft.value > 0 : props.review.can_edit))
+const remainingSeconds = ref(0)
 const editCountdownText = computed(() => {
-  if (!hasLiveWindow.value || editSecondsLeft.value <= 0) return ''
-  const mins = Math.floor(editSecondsLeft.value / 60)
-  const secs = String(editSecondsLeft.value % 60).padStart(2, '0')
+  if (!remainingSeconds.value) return ''
+  const mins = Math.floor(remainingSeconds.value / 60)
+  const secs = String(remainingSeconds.value % 60).padStart(2, '0')
   return t('academic.review.editWindowRemaining', { time: `${mins}:${secs}` })
 })
-watch(hasLiveWindow, (active) => {
-  clearInterval(clockTimer)
-  if (!active) return
-  clockTimer = setInterval(() => {
-    now.value = Date.now()
-    if (now.value >= windowEnd.value) clearInterval(clockTimer)
-  }, 1000)
+watch([() => props.review.id, () => props.review.can_edit, () => props.review.published_at], ([id, canEdit, publishedAt], _before, onCleanup) => {
+  remainingSeconds.value = 0
+  if (!canEdit || !props.review.mine || !publishedAt) return
+  const end = Math.min(Date.parse(publishedAt) + editWindowMs, Date.now() + editWindowMs)
+  if (!Number.isFinite(end)) return
+  const controller = new AbortController()
+  let timer: ReturnType<typeof setTimeout>
+  onCleanup(() => { controller.abort(); clearTimeout(timer) })
+  // A fast device clock can reach zero before the server closes the edit window.
+  // Only the author's server record can change the available actions.
+  const retryUntil = Date.now() + editWindowMs + 30_000
+  async function refresh() {
+    try {
+      const current = await api.myEntry(id, controller.signal)
+      if (controller.signal.aborted) return
+      if (current.revision >= props.review.revision) emit('updated', current)
+      if (!current.can_edit) return
+    } catch {
+      // Preserve the last server decision during a failed background refresh.
+    }
+    if (!controller.signal.aborted && Date.now() < retryUntil) timer = setTimeout(refresh, 30_000)
+  }
+  function tick() {
+    remainingSeconds.value = Math.max(0, Math.ceil((end - Date.now()) / 1000))
+    if (remainingSeconds.value) timer = setTimeout(tick, 1000)
+    else void refresh()
+  }
+  tick()
 }, { immediate: true })
 // In a list a long body is folded to a few lines. The control appears only when text is actually cut off.
 const bodyElement = ref<HTMLElement>()
@@ -77,7 +88,6 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   bodyObserver?.disconnect()
-  clearInterval(clockTimer)
 })
 
 // What the pending write does once it succeeds, so a retry of the original request finishes it too.
@@ -328,7 +338,7 @@ async function retry() {
           {{ t('academic.review.report') }}
         </button>
       </template>
-      <template v-if="canDirectEdit">
+      <template v-if="review.can_edit">
         <span
           v-if="editCountdownText"
           class="subtle mono"

@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { useFormat } from '../../app/i18n'
-import { compareList, maxCompare } from './compare'
+import { compareList, clearCompare, maxCompare } from './compare'
 
 // Floating reminder on course and teacher pages while a comparison is being built.
 const { t } = useI18n()
@@ -23,17 +23,26 @@ const show = computed(() => count.value > 0 && /^\/(courses|teachers)(\/|$)/.tes
       :aria-label="t('search.compare.tray')"
     >
       <span class="subtle">{{ t('search.compare.progress', { count: format.number(count), max: format.number(maxCompare) }) }}</span>
-      <RouterLink
-        v-if="count > 1"
-        class="btn btn-sm btn-primary"
-        :to="kind === 'course' ? '/compare' : '/compare?kind=teacher'"
-      >
-        {{ t('search.compare.start') }}
-      </RouterLink>
-      <span
-        v-else
-        class="subtle"
-      >{{ t('search.compare.pickMore') }}</span>
+      <div class="row">
+        <RouterLink
+          v-if="count > 1"
+          class="btn btn-sm btn-primary"
+          :to="kind === 'course' ? '/compare' : '/compare?kind=teacher'"
+        >
+          {{ t('search.compare.start') }}
+        </RouterLink>
+        <span
+          v-else
+          class="subtle"
+        >{{ t('search.compare.pickMore') }}</span>
+        <button
+          class="btn btn-sm btn-ghost"
+          type="button"
+          @click="clearCompare(kind)"
+        >
+          {{ t('search.compare.clear') }}
+        </button>
+      </div>
     </div>
   </Transition>
 </template>

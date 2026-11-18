@@ -1,21 +1,26 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { computed, reactive } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
+import { useNow } from '../../shared/composables/clock'
 import { useErrorText } from '../../shared/ui/messages'
 import { useResourcesApi, type Package } from './api'
 
 // A folder download may span several packages. Every package is listed so the
 // user can tell which ones are still missing, and each can be retried alone.
-const props = defineProps<{ pack: Package; limit: number }>()
+const props = withDefaults(defineProps<{ pack: Package; limit: number; busy?: boolean }>(), { busy: false })
+const emit = defineEmits<{ recreate: [] }>()
 const { t } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
 const api = useResourcesApi()
+const now = useNow(5000)
 const parts = reactive<Record<number, { busy: boolean; done: boolean; error: string }>>({})
+const expired = computed(() => Date.parse(props.pack.expires_at) <= now.value)
 
 async function download(number: number) {
+  if (expired.value) return
   parts[number] ??= { busy: false, done: false, error: '' }
   // Read back through the reactive record so updates reach the template.
   const state = parts[number]
@@ -39,7 +44,25 @@ async function download(number: number) {
     <p class="small muted">
       {{ t('resources.package.instructions', { count: format.number(pack.parts.length) }) }}
     </p>
-    <p class="subtle">
+    <div
+      v-if="expired"
+      class="notice notice-warning row-between"
+      role="status"
+    >
+      <span>{{ t('resources.package.expiredNotice') }}</span>
+      <button
+        class="btn btn-sm btn-primary"
+        type="button"
+        :disabled="busy"
+        @click="emit('recreate')"
+      >
+        {{ t('resources.package.recreate') }}
+      </button>
+    </div>
+    <p
+      v-else
+      class="subtle"
+    >
       {{ t('resources.package.expires', { time: format.dateTime(pack.expires_at) }) }}
     </p>
     <ol class="list parts">
@@ -60,7 +83,7 @@ async function download(number: number) {
               class="btn btn-sm"
               :class="parts[part.number]?.done ? '' : 'btn-primary'"
               type="button"
-              :disabled="parts[part.number]?.busy"
+              :disabled="expired || parts[part.number]?.busy"
               @click="download(part.number)"
             >
               {{ t(parts[part.number]?.error ? 'common.retry' : 'resources.package.download') }}

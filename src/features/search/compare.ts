@@ -40,3 +40,8 @@ export function toggleCompare(kind: CompareKind, id: string) {
   list.push(id)
   return true
 }
+
+/** Clear every picked item of the current comparison kind. */
+export function clearCompare(kind: CompareKind) {
+  compareList[kind].splice(0, compareList[kind].length)
+}

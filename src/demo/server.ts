@@ -257,7 +257,14 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   }
   if (p === '/reviews/me/entries') return json({ items: reviews.filter((r) => r.mine), next: '' })
   if (p.startsWith('/reviews/me/entries/')) { const r = reviews.find((x) => x.id === p.split('/').at(-1)); return r ? json(r) : nope('not_found', 404) }
-  if (p === '/reviews/me/votes') return json(reviews.filter((r) => r.my_vote))
+  if (p === '/reviews/me/votes') {
+    const after = u.searchParams.get('after') ?? ''
+    const limit = Number(u.searchParams.get('limit') || 20)
+    const votes = [...reviews, ...replies].filter(row => row.my_vote && row.id > after)
+      .sort((a, b) => a.id < b.id ? -1 : 1).slice(0, limit)
+    return json(votes.map(({ id, root_id, school_id, kind, target_id, term_id, my_vote }) =>
+      ({ id, root_id, school_id, kind, target_id, term_id: term_id ?? '', my_vote })))
+  }
   if (p === '/reviews/me/drafts' && method === 'GET') return json(drafts)
   if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false, reference_ids: [b.input.target_id, b.input.term_id, b.input.teacher_id].filter(Boolean), reference_state: 'verified' }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
   if (p.startsWith('/reviews/me/drafts/')) {
