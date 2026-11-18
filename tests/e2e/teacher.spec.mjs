@@ -33,9 +33,9 @@ async function server(page, options = {}) {
     const body = request.postData() ? request.postDataJSON() : undefined;
     state.writes.push({ method: request.method(), path, body, key: request.headers()['idempotency-key'] });
     if (path === '/teacher-applications') {
-      const nextId = state.applications.length ? `ta-${state.applications.length + 1}` : 'ta';
-      const created = application({ id: nextId, school_id: body.school_id });
-      state.applications = [...state.applications, created];
+      const nextId = state.applications.length ? 'aa-new' : 'ta';
+      const created = application({ id: nextId, school_id: body.school_id, created_at: '2026-11-18T00:00:00Z' });
+      state.applications = [...state.applications, created].sort((a, b) => a.id.localeCompare(b.id));
       return route.fulfill({ status: 201, json: created });
     }
     if (/^\/applications\/[^/]+\/capture$/.test(path)) {
@@ -144,10 +144,12 @@ test('an in-progress teacher draft can switch school and syncs phone-captured ma
 
   await page.getByRole('button', { name: v.capture.phone, exact: true }).click();
   await expect(page.getByRole('img', { name: v.capture.scan, exact: true })).toBeVisible();
-  state.materials = [{ id: 'mat-phone', application_id: 'ta-2', content_type: 'image/png', size: 68, created_at: '2026-11-18T00:00:00Z' }];
+  state.materials = [{ id: 'mat-phone', application_id: 'aa-new', content_type: 'image/png', size: 68, created_at: '2026-11-18T00:00:00Z' }];
   await page.getByRole('button', { name: v.capture.sync, exact: true }).click();
 
   await expect(page.getByRole('img', { name: v.capture.scan, exact: true })).toHaveCount(0);
   await expect(page.getByText(fill(t.materials, { count: number(info, 1) }), { exact: true })).toBeVisible();
   await expect(page.locator('img.material-thumb')).toBeVisible();
+  await page.reload();
+  await expect(page.getByRole('region', { name: t.application, exact: true }).getByText(secondSchool.name, { exact: true })).toBeVisible();
 });

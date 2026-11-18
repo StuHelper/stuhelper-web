@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import QRCode from 'qrcode'
-import { onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { ApiError, errorCode } from '../../shared/api/errors'
@@ -28,6 +28,7 @@ let stream: MediaStream | undefined
 let photo: Blob | undefined
 let generation = 0
 let pollTimer: ReturnType<typeof setTimeout> | undefined
+let phoneSession: AbortController | undefined
 let pollCount = 0
 let seenIds = new Set<string>()
 const maxPhonePolls = 100
@@ -46,6 +47,9 @@ function clearPreview() {
 }
 
 function stopPhoneSync() {
+  phoneSession?.abort()
+  phoneSession = undefined
+  syncing.value = false
   if (pollTimer) clearTimeout(pollTimer)
   pollTimer = undefined
   document.removeEventListener('visibilitychange', onVisibilitySync)
@@ -62,17 +66,19 @@ function collapsePhone() {
 function schedulePhonePoll() {
   if (pollTimer) clearTimeout(pollTimer)
   pollTimer = undefined
-  if (!qr.value || !props.applicationId || pollCount >= maxPhonePolls) return
+  if (!phoneSession || !qr.value || !props.applicationId || pollCount >= maxPhonePolls) return
   pollTimer = setTimeout(() => void syncPhoneMaterials(false), 3000)
 }
 
 async function syncPhoneMaterials(manual: boolean) {
-  if (!props.applicationId || !qr.value || syncing.value) return
+  const session = phoneSession
+  if (!session || !props.applicationId || !qr.value || syncing.value) return
   syncing.value = true
   if (manual) error.value = ''
   if (!manual) pollCount++
   try {
-    const page = await api.list('Material', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/materials`)
+    const page = await api.list('Material', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/materials`, { signal: session.signal })
+    if (session.signal.aborted) return
     for (const id of props.existingIds) seenIds.add(id)
     const fresh = page.items.filter((item) => !seenIds.has(item.id))
     if (fresh.length) {
@@ -84,11 +90,11 @@ async function syncPhoneMaterials(manual: boolean) {
       return
     }
   } catch (failure) {
-    if (manual) error.value = errorCode(failure)
+    if (!session.signal.aborted && manual) error.value = errorCode(failure)
   } finally {
-    syncing.value = false
+    if (!session.signal.aborted) syncing.value = false
   }
-  schedulePhonePoll()
+  if (!session.signal.aborted) schedulePhonePoll()
 }
 
 function onVisibilitySync() {
@@ -183,26 +189,33 @@ async function phone() {
   if (!props.applicationId || busy.value) return
   busy.value = true
   error.value = ''
-  stopPhoneSync()
+  collapsePhone()
+  const controller = new AbortController()
+  phoneSession = controller
   try {
     seenIds = new Set(props.existingIds)
     pollCount = 0
-    const session = await api.write('CaptureSession', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/capture`)
+    const session = await api.write('CaptureSession', `/api/v1/verification/applications/${encodeURIComponent(props.applicationId)}/capture`, undefined, 'POST', controller.signal)
+    if (controller.signal.aborted) return
     // The token travels in the fragment so it is not sent to servers or logs.
     const target = new URL('/verification/capture', location.origin)
     target.hash = session.token
     link.value = target.toString()
     expires.value = session.expires_at
-    qr.value = await QRCode.toDataURL(link.value, { width: 240, margin: 2, errorCorrectionLevel: 'M' })
+    const encoded = await QRCode.toDataURL(link.value, { width: 240, margin: 2, errorCorrectionLevel: 'M' })
+    if (controller.signal.aborted) return
+    qr.value = encoded
     document.addEventListener('visibilitychange', onVisibilitySync)
     window.addEventListener('focus', onFocusSync)
     schedulePhonePoll()
   } catch (failure) {
-    error.value = errorCode(failure)
+    if (!controller.signal.aborted) error.value = errorCode(failure)
   } finally {
     busy.value = false
   }
 }
+
+watch(() => props.applicationId, collapsePhone)
 
 onBeforeUnmount(() => {
   stopPhoneSync()

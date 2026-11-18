@@ -48,7 +48,7 @@ async function platform(page) {
       return route.fulfill({ json: state.notices[0] });
     }
     if (path === '/consents') return route.fulfill({ json: { id: 'consent-1', application: app({}), requested_scopes: body.scope, redirect_uri: body.redirect_uri, expires_at: '2030-01-01T00:00:00Z', qq_tiers: [] } });
-    if (path === '/consents/consent-1/decision') return route.fulfill({ json: { redirect_uri: `${base}/oauth-landing?${body.decision === 'approve' ? 'code=c1' : 'error=access_denied'}&state=s1` } });
+    if (path === '/consents/consent-1/decision') return route.fulfill({ json: { redirect_uri: `https://widget.example.invalid/cb?${body.decision === 'approve' ? 'code=c1' : 'error=access_denied'}&state=s1` } });
     return route.fulfill({ status: 404, json: { code: 'not_found' } });
   });
   return state;
@@ -112,14 +112,14 @@ test('a rotated secret is shown once and a withdrawal notice records the reporte
 
 test('consent requires an explicit choice and returns to the application with the selected scopes', async ({ page }, info) => {
   const all = catalogue(info), c = all.platform.consent, state = await platform(page);
-  await page.route('**/oauth-landing**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>landing</p>' }));
+  await page.route('https://widget.example.invalid/cb**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>landing</p>' }));
   await page.goto(`${base}/oauth/authorize?response_type=code&client_id=app-1&redirect_uri=${encodeURIComponent('https://widget.example.invalid/cb')}&scope=profile%20schedule&state=s1&code_challenge=${'a'.repeat(43)}&code_challenge_method=S256&lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { name: fill(c.heading, { name: 'Timetable widget' }) })).toBeVisible();
   const approve = page.getByRole('button', { name: new RegExp(c.approve.split('{')[0].trim().replace(/[()（]/g, '')) });
   await expect(approve).toBeDisabled();
   await page.getByRole('checkbox', { name: new RegExp(all.platform.scopes.schedule.title) }).check();
   await approve.click();
-  await expect(page).toHaveURL(/oauth-landing\?code=c1&state=s1/);
+  await expect(page).toHaveURL('https://widget.example.invalid/cb?code=c1&state=s1');
   expect(state.writes[0]).toMatchObject({ path: '/consents', body: { client_id: 'app-1', scope: ['profile', 'schedule'], state: 's1', code_challenge_method: 'S256' } });
   expect(state.writes[1]).toMatchObject({ path: '/consents/consent-1/decision', body: { decision: 'approve', scopes: ['schedule'] } });
 });

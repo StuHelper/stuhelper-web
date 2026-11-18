@@ -1,10 +1,25 @@
 import { onMounted, onScopeDispose, readonly, shallowRef } from 'vue';
+import { ApiError } from '../../shared/api/errors';
+import { segment } from '../../shared/api/http';
+import { useHttp } from '../../shared/session';
 import { useHostFetch } from '../../shared/api/transport';
 import { custodyAPI, CustodyError, parseCustodyBinding, type CustodyBinding, type CustodyPage, type CustodyPolicy, type CustodyRequest } from '../../api/custody';
 
-export function useCustody(admin = false, api = custodyAPI(useHostFetch())) {
+// The provider SDK maps a missing operation and a temporary outage to the same error.
+// For recovery the caller needs the HTTP status to decide whether fresh input is possible.
+function useCustodyApi() {
+  const api = custodyAPI(useHostFetch());
+  const http = useHttp();
+  return {
+    ...api,
+    requestStatus: (key: string, signal: AbortSignal) =>
+      http.json(`/api/v1/storage/custody/requests/${segment(key)}`, parseCustodyBinding, { signal }),
+  };
+}
+
+export function useCustody(admin = false, api = useCustodyApi()) {
   const data = shallowRef<CustodyPage | null>(null), policy = shallowRef<CustodyPolicy | null>(null);
-  const loading = shallowRef(false), sending = shallowRef(false), error = shallowRef<CustodyError['code'] | null>(null);
+  const loading = shallowRef(false), sending = shallowRef(false), error = shallowRef<CustodyError['code'] | 'not_found' | null>(null);
   const recovery = shallowRef<{ key: string; item?: CustodyBinding } | null>(null);
   let read: AbortController | undefined, write: AbortController | undefined, disposed = false, cursor = '';
   function failed(e: unknown) {
@@ -29,7 +44,7 @@ export function useCustody(admin = false, api = custodyAPI(useHostFetch())) {
   async function mutation(run: (signal: AbortSignal) => Promise<CustodyBinding>, pending: { key: string; item?: CustodyBinding }) {
     if (sending.value || disposed || !data.value) return;
     read?.abort(); const controller = new AbortController(); write = controller;
-    const timer = setTimeout(() => controller.abort(), 70_000);
+    const timer = setTimeout(() => controller.abort(), 105_000);
     sending.value = true; error.value = null; recovery.value = pending;
     try {
       await run(controller.signal);
@@ -59,7 +74,15 @@ export function useCustody(admin = false, api = custodyAPI(useHostFetch())) {
     const controller = new AbortController(); read = controller; loading.value = true; error.value = null;
     const timer = setTimeout(() => controller.abort(), 10_000);
     try { await api.requestStatus(pending.key, controller.signal); if (!disposed && read === controller) recovery.value = null; }
-    catch (e) { if (!disposed && read === controller) failed(e); }
+    catch (e) {
+      if (disposed || read !== controller) return;
+      if (e instanceof ApiError && e.status === 404) {
+        recovery.value = null;
+        error.value = 'not_found';
+      } else if (e instanceof ApiError && e.denied) {
+        failed(new CustodyError(e.status === 401 ? 'unauthenticated' : 'forbidden'));
+      } else failed(e);
+    }
     finally { clearTimeout(timer); if (!disposed && read === controller) { loading.value = false; if (!error.value) await reload(); } }
   }
   onMounted(() => reload());

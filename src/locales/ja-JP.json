@@ -472,7 +472,8 @@
       "newest": "新しい順",
       "oldest": "古い順",
       "empty": "授業評価はまだありません。",
-      "emptyMentor": "指導教員評価はまだありません。"
+      "emptyMentor": "指導教員評価はまだありません。",
+      "upvotes": "賛同の多い順"
     },
     "review": {
       "featured": "おすすめの投稿",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "アカウント",
       "services": "その他のサービス"
-    }
+    },
+    "pendingCoursesTitle": "評価待ちの授業",
+    "writePendingReview": "評価を書く"
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -727,7 +730,11 @@
       "filtersFailed": "絞り込みを読み込めません。キーワード検索は利用できます。",
       "filtersRetry": "絞り込みを再読み込み",
       "reload": "資料を再読み込み",
-      "currentFolder": "現在のフォルダー"
+      "currentFolder": "現在のフォルダー",
+      "fileType": "ファイル形式",
+      "sort": "並び順",
+      "sortNewest": "新しい順",
+      "sortDefault": "標準順"
     },
     "package": {
       "title": "ダウンロードパッケージ",
@@ -736,7 +743,9 @@
       "part": "パッケージ {number}",
       "size": "{size} · ファイル数：{files}",
       "download": "このパッケージをダウンロード",
-      "downloaded": "ダウンロード済み"
+      "downloaded": "ダウンロード済み",
+      "expiredNotice": "このダウンロードパッケージは有効期限切れです。再作成してからダウンロードしてください。",
+      "recreate": "パッケージを再作成"
     },
     "picker": {
       "search": "「{label}」を検索",
@@ -756,7 +765,16 @@
       "about": "資料について",
       "file": "資料ファイル",
       "access": "アクセス",
-      "course": "関連する授業を見る"
+      "course": "関連する授業を見る",
+      "preview": "オンラインプレビュー",
+      "hidePreview": "プレビューを閉じる",
+      "previewTitle": "ファイルプレビュー",
+      "fullscreenPreview": "全画面表示",
+      "emptyPreview": "ファイルの内容は空です。",
+      "previewTooLarge": "{size} を超えるファイルはページ内でプレビューできません。直接ダウンロードしてください。",
+      "proposalTitle": "審査中バージョンの内容",
+      "proposalFile": "提出済みファイル",
+      "checksum": "チェックサム"
     },
     "access": {
       "allowed": "ダウンロードできます。",
@@ -852,7 +870,11 @@
       "proposalState": "現在の版の状態：",
       "submit": "審査に提出",
       "submitted": "審査に提出しました。結果は「自分の資料」に表示されます。",
-      "view": "資料を見る"
+      "view": "資料を見る",
+      "directoryChooseCourse": "先に科目を選択するとフォルダを指定できます。未指定の場合はルートに配置されます。",
+      "selectedDirectory": "選択中のフォルダ",
+      "dropOrBrowse": "ここにファイルをドロップするか、クリックして選択",
+      "uploadProgress": "転送済み {loaded} / {total}（{percent}）"
     },
     "request": {
       "title": "通報・取り下げ・異議申立て",
@@ -2246,6 +2268,7 @@
       "empty": "まだ投票していません。",
       "review": "評価",
       "up": "役に立った",
+      "cancel": "投票を取り消す",
       "down": "役に立たなかった"
     },
     "compare": {
@@ -2269,7 +2292,12 @@
       "tray": "比較リスト",
       "progress": "{count} / {max} 件を選択中",
       "start": "比較する",
-      "pickMore": "もう 1 件選ぶと比較できます"
+      "pickMore": "もう 1 件選ぶと比較できます",
+      "clear": "比較をクリア",
+      "addCourse": "比較する授業を検索して追加",
+      "addTeacher": "比較する教員を検索して追加",
+      "taughtCourses": "担当授業数",
+      "ratedCourses": "集計対象授業数"
     }
   },
   "groups": {

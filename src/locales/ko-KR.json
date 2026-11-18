@@ -472,7 +472,8 @@
       "newest": "최신순",
       "oldest": "오래된순",
       "empty": "아직 강의 평가가 없습니다.",
-      "emptyMentor": "아직 지도교수 평가가 없습니다."
+      "emptyMentor": "아직 지도교수 평가가 없습니다.",
+      "upvotes": "찬성 많은 순"
     },
     "review": {
       "featured": "우수 콘텐츠",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "계정",
       "services": "기타 서비스"
-    }
+    },
+    "pendingCoursesTitle": "평가를 기다리는 강의",
+    "writePendingReview": "평가 작성"
   },
   "resources": {
     "eyebrow": "자료 공유",
@@ -727,7 +730,11 @@
       "filtersFailed": "필터를 불러오지 못했습니다. 키워드 검색은 가능합니다.",
       "filtersRetry": "필터 다시 불러오기",
       "reload": "자료 다시 불러오기",
-      "currentFolder": "현재 폴더"
+      "currentFolder": "현재 폴더",
+      "fileType": "파일 형식",
+      "sort": "정렬",
+      "sortNewest": "최신순",
+      "sortDefault": "기본 순서"
     },
     "package": {
       "title": "다운로드 묶음",
@@ -736,7 +743,9 @@
       "part": "{number}번 묶음",
       "size": "{size} · 파일 수: {files}",
       "download": "이 묶음 다운로드",
-      "downloaded": "다운로드됨"
+      "downloaded": "다운로드됨",
+      "expiredNotice": "다운로드 패키지가 만료되었습니다. 다시 생성한 뒤 다운로드해 주세요.",
+      "recreate": "패키지 다시 생성"
     },
     "picker": {
       "search": "“{label}”에서 검색",
@@ -756,7 +765,16 @@
       "about": "자료 정보",
       "file": "자료 파일",
       "access": "접근 방식",
-      "course": "관련 강의 보기"
+      "course": "관련 강의 보기",
+      "preview": "온라인 미리보기",
+      "hidePreview": "미리보기 접기",
+      "previewTitle": "파일 미리보기",
+      "fullscreenPreview": "전체 화면",
+      "emptyPreview": "파일 내용이 비어 있습니다.",
+      "previewTooLarge": "{size} 초과 파일은 페이지 내 미리보기를 지원하지 않으므로 직접 다운로드해 주세요.",
+      "proposalTitle": "검토 대기 버전 정보",
+      "proposalFile": "제출된 파일",
+      "checksum": "파일 체크섬"
     },
     "access": {
       "allowed": "다운로드할 수 있습니다.",
@@ -852,7 +870,11 @@
       "proposalState": "현재 버전 상태:",
       "submit": "검토 요청",
       "submitted": "심사에 제출했습니다. 결과는 내 자료에 표시됩니다.",
-      "view": "자료 보기"
+      "view": "자료 보기",
+      "directoryChooseCourse": "먼저 과목을 선택하면 폴더를 지정할 수 있으며, 비워 두면 루트에 배치됩니다.",
+      "selectedDirectory": "선택된 폴더",
+      "dropOrBrowse": "파일을 여기에 끌어다 놓거나 클릭하여 선택",
+      "uploadProgress": "전송됨 {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "신고 및 요청",
@@ -2246,6 +2268,7 @@
       "empty": "아직 투표하지 않았습니다.",
       "review": "평가",
       "up": "도움됨",
+      "cancel": "투표 취소",
       "down": "도움 안 됨"
     },
     "compare": {
@@ -2269,7 +2292,12 @@
       "tray": "비교 목록",
       "progress": "{count} / {max}개 선택됨",
       "start": "비교하기",
-      "pickMore": "하나 더 고르면 비교할 수 있습니다"
+      "pickMore": "하나 더 고르면 비교할 수 있습니다",
+      "clear": "비교 비우기",
+      "addCourse": "비교할 강의 검색 및 추가",
+      "addTeacher": "비교할 교원 검색 및 추가",
+      "taughtCourses": "담당 강의 수",
+      "ratedCourses": "집계 포함 강의 수"
     }
   },
   "groups": {

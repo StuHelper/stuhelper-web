@@ -40,10 +40,17 @@ const data = useAsync(async (signal) => {
 })
 void data.reload()
 const restarting = ref(false)
+const selectedDraft = shallowRef<Application>()
 const open = computed(() => {
   const apps = data.data.value?.applications ?? []
   for (const state of ['pending_review', 'supplement_required', 'in_progress'] as const) {
-    const match = [...apps].reverse().find((item) => item.state === state)
+    const candidates = apps.filter((item) => item.state === state)
+    const selected = selectedDraft.value
+    if (state === 'in_progress' && selected) {
+      const current = apps.find(item => item.id === selected.id)
+      if (!current || current.state === state) return current ?? selected
+    }
+    const match = candidates.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id.localeCompare(a.id))[0]
     if (match) return match
   }
   return undefined
@@ -72,10 +79,11 @@ async function start() {
   if (!chosen || !consent.value) return
   const created = await task.run(() => api.write('Application', '/api/v1/verification/teacher-applications', { school_id: chosen.id, notice_version: chosen.notice_version, consent: true }))
   if (created) {
+    selectedDraft.value = created
     restarting.value = false
     consent.value = false
     await data.reload()
-    void loadForm(created)
+    if (open.value?.id === created.id) await loadForm(open.value)
   }
 }
 
