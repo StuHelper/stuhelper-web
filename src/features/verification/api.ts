@@ -168,7 +168,7 @@ export class VerificationApi {
 
   /** Upload a captured image with a single-use capture token. */
   async upload(token: string, image: Blob): Promise<Material> {
-    return this.http.json('/api/v1/verification/capture', (value) => parseEntity('Material', value), { method: 'POST', bytes: image, headers: { 'X-Capture-Token': token }, timeout: 60_000 })
+    return this.http.json('/api/v1/verification/capture', (value) => parseEntity('Material', value), { method: 'POST', bytes: image, headers: { 'X-Capture-Token': token }, timeout: 90_000 })
   }
 
   async material(id: string, signal?: AbortSignal): Promise<Blob> {

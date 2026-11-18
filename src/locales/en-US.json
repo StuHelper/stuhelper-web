@@ -730,7 +730,11 @@
       "filtersFailed": "Filters could not load. You can still search by keyword.",
       "filtersRetry": "Reload filters",
       "reload": "Reload resources",
-      "currentFolder": "Current folder"
+      "currentFolder": "Current folder",
+      "fileType": "File format",
+      "sort": "Sort by",
+      "sortNewest": "Newest first",
+      "sortDefault": "Default order"
     },
     "package": {
       "title": "Download packages",
@@ -739,7 +743,9 @@
       "part": "Package {number}",
       "size": "{size} · files: {files}",
       "download": "Download this package",
-      "downloaded": "Downloaded"
+      "downloaded": "Downloaded",
+      "expiredNotice": "This download package has expired. Generate a new package to continue.",
+      "recreate": "Regenerate package"
     },
     "picker": {
       "search": "Search in “{label}”",
@@ -759,7 +765,16 @@
       "about": "About this resource",
       "file": "Resource file",
       "access": "Access",
-      "course": "View the related course"
+      "course": "View the related course",
+      "preview": "Preview online",
+      "hidePreview": "Hide preview",
+      "previewTitle": "File preview",
+      "fullscreenPreview": "Full screen",
+      "emptyPreview": "This file has no text content.",
+      "previewTooLarge": "Files over {size} cannot be previewed inline; download the file instead.",
+      "proposalTitle": "Pending version details",
+      "proposalFile": "Submitted file",
+      "checksum": "File checksum"
     },
     "access": {
       "allowed": "You can download this.",
@@ -855,7 +870,11 @@
       "proposalState": "Current version status:",
       "submit": "Submit for review",
       "submitted": "Submitted for review. The outcome appears under My resources.",
-      "view": "View resource"
+      "view": "View resource",
+      "directoryChooseCourse": "Select a course first to choose a folder, or leave blank for the course root.",
+      "selectedDirectory": "Selected folder",
+      "dropOrBrowse": "Drop a file here or click to choose",
+      "uploadProgress": "Transferred {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "Complaints and requests",
@@ -2244,6 +2263,7 @@
       "empty": "You have not voted yet.",
       "review": "Review",
       "up": "Helpful",
+      "cancel": "Withdraw vote",
       "down": "Not helpful"
     },
     "compare": {

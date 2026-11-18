@@ -730,7 +730,11 @@
       "filtersFailed": "No se cargaron los filtros. Aún puedes buscar por palabra clave.",
       "filtersRetry": "Recargar filtros",
       "reload": "Recargar recursos",
-      "currentFolder": "Carpeta actual"
+      "currentFolder": "Carpeta actual",
+      "fileType": "Formato de archivo",
+      "sort": "Ordenar por",
+      "sortNewest": "Más recientes",
+      "sortDefault": "Orden predeterminado"
     },
     "package": {
       "title": "Paquetes de descarga",
@@ -739,7 +743,9 @@
       "part": "Paquete {number}",
       "size": "{size} · archivos: {files}",
       "download": "Descargar este paquete",
-      "downloaded": "Descargado"
+      "downloaded": "Descargado",
+      "expiredNotice": "Este paquete de descarga ha caducado. Genere uno nuevo para continuar.",
+      "recreate": "Volver a generar paquete"
     },
     "picker": {
       "search": "Buscar en «{label}»",
@@ -759,7 +765,16 @@
       "about": "Sobre el material",
       "file": "Archivo del material",
       "access": "Acceso",
-      "course": "Ver el curso relacionado"
+      "course": "Ver el curso relacionado",
+      "preview": "Vista previa en línea",
+      "hidePreview": "Ocultar vista previa",
+      "previewTitle": "Vista previa del archivo",
+      "fullscreenPreview": "Pantalla completa",
+      "emptyPreview": "El archivo está vacío.",
+      "previewTooLarge": "Los archivos que superan {size} no admiten vista previa en página; descárguelos directamente.",
+      "proposalTitle": "Detalles de la versión en revisión",
+      "proposalFile": "Archivo enviado",
+      "checksum": "Suma de verificación"
     },
     "access": {
       "allowed": "Puedes descargarlo.",
@@ -855,7 +870,11 @@
       "proposalState": "Estado de la versión:",
       "submit": "Enviar a revisión",
       "submitted": "Enviado a revisión. El resultado aparecerá en Mis materiales.",
-      "view": "Ver material"
+      "view": "Ver material",
+      "directoryChooseCourse": "Seleccione primero un curso para elegir una carpeta o déjelo vacío para la raíz.",
+      "selectedDirectory": "Carpeta seleccionada",
+      "dropOrBrowse": "Arrastre un archivo aquí o haga clic para elegir",
+      "uploadProgress": "Transferido {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "Reclamaciones y solicitudes",
@@ -2244,6 +2263,7 @@
       "empty": "Aún no has votado.",
       "review": "Reseña",
       "up": "Útil",
+      "cancel": "Retirar mi voto",
       "down": "No útil"
     },
     "compare": {
