@@ -533,7 +533,8 @@ test('course page defaults review sort to upvotes, renders distribution and tren
 test('verified not-found links back to campus and fresh review edit window counts down to request actions', async ({ page }, info) => {
   const all = catalogue(info);
   const r = all.academic.review;
-  await page.clock.install({ time: new Date('2026-11-18T10:00:10Z') });
+  await page.clock.install({ time: new Date('2026-11-18T09:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-11-18T10:00:10Z'));
   await academicFixture(page);
   await page.goto(`http://127.0.0.1:18787/no-such-campus-page?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('link', { name: all.notFound.home, exact: true })).toHaveAttribute('href', '/campus');
