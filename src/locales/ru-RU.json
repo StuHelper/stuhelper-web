@@ -779,6 +779,10 @@
       "checksum": "Контрольная сумма"
     },
     "access": {
+      "missing": "Не выполнены условия: {conditions}",
+      "unavailable": "Не удалось проверить: {conditions}",
+      "content_access": "Доступ к материалам кампуса",
+      "resource_entitlement": "Право доступа к материалу",
       "allowed": "Можно скачать.",
       "not_published": "Материал ещё не опубликован.",
       "already_accessible": "У вас уже есть доступ к этому материалу.",
@@ -879,6 +883,7 @@
       "uploadProgress": "Передано {loaded} из {total} ({percent})"
     },
     "request": {
+      "resourceId": "Идентификатор материала",
       "title": "Жалобы и обращения",
       "appealTitle": "Подать возражение",
       "kind": "Тип обращения",

@@ -70,20 +70,28 @@ const metadata = ref<Metadata>({
 })
 
 const setup = useAsync(async (signal) => {
-  const [capabilities, categories] = await Promise.all([api.capabilities(signal), api.categories(signal)])
-  if (props.id) {
-    entry.value = await api.item(props.id, signal)
-    const version = entry.value.proposal ?? entry.value.current
-    if (version) {
-      metadata.value = snapshot(version.metadata)
-      tagText.value = version.metadata.tags.join(', ')
-      consent.value = version.metadata.origin.consent?.accepted ?? false
-    }
+  const [capabilities, listed, item] = await Promise.all([
+    api.capabilities(signal),
+    api.categories(signal).catch(failure => {
+      if (props.id && failure instanceof ApiError && failure.status === 403) return undefined
+      throw failure
+    }),
+    props.id ? api.item(props.id, signal) : undefined,
+  ])
+  const version = item?.proposal ?? item?.current
+  // An owner may read the category stored with their version after directory access expires.
+  const categories = listed ?? (item?.owned && version ? [version.category] : undefined)
+  if (!categories) throw new ApiError('forbidden', false, 403)
+  entry.value = item
+  if (version) {
+    metadata.value = snapshot(version.metadata)
+    tagText.value = version.metadata.tags.join(', ')
+    consent.value = version.metadata.origin.consent?.accepted ?? false
   }
   if (!metadata.value.category_id) metadata.value.category_id = categories[0]?.id ?? ''
   await nextTick()
   baseline.value = fingerprint()
-  return { capabilities, categories }
+  return { capabilities, categories, canBrowse: listed !== undefined }
 })
 
 const capabilities = computed(() => setup.data.value?.capabilities)
@@ -338,6 +346,7 @@ function uploadMessage(state: string) {
                 <span class="field-label">{{ t('resources.category') }}</span>
                 <AppSelect
                   v-model="metadata.category_id"
+                  :disabled="!setup.data.value.canBrowse"
                   class="select"
                   required
                   @change="changeCategory"
@@ -378,7 +387,10 @@ function uploadMessage(state: string) {
               </label>
             </div>
 
-            <fieldset class="stack-sm">
+            <fieldset
+              v-if="setup.data.value.canBrowse"
+              class="stack-sm"
+            >
               <legend>{{ t('resources.editor.associations') }}</legend>
               <p class="field-hint">
                 {{ t('resources.editor.associationsHint') }}

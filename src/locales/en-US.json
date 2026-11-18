@@ -779,6 +779,10 @@
       "checksum": "File checksum"
     },
     "access": {
+      "missing": "Missing requirements: {conditions}",
+      "unavailable": "Could not verify: {conditions}",
+      "content_access": "Campus content access",
+      "resource_entitlement": "Resource entitlement",
       "allowed": "You can download this.",
       "not_published": "The resource is not published yet.",
       "already_accessible": "You already have access to this resource.",
@@ -879,6 +883,7 @@
       "uploadProgress": "Transferred {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "Resource ID",
       "title": "Complaints and requests",
       "appealTitle": "Appeal",
       "kind": "Request type",

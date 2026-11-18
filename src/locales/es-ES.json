@@ -779,6 +779,10 @@
       "checksum": "Suma de verificación"
     },
     "access": {
+      "missing": "Faltan requisitos: {conditions}",
+      "unavailable": "No se pudo verificar: {conditions}",
+      "content_access": "Acceso al contenido del campus",
+      "resource_entitlement": "Derecho de acceso al recurso",
       "allowed": "Puedes descargarlo.",
       "not_published": "El material aún no está publicado.",
       "already_accessible": "Ya tienes acceso a este recurso.",
@@ -879,6 +883,7 @@
       "uploadProgress": "Transferido {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "ID del recurso",
       "title": "Reclamaciones y solicitudes",
       "appealTitle": "Presentar alegación",
       "kind": "Tipo de solicitud",
