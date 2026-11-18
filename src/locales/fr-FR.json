@@ -727,7 +727,11 @@
       "filtersFailed": "Les filtres n’ont pas pu se charger. La recherche par mot-clé reste possible.",
       "filtersRetry": "Recharger les filtres",
       "reload": "Recharger les ressources",
-      "currentFolder": "Dossier actuel"
+      "currentFolder": "Dossier actuel",
+      "fileType": "Format de fichier",
+      "sort": "Trier par",
+      "sortNewest": "Plus récents",
+      "sortDefault": "Ordre par défaut"
     },
     "package": {
       "title": "Archives à télécharger",
@@ -736,7 +740,9 @@
       "part": "Lot {number}",
       "size": "{size} · fichiers : {files}",
       "download": "Télécharger ce lot",
-      "downloaded": "Téléchargé"
+      "downloaded": "Téléchargé",
+      "expiredNotice": "Ce paquet de téléchargement a expiré. Générez-en un nouveau pour télécharger.",
+      "recreate": "Regénérer le paquet"
     },
     "picker": {
       "search": "Rechercher dans « {label} »",
@@ -756,7 +762,16 @@
       "about": "À propos",
       "file": "Fichier de la ressource",
       "access": "Accès",
-      "course": "Voir le cours associé"
+      "course": "Voir le cours associé",
+      "preview": "Aperçu en ligne",
+      "hidePreview": "Masquer l’aperçu",
+      "previewTitle": "Aperçu du fichier",
+      "fullscreenPreview": "Plein écran",
+      "emptyPreview": "Ce fichier est vide.",
+      "previewTooLarge": "Les fichiers de plus de {size} ne peuvent pas être prévisualisés en ligne ; téléchargez-les directement.",
+      "proposalTitle": "Détails de la version en attente",
+      "proposalFile": "Fichier soumis",
+      "checksum": "Empreinte du fichier"
     },
     "access": {
       "allowed": "Téléchargement possible.",
@@ -852,7 +867,11 @@
       "proposalState": "État de la version :",
       "submit": "Soumettre à l’examen",
       "submitted": "Soumis. Le résultat apparaîtra dans Mes ressources.",
-      "view": "Voir la ressource"
+      "view": "Voir la ressource",
+      "directoryChooseCourse": "Choisissez d’abord un cours pour sélectionner un dossier, ou laissez vide pour la racine.",
+      "selectedDirectory": "Dossier sélectionné",
+      "dropOrBrowse": "Déposez un fichier ici ou cliquez pour parcourir",
+      "uploadProgress": "Transféré : {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "Signalements et demandes",

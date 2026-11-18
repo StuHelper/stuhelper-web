@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { reactive } from 'vue'
 import { Http } from '../../shared/api/http'
 import { Mutation } from '../../shared/api/mutation'
-import { attribute, attributeText, ResourcesApi, Upload, type Field, type MediaVersion } from './api'
+import { attribute, attributeText, previewKind, ResourcesApi, typeExtension, Upload, type Field, type MediaVersion } from './api'
 
 const resource = { id: 'resource', revision: 1, state: 'draft', download_allowed: false, access_reason: 'not_published', owned: true }
 const media: MediaVersion = { id: 'version', file_id: 'file', number: 1, revision: 1, upload_id: 'upload', filename: 'lecture.txt', content_type: 'text/plain', size: 5, sha256: 'a'.repeat(64), state: 'created', approved: false, upload_expires_at: '2030-01-01T00:00:00Z', retain_until: '2030-01-02T00:00:00Z', cleanup_complete: false, error_code: '' }
@@ -154,4 +154,41 @@ it('requests safe reuse and never sends bytes for reused or still pending conten
   const result = await upload.run()
   expect(result.reused).toBe(true)
   expect(methods).toEqual(['POST', 'GET', 'GET'])
+})
+
+it('detects inline previewable files, resolves own references and reports upload byte progress', async () => {
+  vi.stubGlobal('crypto', webcrypto)
+  expect(previewKind({ filename: 'exam.pdf', content_type: 'application/pdf' })).toBe('pdf')
+  expect(previewKind({ filename: 'scan.png', content_type: 'image/png' })).toBe('image')
+  expect(previewKind({ filename: 'notes.txt', content_type: 'text/plain; charset=utf-8' })).toBe('text')
+  expect(previewKind({ filename: 'bundle.zip', content_type: 'application/zip' })).toBeUndefined()
+  expect(typeExtension('application/pdf')).toBe('pdf')
+  expect(typeExtension('application/vnd.openxmlformats-officedocument.wordprocessingml.document')).toBe('docx')
+
+  const seenPaths: string[] = []
+  const api = new ResourcesApi(new Http(async (input, init) => {
+    const url = String(input)
+    seenPaths.push(`${init?.method ?? 'GET'} ${url}`)
+    if (url.startsWith('/api/v1/resources/me/references')) {
+      return Response.json({ items: [{ id: 'course-1', kind: 'course', name: 'Calculus' }], missing_ids: [] })
+    }
+    if (url.endsWith('/preview')) {
+      return new Response('preview-body', { headers: { 'Content-Type': 'text/plain' } })
+    }
+    if (init?.method === 'POST') return Response.json(media)
+    if (init?.method === 'PUT') return Response.json({ ...media, state: 'awaiting_approval' })
+    return view({ state: 'created' })
+  }))
+
+  const refs = await api.myReferences(['course-1', 'course-1', undefined])
+  expect(refs.get('course-1')?.name).toBe('Calculus')
+  const blob = await api.preview('res-1', 12)
+  expect(await blob.text()).toBe('preview-body')
+
+  const progress: [number, number][] = []
+  const upload = new Upload(api, new File(['hello'], 'lecture.txt', { type: 'text/plain' }), 'purpose')
+  const version = await upload.run((loaded, total) => progress.push([loaded, total]))
+  expect(version.state).toBe('awaiting_approval')
+  expect(progress).toEqual([[0, 5], [5, 5]])
+  expect(seenPaths).toContain('GET /api/v1/resources/items/res-1/preview')
 })

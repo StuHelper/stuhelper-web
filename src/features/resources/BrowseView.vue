@@ -17,7 +17,7 @@ import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { useAcademic } from '../academic/api'
 import { useCampusId } from '../account/access'
-import { attributeText, localName, useResourcesApi, type Directory, type Package, type Resource, type Value } from './api'
+import { attributeText, localName, typeExtension, useResourcesApi, type Directory, type Package, type Resource, type Schema, type Value } from './api'
 import CatalogPicker from './CatalogPicker.vue'
 import { parseAttributes, readTrail, rememberTrail } from './browseState'
 import FieldInput from './FieldInput.vue'
@@ -35,19 +35,36 @@ const api = useResourcesApi()
 const catalog = useAcademic()
 const campus = useCampusId()
 const packing = useMutation()
-const page = usePageFilters(['q', 'category', 'course_id', 'dir', 'attrs'] as const)
-const applied = computed(() => { const f = page.values.value; return { q: f.q, category: f.category, course: f.course_id, dir: f.dir, fields: parseAttributes(f.attrs) } })
+const page = usePageFilters(['q', 'category', 'course_id', 'dir', 'attrs', 'file_type', 'sort'] as const)
+const applied = computed(() => {
+  const f = page.values.value
+  return {
+    q: f.q,
+    category: f.category,
+    course: f.course_id,
+    dir: f.dir,
+    fileType: /^[a-z0-9]{1,12}$/.test(f.file_type) ? f.file_type : '',
+    sort: (f.sort === 'id' ? 'id' : 'newest') as 'newest' | 'id',
+    fields: parseAttributes(f.attrs),
+  }
+})
 const text = ref(applied.value.q)
 const filtering = ref(false)
-const draft = reactive({ category: '', course: '' })
+const draft = reactive({ category: '', course: '', fileType: '' })
 const draftFields = ref<Record<string, Value | undefined>>({})
 const trail = shallowRef<Directory[]>([])
 const selected = ref<string[]>([])
-const pack = shallowRef<Package>()
+const pack = shallowRef<{ result: Package; request: Schema['PackageRequest'] }>()
+const lookedUpCourses = shallowRef(new Map<string, string>())
 
 const setup = useAsync(async (signal) => {
   const [capabilities, categories] = await Promise.all([api.capabilities(signal), api.categories(signal)])
   return { capabilities, categories }
+})
+const defaultTypes = ['pdf', 'zip', 'docx', 'pptx', 'txt', 'png', 'jpg']
+const fileTypes = computed(() => {
+  const configured = (setup.data.value?.capabilities.allowed_types ?? []).map(typeExtension).filter((ext): ext is string => !!ext)
+  return [...new Set(configured.length ? configured : defaultTypes)]
 })
 const courseName = useAsync(async (signal) => (applied.value.course ? (await catalog.lookup([applied.value.course], signal)).get(applied.value.course)?.name ?? '' : ''))
 const appliedCategory = computed(() => setup.data.value?.categories.find((item) => item.id === applied.value.category))
@@ -58,8 +75,19 @@ const total = ref(0)
 const results = usePaged(async (after, signal) => {
   const f = applied.value
   const attributes = Object.keys(f.fields).length ? JSON.stringify(f.fields) : undefined
-  const page = await api.list({ school_id: campus.value, course_id: f.course, category_id: f.category, query: f.q, attributes, directory_id: f.dir || undefined, sort: 'newest', after }, signal)
+  const page = await api.list({ school_id: campus.value, course_id: f.course, category_id: f.category, query: f.q, attributes, directory_id: f.dir || undefined, file_type: f.fileType || undefined, sort: f.sort, after }, signal)
   if (!after) total.value = page.total
+  const missing = page.items.map((item) => item.current?.metadata.associations.course_id).filter((id): id is string => !!id && !lookedUpCourses.value.has(id))
+  if (missing.length) {
+    try {
+      const resolved = await catalog.lookup(missing, signal)
+      const next = new Map(lookedUpCourses.value)
+      for (const [id, obj] of resolved) next.set(id, obj.name)
+      lookedUpCourses.value = next
+    } catch {
+      // Supplementary course names do not block displaying resource rows.
+    }
+  }
   return { items: page.items, next: page.next_cursor }
 })
 const directories = usePaged(async (after, signal) => {
@@ -67,23 +95,30 @@ const directories = usePaged(async (after, signal) => {
   return { items: page.items, next: page.next_cursor }
 })
 
-// Grouping applies to the rows loaded so far, and an unknown value has its own group.
+// Grouping applies to the rows loaded so far, sorted deterministically in descending order with unknown values last.
 const groups = computed(() => {
   const key = appliedCategory.value?.group_by
   const rows = new Map<string, Resource[]>()
+  const unknown = t('resources.browse.unknownGroup')
   for (const item of results.items.value) {
     const version = item.current
     if (!version) continue
-    const label = key ? attributeText(version.category.fields.find((field) => field.key === key), version.metadata.attributes[key], locale.value) || t('resources.browse.unknownGroup') : ''
+    const label = key ? attributeText(version.category.fields.find((field) => field.key === key), version.metadata.attributes[key], locale.value) || unknown : ''
     rows.set(label, [...(rows.get(label) ?? []), item])
   }
-  return [...rows]
+  if (!key) return [...rows]
+  return [...rows].sort(([a], [b]) => {
+    if (a === unknown && b !== unknown) return 1
+    if (b === unknown && a !== unknown) return -1
+    return format.value.compare(b, a)
+  })
 })
 
 const chips = computed(() => {
   const list: { key: string; label: string; clear: Record<string, undefined> }[] = []
   if (applied.value.category) list.push({ key: 'category', label: appliedCategory.value ? localName(appliedCategory.value.names, locale.value) : t('resources.category'), clear: { category: undefined, attrs: undefined } })
   if (applied.value.course) list.push({ key: 'course', label: courseName.data.value || t('academic.course'), clear: { course_id: undefined, dir: undefined } })
+  if (applied.value.fileType) list.push({ key: 'file_type', label: applied.value.fileType.toUpperCase(), clear: { file_type: undefined } })
   const count = Object.keys(applied.value.fields).length
   if (count) list.push({ key: 'fields', label: t('resources.browse.fieldCount', { count: format.value.number(count) }), clear: { attrs: undefined } })
   return list
@@ -99,6 +134,7 @@ function search() {
 function openFilters() {
   draft.category = applied.value.category
   draft.course = applied.value.course
+  draft.fileType = applied.value.fileType
   draftFields.value = { ...applied.value.fields }
   filtering.value = true
 }
@@ -106,7 +142,7 @@ function applyFilters() {
   const fields = Object.fromEntries(Object.entries(draftFields.value).filter(([, value]) => value !== undefined))
   const courseChanged = draft.course !== applied.value.course
   filtering.value = false
-  navigate({ q: text.value.trim() || undefined, category: draft.category || undefined, course_id: draft.course || undefined, attrs: Object.keys(fields).length ? JSON.stringify(fields) : undefined, ...(courseChanged ? { dir: undefined } : {}) })
+  navigate({ q: text.value.trim() || undefined, category: draft.category || undefined, course_id: draft.course || undefined, file_type: draft.fileType || undefined, attrs: Object.keys(fields).length ? JSON.stringify(fields) : undefined, ...(courseChanged ? { dir: undefined } : {}) })
 }
 function enter(next: Directory) {
   rememberTrail(next.id, [...trail.value, next])
@@ -116,20 +152,18 @@ function leaveTo(depth: number) {
   navigate({ dir: trail.value[depth - 1]?.id })
 }
 
-async function createPackage(all: boolean) {
-  const body = all ? { directory_id: applied.value.dir } : { resource_ids: selected.value.slice() }
-  const result = await packing.run(all ? `package:dir:${applied.value.dir}` : `package:items:${selected.value.join(',')}`, body, (value, key) => api.createPackage(value, key))
-  if (result) pack.value = result
-  else if (packing.error.value === 'forbidden' || packing.error.value === 'unauthenticated') {
+async function createPackage(request: Schema['PackageRequest']) {
+  await packing.run('package:' + JSON.stringify(request), request, async (body, key) => {
+    const result = await api.createPackage(body, key)
+    // A successful retry uses the same frozen selection as the initial request.
+    pack.value = { result, request: body }
+    return result
+  })
+  if (packing.error.value === 'forbidden' || packing.error.value === 'unauthenticated') {
     // Access was revoked: stop showing protected rows.
     results.clear()
     selected.value = []
   }
-}
-async function retryPackage() {
-  const result = await packing.retry()
-  // The retried request is the original package creation.
-  if (result) pack.value = result as Package
 }
 function reload() {
   void results.reload()
@@ -194,7 +228,7 @@ const activeFilters = computed(() => [
 ])
 function clearAll() {
   text.value = ''
-  navigate({ q: undefined, category: undefined, course_id: undefined, attrs: undefined, dir: undefined })
+  navigate({ q: undefined, category: undefined, course_id: undefined, attrs: undefined, file_type: undefined, dir: undefined })
 }
 function ago(iso?: string) {
   if (!iso) return ''
@@ -206,7 +240,11 @@ function ago(iso?: string) {
   const days = Math.round(hours / 24)
   return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
 }
-const meta = (item: Resource) => [item.current?.metadata.associations.course_id === applied.value.course ? '' : recentRows.value.find((row) => row.course.id === item.current?.metadata.associations.course_id)?.course.name, localName(item.current?.category.names ?? {}, locale.value), item.current?.file ? format.value.bytes(item.current.file.size) : '', ago(item.current?.created_at)].filter(Boolean).join(' · ')
+function rowCourseName(courseId: string | undefined) {
+  if (!courseId || courseId === applied.value.course) return ''
+  return recentRows.value.find((row) => row.course.id === courseId)?.course.name ?? lookedUpCourses.value.get(courseId) ?? ''
+}
+const meta = (item: Resource) => [rowCourseName(item.current?.metadata.associations.course_id), localName(item.current?.category.names ?? {}, locale.value), item.current?.file ? format.value.bytes(item.current.file.size) : '', ago(item.current?.created_at)].filter(Boolean).join(' · ')
 const downloading = ref('')
 async function download(item: Resource) {
   const file = item.current?.file
@@ -238,7 +276,7 @@ async function download(item: Resource) {
         </RouterLink>
         <RouterLink
           class="btn btn-sm btn-primary"
-          :to="{ path: '/resources/new', query: { course_id: applied.course || undefined } }"
+          :to="{ path: '/resources/new', query: { course_id: applied.course || undefined }, state: { directory_id: applied.dir || undefined } }"
         >
           <Upload aria-hidden="true" />{{ t('resources.upload') }}
         </RouterLink>
@@ -275,6 +313,19 @@ async function download(item: Resource) {
             :value="row.course.id"
           >
             {{ row.course.name }}
+          </option>
+        </AppSelect>
+        <AppSelect
+          :model-value="applied.sort"
+          class="select mini"
+          :aria-label="t('resources.browse.sort')"
+          @update:model-value="(value: string) => navigate({ sort: value === 'id' ? 'id' : undefined })"
+        >
+          <option value="newest">
+            {{ t('resources.browse.sortNewest') }}
+          </option>
+          <option value="id">
+            {{ t('resources.browse.sortDefault') }}
           </option>
         </AppSelect>
         <button
@@ -458,7 +509,7 @@ async function download(item: Resource) {
               class="btn btn-sm btn-primary"
               type="button"
               :disabled="packing.busy.value || packing.uncertain.value"
-              @click="createPackage(true)"
+              @click="createPackage({ directory_id: applied.dir })"
             >
               {{ t('resources.browse.downloadFolder') }}
             </button>
@@ -470,12 +521,15 @@ async function download(item: Resource) {
           :busy="packing.busy.value"
           :error="packing.error.value"
           :uncertain="packing.uncertain.value"
-          @retry="retryPackage"
+          @retry="packing.retry()"
         />
         <PackagePanel
           v-if="pack && setup.data.value"
-          :pack="pack"
+          :key="pack.result.id"
+          :pack="pack.result"
           :limit="setup.data.value.capabilities.max_package_bytes"
+          :busy="packing.busy.value || packing.uncertain.value"
+          @recreate="createPackage(pack.request)"
         />
         <p
           v-if="appliedCategory?.group_by && results.items.value.length"
@@ -601,7 +655,7 @@ async function download(item: Resource) {
           class="btn btn-sm btn-primary"
           type="button"
           :disabled="packing.busy.value || packing.uncertain.value"
-          @click="createPackage(false)"
+          @click="createPackage({ resource_ids: selected.slice() })"
         >
           {{ t('browse.packDownload') }}
         </button>
@@ -638,6 +692,20 @@ async function download(item: Resource) {
           :school="campus"
           :empty-label="t('common.all')"
         />
+        <label class="field">
+          <span class="field-label">{{ t('resources.browse.fileType') }}</span>
+          <AppSelect
+            v-model="draft.fileType"
+            class="select"
+          >
+            <option value="">{{ t('common.all') }}</option>
+            <option
+              v-for="ext in fileTypes"
+              :key="ext"
+              :value="ext"
+            >{{ ext.toUpperCase() }}</option>
+          </AppSelect>
+        </label>
         <FieldInput
           v-for="field in draftCategory?.fields.filter((item) => item.filterable)"
           :key="field.key"
