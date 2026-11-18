@@ -63,6 +63,21 @@ it('passes current host credentials and cancellation on every request', async ()
   expect(signals.every((signal) => signal.aborted)).toBe(true)
 })
 
+it('keeps a resource upload active throughout the proxy wait', async () => {
+  vi.useFakeTimers()
+  try {
+    const api = new ResourcesApi(new Http(async (_url, init) => {
+      await new Promise(resolve => setTimeout(resolve, 300_000))
+      init?.signal?.throwIfAborted()
+      return Response.json(media)
+    }))
+    const result = expect(api.sendContent('upload', new Blob(['hello']), 'key')).resolves.toMatchObject({ id: media.id })
+    await Promise.all([result, vi.advanceTimersByTimeAsync(300_000)])
+  } finally {
+    vi.useRealTimers()
+  }
+})
+
 it('resolves a lost upload response by querying state without sending bytes again', async () => {
   vi.stubGlobal('crypto', webcrypto)
   let sent = 0
