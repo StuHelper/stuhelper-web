@@ -2241,6 +2241,7 @@
       "empty": "Vous n’avez pas encore voté.",
       "review": "Avis",
       "up": "Utile",
+      "cancel": "Retirer mon vote",
       "down": "Pas utile"
     },
     "compare": {
