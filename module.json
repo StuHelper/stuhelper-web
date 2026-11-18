@@ -26,7 +26,8 @@
     ],
     "RES-CLIENT-01": [
       "src/features/resources/api.test.ts#retries unknown writes with the frozen nested payload and original key",
-      "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again"
+      "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again",
+      "src/shared/api/http.test.ts#keeps a completed upload with an unreadable browser receipt from being sent twice"
     ],
     "RES-CLIENT-02": [
       "src/features/resources/api.test.ts#passes current host credentials and cancellation on every request",

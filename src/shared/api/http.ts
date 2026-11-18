@@ -160,7 +160,7 @@ export class Http {
     try {
       bytes = await readLimited(response, jsonLimit, opened.signal)
     } catch (failure) {
-      if (failure instanceof ApiError) throw new ApiError('incompatible', write, response.status)
+      if (failure instanceof ApiError) throw new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, response.status)
       // The body stopped arriving: a write may already have taken effect.
       throw opened.failure()
     } finally {
@@ -171,12 +171,12 @@ export class Http {
     try {
       value = parseJson(bytes)
     } catch {
-      throw new ApiError('incompatible', write, response.status)
+      throw new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, response.status)
     }
     try {
       return validate(value)
     } catch {
-      throw new ApiError('incompatible', write, response.status)
+      throw new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, response.status)
     }
   }
 
@@ -237,20 +237,20 @@ export class Http {
         if (xhr.status >= 200 && xhr.status < 300) {
           options.onUploadProgress?.(body.size, body.size)
           if (raw.byteLength > jsonLimit) {
-            reject(new ApiError('incompatible', write, xhr.status))
+            reject(new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, xhr.status))
             return
           }
           let value: unknown
           try {
             value = parseJson(raw)
           } catch {
-            reject(new ApiError('incompatible', write, xhr.status))
+            reject(new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, xhr.status))
             return
           }
           try {
             resolve(validate(value))
           } catch {
-            reject(new ApiError('incompatible', write, xhr.status))
+            reject(new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, xhr.status))
           }
           return
         }

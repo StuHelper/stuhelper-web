@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
+import { Mutation } from './mutation'
+import { sessionFetch } from './transport'
 import { Http, queryString } from './http'
 import { schemaOf } from './schema'
 
@@ -81,4 +83,35 @@ describe('HTTP boundary', () => {
     expect(queryString({ a: '1', b: '', c: undefined, d: null, e: 0, f: false })).toBe('?a=1&e=0&f=false')
     expect(queryString({})).toBe('')
   })
+})
+
+
+it('keeps a completed upload with an unreadable browser receipt from being sent twice', async () => {
+  const bytes: Blob[] = []
+  class FailedReceipt {
+    status = 200
+    response = new TextEncoder().encode('malformed').buffer
+    upload = {}
+    onload?: () => void
+    open() {}
+    setRequestHeader() {}
+    send(body: Blob) {
+      bytes.push(body)
+      this.onload?.()
+    }
+  }
+  vi.stubGlobal('XMLHttpRequest', FailedReceipt)
+  try {
+    const http = new Http(sessionFetch)
+    const mutation = new Mutation()
+    const file = new Blob(['saved content'])
+    const expected = { code: 'write_response_unrecognized', uncertain: true }
+    await expect(mutation.run('upload', {}, (_, key) => http.json('/api/v1/test', anything, {
+      method: 'PUT', bytes: file, key, onUploadProgress: () => {},
+    }))).rejects.toMatchObject(expected)
+    await expect(mutation.retry()).rejects.toMatchObject(expected)
+    expect(bytes).toEqual([file])
+  } finally {
+    vi.unstubAllGlobals()
+  }
 })
