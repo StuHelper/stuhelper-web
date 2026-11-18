@@ -20,7 +20,10 @@ export type Package = Schema['Package']
 export type Coverage = Schema['Coverage']
 export type Receipt = Schema['RequestReceipt']
 export type RequestInput = Schema['Request']
+export type Reference = Schema['Reference']
+export type ResourceFile = Schema['File']
 export type MediaVersion = Media['schemas']['Version']
+export type PreviewKind = 'pdf' | 'image' | 'text'
 
 const resources = resourcesContract.components.schemas
 const media = mediaContract.components.schemas
@@ -31,6 +34,7 @@ const parse = {
   coverage: schemaOf<Coverage>(resources, 'Coverage'),
   page: schemaOf<Schema['ResourcePage']>(resources, 'ResourcePage'),
   ownSummary: schemaOf<Schema['OwnResourceSummary']>(resources, 'OwnResourceSummary'),
+  references: schemaOf<Schema['References']>(resources, 'References'),
   directories: schemaOf<Schema['DirectoryPage']>(resources, 'DirectoryPage'),
   package: schemaOf<Package>(resources, 'Package'),
   receipt: schemaOf<Receipt>(resources, 'RequestReceipt'),
@@ -40,6 +44,63 @@ const parse = {
 }
 
 export const pageSize = 25
+/** Upper bound for inline browser preview so large archives or scans do not exhaust memory. */
+export const maxPreviewBytes = 25 * 1024 * 1024
+
+export const typeNames: Record<string, string> = {
+  'application/pdf': 'PDF',
+  'image/png': 'PNG',
+  'image/jpeg': 'JPG',
+  'image/webp': 'WEBP',
+  'image/gif': 'GIF',
+  'text/plain': 'TXT',
+  'text/markdown': 'MD',
+  'text/csv': 'CSV',
+  'application/zip': 'ZIP',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'XLSX',
+}
+
+const typeExtensions: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+  'text/plain': 'txt',
+  'text/markdown': 'md',
+  'text/csv': 'csv',
+  'application/zip': 'zip',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
+}
+
+export function typeLabel(type: string) {
+  const clean = type.split(';')[0]?.trim().toLowerCase() ?? ''
+  return typeNames[clean] ?? clean.split('/').at(-1)?.toUpperCase() ?? type
+}
+
+/** Lowercase extension accepted by the contract's `file_type` query filter. */
+export function typeExtension(type: string): string | undefined {
+  const clean = type.split(';')[0]?.trim().toLowerCase() ?? ''
+  const known = typeExtensions[clean]
+  if (known) return known
+  const sub = clean.split('/')[1] ?? ''
+  return /^[a-z0-9]{1,12}$/.test(sub) && sub !== 'octet-stream' ? sub : undefined
+}
+
+/** Determine whether a file can be safely rendered inside an inline preview container. */
+export function previewKind(file: Pick<ResourceFile, 'content_type' | 'filename'> | undefined): PreviewKind | undefined {
+  if (!file) return undefined
+  const mime = file.content_type.split(';')[0]?.trim().toLowerCase() ?? ''
+  const ext = file.filename.includes('.') ? file.filename.split('.').pop()?.toLowerCase() ?? '' : ''
+  if (mime === 'application/pdf' || ext === 'pdf') return 'pdf'
+  if (['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(mime) || ['png', 'jpg', 'jpeg', 'webp', 'gif'].includes(ext)) return 'image'
+  if (mime === 'text/plain' || mime === 'text/markdown' || mime === 'text/csv' || ['txt', 'md', 'csv'].includes(ext)) return 'text'
+  return undefined
+}
 
 /** Localized name of a configured category, field or option. */
 export function localName(names: Record<string, string>, locale: string) {
@@ -101,6 +162,17 @@ export class ResourcesApi {
     return this.http.json('/api/v1/resources/me/summary', parse.ownSummary, { signal })
   }
 
+  /** Catalog names referenced by the caller's own uploaded resources, in batches of 100. */
+  async myReferences(ids: (string | undefined)[], signal?: AbortSignal): Promise<Map<string, Reference>> {
+    const unique = [...new Set(ids.filter((id): id is string => !!id))]
+    const names = new Map<string, Reference>()
+    for (let start = 0; start < unique.length; start += 100) {
+      const result = await this.http.json('/api/v1/resources/me/references', parse.references, { query: { ids: unique.slice(start, start + 100).join(',') }, signal })
+      for (const item of result.items) names.set(item.id, item)
+    }
+    return names
+  }
+
   item(id: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/resources/items/${segment(id)}`, parse.resource, { signal })
   }
@@ -155,6 +227,11 @@ export class ResourcesApi {
     saveBlob(await this.http.blob(`/api/v1/resources/items/${segment(id)}/download`, size + (4 << 20), { signal }), filename)
   }
 
+  /** Authorized inline bytes for preview, subject to the exact same eligibility and access checks as download. */
+  preview(id: string, size: number, signal?: AbortSignal) {
+    return this.http.blob(`/api/v1/resources/items/${segment(id)}/preview`, size + (4 << 20), { signal })
+  }
+
   async downloadPart(pack: Package, part: number, limit: number, signal?: AbortSignal) {
     saveBlob(await this.http.blob(`/api/v1/resources/packages/${segment(pack.id)}/parts/${part}`, limit + (4 << 20), { signal }), `resources-${part}.zip`)
   }
@@ -167,8 +244,8 @@ export class ResourcesApi {
     return this.http.json(`/api/v1/media/uploads/${segment(id)}`, parse.mediaView, { signal })
   }
 
-  sendContent(id: string, file: Blob, key: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/media/uploads/${segment(id)}/content`, parse.mediaVersion, { method: 'PUT', bytes: file, headers: { 'Content-Type': 'application/octet-stream' }, key, signal, timeout: 120_000 })
+  sendContent(id: string, file: Blob, key: string, signal?: AbortSignal, onProgress?: (loaded: number, total: number) => void) {
+    return this.http.json(`/api/v1/media/uploads/${segment(id)}/content`, parse.mediaVersion, { method: 'PUT', bytes: file, headers: { 'Content-Type': 'application/octet-stream' }, key, signal, timeout: 120_000, onUploadProgress: onProgress })
   }
 
   cancelUpload(id: string, key: string) {
@@ -209,7 +286,7 @@ export class Upload {
     readonly purpose: string,
   ) {}
 
-  async run(): Promise<MediaVersion> {
+  async run(onProgress?: (loaded: number, total: number) => void): Promise<MediaVersion> {
     this.stop = new AbortController()
     this.request ??= { reuse_existing: true, purpose: this.purpose, filename: this.file.name, content_type: this.file.type || 'application/octet-stream', size: this.file.size, sha256: await sha256(this.file) }
     this.version ??= await this.api.createUpload(this.request, this.createKey)
@@ -219,7 +296,7 @@ export class Upload {
     if (readyStates.includes(this.version.state)) return this.version
     if (finishedStates.includes(this.version.state)) throw new ApiError('invalid_input')
     if (this.version.reused) throw new ApiError('reuse_pending')
-    this.version = await this.api.sendContent(this.version.upload_id, this.file, this.contentKey, this.stop.signal)
+    this.version = await this.api.sendContent(this.version.upload_id, this.file, this.contentKey, this.stop.signal, onProgress)
     return this.version
   }
 
