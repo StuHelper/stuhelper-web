@@ -45,6 +45,9 @@ class TransferProxyTest(unittest.TestCase):
         root = Path(temp.name)
         document_root = root / "html"
         document_root.mkdir()
+        assets = document_root / "assets"
+        assets.mkdir()
+        (assets / "main.hash.js").write_text("export {}")
         (document_root / "terms.html").write_bytes(b"Terms fixture")
         (document_root / "index.html").write_bytes(b"Home fixture")
         site = Path("deploy/nginx.conf").read_text().replace(
@@ -80,6 +83,18 @@ class TransferProxyTest(unittest.TestCase):
         finally:
             conn.close()
 
+    def test_only_available_assets_receive_immutable_cache_headers(self):
+        for name, expected_status in [("main.hash.js", 200), ("missing.hash.js", 404)]:
+            with self.subTest(name=name):
+                status, _, headers = self.request("GET", "/assets/" + name)
+                self.assertEqual(status, expected_status)
+                cache = headers.get("Cache-Control", "")
+                if expected_status == 200:
+                    self.assertIn("immutable", cache)
+                else:
+                    self.assertNotIn("immutable", cache)
+                    self.assertNotIn("max-age=31536000", cache)
+
     def test_media_body_reaches_upstream(self):
         path = "/api/v1/media/uploads/sample/content"
         body = b"x" * (2 << 20)
@@ -102,6 +117,8 @@ class TransferProxyTest(unittest.TestCase):
             status, body, headers = self.request("GET", "/terms.html", headers={"Origin": origin})
             self.assertEqual((status, body), (200, b"Terms fixture"))
             self.assertEqual(headers.get_all(header), [sso])
+            self.assertEqual(headers.get("Cache-Control"), "no-cache")
+            self.assertEqual(headers.get("X-Content-Type-Options"), "nosniff")
         for method, path in (("HEAD", "/terms.html"), ("GET", "/")):
             status, _, headers = self.request(method, path, headers={"Origin": sso})
             self.assertEqual(status, 200)
