@@ -472,7 +472,8 @@
       "newest": "Plus récents d’abord",
       "oldest": "Plus anciens d’abord",
       "empty": "Aucun avis sur ce cours pour le moment.",
-      "emptyMentor": "Aucun avis sur l’encadrement pour le moment."
+      "emptyMentor": "Aucun avis sur l’encadrement pour le moment.",
+      "upvotes": "Plus approuvés"
     },
     "review": {
       "featured": "Contenu de qualité",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "Compte",
       "services": "Autres services"
-    }
+    },
+    "pendingCoursesTitle": "Cours en attente de votre avis",
+    "writePendingReview": "Rédiger un avis"
   },
   "resources": {
     "eyebrow": "Partage de ressources",
@@ -2284,7 +2287,12 @@
       "tray": "Liste de comparaison",
       "progress": "{count} sur {max} sélectionnés",
       "start": "Comparer",
-      "pickMore": "Choisissez-en un de plus"
+      "pickMore": "Choisissez-en un de plus",
+      "clear": "Vider la comparaison",
+      "addCourse": "Rechercher et ajouter un cours à comparer",
+      "addTeacher": "Rechercher et ajouter un enseignant à comparer",
+      "taughtCourses": "Cours enseignés",
+      "ratedCourses": "Cours pris en compte"
     }
   },
   "groups": {

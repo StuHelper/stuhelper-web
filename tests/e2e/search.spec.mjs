@@ -93,3 +93,26 @@ memberTest('two teachers added from their pages are compared over one time range
   await expect(page.getByRole('columnheader', { name: /Teacher A/ })).toHaveCount(0);
   await expect(page.getByRole('tab', { name: fill(c.teachers, { count: number(info, 1) }), exact: true })).toBeVisible();
 });
+
+memberTest('comparison page adds courses from in-page search, shows summary facts without class queries, and clears in one click', async ({ page }, info) => {
+  const all = catalogue(info), c = all.search.compare, seenKinds = [];
+  await academicFixture(page, { course: { credits: 3 } });
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/v1/catalog/objects') seenKinds.push(url.searchParams.get('kind'));
+  });
+  await page.goto(`${base}/compare?lang=${info.project.metadata.locale}`);
+  const picker = page.getByRole('region', { name: c.addCourse, exact: true });
+  await picker.getByRole('searchbox').fill('Test');
+  await picker.getByRole('button', { name: c.add, exact: true }).click();
+
+  await expect(page.getByRole('columnheader', { name: /Test Course/ })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Test College', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: number(info, 3), exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: /Test Seminar/ })).toBeVisible();
+  await expect(page.getByRole('cell').getByRole('link', { name: 'Teacher A', exact: true })).toBeVisible();
+  expect(seenKinds.filter((k) => ['term_course', 'class', 'schedule', 'assignment'].includes(k ?? ''))).toEqual([]);
+
+  await page.getByRole('button', { name: c.clear, exact: true }).click();
+  await expect(page.getByRole('heading', { name: c.emptyTitle, exact: true })).toBeVisible();
+});

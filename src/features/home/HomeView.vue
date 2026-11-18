@@ -343,7 +343,7 @@ function search() {
         <RouterLink
           v-if="pending?.count"
           class="todo"
-          :to="pending.items[0] ? `/courses/${encodeURIComponent(pending.items[0].course_id)}` : '/me/reviews'"
+          to="/me/reviews"
         >
           <span
             class="icon-tile"

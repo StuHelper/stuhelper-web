@@ -472,7 +472,8 @@
       "newest": "Más recientes primero",
       "oldest": "Más antiguos primero",
       "empty": "Aún no hay reseñas del curso.",
-      "emptyMentor": "Aún no hay comentarios de tutoría."
+      "emptyMentor": "Aún no hay comentarios de tutoría.",
+      "upvotes": "Más votadas"
     },
     "review": {
       "featured": "Contenido destacado",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "Cuenta",
       "services": "Más servicios"
-    }
+    },
+    "pendingCoursesTitle": "Cursos pendientes de tu reseña",
+    "writePendingReview": "Escribir reseña"
   },
   "resources": {
     "eyebrow": "Materiales compartidos",
@@ -2284,7 +2287,12 @@
       "tray": "Lista de comparación",
       "progress": "{count} de {max} seleccionados",
       "start": "Comparar ahora",
-      "pickMore": "Elige uno más para comparar"
+      "pickMore": "Elige uno más para comparar",
+      "clear": "Vaciar comparación",
+      "addCourse": "Buscar y añadir un curso para comparar",
+      "addTeacher": "Buscar y añadir un docente para comparar",
+      "taughtCourses": "Cursos impartidos",
+      "ratedCourses": "Cursos incluidos en el cálculo"
     }
   },
   "groups": {

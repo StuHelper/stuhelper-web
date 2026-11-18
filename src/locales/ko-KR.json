@@ -472,7 +472,8 @@
       "newest": "최신순",
       "oldest": "오래된순",
       "empty": "아직 강의 평가가 없습니다.",
-      "emptyMentor": "아직 지도교수 평가가 없습니다."
+      "emptyMentor": "아직 지도교수 평가가 없습니다.",
+      "upvotes": "찬성 많은 순"
     },
     "review": {
       "featured": "우수 콘텐츠",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "계정",
       "services": "기타 서비스"
-    }
+    },
+    "pendingCoursesTitle": "평가를 기다리는 강의",
+    "writePendingReview": "평가 작성"
   },
   "resources": {
     "eyebrow": "자료 공유",
@@ -2284,7 +2287,12 @@
       "tray": "비교 목록",
       "progress": "{count} / {max}개 선택됨",
       "start": "비교하기",
-      "pickMore": "하나 더 고르면 비교할 수 있습니다"
+      "pickMore": "하나 더 고르면 비교할 수 있습니다",
+      "clear": "비교 비우기",
+      "addCourse": "비교할 강의 검색 및 추가",
+      "addTeacher": "비교할 교원 검색 및 추가",
+      "taughtCourses": "담당 강의 수",
+      "ratedCourses": "집계 포함 강의 수"
     }
   },
   "groups": {
