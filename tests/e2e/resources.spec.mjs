@@ -148,3 +148,21 @@ test('the side list shows recently visited courses, filters by one and can be cl
   await expect(side.getByText(b.noRecentCourses, { exact: true })).toBeVisible();
   expect(deletes).toHaveLength(1);
 });
+
+test('transient list download failures toast in place and my-resources withdrawal auto-opens request form', async ({ page }, info) => {
+  const { all, m, errors, locale } = await setup(page, info);
+  await page.route('**/api/v1/resources/items/resource/download', (route) => route.fulfill({ status: 503, json: { code: 'unavailable' } }));
+  if (page.viewportSize().width <= 760) {
+    await page.getByRole('button', { name: all.browse.moreActionsFor.replace('{p0}', 'Fixture notes'), exact: true }).click();
+    await page.getByRole('menuitem', { name: all.browse.download, exact: true }).click();
+  } else {
+    await page.getByRole('button', { name: all.browse.downloadItem.replace('{p0}', 'Fixture notes'), exact: true }).click();
+  }
+  await expect(page.getByText(all.errors.unavailable, { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(/\/resources(\?|$)/);
+
+  await page.goto(`http://127.0.0.1:18787/me/resources?lang=${locale}`);
+  await page.getByRole('link', { name: all.me.requestWithdrawal, exact: true }).click();
+  await expect(page.getByLabel(m.request.reason, { exact: true })).toBeVisible();
+  await layout(page, errors, locale);
+});

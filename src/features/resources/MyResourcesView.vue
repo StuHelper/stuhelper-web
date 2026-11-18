@@ -94,7 +94,7 @@ function tone(state: Version['state']) {
             </RouterLink>
             <RouterLink
               class="btn btn-sm btn-ghost"
-              :to="`/resources/items/${encodeURIComponent(item.id)}`"
+              :to="{ path: `/resources/items/${encodeURIComponent(item.id)}`, query: { action: 'withdraw' } }"
             >
               {{ t('me.requestWithdrawal') }}
             </RouterLink>

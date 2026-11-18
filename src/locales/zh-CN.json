@@ -902,7 +902,11 @@
       "granting": "已付款，正在开通访问权，请稍候。也可以稍后在钱包的订单中查看结果。",
       "viewOrder": "查看订单",
       "refunded": "该资料暂时无法交付，费用已退回原支付账户。",
-      "done": "已开通，可以下载了。"
+      "done": "已开通，可以下载了。",
+      "currentBalance": "当前可用：{balance}",
+      "confirmTitle": "确认支付并解锁",
+      "confirmMessage": "将扣除 {price} 用于解锁该资料，确认继续吗？",
+      "confirmMessageWithBalance": "将扣除 {price} 用于解锁该资料（当前可用：{balance}），确认继续吗？"
     }
   },
   "verification": {
@@ -1651,7 +1655,8 @@
     "mine": "我的",
     "defaultFolder": "默认收藏",
     "unknown": "暂时无法确认收藏状态",
-    "untitled": "已不可见的内容"
+    "untitled": "已不可见的内容",
+    "deleteFolderConfirm": "确认删除收藏夹“{p0}”？其中的收藏内容将移入“{p1}”。"
   },
   "qq": {
     "title": "QQ 绑定",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync, useTask } from '../../shared/composables/async'
 import AsyncState from '../../shared/ui/AsyncState.vue'
@@ -17,6 +17,7 @@ import UnlockPanel from './UnlockPanel.vue'
 
 const props = defineProps<{ id: string }>()
 const { t, te, locale } = useI18n()
+const route = useRoute()
 const format = useFormat()
 const errorText = useErrorText()
 const api = useResourcesApi()
@@ -28,9 +29,12 @@ const entry = useAsync((signal) => api.item(props.id, signal))
 const version = computed(() => entry.data.value?.current ?? entry.data.value?.proposal)
 const entryValue = computed(() => entry.data.value)
 watch(() => props.id, () => {
-  requesting.value = false
+  requesting.value = route.query.action === 'withdraw'
   void entry.reload()
 }, { immediate: true })
+watch(() => route.query.action, (action) => {
+  if (action === 'withdraw') requesting.value = true
+})
 
 async function save() {
   const item = entryValue.value

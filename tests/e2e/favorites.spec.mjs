@@ -36,6 +36,11 @@ function favorites(page) {
       Object.assign(folder, { name: body.name, revision: folder.revision + 1 });
       return route.fulfill({ json: view(folder) });
     }
+    if (kind === 'folders' && action === 'delete') {
+      state.folders = state.folders.filter((row) => row.id !== id);
+      for (const item of state.items) if (item.folder_id === id) item.folder_id = 'default';
+      return route.fulfill({ json: { id, removed: true } });
+    }
     if (kind === 'items' && action === 'move') {
       const item = state.items.find((row) => row.id === id);
       Object.assign(item, { folder_id: body.folder_id, revision: item.revision + 1 });
@@ -97,4 +102,37 @@ test('the course page shows the saved state and removes the favorite', async ({ 
   await button.click();
   await expect(page.getByRole('button', { name: f.add, exact: true })).toHaveAttribute('aria-pressed', 'false');
   expect(state.writes.at(-1)).toMatchObject({ path: '/items/f1/remove', body: { revision: 1 } });
+});
+
+test('saving a favorite offers quick move to folder, persists selected folder on back, and confirms folder deletion', async ({ page }, info) => {
+  const all = catalogue(info), f = all.favorites;
+  await academicFixture(page);
+  const state = favorites(page);
+  state.items = state.items.filter((row) => row.id !== 'f1');
+
+  await page.goto(`${base}/courses/course?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: f.add, exact: true }).click();
+  await page.getByRole('button', { name: f.moveTo, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: /Exam/ }).click();
+  await expect(page.getByText(f.movedTo.replace('{p0}', 'Exam'))).toBeVisible();
+  expect(state.writes.at(-1)).toMatchObject({ path: '/items/f4/move', body: { folder_id: 'exam', revision: 1 } });
+
+  await page.goto(`${base}/me/favorites?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: /Exam/ }).click();
+  expect(new URL(page.url()).searchParams.has('folder')).toBe(false);
+  await page.getByRole('link', { name: 'Test Course', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/courses\/course/);
+  await page.goBack();
+  await expect(page.getByRole('button', { name: /Exam/ }).first()).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('button', { name: f.manageFolderItem.replace('{p0}', 'Exam') }).click();
+  await page.getByRole('menuitem', { name: f.deleteFolder }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
+  expect(state.writes.some((w) => w.path === '/folders/exam/delete')).toBe(false);
+
+  await page.getByRole('button', { name: f.manageFolderItem.replace('{p0}', 'Exam') }).click();
+  await page.getByRole('menuitem', { name: f.deleteFolder }).click();
+  await page.getByRole('dialog').getByRole('button', { name: f.deleteFolder, exact: true }).click();
+  await expect.poll(() => state.writes.at(-1)).toMatchObject({ path: '/folders/exam/delete', body: { revision: 1 } });
 });

@@ -902,7 +902,11 @@
       "granting": "Pago recibido. Activando el acceso, espera un momento. También puedes ver el resultado más tarde en los pedidos del monedero.",
       "viewOrder": "Ver pedido",
       "refunded": "Este recurso no se puede entregar ahora. El pago se ha devuelto a la cuenta con la que pagaste.",
-      "done": "Acceso concedido. Ya puedes descargarlo."
+      "done": "Acceso concedido. Ya puedes descargarlo.",
+      "currentBalance": "Saldo disponible: {balance}",
+      "confirmTitle": "Confirmar pago",
+      "confirmMessage": "¿Pagar {price} para desbloquear el acceso a este material?",
+      "confirmMessageWithBalance": "¿Pagar {price} para desbloquear el acceso a este material? Saldo disponible: {balance}."
     }
   },
   "verification": {
@@ -1651,7 +1655,8 @@
     "mine": "Yo",
     "defaultFolder": "Predeterminada",
     "unknown": "No se puede confirmar el estado del favorito",
-    "untitled": "Contenido ya no disponible"
+    "untitled": "Contenido ya no disponible",
+    "deleteFolderConfirm": "¿Eliminar la carpeta «{p0}»? Sus elementos guardados se moverán a «{p1}»."
   },
   "qq": {
     "title": "Vinculación de QQ",
