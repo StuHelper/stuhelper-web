@@ -9,7 +9,8 @@
     "footer": "Información del campus sobre cursos, reseñas y materiales",
     "themeLight": "Cambiar a apariencia clara",
     "themeDark": "Cambiar a apariencia oscura",
-    "contact": "Contacto y comentarios"
+    "contact": "Contacto y comentarios",
+    "themeSystem": "Seguir la apariencia del sistema"
   },
   "nav": {
     "primary": "Navegación principal",
@@ -175,15 +176,15 @@
     "more": "Conocer {name}",
     "visit": "Ir a {host}",
     "tiles": {
-      "campus": "Reseñas de cursos y profesores, materiales y horarios",
+      "campus": "Reseñas de cursos y profesores, materiales y comparación",
       "api": "Una sola interfaz para varios grandes modelos",
       "store": "Suscripciones de GPT y créditos de Codex recargados por ti",
       "platform": "Inicio de sesión único e integración de aplicaciones de terceros"
     },
     "campus": {
       "name": "Campus StuHelper",
-      "tag": "Cursos, profesores, materiales y horarios",
-      "lead": "Una comunidad de cursos para estudiantes matriculados. Lee reseñas de cursos y profesores, encuentra exámenes anteriores y apuntes, compara los cursos que estás valorando y gestiona tu horario. Actualmente abierto a la Universidad de Beihang.",
+      "tag": "Cursos, profesores, materiales y comparación",
+      "lead": "Una comunidad de cursos para miembros del campus. Lee reseñas de cursos y profesores, encuentra exámenes anteriores y apuntes y compara los cursos que estás valorando.",
       "action": "Entrar en Campus",
       "points": {
         "reviews": {
@@ -502,7 +503,8 @@
       "deleteReplyConfirm": "¿Eliminar esta respuesta definitivamente? El resto de la discusión se mantiene.",
       "withdrawConfirm": "Retirar oculta la discusión. Republicar conserva la fecha original, respuestas y votos. Los borradores caducados se eliminan.",
       "expand": "Ver más",
-      "collapse": "Ver menos"
+      "collapse": "Ver menos",
+      "editWindowRemaining": "Retirada o eliminación directa: quedan {time}"
     },
     "replies": {
       "title": "Respuestas",
@@ -1346,11 +1348,11 @@
   "gate": {
     "guest": {
       "title": "Inicia sesión para continuar",
-      "text": "Los cursos, profesores, reseñas y recursos están abiertos a estudiantes y profesores verificados de Beihang.",
+      "text": "Los cursos, profesores, reseñas y recursos están abiertos a estudiantes y profesores verificados del campus.",
       "action": "Iniciar sesión"
     },
     "unverified": {
-      "title": "Verifica tu condición en Beihang para continuar",
+      "title": "Completa la verificación del campus para continuar",
       "text": "Tras la verificación volverás a la página que querías ver.",
       "action": "Iniciar verificación"
     },
@@ -2089,7 +2091,8 @@
         "send": "Enviar informe",
         "recorded": "Resultado registrado.",
         "pendingBadge": "Aviso de retirada pendiente"
-      }
+      },
+      "secretCloseConfirm": "Este secreto solo se muestra una vez y no podrá verse de nuevo al cerrar. Cópialo primero o confirma que lo guardaste."
     },
     "consent": {
       "title": "Autorización de aplicación",
@@ -2343,7 +2346,7 @@
     },
     "fact": {
       "student_eligibility": "condición de estudiante",
-      "student_stage": "situación de matrícula"
+      "student_stage": "etapa de estudios"
     },
     "hint": {
       "submit_password": "Envía la contraseña de acceso en el grupo según indica el aviso del grupo.",

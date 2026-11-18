@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
+import { accessKey } from '../account/access'
 
 const { t } = useI18n()
+const access = inject(accessKey, undefined)
+const homePath = computed(() => (access?.state.value === 'verified' ? '/campus' : '/'))
 </script>
 
 <template>
@@ -16,7 +20,7 @@ const { t } = useI18n()
     </p>
     <RouterLink
       class="btn btn-primary"
-      to="/"
+      :to="homePath"
     >
       {{ t('notFound.home') }}
     </RouterLink>

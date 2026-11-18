@@ -529,3 +529,50 @@ test('course page defaults review sort to upvotes, renders distribution and tren
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('verified not-found links back to campus and fresh review edit window counts down to request actions', async ({ page }, info) => {
+  const all = catalogue(info);
+  const r = all.academic.review;
+  await page.clock.install({ time: new Date('2026-11-18T10:00:10Z') });
+  await academicFixture(page);
+  await page.goto(`http://127.0.0.1:18787/no-such-campus-page?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('link', { name: all.notFound.home, exact: true })).toHaveAttribute('href', '/campus');
+
+  const freshReview = {
+    id: 'fresh-rev',
+    root_id: 'fresh-rev',
+    kind: 'course',
+    school_id: 'school',
+    target_id: 'course',
+    term_id: 'fall',
+    title: 'Fresh review',
+    body: 'Published ten seconds ago.',
+    ratings: [4, 4, 3, 3, 4],
+    author: { anonymous: true, handle: 'author' },
+    revision: 1,
+    published_at: '2026-11-18T10:00:00Z',
+    upvotes: 0,
+    downvotes: 0,
+    my_vote: 0,
+    mine: true,
+    state: 'published',
+    can_edit: true,
+  };
+  let permissionReads = 0;
+  await page.route('**/api/v1/reviews/me/entries/fresh-rev', route => {
+    permissionReads++;
+    return route.fulfill({ json: { ...freshReview, can_edit: permissionReads === 1 } });
+  });
+  await page.route('**/api/v1/reviews?**', (route) => route.fulfill({ json: { items: [freshReview], next: '' } }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toBeVisible();
+  await expect(page.getByText(r.editWindowRemaining.replace('{time}', '4:50'), { exact: true })).toBeVisible();
+  await page.clock.fastForward('05:00');
+  await expect.poll(() => permissionReads).toBe(1);
+  await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toBeVisible();
+  await page.clock.fastForward('00:31');
+  await expect.poll(() => permissionReads).toBe(2);
+  await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: r.requestEdit, exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: r.requestDelete, exact: true })).toBeVisible();
+});

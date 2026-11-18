@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -36,6 +36,43 @@ const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(p
 const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
+const editWindowMs = 5 * 60_000
+const remainingSeconds = ref(0)
+const editCountdownText = computed(() => {
+  if (!remainingSeconds.value) return ''
+  const mins = Math.floor(remainingSeconds.value / 60)
+  const secs = String(remainingSeconds.value % 60).padStart(2, '0')
+  return t('academic.review.editWindowRemaining', { time: `${mins}:${secs}` })
+})
+watch([() => props.review.id, () => props.review.can_edit, () => props.review.published_at], ([id, canEdit, publishedAt], _before, onCleanup) => {
+  remainingSeconds.value = 0
+  if (!canEdit || !props.review.mine || !publishedAt) return
+  const end = Math.min(Date.parse(publishedAt) + editWindowMs, Date.now() + editWindowMs)
+  if (!Number.isFinite(end)) return
+  const controller = new AbortController()
+  let timer: ReturnType<typeof setTimeout>
+  onCleanup(() => { controller.abort(); clearTimeout(timer) })
+  // A fast device clock can reach zero before the server closes the edit window.
+  // Only the author's server record can change the available actions.
+  const retryUntil = Date.now() + editWindowMs + 30_000
+  async function refresh() {
+    try {
+      const current = await api.myEntry(id, controller.signal)
+      if (controller.signal.aborted) return
+      if (current.revision >= props.review.revision) emit('updated', current)
+      if (!current.can_edit) return
+    } catch {
+      // Preserve the last server decision during a failed background refresh.
+    }
+    if (!controller.signal.aborted && Date.now() < retryUntil) timer = setTimeout(refresh, 30_000)
+  }
+  function tick() {
+    remainingSeconds.value = Math.max(0, Math.ceil((end - Date.now()) / 1000))
+    if (remainingSeconds.value) timer = setTimeout(tick, 1000)
+    else void refresh()
+  }
+  tick()
+}, { immediate: true })
 // In a list a long body is folded to a few lines. The control appears only when text is actually cut off.
 const bodyElement = ref<HTMLElement>()
 const expanded = ref(false)
@@ -49,7 +86,9 @@ onMounted(() => {
   bodyObserver = new ResizeObserver(measureBody)
   bodyObserver.observe(bodyElement.value)
 })
-onBeforeUnmount(() => bodyObserver?.disconnect())
+onBeforeUnmount(() => {
+  bodyObserver?.disconnect()
+})
 
 // What the pending write does once it succeeds, so a retry of the original request finishes it too.
 let finish: (result: never) => void | Promise<void> = () => {}
@@ -300,6 +339,10 @@ async function retry() {
         </button>
       </template>
       <template v-if="review.can_edit">
+        <span
+          v-if="editCountdownText"
+          class="subtle mono"
+        >{{ editCountdownText }}</span>
         <button
           class="btn btn-sm"
           type="button"

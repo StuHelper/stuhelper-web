@@ -116,6 +116,9 @@ test('a rotated secret is shown once and a withdrawal notice records the reporte
   await page.getByRole('alertdialog').or(page.getByRole('dialog')).getByRole('button', { name: d.rotate, exact: true }).click();
   await expect(page.getByText('opsecret_fixture', { exact: true })).toBeVisible();
   expect(state.writes.at(-1)).toMatchObject({ path: '/apps/app-1/credential', body: { revision: 1 } });
+  await page.keyboard.press('Escape');
+  await expect(page.getByText(d.secretCloseConfirm, { exact: true })).toBeVisible();
+  await expect(page.getByText('opsecret_fixture', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: d.secretSaved, exact: true }).click();
   await expect(page.getByText('opsecret_fixture', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: d.notices.open, exact: true }).click();

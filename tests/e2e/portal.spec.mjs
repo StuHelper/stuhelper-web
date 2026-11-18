@@ -11,6 +11,7 @@ test('the portal shows the brand first and sends no business request', async ({ 
   await page.goto(`${base}/?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { level: 1, name: all.brand.name, exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { level: 2, name: all.portal.campus.name, exact: true })).toBeVisible();
+  await expect(page.getByText(all.portal.campus.points.schedule.title, { exact: true })).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 2, name: all.portal.platform.title, exact: true })).toBeVisible();
   // Product navigation shows; the campus sub-navigation belongs to campus pages only.
   await expect(page.getByRole('navigation', { name: all.nav.primary, exact: true }).getByRole('link', { name: all.nav.campus, exact: true })).toBeVisible();
@@ -56,6 +57,9 @@ test('the appearance choice applies at once and survives a reload', async ({ pag
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await page.getByRole('button', { name: all.shell.themeLight, exact: true }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  await page.getByRole('button', { name: all.shell.themeSystem, exact: true }).click();
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
+  expect(await page.evaluate(() => localStorage.getItem('stuhelper.theme'))).toBeNull();
 });
 
 test('the portal does not advertise the open platform when that module is off', async ({ page }, info) => {

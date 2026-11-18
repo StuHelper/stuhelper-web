@@ -9,7 +9,8 @@
     "footer": "课程、评价与学习资料的校园信息平台",
     "themeLight": "切换到浅色外观",
     "themeDark": "切换到深色外观",
-    "contact": "联系与反馈"
+    "contact": "联系与反馈",
+    "themeSystem": "跟随系统外观"
   },
   "nav": {
     "primary": "主导航",
@@ -175,15 +176,15 @@
     "more": "了解 {name}",
     "visit": "前往 {host}",
     "tiles": {
-      "campus": "课程与教师评价、学习资料、课表",
+      "campus": "课程与教师评价、学习资料与选课对比",
       "api": "多家大模型的统一接口",
       "store": "GPT 订阅与 Codex 点数代充",
       "platform": "统一身份认证与第三方应用接入"
     },
     "campus": {
       "name": "StuHelper 校园",
-      "tag": "课程、教师、资料与课表",
-      "lead": "面向在校学生的课程社区。查看课程和教师的评价，查找往年题和笔记，对比备选课程，管理自己的课表。目前面向北京航空航天大学开放。",
+      "tag": "课程、教师、资料与对比",
+      "lead": "面向在校师生的课程社区。查看课程和教师的评价，查找往年题和笔记，并排对比备选课程。",
       "action": "进入校园",
       "points": {
         "reviews": {
@@ -502,7 +503,8 @@
       "deleteReplyConfirm": "确认永久删除该回复？讨论中的其他内容会保留。",
       "withdrawConfirm": "撤回后整条讨论暂时隐藏，重新发布保留原发布时间、回复和投票。草稿到期会自动删除。",
       "expand": "展开全文",
-      "collapse": "收起"
+      "collapse": "收起",
+      "editWindowRemaining": "可撤回或删除剩余 {time}"
     },
     "replies": {
       "title": "讨论回复",
@@ -1346,11 +1348,11 @@
   "gate": {
     "guest": {
       "title": "登录后继续",
-      "text": "课程、教师、评价和资料仅向北航认证学生和教师开放。",
+      "text": "课程、教师、评价和资料仅向通过校园认证的师生开放。",
       "action": "登录"
     },
     "unverified": {
-      "title": "完成北航认证后继续",
+      "title": "完成校园身份认证后继续",
       "text": "认证通过后会回到你刚才要看的页面。",
       "action": "开始认证"
     },
@@ -2089,7 +2091,8 @@
         "send": "提交回报",
         "recorded": "处理结果已记录。",
         "pendingBadge": "有待回报通知"
-      }
+      },
+      "secretCloseConfirm": "该密钥仅显示这一次，关闭后无法再次查看。请先复制密钥，或点击“我已保存”确认关闭。"
     },
     "consent": {
       "title": "应用授权",
@@ -2343,7 +2346,7 @@
     },
     "fact": {
       "student_eligibility": "学生资格",
-      "student_stage": "学籍阶段"
+      "student_stage": "学习阶段"
     },
     "hint": {
       "submit_password": "请按群公告在群内发送入群口令。",
