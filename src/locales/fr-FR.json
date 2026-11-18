@@ -1064,6 +1064,8 @@
       "done": "Terminé"
     },
     "materialTypes": {
+      "staff_card": "Carte professionnelle",
+      "contract": "Contrat de travail",
       "student_card": "Carte étudiante ou universitaire",
       "admission_letter": "Lettre d’admission",
       "enrollment_certificate": "Certificat de scolarité",

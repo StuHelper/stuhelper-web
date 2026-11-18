@@ -1064,6 +1064,8 @@
       "done": "Completado"
     },
     "materialTypes": {
+      "staff_card": "Carné del personal",
+      "contract": "Contrato de trabajo",
       "student_card": "Carné de estudiante",
       "admission_letter": "Carta de admisión",
       "enrollment_certificate": "Certificado de matrícula",

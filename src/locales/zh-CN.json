@@ -1064,6 +1064,8 @@
       "done": "已完成"
     },
     "materialTypes": {
+      "staff_card": "教职工证",
+      "contract": "聘用合同",
       "student_card": "学生证或校园卡",
       "admission_letter": "录取通知书",
       "enrollment_certificate": "在读证明",

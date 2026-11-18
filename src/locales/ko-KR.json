@@ -1064,6 +1064,8 @@
       "done": "완료됨"
     },
     "materialTypes": {
+      "staff_card": "교직원증",
+      "contract": "근로 계약서",
       "student_card": "학생증 또는 캠퍼스 카드",
       "admission_letter": "입학 허가서",
       "enrollment_certificate": "재학 증명서",
