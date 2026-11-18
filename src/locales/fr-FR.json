@@ -825,6 +825,7 @@
       "accept": "J’ai lu et j’accepte les conditions actuelles"
     },
     "editor": {
+      "selectCategory": "Choisissez une catégorie de ressources disponible.",
       "intro": "Trois étapes : enregistrer les informations, déposer le fichier, soumettre. La version publiée reste disponible pendant la validation.",
       "step1": "1. Informations",
       "step2": "2. Fichier",

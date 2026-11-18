@@ -13,7 +13,7 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
-import { localName, typeLabel, Upload, useResourcesApi, type Metadata, type Resource } from './api'
+import { readyStates, finishedStates, type MediaVersion, localName, typeLabel, Upload, useResourcesApi, type Metadata, type Resource } from './api'
 import { useCampusId } from '../account/access'
 import CatalogPicker from './CatalogPicker.vue'
 import DirectoryPicker from './DirectoryPicker.vue'
@@ -45,9 +45,11 @@ const uploadBusy = ref(false)
 const uploadedBytes = ref(0)
 const uploadTotalBytes = ref(0)
 const dragging = ref(false)
+const cancelling = ref(false)
 const reused = ref(false)
 const submitted = ref(false)
 let upload: Upload | undefined
+let uploadAttempt = 0
 
 function initialDirectory() {
   if (props.id) return undefined
@@ -93,16 +95,16 @@ const fingerprint = () => JSON.stringify([metadata.value, tagText.value, consent
 const baseline = ref('')
 const dirty = computed(() => baseline.value !== '' && fingerprint() !== baseline.value)
 const proposal = computed(() => entry.value?.proposal)
-const step = computed(() => (!entry.value || dirty.value ? 1 : !proposal.value?.file ? 2 : 3))
+const step = computed(() => (!proposal.value || dirty.value ? 1 : !proposal.value?.file ? 2 : 3))
 // 一次只显示当前步骤。上传完成后文件状态仍和提交审核一起显示。已完成的步骤可以点回去修改。
 const viewStep = ref(step.value)
 watch(step, (value) => { viewStep.value = value })
 watch(() => metadata.value.associations.course_id, (next, previous) => {
   if (baseline.value !== '' && next !== previous) metadata.value.directory_id = undefined
 })
-const fileDisabled = computed(() => !entry.value || dirty.value || uploadBusy.value || (!!uploadState.value && !['cancelled', 'attached'].includes(uploadState.value)))
+const fileDisabled = computed(() => !entry.value || dirty.value || anyBusy.value || anyUncertain.value || (!!upload && !attaching.error.value && !!uploadState.value && uploadState.value !== 'attached'))
 const canSubmit = computed(() => !!proposal.value?.file && !dirty.value && !['pending', 'preparing'].includes(proposal.value.state))
-const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value)
+const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value || cancelling.value)
 const anyUncertain = computed(() => saving.uncertain.value || attaching.uncertain.value || submitting.uncertain.value)
 
 useLeaveGuard(() => (anyUncertain.value ? t('common.leaveUncertain') : dirty.value || anyBusy.value ? t('common.leaveUnsaved') : ''))
@@ -139,6 +141,7 @@ function saved(result: Resource) {
 }
 
 function pickFile(chosen: File | undefined) {
+  attaching.dismiss()
   file.value = chosen
   upload = undefined
   uploadState.value = ''
@@ -165,30 +168,41 @@ async function sendFile() {
   const limits = capabilities.value
   const purpose = profile.value?.purpose
   const current = entry.value
-  if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value) return
+  if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value || cancelling.value) return
   uploadError.value = ''
   if (chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
     uploadError.value = 'file_not_allowed'
     return
   }
+  const attempt = ++uploadAttempt
   uploadBusy.value = true
   uploadedBytes.value = 0
   uploadTotalBytes.value = chosen.size
   try {
-    upload ??= new Upload(api, chosen, purpose)
+    if (!upload || upload.purpose !== purpose) upload = new Upload(api, chosen, purpose)
     const version = await upload.run((loaded, total) => {
       uploadedBytes.value = loaded
       uploadTotalBytes.value = total
     })
-    uploadState.value = version.state
-    reused.value = version.reused === true
-    if (['awaiting_approval', 'approved'].includes(version.state)) await attach(version.id)
+    if (attempt === uploadAttempt) await applyUpload(version)
   } catch (failure) {
+    if (attempt !== uploadAttempt || errorCode(failure) === 'cancelled') return
     uploadError.value = errorCode(failure)
     // A lost response keeps the session; the next attempt resumes it.
     if (!isUncertain(failure) && !(failure instanceof ApiError && failure.code === 'reuse_pending')) upload = undefined
   } finally {
     uploadBusy.value = false
+  }
+}
+
+async function applyUpload(version: MediaVersion) {
+  uploadError.value = ''
+  uploadState.value = version.state
+  reused.value = version.reused === true
+  if (readyStates.includes(version.state)) await attach(version.id)
+  else if (finishedStates.includes(version.state)) {
+    file.value = undefined
+    upload = undefined
   }
 }
 
@@ -210,21 +224,31 @@ function attached(result: Resource) {
 }
 
 async function cancelUpload() {
+  if (cancelling.value || attaching.busy.value || attaching.uncertain.value) return
   if (!upload) {
+    uploadState.value = ''
+    uploadError.value = ''
     file.value = undefined
     return
   }
   uploadError.value = ''
+  // A known session now belongs to the cancellation; ignore late content responses.
+  if (upload.version) uploadAttempt++
+  cancelling.value = true
   try {
-    const version = await upload.cancel()
-    uploadState.value = version.state
-    if (version.state === 'cancelled') {
+    await applyUpload(await upload.cancel())
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'cancelled' && !error.uncertain) {
+      uploadAttempt++
       file.value = undefined
       upload = undefined
+      uploadState.value = ''
+      return
     }
-  } catch {
     // Show "cancelling" until the server confirms; a network error is not a cancellation.
     uploadError.value = 'cancel_pending'
+  } finally {
+    cancelling.value = false
   }
 }
 
@@ -348,6 +372,11 @@ function uploadMessage(state: string) {
                     :value="item.id"
                   >{{ localName(item.names, locale) }}</option>
                 </AppSelect>
+                <span
+                  v-if="!category"
+                  class="field-error"
+                  role="alert"
+                >{{ t('resources.editor.selectCategory') }}</span>
               </label>
               <FieldInput
                 v-for="field in category?.fields"
@@ -500,7 +529,7 @@ function uploadMessage(state: string) {
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="saving.busy.value || saving.uncertain.value || (!dirty && !!entry)"
+              :disabled="!category || anyBusy || anyUncertain || (!dirty && !!proposal)"
             >
               {{ t(entry ? 'resources.editor.saveChanges' : 'resources.editor.create') }}
             </button>
@@ -604,6 +633,7 @@ function uploadMessage(state: string) {
                 v-if="file"
                 class="btn"
                 type="button"
+                :disabled="cancelling || attaching.busy.value || attaching.uncertain.value"
                 @click="cancelUpload"
               >
                 {{ t('resources.editor.cancelUpload') }}

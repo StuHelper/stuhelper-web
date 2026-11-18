@@ -825,6 +825,7 @@
       "accept": "I have read and accept the current terms"
     },
     "editor": {
+      "selectCategory": "Choose an available resource category.",
       "intro": "Complete three steps: save the details, upload the file, submit for review. Any published version stays available during review.",
       "step1": "1. Details",
       "step2": "2. File",
