@@ -16,9 +16,9 @@ import { arrayCursor, listSize, useAcademic, type Draft, type Reference, type Re
 import ReviewCard from './ReviewCard.vue'
 import ReviewEditor from './ReviewEditor.vue'
 
-// The author's own reviews, drafts, votes and requests. Names come from own-record references,
-// so the page keeps working after content admission lapses.
-type Tab = 'entries' | 'drafts' | 'votes' | 'requests'
+// The author's own reviews, drafts and requests. Votes live on /me/votes. Names come from
+// own-record references, so the page keeps working after content admission lapses.
+type Tab = 'entries' | 'drafts' | 'requests'
 type Row = { kind: 'review'; review: Review } | { kind: 'draft'; draft: Draft } | { kind: 'task'; task: Task }
 
 const { t, te } = useI18n()
@@ -28,7 +28,7 @@ const router = useRouter()
 const api = useAcademic()
 const now = useNow()
 const write = useMutation()
-const tabNames: Tab[] = ['entries', 'drafts', 'votes', 'requests']
+const tabNames: Tab[] = ['entries', 'drafts', 'requests']
 const tab = computed<Tab>({
   get: () => tabNames.find((value) => value === route.query.tab) ?? 'entries',
   set: (value) => void router.replace({ query: { ...route.query, tab: value } }),
@@ -53,11 +53,6 @@ const rows = usePaged<Row>(async (after, signal) => {
     items = page.items.map((review) => ({ kind: 'review', review }))
     next = page.next
     ids = page.items.flatMap((row) => [row.target_id, row.term_id, row.teacher_id])
-  } else if (tab.value === 'votes') {
-    const list = await api.myVotes(query, signal)
-    items = list.map((review) => ({ kind: 'review', review }))
-    next = arrayCursor(list, (row) => row.id)
-    ids = list.flatMap((row) => [row.target_id, row.term_id, row.teacher_id])
   } else if (tab.value === 'drafts') {
     const list = await api.myDrafts(query, signal)
     items = list.map((draft) => ({ kind: 'draft', draft }))

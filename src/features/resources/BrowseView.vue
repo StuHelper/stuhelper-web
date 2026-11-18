@@ -196,17 +196,7 @@ function clearAll() {
   text.value = ''
   navigate({ q: undefined, category: undefined, course_id: undefined, attrs: undefined, dir: undefined })
 }
-function ago(iso?: string) {
-  if (!iso) return ''
-  const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
-  if (!Number.isFinite(minutes)) return ''
-  if (minutes < 60) return format.value.relative(-Math.max(minutes, 1), 'minute')
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return format.value.relative(-hours, 'hour')
-  const days = Math.round(hours / 24)
-  return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
-}
-const meta = (item: Resource) => [item.current?.metadata.associations.course_id === applied.value.course ? '' : recentRows.value.find((row) => row.course.id === item.current?.metadata.associations.course_id)?.course.name, localName(item.current?.category.names ?? {}, locale.value), item.current?.file ? format.value.bytes(item.current.file.size) : '', ago(item.current?.created_at)].filter(Boolean).join(' · ')
+const meta = (item: Resource) => [item.current?.metadata.associations.course_id === applied.value.course ? '' : recentRows.value.find((row) => row.course.id === item.current?.metadata.associations.course_id)?.course.name, localName(item.current?.category.names ?? {}, locale.value), item.current?.file ? format.value.bytes(item.current.file.size) : '', format.value.ago(item.current?.created_at)].filter(Boolean).join(' · ')
 const downloading = ref('')
 async function download(item: Resource) {
   const file = item.current?.file

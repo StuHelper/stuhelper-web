@@ -98,16 +98,6 @@ const classDate = computed(() => {
 // A block that failed can be read again on its own.
 const blocks = { hot, fresh, overview }
 const tints = ['var(--c-blue)', 'var(--c-orange)', 'var(--c-purple)', 'var(--c-green)', 'var(--c-pink)']
-function ago(iso?: string) {
-  if (!iso) return ''
-  const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
-  if (!Number.isFinite(minutes)) return ''
-  if (minutes < 60) return format.value.relative(-Math.max(minutes, 1), 'minute')
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return format.value.relative(-hours, 'hour')
-  const days = Math.round(hours / 24)
-  return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
-}
 const hotDetail = (row: NonNullable<typeof hot.data.value>[number]) => {
   const credits = knownCredits(row.object)
   const difficulty = row.dimensions[2]?.level ?? 0
@@ -438,7 +428,7 @@ function search() {
                 :filename="row.current?.file?.filename"
                 :seed="row.current?.category.id"
               />
-              <span class="group-body"><span class="group-title clamp-2">{{ row.current?.metadata.title }}</span><span class="subtle">{{ [localName(row.current?.category.names ?? {}, locale), ago(row.current?.created_at)].filter(Boolean).join(' · ') }}</span></span>
+              <span class="group-body"><span class="group-title clamp-2">{{ row.current?.metadata.title }}</span><span class="subtle">{{ [localName(row.current?.category.names ?? {}, locale), format.ago(row.current?.created_at)].filter(Boolean).join(' · ') }}</span></span>
             </RouterLink>
           </li>
         </ul>

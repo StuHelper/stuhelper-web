@@ -66,7 +66,6 @@ const parse = {
   recentCleared: schemaOf<Catalog['schemas']['RecentCleared']>(catalog, 'RecentCleared'),
   nextClassDay: schemaOf<NextClassDay>(catalog, 'NextClassDay'),
   review: schemaOf<Review>(reviews, 'View'),
-  reviewList: schemaOf<Review[]>(reviews, 'View', true),
   reviewPage: schemaOf<ReviewPage>(reviews, 'Page'),
   statistics: schemaOf<Statistics>(reviews, 'Statistics'),
   draft: schemaOf<Draft>(reviews, 'DraftView'),
@@ -275,10 +274,6 @@ export class AcademicApi {
 
   draft(id: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/reviews/me/drafts/${segment(id)}`, parse.draft, { signal })
-  }
-
-  myVotes(query: Query, signal?: AbortSignal) {
-    return this.http.json('/api/v1/reviews/me/votes', parse.reviewList, { query, signal })
   }
 
   myTasks(query: Query, signal?: AbortSignal) {

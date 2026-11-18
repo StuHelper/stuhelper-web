@@ -50,7 +50,12 @@ const routes: RouteRecordRaw[] = [
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { access: 'verified', title: 'resources.detailTitle', section: 'resources' } },
   { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'verified', title: 'resources.edit', section: 'resources' } },
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
-  { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
+  {
+    path: '/me/reviews',
+    component: () => import('../features/academic/MyReviewsView.vue'),
+    beforeEnter: (to) => (to.query.tab === 'votes' ? { path: '/me/votes', replace: true } : true),
+    meta: { access: 'member', title: 'me.reviews', section: 'me' },
+  },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },
   { path: '/me/membership', component: () => import('../features/wallet/MembershipView.vue'), meta: { capability: feature.membership, access: 'member', title: 'membership.title', section: 'me' } },
   { path: '/me/wallet', component: () => import('../features/wallet/WalletView.vue'), meta: { capability: feature.wallet, access: 'member', title: 'wallet.title', section: 'me' } },

@@ -79,15 +79,6 @@ const stats = computed(() => [
 const pending = computed(() => (overview.data.value?.pending_courses.state === 'available' ? overview.data.value.pending_courses : undefined))
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count)
 const noticeTitle = useNotificationTitle()
-function ago(iso: string) {
-  const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
-  if (!Number.isFinite(minutes)) return ''
-  if (minutes < 60) return format.value.relative(-Math.max(minutes, 1), 'minute')
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return format.value.relative(-hours, 'hour')
-  const days = Math.round(hours / 24)
-  return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
-}
 const profile = computed(() => session.session.value?.profile)
 watch(() => session.state.value, (state) => {
   if (state === 'member') void summary.reload()
@@ -367,7 +358,7 @@ async function signOut() {
               to="/notifications"
             >
               <span class="group-body"><span class="group-title">{{ noticeTitle(n) }}</span></span>
-              <span class="subtle when">{{ ago(n.created_at) }}</span>
+              <span class="subtle when">{{ format.ago(n.created_at) }}</span>
             </RouterLink>
           </li>
         </ul>

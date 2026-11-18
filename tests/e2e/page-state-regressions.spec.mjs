@@ -124,3 +124,27 @@ test('switching the review tab asks before discarding an edited draft', async ({
   await expect(title).toHaveValue('Unsaved title');
   await expect(page).toHaveURL(/tab=drafts/);
 });
+
+test('legacy votes tab redirects to the single votes page and custom school rating texts apply to browse levels', async ({ page }, info) => {
+  const all = catalogue(info), locale = info.project.metadata.locale;
+  await academicFixture(page);
+  await page.route('**/api/v1/search/me/votes**', (route) => route.fulfill({ json: { items: [], next_cursor: '' } }));
+  await page.goto(`${base}/me/reviews?tab=votes&lang=${locale}`);
+  await expect(page).toHaveURL(/\/me\/votes/);
+  await expect(page.getByRole('heading', { name: all.search.votes.title, exact: true })).toBeVisible();
+
+  const customBand = ['Custom Rec', 'C1', 'C2', 'C3', 'Solid Pick', 'Must Take'];
+  await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({
+    json: {
+      effective: {
+        school_id: 'school',
+        revision: 1,
+        rating_texts: { [locale]: Array.from({ length: 5 }, () => customBand) },
+      },
+      configured: null,
+      source: 'custom',
+    },
+  }));
+  await page.goto(`${base}/courses?lang=${locale}`);
+  await expect(page.locator('.d-level:visible').first()).toHaveText('Solid Pick');
+});

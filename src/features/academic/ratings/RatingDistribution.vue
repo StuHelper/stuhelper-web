@@ -3,13 +3,15 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../../app/i18n'
 import { useInView } from '../../../shared/composables/inView'
+import { useRatingText } from '../presentation'
 import RatingIcon from '../RatingIcon.vue'
-import { dimensionNames, levelKeys, type DimensionName } from './levels'
+import { dimensionNames, type DimensionName } from './levels'
 // Relative bar lengths per band and the sample size. The server sends normalized weights
 // (0-20, largest band = 20), never counts or percentages, so no exact score can be derived.
-const props = withDefaults(defineProps<{ weights: number[]; samples: number; level: number; dim?: DimensionName }>(), { dim: 'recommendation' })
+const props = withDefaults(defineProps<{ weights: number[]; samples: number; level: number; dim?: DimensionName; schoolId?: string }>(), { dim: 'recommendation', schoolId: undefined })
 const { t } = useI18n()
 const format = useFormat()
+const ratingText = useRatingText(() => props.schoolId, 'browse')
 const rows = computed(() => [5, 4, 3, 2, 1].map((lv) => ({ lv, w: Math.min(100, ((props.weights[lv - 1] ?? 0) / 20) * 100) })))
 const root = ref<HTMLElement>()
 const seen = useInView(root)
@@ -28,7 +30,7 @@ const seen = useInView(root)
         <span class="name"><RatingIcon
           :dimension="dimensionNames.indexOf(props.dim)"
           :level="r.lv"
-        />{{ t(levelKeys[props.dim][r.lv]!) }}</span><span
+        />{{ ratingText(dimensionNames.indexOf(props.dim), r.lv) }}</span><span
           class="track"
           aria-hidden="true"
         ><i

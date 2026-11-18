@@ -1,21 +1,25 @@
-import { ref, watch, type Ref } from 'vue'
+import { computed, inject, ref, toValue, watch, type MaybeRefOrGetter } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { accessKey } from '../account/access'
 import { dimensions, useAcademic, type PresentationView, type Review } from './api'
+import { dimensionLabelKeys, dimensionNames, levelKeys } from './ratings/levels'
 
 /**
  * Rating labels for a school. The school may configure its own wording per
  * language; otherwise the built-in five-level wording applies.
  */
-export function useRatingText(school: Ref<string | undefined>) {
+export function useRatingText(school?: MaybeRefOrGetter<string | undefined>, style: 'academic' | 'browse' = 'academic') {
   const { t, locale } = useI18n()
+  const access = inject(accessKey, undefined)
   const api = useAcademic()
   const configured = ref<PresentationView>()
-  watch(school, async (id) => {
+  const schoolId = computed(() => toValue(school) || access?.campus.value?.id)
+  watch(schoolId, async (id) => {
     configured.value = undefined
     if (!id) return
     try {
       const value = await api.presentation(id)
-      if (school.value === id) configured.value = value
+      if (schoolId.value === id) configured.value = value
     } catch {
       // Built-in wording remains available when the configuration cannot load.
     }
@@ -23,6 +27,10 @@ export function useRatingText(school: Ref<string | undefined>) {
   return (dimension: number, level: number) => {
     const custom = configured.value?.effective.rating_texts[locale.value]?.[dimension]?.[level]
     if (custom) return custom
+    if (style === 'browse') {
+      const name = dimensionNames[dimension] ?? 'recommendation'
+      return level === 0 ? t(dimensionLabelKeys[name]) : t(levelKeys[name][level] ?? 'browse.levelNone')
+    }
     const name = dimensions[dimension] ?? 'recommendation'
     return level === 0 ? t(`academic.ratings.${name}.label`) : t(`academic.ratings.${name}.level${level}`)
   }

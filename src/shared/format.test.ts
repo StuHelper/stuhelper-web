@@ -43,4 +43,14 @@ describe('localized presentation', () => {
     expect(() => pluralIndex('ar-EG', 3, 2)).toThrow();
     expect([21, 22, 23, 24].map(count => pluralIndex('en-US', count, 4, 'ordinal'))).toEqual([0, 1, 2, 3]);
   });
+  it('formats elapsed relative instants and clamps future clock skew', () => {
+    const now = Date.parse('2026-11-18T12:00:00Z');
+    const format = createFormatters('en-US');
+    expect(format.ago(undefined, now)).toBe('');
+    expect(format.ago('not-a-date', now)).toBe('');
+    expect(format.ago('2026-11-18T12:05:00Z', now)).toBe(format.relative(0, 'minute'));
+    expect(format.ago('2026-11-18T11:45:00Z', now)).toBe(format.relative(-15, 'minute'));
+    expect(format.ago('2026-11-18T09:00:00Z', now)).toBe(format.relative(-3, 'hour'));
+    expect(format.ago('2026-11-15T12:00:00Z', now)).toBe(format.relative(-3, 'day'));
+  });
 });

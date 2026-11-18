@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 import { useInView } from '../../../shared/composables/inView'
-import { dimensionLabelKeys, dimensionNames } from './levels'
+import { useRatingText } from '../presentation'
+import { dimensionNames } from './levels'
 // Five dimensions as a radar of band levels (0-5). Several series can be overlaid for comparison.
 // The drawing is always left-to-right with explicit anchors, so labels sit outside the
 // shape in right-to-left languages too; the label text itself keeps its own direction.
-const props = withDefaults(defineProps<{ series: { name: string; values: number[] }[]; size?: number }>(), { size: 340 })
-const { t } = useI18n()
+const props = withDefaults(defineProps<{ series: { name: string; values: number[] }[]; size?: number; schoolId?: string }>(), { size: 340, schoolId: undefined })
+const ratingText = useRatingText(() => props.schoolId, 'browse')
 const colors = ['var(--accent-fill)', 'var(--c-pink)', 'var(--c-green)', 'var(--c-orange)', 'var(--c-purple)']
 const c = 130
 const R = 84
@@ -18,7 +18,7 @@ function lines(label: string) {
   const at = [...label.matchAll(/ /g)].map((match) => match.index).sort((a, b) => Math.abs(a - middle) - Math.abs(b - middle))[0] ?? -1
   return at < 0 ? [label] : [label.slice(0, at), label.slice(at + 1)]
 }
-const labels = computed(() => dimensionNames.map((name) => t(dimensionLabelKeys[name])))
+const labels = computed(() => dimensionNames.map((_, index) => ratingText(index, 0)))
 const pt = (i: number, r: number) => { const a = (Math.PI * 2 * i) / 5 - Math.PI / 2; return [c + Math.cos(a) * r, c + Math.sin(a) * r] as const }
 // Side labels align outward so they do not cover the vertices.
 const anchor = (i: number) => { const dx = pt(i, R)[0] - c; return Math.abs(dx) < 4 ? 'middle' : dx > 0 ? 'start' : 'end' }

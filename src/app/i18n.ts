@@ -28,12 +28,14 @@ export const i18n = createI18n<[Messages], Locale, false>({
 
 /** True once the selected catalogue is installed; the shell waits for it. */
 export const localeReady = ref(false)
+const loadedLocales = new Set<Locale>([defaultLocale])
 
 async function install(locale: Locale) {
-  if (i18n.global.availableLocales.includes(locale)) return
+  if (loadedLocales.has(locale)) return
   const load = catalogues[`../locales/${locale}.json`]
   if (!load) throw new Error(`Missing locale catalogue: ${locale}`)
-  i18n.global.setLocaleMessage(locale, await load())
+  i18n.global.mergeLocaleMessage(locale, await load())
+  loadedLocales.add(locale)
 }
 
 function apply(locale: Locale) {
