@@ -30,4 +30,10 @@ describe('content access', () => {
     expect(() => chooseCampus([school('a'), school('b')], undefined)).toThrow()
     expect(() => chooseCampus([], undefined)).toThrow()
   })
+  it('does not treat independent identity verification or revoked credentials as campus eligibility', () => {
+    const withIdentity = { campus_eligibility: false, identity_verified: true, teacher_verified: false } as Summary
+    expect(deriveAccess(withIdentity, [], [])).toBe('unverified')
+    expect(deriveAccess(withIdentity, [], [credential('revoked')])).toBe('expired')
+    expect(deriveAccess(withIdentity, [application('in_progress')], [credential('expired')])).toBe('processing')
+  })
 })
