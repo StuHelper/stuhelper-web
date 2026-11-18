@@ -2166,6 +2166,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "未読 {count} 件以上",
     "title": "メッセージ",
     "link": "メッセージ",
     "description": "反応、審査結果、認証結果、システム通知をまとめています。",
