@@ -472,7 +472,8 @@
       "newest": "Más recientes primero",
       "oldest": "Más antiguos primero",
       "empty": "Aún no hay reseñas del curso.",
-      "emptyMentor": "Aún no hay comentarios de tutoría."
+      "emptyMentor": "Aún no hay comentarios de tutoría.",
+      "upvotes": "Más votadas"
     },
     "review": {
       "featured": "Contenido destacado",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "Cuenta",
       "services": "Más servicios"
-    }
+    },
+    "pendingCoursesTitle": "Cursos pendientes de tu reseña",
+    "writePendingReview": "Escribir reseña"
   },
   "resources": {
     "eyebrow": "Materiales compartidos",
@@ -727,7 +730,11 @@
       "filtersFailed": "No se cargaron los filtros. Aún puedes buscar por palabra clave.",
       "filtersRetry": "Recargar filtros",
       "reload": "Recargar recursos",
-      "currentFolder": "Carpeta actual"
+      "currentFolder": "Carpeta actual",
+      "fileType": "Formato de archivo",
+      "sort": "Ordenar por",
+      "sortNewest": "Más recientes",
+      "sortDefault": "Orden predeterminado"
     },
     "package": {
       "title": "Paquetes de descarga",
@@ -736,7 +743,9 @@
       "part": "Paquete {number}",
       "size": "{size} · archivos: {files}",
       "download": "Descargar este paquete",
-      "downloaded": "Descargado"
+      "downloaded": "Descargado",
+      "expiredNotice": "Este paquete de descarga ha caducado. Genere uno nuevo para continuar.",
+      "recreate": "Volver a generar paquete"
     },
     "picker": {
       "search": "Buscar en «{label}»",
@@ -756,7 +765,16 @@
       "about": "Sobre el material",
       "file": "Archivo del material",
       "access": "Acceso",
-      "course": "Ver el curso relacionado"
+      "course": "Ver el curso relacionado",
+      "preview": "Vista previa en línea",
+      "hidePreview": "Ocultar vista previa",
+      "previewTitle": "Vista previa del archivo",
+      "fullscreenPreview": "Pantalla completa",
+      "emptyPreview": "El archivo está vacío.",
+      "previewTooLarge": "Los archivos que superan {size} no admiten vista previa en página; descárguelos directamente.",
+      "proposalTitle": "Detalles de la versión en revisión",
+      "proposalFile": "Archivo enviado",
+      "checksum": "Suma de verificación"
     },
     "access": {
       "allowed": "Puedes descargarlo.",
@@ -852,7 +870,11 @@
       "proposalState": "Estado de la versión:",
       "submit": "Enviar a revisión",
       "submitted": "Enviado a revisión. El resultado aparecerá en Mis materiales.",
-      "view": "Ver material"
+      "view": "Ver material",
+      "directoryChooseCourse": "Seleccione primero un curso para elegir una carpeta o déjelo vacío para la raíz.",
+      "selectedDirectory": "Carpeta seleccionada",
+      "dropOrBrowse": "Arrastre un archivo aquí o haga clic para elegir",
+      "uploadProgress": "Transferido {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "Reclamaciones y solicitudes",
@@ -991,7 +1013,9 @@
       "scan": "Escanea con el móvil para fotografiar",
       "ticketExpiry": "Enlace de captura válido hasta {time}",
       "open": "Abrir página de captura",
-      "done": "Foto enviada. Vuelve al dispositivo original, actualiza los documentos y continúa la solicitud."
+      "done": "Foto enviada. Vuelve al dispositivo original, actualiza los documentos y continúa la solicitud.",
+      "sync": "Comprobar fotos subidas",
+      "waitingPhone": "Al enviarlas desde el teléfono, las fotos se sincronizan aquí automáticamente."
     },
     "methods": {
       "real_name_identity_check": "Cotejo de identidad académica",
@@ -1197,7 +1221,10 @@
       "student_email_inbound_challenge": "Envía un mensaje desde tu correo de la universidad a una dirección indicada",
       "manual_material_review": "Fotografía tu carné u otro justificante para que lo revisen"
     },
-    "changeSchool": "Cambiar de universidad"
+    "changeSchool": "Cambiar de universidad",
+    "copyInboundAddress": "Copiar dirección de destino",
+    "inboundAddressCopied": "Dirección de destino copiada.",
+    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección."
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -2244,6 +2271,7 @@
       "empty": "Aún no has votado.",
       "review": "Reseña",
       "up": "Útil",
+      "cancel": "Retirar mi voto",
       "down": "No útil"
     },
     "compare": {
@@ -2267,7 +2295,12 @@
       "tray": "Lista de comparación",
       "progress": "{count} de {max} seleccionados",
       "start": "Comparar ahora",
-      "pickMore": "Elige uno más para comparar"
+      "pickMore": "Elige uno más para comparar",
+      "clear": "Vaciar comparación",
+      "addCourse": "Buscar y añadir un curso para comparar",
+      "addTeacher": "Buscar y añadir un docente para comparar",
+      "taughtCourses": "Cursos impartidos",
+      "ratedCourses": "Cursos incluidos en el cálculo"
     }
   },
   "groups": {

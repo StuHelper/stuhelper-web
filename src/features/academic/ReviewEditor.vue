@@ -20,7 +20,7 @@ import RatingInput from './RatingInput.vue'
  * reports the current eligibility, teacher candidates from the author's own
  * enrollment and the discussion identity; the page only presents them.
  */
-const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, leaveQuery: undefined })
+const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; initialTermId?: string; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, initialTermId: undefined, leaveQuery: undefined })
 const emit = defineEmits<{ submitted: [result: Result]; cancel: [] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -33,7 +33,7 @@ const original = props.draft?.input
 const withdrawn = props.draft?.withdrawn === true
 const title = ref(original?.title ?? '')
 const body = ref(original?.body ?? (props.kind === 'mentor' ? t('academic.editor.mentorTemplate') : ''))
-const term = ref(original?.term_id ?? '')
+const term = ref(original?.term_id ?? props.initialTermId ?? '')
 const teacher = ref(original?.teacher_id ?? '')
 const signed = ref(original?.signed ?? false)
 const ratings = ref<number[]>(original?.ratings.slice() ?? [0, 0, 0, 0, 0])

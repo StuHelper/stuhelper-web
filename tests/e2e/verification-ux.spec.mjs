@@ -65,6 +65,19 @@ test('verification dropdowns have zero layout displacement when opened and close
     // Center the target before measuring so Playwright's click auto-scroll is outside the observation.
     await control.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
     const measure = () => page.evaluate(() => [...document.querySelectorAll('h1, form:first-of-type, .app-select')].map(node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; }));
+    // The final centering scroll can also start the step entrance animation. Take the baseline
+    // after both scrolling and the form geometry are stationary, retaining exact rectangle checks.
+    await page.waitForFunction(() => new Promise(resolve => {
+      let previous = '', stable = 0;
+      function frame() {
+        const next = JSON.stringify([scrollY, ...[...document.querySelectorAll('h1, form:first-of-type, .app-select')].map(node => node.getBoundingClientRect().toJSON())]);
+        stable = next === previous ? stable + 1 : 0;
+        previous = next;
+        if (stable >= 5) resolve(true);
+        else requestAnimationFrame(frame);
+      }
+      frame();
+    }));
     const before = await measure();
     if (info.project.name.startsWith('mobile')) await control.tap();
     else await control.click();
@@ -406,8 +419,9 @@ test('a failed school profile is reported once, under the credential that asked 
   await expect(experiences(page, info).getByRole('alert')).toHaveCount(0);
 });
 
-test('an inbound email challenge moves to the last step and shows its one-time address', async ({ page }, info) => {
+test('an inbound email challenge moves to the last step and shows its one-time address', async ({ page, context }, info) => {
   const v = messages(info).verification;
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await fixture(page, { school: { ...school, methods: ['student_email_inbound_challenge'] } });
   const challenge = { id: 'mail', application_id: 'application', expires_at: '2030-01-01T00:05:00Z', state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-7f3a@example.edu' };
   await page.route('**/api/v1/verification/applications/application/email', route => route.request().method() === 'POST' ? route.fulfill({ json: challenge }) : route.fulfill({ status: 404, json: { code: 'not_found' } }));
@@ -420,6 +434,9 @@ test('an inbound email challenge moves to the last step and shows its one-time a
   await expect(page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]')).toHaveText(new RegExp(v.steps.finish));
   await expect(page.getByText(challenge.target_address, { exact: true })).toBeVisible();
   await expect(page.getByText(v.inboundHelp, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: v.copyInboundAddress, exact: true }).click();
+  await expect(page.getByText(v.inboundAddressCopied, { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(challenge.target_address);
 });
 
 test('a failed school login returns the open application to the form for another try', async ({ page }, info) => {

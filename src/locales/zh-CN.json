@@ -472,7 +472,8 @@
       "newest": "最新在前",
       "oldest": "最早在前",
       "empty": "暂无课程评价。",
-      "emptyMentor": "暂无导师评论。"
+      "emptyMentor": "暂无导师评论。",
+      "upvotes": "赞同最多"
     },
     "review": {
       "featured": "优质内容",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "账号",
       "services": "更多服务"
-    }
+    },
+    "pendingCoursesTitle": "待评价课程",
+    "writePendingReview": "去写评价"
   },
   "resources": {
     "eyebrow": "资料共享",
@@ -727,7 +730,11 @@
       "filtersFailed": "筛选项暂时无法加载，仍可按关键词查找。",
       "filtersRetry": "重新加载筛选项",
       "reload": "重新加载资料",
-      "currentFolder": "当前目录"
+      "currentFolder": "当前目录",
+      "fileType": "文件格式",
+      "sort": "排序",
+      "sortNewest": "最新上传",
+      "sortDefault": "默认顺序"
     },
     "package": {
       "title": "下载包",
@@ -736,7 +743,9 @@
       "part": "第 {number} 包",
       "size": "{size} · 文件数：{files}",
       "download": "下载此包",
-      "downloaded": "已下载"
+      "downloaded": "已下载",
+      "expiredNotice": "当前下载包已过期，请重新生成后再下载。",
+      "recreate": "重新生成下载包"
     },
     "picker": {
       "search": "在“{label}”中搜索",
@@ -756,7 +765,16 @@
       "about": "资料信息",
       "file": "资料文件",
       "access": "访问方式",
-      "course": "查看关联课程"
+      "course": "查看关联课程",
+      "preview": "在线预览",
+      "hidePreview": "收起预览",
+      "previewTitle": "文件预览",
+      "fullscreenPreview": "全屏查看",
+      "emptyPreview": "文件内容为空。",
+      "previewTooLarge": "文件超过 {size}，请直接下载查看。",
+      "proposalTitle": "待审核版本信息",
+      "proposalFile": "待审文件",
+      "checksum": "文件校验值"
     },
     "access": {
       "allowed": "可以下载。",
@@ -852,7 +870,11 @@
       "proposalState": "当前版本状态：",
       "submit": "提交审核",
       "submitted": "已提交审核，审核结果会显示在“我的资料”中。",
-      "view": "查看资料"
+      "view": "查看资料",
+      "directoryChooseCourse": "先选择关联课程后可指定目录；留空则放在课程根目录。",
+      "selectedDirectory": "已选目录",
+      "dropOrBrowse": "拖拽文件到此处，或点击选择文件",
+      "uploadProgress": "已传输 {loaded} / {total}（{percent}）"
     },
     "request": {
       "title": "投诉、下架与异议",
@@ -991,7 +1013,9 @@
       "scan": "用手机扫码拍摄",
       "ticketExpiry": "拍摄链接有效至 {time}",
       "open": "打开拍摄页面",
-      "done": "照片已提交。请回到原设备刷新材料列表并继续申请。"
+      "done": "照片已提交。请回到原设备刷新材料列表并继续申请。",
+      "sync": "刷新已上传照片",
+      "waitingPhone": "手机提交照片后，此页面会自动同步。"
     },
     "methods": {
       "real_name_identity_check": "实名信息校验",
@@ -1197,7 +1221,10 @@
       "student_email_inbound_challenge": "从你的学校邮箱向指定地址发一封邮件",
       "manual_material_review": "拍摄学生证等材料，由管理员审核"
     },
-    "changeSchool": "更换学校"
+    "changeSchool": "更换学校",
+    "copyInboundAddress": "复制收件地址",
+    "inboundAddressCopied": "收件地址已复制。",
+    "inboundCopyFailed": "无法自动复制，请手动选择地址复制。"
   },
   "contribution": {
     "eyebrow": "共享存储",
@@ -2244,6 +2271,7 @@
       "empty": "暂无投票记录。",
       "review": "评价",
       "up": "有用",
+      "cancel": "取消投票",
       "down": "没用"
     },
     "compare": {
@@ -2267,7 +2295,12 @@
       "tray": "对比列表",
       "progress": "已选 {count} / {max} 项",
       "start": "开始对比",
-      "pickMore": "再选一项即可对比"
+      "pickMore": "再选一项即可对比",
+      "clear": "清空对比",
+      "addCourse": "搜索并添加对比课程",
+      "addTeacher": "搜索并添加对比教师",
+      "taughtCourses": "所授课程数",
+      "ratedCourses": "计入统计课程数"
     }
   },
   "groups": {

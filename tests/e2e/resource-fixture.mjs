@@ -90,6 +90,7 @@ export function fixture() {
   const receipt = {
     id: 'receipt',
     resource_id: 'resource',
+    resource_title: 'Fixture notes',
     kind: 'withdrawal',
     state: 'submitted',
     can_appeal: false,
@@ -139,6 +140,24 @@ export function fixture() {
 export async function routes(page, s) {
   await page.route('**/api/v1/catalog/**', async (route) => {
     const url = new URL(route.request().url());
+    if (url.pathname === '/api/v1/catalog/objects/lookup') {
+      const ids = (url.searchParams.get('ids') ?? '').split(',').filter(Boolean);
+      return route.fulfill({
+        json: {
+          items: ids.map((id) => ({
+            id,
+            kind: 'course',
+            school_id: 'school',
+            name: id === 'course' ? 'Fixture course' : `Course ${id}`,
+            aliases: [],
+            credits: 0,
+            revision: 1,
+            updated_at: '2029-01-01T00:00:00Z',
+          })),
+          missing_ids: [],
+        },
+      });
+    }
     const kind = url.searchParams.get('kind');
     const id =
       kind === 'school'
@@ -298,9 +317,19 @@ export async function routes(page, s) {
           expires_at: '2030-01-01T00:00:00Z',
         },
       });
+    if (path === '/me/references') {
+      const ids = (url.searchParams.get('ids') ?? '').split(',').filter(Boolean);
+      return route.fulfill({
+        json: {
+          items: ids.map((id) => ({ id, kind: 'course', name: id === 'course' ? 'Fixture course' : `Course ${id}` })),
+          missing_ids: [],
+        },
+      });
+    }
     if (
       path.includes('/parts/') ||
       path.endsWith('/download') ||
+      path.endsWith('/preview') ||
       (path.startsWith('/review/') && path.endsWith('/file'))
     )
       return route.fulfill({
