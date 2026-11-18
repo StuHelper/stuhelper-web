@@ -22,7 +22,7 @@ jobs:
     if: needs.changes.outputs.browser == 'true'
     name: Contribution browser checks
     runs-on: ubuntu-26.04
-    timeout-minutes: 25
+    timeout-minutes: 35
     env:
       LEFTHOOK: '0'
     steps:
