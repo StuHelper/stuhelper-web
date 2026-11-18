@@ -192,3 +192,20 @@ it('detects inline previewable files, resolves own references and reports upload
   expect(progress).toEqual([[0, 5], [5, 5]])
   expect(seenPaths).toContain('GET /api/v1/resources/items/res-1/preview')
 })
+
+it('hashes a file incrementally and submits the digest of all its bytes', async () => {
+  const file = new File([new Uint8Array(3 << 20), 'end'], 'sample.bin')
+  const expected = Buffer.from(await webcrypto.subtle.digest('SHA-256', await file.arrayBuffer())).toString('hex')
+  const wholeFile = vi.spyOn(file, 'arrayBuffer').mockRejectedValue(new Error('whole-file allocation'))
+  let digest = ''
+  const api = new ResourcesApi(new Http(async (_url, init) => {
+    if (init?.method === 'POST') {
+      digest = JSON.parse(String(init.body)).sha256
+      return Response.json(media)
+    }
+    return view({ state: 'ready' })
+  }))
+  await new Upload(api, file, 'purpose').run()
+  expect(wholeFile).not.toHaveBeenCalled()
+  expect(digest).toBe(expected)
+})
