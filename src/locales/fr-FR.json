@@ -472,7 +472,8 @@
       "newest": "Plus récents d’abord",
       "oldest": "Plus anciens d’abord",
       "empty": "Aucun avis sur ce cours pour le moment.",
-      "emptyMentor": "Aucun avis sur l’encadrement pour le moment."
+      "emptyMentor": "Aucun avis sur l’encadrement pour le moment.",
+      "upvotes": "Plus approuvés"
     },
     "review": {
       "featured": "Contenu de qualité",
@@ -694,7 +695,9 @@
     "groups": {
       "account": "Compte",
       "services": "Autres services"
-    }
+    },
+    "pendingCoursesTitle": "Cours en attente de votre avis",
+    "writePendingReview": "Rédiger un avis"
   },
   "resources": {
     "eyebrow": "Partage de ressources",
@@ -727,7 +730,11 @@
       "filtersFailed": "Les filtres n’ont pas pu se charger. La recherche par mot-clé reste possible.",
       "filtersRetry": "Recharger les filtres",
       "reload": "Recharger les ressources",
-      "currentFolder": "Dossier actuel"
+      "currentFolder": "Dossier actuel",
+      "fileType": "Format de fichier",
+      "sort": "Trier par",
+      "sortNewest": "Plus récents",
+      "sortDefault": "Ordre par défaut"
     },
     "package": {
       "title": "Archives à télécharger",
@@ -736,7 +743,9 @@
       "part": "Lot {number}",
       "size": "{size} · fichiers : {files}",
       "download": "Télécharger ce lot",
-      "downloaded": "Téléchargé"
+      "downloaded": "Téléchargé",
+      "expiredNotice": "Ce paquet de téléchargement a expiré. Générez-en un nouveau pour télécharger.",
+      "recreate": "Regénérer le paquet"
     },
     "picker": {
       "search": "Rechercher dans « {label} »",
@@ -756,7 +765,16 @@
       "about": "À propos",
       "file": "Fichier de la ressource",
       "access": "Accès",
-      "course": "Voir le cours associé"
+      "course": "Voir le cours associé",
+      "preview": "Aperçu en ligne",
+      "hidePreview": "Masquer l’aperçu",
+      "previewTitle": "Aperçu du fichier",
+      "fullscreenPreview": "Plein écran",
+      "emptyPreview": "Ce fichier est vide.",
+      "previewTooLarge": "Les fichiers de plus de {size} ne peuvent pas être prévisualisés en ligne ; téléchargez-les directement.",
+      "proposalTitle": "Détails de la version en attente",
+      "proposalFile": "Fichier soumis",
+      "checksum": "Empreinte du fichier"
     },
     "access": {
       "allowed": "Téléchargement possible.",
@@ -852,7 +870,11 @@
       "proposalState": "État de la version :",
       "submit": "Soumettre à l’examen",
       "submitted": "Soumis. Le résultat apparaîtra dans Mes ressources.",
-      "view": "Voir la ressource"
+      "view": "Voir la ressource",
+      "directoryChooseCourse": "Choisissez d’abord un cours pour sélectionner un dossier, ou laissez vide pour la racine.",
+      "selectedDirectory": "Dossier sélectionné",
+      "dropOrBrowse": "Déposez un fichier ici ou cliquez pour parcourir",
+      "uploadProgress": "Transféré : {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "Signalements et demandes",
@@ -995,7 +1017,9 @@
       "scan": "Scannez avec le téléphone pour photographier",
       "ticketExpiry": "Lien de capture valable jusqu’au {time}",
       "open": "Ouvrir la page de capture",
-      "done": "Photo envoyée. Revenez à l’appareil initial, actualisez les pièces et poursuivez la demande."
+      "done": "Photo envoyée. Revenez à l’appareil initial, actualisez les pièces et poursuivez la demande.",
+      "sync": "Vérifier les photos envoyées",
+      "waitingPhone": "Une fois envoyées depuis le téléphone, les photos se synchronisent automatiquement ici."
     },
     "methods": {
       "real_name_identity_check": "Contrôle du dossier d’identité universitaire",
@@ -1201,7 +1225,10 @@
       "student_email_inbound_challenge": "Envoyez un message depuis votre adresse de l'école vers une adresse indiquée",
       "manual_material_review": "Photographiez votre carte d'étudiant ou un autre justificatif pour examen"
     },
-    "changeSchool": "Changer d'école"
+    "changeSchool": "Changer d'école",
+    "copyInboundAddress": "Copier l’adresse destinataire",
+    "inboundAddressCopied": "Adresse destinataire copiée.",
+    "inboundCopyFailed": "Copie automatique impossible. Sélectionnez et copiez l’adresse manuellement."
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",
@@ -1313,7 +1340,8 @@
       "conflict": "Ce compte est déjà connecté ou vient de changer. Veuillez actualiser.",
       "attempts_exhausted": "Les tentatives ont échoué. Un administrateur vous aidera.",
       "credentials_required": "Saisissez à nouveau le compte et le mot de passe."
-    }
+    },
+    "maxTermHint": "Durée maximale d’autorisation : {days} jours."
   },
   "gate": {
     "guest": {
@@ -2010,7 +2038,8 @@
       "redirectProblem": {
         "invalid": "Une URI de redirection n’est pas une adresse valide.",
         "https": "Les URI de redirection doivent utiliser HTTPS.",
-        "fragment": "Les URI de redirection ne peuvent pas contenir de fragment #."
+        "fragment": "Les URI de redirection ne peuvent pas contenir de fragment #.",
+        "duplicate": "Les adresses de redirection ne doivent pas être dupliquées."
       },
       "policy": "Durées et quota",
       "policyValue": "Autorisation {grant} jours, jeton d’accès {token} minutes, {quota} requêtes par jour",
@@ -2058,7 +2087,8 @@
         "retentionReason": "Base légale de la conservation (obligatoire)",
         "noteOptional": "Précision (facultatif)",
         "send": "Envoyer",
-        "recorded": "Résultat enregistré."
+        "recorded": "Résultat enregistré.",
+        "pendingBadge": "Signalement de retrait en attente"
       }
     },
     "consent": {
@@ -2246,6 +2276,7 @@
       "empty": "Vous n’avez pas encore voté.",
       "review": "Avis",
       "up": "Utile",
+      "cancel": "Retirer mon vote",
       "down": "Pas utile"
     },
     "compare": {
@@ -2269,7 +2300,12 @@
       "tray": "Liste de comparaison",
       "progress": "{count} sur {max} sélectionnés",
       "start": "Comparer",
-      "pickMore": "Choisissez-en un de plus"
+      "pickMore": "Choisissez-en un de plus",
+      "clear": "Vider la comparaison",
+      "addCourse": "Rechercher et ajouter un cours à comparer",
+      "addTeacher": "Rechercher et ajouter un enseignant à comparer",
+      "taughtCourses": "Cours enseignés",
+      "ratedCourses": "Cours pris en compte"
     }
   },
   "groups": {
@@ -2316,7 +2352,9 @@
     "action": {
       "bind_qq": "Associer QQ",
       "verify_student": "Vérifier mon statut étudiant"
-    }
+    },
+    "passwordMode": "Mode d’adhésion",
+    "passwordRequired": "Mot de passe du groupe requis"
   },
   "membership": {
     "title": "Abonnement",

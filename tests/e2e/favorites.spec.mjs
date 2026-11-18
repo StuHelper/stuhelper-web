@@ -136,3 +136,36 @@ test('saving a favorite offers quick move to folder, persists selected folder on
   await page.getByRole('dialog').getByRole('button', { name: f.deleteFolder, exact: true }).click();
   await expect.poll(() => state.writes.at(-1)).toMatchObject({ path: '/folders/exam/delete', body: { revision: 1 } });
 });
+
+test('the quick view can move a favorite and recovers the saved revision after a lost move response', async ({ page }, info) => {
+  const all = catalogue(info), f = all.favorites, b = all.browse;
+  await academicFixture(page);
+  const state = favorites(page);
+  state.items = state.items.filter(row => row.id !== 'f1');
+  await page.goto(`${base}/courses?lang=${info.project.metadata.locale}`);
+  await expect(page.locator('main li.line')).toHaveCount(1);
+  const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
+  if (await quick.isVisible()) await quick.click();
+  else {
+    await page.getByRole('button', { name: b.moreActionsFor.replace('{p0}', 'Test Course') }).click();
+    await page.getByRole('menuitem', { name: b.quickView }).click();
+  }
+  const drawer = page.getByRole('dialog');
+  await drawer.getByRole('button', { name: f.add, exact: true }).click();
+  await drawer.getByRole('button', { name: f.moveTo, exact: true }).click();
+  const picker = page.getByRole('dialog', { name: f.moveTo, exact: true });
+  let moves = 0;
+  await page.route('**/api/v1/favorites/items/f4/move', route => {
+    moves++;
+    const item = state.items.find(row => row.id === 'f4');
+    const body = route.request().postDataJSON();
+    expect(body.revision).toBe(item.revision);
+    Object.assign(item, { folder_id: body.folder_id, revision: item.revision + 1 });
+    return moves === 1 ? route.abort('failed') : route.fulfill({ json: item });
+  });
+  await picker.getByRole('button', { name: /Exam/ }).click();
+  await expect(picker.getByRole('button', { name: /Exam/ })).toHaveAttribute('aria-pressed', 'true');
+  await picker.getByRole('button', { name: new RegExp(f.defaultFolder) }).click();
+  await expect(picker).toHaveCount(0);
+  expect(moves).toBe(2);
+});

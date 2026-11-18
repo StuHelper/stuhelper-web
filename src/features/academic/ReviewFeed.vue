@@ -14,7 +14,7 @@ const { t } = useI18n()
 const api = useAcademic()
 const term = ref('')
 const teacher = ref('')
-const sort = ref<'newest' | 'oldest'>('newest')
+const sort = ref<'upvotes' | 'newest' | 'oldest'>('upvotes')
 const names = shallowRef(new Map<string, CatalogObject>())
 
 const feed = usePaged(async (after, signal) => {
@@ -60,18 +60,18 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
 <template>
   <div class="stack feed">
     <div
-      v-if="filterable && kind === 'course'"
+      v-if="(filterable && kind === 'course') || feed.items.value.length > 1"
       class="row feed-filters"
     >
       <ChoiceGroup
-        v-if="termChoices.length > 1"
+        v-if="filterable && kind === 'course' && termChoices.length > 1"
         v-model="term"
         compact
         :label="t('academic.feed.term')"
         :options="termChoices"
       />
       <ChoiceGroup
-        v-if="teacherChoices.length > 1"
+        v-if="filterable && kind === 'course' && teacherChoices.length > 1"
         v-model="teacher"
         compact
         :label="t('academic.feed.teacher')"
@@ -83,6 +83,7 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
           v-model="sort"
           class="select"
         >
+          <option value="upvotes">{{ t('academic.feed.upvotes') }}</option>
           <option value="newest">{{ t('academic.feed.newest') }}</option>
           <option value="oldest">{{ t('academic.feed.oldest') }}</option>
         </AppSelect>

@@ -80,6 +80,10 @@ function tone(state: Receipt['state']) {
           >
             <div class="stack-sm">
               <strong>{{ t(`resources.request.kinds.${item.kind ?? 'complaint'}`) }}</strong>
+              <span
+                v-if="item.resource_title"
+                class="small"
+              >{{ item.resource_title }}</span>
               <span class="subtle">{{ format.dateTime(item.created_at) }}</span>
             </div>
             <div class="row">
@@ -116,6 +120,12 @@ function tone(state: Receipt['state']) {
             {{ t(`resources.request.state.${open.state}`) }}
           </StatusTag>
         </div>
+        <p
+          v-if="open.resource_title"
+          class="small"
+        >
+          {{ open.resource_title }}
+        </p>
         <p class="small muted">
           {{ t(`resources.request.stateHint.${open.state}`) }}
         </p>

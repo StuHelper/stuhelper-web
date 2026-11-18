@@ -15,6 +15,9 @@ test('every personal page can be reached from the personal center on a phone and
   });
   await page.goto(`${base}/me?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { level: 1, name: all.me.title, exact: true })).toBeVisible();
+  await expect(page.getByText(`${all.verification.campus} · ${all.verification.eligible}`, { exact: true })).toBeVisible();
+  await expect(page.getByText(`${all.verification.identity} · ${all.verification.identityMissing}`, { exact: true })).toBeVisible();
+  await expect(page.getByText(`${all.verification.phone} · ${all.verification.phoneBound}`, { exact: true })).toBeVisible();
   const phone = page.viewportSize().width <= 760;
   // A phone has no side navigation: the overview page itself is the menu. A wide screen uses the side navigation.
   await expect(page.locator('nav.me-nav')).toBeVisible({ visible: !phone });

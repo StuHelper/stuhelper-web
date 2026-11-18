@@ -490,3 +490,42 @@ test('a course shows its English name and former codes, and an old course id ope
   await expect(facts.getByText(s.aliases, { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('course page defaults review sort to upvotes, renders distribution and trend charts, and my reviews opens pending courses prefilled', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, b = all.browse, errors = watch(page), sorts = [];
+  await academicFixture(page);
+  await page.route('**/api/v1/reviews?*', (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    if (q.get('kind') === 'course') sorts.push(q.get('sort'));
+    return route.fallback();
+  });
+  await page.route('**/api/v1/reviews/me/overview', (route) => route.fulfill({ json: {
+    review_count: 1,
+    draft_count: 0,
+    pending_courses: {
+      state: 'available',
+      reason: '',
+      count: 2,
+      items: [
+        { course_id: 'course', course_name: 'Test Course', term_id: 'spring', term_name: 'Spring semester' },
+      ],
+    },
+  } }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await expect.poll(() => sorts.at(0)).toBe('upvotes');
+  await expect(page.getByRole('heading', { name: b.recommendationDist, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: b.trendByTerm, exact: true })).toBeVisible();
+  await page.getByRole('combobox', { name: a.feed.sort }).click();
+  await page.getByRole('option', { name: a.feed.newest, exact: true }).click();
+  await expect.poll(() => sorts.at(-1)).toBe('newest');
+
+  await page.goto(`http://127.0.0.1:18787/me/reviews?lang=${locale}`);
+  const pendingRegion = page.getByRole('region', { name: all.me.pendingCoursesTitle, exact: true });
+  await expect(pendingRegion.getByRole('link', { name: 'Test Course', exact: true })).toBeVisible();
+  await pendingRegion.getByRole('button', { name: all.me.writePendingReview, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await expect(editor.locator('input[value="spring"]')).toBeChecked();
+  await expect(editor.getByText('Teacher B', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
