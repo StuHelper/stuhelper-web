@@ -5,6 +5,8 @@ import { RouterView, useRoute } from 'vue-router'
 import { localeReady } from './app/i18n'
 import AppLayout from './app/layout/AppLayout.vue'
 import { hasLeaveWarning } from './shared/composables/leave'
+import FavoriteMoveDialog from './features/favorites/FavoriteMoveDialog.vue'
+import { moveTarget } from './features/favorites/state'
 import ConfirmHost from './shared/ui/ConfirmHost.vue'
 import { extras } from './shared/extras'
 import AccessPanel from './features/account/AccessPanel.vue'
@@ -17,6 +19,7 @@ const route = useRoute()
 const { locale } = useI18n()
 const access = useAccess()
 const session = useSession()
+watch(() => session.session.value?.profile.id, () => { moveTarget.value = undefined })
 // Content pages are not mounted until access is confirmed, so they send no
 // business request before that. The server still authorizes every request.
 // Prototype pages read some text once, so they remount to translate. Input at risk wins over fresh text.
@@ -52,5 +55,11 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
       :key="pageKey"
     />
   </AppLayout>
+  <FavoriteMoveDialog
+    v-if="moveTarget && moveTarget.profileId === session.session.value?.profile.id"
+    :key="moveTarget.item.id"
+    :item="moveTarget.item"
+    @close="moveTarget = undefined"
+  />
   <ConfirmHost />
 </template>

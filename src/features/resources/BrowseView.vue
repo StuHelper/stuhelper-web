@@ -5,6 +5,7 @@ import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { errorCode } from '../../shared/api/errors'
 import { usePageFilters } from '../../shared/pageFilters'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
 import FilterBar from '../../shared/ui/FilterBar.vue'
@@ -14,6 +15,8 @@ import PagedState from '../../shared/ui/PagedState.vue'
 import RowMore from '../../shared/ui/RowMore.vue'
 import SearchField from '../../shared/ui/SearchField.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
+import { useErrorText } from '../../shared/ui/messages'
+import { toast } from '../../shared/ui/toast'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { useAcademic } from '../academic/api'
 import { useCampusId } from '../account/access'
@@ -30,6 +33,7 @@ import PackagePanel from './PackagePanel.vue'
 // grouping come from server configuration; nothing here depends on a category name.
 const { t, locale } = useI18n()
 const format = useFormat()
+const errorText = useErrorText()
 const router = useRouter()
 const api = useResourcesApi()
 const catalog = useAcademic()
@@ -249,12 +253,21 @@ const downloading = ref('')
 async function download(item: Resource) {
   const file = item.current?.file
   if (!file || downloading.value) return
+  if (!item.download_allowed) {
+    void router.push(`/resources/items/${encodeURIComponent(item.id)}`)
+    return
+  }
   downloading.value = item.id
   try {
     await api.download(item.id, file.filename, file.size)
-  } catch {
-    // The detail page explains the reason; send the viewer there.
-    void router.push(`/resources/items/${encodeURIComponent(item.id)}`)
+  } catch (failure) {
+    const code = errorCode(failure)
+    if (code === 'network' || code === 'timeout' || code === 'unavailable') {
+      toast(errorText(code))
+    } else {
+      // Permission or state changes are explained on the detail page.
+      void router.push(`/resources/items/${encodeURIComponent(item.id)}`)
+    }
   } finally {
     downloading.value = ''
   }

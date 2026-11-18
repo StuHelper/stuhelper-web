@@ -924,7 +924,11 @@
       "granting": "Paiement reçu. Ouverture de l’accès en cours, veuillez patienter. Vous pourrez aussi voir le résultat plus tard dans les commandes de votre portefeuille.",
       "viewOrder": "Voir la commande",
       "refunded": "Cette ressource ne peut pas être fournie pour le moment. Le paiement a été rendu au compte utilisé.",
-      "done": "Accès accordé. Vous pouvez la télécharger."
+      "done": "Accès accordé. Vous pouvez la télécharger.",
+      "currentBalance": "Solde disponible : {balance}",
+      "confirmTitle": "Confirmer le paiement",
+      "confirmMessage": "Payer {price} pour débloquer l’accès à ce document ?",
+      "confirmMessageWithBalance": "Payer {price} pour débloquer l’accès à ce document ? Solde disponible : {balance}."
     }
   },
   "verification": {
@@ -1679,7 +1683,8 @@
     "mine": "Moi",
     "defaultFolder": "Par défaut",
     "unknown": "Impossible de vérifier le favori pour le moment",
-    "untitled": "Contenu indisponible"
+    "untitled": "Contenu indisponible",
+    "deleteFolderConfirm": "Supprimer le dossier « {p0} » ? Ses éléments enregistrés seront déplacés vers « {p1} »."
   },
   "qq": {
     "title": "Liaison QQ",

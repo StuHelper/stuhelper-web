@@ -924,7 +924,11 @@
       "granting": "支払い済みです。アクセス権を付与しています。しばらくお待ちください。結果は後でウォレットの注文からも確認できます。",
       "viewOrder": "注文を見る",
       "refunded": "この資料は現在提供できないため、代金は支払元のアカウントに返金されました。",
-      "done": "アクセス権が付与されました。ダウンロードできます。"
+      "done": "アクセス権が付与されました。ダウンロードできます。",
+      "currentBalance": "利用可能残高：{balance}",
+      "confirmTitle": "支払いの確認",
+      "confirmMessage": "{price} を支払ってこの資料の閲覧権を取得しますか？",
+      "confirmMessageWithBalance": "{price} を支払ってこの資料の閲覧権を取得しますか？（利用可能残高：{balance}）"
     }
   },
   "verification": {
@@ -1679,7 +1683,8 @@
     "mine": "マイ",
     "defaultFolder": "デフォルト",
     "unknown": "お気に入りの状態を確認できません",
-    "untitled": "表示できなくなった内容"
+    "untitled": "表示できなくなった内容",
+    "deleteFolderConfirm": "フォルダ「{p0}」を削除しますか？中の保存済み項目は「{p1}」に移動します。"
   },
   "qq": {
     "title": "QQ 連携",

@@ -2,7 +2,7 @@
 import { Eye, Maximize2 } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useTask } from '../../shared/composables/async'
@@ -20,6 +20,7 @@ import UnlockPanel from './UnlockPanel.vue'
 
 const props = defineProps<{ id: string }>()
 const { t, te, locale } = useI18n()
+const route = useRoute()
 const format = useFormat()
 const errorText = useErrorText()
 const api = useResourcesApi()
@@ -62,11 +63,14 @@ function clearPreview() {
 onBeforeUnmount(clearPreview)
 
 watch(() => props.id, () => {
-  requesting.value = false
   accessRevokedError.value = ''
   clearPreview()
+  requesting.value = route.query.action === 'withdraw'
   void entry.reload()
 }, { immediate: true })
+watch(() => route.query.action, (action) => {
+  if (action === 'withdraw') requesting.value = true
+})
 
 async function loadPreview() {
   const item = entryValue.value

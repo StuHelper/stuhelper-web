@@ -42,6 +42,7 @@ test('buying access waits for the grant before offering the download', async ({ 
   const u = all.resources.unlock;
   const price = fill(all.wallet.pointsAmount, { amount: new Intl.NumberFormat(info.project.metadata.locale).format(80) });
   await page.getByRole('button', { name: fill(u.buy, { price }), exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
   await expect(page.getByText(u.done, { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: all.resources.detail.download, exact: true })).toBeVisible();
   expect(billing.unlocks).toEqual([{ body: { resource_id: 'resource', account: 'points' }, key: expect.any(String) }]);
@@ -51,6 +52,7 @@ test('a resource that cannot be delivered after payment reports the refund, not 
   const { all } = await setup(page, info, { states: ['refunded'] });
   const u = all.resources.unlock;
   await page.getByRole('button', { name: new RegExp(u.buy.replace('{price}', '.+')) }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
   await expect(page.getByText(u.refunded, { exact: true })).toBeVisible();
   await expect(page.getByText(u.done, { exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: all.resources.detail.download, exact: true })).toHaveCount(0);
@@ -60,15 +62,29 @@ test('an insufficient balance names the missing amount and links to the wallet',
   const { all } = await setup(page, info, { unlockStatus: 409, unlockCode: 'billing_insufficient_funds', wallet: { ...wallet, points: 50 } });
   const u = all.resources.unlock;
   await page.getByRole('button', { name: new RegExp(u.buy.replace('{price}', '.+')) }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
   const missing = fill(all.wallet.pointsAmount, { amount: new Intl.NumberFormat(info.project.metadata.locale).format(30) });
   await expect(page.getByText(fill(u.short, { amount: missing }), { exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: u.toWallet, exact: true })).toHaveAttribute('href', '/me/wallet');
 });
 
 test('either account can be chosen when both prices are set', async ({ page }, info) => {
-  const { billing } = await setup(page, info, { ivory: 250 });
+  const { all, billing } = await setup(page, info, { ivory: 250 });
   await page.getByRole('radio', { name: '2.50 Ivory', exact: true }).check();
   await page.getByRole('button', { name: /2\.50 Ivory/ }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
   await expect.poll(() => billing.unlocks.length).toBe(1);
   expect(billing.unlocks[0].body).toEqual({ resource_id: 'resource', account: 'ivory' });
+});
+
+test('unlock panel displays current balance up front and cancels without charging', async ({ page }, info) => {
+  const { all, billing } = await setup(page, info, { ivory: 250 });
+  const u = all.resources.unlock;
+  const available = fill(all.wallet.pointsAmount, { amount: new Intl.NumberFormat(info.project.metadata.locale).format(120) });
+  await expect(page.getByText(fill(u.currentBalance, { balance: available }), { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: new RegExp(u.buy.replace('{price}', '.+')) }).click();
+  await expect(page.getByRole('dialog')).toContainText(available);
+  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(billing.unlocks).toHaveLength(0);
 });

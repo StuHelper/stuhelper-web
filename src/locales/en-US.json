@@ -924,7 +924,11 @@
       "granting": "Paid. Granting access, please wait. You can also check the result later in your wallet orders.",
       "viewOrder": "View order",
       "refunded": "This resource cannot be delivered right now. The payment has been returned to the account you paid from.",
-      "done": "Access granted. You can download it now."
+      "done": "Access granted. You can download it now.",
+      "currentBalance": "Available balance: {balance}",
+      "confirmTitle": "Confirm payment",
+      "confirmMessage": "Pay {price} to unlock access to this resource?",
+      "confirmMessageWithBalance": "Pay {price} to unlock access to this resource? Available balance: {balance}."
     }
   },
   "verification": {
@@ -1679,7 +1683,8 @@
     "mine": "Me",
     "defaultFolder": "Default",
     "unknown": "Favorite status is unavailable right now",
-    "untitled": "Content no longer available"
+    "untitled": "Content no longer available",
+    "deleteFolderConfirm": "Delete folder “{p0}”? Its saved items will move to “{p1}”."
   },
   "qq": {
     "title": "QQ binding",
