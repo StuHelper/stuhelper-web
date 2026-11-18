@@ -43,9 +43,15 @@ class TransferProxyTest(unittest.TestCase):
         temp = tempfile.TemporaryDirectory()
         cls.addClassCleanup(temp.cleanup)
         root = Path(temp.name)
+        document_root = root / "html"
+        document_root.mkdir()
+        (document_root / "terms.html").write_bytes(b"Terms fixture")
+        (document_root / "index.html").write_bytes(b"Home fixture")
         site = Path("deploy/nginx.conf").read_text().replace(
             "listen 8080;", f"listen 127.0.0.1:{cls.port};"
-        ).replace("http://backend:8080", f"http://127.0.0.1:{backend.server_port}")
+        ).replace("http://backend:8080", f"http://127.0.0.1:{backend.server_port}").replace(
+            "/usr/share/nginx/html", str(document_root)
+        )
         (root / "nginx.conf").write_text(
             "daemon off; pid nginx.pid; error_log stderr; events {}"
             "http { access_log off; client_body_temp_path body; proxy_temp_path proxy; "
@@ -65,12 +71,12 @@ class TransferProxyTest(unittest.TestCase):
                 time.sleep(0.05)
         raise TimeoutError("nginx did not listen")
 
-    def request(self, method, path, body=None):
+    def request(self, method, path, body=None, headers=None):
         conn = http.client.HTTPConnection("127.0.0.1", self.port, timeout=45)
         try:
-            conn.request(method, path, body)
+            conn.request(method, path, body, headers or {})
             response = conn.getresponse()
-            return response.status, response.read()
+            return response.status, response.read(), response.headers
         finally:
             conn.close()
 
@@ -86,8 +92,20 @@ class TransferProxyTest(unittest.TestCase):
             self.assertFalse(any(url == path for url, _ in self.uploads))
 
     def test_slow_custody_response_reaches_client(self):
-        self.assertEqual(self.request("POST", "/api/v1/storage/custody", b"{}"),
+        self.assertEqual(self.request("POST", "/api/v1/storage/custody", b"{}")[:2],
                          (200, b"finished"))
+
+    def test_only_terms_get_allows_the_sso_origin(self):
+        sso = "https://sso.stuhelper.com"
+        header = "Access-Control-Allow-Origin"
+        for origin in (sso, "https://example.org"):
+            status, body, headers = self.request("GET", "/terms.html", headers={"Origin": origin})
+            self.assertEqual((status, body), (200, b"Terms fixture"))
+            self.assertEqual(headers.get_all(header), [sso])
+        for method, path in (("HEAD", "/terms.html"), ("GET", "/")):
+            status, _, headers = self.request(method, path, headers={"Origin": sso})
+            self.assertEqual(status, 200)
+            self.assertNotIn(header, headers)
 
 
 if __name__ == "__main__":
