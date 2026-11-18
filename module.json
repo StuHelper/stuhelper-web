@@ -19,7 +19,11 @@
   ],
   "scenario_tests": {
     "AE-ACCESS-05": [
-      "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote"
+      "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote",
+      "tests/e2e/search.spec.mjs#a member without campus access withdraws a selected review vote on the personal votes page"
+    ],
+    "PC-02": [
+      "tests/e2e/page-state-regressions.spec.mjs#an expired member edits draft text without resolving unverified catalog references"
     ],
     "DIRECTORY-NAVIGATION-01": [
       "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"
