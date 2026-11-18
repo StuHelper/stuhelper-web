@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
+import { httpsUrl } from '../../shared/urls'
 import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
@@ -95,9 +96,8 @@ async function retryTopup() {
   // The retried request is the original top-up and returns the same Order.
   if (order) follow(order as Order)
 }
-async function follow(order: Order) {
+function follow(order: Order) {
   paying.value = order
-  qr.value = order.payment_instruction?.type === 'qr_code' ? await QRCode.toDataURL(order.payment_instruction.content, { margin: 1, width: 240 }) : ''
   if (finalStates.includes(order.state)) settled(order)
 }
 function resume(order: Order) {
@@ -106,6 +106,22 @@ function resume(order: Order) {
   topupOpen.value = true
   void follow(order)
 }
+const instruction = computed(() => paying.value?.payment_instruction)
+const paymentUrl = computed(() => instruction.value?.type === 'redirect' ? httpsUrl(instruction.value.content)?.href : undefined)
+const qrError = ref(false)
+watch(instruction, async (value, _, onCleanup) => {
+  let current = true
+  onCleanup(() => { current = false })
+  qr.value = ''
+  qrError.value = false
+  if (value?.type !== 'qr_code') return
+  try {
+    const image = await QRCode.toDataURL(value.content, { margin: 1, width: 240 })
+    if (current) qr.value = image
+  } catch {
+    if (current) qrError.value = true
+  }
+}, { flush: 'sync' })
 const checking = ref(false)
 const checkError = ref('')
 async function check(manual: boolean) {
@@ -529,12 +545,19 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
             :alt="t('wallet.topup.qrAlt', { channel: channelName(paying.channel) })"
           >
           <a
-            v-else
+            v-else-if="paymentUrl"
             class="btn btn-primary"
-            :href="paying.payment_instruction.content"
+            :href="paymentUrl"
             target="_blank"
             rel="noopener noreferrer"
           >{{ t('wallet.topup.openPayment', { channel: channelName(paying.channel) }) }}</a>
+          <p
+            v-if="qrError || (paying.payment_instruction.type === 'redirect' && !paymentUrl)"
+            class="field-error"
+            role="alert"
+          >
+            {{ errorText('incompatible') }}
+          </p>
           <p class="small muted">
             {{ t('wallet.topup.expires', { time: format.dateTime(paying.payment_instruction.expires_at) }) }}
           </p>

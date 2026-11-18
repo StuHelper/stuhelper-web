@@ -149,6 +149,34 @@ test('the side list shows recently visited courses, filters by one and can be cl
   expect(deletes).toHaveLength(1);
 });
 
+test('starting another upload after saving creates two independent drafts', async ({ page }, info) => {
+  const { all, m, s } = await setup(page, info, '/resources');
+  const drafts = new Map();
+  await page.route('**/api/v1/resources', route => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    const id = 'draft-' + (drafts.size + 1);
+    const { metadata } = route.request().postDataJSON();
+    drafts.set(id, metadata.title);
+    return route.fulfill({ json: {
+      ...s.resource, id, revision: 1, state: 'draft', current: undefined,
+      proposal: { ...s.version, metadata, file: undefined, state: 'draft' },
+    } });
+  });
+  const start = () => page.evaluate(() => document.querySelector('#app').__vue_app__.config.globalProperties.$router.push('/resources/new'));
+  for (const [index, title] of ['First lecture', 'Second lecture'].entries()) {
+    await start();
+    await expect(page.getByLabel(m.editor.title, { exact: true })).toHaveValue('');
+    await page.getByRole('combobox', { name: all.academic.course, exact: true }).click();
+    await page.getByRole('option', { name: 'Fixture course' }).click();
+    await describe(page, m, title);
+    await page.getByRole('button', { name: m.editor.create, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp('/resources/items/draft-' + (index + 1) + '/edit$'));
+    await expect(page.getByText(m.editor.saved, { exact: true })).toBeVisible();
+  }
+  expect([...drafts.entries()]).toEqual([['draft-1', 'First lecture'], ['draft-2', 'Second lecture']]);
+  expect(s.calls.filter(call => call.method === 'PUT')).toEqual([]);
+});
+
 test('inline preview, directory picker, file-type filter, group order and expired package regeneration work together', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info, '/resources');
   // Course name is resolved via lookup on rows even when recent-courses is empty.
@@ -188,14 +216,14 @@ test('inline preview, directory picker, file-type filter, group order and expire
   const older = { ...s.resource, id: 'res-2020', current: { ...s.version, id: 'v-2020', metadata: { ...s.metadata, title: 'Paper 2020', attributes: { edition: { number: 2020 } } } } };
   const newer = { ...s.resource, id: 'res-2025', current: { ...s.version, id: 'v-2025', metadata: { ...s.metadata, title: 'Paper 2025', attributes: { edition: { number: 2025 } } } } };
   await page.route('**/api/v1/resources?*', (route) => route.fulfill({ json: { items: [older, newer], next_cursor: '', total: 2 } }));
-  let packageCalls = 0;
+  const packageBodies = [];
   await page.route('**/api/v1/resources/packages', (route) => {
-    packageCalls++;
+    packageBodies.push(route.request().postDataJSON());
     return route.fulfill({
       json: {
-        id: `pkg-${packageCalls}`,
+        id: `pkg-${packageBodies.length}`,
         parts: [{ number: 1, bytes: 5, files: [s.file] }],
-        expires_at: packageCalls === 1 ? '2020-01-01T00:00:00Z' : '2035-01-01T00:00:00Z',
+        expires_at: packageBodies.length % 2 === 1 ? '2020-01-01T00:00:00Z' : '2035-01-01T00:00:00Z',
       },
     });
   });
@@ -217,7 +245,16 @@ test('inline preview, directory picker, file-type filter, group order and expire
   await expect(page.getByText(m.package.expiredNotice, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: m.package.recreate, exact: true }).click();
   await expect(page.getByText(m.package.expiredNotice, { exact: true })).toHaveCount(0);
-  expect(packageCalls).toBe(2);
+  expect(packageBodies).toEqual([{ directory_id: 'folder' }, { directory_id: 'folder' }]);
+
+  await page.getByRole('button', { name: all.browse.batchDownload, exact: true }).click();
+  await page.getByRole('checkbox', { name: /Paper 2025/ }).check();
+  await page.getByRole('button', { name: all.browse.packDownload, exact: true }).click();
+  await expect(page.getByText(m.package.expiredNotice, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: all.browse.cancelSelection, exact: true }).click();
+  await page.getByRole('button', { name: m.package.recreate, exact: true }).click();
+  await expect(page.getByText(m.package.expiredNotice, { exact: true })).toHaveCount(0);
+  expect(packageBodies.slice(2)).toEqual([{ resource_ids: ['res-2025'] }, { resource_ids: ['res-2025'] }]);
 
   // Own resources course name resolution & receipt resource_title display.
   await page.goto(`http://127.0.0.1:18787/me/resources?lang=${locale}`);

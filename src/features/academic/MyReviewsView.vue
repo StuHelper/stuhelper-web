@@ -12,14 +12,14 @@ import PagedState from '../../shared/ui/PagedState.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import MeLayout from '../account/MeLayout.vue'
-import { arrayCursor, listSize, useAcademic, type Draft, type Reference, type Result, type Review, type Task } from './api'
+import { arrayCursor, listSize, useAcademic, type Draft, type OwnVote, type Reference, type Result, type Review, type Task } from './api'
 import ReviewCard from './ReviewCard.vue'
 import ReviewEditor from './ReviewEditor.vue'
 
 // The author's own reviews, drafts, votes and requests. Names come from own-record references,
 // so the page keeps working after content admission lapses.
 type Tab = 'entries' | 'drafts' | 'votes' | 'requests'
-type Row = { kind: 'review'; review: Review } | { kind: 'draft'; draft: Draft } | { kind: 'task'; task: Task }
+type Row = { kind: 'vote'; vote: OwnVote } | { kind: 'review'; review: Review } | { kind: 'draft'; draft: Draft } | { kind: 'task'; task: Task }
 
 const { t, te } = useI18n()
 const format = useFormat()
@@ -55,9 +55,9 @@ const rows = usePaged<Row>(async (after, signal) => {
     ids = page.items.flatMap((row) => [row.target_id, row.term_id, row.teacher_id])
   } else if (tab.value === 'votes') {
     const list = await api.myVotes(query, signal)
-    items = list.map((review) => ({ kind: 'review', review }))
+    items = list.map((vote) => ({ kind: 'vote', vote }))
     next = arrayCursor(list, (row) => row.id)
-    ids = list.flatMap((row) => [row.target_id, row.term_id, row.teacher_id])
+    ids = list.flatMap((row) => [row.target_id, row.term_id])
   } else if (tab.value === 'drafts') {
     const list = await api.myDrafts(query, signal)
     items = list.map((draft) => ({ kind: 'draft', draft }))
@@ -80,7 +80,19 @@ watch(tab, () => {
   void rows.reload()
 }, { immediate: true })
 
-const key = (row: Row) => (row.kind === 'review' ? row.review.id : row.kind === 'draft' ? row.draft.id : row.task.id)
+function key(row: Row) {
+  switch (row.kind) {
+    case 'vote': return row.vote.id
+    case 'review': return row.review.id
+    case 'draft': return row.draft.id
+    case 'task': return row.task.id
+  }
+}
+
+async function cancelVote(id: string) {
+  const action = { action: 'vote' as const, vote: 0 }
+  if (await write.run(`vote:${id}`, action, (body, key) => api.act(id, body, key))) await rows.reload()
+}
 
 function remaining(expires: string) {
   const minutes = Math.max(0, Math.ceil((Date.parse(expires) - now.value) / 60_000))
@@ -226,6 +238,23 @@ function removeReview(id: string) {
                 @updated="updateReview"
                 @removed="removeReview"
               />
+              <article
+                v-else-if="row.kind === 'vote'"
+                class="card stack-sm"
+              >
+                <RouterLink :to="`/reviews/${encodeURIComponent(row.vote.root_id)}`">
+                  {{ names.get(row.vote.target_id)?.name ?? t('search.votes.review') }}
+                </RouterLink>
+                <p>{{ t(row.vote.my_vote === 1 ? 'search.votes.up' : 'search.votes.down') }}</p>
+                <button
+                  type="button"
+                  class="btn btn-sm"
+                  :disabled="write.busy.value || write.uncertain.value"
+                  @click="cancelVote(row.vote.id)"
+                >
+                  {{ t('search.votes.cancel') }}
+                </button>
+              </article>
               <article
                 v-else-if="row.kind === 'draft'"
                 class="card stack-sm"

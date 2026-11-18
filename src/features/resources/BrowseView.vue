@@ -17,7 +17,7 @@ import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { useAcademic } from '../academic/api'
 import { useCampusId } from '../account/access'
-import { attributeText, localName, typeExtension, useResourcesApi, type Directory, type Package, type Resource, type Value } from './api'
+import { attributeText, localName, typeExtension, useResourcesApi, type Directory, type Package, type Resource, type Schema, type Value } from './api'
 import CatalogPicker from './CatalogPicker.vue'
 import { parseAttributes, readTrail, rememberTrail } from './browseState'
 import FieldInput from './FieldInput.vue'
@@ -54,8 +54,7 @@ const draft = reactive({ category: '', course: '', fileType: '' })
 const draftFields = ref<Record<string, Value | undefined>>({})
 const trail = shallowRef<Directory[]>([])
 const selected = ref<string[]>([])
-const pack = shallowRef<Package>()
-const lastPackageAll = ref<boolean | null>(null)
+const pack = shallowRef<{ result: Package; request: Schema['PackageRequest'] }>()
 const lookedUpCourses = shallowRef(new Map<string, string>())
 
 const setup = useAsync(async (signal) => {
@@ -153,21 +152,18 @@ function leaveTo(depth: number) {
   navigate({ dir: trail.value[depth - 1]?.id })
 }
 
-async function createPackage(all: boolean) {
-  lastPackageAll.value = all
-  const body = all ? { directory_id: applied.value.dir } : { resource_ids: selected.value.slice() }
-  const result = await packing.run(all ? `package:dir:${applied.value.dir}` : `package:items:${selected.value.join(',')}`, body, (value, key) => api.createPackage(value, key))
-  if (result) pack.value = result
-  else if (packing.error.value === 'forbidden' || packing.error.value === 'unauthenticated') {
+async function createPackage(request: Schema['PackageRequest']) {
+  await packing.run('package:' + JSON.stringify(request), request, async (body, key) => {
+    const result = await api.createPackage(body, key)
+    // A successful retry uses the same frozen selection as the initial request.
+    pack.value = { result, request: body }
+    return result
+  })
+  if (packing.error.value === 'forbidden' || packing.error.value === 'unauthenticated') {
     // Access was revoked: stop showing protected rows.
     results.clear()
     selected.value = []
   }
-}
-async function retryPackage() {
-  const result = await packing.retry()
-  // The retried request is the original package creation.
-  if (result) pack.value = result as Package
 }
 function reload() {
   void results.reload()
@@ -513,7 +509,7 @@ async function download(item: Resource) {
               class="btn btn-sm btn-primary"
               type="button"
               :disabled="packing.busy.value || packing.uncertain.value"
-              @click="createPackage(true)"
+              @click="createPackage({ directory_id: applied.dir })"
             >
               {{ t('resources.browse.downloadFolder') }}
             </button>
@@ -525,15 +521,15 @@ async function download(item: Resource) {
           :busy="packing.busy.value"
           :error="packing.error.value"
           :uncertain="packing.uncertain.value"
-          @retry="retryPackage"
+          @retry="packing.retry()"
         />
         <PackagePanel
           v-if="pack && setup.data.value"
-          :key="pack.id"
-          :pack="pack"
+          :key="pack.result.id"
+          :pack="pack.result"
           :limit="setup.data.value.capabilities.max_package_bytes"
           :busy="packing.busy.value || packing.uncertain.value"
-          @recreate="lastPackageAll !== null && createPackage(lastPackageAll)"
+          @recreate="createPackage(pack.request)"
         />
         <p
           v-if="appliedCategory?.group_by && results.items.value.length"
@@ -659,7 +655,7 @@ async function download(item: Resource) {
           class="btn btn-sm btn-primary"
           type="button"
           :disabled="packing.busy.value || packing.uncertain.value"
-          @click="createPackage(false)"
+          @click="createPackage({ resource_ids: selected.slice() })"
         >
           {{ t('browse.packDownload') }}
         </button>

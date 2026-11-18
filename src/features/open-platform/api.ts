@@ -1,3 +1,4 @@
+import { httpsUrl } from '../../shared/urls'
 import contract from '../../../contracts/open-platform.openapi.json'
 import type { components } from '../../api/open-platform.gen'
 import { segment, type Http } from '../../shared/api/http'
@@ -105,8 +106,18 @@ export function redirectProblem(value: string): 'invalid' | 'https' | 'fragment'
     return 'invalid'
   }
   if (url.protocol !== 'https:') return 'https'
+  if (!httpsUrl(value)) return 'invalid'
   if (value.includes('#')) return 'fragment'
   return ''
+}
+
+export function validConsentTarget(target: string, registered: string) {
+  if (redirectProblem(target) || redirectProblem(registered)) return false
+  const destination = new URL(target)
+  const expected = new URL(registered)
+  if (destination.origin !== expected.origin || destination.pathname !== expected.pathname) return false
+  return [...expected.searchParams.keys()].every(key =>
+    JSON.stringify(destination.searchParams.getAll(key)) === JSON.stringify(expected.searchParams.getAll(key)))
 }
 
 /**
@@ -117,7 +128,7 @@ export function redirectProblem(value: string): 'invalid' | 'https' | 'fragment'
 export function readAuthorization(query: Record<string, unknown>): ConsentInput | undefined {
   const text = (key: string) => (typeof query[key] === 'string' ? query[key] : '')
   const requested = text('scope').split(' ').filter(Boolean)
-  if (query.response_type !== 'code' || !text('client_id') || !text('redirect_uri') || !text('state')) return undefined
+  if (query.response_type !== 'code' || !text('client_id') || redirectProblem(text('redirect_uri')) || !text('state')) return undefined
   if (!/^[A-Za-z0-9_-]{43}$/.test(text('code_challenge')) || text('code_challenge_method') !== 'S256') return undefined
   if (!requested.length || requested.some((scope) => !scopes.includes(scope as Scope))) return undefined
   return { client_id: text('client_id'), redirect_uri: text('redirect_uri'), state: text('state'), scope: requested as Scope[], code_challenge: text('code_challenge'), code_challenge_method: 'S256' }
