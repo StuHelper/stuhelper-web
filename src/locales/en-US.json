@@ -991,7 +991,9 @@
       "scan": "Scan with your phone to capture",
       "ticketExpiry": "Capture link valid until {time}",
       "open": "Open capture page",
-      "done": "Photo submitted. Return to the original device, refresh the materials and continue the application."
+      "done": "Photo submitted. Return to the original device, refresh the materials and continue the application.",
+      "sync": "Check uploaded photos",
+      "waitingPhone": "Once submitted on your phone, photos sync here automatically."
     },
     "methods": {
       "real_name_identity_check": "School identity record check",
@@ -1197,7 +1199,10 @@
       "student_email_inbound_challenge": "Send one message from your school mailbox to a given address",
       "manual_material_review": "Photograph your student card or other proof for a reviewer"
     },
-    "changeSchool": "Change school"
+    "changeSchool": "Change school",
+    "copyInboundAddress": "Copy recipient address",
+    "inboundAddressCopied": "Recipient address copied.",
+    "inboundCopyFailed": "Could not copy automatically. Please select and copy the address."
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",

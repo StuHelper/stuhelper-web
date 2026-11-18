@@ -991,7 +991,9 @@
       "scan": "Scannez avec le téléphone pour photographier",
       "ticketExpiry": "Lien de capture valable jusqu’au {time}",
       "open": "Ouvrir la page de capture",
-      "done": "Photo envoyée. Revenez à l’appareil initial, actualisez les pièces et poursuivez la demande."
+      "done": "Photo envoyée. Revenez à l’appareil initial, actualisez les pièces et poursuivez la demande.",
+      "sync": "Vérifier les photos envoyées",
+      "waitingPhone": "Une fois envoyées depuis le téléphone, les photos se synchronisent automatiquement ici."
     },
     "methods": {
       "real_name_identity_check": "Contrôle du dossier d’identité universitaire",
@@ -1197,7 +1199,10 @@
       "student_email_inbound_challenge": "Envoyez un message depuis votre adresse de l'école vers une adresse indiquée",
       "manual_material_review": "Photographiez votre carte d'étudiant ou un autre justificatif pour examen"
     },
-    "changeSchool": "Changer d'école"
+    "changeSchool": "Changer d'école",
+    "copyInboundAddress": "Copier l’adresse destinataire",
+    "inboundAddressCopied": "Adresse destinataire copiée.",
+    "inboundCopyFailed": "Copie automatique impossible. Sélectionnez et copiez l’adresse manuellement."
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",

@@ -991,7 +991,9 @@
       "scan": "用手机扫码拍摄",
       "ticketExpiry": "拍摄链接有效至 {time}",
       "open": "打开拍摄页面",
-      "done": "照片已提交。请回到原设备刷新材料列表并继续申请。"
+      "done": "照片已提交。请回到原设备刷新材料列表并继续申请。",
+      "sync": "刷新已上传照片",
+      "waitingPhone": "手机提交照片后，此页面会自动同步。"
     },
     "methods": {
       "real_name_identity_check": "实名信息校验",
@@ -1197,7 +1199,10 @@
       "student_email_inbound_challenge": "从你的学校邮箱向指定地址发一封邮件",
       "manual_material_review": "拍摄学生证等材料，由管理员审核"
     },
-    "changeSchool": "更换学校"
+    "changeSchool": "更换学校",
+    "copyInboundAddress": "复制收件地址",
+    "inboundAddressCopied": "收件地址已复制。",
+    "inboundCopyFailed": "无法自动复制，请手动选择地址复制。"
   },
   "contribution": {
     "eyebrow": "共享存储",
