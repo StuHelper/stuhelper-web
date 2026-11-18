@@ -1,5 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import sessionContract from '../../contracts/session.openapi.json'
+import { schemaOf } from './api/schema'
 import { sessionFetch } from './api/transport'
 import { createApp, h, nextTick, ref } from 'vue';
 import { createI18n } from 'vue-i18n';
@@ -7,15 +9,25 @@ import SessionNotice from './ui/SessionNotice.vue';
 import { createSessionStore, sessionKey } from './session'
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers() })
+const logoutSchema = sessionContract.paths['/api/v1/auth/logout'].post.responses['200'].content['application/json'].schema
+const parseLogout = schemaOf<{ signed_out: boolean; upstream_ended?: boolean }>({ Logout: logoutSchema }, 'Logout')
 const session = { authenticated: true, content_school_id: 'school', profile: { id: '00000000-0000-4000-8000-000000000001', nickname: 'A', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, group_card_consent: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false }, revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: false, administrator: false, expires_at: '2030-01-01T00:00:00Z' }
 
 describe('application session', () => {
-  it('clears recent pages on every sign-out path', async () => {
+  it('clears recent pages on every sign-out path using contract-valid logout response', async () => {
     const removed: string[] = []
+    const paths: string[] = []
     vi.stubGlobal('localStorage', { removeItem: (key: string) => removed.push(key) })
     vi.stubGlobal('window', { location: { assign: () => {} } })
-    await createSessionStore(async () => new Response(null, { status: 204 })).signOut(false)
-    expect(removed).toEqual(['stuhelper.recent'])
+    const body = parseLogout({ signed_out: true, upstream_ended: true })
+    const store = createSessionStore(async (input) => {
+      paths.push(String(input))
+      return Response.json(body, { status: 200 })
+    })
+    await store.signOut(false)
+    await store.signOut(true)
+    expect(paths).toEqual(['/api/v1/auth/logout', '/api/v1/auth/logout-all'])
+    expect(removed).toEqual(['stuhelper.recent', 'stuhelper.recent'])
   })
 
   it('adds the session-bound CSRF value on writes only and stays same-origin', async () => {
