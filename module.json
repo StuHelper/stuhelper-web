@@ -18,7 +18,7 @@
     "README.md"
   ],
   "scenario_tests": {
-    "ACAD-07": [
+    "AE-ACCESS-05": [
       "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote"
     ],
     "DIRECTORY-NAVIGATION-01": [

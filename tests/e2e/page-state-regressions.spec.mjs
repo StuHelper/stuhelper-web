@@ -128,6 +128,7 @@ test('switching the review tab asks before discarding an edited draft', async ({
 test('own vote receipts open their discussion and a withdrawal removes only the selected vote', async ({ page }, info) => {
   const all = catalogue(info);
   await academicFixture(page);
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
   let votes = ['up', 'down'].map((id, index) => ({
     id, root_id: 'discussion', school_id: 'school', kind: 'reply', target_id: 'course', term_id: 'term', my_vote: index ? -1 : 1,
   }));
