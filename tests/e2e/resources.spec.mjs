@@ -148,3 +148,31 @@ test('the side list shows recently visited courses, filters by one and can be cl
   await expect(side.getByText(b.noRecentCourses, { exact: true })).toBeVisible();
   expect(deletes).toHaveLength(1);
 });
+
+test('starting another upload after saving creates two independent drafts', async ({ page }, info) => {
+  const { all, m, s } = await setup(page, info, '/resources');
+  const drafts = new Map();
+  await page.route('**/api/v1/resources', route => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    const id = 'draft-' + (drafts.size + 1);
+    const { metadata } = route.request().postDataJSON();
+    drafts.set(id, metadata.title);
+    return route.fulfill({ json: {
+      ...s.resource, id, revision: 1, state: 'draft', current: undefined,
+      proposal: { ...s.version, metadata, file: undefined, state: 'draft' },
+    } });
+  });
+  const start = () => page.evaluate(() => document.querySelector('#app').__vue_app__.config.globalProperties.$router.push('/resources/new'));
+  for (const [index, title] of ['First lecture', 'Second lecture'].entries()) {
+    await start();
+    await expect(page.getByLabel(m.editor.title, { exact: true })).toHaveValue('');
+    await page.getByRole('combobox', { name: all.academic.course, exact: true }).click();
+    await page.getByRole('option', { name: 'Fixture course' }).click();
+    await describe(page, m, title);
+    await page.getByRole('button', { name: m.editor.create, exact: true }).click();
+    await expect(page).toHaveURL(new RegExp('/resources/items/draft-' + (index + 1) + '/edit$'));
+    await expect(page.getByText(m.editor.saved, { exact: true })).toBeVisible();
+  }
+  expect([...drafts.entries()]).toEqual([['draft-1', 'First lecture'], ['draft-2', 'Second lecture']]);
+  expect(s.calls.filter(call => call.method === 'PUT')).toEqual([]);
+});
