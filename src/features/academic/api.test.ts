@@ -82,3 +82,11 @@ describe('academic boundary', () => {
     expect(knownCredits({ credits: 0 })).toBe(0)
   })
 })
+
+it('reads caller-owned vote receipts without requesting another author’s review', async () => {
+  const vote = { id: 'reply', root_id: 'discussion', school_id: 'school', kind: 'reply', target_id: 'course', term_id: 'term', my_vote: -1 }
+  const fetcher = vi.fn<typeof fetch>(async () => json([vote]))
+  const votes = await new AcademicApi(new Http(fetcher)).myVotes({ limit: 20 })
+  expect(votes).toEqual([vote])
+  expect(fetcher.mock.calls.map(([url]) => String(url))).toEqual(['/api/v1/reviews/me/votes?limit=20'])
+})
