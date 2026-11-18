@@ -1,3 +1,4 @@
+import { httpsUrl } from '../../shared/urls'
 import { ApiError } from '../../shared/api/errors'
 import qqContract from '../../../contracts/qq-binding.openapi.json'
 import type { components } from '../../api/qq-binding.gen'
@@ -36,8 +37,10 @@ export class QqBindingApi {
   }
 
   /** The QQ Connect authorization address. The browser leaves the site to open it. */
-  startConnect(key: string) {
-    return this.http.json('/api/v1/qq-binding/connect/start', parse.authorization, { method: 'POST', body: {}, key })
+  async startConnect(key: string) {
+    const result = await this.http.json('/api/v1/qq-binding/connect/start', parse.authorization, { method: 'POST', body: {}, key })
+    if (!httpsUrl(result.url)) throw new ApiError('incompatible')
+    return result
   }
 
   /**

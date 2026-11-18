@@ -2,6 +2,7 @@ import mediaContract from '../../../contracts/media.openapi.json'
 import resourcesContract from '../../../contracts/resources.openapi.json'
 import type { components as Media } from '../../api/media.gen'
 import type { components as Resources } from '../../api/resources.gen'
+import { httpsUrl } from '../../shared/urls'
 import { ApiError } from '../../shared/api/errors'
 import { saveBlob, segment, type Http, type Query } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
@@ -74,8 +75,10 @@ export function attributeText(field: Field | undefined, value: Value | undefined
 export class ResourcesApi {
   constructor(private readonly http: Http) {}
 
-  capabilities(signal?: AbortSignal) {
-    return this.http.json('/api/v1/resources/capabilities', parse.capabilities, { signal })
+  async capabilities(signal?: AbortSignal) {
+    const result = await this.http.json('/api/v1/resources/capabilities', parse.capabilities, { signal })
+    if (!httpsUrl(result.terms.url)) throw new ApiError('incompatible')
+    return result
   }
 
   /** Enabled categories in their configured order. */
