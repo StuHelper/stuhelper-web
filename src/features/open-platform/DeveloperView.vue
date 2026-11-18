@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Copy, Plus } from 'lucide-vue-next'
-import { computed, reactive, ref, shallowRef } from 'vue'
+import { computed, onScopeDispose, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { errorCode } from '../../shared/api/errors'
 import { useFormat } from '../../app/i18n'
 import { useMutation, usePaged } from '../../shared/composables/async'
 import { useLeaveGuard } from '../../shared/composables/leave'
@@ -46,7 +47,9 @@ const redirectList = computed(() => form.redirects.split('\n').map((line) => lin
 const redirectError = computed(() => {
   if (redirectList.value.length > 10) return t('platform.developer.tooManyRedirects')
   const problem = redirectList.value.map(redirectProblem).find(Boolean)
-  return problem ? t(`platform.developer.redirectProblem.${problem}`) : ''
+  if (problem) return t(`platform.developer.redirectProblem.${problem}`)
+  if (new Set(redirectList.value).size !== redirectList.value.length) return t('platform.developer.redirectProblem.duplicate')
+  return ''
 })
 const formValid = computed(() => !!form.name.trim() && [...form.name.trim()].length <= 80 && !!form.purpose.trim() && redirectList.value.length > 0 && !redirectError.value && form.scopes.length > 0)
 const dirty = computed(() => !!editing.value && JSON.stringify(form) !== baseline.value)
@@ -113,6 +116,52 @@ function rotated(app: Application, credential: Credential) {
 // what the application did; that statement is kept separately from the read time.
 const noticesFor = shallowRef<Application>()
 const notices = usePaged<Notice>((after, signal) => api.notices(noticesFor.value!.id, after, signal))
+const pendingNotices = ref<Record<string, boolean>>({})
+const scans = new Map<string, AbortController>()
+async function checkPending(id: string, after = '') {
+  scans.get(id)?.abort()
+  const controller = new AbortController()
+  scans.set(id, controller)
+  const visited = new Set<string>()
+  try {
+    do {
+      if (visited.has(after)) throw new Error('invalid notice cursor')
+      visited.add(after)
+      const page = await api.notices(id, after, controller.signal)
+      if (controller.signal.aborted) return
+      if (page.items.some(item => !item.acknowledgement)) {
+        pendingNotices.value[id] = true
+        return
+      }
+      after = page.next
+    } while (after)
+    pendingNotices.value[id] = false
+  } catch (failure) {
+    if (!controller.signal.aborted) toast(errorText(errorCode(failure)))
+  } finally {
+    if (scans.get(id) === controller) scans.delete(id)
+  }
+}
+watch(() => apps.items.value, async (list, _previous, onCleanup) => {
+  let active = true
+  onCleanup(() => { active = false })
+  for (const app of list) {
+    if (!active) return
+    if (pendingNotices.value[app.id] === undefined && !scans.has(app.id)) await checkPending(app.id)
+  }
+})
+watch(() => notices.items.value, (list) => {
+  const app = noticesFor.value
+  if (!app || notices.status.value !== 'ready') return
+  const pending = list.some(item => !item.acknowledgement)
+  if (pending || !notices.next.value) {
+    scans.get(app.id)?.abort()
+    pendingNotices.value[app.id] = pending
+  } else {
+    void checkPending(app.id, notices.next.value)
+  }
+})
+onScopeDispose(() => { for (const controller of scans.values()) controller.abort() })
 function openNotices(app: Application) {
   noticesFor.value = app
   void notices.reload()
@@ -262,6 +311,12 @@ function answered(notice: Notice) {
             >
               {{ t('platform.developer.notices.open') }}
             </button>
+            <StatusTag
+              v-if="pendingNotices[app.id]"
+              tone="warning"
+            >
+              {{ t('platform.developer.notices.pendingBadge') }}
+            </StatusTag>
           </div>
         </li>
       </ul>

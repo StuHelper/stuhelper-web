@@ -47,7 +47,10 @@ const tabs = computed(() => [{ value: 'contributions' as const, label: t('contri
 const creating = ref(false)
 const custody = ref<InstanceType<typeof CustodyPanel>>()
 const custodyOpened = ref(tab.value === 'accounts')
-watch(tab, (value) => { if (value === 'accounts') custodyOpened.value = true })
+watch(tab, (value) => {
+  if (value === 'accounts') custodyOpened.value = true
+  else void reload()
+})
 function refresh() {
   void reload()
   if (tab.value === 'accounts') custody.value?.refresh()
@@ -185,6 +188,7 @@ watch(completed, (value) => {
       v-if="custodyOpened && !needsSignIn"
       v-show="tab === 'accounts'"
       ref="custody"
+      @updated="reload()"
     />
     <div
       v-if="(tab === 'contributions' || needsSignIn) && ((completed && !error) || needsSignIn || (error && !pending))"
@@ -539,7 +543,7 @@ watch(completed, (value) => {
           :disabled="locked"
           @click="goNext"
         >
-          {{ t('common.loadMore') }}
+          {{ t('common.next') }}
         </button>
       </section>
     </template>

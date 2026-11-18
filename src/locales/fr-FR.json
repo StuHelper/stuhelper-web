@@ -1336,7 +1336,8 @@
       "conflict": "Ce compte est déjà connecté ou vient de changer. Veuillez actualiser.",
       "attempts_exhausted": "Les tentatives ont échoué. Un administrateur vous aidera.",
       "credentials_required": "Saisissez à nouveau le compte et le mot de passe."
-    }
+    },
+    "maxTermHint": "Durée maximale d’autorisation : {days} jours."
   },
   "gate": {
     "guest": {
@@ -2032,7 +2033,8 @@
       "redirectProblem": {
         "invalid": "Une URI de redirection n’est pas une adresse valide.",
         "https": "Les URI de redirection doivent utiliser HTTPS.",
-        "fragment": "Les URI de redirection ne peuvent pas contenir de fragment #."
+        "fragment": "Les URI de redirection ne peuvent pas contenir de fragment #.",
+        "duplicate": "Les adresses de redirection ne doivent pas être dupliquées."
       },
       "policy": "Durées et quota",
       "policyValue": "Autorisation {grant} jours, jeton d’accès {token} minutes, {quota} requêtes par jour",
@@ -2080,7 +2082,8 @@
         "retentionReason": "Base légale de la conservation (obligatoire)",
         "noteOptional": "Précision (facultatif)",
         "send": "Envoyer",
-        "recorded": "Résultat enregistré."
+        "recorded": "Résultat enregistré.",
+        "pendingBadge": "Signalement de retrait en attente"
       }
     },
     "consent": {
@@ -2344,7 +2347,9 @@
     "action": {
       "bind_qq": "Associer QQ",
       "verify_student": "Vérifier mon statut étudiant"
-    }
+    },
+    "passwordMode": "Mode d’adhésion",
+    "passwordRequired": "Mot de passe du groupe requis"
   },
   "membership": {
     "title": "Abonnement",

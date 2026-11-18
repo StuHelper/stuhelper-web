@@ -1336,7 +1336,8 @@
       "conflict": "This account is already connected or just changed. Please refresh.",
       "attempts_exhausted": "Repeated attempts failed. An administrator will help.",
       "credentials_required": "Please enter your account and password again."
-    }
+    },
+    "maxTermHint": "Maximum authorization duration: {days} days."
   },
   "gate": {
     "guest": {
@@ -2032,7 +2033,8 @@
       "redirectProblem": {
         "invalid": "A redirect URI is not a valid address.",
         "https": "Redirect URIs must use HTTPS.",
-        "fragment": "Redirect URIs cannot contain a # fragment."
+        "fragment": "Redirect URIs cannot contain a # fragment.",
+        "duplicate": "Redirect URIs must be unique."
       },
       "policy": "Authorization limits",
       "policyValue": "User grants last {grant} days, access tokens {token} minutes, {quota} queries per day",
@@ -2080,7 +2082,8 @@
         "retentionReason": "Legal basis for retention (required)",
         "noteOptional": "Additional note (optional)",
         "send": "Send report",
-        "recorded": "Result recorded."
+        "recorded": "Result recorded.",
+        "pendingBadge": "Pending withdrawal report"
       }
     },
     "consent": {
@@ -2344,7 +2347,9 @@
     "action": {
       "bind_qq": "Bind QQ",
       "verify_student": "Verify as a student"
-    }
+    },
+    "passwordMode": "Join mode",
+    "passwordRequired": "Requires group passcode"
   },
   "membership": {
     "title": "Membership",

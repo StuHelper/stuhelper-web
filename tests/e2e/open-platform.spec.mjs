@@ -79,6 +79,8 @@ test('a new application checks redirect addresses and is submitted for review', 
   await dialog.getByLabel(d.purpose, { exact: true }).fill('Exports public reviews to a table.');
   await dialog.getByLabel(d.redirects, { exact: true }).fill('http://export.example.invalid/cb');
   await expect(dialog.getByText(d.redirectProblem.https, { exact: true })).toBeVisible();
+  await dialog.getByLabel(d.redirects, { exact: true }).fill('https://export.example.invalid/cb\nhttps://export.example.invalid/cb');
+  await expect(dialog.getByText(d.redirectProblem.duplicate, { exact: true })).toBeVisible();
   await dialog.getByLabel(d.redirects, { exact: true }).fill('https://export.example.invalid/cb');
   await dialog.getByRole('radio', { name: new RegExp(d.clientTypes.public.title) }).check();
   await dialog.getByRole('checkbox', { name: new RegExp(all.platform.scopes.public_reviews.title) }).check();
@@ -89,9 +91,27 @@ test('a new application checks redirect addresses and is submitted for review', 
   await expect(page.getByText(d.state.pending, { exact: true })).toBeVisible();
 });
 
+test('the pending notice badge includes later pages when the first page has only acknowledgements', async ({ page }, info) => {
+  const d = catalogue(info).platform.developer;
+  const state = await platform(page);
+  await page.route('**/api/v1/open-platform/apps/app-1/notices?**', route => {
+    const after = new URL(route.request().url()).searchParams.get('after');
+    return route.fulfill({ json: after ? { items: state.notices } : {
+      items: [{ ...state.notices[0], id: 'acknowledged', acknowledgement: 'deleted' }], next: 'page-2',
+    } });
+  });
+  await page.goto(`${base}/me/developer?lang=${info.project.metadata.locale}`);
+  const badge = page.getByText(d.notices.pendingBadge, { exact: true });
+  await expect(badge).toBeVisible();
+  await page.getByRole('button', { name: d.notices.open, exact: true }).click();
+  await expect(page.getByRole('dialog').getByText(d.notices.status.deleted, { exact: true })).toBeVisible();
+  await expect(badge).toHaveCount(1);
+});
+
 test('a rotated secret is shown once and a withdrawal notice records the reported result', async ({ page }, info) => {
   const all = catalogue(info), d = all.platform.developer, state = await platform(page);
   await page.goto(`${base}/me/developer?lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(d.notices.pendingBadge, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: d.rotate, exact: true }).click();
   await page.getByRole('alertdialog').or(page.getByRole('dialog')).getByRole('button', { name: d.rotate, exact: true }).click();
   await expect(page.getByText('opsecret_fixture', { exact: true })).toBeVisible();
@@ -107,6 +127,7 @@ test('a rotated secret is shown once and a withdrawal notice records the reporte
   await dialog.getByLabel(d.notices.retentionReason, { exact: true }).fill('Tax records kept for five years.');
   await dialog.getByRole('button', { name: d.notices.send, exact: true }).click();
   await expect(dialog.getByText(d.notices.status.retention_exception, { exact: true })).toBeVisible();
+  await expect(page.getByText(d.notices.pendingBadge, { exact: true })).toHaveCount(0);
   expect(state.writes.at(-1)).toMatchObject({ path: '/apps/app-1/notices/notice-1/ack', body: { status: 'retention_exception', note: 'Tax records kept for five years.' } });
 });
 
