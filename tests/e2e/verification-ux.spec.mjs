@@ -65,6 +65,19 @@ test('verification dropdowns have zero layout displacement when opened and close
     // Center the target before measuring so Playwright's click auto-scroll is outside the observation.
     await control.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
     const measure = () => page.evaluate(() => [...document.querySelectorAll('h1, form:first-of-type, .app-select')].map(node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; }));
+    // The final centering scroll can also start the step entrance animation. Take the baseline
+    // after both scrolling and the form geometry are stationary, retaining exact rectangle checks.
+    await page.waitForFunction(() => new Promise(resolve => {
+      let previous = '', stable = 0;
+      function frame() {
+        const next = JSON.stringify([scrollY, ...[...document.querySelectorAll('h1, form:first-of-type, .app-select')].map(node => node.getBoundingClientRect().toJSON())]);
+        stable = next === previous ? stable + 1 : 0;
+        previous = next;
+        if (stable >= 5) resolve(true);
+        else requestAnimationFrame(frame);
+      }
+      frame();
+    }));
     const before = await measure();
     if (info.project.name.startsWith('mobile')) await control.tap();
     else await control.click();
