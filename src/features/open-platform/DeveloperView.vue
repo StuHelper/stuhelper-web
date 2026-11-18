@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Copy, Plus } from 'lucide-vue-next'
-import { computed, reactive, ref, shallowRef } from 'vue'
+import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useMutation, usePaged } from '../../shared/composables/async'
@@ -46,7 +46,9 @@ const redirectList = computed(() => form.redirects.split('\n').map((line) => lin
 const redirectError = computed(() => {
   if (redirectList.value.length > 10) return t('platform.developer.tooManyRedirects')
   const problem = redirectList.value.map(redirectProblem).find(Boolean)
-  return problem ? t(`platform.developer.redirectProblem.${problem}`) : ''
+  if (problem) return t(`platform.developer.redirectProblem.${problem}`)
+  if (new Set(redirectList.value).size !== redirectList.value.length) return t('platform.developer.redirectProblem.duplicate')
+  return ''
 })
 const formValid = computed(() => !!form.name.trim() && [...form.name.trim()].length <= 80 && !!form.purpose.trim() && redirectList.value.length > 0 && !redirectError.value && form.scopes.length > 0)
 const dirty = computed(() => !!editing.value && JSON.stringify(form) !== baseline.value)
@@ -113,6 +115,23 @@ function rotated(app: Application, credential: Credential) {
 // what the application did; that statement is kept separately from the read time.
 const noticesFor = shallowRef<Application>()
 const notices = usePaged<Notice>((after, signal) => api.notices(noticesFor.value!.id, after, signal))
+const pendingNotices = ref<Record<string, boolean>>({})
+const checkedNoticeApps = new Set<string>()
+watch(() => apps.items.value, (list) => {
+  for (const app of list) {
+    if (checkedNoticeApps.has(app.id)) continue
+    checkedNoticeApps.add(app.id)
+    void api.notices(app.id, '').then((page) => {
+      pendingNotices.value = { ...pendingNotices.value, [app.id]: page.items.some((item) => !item.acknowledgement) }
+    }).catch(() => undefined)
+  }
+})
+watch(() => notices.items.value, (list) => {
+  const app = noticesFor.value
+  if (app && notices.status.value === 'ready') {
+    pendingNotices.value = { ...pendingNotices.value, [app.id]: list.some((item) => !item.acknowledgement) }
+  }
+})
 function openNotices(app: Application) {
   noticesFor.value = app
   void notices.reload()
@@ -262,6 +281,12 @@ function answered(notice: Notice) {
             >
               {{ t('platform.developer.notices.open') }}
             </button>
+            <StatusTag
+              v-if="pendingNotices[app.id]"
+              tone="warning"
+            >
+              {{ t('platform.developer.notices.pendingBadge') }}
+            </StatusTag>
           </div>
         </li>
       </ul>

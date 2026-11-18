@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { RefreshCw, UsersRound } from 'lucide-vue-next'
+import { shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { usePaged } from '../../shared/composables/async'
 import PagedState from '../../shared/ui/PagedState.vue'
 import MeLayout from '../account/MeLayout.vue'
+import { useVerification } from '../verification/api'
 import { actionRoutes, useGroupsApi, type MyGroup } from './api'
 
 // The caller's QQ groups and pending join applications, with what is still
@@ -14,7 +17,18 @@ import { actionRoutes, useGroupsApi, type MyGroup } from './api'
 const { t, locale } = useI18n()
 const format = useFormat()
 const api = useGroupsApi()
-const list = usePaged<MyGroup>((cursor, signal) => api.mine(cursor, signal))
+const verification = useVerification()
+const capabilities = useCapabilities()
+const available = useLinkAvailable()
+const schoolNames = shallowRef(new Map<string, string>())
+const list = usePaged<MyGroup>(async (cursor, signal) => {
+  const page = await api.mine(cursor, signal)
+  if (!schoolNames.value.size && page.items.length) {
+    const schools = await verification.list('School', '/api/v1/verification/schools', { limit: 100, signal }).catch(() => ({ items: [] }))
+    if (schools.items.length) schoolNames.value = new Map(schools.items.map((item) => [item.id, item.name]))
+  }
+  return page
+})
 void list.reload()
 
 // Unknown facts are joined with the language's own list punctuation.
@@ -23,8 +37,9 @@ const tone: Record<MyGroup['eligibility'], string> = { eligible: 'tag-success', 
 // Steps done in QQ or by the group's administrators have no page here; they are shown as text.
 const inQq = (group: MyGroup) => group.next_actions.filter((action) => !actionRoutes[action] && action !== 'refresh')
 const links = (group: MyGroup) => group.next_actions.flatMap((action) => {
+  if (action === 'bind_qq' && !capabilities.has(feature.qq)) return []
   const to = actionRoutes[action]
-  return to ? [{ action, to }] : []
+  return to && available(to) ? [{ action, to }] : []
 })
 </script>
 
@@ -78,12 +93,18 @@ const links = (group: MyGroup) => group.next_actions.flatMap((action) => {
             >{{ t(`groups.eligibility.${group.eligibility}`) }}</span>
           </div>
           <dl class="facts">
+            <dt>{{ t('verification.school') }}</dt>
+            <dd>{{ schoolNames.get(group.school) || group.school }}</dd>
             <dt>{{ t('groups.stateLabel') }}</dt>
             <dd>
               {{ t(`groups.state.${group.state}`) }}<template v-if="!group.joined && group.state !== 'requested'">
                 · {{ t('groups.notJoined') }}
               </template>
             </dd>
+            <template v-if="group.requires_password">
+              <dt>{{ t('groups.passwordMode') }}</dt>
+              <dd>{{ t('groups.passwordRequired') }}</dd>
+            </template>
             <template v-if="group.deadline">
               <dt>{{ t('groups.deadline') }}</dt>
               <dd><time :datetime="group.deadline">{{ format.dateTime(group.deadline) }}</time></dd>

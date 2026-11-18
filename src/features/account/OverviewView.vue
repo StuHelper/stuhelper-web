@@ -206,6 +206,20 @@ async function signOut() {
             {{ t('me.profile.edit') }}
           </button>
         </div>
+        <div
+          class="row"
+          :aria-label="t('me.status.title')"
+        >
+          <StatusTag :tone="summary.data.value?.campus_eligibility ? 'success' : 'neutral'">
+            {{ t('verification.campus') }} · {{ t(summary.data.value ? (summary.data.value.campus_eligibility ? 'verification.eligible' : 'verification.notEligible') : 'me.status.unknown') }}
+          </StatusTag>
+          <StatusTag :tone="summary.data.value?.identity_verified ? 'success' : 'neutral'">
+            {{ t('verification.identity') }} · {{ t(summary.data.value ? (summary.data.value.identity_verified ? 'verification.identityVerified' : 'verification.identityMissing') : 'me.status.unknown') }}
+          </StatusTag>
+          <StatusTag :tone="session.session.value.phone_bound ? 'success' : 'warning'">
+            {{ t('verification.phone') }} · {{ t(session.session.value.phone_bound ? 'verification.phoneBound' : 'verification.phoneMissing') }}
+          </StatusTag>
+        </div>
         <form
           v-if="editing"
           class="stack profile-form"

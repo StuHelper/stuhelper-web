@@ -1309,7 +1309,8 @@
       "conflict": "このアカウントは接続済みか、変更されたばかりです。更新してください。",
       "attempts_exhausted": "再試行に失敗しました。管理者が対応します。",
       "credentials_required": "アカウントとパスワードを再入力してください。"
-    }
+    },
+    "maxTermHint": "最長認可期間：{days} 日。"
   },
   "gate": {
     "guest": {
@@ -2005,7 +2006,8 @@
       "redirectProblem": {
         "invalid": "リダイレクト URI の形式が正しくありません。",
         "https": "リダイレクト URI は HTTPS を使用してください。",
-        "fragment": "リダイレクト URI に # フラグメントは使えません。"
+        "fragment": "リダイレクト URI に # フラグメントは使えません。",
+        "duplicate": "リダイレクト URI が重複しています。"
       },
       "policy": "認可期間と上限",
       "policyValue": "ユーザー許可 {grant} 日、アクセストークン {token} 分、1 日 {quota} 回まで",
@@ -2053,7 +2055,8 @@
         "retentionReason": "保持の根拠（必須）",
         "noteOptional": "補足（任意）",
         "send": "報告を送信",
-        "recorded": "対応結果を記録しました。"
+        "recorded": "対応結果を記録しました。",
+        "pendingBadge": "未報告の撤回通知あり"
       }
     },
     "consent": {
@@ -2311,7 +2314,9 @@
     "action": {
       "bind_qq": "QQ を連携",
       "verify_student": "学生認証へ"
-    }
+    },
+    "passwordMode": "参加方式",
+    "passwordRequired": "グループ合言葉が必要"
   },
   "membership": {
     "title": "メンバーシップ",

@@ -1309,7 +1309,8 @@
       "conflict": "该账号已接入或状态刚发生变化，请刷新后查看。",
       "attempts_exhausted": "多次尝试仍未成功，管理员会协助处理。",
       "credentials_required": "请重新输入账号和密码。"
-    }
+    },
+    "maxTermHint": "最长可授权 {days} 天。"
   },
   "gate": {
     "guest": {
@@ -2005,7 +2006,8 @@
       "redirectProblem": {
         "invalid": "回调地址格式不正确。",
         "https": "回调地址必须使用 HTTPS。",
-        "fragment": "回调地址不能包含 # 片段。"
+        "fragment": "回调地址不能包含 # 片段。",
+        "duplicate": "回调地址不能重复。"
       },
       "policy": "授权期限与配额",
       "policyValue": "用户授权 {grant} 天，访问令牌 {token} 分钟，每日 {quota} 次查询",
@@ -2053,7 +2055,8 @@
         "retentionReason": "保留依据（必填）",
         "noteOptional": "补充说明（可选）",
         "send": "提交回报",
-        "recorded": "处理结果已记录。"
+        "recorded": "处理结果已记录。",
+        "pendingBadge": "有待回报通知"
       }
     },
     "consent": {
@@ -2311,7 +2314,9 @@
     "action": {
       "bind_qq": "去绑定 QQ",
       "verify_student": "去学生认证"
-    }
+    },
+    "passwordMode": "入群方式",
+    "passwordRequired": "需验证入群口令"
   },
   "membership": {
     "title": "会员",
