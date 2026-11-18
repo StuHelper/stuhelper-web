@@ -128,10 +128,11 @@ test('switching the review tab asks before discarding an edited draft', async ({
 test('legacy votes tab redirects to the single votes page and custom school rating texts apply to browse levels', async ({ page }, info) => {
   const all = catalogue(info), locale = info.project.metadata.locale;
   await academicFixture(page);
-  await page.route('**/api/v1/search/me/votes**', (route) => route.fulfill({ json: { items: [], next_cursor: '' } }));
+  await page.route('**/api/v1/search/my-votes**', (route) => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.goto(`${base}/me/reviews?tab=votes&lang=${locale}`);
   await expect(page).toHaveURL(/\/me\/votes/);
   await expect(page.getByRole('heading', { name: all.search.votes.title, exact: true })).toBeVisible();
+  await expect(page.getByText(all.search.votes.empty, { exact: true })).toBeVisible();
 
   const customBand = ['Custom Rec', 'C1', 'C2', 'C3', 'Solid Pick', 'Must Take'];
   await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({
