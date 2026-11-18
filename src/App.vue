@@ -25,9 +25,9 @@ watch(locale, (value) => {
   if (!hasLeaveWarning()) localeKey.value = value
 })
 // A new resource becoming its saved edit page is one continuing form, so its chosen file survives.
-const pathKey = ref('')
-watch(() => route.path, (to, from) => {
-  if (route.meta.continuesFrom !== from) pathKey.value = route.meta.remountOnPath ? to : ''
+const pathKey = ref(0)
+watch(() => route.path, (_, from) => {
+  if (route.meta.remountOnPath && route.meta.continuesFrom !== from) pathKey.value++
 })
 const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', pathKey.value].join('|'))
 const capabilities = useCapabilities()
