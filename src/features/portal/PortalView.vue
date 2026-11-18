@@ -6,6 +6,7 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
+import { myCoursesEnabled } from '../../app/features'
 import { products } from '../../app/products'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { vSpotlight, vTilt } from '../../shared/ui/pointer'
@@ -27,12 +28,13 @@ const allTiles = [
   { to: { path: '/', hash: '#platform' }, key: 'platform', name: 'nav.platform', icon: Network },
 ] as const
 const tiles = computed(() => allTiles.filter((tile) => tile.key !== 'platform' || platformOn.value))
-const campus = [
+const allCampus = [
   { key: 'reviews', icon: MessageSquareText },
   { key: 'resources', icon: FolderOpen },
   { key: 'compare', icon: Scale },
   { key: 'schedule', icon: CalendarDays },
 ] as const
+const campus = computed(() => allCampus.filter((point) => point.key !== 'schedule' || myCoursesEnabled))
 const api = [
   { key: 'protocols', icon: Waypoints },
   { key: 'tokens', icon: KeyRound },

@@ -25,6 +25,7 @@ export type Recommendation = Catalog['schemas']['Recommendation']
 export type RecentCourses = Catalog['schemas']['RecentCourses']
 export type NextClassDay = Catalog['schemas']['NextClassDay']
 export type Review = Reviews['schemas']['View']
+export type OwnVote = Reviews['schemas']['OwnVote']
 export type ReviewKind = ReviewInput['kind']
 export type ReviewInput = Reviews['schemas']['Input']
 export type ReviewPage = Reviews['schemas']['Page']
@@ -66,7 +67,7 @@ const parse = {
   recentCleared: schemaOf<Catalog['schemas']['RecentCleared']>(catalog, 'RecentCleared'),
   nextClassDay: schemaOf<NextClassDay>(catalog, 'NextClassDay'),
   review: schemaOf<Review>(reviews, 'View'),
-  reviewList: schemaOf<Review[]>(reviews, 'View', true),
+  ownVotes: schemaOf<OwnVote[]>(reviews, 'OwnVote', true),
   reviewPage: schemaOf<ReviewPage>(reviews, 'Page'),
   statistics: schemaOf<Statistics>(reviews, 'Statistics'),
   draft: schemaOf<Draft>(reviews, 'DraftView'),
@@ -278,7 +279,7 @@ export class AcademicApi {
   }
 
   myVotes(query: Query, signal?: AbortSignal) {
-    return this.http.json('/api/v1/reviews/me/votes', parse.reviewList, { query, signal })
+    return this.http.json('/api/v1/reviews/me/votes', parse.ownVotes, { query, signal })
   }
 
   myTasks(query: Query, signal?: AbortSignal) {

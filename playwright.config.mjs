@@ -6,7 +6,6 @@ const primaryLocales = new Set(['zh-CN', 'en-US', 'ar-EG']);
 // scenario-registered suites run across all 16 locale/viewport projects.
 const stateMachineOnly = [
   '**/review-regressions.spec.mjs',
-  '**/page-state-regressions.spec.mjs',
   '**/my-reviews-discussion.spec.mjs',
 ];
 

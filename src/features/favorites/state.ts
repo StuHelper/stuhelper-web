@@ -1,9 +1,12 @@
-import { reactive } from 'vue'
+import { reactive, shallowRef } from 'vue'
 import { errorCode } from '../../shared/api/errors'
 import type { FavoritesApi, Favorite, FavoriteKind } from './api'
 
 /** Known favorite of a target: the record, null when not saved, undefined while unknown. */
 type Entry = Favorite | null | undefined
+
+// A toast may outlive the button that saved this item.
+export const moveTarget = shallowRef<{ item: Favorite; profileId: string }>()
 
 const known = reactive(new Map<string, Entry>())
 const failed = reactive(new Set<string>())

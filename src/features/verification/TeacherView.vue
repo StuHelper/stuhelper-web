@@ -14,6 +14,7 @@ import MeLayout from '../account/MeLayout.vue'
 import VerificationRoles from './VerificationRoles.vue'
 import { useAcademic } from '../academic/api'
 import CameraCapture from './CameraCapture.vue'
+import MaterialThumb from './MaterialThumb.vue'
 import SchoolPicker from './SchoolPicker.vue'
 import { teacherDisclosures, useVerification, type Application, type Material, type School, type TeacherCredential, type TeacherDisclosure } from './api'
 
@@ -38,7 +39,22 @@ const data = useAsync(async (signal) => {
   return { schools: schools.items.filter((item) => item.enabled), applications: teacherApps, credentials: owned.items, names }
 })
 void data.reload()
-const open = computed(() => data.data.value?.applications.find((item) => ['in_progress', 'supplement_required', 'pending_review'].includes(item.state)))
+const restarting = ref(false)
+const selectedDraft = shallowRef<Application>()
+const open = computed(() => {
+  const apps = data.data.value?.applications ?? []
+  for (const state of ['pending_review', 'supplement_required', 'in_progress'] as const) {
+    const candidates = apps.filter((item) => item.state === state)
+    const selected = selectedDraft.value
+    if (state === 'in_progress' && selected) {
+      const current = apps.find(item => item.id === selected.id)
+      if (!current || current.state === state) return current ?? selected
+    }
+    const match = candidates.sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id.localeCompare(a.id))[0]
+    if (match) return match
+  }
+  return undefined
+})
 const decided = computed(() => data.data.value?.applications.filter((item) => item !== open.value) ?? [])
 const searchedSchools = ref<School[]>([])
 const knownSchools = computed(() => [...new Map([...(data.data.value?.schools ?? []), ...searchedSchools.value].map((item) => [item.id, item])).values()])
@@ -53,14 +69,21 @@ function chooseSchool(item: School) {
   school.value = item.id
 }
 const consent = ref(false)
+function restartSchool() {
+  restarting.value = true
+  school.value = ''
+  consent.value = false
+}
 async function start() {
   const chosen = schoolOf(school.value)
   if (!chosen || !consent.value) return
   const created = await task.run(() => api.write('Application', '/api/v1/verification/teacher-applications', { school_id: chosen.id, notice_version: chosen.notice_version, consent: true }))
   if (created) {
+    selectedDraft.value = created
+    restarting.value = false
     consent.value = false
     await data.reload()
-    void loadForm(created)
+    if (open.value?.id === created.id) await loadForm(open.value)
   }
 }
 
@@ -100,7 +123,9 @@ async function submit() {
   }
 }
 function captured(material: Material) {
-  materials.value = [...materials.value, material]
+  if (!materials.value.some((item) => item.id === material.id)) {
+    materials.value = [...materials.value, material]
+  }
 }
 async function removeMaterial(id: string) {
   const removed = await task.run(() => api.write('Material', `/api/v1/verification/materials/${encodeURIComponent(id)}`, undefined, 'DELETE'))
@@ -249,7 +274,7 @@ function schoolName(id: string, schools: School[]) {
         </section>
 
         <section
-          v-if="open"
+          v-if="open && !restarting"
           class="section"
           aria-labelledby="teacher-application"
         >
@@ -262,9 +287,20 @@ function schoolName(id: string, schools: School[]) {
           <div class="card stack">
             <div class="row-between">
               <b>{{ schoolName(open.school_id, data.data.value.schools) }}</b>
-              <StatusTag :tone="appTone(open.state)">
-                {{ t(`teacher.applicationState.${open.state}`) }}
-              </StatusTag>
+              <div class="row">
+                <StatusTag :tone="appTone(open.state)">
+                  {{ t(`teacher.applicationState.${open.state}`) }}
+                </StatusTag>
+                <button
+                  v-if="open.state === 'in_progress'"
+                  class="btn btn-sm btn-ghost"
+                  type="button"
+                  :disabled="task.busy.value"
+                  @click="restartSchool"
+                >
+                  {{ t('verification.changeSchool') }}
+                </button>
+              </div>
             </div>
             <p
               v-if="open.review_note"
@@ -369,6 +405,10 @@ function schoolName(id: string, schools: School[]) {
                       :key="material.id"
                       class="tag"
                     >
+                      <MaterialThumb
+                        :material="material"
+                        :alt="t('teacher.materialItem', { index: format.number(index + 1) })"
+                      />
                       {{ t('teacher.materialItem', { index: format.number(index + 1) }) }}
                       <button
                         class="btn btn-sm btn-ghost"
@@ -385,7 +425,9 @@ function schoolName(id: string, schools: School[]) {
                   </ul>
                   <CameraCapture
                     v-if="materials.length < 5"
+                    :key="open.id"
                     :application-id="open.id"
+                    :existing-ids="materials.map((item) => item.id)"
                     @captured="captured"
                   />
                 </div>
@@ -463,6 +505,15 @@ function schoolName(id: string, schools: School[]) {
                 :disabled="!school || !consent || task.busy.value"
               >
                 {{ t('teacher.apply') }}
+              </button>
+              <button
+                v-if="open"
+                class="btn btn-ghost"
+                type="button"
+                :disabled="task.busy.value"
+                @click="restarting = false"
+              >
+                {{ t('common.cancel') }}
               </button>
             </div>
           </form>

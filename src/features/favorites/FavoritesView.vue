@@ -6,16 +6,17 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
-import { usePaged } from '../../shared/composables/async'
+import { useAsync, usePaged } from '../../shared/composables/async'
+import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import AsyncState from '../../shared/ui/AsyncState.vue'
+import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import SearchField from '../../shared/ui/SearchField.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
-import { useAsync } from '../../shared/composables/async'
 import { useFavoritesApi, type Favorite, type FavoriteKind, type FavoriteSort, type Folder as FolderRow } from './api'
 import { rememberFavorite } from './state'
 
@@ -26,11 +27,15 @@ const format = useFormat()
 const errorText = useErrorText()
 const api = useFavoritesApi()
 
-const folder = ref('')
-const kind = ref<'all' | FavoriteKind>('all')
-const q = ref('')
-const query = ref('')
-const sort = ref<FavoriteSort>('newest')
+const page = usePageFilters(['folder', 'kind', 'q', 'sort'] as const)
+const validKinds = ['all', 'course', 'teacher', 'resource'] as const
+const initialKind = page.values.value.kind
+const initialSort = page.values.value.sort
+const folder = ref(page.values.value.folder)
+const kind = ref<'all' | FavoriteKind>((validKinds as readonly string[]).includes(initialKind) ? (initialKind as 'all' | FavoriteKind) : 'all')
+const q = ref(page.values.value.q)
+const query = ref(page.values.value.q)
+const sort = ref<FavoriteSort>(initialSort === 'name' ? 'name' : 'newest')
 
 const folders = useAsync((signal) => api.allFolders(signal))
 void folders.reload()
@@ -50,10 +55,18 @@ const selected = computed(() => folderRows.value.find((row) => row.id === folder
 const heading = computed(() => (selected.value ? folderName(selected.value) : t('favorites.all')))
 
 const rows = usePaged<Favorite>(async (after, signal) => {
-  const page = await api.items({ after, folder_id: folder.value || undefined, kind: kind.value === 'all' ? undefined : kind.value, q: query.value || undefined, sort: sort.value }, signal)
-  return { items: page.items, next: page.next ?? '' }
+  const result = await api.items({ after, folder_id: folder.value || undefined, kind: kind.value === 'all' ? undefined : kind.value, q: query.value || undefined, sort: sort.value }, signal)
+  return { items: result.items, next: result.next ?? '' }
 })
-watch([folder, kind, query, sort], () => void rows.reload(), { immediate: true })
+watch([folder, kind, query, sort], () => {
+  page.replace({
+    folder: folder.value || undefined,
+    kind: kind.value === 'all' ? undefined : kind.value,
+    q: query.value || undefined,
+    sort: sort.value === 'newest' ? undefined : sort.value,
+  })
+  void rows.reload()
+}, { immediate: true })
 // Searching waits for a short pause in typing so each keystroke does not send a request.
 let typing: ReturnType<typeof setTimeout> | undefined
 watch(q, (value) => {
@@ -148,16 +161,27 @@ function editBlur() {
   if (nameValid.value) void saveEdit()
   else editing.value = ''
 }
-async function removeFolder() {
+const deletingFolder = ref<FolderRow>()
+const deletingBusy = ref(false)
+function requestRemoveFolder() {
   const current = selected.value
   if (!current || current.is_default) return
+  deletingFolder.value = current
+}
+async function confirmRemoveFolder() {
+  const current = deletingFolder.value
+  if (!current || current.is_default || deletingBusy.value) return
+  deletingBusy.value = true
   try {
     await api.deleteFolder(current.id, { revision: current.revision }, crypto.randomUUID())
-    folder.value = ''
+    if (folder.value === current.id) folder.value = ''
+    deletingFolder.value = undefined
     toast(t('favorites.folderDeleted', { p0: folderName(current), p1: defaultFolder.value ? folderName(defaultFolder.value) : t('favorites.defaultFolder') }))
     await refreshFolders()
   } catch (failure) {
     toast(errorText(errorCode(failure)))
+  } finally {
+    deletingBusy.value = false
   }
 }
 // On phones the folder list scrolls sideways; keep the selected folder's menu button in view.
@@ -302,7 +326,7 @@ function replace(row: Favorite, next: Favorite | undefined) {
                     <DropdownMenuItem
                       v-if="!x.is_default"
                       class="menu-item"
-                      @select="removeFolder"
+                      @select="requestRemoveFolder"
                     >
                       <Trash2 aria-hidden="true" />{{ t('favorites.deleteFolder') }}
                     </DropdownMenuItem>
@@ -502,6 +526,16 @@ function replace(row: Favorite, next: Favorite | undefined) {
         </section>
       </div>
     </AsyncState>
+    <ConfirmDialog
+      :open="!!deletingFolder"
+      :title="t('favorites.deleteFolder')"
+      :message="deletingFolder ? t('favorites.deleteFolderConfirm', { p0: folderName(deletingFolder), p1: defaultFolder ? folderName(defaultFolder) : t('favorites.defaultFolder') }) : ''"
+      :confirm-label="t('favorites.deleteFolder')"
+      danger
+      :busy="deletingBusy"
+      @confirm="void confirmRemoveFolder()"
+      @cancel="deletingFolder = undefined"
+    />
   </div>
 </template>
 

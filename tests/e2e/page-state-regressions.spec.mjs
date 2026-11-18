@@ -124,3 +124,28 @@ test('switching the review tab asks before discarding an edited draft', async ({
   await expect(title).toHaveValue('Unsaved title');
   await expect(page).toHaveURL(/tab=drafts/);
 });
+
+test('own vote receipts open their discussion and a withdrawal removes only the selected vote', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
+  let votes = ['up', 'down'].map((id, index) => ({
+    id, root_id: 'discussion', school_id: 'school', kind: 'reply', target_id: 'course', term_id: 'term', my_vote: index ? -1 : 1,
+  }));
+  await page.route('**/api/v1/reviews/me/votes?**', route => route.fulfill({ json: votes }));
+  await page.route('**/api/v1/reviews/me/references?**', route => route.fulfill({ json: {
+    items: [{ id: 'course', kind: 'course', name: 'Referenced course' }], missing_ids: ['term'],
+  } }));
+  await page.route('**/api/v1/reviews/down/actions', route => {
+    expect(route.request().postDataJSON()).toEqual({ action: 'vote', vote: 0 });
+    votes = votes.filter(vote => vote.id !== 'down');
+    return route.fulfill({ json: { id: 'down', state: 'published', revision: 2 } });
+  });
+  await page.goto(`${base}/me/reviews?tab=votes&lang=${info.project.metadata.locale}`);
+  const down = page.getByRole('article').filter({ hasText: all.search.votes.down });
+  await expect(down.getByRole('link', { name: 'Referenced course' })).toHaveAttribute('href', '/reviews/discussion');
+  await down.getByRole('button', { name: all.search.votes.cancel }).click();
+  await expect(down).toHaveCount(0);
+  await expect(page.getByText(all.search.votes.up, { exact: true })).toBeVisible();
+  expect(votes.map(vote => vote.id)).toEqual(['up']);
+});

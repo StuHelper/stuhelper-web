@@ -9,7 +9,8 @@
     "footer": "Información del campus sobre cursos, reseñas y materiales",
     "themeLight": "Cambiar a apariencia clara",
     "themeDark": "Cambiar a apariencia oscura",
-    "contact": "Contacto y comentarios"
+    "contact": "Contacto y comentarios",
+    "themeSystem": "Seguir la apariencia del sistema"
   },
   "nav": {
     "primary": "Navegación principal",
@@ -175,15 +176,15 @@
     "more": "Conocer {name}",
     "visit": "Ir a {host}",
     "tiles": {
-      "campus": "Reseñas de cursos y profesores, materiales y horarios",
+      "campus": "Reseñas de cursos y profesores, materiales y comparación",
       "api": "Una sola interfaz para varios grandes modelos",
       "store": "Suscripciones de GPT y créditos de Codex recargados por ti",
       "platform": "Inicio de sesión único e integración de aplicaciones de terceros"
     },
     "campus": {
       "name": "Campus StuHelper",
-      "tag": "Cursos, profesores, materiales y horarios",
-      "lead": "Una comunidad de cursos para estudiantes matriculados. Lee reseñas de cursos y profesores, encuentra exámenes anteriores y apuntes, compara los cursos que estás valorando y gestiona tu horario. Actualmente abierto a la Universidad de Beihang.",
+      "tag": "Cursos, profesores, materiales y comparación",
+      "lead": "Una comunidad de cursos para miembros del campus. Lee reseñas de cursos y profesores, encuentra exámenes anteriores y apuntes y compara los cursos que estás valorando.",
       "action": "Entrar en Campus",
       "points": {
         "reviews": {
@@ -472,7 +473,8 @@
       "newest": "Más recientes primero",
       "oldest": "Más antiguos primero",
       "empty": "Aún no hay reseñas del curso.",
-      "emptyMentor": "Aún no hay comentarios de tutoría."
+      "emptyMentor": "Aún no hay comentarios de tutoría.",
+      "upvotes": "Más votadas"
     },
     "review": {
       "featured": "Contenido destacado",
@@ -501,7 +503,8 @@
       "deleteReplyConfirm": "¿Eliminar esta respuesta definitivamente? El resto de la discusión se mantiene.",
       "withdrawConfirm": "Retirar oculta la discusión. Republicar conserva la fecha original, respuestas y votos. Los borradores caducados se eliminan.",
       "expand": "Ver más",
-      "collapse": "Ver menos"
+      "collapse": "Ver menos",
+      "editWindowRemaining": "Retirada o eliminación directa: quedan {time}"
     },
     "replies": {
       "title": "Respuestas",
@@ -694,7 +697,9 @@
     "groups": {
       "account": "Cuenta",
       "services": "Más servicios"
-    }
+    },
+    "pendingCoursesTitle": "Cursos pendientes de tu reseña",
+    "writePendingReview": "Escribir reseña"
   },
   "resources": {
     "eyebrow": "Materiales compartidos",
@@ -727,7 +732,11 @@
       "filtersFailed": "No se cargaron los filtros. Aún puedes buscar por palabra clave.",
       "filtersRetry": "Recargar filtros",
       "reload": "Recargar recursos",
-      "currentFolder": "Carpeta actual"
+      "currentFolder": "Carpeta actual",
+      "fileType": "Formato de archivo",
+      "sort": "Ordenar por",
+      "sortNewest": "Más recientes",
+      "sortDefault": "Orden predeterminado"
     },
     "package": {
       "title": "Paquetes de descarga",
@@ -736,7 +745,9 @@
       "part": "Paquete {number}",
       "size": "{size} · archivos: {files}",
       "download": "Descargar este paquete",
-      "downloaded": "Descargado"
+      "downloaded": "Descargado",
+      "expiredNotice": "Este paquete de descarga ha caducado. Genere uno nuevo para continuar.",
+      "recreate": "Volver a generar paquete"
     },
     "picker": {
       "search": "Buscar en «{label}»",
@@ -756,7 +767,16 @@
       "about": "Sobre el material",
       "file": "Archivo del material",
       "access": "Acceso",
-      "course": "Ver el curso relacionado"
+      "course": "Ver el curso relacionado",
+      "preview": "Vista previa en línea",
+      "hidePreview": "Ocultar vista previa",
+      "previewTitle": "Vista previa del archivo",
+      "fullscreenPreview": "Pantalla completa",
+      "emptyPreview": "El archivo está vacío.",
+      "previewTooLarge": "Los archivos que superan {size} no admiten vista previa en página; descárguelos directamente.",
+      "proposalTitle": "Detalles de la versión en revisión",
+      "proposalFile": "Archivo enviado",
+      "checksum": "Suma de verificación"
     },
     "access": {
       "allowed": "Puedes descargarlo.",
@@ -852,7 +872,11 @@
       "proposalState": "Estado de la versión:",
       "submit": "Enviar a revisión",
       "submitted": "Enviado a revisión. El resultado aparecerá en Mis materiales.",
-      "view": "Ver material"
+      "view": "Ver material",
+      "directoryChooseCourse": "Seleccione primero un curso para elegir una carpeta o déjelo vacío para la raíz.",
+      "selectedDirectory": "Carpeta seleccionada",
+      "dropOrBrowse": "Arrastre un archivo aquí o haga clic para elegir",
+      "uploadProgress": "Transferido {loaded} / {total} ({percent})"
     },
     "request": {
       "title": "Reclamaciones y solicitudes",
@@ -902,7 +926,11 @@
       "granting": "Pago recibido. Activando el acceso, espera un momento. También puedes ver el resultado más tarde en los pedidos del monedero.",
       "viewOrder": "Ver pedido",
       "refunded": "Este recurso no se puede entregar ahora. El pago se ha devuelto a la cuenta con la que pagaste.",
-      "done": "Acceso concedido. Ya puedes descargarlo."
+      "done": "Acceso concedido. Ya puedes descargarlo.",
+      "currentBalance": "Saldo disponible: {balance}",
+      "confirmTitle": "Confirmar pago",
+      "confirmMessage": "¿Pagar {price} para desbloquear el acceso a este material?",
+      "confirmMessageWithBalance": "¿Pagar {price} para desbloquear el acceso a este material? Saldo disponible: {balance}."
     }
   },
   "verification": {
@@ -991,7 +1019,9 @@
       "scan": "Escanea con el móvil para fotografiar",
       "ticketExpiry": "Enlace de captura válido hasta {time}",
       "open": "Abrir página de captura",
-      "done": "Foto enviada. Vuelve al dispositivo original, actualiza los documentos y continúa la solicitud."
+      "done": "Foto enviada. Vuelve al dispositivo original, actualiza los documentos y continúa la solicitud.",
+      "sync": "Comprobar fotos subidas",
+      "waitingPhone": "Al enviarlas desde el teléfono, las fotos se sincronizan aquí automáticamente."
     },
     "methods": {
       "real_name_identity_check": "Cotejo de identidad académica",
@@ -1197,7 +1227,10 @@
       "student_email_inbound_challenge": "Envía un mensaje desde tu correo de la universidad a una dirección indicada",
       "manual_material_review": "Fotografía tu carné u otro justificante para que lo revisen"
     },
-    "changeSchool": "Cambiar de universidad"
+    "changeSchool": "Cambiar de universidad",
+    "copyInboundAddress": "Copiar dirección de destino",
+    "inboundAddressCopied": "Dirección de destino copiada.",
+    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección."
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -1309,16 +1342,17 @@
       "conflict": "Esta cuenta ya está conectada o acaba de cambiar. Actualiza la página.",
       "attempts_exhausted": "Los reintentos fallaron. Un administrador te ayudará.",
       "credentials_required": "Vuelve a introducir la cuenta y la contraseña."
-    }
+    },
+    "maxTermHint": "Duración máxima de autorización: {days} días."
   },
   "gate": {
     "guest": {
       "title": "Inicia sesión para continuar",
-      "text": "Los cursos, profesores, reseñas y recursos están abiertos a estudiantes y profesores verificados de Beihang.",
+      "text": "Los cursos, profesores, reseñas y recursos están abiertos a estudiantes y profesores verificados del campus.",
       "action": "Iniciar sesión"
     },
     "unverified": {
-      "title": "Verifica tu condición en Beihang para continuar",
+      "title": "Completa la verificación del campus para continuar",
       "text": "Tras la verificación volverás a la página que querías ver.",
       "action": "Iniciar verificación"
     },
@@ -1651,7 +1685,8 @@
     "mine": "Yo",
     "defaultFolder": "Predeterminada",
     "unknown": "No se puede confirmar el estado del favorito",
-    "untitled": "Contenido ya no disponible"
+    "untitled": "Contenido ya no disponible",
+    "deleteFolderConfirm": "¿Eliminar la carpeta «{p0}»? Sus elementos guardados se moverán a «{p1}»."
   },
   "qq": {
     "title": "Vinculación de QQ",
@@ -2005,7 +2040,8 @@
       "redirectProblem": {
         "invalid": "Una URI de redirección no es una dirección válida.",
         "https": "Las URI de redirección deben usar HTTPS.",
-        "fragment": "Las URI de redirección no pueden contener un fragmento #."
+        "fragment": "Las URI de redirección no pueden contener un fragmento #.",
+        "duplicate": "Las direcciones de redirección no pueden repetirse."
       },
       "policy": "Límites de autorización",
       "policyValue": "Autorización de {grant} días, token de acceso de {token} minutos, {quota} consultas al día",
@@ -2053,8 +2089,10 @@
         "retentionReason": "Base legal de la conservación (obligatorio)",
         "noteOptional": "Nota adicional (opcional)",
         "send": "Enviar informe",
-        "recorded": "Resultado registrado."
-      }
+        "recorded": "Resultado registrado.",
+        "pendingBadge": "Aviso de retirada pendiente"
+      },
+      "secretCloseConfirm": "Este secreto solo se muestra una vez y no podrá verse de nuevo al cerrar. Cópialo primero o confirma que lo guardaste."
     },
     "consent": {
       "title": "Autorización de aplicación",
@@ -2241,6 +2279,7 @@
       "empty": "Aún no has votado.",
       "review": "Reseña",
       "up": "Útil",
+      "cancel": "Retirar mi voto",
       "down": "No útil"
     },
     "compare": {
@@ -2264,7 +2303,12 @@
       "tray": "Lista de comparación",
       "progress": "{count} de {max} seleccionados",
       "start": "Comparar ahora",
-      "pickMore": "Elige uno más para comparar"
+      "pickMore": "Elige uno más para comparar",
+      "clear": "Vaciar comparación",
+      "addCourse": "Buscar y añadir un curso para comparar",
+      "addTeacher": "Buscar y añadir un docente para comparar",
+      "taughtCourses": "Cursos impartidos",
+      "ratedCourses": "Cursos incluidos en el cálculo"
     }
   },
   "groups": {
@@ -2302,7 +2346,7 @@
     },
     "fact": {
       "student_eligibility": "condición de estudiante",
-      "student_stage": "situación de matrícula"
+      "student_stage": "etapa de estudios"
     },
     "hint": {
       "submit_password": "Envía la contraseña de acceso en el grupo según indica el aviso del grupo.",
@@ -2311,7 +2355,9 @@
     "action": {
       "bind_qq": "Vincular QQ",
       "verify_student": "Verificarme como estudiante"
-    }
+    },
+    "passwordMode": "Modo de ingreso",
+    "passwordRequired": "Requiere contraseña del grupo"
   },
   "membership": {
     "title": "Membresía",

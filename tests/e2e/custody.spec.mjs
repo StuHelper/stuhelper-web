@@ -15,12 +15,13 @@ async function setup(page, info) {
     if (state.reject) return route.fulfill({ status: state.reject, json: { code: 'denied' } });
     if (request.method() === 'POST') {
       const body = request.postDataJSON(), key = request.headers()['idempotency-key']; state.posts.push({ body, key });
+      if (state.offline) return route.abort();
       const old = state.items[0];
       state.items = [{ id: old?.id ?? key, adapter: 'bhpan', revision: (old?.revision ?? 0) + 1, state: 'ready', authorization_expires_at: body.until ?? old.authorization_expires_at, request_id: key ?? old.request_id, last_error: '' }];
       if (state.lose) { state.lose = false; return route.abort(); }
       return route.fulfill({ status: 202, json: state.items[0] });
     }
-    if (url.pathname.includes('/requests/')) { state.lookups++; return route.fulfill({ json: state.items[0] }); }
+    if (url.pathname.includes('/requests/')) { state.lookups++; return state.items.length ? route.fulfill({ json: state.items[0] }) : route.fulfill({ status: 404, json: { code: 'not_found' } }); }
     return route.fulfill({ json: { items: state.items, next_cursor: '' } });
   });
   await page.goto(`http://127.0.0.1:18787/me/storage?tab=accounts&lang=${info.project.metadata.locale}`);
@@ -86,4 +87,51 @@ test('an existing blocked custody request resumes without new credentials', asyn
   await page.getByRole('button', { name: m.resume, exact: true }).click();
   await expect(page.locator('article')).toContainText(m.states.ready);
   expect(state.posts).toHaveLength(1); expect(state.posts[0].body).toEqual({ request_id: item.request_id, revision: 1 }); expect(errors).toEqual([]);
+});
+
+
+test('a missing custody request unlocks re-entry without resending a password', async ({ page }, info) => {
+  const { m, state } = await setup(page, info);
+  state.offline = true;
+  await fill(page, m);
+  await page.getByRole('checkbox').check();
+  const submit = page.getByRole('button', { name: m.submit, exact: true });
+  await submit.click();
+  await page.getByRole('button', { name: m.recover, exact: true }).click();
+  await expect(page.getByLabel(m.password, { exact: true })).toBeEnabled();
+  await expect(page.getByLabel(m.password, { exact: true })).toHaveValue('');
+  expect(state.lookups).toBe(1);
+  expect(state.items).toEqual([]);
+  expect(state.posts).toHaveLength(1);
+});
+
+test('custody shows maximum term hint, returns to first page after paging, and refreshes contribution options across tabs', async ({ page }, info) => {
+  const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
+  let optionCalls = 0;
+  await page.route('**/api/v1/storage-contributions**', (route) => {
+    const endpoint = new URL(route.request().url()).pathname.split('/').pop();
+    if (endpoint === 'policy' || endpoint === 'statistics') return route.fulfill({ json: example[endpoint] });
+    if (endpoint === 'options') { optionCalls++; return route.fulfill({ json: example.options }); }
+    return route.fulfill({ json: example.page });
+  });
+  const { m, state, messages } = await setup(page, info);
+  const days = new Intl.NumberFormat(info.project.metadata.locale).format(30);
+  await expect(page.getByText(m.maxTermHint.replace('{days}', days), { exact: true })).toBeVisible();
+
+  await fill(page, m);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: m.submit, exact: true }).click();
+  await expect(page.locator('article')).toContainText(m.states.ready);
+  await expect.poll(() => optionCalls).toBeGreaterThanOrEqual(2);
+
+  await page.route('**/api/v1/storage/custody?*', (route) => {
+    const after = new URL(route.request().url()).searchParams.get('after');
+    return route.fulfill({ json: { items: state.items, next_cursor: after ? '' : 'page-2' } });
+  });
+  await page.getByRole('button', { name: messages.common.refresh, exact: true }).click();
+  await page.getByRole('button', { name: messages.common.next, exact: true }).click();
+  const firstBtn = page.getByRole('button', { name: messages.contribution.first, exact: true });
+  await expect(firstBtn).toBeVisible();
+  await firstBtn.click();
+  await expect(firstBtn).toHaveCount(0);
 });

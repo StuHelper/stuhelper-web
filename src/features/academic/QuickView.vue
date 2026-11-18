@@ -231,7 +231,9 @@ function compare() {
         v-if="id"
         :id="id"
         :kind="kind"
+        inline-move
         text
+        @moving="$emit('close')"
       />
       <button
         class="btn"
