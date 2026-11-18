@@ -196,6 +196,9 @@
     ],
     "REVIEW-REPLY-PREVIEW-01": [
       "tests/e2e/academic.spec.mjs#review cards show the reply preview from the list without asking for replies one by one"
+    ],
+    "WP-20": [
+      "tests/e2e/wallet.spec.mjs#a refund stores and replaces payout details without showing the stored account"
     ]
   }
 }

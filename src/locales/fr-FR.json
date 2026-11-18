@@ -1955,7 +1955,14 @@
       "label": "Compte de réception ou référence",
       "submitted": "Coordonnées envoyées."
     },
-    "ivoryBalance": "Solde Ivory"
+    "ivoryBalance": "Solde Ivory",
+    "payee": {
+      "title": "Coordonnées de remboursement",
+      "method": "Mode de versement",
+      "name": "Nom du bénéficiaire",
+      "account": "Compte bénéficiaire",
+      "onFile": "Des coordonnées sont enregistrées. Saisissez les nouvelles pour les remplacer."
+    }
   },
   "platform": {
     "scopes": {

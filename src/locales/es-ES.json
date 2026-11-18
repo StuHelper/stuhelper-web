@@ -1955,7 +1955,14 @@
       "label": "Cuenta de cobro o referencia",
       "submitted": "Datos de cobro enviados."
     },
-    "ivoryBalance": "Saldo de Ivory"
+    "ivoryBalance": "Saldo de Ivory",
+    "payee": {
+      "title": "Datos del destinatario del reembolso",
+      "method": "Método de cobro",
+      "name": "Nombre del destinatario",
+      "account": "Cuenta receptora",
+      "onFile": "Ya hay datos registrados. Introduce otros para sustituirlos."
+    }
   },
   "platform": {
     "scopes": {

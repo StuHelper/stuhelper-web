@@ -1955,7 +1955,14 @@
       "label": "收款账户或参考号",
       "submitted": "收款信息已提交。"
     },
-    "ivoryBalance": "Ivory 余额"
+    "ivoryBalance": "Ivory 余额",
+    "payee": {
+      "title": "退款收款资料",
+      "method": "收款方式",
+      "name": "收款人姓名",
+      "account": "收款账号",
+      "onFile": "已登记收款资料。填写新资料可替换原记录。"
+    }
   },
   "platform": {
     "scopes": {
