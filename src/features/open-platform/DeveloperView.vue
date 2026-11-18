@@ -90,6 +90,31 @@ function closeEditor() {
 const rotating = shallowRef<Application>()
 const rotation = useMutation()
 const secret = shallowRef<Credential>()
+const secretCopied = ref(false)
+const confirmingSecretClose = ref(false)
+async function copySecret() {
+  if (!secret.value?.client_secret) return
+  try {
+    await navigator.clipboard.writeText(secret.value.client_secret)
+    secretCopied.value = true
+    confirmingSecretClose.value = false
+    toast(t('platform.developer.secretCopied'))
+  } catch {
+    toast(t('platform.developer.copyFailed'))
+  }
+}
+function dismissSecret() {
+  secretCopied.value = false
+  confirmingSecretClose.value = false
+  secret.value = undefined
+}
+function requestCloseSecret() {
+  if (secretCopied.value || confirmingSecretClose.value) {
+    dismissSecret()
+    return
+  }
+  confirmingSecretClose.value = true
+}
 async function rotate() {
   const app = rotating.value
   if (!app) return
@@ -105,8 +130,11 @@ function rotated(app: Application, credential: Credential) {
   rotating.value = undefined
   replace({ ...app, credential_revision: credential.revision })
   // A replayed request no longer carries the secret; the developer must rotate again to see one.
-  if (credential.retrievable && credential.client_secret) secret.value = credential
-  else toast(t('platform.developer.secretNotRetrievable'))
+  if (credential.retrievable && credential.client_secret) {
+    secretCopied.value = false
+    confirmingSecretClose.value = false
+    secret.value = credential
+  } else toast(t('platform.developer.secretNotRetrievable'))
 }
 
 // Withdrawal notices tell the application to stop using data. The developer records
@@ -412,25 +440,32 @@ function answered(notice: Notice) {
       :open="!!secret"
       :title="t('platform.developer.secretTitle')"
       :description="t('platform.developer.secretHint')"
-      @close="secret = undefined"
+      @close="requestCloseSecret"
     >
       <div
         v-if="secret"
         class="stack"
       >
         <code class="secret">{{ secret.client_secret }}</code>
+        <p
+          v-if="confirmingSecretClose"
+          class="notice notice-warning small"
+          role="alert"
+        >
+          {{ t('platform.developer.secretCloseConfirm') }}
+        </p>
         <div class="form-actions">
           <button
             class="btn btn-primary"
             type="button"
-            @click="copy(secret.client_secret ?? '', t('platform.developer.secretCopied'))"
+            @click="void copySecret()"
           >
             <Copy aria-hidden="true" />{{ t('platform.developer.copySecret') }}
           </button>
           <button
             class="btn"
             type="button"
-            @click="secret = undefined"
+            @click="dismissSecret"
           >
             {{ t('platform.developer.secretSaved') }}
           </button>

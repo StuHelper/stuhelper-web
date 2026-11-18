@@ -9,7 +9,8 @@
     "footer": "Informations du campus sur les cours, les avis et les ressources",
     "themeLight": "Passer à l’apparence claire",
     "themeDark": "Passer à l’apparence sombre",
-    "contact": "Contact et retours"
+    "contact": "Contact et retours",
+    "themeSystem": "Suivre l’apparence du système"
   },
   "nav": {
     "primary": "Navigation principale",
@@ -175,15 +176,15 @@
     "more": "Découvrir {name}",
     "visit": "Aller sur {host}",
     "tiles": {
-      "campus": "Avis sur les cours et les enseignants, ressources et emplois du temps",
+      "campus": "Avis sur les cours et les enseignants, ressources et comparaison",
       "api": "Une interface unique pour plusieurs grands modèles",
       "store": "Abonnements GPT et crédits Codex rechargés pour vous",
       "platform": "Authentification unique et intégration d’applications tierces"
     },
     "campus": {
       "name": "Campus StuHelper",
-      "tag": "Cours, enseignants, ressources et emplois du temps",
-      "lead": "Une communauté de cours pour les étudiants inscrits. Lisez les avis sur les cours et les enseignants, trouvez des annales et des notes, comparez les cours envisagés et gérez votre emploi du temps. Actuellement ouvert à l’université Beihang.",
+      "tag": "Cours, enseignants, ressources et comparaison",
+      "lead": "Une communauté de cours pour les membres du campus. Lisez les avis sur les cours et les enseignants, trouvez des annales et des notes et comparez les cours envisagés.",
       "action": "Entrer dans Campus",
       "points": {
         "reviews": {
@@ -501,7 +502,8 @@
       "deleteReplyConfirm": "Supprimer définitivement cette réponse ? Le reste de la discussion est conservé.",
       "withdrawConfirm": "Le retrait masque la discussion. La republication conserve la date initiale, les réponses et les votes. Les brouillons expirés sont supprimés.",
       "expand": "Afficher plus",
-      "collapse": "Afficher moins"
+      "collapse": "Afficher moins",
+      "editWindowRemaining": "Retrait ou suppression directe : {time} restantes"
     },
     "replies": {
       "title": "Réponses",
@@ -1314,11 +1316,11 @@
   "gate": {
     "guest": {
       "title": "Connectez-vous pour continuer",
-      "text": "Les cours, enseignants, avis et ressources sont réservés aux étudiants et enseignants vérifiés de Beihang.",
+      "text": "Les cours, enseignants, avis et ressources sont réservés aux étudiants et enseignants vérifiés du campus.",
       "action": "Se connecter"
     },
     "unverified": {
-      "title": "Vérifiez votre statut Beihang pour continuer",
+      "title": "Effectuez la vérification du campus pour continuer",
       "text": "Après la vérification, vous revenez à la page demandée.",
       "action": "Commencer la vérification"
     },
@@ -2054,7 +2056,8 @@
         "noteOptional": "Précision (facultatif)",
         "send": "Envoyer",
         "recorded": "Résultat enregistré."
-      }
+      },
+      "secretCloseConfirm": "Ce secret n’est affiché qu’une seule fois et ne pourra plus être consulté après fermeture. Copiez-le d’abord ou confirmez l’avoir enregistré."
     },
     "consent": {
       "title": "Autorisation d’application",
@@ -2302,7 +2305,7 @@
     },
     "fact": {
       "student_eligibility": "Statut étudiant",
-      "student_stage": "Situation d’inscription"
+      "student_stage": "Cycle d’études"
     },
     "hint": {
       "submit_password": "Envoyez le mot de passe d’entrée dans le groupe, comme l’indique l’annonce du groupe.",

@@ -9,7 +9,8 @@
     "footer": "Campus information for courses, reviews and learning resources",
     "themeLight": "Switch to light appearance",
     "themeDark": "Switch to dark appearance",
-    "contact": "Contact and feedback"
+    "contact": "Contact and feedback",
+    "themeSystem": "Follow system appearance"
   },
   "nav": {
     "primary": "Main navigation",
@@ -175,15 +176,15 @@
     "more": "Learn about {name}",
     "visit": "Go to {host}",
     "tiles": {
-      "campus": "Course and teacher reviews, study resources and timetables",
+      "campus": "Course and teacher reviews, study resources and comparison",
       "api": "One interface for many large language models",
       "store": "GPT subscriptions and Codex credits, topped up for you",
       "platform": "Single sign-on and third-party app integration"
     },
     "campus": {
       "name": "StuHelper Campus",
-      "tag": "Courses, teachers, resources and timetables",
-      "lead": "A course community for enrolled students. Read reviews of courses and teachers, find past papers and notes, compare the courses you are considering, and keep your own timetable. Currently open to Beihang University.",
+      "tag": "Courses, teachers, resources and comparison",
+      "lead": "A course community for university members. Read reviews of courses and teachers, find past papers and notes, and compare the courses you are considering.",
       "action": "Enter Campus",
       "points": {
         "reviews": {
@@ -501,7 +502,8 @@
       "deleteReplyConfirm": "Delete this reply permanently? The rest of the discussion stays.",
       "withdrawConfirm": "Withdrawal hides the discussion. Republishing preserves the original publication time, replies and votes. Expired drafts are deleted.",
       "expand": "Show more",
-      "collapse": "Show less"
+      "collapse": "Show less",
+      "editWindowRemaining": "Direct edit/delete ends in {time}"
     },
     "replies": {
       "title": "Replies",
@@ -1314,11 +1316,11 @@
   "gate": {
     "guest": {
       "title": "Sign in to continue",
-      "text": "Courses, teachers, reviews and resources are open to verified Beihang students and teachers.",
+      "text": "Courses, teachers, reviews and resources are open to verified campus students and teachers.",
       "action": "Sign in"
     },
     "unverified": {
-      "title": "Verify your Beihang status to continue",
+      "title": "Complete campus verification to continue",
       "text": "After verification you return to the page you wanted.",
       "action": "Start verification"
     },
@@ -2054,7 +2056,8 @@
         "noteOptional": "Additional note (optional)",
         "send": "Send report",
         "recorded": "Result recorded."
-      }
+      },
+      "secretCloseConfirm": "This secret is shown only once and cannot be viewed again after closing. Copy it first or confirm that you saved it."
     },
     "consent": {
       "title": "App authorization",
@@ -2302,7 +2305,7 @@
     },
     "fact": {
       "student_eligibility": "Student eligibility",
-      "student_stage": "Enrollment stage"
+      "student_stage": "Study stage"
     },
     "hint": {
       "submit_password": "Send the join password in the group as the group notice describes.",

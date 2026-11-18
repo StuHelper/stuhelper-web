@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -36,6 +36,32 @@ const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(p
 const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
+const editWindowMs = 5 * 60_000
+const mountedAt = Date.now()
+const now = ref(mountedAt)
+let clockTimer: ReturnType<typeof setInterval> | undefined
+const windowEnd = computed(() => {
+  if (!props.review.can_edit || !props.review.published_at) return NaN
+  const ms = Date.parse(props.review.published_at)
+  return Number.isFinite(ms) ? ms + editWindowMs : NaN
+})
+const hasLiveWindow = computed(() => Number.isFinite(windowEnd.value) && windowEnd.value > mountedAt)
+const editSecondsLeft = computed(() => (hasLiveWindow.value ? Math.max(0, Math.ceil((windowEnd.value - now.value) / 1000)) : 0))
+const canDirectEdit = computed(() => (hasLiveWindow.value ? editSecondsLeft.value > 0 : props.review.can_edit))
+const editCountdownText = computed(() => {
+  if (!hasLiveWindow.value || editSecondsLeft.value <= 0) return ''
+  const mins = Math.floor(editSecondsLeft.value / 60)
+  const secs = String(editSecondsLeft.value % 60).padStart(2, '0')
+  return t('academic.review.editWindowRemaining', { time: `${mins}:${secs}` })
+})
+watch(hasLiveWindow, (active) => {
+  clearInterval(clockTimer)
+  if (!active) return
+  clockTimer = setInterval(() => {
+    now.value = Date.now()
+    if (now.value >= windowEnd.value) clearInterval(clockTimer)
+  }, 1000)
+}, { immediate: true })
 // In a list a long body is folded to a few lines. The control appears only when text is actually cut off.
 const bodyElement = ref<HTMLElement>()
 const expanded = ref(false)
@@ -49,7 +75,10 @@ onMounted(() => {
   bodyObserver = new ResizeObserver(measureBody)
   bodyObserver.observe(bodyElement.value)
 })
-onBeforeUnmount(() => bodyObserver?.disconnect())
+onBeforeUnmount(() => {
+  bodyObserver?.disconnect()
+  clearInterval(clockTimer)
+})
 
 // What the pending write does once it succeeds, so a retry of the original request finishes it too.
 let finish: (result: never) => void | Promise<void> = () => {}
@@ -299,7 +328,11 @@ async function retry() {
           {{ t('academic.review.report') }}
         </button>
       </template>
-      <template v-if="review.can_edit">
+      <template v-if="canDirectEdit">
+        <span
+          v-if="editCountdownText"
+          class="subtle mono"
+        >{{ editCountdownText }}</span>
         <button
           class="btn btn-sm"
           type="button"

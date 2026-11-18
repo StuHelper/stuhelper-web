@@ -1,18 +1,31 @@
 <script setup lang="ts">
-import { Moon, Sun } from 'lucide-vue-next'
-import { nextTick } from 'vue'
+import { Monitor, Moon, Sun } from 'lucide-vue-next'
+import { computed, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { setTheme, theme } from '../../shared/theme'
+import { setThemeChoice, systemTheme, theme, themeChoice, type ThemeChoice } from '../../shared/theme'
 
 const { t } = useI18n()
+
+const nextChoice = computed<ThemeChoice>(() => {
+  const opposite: 'light' | 'dark' = systemTheme.value === 'dark' ? 'light' : 'dark'
+  if (themeChoice.value === 'system') return opposite
+  if (themeChoice.value === opposite) return systemTheme.value
+  return 'system'
+})
+const nextLabel = computed(() => (
+  nextChoice.value === 'system'
+    ? t('shell.themeSystem')
+    : t(nextChoice.value === 'dark' ? 'shell.themeDark' : 'shell.themeLight')
+))
 
 // The new appearance spreads from the button. Browsers without the View
 // Transitions API, and people who asked for reduced motion, switch directly.
 function toggle(event: MouseEvent) {
-  const next = theme.value === 'dark' ? 'light' : 'dark'
+  const next = nextChoice.value
+  const willChangeVisual = (next === 'system' ? systemTheme.value : next) !== theme.value
   const root = document.documentElement
-  if (!document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    setTheme(next)
+  if (!willChangeVisual || !document.startViewTransition || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    setThemeChoice(next)
     return
   }
   const box = (event.currentTarget as HTMLElement).getBoundingClientRect()
@@ -20,7 +33,7 @@ function toggle(event: MouseEvent) {
   root.style.setProperty('--theme-y', `${box.top + box.height / 2}px`)
   root.classList.add('theme-switching')
   const transition = document.startViewTransition(async () => {
-    setTheme(next)
+    setThemeChoice(next)
     await nextTick()
   })
   // A skipped transition still applies the appearance, so its rejection is not a failure.
@@ -33,15 +46,20 @@ function toggle(event: MouseEvent) {
   <button
     class="btn btn-icon theme"
     type="button"
-    :aria-label="t(theme === 'dark' ? 'shell.themeLight' : 'shell.themeDark')"
+    :aria-label="nextLabel"
+    :title="nextLabel"
     @click="toggle"
   >
     <Transition
       name="theme-icon"
       mode="out-in"
     >
+      <Monitor
+        v-if="nextChoice === 'system'"
+        aria-hidden="true"
+      />
       <Sun
-        v-if="theme === 'dark'"
+        v-else-if="theme === 'dark'"
         aria-hidden="true"
       />
       <Moon
