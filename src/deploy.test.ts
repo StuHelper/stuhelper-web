@@ -31,7 +31,7 @@ describe('production container and nginx configuration', () => {
     expect(apiBlock).toContain('proxy_set_header X-Forwarded-Proto $scheme;')
 
     const assetsBlock = extractLocation(nginxConf, 'location ^~ /assets/')
-    expect(assetsBlock).toContain('Cache-Control "public, max-age=31536000, immutable" always;')
+    expect(assetsBlock).toContain('Cache-Control "public, max-age=31536000, immutable";')
     expect(assetsBlock).toContain('try_files $uri =404;')
 
     const indexBlock = extractLocation(nginxConf, 'location = /index.html')

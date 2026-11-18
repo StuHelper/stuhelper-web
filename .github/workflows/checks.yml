@@ -11,11 +11,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  changes:
+    uses: StuHelper/stuhelper-tooling/.github/workflows/frontend-changes.yml@v0.1.10
   check:
-    uses: StuHelper/stuhelper-tooling/.github/workflows/node-checks.yml@v0.1.0
+    uses: StuHelper/stuhelper-tooling/.github/workflows/node-checks.yml@v0.1.10
     with:
       name: Web checks
   contribution-browser:
+    needs: changes
+    if: needs.changes.outputs.browser == 'true'
     name: Contribution browser checks
     runs-on: ubuntu-26.04
     timeout-minutes: 25
@@ -25,14 +29,21 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: StuHelper/stuhelper-tooling/actions/setup@v0.1.0
+      - uses: StuHelper/stuhelper-tooling/actions/setup@v0.1.10
+      - uses: StuHelper/stuhelper-tooling/actions/frontend-cache@v0.1.10
+      - name: Test transfer limits with an isolated Nginx proxy
+        run: |
+          sudo apt-get update -qq
+          apt-get download nginx
+          dpkg-deb -x nginx_*.deb "$RUNNER_TEMP/proxy-test"
+          PATH="$RUNNER_TEMP/proxy-test/usr/sbin:$PATH" python3 tests/deploy/test_proxy.py
       - run: make setup
       - name: Record source combination
         run: |
           git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
           cat contracts/contribution.source.json >> "$GITHUB_STEP_SUMMARY"
       - run: make build
-      - run: pnpm exec playwright install --with-deps chromium
+      - uses: StuHelper/stuhelper-tooling/actions/chromium@v0.1.10
       - run: pnpm browser
       - name: Verification layout with classic scrollbars
         run: xvfb-run -a pnpm exec playwright test verification-ux --headed --project=desktop-zh-CN --project=desktop-ar-EG -g 'zero layout'

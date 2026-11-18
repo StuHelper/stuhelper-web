@@ -2,6 +2,7 @@ import mediaContract from '../../../contracts/media.openapi.json'
 import resourcesContract from '../../../contracts/resources.openapi.json'
 import type { components as Media } from '../../api/media.gen'
 import type { components as Resources } from '../../api/resources.gen'
+import { httpsUrl } from '../../shared/urls'
 import { ApiError } from '../../shared/api/errors'
 import { saveBlob, segment, type Http, type Query } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
@@ -39,6 +40,9 @@ const parse = {
   mediaView: schemaOf<MediaVersion>(media, 'VersionView'),
 }
 
+// Nginx limits idle periods to 300 s. Allow a longer total time for large files.
+const transferTimeout = 30 * 60_000
+
 export const pageSize = 25
 
 /** Localized name of a configured category, field or option. */
@@ -71,8 +75,10 @@ export function attributeText(field: Field | undefined, value: Value | undefined
 export class ResourcesApi {
   constructor(private readonly http: Http) {}
 
-  capabilities(signal?: AbortSignal) {
-    return this.http.json('/api/v1/resources/capabilities', parse.capabilities, { signal })
+  async capabilities(signal?: AbortSignal) {
+    const result = await this.http.json('/api/v1/resources/capabilities', parse.capabilities, { signal })
+    if (!httpsUrl(result.terms.url)) throw new ApiError('incompatible')
+    return result
   }
 
   /** Enabled categories in their configured order. */
@@ -152,11 +158,11 @@ export class ResourcesApi {
 
   async download(id: string, filename: string, size: number, signal?: AbortSignal) {
     // Allow some slack over the recorded size for transfer framing.
-    saveBlob(await this.http.blob(`/api/v1/resources/items/${segment(id)}/download`, size + (4 << 20), { signal }), filename)
+    saveBlob(await this.http.blob(`/api/v1/resources/items/${segment(id)}/download`, size + (4 << 20), { signal, timeout: transferTimeout }), filename)
   }
 
   async downloadPart(pack: Package, part: number, limit: number, signal?: AbortSignal) {
-    saveBlob(await this.http.blob(`/api/v1/resources/packages/${segment(pack.id)}/parts/${part}`, limit + (4 << 20), { signal }), `resources-${part}.zip`)
+    saveBlob(await this.http.blob(`/api/v1/resources/packages/${segment(pack.id)}/parts/${part}`, limit + (4 << 20), { signal, timeout: transferTimeout }), `resources-${part}.zip`)
   }
 
   createUpload(body: Media['schemas']['UploadRequest'], key: string) {
@@ -168,7 +174,7 @@ export class ResourcesApi {
   }
 
   sendContent(id: string, file: Blob, key: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/media/uploads/${segment(id)}/content`, parse.mediaVersion, { method: 'PUT', bytes: file, headers: { 'Content-Type': 'application/octet-stream' }, key, signal, timeout: 120_000 })
+    return this.http.json(`/api/v1/media/uploads/${segment(id)}/content`, parse.mediaVersion, { method: 'PUT', bytes: file, headers: { 'Content-Type': 'application/octet-stream' }, key, signal, timeout: transferTimeout })
   }
 
   cancelUpload(id: string, key: string) {

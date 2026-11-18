@@ -18,6 +18,9 @@
     "README.md"
   ],
   "scenario_tests": {
+    "AE-ACCESS-05": [
+      "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote"
+    ],
     "DIRECTORY-NAVIGATION-01": [
       "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"
     ],
@@ -33,7 +36,8 @@
       "tests/e2e/resources.spec.mjs#configured category field filters and grouping follow server configuration"
     ],
     "RES-CLIENT-04": [
-      "tests/e2e/resources.spec.mjs#upload uses current terms and retries the original metadata request"
+      "tests/e2e/resources.spec.mjs#upload uses current terms and retries the original metadata request",
+      "tests/e2e/resources.spec.mjs#starting another upload after saving creates two independent drafts"
     ],
     "RES-CLIENT-05": [
       "tests/e2e/resources.spec.mjs#current denial clears resource data and request receipts survive navigation"
