@@ -216,6 +216,9 @@
     ],
     "WP-20": [
       "tests/e2e/wallet.spec.mjs#a refund stores and replaces payout details without showing the stored account"
+    ],
+    "SV-TEACHER-01": [
+      "tests/e2e/teacher.spec.mjs#a failed teacher evidence read can be retried before editing"
     ]
   }
 }
