@@ -147,21 +147,41 @@ async function confirmRemove() {
   void rows.reload()
 }
 
-async function appeal() {
-  const task = appealing.value
-  if (!task) return
-  const result = await write.run(`appeal:${task.id}`, { object_id: task.submission.object_id, previous_task_id: task.id, kind: 'appeal' as const, reason: appealReason.value.trim(), evidence: [] }, (body, key) => api.submitTask(body, key))
-  if (!result) return
+function waitingAppeal(task: Task) {
+  return task.state === 'waiting' && task.submission.kind === 'appeal' && !!task.submission.previous_task_id
+}
+
+const supplementing = computed(() => !!appealing.value && waitingAppeal(appealing.value))
+
+function finishAppeal() {
+  success.value = t(supplementing.value ? 'me.evidenceAdded' : 'academic.review.requestSent')
   appealing.value = undefined
   appealReason.value = ''
-  success.value = t('academic.review.requestSent')
+}
+
+async function appeal() {
+  const task = appealing.value
+  const text = appealReason.value.trim()
+  if (!task || !text) return
+  const previous = supplementing.value ? task.submission.previous_task_id : task.id
+  if (!previous) return
+  const submission = {
+    object_id: task.submission.object_id,
+    previous_task_id: previous,
+    kind: 'appeal' as const,
+    reason: supplementing.value ? task.submission.reason : text,
+    evidence: supplementing.value ? [text] : [],
+  }
+  const result = await write.run(`appeal:${task.id}`, submission, (body, key) => api.submitTask(body, key))
+  if (!result) return
+  finishAppeal()
   void rows.reload()
 }
 
 async function retry() {
   if (await write.retry()) {
+    if (appealing.value) finishAppeal()
     removing.value = undefined
-    appealing.value = undefined
     void rows.reload()
   }
 }
@@ -370,6 +390,17 @@ function removeReview(id: string) {
                   <p class="subtle">
                     {{ t('me.updatedAt', { time: format.dateTime(row.task.updated_at) }) }}
                   </p>
+                  <ul
+                    v-if="row.task.submission.kind === 'appeal' && row.task.submission.evidence.length"
+                    :aria-label="t('me.evidenceText')"
+                  >
+                    <li
+                      v-for="(item, index) in row.task.submission.evidence"
+                      :key="index"
+                    >
+                      {{ item }}
+                    </li>
+                  </ul>
                   <p
                     v-if="row.task.decision?.reason"
                     class="small notice notice-info"
@@ -384,13 +415,13 @@ function removeReview(id: string) {
                       {{ t('me.viewContent') }}
                     </RouterLink>
                     <button
-                      v-if="row.task.can_appeal"
+                      v-if="row.task.can_appeal || waitingAppeal(row.task)"
                       class="btn btn-sm"
                       type="button"
                       :disabled="write.busy.value || write.uncertain.value"
                       @click="appealing = row.task; appealReason = ''"
                     >
-                      {{ t('me.appeal') }}
+                      {{ t(waitingAppeal(row.task) ? 'me.addEvidence' : 'me.appeal') }}
                     </button>
                   </div>
                 </article>
@@ -415,8 +446,8 @@ function removeReview(id: string) {
     />
     <ConfirmDialog
       :open="!!appealing"
-      :title="t('me.appeal')"
-      :message="t('me.appealHint')"
+      :title="t(supplementing ? 'me.addEvidence' : 'me.appeal')"
+      :message="t(supplementing ? 'me.addEvidenceHint' : 'me.appealHint')"
       :confirm-label="t('common.submit')"
       :busy="write.busy.value"
       :error="write.error.value"
@@ -426,7 +457,7 @@ function removeReview(id: string) {
       @cancel="appealing = undefined"
     >
       <label class="field">
-        <span class="field-label">{{ t('academic.review.reason') }}</span>
+        <span class="field-label">{{ t(supplementing ? 'me.evidenceText' : 'academic.review.reason') }}</span>
         <textarea
           v-model="appealReason"
           class="textarea"

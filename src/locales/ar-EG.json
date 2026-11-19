@@ -703,7 +703,11 @@
       "services": "خدمات أخرى"
     },
     "pendingCoursesTitle": "مقررات بانتظار تقييمك",
-    "writePendingReview": "كتابة تقييم"
+    "writePendingReview": "كتابة تقييم",
+    "addEvidence": "إضافة أدلة",
+    "addEvidenceHint": "أضف أدلة جديدة إلى طلب المراجعة الذي ينتظر البت فيه.",
+    "evidenceText": "الأدلة الإضافية",
+    "evidenceAdded": "أُضيفت الأدلة إلى طلب المراجعة الأصلي."
   },
   "resources": {
     "eyebrow": "مشاركة المواد",
@@ -1296,7 +1300,8 @@
       "revoke": "سحب التفويض",
       "configure": "تعديل الحصة",
       "renew": "تجديد",
-      "retry": "إعادة محاولة المعالجة"
+      "retry": "إعادة محاولة المعالجة",
+      "reopen": "إعادة التفعيل"
     },
     "states": {
       "pending": "قيد الانتظار",

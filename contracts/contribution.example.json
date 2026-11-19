@@ -14,7 +14,8 @@
     "max_term_seconds": 31536000,
     "exit_target_seconds": 86400,
     "max_per_owner": 5,
-    "observation_max_age_seconds": 3600
+    "observation_max_age_seconds": 3600,
+    "renewal_notice_seconds": 86400
   },
   "page": {
     "items": [

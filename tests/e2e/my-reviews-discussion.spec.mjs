@@ -274,3 +274,38 @@ test('compare view handles missing catalog names and wallet orders render non-su
   await expect(page.getByText(all.wallet.state.failed, { exact: true })).toBeVisible();
   await expect(page.getByText(all.wallet.state.refunded, { exact: true })).toBeVisible();
 });
+
+test('a pending appeal receipt appends evidence to its original request after a lost response', async ({page}, info)=>{
+  const all=catalogue(info);
+  const task={
+    id:'pending-appeal',school_id:'school',content_kind:'course',can_appeal:false,
+    submission:{object_id:'review',kind:'appeal',previous_task_id:'original-decision',reason:'Original grounds',evidence:['First submission']},
+    previous_task_id:'original-decision', object_revision:1,revision:1,state:'waiting',
+    created_at:'2026-11-19T01:00:00Z',updated_at:'2026-11-19T01:00:00Z',
+  };
+  const writes=[];
+  await page.route('**/api/v1/moderation/tasks**',route=>{
+    if (route.request().method()==='GET') return route.fulfill({json:[task]});
+    const request=route.request(),body=request.postDataJSON();
+    writes.push({body,key:request.headers()['idempotency-key']});
+    if(writes.length===1){
+      task.submission.evidence.push(...body.evidence);
+      task.revision++;
+      return route.abort();
+    }
+    return route.fulfill({json:task});
+  });
+  await page.goto(`${base}/me/reviews?tab=requests&lang=${info.project.metadata.locale}`);
+  await page.getByRole('button',{name:all.me.addEvidence,exact:true}).click();
+  const dialog=page.getByRole('dialog');
+  await dialog.getByLabel(all.me.evidenceText,{exact:true}).fill('New witness statement');
+  await dialog.getByRole('button',{name:all.common.submit,exact:true}).click();
+  await expect(dialog.getByLabel(all.me.evidenceText,{exact:true})).toHaveValue('New witness statement');
+  await dialog.getByRole('button',{name:all.common.retryOriginal,exact:true}).click();
+  await expect(page.getByText(all.me.evidenceAdded,{exact:true})).toBeVisible();
+  await expect(page.getByRole('list',{name:all.me.evidenceText})).toContainText('New witness statement');
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toEqual(writes[0]);
+  expect(writes[0].body).toEqual({kind:'appeal',object_id:'review',previous_task_id:'original-decision',reason:'Original grounds',evidence:['New witness statement']});
+  expect(task.submission.evidence).toEqual(['First submission','New witness statement']);
+});

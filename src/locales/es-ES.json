@@ -703,7 +703,11 @@
       "services": "Más servicios"
     },
     "pendingCoursesTitle": "Cursos pendientes de tu reseña",
-    "writePendingReview": "Escribir reseña"
+    "writePendingReview": "Escribir reseña",
+    "addEvidence": "Añadir pruebas",
+    "addEvidenceHint": "Añade nuevas pruebas a esta apelación pendiente.",
+    "evidenceText": "Pruebas adicionales",
+    "evidenceAdded": "Se han añadido las pruebas a la apelación original."
   },
   "resources": {
     "eyebrow": "Materiales compartidos",
@@ -1296,7 +1300,8 @@
       "revoke": "Revocar autorización",
       "configure": "Ajustar cuota",
       "renew": "Renovar",
-      "retry": "Reintentar procesamiento"
+      "retry": "Reintentar procesamiento",
+      "reopen": "Reactivar"
     },
     "states": {
       "pending": "Pendiente",

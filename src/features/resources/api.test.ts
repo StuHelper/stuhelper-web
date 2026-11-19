@@ -6,7 +6,7 @@ import { Mutation } from '../../shared/api/mutation'
 import { attribute, attributeText, previewKind, ResourcesApi, typeExtension, Upload, type Field, type MediaVersion } from './api'
 
 const resource = { id: 'resource', revision: 1, state: 'draft', download_allowed: false, access_reason: 'not_published', owned: true }
-const media: MediaVersion = { id: 'version', file_id: 'file', number: 1, revision: 1, upload_id: 'upload', filename: 'lecture.txt', content_type: 'text/plain', size: 5, sha256: 'a'.repeat(64), state: 'created', approved: false, upload_expires_at: '2030-01-01T00:00:00Z', retain_until: '2030-01-02T00:00:00Z', cleanup_complete: false, error_code: '' }
+const media: MediaVersion = { id: 'version', file_id: 'file', number: 1, revision: 1, upload_id: 'upload', uploaded_bytes: 0, filename: 'lecture.txt', content_type: 'text/plain', size: 5, sha256: 'a'.repeat(64), state: 'created', approved: false, upload_expires_at: '2030-01-01T00:00:00Z', retain_until: '2030-01-02T00:00:00Z', cleanup_complete: false, error_code: '' }
 const view = (changes: Partial<MediaVersion> = {}) => Response.json({ ...media, healthy: 1, desired: 3, storage_state: 'pending', ...changes })
 const draft = { revision: 0, metadata: { title: 't', description: '', tags: [], category_id: 'c', category_revision: 1, attributes: { year: { number: 2025 } }, associations: { school_id: 's' }, access: 'public' as const, origin: { kind: 'unknown' as const } } }
 afterEach(() => vi.unstubAllGlobals())
@@ -85,7 +85,7 @@ it('keeps a resource upload active throughout the proxy wait', async () => {
 it('resolves a lost upload response by querying state without sending bytes again', async () => {
   vi.stubGlobal('crypto', webcrypto)
   let sent = 0
-  let state = 'created'
+  let state: MediaVersion['state'] = 'created'
   const keys: string[] = []
   const api = new ResourcesApi(new Http(async (_input, init) => {
     if (init?.method === 'POST') return Response.json(media)
