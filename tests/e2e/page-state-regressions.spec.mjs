@@ -149,3 +149,29 @@ test('own vote receipts open their discussion and a withdrawal removes only the 
   await expect(page.getByText(all.search.votes.up, { exact: true })).toBeVisible();
   expect(votes.map(vote => vote.id)).toEqual(['up']);
 });
+
+test('an expired member edits draft text without resolving unverified catalog references', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'hidden', term_id: 'term', teacher_id: '', title: 'Draft', body: 'Saved', ratings: [3, 3, 3, 3, 3], signed: false }, withdrawn: false, reference_ids: [], reference_state: 'unverified' };
+  const lookups = [], saves = [];
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
+  await page.route('**/api/v1/reviews/me/references?**', route => {
+    lookups.push(route.request().url());
+    return route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+  await page.route('**/api/v1/reviews/me/drafts**', route => {
+    if (route.request().method() === 'POST') {
+      saves.push(route.request().postDataJSON());
+      return route.fulfill({ json: { id: draft.id, state: 'draft', revision: 2 } });
+    }
+    return route.fulfill({ json: new URL(route.request().url()).pathname.endsWith('/draft') ? draft : [draft] });
+  });
+  await page.goto(`${base}/me/reviews?tab=drafts&lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: all.me.continueEditing, exact: true }).click();
+  await page.getByLabel(all.academic.editor.title, { exact: true }).fill('Edited');
+  await page.getByRole('button', { name: all.academic.editor.saveDraft, exact: true }).click();
+  await expect.poll(() => saves.length).toBe(1);
+  expect(saves[0]).toMatchObject({ id: 'draft', revision: 1, input: { target_id: 'hidden', title: 'Edited', term_id: 'term' } });
+  expect(lookups).toEqual([]);
+});

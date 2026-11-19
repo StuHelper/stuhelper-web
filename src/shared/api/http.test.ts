@@ -82,3 +82,19 @@ describe('HTTP boundary', () => {
     expect(queryString({})).toBe('')
   })
 })
+
+it('keeps a progressing download alive beyond a single timeout interval', async () => {
+  vi.useFakeTimers()
+  try {
+    let sender!: ReadableStreamDefaultController<Uint8Array>
+    const stream = new ReadableStream<Uint8Array>({ start(controller) { sender = controller } })
+    const result = new Http(async () => new Response(stream)).blob('/api/v1/file', 3, { timeout: 100 })
+    const check = expect(result.then(blob => blob.text())).resolves.toBe('abc')
+    for (const char of 'abc') {
+      await vi.advanceTimersByTimeAsync(70)
+      sender.enqueue(new TextEncoder().encode(char))
+    }
+    sender.close()
+    await check
+  } finally { vi.useRealTimers() }
+})
