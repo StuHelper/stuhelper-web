@@ -3,6 +3,7 @@ import { Bookmark, BookmarkCheck } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { errorCode } from '../../shared/api/errors'
+import { feature, useCapabilities } from '../../shared/capabilities'
 import { useSession } from '../../shared/session'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
@@ -20,6 +21,8 @@ const { t } = useI18n()
 const errorText = useErrorText()
 const api = useFavoritesApi()
 const session = useSession()
+const capabilities = useCapabilities()
+const enabled = computed(() => capabilities.has(feature.favorites))
 const busy = ref(false)
 const pop = ref(false)
 const current = computed(() => favoriteOf(props.kind, props.id))
@@ -27,7 +30,7 @@ const failed = computed(() => favoriteFailed(props.kind, props.id))
 const on = computed(() => !!current.value)
 const signedIn = computed(() => session.state.value === 'member')
 
-watch(() => [props.kind, props.id, signedIn.value] as const, ([kind, id, member]) => {
+watch(() => [props.kind, props.id, signedIn.value && enabled.value] as const, ([kind, id, member]) => {
   if (member) requestFavorite(api, kind, id)
 }, { immediate: true })
 
@@ -94,6 +97,7 @@ const label = computed(() => (failed.value ? t('favorites.unknown') : on.value ?
 
 <template>
   <button
+    v-if="enabled"
     v-bind="$attrs"
     class="btn"
     :class="[text ? '' : 'btn-sm btn-icon', { 'btn-quiet': quiet }]"

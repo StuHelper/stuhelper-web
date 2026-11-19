@@ -124,7 +124,8 @@
       "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
       "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
       "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
-      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding"
+      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding",
+      "tests/e2e/capabilities.spec.mjs#disabled favorites and search send no list lookups or personal vote requests"
     ],
     "SESSION-AVAILABILITY-01": [
       "src/shared/session.test.ts#coalesces 25 failures, waits with bounded backoff and preserves the signed-in snapshot"
@@ -226,6 +227,9 @@
     "SV-TEACHER-01": [
       "tests/e2e/teacher.spec.mjs#a failed teacher evidence read can be retried before editing",
       "tests/e2e/teacher.spec.mjs#the current teacher application and its school can both follow a full first page"
+    ],
+    "ST-10": [
+      "tests/e2e/custody.spec.mjs#switching away from custody clears the unfinished account and password"
     ]
   }
 }
