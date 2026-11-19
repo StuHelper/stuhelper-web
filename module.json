@@ -107,6 +107,7 @@
       "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog"
     ],
     "CAP-01": [
+      "tests/e2e/capabilities.spec.mjs#disabled favorites and search send no list lookups or personal vote requests",
       "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
       "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
       "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
@@ -196,6 +197,9 @@
     ],
     "REVIEW-REPLY-PREVIEW-01": [
       "tests/e2e/academic.spec.mjs#review cards show the reply preview from the list without asking for replies one by one"
+    ],
+    "ST-10": [
+      "tests/e2e/custody.spec.mjs#switching away from custody clears the unfinished account and password"
     ]
   }
 }

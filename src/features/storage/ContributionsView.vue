@@ -49,7 +49,10 @@ const custody = ref<InstanceType<typeof CustodyPanel>>()
 const custodyOpened = ref(tab.value === 'accounts')
 watch(tab, (value) => {
   if (value === 'accounts') custodyOpened.value = true
-  else void reload()
+  else {
+    custody.value?.clearSecrets()
+    void reload()
+  }
 })
 function refresh() {
   void reload()

@@ -135,3 +135,17 @@ test('custody shows maximum term hint, returns to first page after paging, and r
   await firstBtn.click();
   await expect(firstBtn).toHaveCount(0);
 });
+
+test('switching away from custody clears the unfinished account and password', async ({ page }, info) => {
+  const { m, state, messages } = await setup(page, info);
+  const username = page.getByLabel(m.username, { exact: true });
+  const password = page.getByLabel(m.password, { exact: true });
+  await username.fill('fixture-account');
+  await password.fill('fixture-input');
+  await page.getByRole('tab', { name: messages.contribution.mine, exact: true }).click();
+  await expect(password).toBeHidden();
+  await page.getByRole('tab', { name: m.title, exact: true }).click();
+  await expect(username).toHaveValue('');
+  await expect(password).toHaveValue('');
+  expect(state.posts).toEqual([]);
+});

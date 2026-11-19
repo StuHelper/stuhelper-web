@@ -83,7 +83,7 @@ function goFirst() {
   void reload('')
 }
 const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
-defineExpose({ refresh: () => { paged.value = false; return reload('') } })
+defineExpose({ clearSecrets, refresh: () => { paged.value = false; return reload('') } })
 watch(error, (value) => {
   if (value === 'forbidden' || value === 'unauthenticated') reset()
 })
