@@ -118,7 +118,8 @@
     "school_credentials_rejected": "The school account or password is incorrect. Try again.",
     "school_account_locked": "Your school account is locked. Contact your school to unlock it and try again.",
     "school_account_disabled": "Your school account is disabled. Contact your school or choose another verification method.",
-    "school_account_unavailable": "Your school account cannot be used for verification right now. Choose another verification method."
+    "school_account_unavailable": "Your school account cannot be used for verification right now. Choose another verification method.",
+    "snapshot_expired": "This ranking has expired. Refresh to see the latest ranking."
   },
   "connection": {
     "label": "Service connection status",
@@ -617,7 +618,9 @@
       "campus_eligibility": "Verify",
       "identity_verified": "Verify identity",
       "course_enrollment": "View my courses"
-    }
+    },
+    "followUp": "Follow-up",
+    "submitFollowUp": "Submit follow-up"
   },
   "me": {
     "title": "Personal center",
@@ -1070,7 +1073,8 @@
       "failed": "Not completed",
       "running": "Processing",
       "manual": "Needs administrator action",
-      "done": "Completed"
+      "done": "Completed",
+      "cancelled": "Withdrawn"
     },
     "materialTypes": {
       "staff_card": "Staff ID card",
@@ -1352,7 +1356,8 @@
       "result_unknown": "The cloud service has not responded yet. Please check back later.",
       "conflict": "This account is already connected or just changed. Please refresh.",
       "attempts_exhausted": "Repeated attempts failed. An administrator will help.",
-      "credentials_required": "Please enter your account and password again."
+      "credentials_required": "Please enter your account and password again.",
+      "interactive_verification_required": "Complete the storage provider’s interactive verification and try again."
     },
     "maxTermHint": "Maximum authorization duration: {days} days."
   },
@@ -1938,7 +1943,8 @@
       "approved": "Approved",
       "rejected": "Rejected",
       "expired": "Expired",
-      "deleted": "Deleted"
+      "deleted": "Deleted",
+      "cancelled": "Withdrawn"
     },
     "disclosure": {
       "real_name": "Real name",
@@ -2063,7 +2069,8 @@
       "review": "Review",
       "up": "Helpful",
       "cancel": "Withdraw vote",
-      "down": "Not helpful"
+      "down": "Not helpful",
+      "readable": "Voted content I can view"
     },
     "compare": {
       "title": "Compare",

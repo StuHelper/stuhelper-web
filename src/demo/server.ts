@@ -69,7 +69,7 @@ function summary(id: string) {
   if (!entry) return nope('not_found', 404)
   const isCourse = entry.kind === 'course'
   const taught = d.teachesIn.filter(([c, p]) => (isCourse ? c === id : p === id))
-  return json({ object: entry, school: d.school, department: d.departments.find((x) => x.id === entry.department_id) ?? null, categories: isCourse ? d.categories.filter((x) => x.id === entry.category_id) : [], natures: isCourse ? d.natures.filter((x) => x.id === entry.nature_id) : [], course_count: isCourse ? 1 : taught.length, teacher_count: isCourse ? taught.length : 1 })
+  return json({ object: entry, school: d.school, department: d.departments.find((x) => x.id === entry.department_id) ?? null, categories: isCourse ? d.categories.filter((x) => x.id === entry.category_id) : [], natures: isCourse ? d.natures.filter((x) => x.id === entry.nature_id) : [], courses: [], teachers: [], course_count: isCourse ? 1 : taught.length, teacher_count: isCourse ? taught.length : 1 })
 }
 
 function reviewList(u: URL) {
@@ -121,7 +121,7 @@ function directory(u: URL) {
     next: start + limit < listed.length ? String(start + limit) : '',
     total: listed.length,
     facet_total: withDept.length,
-    category_facets: kind === 'course' ? facet(withDept, 'cat') : [],
+    nature_facets: [], category_facets: kind === 'course' ? facet(withDept, 'cat') : [],
     department_facets: facet(listed, 'dept'),
     generated_at: new Date().toISOString(),
   })

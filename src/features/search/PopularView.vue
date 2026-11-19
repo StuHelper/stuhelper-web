@@ -41,12 +41,13 @@ watch(kind, () => void list.reload(), { immediate: true })
       <PagedState
         :status="list.status.value"
         :error="list.error.value"
+        :retry-label="list.error.value === 'snapshot_expired' ? t('common.refresh') : ''"
         :count="list.items.value.length"
         :next="list.next.value"
         :appending="list.appending.value"
         :empty-text="t('search.popular.empty')"
         @retry="list.reload"
-        @more="list.loadMore"
+        @more="list.error.value === 'snapshot_expired' ? list.reload() : list.loadMore()"
       >
         <ol class="group">
           <li

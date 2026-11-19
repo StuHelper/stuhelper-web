@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-resources",
-  "revision": "690503341f1a2e9ee666eae06d5448a1c578e7ca",
+  "revision": "22bbb70415e833a7d81a36e29dbc36d9a0dbf92a",
   "version": "0.6.1",
   "files": {
     "contracts/resources.openapi.json": "contracts/resources.openapi.json",
     "sdk/resources.gen.ts": "src/api/resources.gen.ts"
   },
   "sha256": {
-    "contracts/resources.openapi.json": "e4b258928f12b6658eef8a78b3352a706bc2a6d2bb010207c64f0941316f815a",
-    "src/api/resources.gen.ts": "88ca0fe781671589ca0e89edc6e8c65db72e2b60c995526c530ddc7325e4cd02"
+    "contracts/resources.openapi.json": "535bdc1fd8e5db6072c20dda7d57f049016c1363d512a9e5006a11f44c4b17c3",
+    "src/api/resources.gen.ts": "982d405b164a481b9478b879b2f2f586300f62a54e0916ffcb19c727335334be"
   }
 }

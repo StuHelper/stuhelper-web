@@ -75,6 +75,7 @@ watch(() => near.value && !!props.next && !props.appending && props.status === '
     <ErrorNotice
       v-if="status === 'error'"
       :code="error"
+      :retry-label="retryLabel"
       @retry="emit('more')"
     />
     <div

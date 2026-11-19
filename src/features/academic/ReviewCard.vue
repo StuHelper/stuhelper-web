@@ -27,6 +27,7 @@ const panel = ref<Panel>('')
 const confirming = ref<'' | 'withdraw' | 'delete'>('')
 const reason = ref('')
 const proposed = ref('')
+const appendBody = ref('')
 const success = ref('')
 
 const target = computed(() => props.names.get(props.review.target_id))
@@ -101,6 +102,7 @@ async function act(action: ReviewAction) {
 }
 
 async function acted(action: ReviewAction, result: { state: string }) {
+  if (action.action === 'append') appendBody.value = ''
   if (result.state === 'withdrawn') {
     await router.push({ path: '/me/reviews', query: { tab: 'drafts' } })
     return
@@ -244,6 +246,39 @@ async function retry() {
     >
       {{ review.body }}
     </p>
+    <section
+      v-for="item in review.appends"
+      :key="item.id"
+      class="stack-sm"
+    >
+      <strong>{{ t('academic.followUp') }}</strong>
+      <p class="prewrap">
+        {{ item.body }}
+      </p>
+      <small v-if="review.mine && item.review_requested">{{ t('verification.states.pending_review') }}</small>
+      <small v-else-if="review.mine && item.state === 'rejected'">{{ t('verification.states.rejected') }}</small>
+    </section>
+    <form
+      v-if="standalone && review.mine && isRoot && published"
+      class="stack-sm"
+      @submit.prevent="act({ action: 'append', revision: review.revision, body: appendBody.trim() })"
+    >
+      <label>{{ t('academic.followUp') }}
+        <textarea
+          v-model="appendBody"
+          maxlength="4000"
+          required
+          :disabled="locked"
+        />
+      </label>
+      <button
+        type="submit"
+        class="btn btn-sm"
+        :disabled="locked || !appendBody.trim()"
+      >
+        {{ t('academic.submitFollowUp') }}
+      </button>
+    </form>
     <button
       v-if="compact && (overflowing || expanded)"
       class="review-more"

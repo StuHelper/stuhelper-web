@@ -47,7 +47,7 @@ test('a successful vote retry shows the result the first attempt lost', async ({
   await academicFixture(page);
   let posts = 0;
   const review = { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Review', body: 'Content', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-31T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false };
-  await page.route('**/api/v1/reviews/review', (route) => route.fulfill({ json: review }));
+  await page.route('**/api/v1/reviews/review{,?*}', (route) => route.fulfill({ json: review }));
   await page.route('**/api/v1/reviews/review/actions', (route) => {
     posts += 1;
     Object.assign(review, { upvotes: 1, my_vote: 1, revision: 2 });
@@ -141,10 +141,10 @@ test('own vote receipts open their discussion and a withdrawal removes only the 
     votes = votes.filter(vote => vote.id !== 'down');
     return route.fulfill({ json: { id: 'down', state: 'published', revision: 2 } });
   });
-  await page.goto(`${base}/me/reviews?tab=votes&lang=${info.project.metadata.locale}`);
-  await expect(page).toHaveURL(/\/me\/reviews\?tab=votes(?:&|$)/);
-  const down = page.getByRole('article').filter({ hasText: all.search.votes.down });
-  await expect(down.getByRole('link', { name: 'Referenced course' })).toHaveAttribute('href', '/reviews/discussion');
+  await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
+  await expect(page).toHaveURL(/\/me\/votes\?/);
+  const down = page.getByRole('listitem').filter({ hasText: all.search.votes.down });
+  await expect(down.getByRole('link', { name: /Referenced course/ })).toHaveAttribute('href', '/reviews/down');
   await down.getByRole('button', { name: all.search.votes.cancel }).click();
   await expect(down).toHaveCount(0);
   await expect(page.getByText(all.search.votes.up, { exact: true })).toBeVisible();

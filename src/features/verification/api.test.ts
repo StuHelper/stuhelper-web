@@ -87,9 +87,9 @@ describe('verification contract boundary', () => {
 
 for (const sample of sharedCases.cases) {
   it(`shared contract: ${sample.name}`, () => {
-    if (!['Summary', 'Application', 'School', 'IdentityMasked', 'IdentityInput', 'VerifyInput'].includes(sample.kind)) throw new Error('unknown shared fixture schema')
+    if (!['Summary', 'Application', 'School', 'IdentityMasked', 'IdentityInput', 'VerifyInput', 'RemovalRequest', 'EmailChallenge', 'Problem', 'AdminOverview', 'EmailInput'].includes(sample.kind)) throw new Error('unknown shared fixture schema')
     // The fixture schema name is checked against the supported contract cases above.
-    const parse = () => parseEntity(sample.kind as 'Summary' | 'Application' | 'School' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput', sample.body)
+    const parse = () => parseEntity(sample.kind as 'Summary' | 'Application' | 'School' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'EmailChallenge' | 'Problem' | 'AdminOverview' | 'EmailInput', sample.body)
     if (sample.accepted) expect(parse).not.toThrow()
     else expect(parse).toThrow('incompatible')
   })

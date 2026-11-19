@@ -232,7 +232,7 @@ test('the teacher quick view reads the most upvoted course review attributed to 
 // A two-page course directory in the shape of GET /catalog/directory, for the list states below.
 const directoryObject = (id, kind, name) => ({ id, kind, name, school_id: 'school', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z' });
 const directoryRow = (id, name, recommendation) => ({ object: directoryObject(id, 'course', name), departments: [directoryObject('dept', 'department', 'Test College')], categories: [directoryObject('seminar', 'category', 'Test Seminar')], review_count: 2, recommendation, dimensions: Array.from({ length: 5 }, () => ({ level: 4, samples: 2, courses: 1 })), heat: 1 });
-const directoryPage = (rows, next, total) => ({ items: rows, next, total, facet_total: total, category_facets: [{ id: 'seminar', name: 'Test Seminar', count: total, review_count: total }], department_facets: [{ id: 'dept', name: 'Test College', count: total, review_count: total }], generated_at: '2026-11-15T00:00:00Z' });
+const directoryPage = (rows, next, total) => ({ items: rows, next, total, facet_total: total, nature_facets: [], category_facets: [{ id: 'seminar', name: 'Test Seminar', count: total, review_count: total }], department_facets: [{ id: 'dept', name: 'Test College', count: total, review_count: total }], generated_at: '2026-11-15T00:00:00Z' });
 
 test('course rows show the recommendation in words and the next page arrives without a button', async ({ page }, info) => {
   const all = catalogue(info), b = all.browse, errors = watch(page);
@@ -565,7 +565,7 @@ test('verified not-found links back to campus and fresh review edit window count
     can_edit: true,
   };
   let permissionReads = 0;
-  await page.route('**/api/v1/reviews/me/entries/fresh-rev', route => {
+  await page.route('**/api/v1/reviews/me/entries/fresh-rev{,?*}', route => {
     permissionReads++;
     return route.fulfill({ json: { ...freshReview, can_edit: permissionReads === 1 } });
   });

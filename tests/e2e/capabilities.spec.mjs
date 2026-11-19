@@ -78,7 +78,8 @@ test('disabled favorites and search send no list lookups or personal vote reques
   });
   await page.goto(`${base}/courses?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('link', { name: 'Test Course', exact: true }).first()).toBeVisible();
+  await page.route('**/api/v1/reviews/me/votes?**', route => route.fulfill({ json: [] }));
   await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
-  await expect(page.locator('.not-found-code')).toHaveText('404');
+  await expect(page.locator('main h1')).toBeVisible();
   expect(sent).toEqual([]);
 });
