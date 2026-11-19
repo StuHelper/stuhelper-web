@@ -11,7 +11,11 @@ const app = (values) => ({ id: 'app-1', name: 'Timetable widget', purpose: 'Show
 async function platform(page) {
   const state = {
     apps: [app({})],
-    grants: [{ id: 'grant-1', app_id: 'app-1', app_name: 'Timetable widget', subject: 'me', scopes: ['profile', 'schedule'], state: 'active', expires_at: '2027-01-01T00:00:00Z', revision: 4 }],
+    grants: [{
+      id: 'grant-1', app_id: 'app-1', app_name: 'Timetable widget', subject: 'me',
+      scopes: ['profile', 'schedule'], state: 'active', revision: 4,
+      granted_at: '2026-11-01T00:00:00Z', updated_at: '2026-11-02T00:00:00Z', expires_at: '2027-01-01T00:00:00Z',
+    }],
     notices: [{ id: 'notice-1', app_id: 'app-1', subject: 'user-1', scopes: ['schedule'], reason: 'user_revoked', created_at: '2026-11-01T00:00:00Z', sequence: 1 }],
     writes: [],
     credentialKeys: new Set(),
@@ -30,7 +34,10 @@ async function platform(page) {
     state.writes.push({ path, body, key });
     if (path === '/grants/grant-1/revoke') {
       const scopes = state.grants[0].scopes.filter((scope) => !body.scopes.includes(scope));
-      state.grants = [{ ...state.grants[0], scopes, revision: 5, state: scopes.length ? 'active' : 'revoked' }];
+      state.grants = [{
+        ...state.grants[0], scopes, revision: 5, updated_at: '2026-11-03T00:00:00Z',
+        ...(scopes.length ? { state: 'active' } : { state: 'revoked', termination_reason: 'user_revoked' }),
+      }];
       return route.fulfill({ json: state.grants[0] });
     }
     if (path === '/apps') {
@@ -47,7 +54,16 @@ async function platform(page) {
       state.notices = [{ ...state.notices[0], acknowledgement: body.status, note: body.note, acknowledged_at: '2026-11-08T00:00:00Z' }];
       return route.fulfill({ json: state.notices[0] });
     }
-    if (path === '/consents') return route.fulfill({ json: { id: 'consent-1', application: app({}), requested_scopes: body.scope, redirect_uri: body.redirect_uri, expires_at: '2030-01-01T00:00:00Z', qq_tiers: [] } });
+    if (path === '/consents') {
+      const { id, name, purpose, client_type, policy } = state.apps[0];
+      const activeGrant = state.grants.find((grant) => grant.app_id === id && grant.state === 'active');
+      return route.fulfill({ json: {
+        id: 'consent-1', application: { id, name, purpose, client_type, grant_seconds: policy.grant_seconds },
+        requested_scopes: body.scope, active_granted_scopes: activeGrant?.scopes ?? [],
+        ...(activeGrant ? { active_grant_expires_at: activeGrant.expires_at } : {}),
+        redirect_uri: body.redirect_uri, expires_at: '2030-01-01T00:00:00Z', qq_tiers: [],
+      } });
+    }
     if (path === '/consents/consent-1/decision') return route.fulfill({ json: { redirect_uri: `https://widget.example.invalid/cb?${body.decision === 'approve' ? 'code=c1' : 'error=access_denied'}&state=s1` } });
     return route.fulfill({ status: 404, json: { code: 'not_found' } });
   });
