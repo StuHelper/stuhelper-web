@@ -25,6 +25,9 @@
     "PC-02": [
       "tests/e2e/page-state-regressions.spec.mjs#an expired member edits draft text without resolving unverified catalog references"
     ],
+    "PC-10": [
+      "tests/e2e/personal-center.spec.mjs#a required nickname has a visible prompt and accepts at most twenty code points"
+    ],
     "DIRECTORY-NAVIGATION-01": [
       "tests/e2e/academic.spec.mjs#a nature filter in navigation state reaches the directory without changing the URL",
       "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"

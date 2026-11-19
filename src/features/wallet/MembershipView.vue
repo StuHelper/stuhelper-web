@@ -75,7 +75,10 @@ const ruleText = (rule: Coverage['rules'][number]) => [
 const ivory = (minor: number) => `${minorText(minor)} Ivory`
 const points = (count: number) => t('wallet.pointsAmount', { amount: format.value.number(count) })
 const priceList = (plan: Plan) => [plan.points ? points(plan.points) : '', plan.ivory_minor ? ivory(plan.ivory_minor) : ''].filter(Boolean)
-const days = (seconds: number) => t('membership.days', { count: format.value.number(Math.max(1, Math.round(seconds / 86400))) })
+function days(seconds: number) {
+  const count = Math.max(1, Math.round(seconds / 86400))
+  return t('membership.days', { count: format.value.number(count) }, count)
+}
 
 // Buying: the caller picks one account; the whole price is paid from it.
 const chosen = ref<Plan>()
