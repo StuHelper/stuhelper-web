@@ -2449,7 +2449,7 @@
       "sessionCookie": {
         "type": "apiKey",
         "in": "cookie",
-        "name": "stuhelper_session"
+        "name": "stuhelper_auth_session"
       }
     }
   }
