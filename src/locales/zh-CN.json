@@ -2185,6 +2185,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "至少 {count} 条未读",
     "title": "消息",
     "link": "消息",
     "description": "互动、处理结果、认证结果和系统通知。",

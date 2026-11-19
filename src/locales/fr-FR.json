@@ -2185,6 +2185,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "Au moins {count} non lues",
     "title": "Messagerie",
     "link": "Messagerie",
     "description": "Interactions, résultats de modération, résultats de vérification et notifications système.",

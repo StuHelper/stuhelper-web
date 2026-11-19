@@ -2185,6 +2185,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "읽지 않은 알림 {count}개 이상",
     "title": "메시지",
     "link": "메시지",
     "description": "반응, 처리 결과, 인증 결과, 시스템 알림을 모았습니다.",

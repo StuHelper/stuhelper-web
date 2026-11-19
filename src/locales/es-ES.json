@@ -2185,6 +2185,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "Al menos {count} sin leer",
     "title": "Mensajes",
     "link": "Mensajes",
     "description": "Interacciones, resultados de revisión, resultados de verificación y avisos del sistema.",

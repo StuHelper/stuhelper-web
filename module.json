@@ -199,7 +199,8 @@
       "src/features/notifications/unread.test.ts#shares one request, reuses a fresh count and reads again when forced or stale",
       "src/features/notifications/unread.test.ts#keeps the last known count when a read fails and never goes below zero",
       "src/features/notifications/unread.test.ts#keeps a newer mark-all-read result when an older count request finishes",
-      "src/features/notifications/unread.test.ts#does not restore a cleared count from a request started before the reset"
+      "src/features/notifications/unread.test.ts#does not restore a cleared count from a request started before the reset",
+      "tests/e2e/notifications.spec.mjs#opening an unread notification twice changes the count only once"
     ],
     "ME-MENU-01": [
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
