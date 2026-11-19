@@ -69,6 +69,8 @@
     "opensInNewTab": "(opens in a new tab)"
   },
   "errors": {
+    "disabled": "Group services are disabled.",
+    "cooldown": "A cooldown or pending action limit applies. Try again later.",
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
     "timeout": "The service took too long to respond. Please try again.",
     "cancelled": "The request was cancelled.",
@@ -304,6 +306,7 @@
     "home": "Return home"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "You are signed out of this site. Your single sign-on session may still be active.",
     "signIn": "Sign in",
     "signOut": "Sign out this device",
     "signOutAll": "Sign out all devices",
@@ -825,6 +828,7 @@
       "accept": "I have read and accept the current terms"
     },
     "editor": {
+      "selectCategory": "Choose an available resource category.",
       "intro": "Complete three steps: save the details, upload the file, submit for review. Any published version stays available during review.",
       "step1": "1. Details",
       "step2": "2. File",
