@@ -782,6 +782,10 @@
       "checksum": "Empreinte du fichier"
     },
     "access": {
+      "missing": "Conditions manquantes : {conditions}",
+      "unavailable": "Vérification indisponible : {conditions}",
+      "content_access": "Accès aux contenus du campus",
+      "resource_entitlement": "Droit d’accès à la ressource",
       "allowed": "Téléchargement possible.",
       "not_published": "La ressource n’est pas encore publiée.",
       "already_accessible": "Vous avez déjà accès à cette ressource.",
@@ -883,6 +887,7 @@
       "uploadProgress": "Transféré : {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "Identifiant de la ressource",
       "title": "Signalements et demandes",
       "appealTitle": "Contester",
       "kind": "Type de demande",

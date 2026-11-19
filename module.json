@@ -207,6 +207,12 @@
     ],
     "REVIEW-REPLY-PREVIEW-01": [
       "tests/e2e/academic.spec.mjs#review cards show the reply preview from the list without asking for replies one by one"
+    ],
+    "RS-27": [
+      "tests/e2e/resources.spec.mjs#a signed-in rights holder can file a complaint when resource details are denied"
+    ],
+    "PC-03": [
+      "tests/e2e/resources.spec.mjs#an uploader can correct owned metadata using its saved category when category browsing is denied"
     ]
   }
 }

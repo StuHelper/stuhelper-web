@@ -782,6 +782,10 @@
       "checksum": "البصمة الرقمية للملف"
     },
     "access": {
+      "missing": "الشروط الناقصة: {conditions}",
+      "unavailable": "تعذر التحقق من: {conditions}",
+      "content_access": "الوصول إلى محتوى الحرم",
+      "resource_entitlement": "حق الوصول إلى المورد",
       "allowed": "يمكنك تنزيله.",
       "not_published": "لم تُنشر المادة بعد.",
       "already_accessible": "لديك وصول إلى هذه المادة بالفعل.",
@@ -883,6 +887,7 @@
       "uploadProgress": "تم نقل {loaded} من {total} ({percent})"
     },
     "request": {
+      "resourceId": "معرّف المورد",
       "title": "الشكاوى والطلبات",
       "appealTitle": "تقديم اعتراض",
       "kind": "نوع الطلب",

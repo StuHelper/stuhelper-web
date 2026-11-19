@@ -782,6 +782,10 @@
       "checksum": "文件校验值"
     },
     "access": {
+      "missing": "缺少的条件：{conditions}",
+      "unavailable": "暂时无法核实：{conditions}",
+      "content_access": "校园内容准入",
+      "resource_entitlement": "资料访问权",
       "allowed": "可以下载。",
       "not_published": "资料尚未发布，暂不能下载。",
       "already_accessible": "你已拥有该资料的访问权。",
@@ -883,6 +887,7 @@
       "uploadProgress": "已传输 {loaded} / {total}（{percent}）"
     },
     "request": {
+      "resourceId": "资料编号",
       "title": "投诉、下架与异议",
       "appealTitle": "提出异议",
       "kind": "申请类型",

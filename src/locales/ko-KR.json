@@ -782,6 +782,10 @@
       "checksum": "파일 체크섬"
     },
     "access": {
+      "missing": "충족하지 못한 조건: {conditions}",
+      "unavailable": "확인할 수 없는 조건: {conditions}",
+      "content_access": "캠퍼스 콘텐츠 이용",
+      "resource_entitlement": "자료 이용 권한",
       "allowed": "다운로드할 수 있습니다.",
       "not_published": "자료가 아직 게시되지 않았습니다.",
       "already_accessible": "이미 이 자료에 접근할 수 있습니다.",
@@ -883,6 +887,7 @@
       "uploadProgress": "전송됨 {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "자료 ID",
       "title": "신고 및 요청",
       "appealTitle": "이의 제기",
       "kind": "요청 유형",
