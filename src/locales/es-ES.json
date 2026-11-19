@@ -769,6 +769,7 @@
       "download": "Descargar archivo",
       "requestOwner": "Retirar o reclamar",
       "complain": "Denunciar infracción o contenido",
+      "complainHidden": "¿Crees que este material vulnera tus derechos?",
       "accessRequired": "Tu cuenta no puede descargar este recurso por ahora.",
       "pendingVersion": "Se está procesando una nueva versión. La publicada sigue disponible.",
       "noDescription": "Sin descripción.",
@@ -850,6 +851,9 @@
       "tagsHint": "Separa las etiquetas con comas.",
       "associations": "Relación con cursos",
       "associationsHint": "Basta con elegir el curso. Si el material caduca o solo sirve para un periodo o docente concreto, también puedes indicar el periodo y el docente (opcional).",
+      "term": "Semestre",
+      "chooseCourse": "Elige un curso",
+      "courseRequired": "Elige el curso al que corresponde este material.",
       "directory": "Carpeta sugerida",
       "directoryHint": "Opcional. Moderación organiza las carpetas; tu sugerencia es orientativa.",
       "create": "Guardar y crear borrador",
@@ -1984,33 +1988,33 @@
         "removed": "Tu contenido {content_id} fue retirado"
       },
       "resource_removal": {
-        "approved": "La solicitud de retirada {request_id} fue aceptada",
-        "rejected": "La solicitud de retirada {request_id} fue rechazada"
+        "approved": "La solicitud de retirada fue aceptada",
+        "rejected": "La solicitud de retirada fue rechazada"
       },
       "report": {
-        "approved": "Tu denuncia {report_id} fue aceptada",
-        "rejected": "Tu denuncia {report_id} no se aceptó tras la revisión"
+        "approved": "Tu denuncia fue aceptada",
+        "rejected": "Tu denuncia no se aceptó tras la revisión"
       },
       "student_verification": {
-        "approved": "La verificación de estudiante {application_id} fue aprobada",
-        "rejected": "La verificación de estudiante {application_id} no fue aprobada",
-        "revoked": "La verificación de estudiante {credential_id} fue revocada"
+        "approved": "La verificación de estudiante fue aprobada",
+        "rejected": "La verificación de estudiante no fue aprobada",
+        "revoked": "La verificación de estudiante fue revocada"
       },
       "identity_verification": {
-        "approved": "La comprobación de identidad {operation_id} se superó",
-        "rejected": "La comprobación de identidad {operation_id} no se superó"
+        "approved": "La comprobación de identidad se superó",
+        "rejected": "La comprobación de identidad no se superó"
       },
       "verification_revocation": {
-        "approved": "La solicitud de revocación {request_id} fue aceptada",
-        "rejected": "La solicitud de revocación {request_id} fue rechazada"
+        "approved": "La solicitud de revocación fue aceptada",
+        "rejected": "La solicitud de revocación fue rechazada"
       },
       "verification_deletion": {
-        "approved": "La solicitud de eliminación {request_id} fue aceptada",
-        "rejected": "La solicitud de eliminación {request_id} fue rechazada"
+        "approved": "La solicitud de eliminación fue aceptada",
+        "rejected": "La solicitud de eliminación fue rechazada"
       },
       "teacher_verification": {
-        "approved": "La verificación docente {application_id} fue aprobada",
-        "rejected": "La verificación docente {application_id} no fue aprobada"
+        "approved": "La verificación docente fue aprobada",
+        "rejected": "La verificación docente no fue aprobada"
       },
       "system": {
         "notice": "Aviso del sistema, referencia {reference_id}",
@@ -2084,7 +2088,7 @@
       "teachers": "Docentes ({count})",
       "kind": "Tipo de comparación",
       "emptyTitle": "Aún no hay nada que comparar",
-      "emptyHint": "Elige «Añadir a la comparación» en la página de un curso o docente y vuelve aquí.",
+      "emptyHint": "Busca arriba para añadir, o elige «Añadir a la comparación» en la página de un curso o docente.",
       "browseCourses": "Ver cursos",
       "browseTeachers": "Ver docentes",
       "dimension": "Criterio",

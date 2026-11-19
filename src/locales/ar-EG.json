@@ -769,6 +769,7 @@
       "download": "تنزيل الملف",
       "requestOwner": "طلب سحب أو شكوى",
       "complain": "الإبلاغ عن تعدٍّ أو محتوى",
+      "complainHidden": "هل ترى أن هذه المادة تنتهك حقوقك؟",
       "accessRequired": "لا يمكن لحسابك تنزيل هذا المورد حاليًا.",
       "pendingVersion": "تجري معالجة إصدار جديد. يظل الإصدار المنشور متاحًا.",
       "noDescription": "لا يوجد وصف.",
@@ -850,6 +851,9 @@
       "tagsHint": "افصل الوسوم بفواصل.",
       "associations": "الارتباط بالمقررات",
       "associationsHint": "يكفي اختيار المقرر. إذا كانت المادة مرتبطة بوقت محدد أو تخص فصلًا أو مدرسًا بعينه، يمكنك أيضًا تحديد الفصل والمدرس (اختياري).",
+      "term": "الفصل الدراسي",
+      "chooseCourse": "اختر مقررًا",
+      "courseRequired": "اختر المقرر الذي تخص هذه المادة.",
       "directory": "المجلد المقترح",
       "directoryHint": "اختياري. ينظّم المشرفون المجلدات واقتراحك استرشادي.",
       "create": "حفظ وإنشاء مسودة",
@@ -1984,33 +1988,33 @@
         "removed": "تمت إزالة محتواك {content_id}"
       },
       "resource_removal": {
-        "approved": "تم قبول طلب الإزالة {request_id}",
-        "rejected": "تم رفض طلب الإزالة {request_id}"
+        "approved": "تم قبول طلب الإزالة",
+        "rejected": "تم رفض طلب الإزالة"
       },
       "report": {
-        "approved": "تم قبول بلاغك {report_id}",
-        "rejected": "لم يُقبل بلاغك {report_id} بعد المراجعة"
+        "approved": "تم قبول بلاغك",
+        "rejected": "لم يُقبل بلاغك بعد المراجعة"
       },
       "student_verification": {
-        "approved": "تمت الموافقة على توثيق الطالب {application_id}",
-        "rejected": "لم تتم الموافقة على توثيق الطالب {application_id}",
-        "revoked": "تم إلغاء توثيق الطالب {credential_id}"
+        "approved": "تمت الموافقة على توثيق الطالب",
+        "rejected": "لم تتم الموافقة على توثيق الطالب",
+        "revoked": "تم إلغاء توثيق الطالب"
       },
       "identity_verification": {
-        "approved": "نجح التحقق من الهوية {operation_id}",
-        "rejected": "لم ينجح التحقق من الهوية {operation_id}"
+        "approved": "نجح التحقق من الهوية",
+        "rejected": "لم ينجح التحقق من الهوية"
       },
       "verification_revocation": {
-        "approved": "تم قبول طلب إلغاء التوثيق {request_id}",
-        "rejected": "تم رفض طلب إلغاء التوثيق {request_id}"
+        "approved": "تم قبول طلب إلغاء التوثيق",
+        "rejected": "تم رفض طلب إلغاء التوثيق"
       },
       "verification_deletion": {
-        "approved": "تم قبول طلب حذف التوثيق {request_id}",
-        "rejected": "تم رفض طلب حذف التوثيق {request_id}"
+        "approved": "تم قبول طلب حذف التوثيق",
+        "rejected": "تم رفض طلب حذف التوثيق"
       },
       "teacher_verification": {
-        "approved": "تمت الموافقة على توثيق المعلّم {application_id}",
-        "rejected": "لم تتم الموافقة على توثيق المعلّم {application_id}"
+        "approved": "تمت الموافقة على توثيق المعلّم",
+        "rejected": "لم تتم الموافقة على توثيق المعلّم"
       },
       "system": {
         "notice": "إشعار النظام، الرقم المرتبط {reference_id}",
@@ -2084,7 +2088,7 @@
       "teachers": "المدرّسون ({count})",
       "kind": "نوع المقارنة",
       "emptyTitle": "لا يوجد ما تقارنه بعد",
-      "emptyHint": "اختر «إضافة إلى المقارنة» في صفحة مقرر أو مدرّس ثم عد إلى هنا.",
+      "emptyHint": "ابحث في الأعلى للإضافة، أو اختر «إضافة إلى المقارنة» في صفحة مقرر أو معلّم.",
       "browseCourses": "تصفح المقررات",
       "browseTeachers": "تصفح المدرّسين",
       "dimension": "معيار التقييم",

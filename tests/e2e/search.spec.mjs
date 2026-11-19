@@ -66,7 +66,7 @@ memberTest('search shows readable voted content and links to each review', async
   const s = catalogue(info).search;
   await searchServer(page, { '/api/v1/search/my-votes': () => ({ items: [{ target: { source: 'reviews', id: 'rev-1', kind: 'review' }, choice: 'up', title: 'Great lab course' }, { target: { source: 'reviews', id: 'rev-2', kind: 'review' }, choice: 'down' }], next_cursor: '' }) });
   await page.goto(`${base}/search?lang=${info.project.metadata.locale}`);
-  await page.getByText(s.votes.readable, { exact: true }).click();
+  await expect(page.getByRole('heading', { name: s.votes.readable, exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: new RegExp(`Great lab course.*${s.votes.up}`) })).toHaveAttribute('href', '/reviews/rev-1');
   await expect(page.getByRole('link', { name: new RegExp(`${s.votes.review}.*${s.votes.down}`) })).toHaveAttribute('href', '/reviews/rev-2');
 });

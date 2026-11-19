@@ -112,6 +112,8 @@ watch(step, (value) => { viewStep.value = value })
 watch(() => metadata.value.associations.course_id, (next, previous) => {
   if (baseline.value !== '' && next !== previous) metadata.value.directory_id = undefined
 })
+// 课程必选：能浏览目录时，资料必须关联一门课程才能保存。
+const courseMissing = computed(() => !!setup.data.value?.canBrowse && !metadata.value.associations.course_id)
 const fileDisabled = computed(() => !entry.value || dirty.value || anyBusy.value || anyUncertain.value || (!!upload && !attaching.error.value && !!uploadState.value && uploadState.value !== 'attached'))
 const canSubmit = computed(() => !!proposal.value?.file && !dirty.value && !['pending', 'preparing'].includes(proposal.value.state))
 const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value || cancelling.value)
@@ -128,7 +130,7 @@ function changeCategory() {
 async function save() {
   const current = category.value
   const terms = capabilities.value?.terms
-  if (!current || !terms || tagsInvalid.value) return
+  if (!current || !terms || tagsInvalid.value || courseMissing.value) return
   const body = snapshot(metadata.value)
   body.category_revision = current.revision
   body.tags = tags.value
@@ -431,17 +433,19 @@ function uploadMessage(state: string) {
               <p class="field-hint">
                 {{ t('resources.editor.associationsHint') }}
               </p>
+
               <div class="form-grid">
                 <CatalogPicker
                   v-model="metadata.associations.course_id"
                   kind="course"
                   :label="t('academic.course')"
+                  :empty-label="t('resources.editor.chooseCourse')"
                   :school="metadata.associations.school_id || undefined"
                 />
                 <CatalogPicker
                   v-model="metadata.associations.term_id"
                   kind="term"
-                  :label="t('academic.editor.term')"
+                  :label="t('resources.editor.term')"
                   :school="metadata.associations.school_id || undefined"
                 />
                 <CatalogPicker
@@ -545,10 +549,16 @@ function uploadMessage(state: string) {
             </fieldset>
           </fieldset>
           <div class="form-actions">
+            <p
+              v-if="courseMissing"
+              class="field-hint"
+            >
+              {{ t('resources.editor.courseRequired') }}
+            </p>
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="tagsInvalid || !category || anyBusy || anyUncertain || (!dirty && !!proposal)"
+              :disabled="tagsInvalid || !category || courseMissing || anyBusy || anyUncertain || (!dirty && !!proposal)"
             >
               {{ t(entry ? 'resources.editor.saveChanges' : 'resources.editor.create') }}
             </button>

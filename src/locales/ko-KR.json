@@ -769,6 +769,7 @@
       "download": "파일 다운로드",
       "requestOwner": "내리기 신청 또는 신고",
       "complain": "침해 또는 내용 신고",
+      "complainHidden": "이 자료가 권리를 침해한다고 생각하시나요?",
       "accessRequired": "현재 계정으로는 이 자료를 내려받을 수 없습니다.",
       "pendingVersion": "새 버전을 처리 중입니다. 기존 공개 버전은 계속 이용할 수 있습니다.",
       "noDescription": "소개가 없습니다.",
@@ -850,6 +851,9 @@
       "tagsHint": "여러 태그는 쉼표로 구분합니다.",
       "associations": "강의 연관 정보",
       "associationsHint": "과목만 선택하면 됩니다. 자료가 시기에 따라 달라지거나 특정 학기·교원의 수업에만 해당하면 학기와 교원도 지정할 수 있습니다(선택).",
+      "term": "학기",
+      "chooseCourse": "과목 선택",
+      "courseRequired": "자료에 해당하는 과목을 선택하세요.",
       "directory": "추천 폴더",
       "directoryHint": "선택 사항입니다. 폴더는 관리자가 정리하며 제안은 참고용입니다.",
       "create": "저장하고 초안 만들기",
@@ -1984,33 +1988,33 @@
         "removed": "내 콘텐츠 {content_id}가 게시 중단되었습니다"
       },
       "resource_removal": {
-        "approved": "자료 삭제 요청 {request_id}이 승인되었습니다",
-        "rejected": "자료 삭제 요청 {request_id}이 거절되었습니다"
+        "approved": "자료 삭제 요청이 승인되었습니다",
+        "rejected": "자료 삭제 요청이 거절되었습니다"
       },
       "report": {
-        "approved": "신고 {report_id}이 처리되었습니다",
-        "rejected": "신고 {report_id}은 검토 결과 받아들여지지 않았습니다"
+        "approved": "신고가 처리되었습니다",
+        "rejected": "신고는 검토 결과 받아들여지지 않았습니다"
       },
       "student_verification": {
-        "approved": "학생 인증 신청 {application_id}이 승인되었습니다",
-        "rejected": "학생 인증 신청 {application_id}이 승인되지 않았습니다",
-        "revoked": "학생 인증 {credential_id}이 취소되었습니다"
+        "approved": "학생 인증 신청이 승인되었습니다",
+        "rejected": "학생 인증 신청이 승인되지 않았습니다",
+        "revoked": "학생 인증이 취소되었습니다"
       },
       "identity_verification": {
-        "approved": "실명 확인 {operation_id}이 완료되었습니다",
-        "rejected": "실명 확인 {operation_id}이 완료되지 않았습니다"
+        "approved": "실명 확인이 완료되었습니다",
+        "rejected": "실명 확인이 완료되지 않았습니다"
       },
       "verification_revocation": {
-        "approved": "인증 취소 요청 {request_id}이 승인되었습니다",
-        "rejected": "인증 취소 요청 {request_id}이 거절되었습니다"
+        "approved": "인증 취소 요청이 승인되었습니다",
+        "rejected": "인증 취소 요청이 거절되었습니다"
       },
       "verification_deletion": {
-        "approved": "인증 삭제 요청 {request_id}이 승인되었습니다",
-        "rejected": "인증 삭제 요청 {request_id}이 거절되었습니다"
+        "approved": "인증 삭제 요청이 승인되었습니다",
+        "rejected": "인증 삭제 요청이 거절되었습니다"
       },
       "teacher_verification": {
-        "approved": "교원 인증 신청 {application_id}이 승인되었습니다",
-        "rejected": "교원 인증 신청 {application_id}이 승인되지 않았습니다"
+        "approved": "교원 인증 신청이 승인되었습니다",
+        "rejected": "교원 인증 신청이 승인되지 않았습니다"
       },
       "system": {
         "notice": "시스템 알림, 관련 번호 {reference_id}",
@@ -2084,7 +2088,7 @@
       "teachers": "교원 ({count})",
       "kind": "비교 유형",
       "emptyTitle": "비교할 항목이 없습니다",
-      "emptyHint": "강의나 교원 페이지에서 “비교에 추가”를 누른 뒤 여기로 돌아오세요.",
+      "emptyHint": "위에서 검색해 추가하거나 과목·교원 페이지에서 “비교에 추가”를 누르세요.",
       "browseCourses": "강의 둘러보기",
       "browseTeachers": "교원 둘러보기",
       "dimension": "평가 항목",

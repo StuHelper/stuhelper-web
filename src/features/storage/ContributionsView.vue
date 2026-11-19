@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RefreshCw } from 'lucide-vue-next'
 import AppDateTime from '../../shared/ui/AppDateTime.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, nextTick, ref, watch, type DeepReadonly } from 'vue'
@@ -130,12 +131,12 @@ watch(completed, (value) => {
   >
     <template #actions>
       <button
-        class="btn"
+        class="btn btn-sm btn-ghost"
         type="button"
         :disabled="locked"
         @click="refresh"
       >
-        {{ t('common.refresh') }}
+        <RefreshCw aria-hidden="true" />{{ t('common.refresh') }}
       </button>
     </template>
 

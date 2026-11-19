@@ -395,7 +395,7 @@ function search() {
 
       <section
         class="stack"
-        :class="recent.length || showClassDay ? 'd-span-5' : 'd-span-12'"
+        :class="showClassDay ? 'd-span-5' : recent.length ? 'd-span-7' : 'd-span-12'"
         style="order: 4"
         aria-labelledby="h-new"
       >
@@ -469,7 +469,7 @@ function search() {
       <section
         v-if="recent.length"
         class="stack"
-        :class="showClassDay ? 'd-span-12' : 'd-span-7'"
+        :class="showClassDay ? 'd-span-12' : 'd-span-5'"
         style="order: 5"
         aria-labelledby="h-recent"
       >
