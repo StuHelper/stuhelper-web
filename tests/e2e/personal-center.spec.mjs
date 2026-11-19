@@ -1,3 +1,4 @@
+import { member } from './demo-fixture.mjs';
 import fs from 'node:fs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 
@@ -31,4 +32,20 @@ test('every personal page can be reached from the personal center on a phone and
     await expect(page.locator('a[href="/me/courses"]')).toHaveCount(0);
   }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+
+test('a required nickname has a visible prompt and accepts at most twenty code points', async ({ page }, info) => {
+  const all = catalogue(info), p = all.me.profile;
+  await page.route('**/api/v1/auth/session', route => route.fulfill({ json: { ...member, profile: { ...member.profile, nickname: '', nickname_required: true } } }));
+  await page.goto(`${base}/me?lang=${info.project.metadata.locale}`);
+  const section = page.locator('section.profile');
+  await expect(section.getByText(all.profile.nicknameRequired, { exact: true })).toBeVisible();
+  await section.locator('button').first().click();
+  const input = section.getByLabel(p.nickname, { exact: true });
+  const save = section.getByRole('button', { name: all.common.save, exact: true });
+  await input.fill('😀'.repeat(21));
+  await expect(save).toBeDisabled();
+  await input.fill('😀'.repeat(20));
+  await expect(save).toBeEnabled();
 });

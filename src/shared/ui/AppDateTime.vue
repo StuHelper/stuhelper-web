@@ -18,19 +18,21 @@ const parts = computed(() => {
   const found = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(model.value)
   return found ? { year: +found[1]!, month: +found[2]! - 1, day: +found[3]!, hour: +found[4]!, minute: +found[5]! } : undefined
 })
+// The surrounding storage form labels this input with the device's time zone and parses its civil time there.
+const inputZone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const today = new Date()
 const year = ref(parts.value?.year ?? today.getFullYear())
 const month = ref(parts.value?.month ?? today.getMonth())
 watch(open, (value) => { if (value && parts.value) { year.value = parts.value.year; month.value = parts.value.month } })
 
 const dateOf = (y: number, m: number, d: number) => new Date(y, m, d)
-const title = computed(() => new Intl.DateTimeFormat(locale.value, { year: 'numeric', month: 'long' }).format(dateOf(year.value, month.value, 1)))
+const title = computed(() => new Intl.DateTimeFormat(locale.value, { calendar: 'gregory', timeZone: inputZone, year: 'numeric', month: 'long' }).format(dateOf(year.value, month.value, 1)))
 // 2024-01-01 是星期一。每周从星期一开始。
-const weekdays = computed(() => [1, 2, 3, 4, 5, 6, 7].map((d) => new Intl.DateTimeFormat(locale.value, { weekday: 'narrow' }).format(dateOf(2024, 0, d))))
+const weekdays = computed(() => [1, 2, 3, 4, 5, 6, 7].map((d) => new Intl.DateTimeFormat(locale.value, { calendar: 'gregory', timeZone: inputZone, weekday: 'narrow' }).format(dateOf(2024, 0, d))))
 const blanks = computed(() => (dateOf(year.value, month.value, 1).getDay() + 6) % 7)
 const days = computed(() => dateOf(year.value, month.value + 1, 0).getDate())
-const shown = computed(() => (parts.value ? new Intl.DateTimeFormat(locale.value, { dateStyle: 'medium', timeStyle: 'short' }).format(dateOf(parts.value.year, parts.value.month, parts.value.day).setHours(parts.value.hour, parts.value.minute)) : t('common.choose')))
-const dayLabel = (d: number) => new Intl.DateTimeFormat(locale.value, { dateStyle: 'long' }).format(dateOf(year.value, month.value, d))
+const shown = computed(() => (parts.value ? new Intl.DateTimeFormat(locale.value, { calendar: 'gregory', timeZone: inputZone, dateStyle: 'medium', timeStyle: 'short' }).format(dateOf(parts.value.year, parts.value.month, parts.value.day).setHours(parts.value.hour, parts.value.minute)) : t('common.choose')))
+const dayLabel = (d: number) => new Intl.DateTimeFormat(locale.value, { calendar: 'gregory', timeZone: inputZone, dateStyle: 'long' }).format(dateOf(year.value, month.value, d))
 const isChosen = (d: number) => parts.value?.year === year.value && parts.value.month === month.value && parts.value.day === d
 
 function shift(by: number) {

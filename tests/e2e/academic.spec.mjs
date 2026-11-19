@@ -582,3 +582,21 @@ test('verified not-found links back to campus and fresh review edit window count
   await expect(page.getByRole('button', { name: r.requestEdit, exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: r.requestDelete, exact: true })).toBeVisible();
 });
+
+test('a nature filter in navigation state reaches the directory without changing the URL', async ({ page }, info) => {
+  const seen = [];
+  await academicFixture(page);
+  page.on('request', req => {
+    const url = new URL(req.url());
+    if (url.pathname === '/api/v1/catalog/directory') seen.push(url.searchParams.get('nature_id'));
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  await page.evaluate(() => {
+    history.replaceState({ ...history.state, filters: { nature: 'optional' } }, '');
+  });
+  seen.length = 0;
+  await page.reload();
+  await expect.poll(() => seen).toContain('optional');
+  expect(new URL(page.url()).searchParams.has('nature')).toBe(false);
+  expect(new URL(page.url()).hash).toBe('');
+});

@@ -6,6 +6,8 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync } from '../../shared/composables/async'
 import AppSelect from '../../shared/ui/AppSelect.vue'
+import { ApiError } from '../../shared/api/errors'
+import { useErrorText } from '../../shared/ui/messages'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import SearchField from '../../shared/ui/SearchField.vue'
@@ -23,13 +25,15 @@ import { clearCompare, compareList, maxCompare, toggleCompare, type CompareKind 
 type CompareColumn = {
   id: string
   name: string
-  stats: Statistics
+  stats?: Statistics
+  error?: string
   summary?: ObjectSummary
   teachers: CatalogObject[]
 }
 
 const { t } = useI18n()
 const format = useFormat()
+const errorText = useErrorText()
 const route = useRoute()
 const router = useRouter()
 const api = useAcademic()
@@ -120,7 +124,10 @@ const data = useAsync<CompareColumn[]>(async (signal) => {
   const list = ids.value
   const [names, stats, summaries, courseTeachers] = await Promise.all([
     api.lookup(list, signal),
-    Promise.all(list.map((id) => api.statistics({ kind: kind.value, target_id: id, ...period() }, signal))),
+    Promise.all(list.map((id) => api.statistics({ kind: kind.value, target_id: id, ...period() }, signal).then(stats => ({ stats, error: '' })).catch((error: unknown) => {
+      if (error instanceof ApiError && (error.status === 403 || error.status === 404)) return { stats: undefined, error: error.code }
+      throw error
+    }))),
     Promise.all(list.map((id) => api.summary(id, signal).catch((): ObjectSummary | undefined => undefined))),
     kind.value === 'course'
       ? Promise.all(list.map((id) => api.objects({ kind: 'teacher', course_id: id, limit: 12 }, signal).then((page) => page.items).catch((): CatalogObject[] => [])))
@@ -129,7 +136,7 @@ const data = useAsync<CompareColumn[]>(async (signal) => {
   return list.map((id, index) => ({
     id,
     name: summaries[index]?.object.name ?? names.get(id)?.name ?? t('common.unknown'),
-    stats: stats[index] as Statistics,
+    ...stats[index],
     summary: summaries[index],
     teachers: courseTeachers[index] ?? [],
   }))
@@ -139,7 +146,7 @@ watch([ids, range], () => {
 }, { immediate: true })
 
 const periodSpan = computed(() => {
-  const match = data.data.value?.find((item) => item.stats.from && item.stats.until)?.stats
+  const match = data.data.value?.find((item) => item.stats?.from && item.stats.until)?.stats
   return match?.from && match.until ? { from: match.from, until: match.until } : undefined
 })
 
@@ -160,7 +167,7 @@ function courseNatures(item: CompareColumn) {
 function best(index: number) {
   const items = data.data.value ?? []
   if (index === 2 || index === 3 || items.length < 2) return 0
-  const levels = items.map((item) => item.stats.dimensions[index]?.level ?? 0).filter((level) => level > 0)
+  const levels = items.map((item) => item.stats?.dimensions[index]?.level ?? 0).filter((level) => level > 0)
   return levels.length > 1 && Math.min(...levels) !== Math.max(...levels) ? Math.max(...levels) : 0
 }
 const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(id)}`
@@ -250,232 +257,242 @@ const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 't
       </p>
     </section>
     <div
-      v-if="!ids.length"
-      class="card empty"
+      id="compare-panel"
+      role="tabpanel"
+      :aria-labelledby="`compare-tab-${kind}`"
     >
-      <Scale aria-hidden="true" />
-      <h2>{{ t('search.compare.emptyTitle') }}</h2>
-      <p class="muted small">
-        {{ t('search.compare.emptyHint') }}
-      </p>
-      <RouterLink
-        class="btn"
-        :to="kind === 'course' ? '/courses' : '/teachers'"
-      >
-        {{ t(kind === 'course' ? 'search.compare.browseCourses' : 'search.compare.browseTeachers') }}
-      </RouterLink>
-    </div>
-    <AsyncState
-      v-else
-      :status="data.status.value"
-      :error="data.error.value"
-      @retry="data.reload"
-    >
-      <p
-        v-if="periodSpan"
-        class="subtle small"
-      >
-        {{ t('academic.stats.period', { from: format.date(periodSpan.from), until: format.date(periodSpan.until) }) }}
-      </p>
       <div
-        v-if="data.data.value"
-        class="card flush"
+        v-if="!ids.length"
+        class="card empty"
       >
-        <div class="scroll">
-          <table>
-            <thead>
-              <tr>
-                <th
-                  scope="col"
-                  class="dim"
-                >
-                  <span class="visually-hidden">{{ t('search.compare.dimension') }}</span>
-                </th>
-                <th
-                  v-for="item in data.data.value"
-                  :key="item.id"
-                  scope="col"
-                >
-                  <div class="head">
-                    <RouterLink
-                      class="card-title"
-                      :to="subjectPath(item.id)"
-                    >
-                      {{ item.name }}
-                    </RouterLink>
-                    <button
-                      class="btn btn-sm btn-icon"
-                      type="button"
-                      :aria-label="t('search.compare.remove', { name: item.name })"
-                      @click="toggleCompare(kind, item.id)"
-                    >
-                      <X aria-hidden="true" />
-                    </button>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th
-                  scope="row"
-                  class="dim"
-                >
-                  {{ t(kind === 'course' ? 'academic.directory.college' : 'academic.directory.department') }}
-                </th>
-                <td
-                  v-for="item in data.data.value"
-                  :key="item.id"
-                  class="small"
-                >
-                  {{ item.summary?.department?.name || t('common.notProvided') }}
-                </td>
-              </tr>
-              <template v-if="kind === 'course'">
+        <Scale aria-hidden="true" />
+        <h2>{{ t('search.compare.emptyTitle') }}</h2>
+        <p class="muted small">
+          {{ t('search.compare.emptyHint') }}
+        </p>
+        <RouterLink
+          class="btn"
+          :to="kind === 'course' ? '/courses' : '/teachers'"
+        >
+          {{ t(kind === 'course' ? 'search.compare.browseCourses' : 'search.compare.browseTeachers') }}
+        </RouterLink>
+      </div>
+      <AsyncState
+        v-else
+        :status="data.status.value"
+        :error="data.error.value"
+        @retry="data.reload"
+      >
+        <p
+          v-if="periodSpan"
+          class="subtle small"
+        >
+          {{ t('academic.stats.period', { from: format.date(periodSpan.from), until: format.date(periodSpan.until) }) }}
+        </p>
+        <div
+          v-if="data.data.value"
+          class="card flush"
+        >
+          <div class="scroll">
+            <table>
+              <thead>
                 <tr>
                   <th
-                    scope="row"
+                    scope="col"
                     class="dim"
                   >
-                    {{ t('academic.subject.creditsLabel') }}
+                    <span class="visually-hidden">{{ t('search.compare.dimension') }}</span>
                   </th>
-                  <td
-                    v-for="item in data.data.value"
-                    :key="item.id"
-                    class="small"
-                  >
-                    {{ courseCredits(item) }}
-                  </td>
-                </tr>
-                <tr>
                   <th
-                    scope="row"
-                    class="dim"
-                  >
-                    {{ t('academic.directory.nature') }}
-                  </th>
-                  <td
                     v-for="item in data.data.value"
                     :key="item.id"
-                    class="small"
+                    scope="col"
                   >
-                    {{ courseNatures(item) }}
-                  </td>
-                </tr>
-                <tr>
-                  <th
-                    scope="row"
-                    class="dim"
-                  >
-                    {{ t('academic.subject.teachers') }}
-                  </th>
-                  <td
-                    v-for="item in data.data.value"
-                    :key="item.id"
-                    class="small"
-                  >
-                    <div
-                      v-if="item.teachers.length"
-                      class="teacher-links"
-                    >
+                    <div class="head">
                       <RouterLink
-                        v-for="teacher in item.teachers"
-                        :key="teacher.id"
-                        :to="`/teachers/${encodeURIComponent(teacher.id)}`"
+                        class="card-title"
+                        :to="subjectPath(item.id)"
                       >
-                        {{ teacher.name }}
+                        {{ item.name }}
                       </RouterLink>
+                      <span
+                        v-if="item.error"
+                        class="small"
+                      >{{ errorText(item.error) }}</span>
+                      <button
+                        class="btn btn-sm btn-icon"
+                        type="button"
+                        :aria-label="t('search.compare.remove', { name: item.name })"
+                        @click="toggleCompare(kind, item.id)"
+                      >
+                        <X aria-hidden="true" />
+                      </button>
                     </div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th
+                    scope="row"
+                    class="dim"
+                  >
+                    {{ t(kind === 'course' ? 'academic.directory.college' : 'academic.directory.department') }}
+                  </th>
+                  <td
+                    v-for="item in data.data.value"
+                    :key="item.id"
+                    class="small"
+                  >
+                    {{ item.summary?.department?.name || t('common.notProvided') }}
+                  </td>
+                </tr>
+                <template v-if="kind === 'course'">
+                  <tr>
+                    <th
+                      scope="row"
+                      class="dim"
+                    >
+                      {{ t('academic.subject.creditsLabel') }}
+                    </th>
+                    <td
+                      v-for="item in data.data.value"
+                      :key="item.id"
+                      class="small"
+                    >
+                      {{ courseCredits(item) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      scope="row"
+                      class="dim"
+                    >
+                      {{ t('academic.directory.nature') }}
+                    </th>
+                    <td
+                      v-for="item in data.data.value"
+                      :key="item.id"
+                      class="small"
+                    >
+                      {{ courseNatures(item) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th
+                      scope="row"
+                      class="dim"
+                    >
+                      {{ t('academic.subject.teachers') }}
+                    </th>
+                    <td
+                      v-for="item in data.data.value"
+                      :key="item.id"
+                      class="small"
+                    >
+                      <div
+                        v-if="item.teachers.length"
+                        class="teacher-links"
+                      >
+                        <RouterLink
+                          v-for="teacher in item.teachers"
+                          :key="teacher.id"
+                          :to="`/teachers/${encodeURIComponent(teacher.id)}`"
+                        >
+                          {{ teacher.name }}
+                        </RouterLink>
+                      </div>
+                      <span
+                        v-else
+                        class="subtle"
+                      >{{ t('common.notProvided') }}</span>
+                    </td>
+                  </tr>
+                </template>
+                <tr v-else>
+                  <th
+                    scope="row"
+                    class="dim"
+                  >
+                    {{ t('search.compare.taughtCourses') }}
+                  </th>
+                  <td
+                    v-for="item in data.data.value"
+                    :key="item.id"
+                    class="small"
+                  >
+                    {{ item.summary ? format.number(item.summary.course_count) : t('common.notProvided') }}
+                  </td>
+                </tr>
+                <tr
+                  v-for="(name, index) in dimensions"
+                  :key="name"
+                >
+                  <th
+                    scope="row"
+                    class="dim"
+                  >
+                    {{ text(index, 0) }}
+                  </th>
+                  <td
+                    v-for="item in data.data.value"
+                    :key="item.id"
+                    :class="{ best: best(index) > 0 && item.stats?.dimensions[index]?.level === best(index) }"
+                  >
+                    <span
+                      v-if="(item.stats?.dimensions[index]?.level ?? 0) > 0"
+                      class="level"
+                    >
+                      <RatingIcon
+                        :dimension="index"
+                        :level="item.stats?.dimensions[index]?.level ?? 0"
+                      />{{ text(index, item.stats?.dimensions[index]?.level ?? 0) }}
+                    </span>
                     <span
                       v-else
                       class="subtle"
-                    >{{ t('common.notProvided') }}</span>
+                    >{{ (item.stats?.dimensions[index]?.samples ?? 0) > 0 ? t('academic.ratings.insufficient') : t('search.compare.noReviews') }}</span>
                   </td>
                 </tr>
-              </template>
-              <tr v-else>
-                <th
-                  scope="row"
-                  class="dim"
-                >
-                  {{ t('search.compare.taughtCourses') }}
-                </th>
-                <td
-                  v-for="item in data.data.value"
-                  :key="item.id"
-                  class="small"
-                >
-                  {{ item.summary ? format.number(item.summary.course_count) : t('common.notProvided') }}
-                </td>
-              </tr>
-              <tr
-                v-for="(name, index) in dimensions"
-                :key="name"
-              >
-                <th
-                  scope="row"
-                  class="dim"
-                >
-                  {{ text(index, 0) }}
-                </th>
-                <td
-                  v-for="item in data.data.value"
-                  :key="item.id"
-                  :class="{ best: best(index) > 0 && item.stats.dimensions[index]?.level === best(index) }"
-                >
-                  <span
-                    v-if="(item.stats.dimensions[index]?.level ?? 0) > 0"
-                    class="level"
+                <tr v-if="kind === 'teacher'">
+                  <th
+                    scope="row"
+                    class="dim"
                   >
-                    <RatingIcon
-                      :dimension="index"
-                      :level="item.stats.dimensions[index]?.level ?? 0"
-                    />{{ text(index, item.stats.dimensions[index]?.level ?? 0) }}
-                  </span>
-                  <span
-                    v-else
-                    class="subtle"
-                  >{{ (item.stats.dimensions[index]?.samples ?? 0) > 0 ? t('academic.ratings.insufficient') : t('search.compare.noReviews') }}</span>
-                </td>
-              </tr>
-              <tr v-if="kind === 'teacher'">
-                <th
-                  scope="row"
-                  class="dim"
-                >
-                  {{ t('search.compare.ratedCourses') }}
-                </th>
-                <td
-                  v-for="item in data.data.value"
-                  :key="item.id"
-                  class="small"
-                >
-                  {{ format.number(item.stats.dimensions[0]?.courses ?? 0) }}
-                </td>
-              </tr>
-              <tr>
-                <th
-                  scope="row"
-                  class="dim"
-                >
-                  {{ t('search.compare.samples') }}
-                </th>
-                <td
-                  v-for="item in data.data.value"
-                  :key="item.id"
-                  class="small"
-                >
-                  {{ t('academic.ratings.samplesOnly', { samples: format.number(item.stats.dimensions[0]?.samples ?? 0) }) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    {{ t('search.compare.ratedCourses') }}
+                  </th>
+                  <td
+                    v-for="item in data.data.value"
+                    :key="item.id"
+                    class="small"
+                  >
+                    {{ item.stats ? format.number(item.stats.dimensions[0]?.courses ?? 0) : t('common.unknown') }}
+                  </td>
+                </tr>
+                <tr>
+                  <th
+                    scope="row"
+                    class="dim"
+                  >
+                    {{ t('search.compare.samples') }}
+                  </th>
+                  <td
+                    v-for="item in data.data.value"
+                    :key="item.id"
+                    class="small"
+                  >
+                    {{ item.stats ? t('academic.ratings.samplesOnly', { samples: format.number(item.stats.dimensions[0]?.samples ?? 0) }) : t('common.unknown') }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-      <p class="subtle small">
-        {{ t('search.compare.note') }}
-      </p>
-    </AsyncState>
+        <p class="subtle small">
+          {{ t('search.compare.note') }}
+        </p>
+      </AsyncState>
+    </div>
   </div>
 </template>
 

@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
+import { Mutation } from './mutation'
+import { sessionFetch } from './transport'
 import { Http, queryString } from './http'
 import { schemaOf } from './schema'
 
@@ -81,4 +83,50 @@ describe('HTTP boundary', () => {
     expect(queryString({ a: '1', b: '', c: undefined, d: null, e: 0, f: false })).toBe('?a=1&e=0&f=false')
     expect(queryString({})).toBe('')
   })
+})
+
+it('keeps a progressing download alive beyond a single timeout interval', async () => {
+  vi.useFakeTimers()
+  try {
+    let sender!: ReadableStreamDefaultController<Uint8Array>
+    const stream = new ReadableStream<Uint8Array>({ start(controller) { sender = controller } })
+    const result = new Http(async () => new Response(stream)).blob('/api/v1/file', 3, { timeout: 100 })
+    const check = expect(result.then(blob => blob.text())).resolves.toBe('abc')
+    for (const char of 'abc') {
+      await vi.advanceTimersByTimeAsync(70)
+      sender.enqueue(new TextEncoder().encode(char))
+    }
+    sender.close()
+    await check
+  } finally { vi.useRealTimers() }
+})
+
+it('keeps a completed upload with an unreadable browser receipt from being sent twice', async () => {
+  const bytes: Blob[] = []
+  class FailedReceipt {
+    status = 200
+    response = new TextEncoder().encode('malformed').buffer
+    upload = {}
+    onload?: () => void
+    open() {}
+    setRequestHeader() {}
+    send(body: Blob) {
+      bytes.push(body)
+      this.onload?.()
+    }
+  }
+  vi.stubGlobal('XMLHttpRequest', FailedReceipt)
+  try {
+    const http = new Http(sessionFetch)
+    const mutation = new Mutation()
+    const file = new Blob(['saved content'])
+    const expected = { code: 'write_response_unrecognized', uncertain: true }
+    await expect(mutation.run('upload', {}, (_, key) => http.json('/api/v1/test', anything, {
+      method: 'PUT', bytes: file, key, onUploadProgress: () => {},
+    }))).rejects.toMatchObject(expected)
+    await expect(mutation.retry()).rejects.toMatchObject(expected)
+    expect(bytes).toEqual([file])
+  } finally {
+    vi.unstubAllGlobals()
+  }
 })

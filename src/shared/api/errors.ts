@@ -36,7 +36,7 @@ export class ApiError extends Error {
 
   /** The current account lost access, so pages clear private data. */
   get denied() {
-    return this.code === 'unauthenticated' || this.code === 'forbidden'
+    return this.status === 401 || this.status === 403 || this.code === 'unauthenticated' || this.code === 'forbidden'
   }
 }
 
@@ -44,7 +44,9 @@ export class ApiError extends Error {
 const modulePrefix = /^(?:catalog|reviews|moderation|resources|media|storage|contribution|verification|profiles|groups)_(.+)$/
 
 export function normalizeCode(code: string) {
-  const bare = modulePrefix.exec(code)?.[1] ?? code
+  // Keep module-specific business codes used by forms, e.g. billing_insufficient_funds.
+  const accessCode = /^(?:billing|qq_binding|favorites|search|notifications|open_platform|session)_(unauthenticated|authentication_required|forbidden|permission_denied|rate_limited)$/.exec(code)?.[1]
+  const bare = accessCode ?? modulePrefix.exec(code)?.[1] ?? code
   return aliases[bare] ?? bare
 }
 

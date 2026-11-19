@@ -32,6 +32,7 @@ const verification = useVerification()
 const save = useMutation()
 const editing = ref(false)
 const nickname = ref('')
+const nicknameValid = computed(() => !!nickname.value.trim() && [...nickname.value.trim()].length <= 20)
 const saved = ref('')
 const current = ref<Profile>()
 const signingOut = ref<'' | 'device' | 'all'>('')
@@ -107,7 +108,7 @@ function startEdit() {
 }
 
 async function submit() {
-  if (!profile.value) return
+  if (!nicknameValid.value || !profile.value) return
   saved.value = ''
   const body: ProfileUpdate = { nickname: nickname.value.trim(), revision: profile.value.revision }
   const result = await save.run('profile', body, (value, key) => session.saveProfile(value, key))
@@ -145,6 +146,7 @@ function useCurrent() {
 async function keepMine() {
   if (!current.value) return
   // Resubmit the typed nickname against the version now on the server.
+  if (!nicknameValid.value) return
   const body: ProfileUpdate = { nickname: nickname.value.trim(), revision: current.value.revision }
   current.value = undefined
   const result = await save.run('profile', body, (value, key) => session.saveProfile(value, key))
@@ -179,10 +181,10 @@ async function signOut() {
           <span
             class="profile-avatar"
             aria-hidden="true"
-          >{{ [...profile.nickname][0] }}</span>
+          >{{ [...profile.nickname][0] || t('nav.me').slice(0, 1) }}</span>
           <div class="profile-copy">
             <h2 class="truncate">
-              {{ profile.nickname }}
+              {{ profile.nickname_required && !profile.nickname ? t('profile.nicknameRequired') : profile.nickname }}
             </h2>
             <p
               v-if="verified"
@@ -231,7 +233,7 @@ async function signOut() {
               <input
                 v-model="nickname"
                 class="input"
-                maxlength="64"
+                :aria-invalid="[...nickname.trim()].length > 20"
                 required
                 :disabled="save.busy.value || save.uncertain.value"
               >
@@ -271,7 +273,7 @@ async function signOut() {
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="save.busy.value || save.uncertain.value || !nickname.trim()"
+              :disabled="save.busy.value || save.uncertain.value || !nicknameValid"
             >
               {{ t('common.save') }}
             </button>

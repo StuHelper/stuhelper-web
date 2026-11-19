@@ -69,6 +69,9 @@
     "opensInNewTab": "（新しいタブで開きます）"
   },
   "errors": {
+    "disabled": "グループサービスは無効です。",
+    "cooldown": "待機時間または保留中の操作数の制限に達しました。しばらくしてから再試行してください。",
+    "write_response_unrecognized": "サーバーはリクエストを受け付けましたが、応答を読み取れませんでした。ページを更新して結果を確認してください。",
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
     "timeout": "サービスの応答がタイムアウトしました。再試行してください。",
     "cancelled": "リクエストはキャンセルされました。",
@@ -304,6 +307,7 @@
     "home": "ホームへ戻る"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "このサイトからログアウトしました。シングルサインオンのセッションが有効な場合があります。",
     "signIn": "ログイン",
     "signOut": "この端末からログアウト",
     "signOutAll": "すべての端末からログアウト",
@@ -779,6 +783,10 @@
       "checksum": "チェックサム"
     },
     "access": {
+      "missing": "未達の条件：{conditions}",
+      "unavailable": "確認できない条件：{conditions}",
+      "content_access": "キャンパスコンテンツへのアクセス",
+      "resource_entitlement": "資料へのアクセス権",
       "allowed": "ダウンロードできます。",
       "not_published": "資料はまだ公開されていません。",
       "already_accessible": "この資料には既にアクセスできます。",
@@ -825,6 +833,7 @@
       "accept": "現在の規約を読み、同意します"
     },
     "editor": {
+      "selectCategory": "利用できる資料カテゴリを選択してください。",
       "intro": "資料情報の保存、ファイルのアップロード、審査提出の3ステップです。審査中も公開済みの版は利用できます。",
       "step1": "1. 資料情報",
       "step2": "2. ファイル",
@@ -879,6 +888,7 @@
       "uploadProgress": "転送済み {loaded} / {total}（{percent}）"
     },
     "request": {
+      "resourceId": "資料 ID",
       "title": "通報・取り下げ・異議申立て",
       "appealTitle": "異議を申し立てる",
       "kind": "申請種別",
@@ -1064,6 +1074,8 @@
       "done": "完了"
     },
     "materialTypes": {
+      "staff_card": "教職員証",
+      "contract": "雇用契約書",
       "student_card": "学生証・キャンパスカード",
       "admission_letter": "入学許可通知",
       "enrollment_certificate": "在学証明書",
@@ -1955,7 +1967,14 @@
       "label": "受取口座または参照番号",
       "submitted": "受取情報を送信しました。"
     },
-    "ivoryBalance": "Ivory 残高"
+    "ivoryBalance": "Ivory 残高",
+    "payee": {
+      "title": "返金先情報",
+      "method": "受取方法",
+      "name": "受取人名",
+      "account": "受取口座",
+      "onFile": "返金先情報が登録されています。変更するには新しい情報を入力してください。"
+    }
   },
   "platform": {
     "scopes": {
@@ -2166,6 +2185,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "未読 {count} 件以上",
     "title": "メッセージ",
     "link": "メッセージ",
     "description": "反応、審査結果、認証結果、システム通知をまとめています。",

@@ -39,6 +39,12 @@ function writeState(filters: PageFilters) {
 // picked up once by the same page path on return.
 const returnKey = 'stuhelper.returnFilters'
 
+export function forgetReturnFilters() {
+  try {
+    sessionStorage.removeItem(returnKey)
+  } catch { /* Storage is optional. */ }
+}
+
 export function keepFiltersForReturn() {
   const state: unknown = window.history.state
   const raw = typeof state === 'object' && state !== null ? (state as Record<string, unknown>)[KEY] : undefined
