@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { Eye } from 'lucide-vue-next'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import sessionContract from '../../../contracts/session.openapi.json'
 import type { components } from '../../api/session.gen'
-import { errorCode } from '../../shared/api/errors'
 import { segment } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
-import { useAsync } from '../../shared/composables/async'
+import { useAsync, useMutation } from '../../shared/composables/async'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { useHttp, useSession, type Profile } from '../../shared/session'
 import AsyncState from '../../shared/ui/AsyncState.vue'
@@ -46,9 +45,10 @@ const points = (value: string) => [...value].length
 const nickname = computed(() => form.nickname.trim())
 const nicknameError = computed(() => (!nickname.value ? t('profile.nicknameRequired') : points(nickname.value) > 20 ? t('profile.tooLong', { max: 20 }) : ''))
 const bioError = computed(() => (points(form.bio) > 120 ? t('profile.tooLong', { max: 120 }) : ''))
-const saving = ref(false)
+const write = useMutation()
+const saving = computed(() => write.busy.value || write.uncertain.value)
 const saveError = ref('')
-useLeaveGuard(() => (dirty.value || saving.value ? t('common.leaveUnsaved') : ''))
+useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || saving.value ? t('common.leaveUnsaved') : ''))
 
 const switches: (keyof Visibility)[] = ['school', 'badge', 'department', 'grade', 'reviews', 'resources']
 // Fields a QQ group may put on the member's group card. Each is off until the owner allows it.
@@ -57,22 +57,32 @@ const cardFields: (keyof CardConsent)[] = ['nickname', 'name', 'school', 'depart
 async function save() {
   const current = profile.data.value
   if (!current || nicknameError.value || bioError.value || saving.value) return
-  saving.value = true
   saveError.value = ''
-  try {
-    profile.data.value = await session.saveProfile({ nickname: nickname.value, bio: form.bio.trim(), visibility: { ...form.visibility }, group_card_consent: { ...(capabilities.has(feature.groups) ? form.card : current.group_card_consent) }, revision: current.revision }, crypto.randomUUID())
+  const body = { nickname: nickname.value, bio: form.bio.trim(), visibility: { ...form.visibility }, group_card_consent: { ...(capabilities.has(feature.groups) ? form.card : current.group_card_consent) }, revision: current.revision }
+  const saved = await write.run('profile', body, (input, key) => session.saveProfile(input, key))
+  if (saved) {
+    profile.data.value = saved
     toast(t('profile.saved'))
-  } catch (failure) {
-    // A newer revision saved elsewhere keeps the typed values so they can be saved again after reloading.
-    saveError.value = errorCode(failure) === 'conflict' ? t('profile.conflict') : errorText(errorCode(failure))
-  } finally {
-    saving.value = false
-  }
+  } else saveError.value = write.error.value === 'conflict' ? t('profile.conflict') : errorText(write.error.value)
+}
+async function retry() {
+  const saved = await write.retry()
+  if (saved) {
+    profile.data.value = saved as Profile
+    saveError.value = ''
+    toast(t('profile.saved'))
+  } else saveError.value = write.error.value === 'conflict' ? t('profile.conflict') : errorText(write.error.value)
 }
 async function reloadKeepingInput() {
   const typed = JSON.parse(snapshot()) as typeof form
+  const previous = JSON.parse(baseline.value) as typeof form
   await profile.reload()
-  Object.assign(form, typed)
+  if (!profile.data.value) return
+  await nextTick()
+  if (typed.nickname !== previous.nickname) form.nickname = typed.nickname
+  if (typed.bio !== previous.bio) form.bio = typed.bio
+  for (const key of switches) if (typed.visibility[key] !== previous.visibility[key]) form.visibility[key] = typed.visibility[key]
+  for (const key of cardFields) if (typed.card[key] !== previous.card[key]) form.card[key] = typed.card[key]
   saveError.value = ''
 }
 
@@ -101,7 +111,10 @@ const facts = (row: PublicProfile['affiliations'][number]) => [row.school_name, 
         novalidate
         @submit.prevent="save"
       >
-        <section class="card stack">
+        <section
+          class="card stack"
+          :inert="saving"
+        >
           <div class="row avatar-row">
             <span
               class="avatar"
@@ -221,9 +234,9 @@ const facts = (row: PublicProfile['affiliations'][number]) => [row.school_name, 
           <button
             class="btn btn-sm"
             type="button"
-            @click="reloadKeepingInput"
+            @click="write.uncertain.value ? retry() : reloadKeepingInput()"
           >
-            {{ t('profile.reload') }}
+            {{ t(write.uncertain.value ? 'common.retryOriginal' : 'profile.reload') }}
           </button>
         </div>
         <div class="form-actions save">

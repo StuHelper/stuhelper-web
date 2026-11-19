@@ -150,6 +150,47 @@ test('own vote receipts open their discussion and a withdrawal removes only the 
   expect(votes.map(vote => vote.id)).toEqual(['up']);
 });
 
+test('an expired member edits draft text without resolving unverified catalog references', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'hidden', term_id: 'term', teacher_id: '', title: 'Draft', body: 'Saved', ratings: [3, 3, 3, 3, 3], signed: false }, withdrawn: false, reference_ids: [], reference_state: 'unverified' };
+  const lookups = [], saves = [];
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
+  await page.route('**/api/v1/reviews/me/references?**', route => {
+    lookups.push(route.request().url());
+    return route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+  await page.route('**/api/v1/reviews/me/drafts**', route => {
+    if (route.request().method() === 'POST') {
+      saves.push(route.request().postDataJSON());
+      return route.fulfill({ json: { id: draft.id, state: 'draft', revision: 2 } });
+    }
+    return route.fulfill({ json: new URL(route.request().url()).pathname.endsWith('/draft') ? draft : [draft] });
+  });
+  await page.goto(`${base}/me/reviews?tab=drafts&lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: all.me.continueEditing, exact: true }).click();
+  await page.getByLabel(all.academic.editor.title, { exact: true }).fill('Edited');
+  await page.getByRole('button', { name: all.academic.editor.saveDraft, exact: true }).click();
+  await expect.poll(() => saves.length).toBe(1);
+  expect(saves[0]).toMatchObject({ id: 'draft', revision: 1, input: { target_id: 'hidden', title: 'Edited', term_id: 'term' } });
+  expect(lookups).toEqual([]);
+});
+
+test('discarding a root reply clears its text and sends no write', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const writes = [];
+  page.on('request', req => { if (req.method() === 'POST' && req.url().includes('/reviews/')) writes.push(req.url()); });
+  await page.goto(`${base}/reviews/review?lang=${info.project.metadata.locale}`);
+  const form = page.locator('form.editor');
+  const body = form.getByRole('textbox').last();
+  await body.fill('Draft to discard');
+  await form.getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
+  await expect(body).toHaveValue('');
+  expect(writes).toEqual([]);
+});
+
 test('legacy personal links resolve to the current page and storage tab', async ({ page }, info) => {
   await demo(page);
   await page.goto(`${base}/?lang=${info.project.metadata.locale}`);

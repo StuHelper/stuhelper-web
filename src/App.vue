@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ConfigProvider } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
@@ -43,23 +44,25 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
 </script>
 
 <template>
-  <AppLayout v-if="localeReady">
-    <NotFoundView v-if="missing" />
-    <template v-else-if="waiting" />
-    <AccessPanel
-      v-else-if="blocked"
-      gate
+  <ConfigProvider :dir="locale === 'ar-EG' ? 'rtl' : 'ltr'">
+    <AppLayout v-if="localeReady">
+      <NotFoundView v-if="missing" />
+      <template v-else-if="waiting" />
+      <AccessPanel
+        v-else-if="blocked"
+        gate
+      />
+      <RouterView
+        v-else
+        :key="pageKey"
+      />
+    </AppLayout>
+    <FavoriteMoveDialog
+      v-if="moveTarget && moveTarget.profileId === session.session.value?.profile.id"
+      :key="moveTarget.item.id"
+      :item="moveTarget.item"
+      @close="moveTarget = undefined"
     />
-    <RouterView
-      v-else
-      :key="pageKey"
-    />
-  </AppLayout>
-  <FavoriteMoveDialog
-    v-if="moveTarget && moveTarget.profileId === session.session.value?.profile.id"
-    :key="moveTarget.item.id"
-    :item="moveTarget.item"
-    @close="moveTarget = undefined"
-  />
-  <ConfirmHost />
+    <ConfirmHost />
+  </ConfigProvider>
 </template>

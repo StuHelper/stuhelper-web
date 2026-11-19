@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { computed, onMounted, ref, shallowRef, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -34,9 +34,15 @@ function period() {
   return { from: new Date(until.getTime() - Number(range.value) * 86_400_000).toISOString(), until: until.toISOString() }
 }
 
+let continuation: AbortController | undefined
+onBeforeUnmount(() => continuation?.abort())
 const summary = useAsync(async (signal) => {
+  continuation?.abort()
+  loadingMore.value = false
   const stats = await api.statistics({ kind: props.kind, target_id: props.targetId, ...period() }, signal)
-  names.value = await api.lookup(stats.courses.map((row) => row.course_id), signal)
+  const found = await api.lookup(stats.courses.map((row) => row.course_id), signal)
+  signal.throwIfAborted()
+  names.value = found
   courses.value = stats.courses
   next.value = stats.next
   return stats
@@ -65,18 +71,21 @@ function refreshAll() {
 
 async function more() {
   if (!next.value || loadingMore.value) return
+  const controller = new AbortController()
+  continuation = controller
   loadingMore.value = true
   moreError.value = ''
   try {
-    const stats = await api.statistics({ kind: props.kind, target_id: props.targetId, after: next.value, ...period() })
-    const found = await api.lookup(stats.courses.map((row) => row.course_id))
+    const stats = await api.statistics({ kind: props.kind, target_id: props.targetId, after: next.value, ...period() }, controller.signal)
+    const found = await api.lookup(stats.courses.map((row) => row.course_id), controller.signal)
+    if (controller.signal.aborted) return
     names.value = new Map([...names.value, ...found])
     courses.value = [...courses.value, ...stats.courses]
     next.value = stats.next !== next.value ? stats.next : ''
   } catch (failure) {
-    moreError.value = errorCode(failure)
+    if (!controller.signal.aborted) moreError.value = errorCode(failure)
   } finally {
-    loadingMore.value = false
+    if (continuation === controller) loadingMore.value = false
   }
 }
 

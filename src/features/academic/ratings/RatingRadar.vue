@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useInView } from '../../../shared/composables/inView'
-import { dimensionLabelKeys, dimensionNames } from './levels'
+import { levelKeys, dimensionLabelKeys, dimensionNames } from './levels'
 // Five dimensions as a radar of band levels (0-5). Several series can be overlaid for comparison.
 // The drawing is always left-to-right with explicit anchors, so labels sit outside the
 // shape in right-to-left languages too; the label text itself keeps its own direction.
@@ -24,7 +24,7 @@ const pt = (i: number, r: number) => { const a = (Math.PI * 2 * i) / 5 - Math.PI
 const anchor = (i: number) => { const dx = pt(i, R)[0] - c; return Math.abs(dx) < 4 ? 'middle' : dx > 0 ? 'start' : 'end' }
 const ring = (lv: number) => [0, 1, 2, 3, 4].map((i) => pt(i, (R * lv) / 5).join(',')).join(' ')
 const shape = (v: number[]) => v.map((x, i) => pt(i, (R * x) / 5).join(',')).join(' ')
-const text = computed(() => props.series.map((s) => `${s.name}: ${labels.value.map((l, i) => `${l} ${s.values[i] ?? 0}/5`).join(', ')}`).join('; '))
+const text = computed(() => props.series.map((s) => `${s.name}: ${labels.value.map((l, i) => `${l} ${t(levelKeys[dimensionNames[i]!][s.values[i] ?? 0]!)}`).join(', ')}`).join('; '))
 const root = ref<SVGSVGElement>()
 const seen = useInView(root)
 </script>

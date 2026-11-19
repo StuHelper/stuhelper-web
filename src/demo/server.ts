@@ -161,7 +161,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const p = u.pathname.replace('/api/v1', '')
   const who = persona()
   if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, content_school_id: d.SCHOOL, profile: demoProfile, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' })
-  if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return new Response(null, { status: 204 }) }
+  if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return json({ signed_out: true, upstream_ended: true }) }
   if (p === '/profiles/me' && method === 'PUT') {
     const b = await body(init)
     if (b.revision !== demoProfile.revision) return json({ code: 'conflict', current: demoProfile }, 409)

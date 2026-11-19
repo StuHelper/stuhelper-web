@@ -130,6 +130,7 @@ test('verification failure stays beside submit with focus and retained input', a
 test('profile shows plain field labels and binds authentication time to the selected credential', async ({ page }, info) => {
   const state = await fixture(page); await open(page, info);
   const m = messages(info), v = m.verification;
+  state.profile.fields.identity_valid_until = '2028-09-01';
   // The status card opens the profile of the active credential, under that credential.
   await page.getByRole('region', { name: v.statusTitle, exact: true }).getByRole('button', { name: v.viewProfile }).click();
   const card = profileCard(page, info);
@@ -138,13 +139,13 @@ test('profile shows plain field labels and binds authentication time to the sele
   await expect(card).not.toContainText(m.common.unknown);
   // Field labels stand alone; no data-source annotation is shown.
   await expect(card).not.toContainText(v.profileSources.academic_profile);
-  for (const field of ['student_id', 'department']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toHaveText(v.profileFields[field]);
+  for (const field of ['student_id', 'college_name']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toHaveText(v.profileFields[field]);
   await expect(card.locator('dt').filter({ hasText: v.profileFields.name })).toHaveText(v.profileFields.name);
-  await expect(card.locator('dt').filter({ hasText: v.profileFields.contact_email })).toHaveText(v.profileFields.contact_email);
+  expect(await card.locator('[data-profile-field]').evaluateAll(nodes => nodes.map(node => node.dataset.profileField))).toEqual(['student_id', 'name', 'college_name']);
+  await expect(card).not.toContainText(state.profile.fields.contact_email);
   await expect(card).not.toContainText(v.profileStatus.partial);
   await expect(card.locator('time')).toHaveAttribute('datetime', credential.verified_at);
-  await expect(card).toContainText(v.profileFields.major_name);
-  await expect(card).toContainText(m.common.notProvided);
+  await expect(card).not.toContainText(v.profileFields.major_name);
   await shot(page, info, 'profile', card);
   state.profile.fields.major_name = 'Test Major';
   await experiences(page, info).getByRole('button', { name: v.viewProfile }).nth(1).click();

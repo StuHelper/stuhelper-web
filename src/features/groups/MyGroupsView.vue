@@ -7,6 +7,7 @@ import { useFormat } from '../../app/i18n'
 import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { usePaged } from '../../shared/composables/async'
 import PagedState from '../../shared/ui/PagedState.vue'
+import { isolate } from '../../shared/format'
 import MeLayout from '../account/MeLayout.vue'
 import { useVerification } from '../verification/api'
 import { actionRoutes, useGroupsApi, type MyGroup } from './api'
@@ -85,7 +86,7 @@ const links = (group: MyGroup) => group.next_actions.flatMap((action) => {
               <span
                 v-if="group.number"
                 class="subtle"
-              >{{ t('groups.number', { number: group.number }) }}</span>
+              >{{ t('groups.number', { number: isolate(group.number) }) }}</span>
             </div>
             <span
               class="tag"
