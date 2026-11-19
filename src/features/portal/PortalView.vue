@@ -17,6 +17,14 @@ import '../../styles/landing.css'
 // The portal of the whole brand. The largest element is the logo and the name;
 // each product then gets its name, a short phrase and an explanation.
 const { t } = useI18n()
+function takeLogoutNotice() {
+  try {
+    const show = sessionStorage.getItem('stuhelper.upstreamLogoutUnconfirmed') === '1'
+    sessionStorage.removeItem('stuhelper.upstreamLogoutUnconfirmed')
+    return show
+  } catch { return false }
+}
+const showLogoutNotice = takeLogoutNotice()
 const available = useLinkAvailable()
 // The open platform section and tile describe a module that may be switched off.
 const platformOn = computed(() => available('/me/developer'))
@@ -55,6 +63,13 @@ const platform = [
 
 <template>
   <div class="lp">
+    <p
+      v-if="showLogoutNotice"
+      class="notice notice-warning"
+      role="status"
+    >
+      {{ t('account.upstreamLogoutUnconfirmed') }}
+    </p>
     <section class="lp-hero">
       <div class="lp-wordmark">
         <img
