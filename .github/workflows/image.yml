@@ -1,4 +1,4 @@
-name: Application release image
+name: StuHelper Web release image
 on:
   workflow_dispatch:
     inputs:
