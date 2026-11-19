@@ -104,7 +104,8 @@
     ],
     "WP-CLIENT-02": [
       "tests/e2e/membership.spec.mjs#buying a plan pays from the chosen account and lists the membership",
-      "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog"
+      "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog",
+      "tests/e2e/membership.spec.mjs#a pending purchase keeps its account and reports the returned order state"
     ],
     "CAP-01": [
       "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
