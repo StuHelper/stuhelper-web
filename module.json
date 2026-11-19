@@ -21,6 +21,9 @@
     "AE-ACCESS-05": [
       "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote"
     ],
+    "PC-10": [
+      "tests/e2e/personal-center.spec.mjs#a required nickname has a visible prompt and accepts at most twenty code points"
+    ],
     "DIRECTORY-NAVIGATION-01": [
       "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"
     ],

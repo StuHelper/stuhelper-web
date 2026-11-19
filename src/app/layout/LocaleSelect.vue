@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { toast } from '../../shared/ui/toast'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Globe } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
@@ -6,7 +7,8 @@ import { isLocale, localeOptions, setLocale } from '../i18n'
 
 const { t, locale } = useI18n()
 async function change(value: string) {
-  if (isLocale(value)) await setLocale(value)
+  if (!isLocale(value)) return
+  try { await setLocale(value) } catch { toast(t('errors.network')) }
 }
 </script>
 

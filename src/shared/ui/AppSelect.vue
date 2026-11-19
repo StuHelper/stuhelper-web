@@ -21,7 +21,6 @@ const EMPTY = '__empty__'
 const text = computed(() => String(props.modelValue ?? ''))
 const rootAttrs = computed(() => ({ class: attrs.class, style: attrs.style }))
 const triggerAttrs = computed(() => Object.fromEntries(Object.entries(attrs).filter(([key]) => key !== 'class' && key !== 'style')))
-const direction = () => (document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr')
 
 interface Option { value: string; label: string; disabled: boolean; lang?: string }
 function collect(nodes: VNode[] = []): Option[] {
@@ -55,7 +54,6 @@ function choose(value: unknown) {
     <SelectRoot
       :model-value="text || EMPTY"
       :disabled="disabled"
-      :dir="direction()"
       @update:model-value="choose"
     >
       <SelectTrigger
