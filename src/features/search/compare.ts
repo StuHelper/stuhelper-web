@@ -22,7 +22,8 @@ function restore(): Record<CompareKind, string[]> {
 export const compareList = reactive(restore())
 watch(compareList, (value) => {
   try {
-    localStorage.setItem(storageKey, JSON.stringify(value))
+    if (value.course.length || value.teacher.length) localStorage.setItem(storageKey, JSON.stringify(value))
+    else localStorage.removeItem(storageKey)
   } catch {
     // The selection still works for this page view.
   }

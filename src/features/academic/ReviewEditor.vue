@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { myCoursesEnabled } from '../../app/features'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useNow } from '../../shared/composables/clock'
@@ -29,6 +29,7 @@ const session = useSession()
 const write = useMutation()
 const now = useNow()
 
+const textOnly = computed(() => !!props.draft && !props.schoolId)
 const original = props.draft?.input
 const withdrawn = props.draft?.withdrawn === true
 const title = ref(original?.title ?? '')
@@ -120,10 +121,10 @@ watch(() => [teacherRequired.value, composer.value?.teacher_ids] as const, ([req
 })
 watch(term, () => {
   if (!withdrawn && !restoring) teacher.value = ''
-  if (props.kind === 'course') void context.reload()
+  if (!textOnly.value && props.kind === 'course') void context.reload()
 })
 watch(() => props.parentId, () => {
-  if (props.kind === 'reply') void context.reload()
+  if (!textOnly.value && props.kind === 'reply') void context.reload()
 })
 watch(() => composer.value?.identity, (mode) => {
   if (!withdrawn && mode && mode !== 'choice') signed.value = mode === 'signed'
@@ -138,16 +139,21 @@ watch(() => composer.value?.disclosures, (options) => {
 // Steps open in a new tab so the text being written stays here; returning rechecks.
 const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity', ...(myCoursesEnabled ? { course_enrollment: '/me/courses' } : {}) }
 function recheck() {
-  if (document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
+  if (!textOnly.value && document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
 }
 document.addEventListener('visibilitychange', recheck)
 onBeforeUnmount(() => document.removeEventListener('visibilitychange', recheck))
 
 useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || write.busy.value ? t('common.leaveUnsaved') : ''), { query: props.leaveQuery })
-onMounted(() => {
-  void terms.reload()
-  void context.reload()
-})
+watch(textOnly, only => {
+  if (only) {
+    terms.clear()
+    context.clear()
+  } else {
+    void terms.reload()
+    void context.reload()
+  }
+}, { immediate: true })
 
 async function submit(saveDraft: boolean) {
   success.value = ''
@@ -319,7 +325,7 @@ async function cancel() {
       :disabled="locked"
     >
       <div
-        v-if="kind === 'course'"
+        v-if="kind === 'course' && !textOnly"
         class="stack editor-side"
       >
         <p

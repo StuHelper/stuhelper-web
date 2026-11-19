@@ -58,3 +58,22 @@ it('sends each write with the caller idempotency key and rejects responses outsi
   expect(sent[1]!.url).toContain('/api/v1/billing/orders/order/refresh')
   expect(sent[1]!.key).toBe('key-2')
 })
+
+it('updates payout details for the selected refund and reads back only the masked record', async () => {
+  let stored: unknown = null
+  const reads: string[] = []
+  const masked = { method: '***', name: '***', account: '***' }
+  const api = new WalletApi(new Http(async (url, init) => {
+    reads.push(String(url))
+    if (init?.method === 'PUT') {
+      expect(new Headers(init.headers).get('Idempotency-Key')).toBe('payee-key')
+      stored = JSON.parse(String(init.body))
+    }
+    return Response.json(masked)
+  }))
+  const input = { method: 'test method', name: 'Test recipient', account: 'sample account' }
+  expect(await api.setPayee('refund', input, 'payee-key')).toEqual(masked)
+  expect(stored).toEqual(input)
+  expect(await api.payee('refund')).toEqual(masked)
+  expect(reads).toEqual(Array(2).fill('/api/v1/billing/refunds/refund/payee'))
+})

@@ -69,6 +69,8 @@
     "opensInNewTab": "（在新标签页打开）"
   },
   "errors": {
+    "disabled": "群服务未启用。",
+    "cooldown": "当前操作受冷却时间或待处理数量限制，请稍后重试。",
     "write_response_unrecognized": "服务端已受理请求，但回执无法读取。请刷新页面核对结果。",
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
     "timeout": "服务响应超时，请重试。",
@@ -305,6 +307,7 @@
     "home": "返回首页"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "已退出本站。统一登录会话可能仍然有效。",
     "signIn": "登录",
     "signOut": "退出当前设备",
     "signOutAll": "退出全部设备",
@@ -780,6 +783,10 @@
       "checksum": "文件校验值"
     },
     "access": {
+      "missing": "缺少的条件：{conditions}",
+      "unavailable": "暂时无法核实：{conditions}",
+      "content_access": "校园内容准入",
+      "resource_entitlement": "资料访问权",
       "allowed": "可以下载。",
       "not_published": "资料尚未发布，暂不能下载。",
       "already_accessible": "你已拥有该资料的访问权。",
@@ -826,6 +833,7 @@
       "accept": "我已阅读并同意当前版本条款"
     },
     "editor": {
+      "selectCategory": "请选择可用的资料分类。",
       "intro": "按顺序完成三步：保存资料信息、上传文件、提交审核。审核期间，已发布的版本继续可用。",
       "step1": "1. 资料信息",
       "step2": "2. 文件",
@@ -880,6 +888,7 @@
       "uploadProgress": "已传输 {loaded} / {total}（{percent}）"
     },
     "request": {
+      "resourceId": "资料编号",
       "title": "投诉、下架与异议",
       "appealTitle": "提出异议",
       "kind": "申请类型",
@@ -1956,7 +1965,14 @@
       "label": "收款账户或参考号",
       "submitted": "收款信息已提交。"
     },
-    "ivoryBalance": "Ivory 余额"
+    "ivoryBalance": "Ivory 余额",
+    "payee": {
+      "title": "退款收款资料",
+      "method": "收款方式",
+      "name": "收款人姓名",
+      "account": "收款账号",
+      "onFile": "已登记收款资料。填写新资料可替换原记录。"
+    }
   },
   "platform": {
     "scopes": {
