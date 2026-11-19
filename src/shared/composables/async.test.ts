@@ -57,6 +57,24 @@ describe('loading state', () => {
     scope.stop()
   })
 
+  it('clears private rows and their cursor on HTTP denial regardless of the business code', async () => {
+    const responses = [[401, 'billing_unauthenticated'], [403, 'billing_forbidden'], [403, 'school_restricted']] as const
+    for (const [status, code] of responses) {
+      const scope = effectScope()
+      const paged = scope.run(() => usePaged(async (cursor) => {
+        if (cursor) throw new ApiError(code, false, status)
+        return { items: ['private order'], next: 'more' }
+      }))!
+      await paged.reload()
+      expect(paged.items.value).toEqual(['private order'])
+      await paged.loadMore()
+      expect(paged.items.value).toEqual([])
+      expect(paged.next.value).toBe('')
+      expect(paged.error.value).toBe(code)
+      scope.stop()
+    }
+  })
+
   it('clears private rows when access is revoked', async () => {
     const scope = effectScope()
     let denied = false
@@ -114,4 +132,19 @@ describe('loading state', () => {
     expect(value.data.value).toBe('new')
     scope.stop()
   })
+})
+
+it('preserves order rows when a business conflict leaves the account authorized', async () => {
+  const scope = effectScope()
+  try {
+    const paged = scope.run(() => usePaged(async cursor => {
+      if (cursor) throw new ApiError('billing_conflict', false, 409)
+      return { items: ['existing order'], next: 'more' }
+    }))!
+    await paged.reload()
+    await paged.loadMore()
+    expect(paged.error.value).toBe('billing_conflict')
+    expect(paged.items.value).toEqual(['existing order'])
+    expect(paged.next.value).toBe('more')
+  } finally { scope.stop() }
 })

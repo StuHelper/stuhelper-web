@@ -6,6 +6,8 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync } from '../../shared/composables/async'
 import AppSelect from '../../shared/ui/AppSelect.vue'
+import { ApiError } from '../../shared/api/errors'
+import { useErrorText } from '../../shared/ui/messages'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import SearchField from '../../shared/ui/SearchField.vue'
@@ -23,13 +25,15 @@ import { clearCompare, compareList, maxCompare, toggleCompare, type CompareKind 
 type CompareColumn = {
   id: string
   name: string
-  stats: Statistics
+  stats?: Statistics
+  error?: string
   summary?: ObjectSummary
   teachers: CatalogObject[]
 }
 
 const { t } = useI18n()
 const format = useFormat()
+const errorText = useErrorText()
 const route = useRoute()
 const router = useRouter()
 const api = useAcademic()
@@ -120,7 +124,10 @@ const data = useAsync<CompareColumn[]>(async (signal) => {
   const list = ids.value
   const [names, stats, summaries, courseTeachers] = await Promise.all([
     api.lookup(list, signal),
-    Promise.all(list.map((id) => api.statistics({ kind: kind.value, target_id: id, ...period() }, signal))),
+    Promise.all(list.map((id) => api.statistics({ kind: kind.value, target_id: id, ...period() }, signal).then(stats => ({ stats, error: '' })).catch((error: unknown) => {
+      if (error instanceof ApiError && (error.status === 403 || error.status === 404)) return { stats: undefined, error: error.code }
+      throw error
+    }))),
     Promise.all(list.map((id) => api.summary(id, signal).catch((): ObjectSummary | undefined => undefined))),
     kind.value === 'course'
       ? Promise.all(list.map((id) => api.objects({ kind: 'teacher', course_id: id, limit: 12 }, signal).then((page) => page.items).catch((): CatalogObject[] => [])))
@@ -129,7 +136,7 @@ const data = useAsync<CompareColumn[]>(async (signal) => {
   return list.map((id, index) => ({
     id,
     name: summaries[index]?.object.name ?? names.get(id)?.name ?? t('common.unknown'),
-    stats: stats[index] as Statistics,
+    ...stats[index],
     summary: summaries[index],
     teachers: courseTeachers[index] ?? [],
   }))
@@ -139,7 +146,7 @@ watch([ids, range], () => {
 }, { immediate: true })
 
 const periodSpan = computed(() => {
-  const match = data.data.value?.find((item) => item.stats.from && item.stats.until)?.stats
+  const match = data.data.value?.find((item) => item.stats?.from && item.stats.until)?.stats
   return match?.from && match.until ? { from: match.from, until: match.until } : undefined
 })
 
@@ -160,7 +167,7 @@ function courseNatures(item: CompareColumn) {
 function best(index: number) {
   const items = data.data.value ?? []
   if (index === 2 || index === 3 || items.length < 2) return 0
-  const levels = items.map((item) => item.stats.dimensions[index]?.level ?? 0).filter((level) => level > 0)
+  const levels = items.map((item) => item.stats?.dimensions[index]?.level ?? 0).filter((level) => level > 0)
   return levels.length > 1 && Math.min(...levels) !== Math.max(...levels) ? Math.max(...levels) : 0
 }
 const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(id)}`
@@ -303,6 +310,10 @@ const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 't
                     >
                       {{ item.name }}
                     </RouterLink>
+                    <span
+                      v-if="item.error"
+                      class="small"
+                    >{{ errorText(item.error) }}</span>
                     <button
                       class="btn btn-sm btn-icon"
                       type="button"
@@ -421,21 +432,21 @@ const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 't
                 <td
                   v-for="item in data.data.value"
                   :key="item.id"
-                  :class="{ best: best(index) > 0 && item.stats.dimensions[index]?.level === best(index) }"
+                  :class="{ best: best(index) > 0 && item.stats?.dimensions[index]?.level === best(index) }"
                 >
                   <span
-                    v-if="(item.stats.dimensions[index]?.level ?? 0) > 0"
+                    v-if="(item.stats?.dimensions[index]?.level ?? 0) > 0"
                     class="level"
                   >
                     <RatingIcon
                       :dimension="index"
-                      :level="item.stats.dimensions[index]?.level ?? 0"
-                    />{{ text(index, item.stats.dimensions[index]?.level ?? 0) }}
+                      :level="item.stats?.dimensions[index]?.level ?? 0"
+                    />{{ text(index, item.stats?.dimensions[index]?.level ?? 0) }}
                   </span>
                   <span
                     v-else
                     class="subtle"
-                  >{{ (item.stats.dimensions[index]?.samples ?? 0) > 0 ? t('academic.ratings.insufficient') : t('search.compare.noReviews') }}</span>
+                  >{{ (item.stats?.dimensions[index]?.samples ?? 0) > 0 ? t('academic.ratings.insufficient') : t('search.compare.noReviews') }}</span>
                 </td>
               </tr>
               <tr v-if="kind === 'teacher'">
@@ -450,7 +461,7 @@ const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 't
                   :key="item.id"
                   class="small"
                 >
-                  {{ format.number(item.stats.dimensions[0]?.courses ?? 0) }}
+                  {{ item.stats ? format.number(item.stats.dimensions[0]?.courses ?? 0) : t('common.unknown') }}
                 </td>
               </tr>
               <tr>
@@ -465,7 +476,7 @@ const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 't
                   :key="item.id"
                   class="small"
                 >
-                  {{ t('academic.ratings.samplesOnly', { samples: format.number(item.stats.dimensions[0]?.samples ?? 0) }) }}
+                  {{ item.stats ? t('academic.ratings.samplesOnly', { samples: format.number(item.stats.dimensions[0]?.samples ?? 0) }) : t('common.unknown') }}
                 </td>
               </tr>
             </tbody>

@@ -69,6 +69,9 @@
     "opensInNewTab": "(opens in a new tab)"
   },
   "errors": {
+    "disabled": "Group services are disabled.",
+    "cooldown": "A cooldown or pending action limit applies. Try again later.",
+    "write_response_unrecognized": "The server accepted the request, but its receipt could not be read. Refresh the page to check the result.",
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
     "timeout": "The service took too long to respond. Please try again.",
     "cancelled": "The request was cancelled.",
@@ -304,6 +307,7 @@
     "home": "Return home"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "You are signed out of this site. Your single sign-on session may still be active.",
     "signIn": "Sign in",
     "signOut": "Sign out this device",
     "signOutAll": "Sign out all devices",
@@ -779,6 +783,10 @@
       "checksum": "File checksum"
     },
     "access": {
+      "missing": "Missing requirements: {conditions}",
+      "unavailable": "Could not verify: {conditions}",
+      "content_access": "Campus content access",
+      "resource_entitlement": "Resource entitlement",
       "allowed": "You can download this.",
       "not_published": "The resource is not published yet.",
       "already_accessible": "You already have access to this resource.",
@@ -825,6 +833,7 @@
       "accept": "I have read and accept the current terms"
     },
     "editor": {
+      "selectCategory": "Choose an available resource category.",
       "intro": "Complete three steps: save the details, upload the file, submit for review. Any published version stays available during review.",
       "step1": "1. Details",
       "step2": "2. File",
@@ -879,6 +888,7 @@
       "uploadProgress": "Transferred {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "Resource ID",
       "title": "Complaints and requests",
       "appealTitle": "Appeal",
       "kind": "Request type",
@@ -1064,6 +1074,8 @@
       "done": "Completed"
     },
     "materialTypes": {
+      "staff_card": "Staff ID card",
+      "contract": "Employment contract",
       "student_card": "Student or campus card",
       "admission_letter": "Admission letter",
       "enrollment_certificate": "Enrollment certificate",
@@ -1955,7 +1967,14 @@
       "label": "Receiving account or reference",
       "submitted": "Payout details submitted."
     },
-    "ivoryBalance": "Ivory balance"
+    "ivoryBalance": "Ivory balance",
+    "payee": {
+      "title": "Refund recipient details",
+      "method": "Payout method",
+      "name": "Recipient name",
+      "account": "Receiving account",
+      "onFile": "Payout details are on file. Enter new details to replace them."
+    }
   },
   "platform": {
     "scopes": {
@@ -2166,6 +2185,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "At least {count} unread",
     "title": "Messages",
     "link": "Messages",
     "description": "Interactions, review results, verification results and system notices.",

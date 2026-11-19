@@ -8,7 +8,7 @@ import { useSession } from '../../shared/session'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import { useFavoritesApi, type Favorite, type FavoriteKind } from './api'
-import { favoriteFailed, favoriteOf, moveTarget, rememberFavorite, requestFavorite } from './state'
+import { favoriteFailed, favoriteGeneration, favoriteOf, moveTarget, rememberFavorite, requestFavorite } from './state'
 
 defineOptions({ inheritAttrs: false })
 
@@ -35,8 +35,10 @@ watch(() => [props.kind, props.id, signedIn.value && enabled.value] as const, ([
 }, { immediate: true })
 
 async function add(folder?: string) {
+  const currentGeneration = favoriteGeneration()
   const item = await api.add({ kind: props.kind, target_id: props.id, ...(folder ? { folder_id: folder } : {}) }, crypto.randomUUID())
-  rememberFavorite(props.kind, props.id, item)
+  if (currentGeneration !== favoriteGeneration()) return
+  rememberFavorite(item.kind, item.target_id, item)
   return item
 }
 
@@ -55,6 +57,7 @@ async function toggle() {
     requestFavorite(api, props.kind, props.id, true)
     return
   }
+  const currentGeneration = favoriteGeneration()
   const item = current.value
   if (item === undefined) return
   const profileId = session.session.value?.profile.id
@@ -62,23 +65,26 @@ async function toggle() {
   try {
     if (item) {
       await api.remove(item.id, { revision: item.revision }, crypto.randomUUID())
-      rememberFavorite(props.kind, props.id, null)
+      if (currentGeneration !== favoriteGeneration()) return
+      rememberFavorite(item.kind, item.target_id, null)
       // Undo restores the favorite in the folder it was in.
-      toast(t('favorites.removed'), () => void add(item.folder_id).catch((failure) => toast(errorText(errorCode(failure)))))
+      toast(t('favorites.removed'), () => currentGeneration === favoriteGeneration() && void add(item.folder_id).catch((failure) => toast(errorText(errorCode(failure)))))
     } else {
       const added = await add()
+      if (!added) return
       pop.value = true
       toast(
         t('favorites.saved'),
         () => {
           const saved = current.value
-          if (saved) void api.remove(saved.id, { revision: saved.revision }, crypto.randomUUID()).then(() => rememberFavorite(props.kind, props.id, null)).catch((failure) => toast(errorText(errorCode(failure))))
+          if (saved && currentGeneration === favoriteGeneration()) void api.remove(saved.id, { revision: saved.revision }, crypto.randomUUID()).then(() => { if (currentGeneration === favoriteGeneration()) rememberFavorite(saved.kind, saved.target_id, null) }).catch((failure) => toast(errorText(errorCode(failure))))
         },
         { label: t('favorites.moveTo'), run: () => openFolderPicker(added, profileId) },
       )
     }
   } catch (failure) {
     // The outcome may be unknown; read the server state again instead of assuming.
+    if (currentGeneration !== favoriteGeneration()) return
     toast(errorText(errorCode(failure)))
     requestFavorite(api, props.kind, props.id, true)
   } finally {

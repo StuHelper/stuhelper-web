@@ -173,7 +173,13 @@ export function useMutation() {
     uncertain: readonly(uncertain),
     /** Resolves to the result, or undefined when the write failed (see `error`). */
     run: <B, R>(signature: string, body: B, send: (body: B, key: string) => Promise<R>) => settle(() => mutation.run(signature, body, send)),
-    retry: () => settle(() => mutation.retry()),
+    retry: () => {
+      if (error.value === 'write_response_unrecognized') {
+        window.location.reload()
+        return Promise.resolve(undefined)
+      }
+      return settle(() => mutation.retry())
+    },
     dismiss: () => {
       if (!mutation.uncertain) error.value = ''
     },
