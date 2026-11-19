@@ -19,7 +19,6 @@ import { useNotificationsApi } from '../notifications/api'
 import { useResourcesApi } from '../resources/api'
 import { useWalletApi } from '../wallet/api'
 import { useAccess } from './access'
-import { useVerification } from '../verification/api'
 import { meGroups, meLinks } from './links'
 import MeLayout from './MeLayout.vue'
 
@@ -28,7 +27,6 @@ import MeLayout from './MeLayout.vue'
 const { t } = useI18n()
 const errorText = useErrorText()
 const session = useSession()
-const verification = useVerification()
 const save = useMutation()
 const editing = ref(false)
 const nickname = ref('')
@@ -39,7 +37,6 @@ const signOutError = ref('')
 const signOutBusy = ref(false)
 const available = useLinkAvailable()
 
-const summary = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
 const format = useFormat()
 const access = useAccess()
 const verified = computed(() => access.state.value === 'verified')
@@ -89,9 +86,6 @@ function ago(iso: string) {
   return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
 }
 const profile = computed(() => session.session.value?.profile)
-watch(() => session.state.value, (state) => {
-  if (state === 'member') void summary.reload()
-}, { immediate: true })
 onMounted(() => {
   nickname.value = profile.value?.nickname ?? ''
 })
@@ -210,11 +204,11 @@ async function signOut() {
           class="row"
           :aria-label="t('me.status.title')"
         >
-          <StatusTag :tone="summary.data.value?.campus_eligibility ? 'success' : 'neutral'">
-            {{ t('verification.campus') }} · {{ t(summary.data.value ? (summary.data.value.campus_eligibility ? 'verification.eligible' : 'verification.notEligible') : 'me.status.unknown') }}
+          <StatusTag :tone="access.summary.value?.campus_eligibility ? 'success' : 'neutral'">
+            {{ t('verification.campus') }} · {{ t(access.summary.value ? (access.summary.value.campus_eligibility ? 'verification.eligible' : 'verification.notEligible') : 'me.status.unknown') }}
           </StatusTag>
-          <StatusTag :tone="summary.data.value?.identity_verified ? 'success' : 'neutral'">
-            {{ t('verification.identity') }} · {{ t(summary.data.value ? (summary.data.value.identity_verified ? 'verification.identityVerified' : 'verification.identityMissing') : 'me.status.unknown') }}
+          <StatusTag :tone="access.summary.value?.identity_verified ? 'success' : 'neutral'">
+            {{ t('verification.identity') }} · {{ t(access.summary.value ? (access.summary.value.identity_verified ? 'verification.identityVerified' : 'verification.identityMissing') : 'me.status.unknown') }}
           </StatusTag>
           <StatusTag :tone="session.session.value.phone_bound ? 'success' : 'warning'">
             {{ t('verification.phone') }} · {{ t(session.session.value.phone_bound ? 'verification.phoneBound' : 'verification.phoneMissing') }}

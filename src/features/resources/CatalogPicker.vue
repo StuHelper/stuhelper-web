@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Check, ChevronDown } from 'lucide-vue-next'
 import { ComboboxAnchor, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxPortal, ComboboxRoot, ComboboxTrigger, ComboboxViewport } from 'reka-ui'
-import { computed, onMounted, ref, shallowRef, useId, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAcademic, type CatalogObject, type ObjectKind } from '../academic/api'
@@ -27,28 +27,30 @@ const selection = computed({
   get: () => model.value || noneValue,
   set: (value: string) => { model.value = value === noneValue ? '' : value },
 })
-let generation = 0
+let listRequest: AbortController | undefined
 let timer: ReturnType<typeof setTimeout> | undefined
 
 async function load(more = false) {
-  const current = ++generation
+  clearTimeout(timer)
+  listRequest?.abort()
+  const controller = new AbortController()
+  listRequest = controller
   busy.value = true
   error.value = ''
   try {
-    const page = await api.objects({ kind: props.kind, school_id: props.school, course_id: props.course, term_id: props.term, q: search.value, after: more ? next.value : '', limit: 50 })
-    if (current !== generation) return
+    const page = await api.objects({ kind: props.kind, school_id: props.school, course_id: props.course, term_id: props.term, q: search.value, after: more ? next.value : '', limit: 50 }, controller.signal)
+    if (controller.signal.aborted) return
     items.value = more ? [...items.value, ...page.items] : page.items
     next.value = page.next
   } catch (failure) {
-    if (current === generation) error.value = errorCode(failure)
+    if (!controller.signal.aborted) error.value = errorCode(failure)
   } finally {
-    if (current === generation) busy.value = false
+    if (!controller.signal.aborted) busy.value = false
   }
 }
 
 // Show the name of a saved value that is not on the loaded page.
-async function resolveSelected() {
-  const value = model.value
+watch(model, async (value, _, onCleanup) => {
   if (!value) {
     selectedName.value = ''
     return
@@ -58,35 +60,48 @@ async function resolveSelected() {
     selectedName.value = known.name
     return
   }
+  const controller = new AbortController()
+  onCleanup(() => controller.abort())
   try {
-    selectedName.value = (await api.lookup([value])).get(value)?.name ?? t('common.unknown')
+    const found = await api.lookup([value], controller.signal)
+    if (!controller.signal.aborted) selectedName.value = found.get(value)?.name ?? t('common.unknown')
   } catch {
-    selectedName.value = t('common.unknown')
+    if (!controller.signal.aborted) selectedName.value = t('common.unknown')
   }
-}
+}, { immediate: true })
 
 function typed(value: string) {
   // The input also reports the display name when a choice is made; that is not a search.
   if (value === selectedName.value || value === search.value) return
   search.value = value
   clearTimeout(timer)
-  timer = setTimeout(() => void load(), 250)
+  listRequest?.abort()
+  timer = setTimeout(() => { if (open.value) void load() }, 250)
 }
 
 watch(open, (value) => {
-  if (value || !search.value) return
+  if (value) {
+    if (!items.value.length) void load()
+    return
+  }
+  clearTimeout(timer)
+  listRequest?.abort()
+  busy.value = false
+  if (!search.value) return
   search.value = ''
-  void load()
+  items.value = []
+  next.value = ''
 })
 watch(() => [props.kind, props.school, props.course, props.term], () => {
   items.value = []
   next.value = ''
-  void load()
+  clearTimeout(timer)
+  listRequest?.abort()
+  if (open.value) void load()
 })
-watch(model, () => void resolveSelected())
-onMounted(async () => {
-  await load()
-  await resolveSelected()
+onBeforeUnmount(() => {
+  clearTimeout(timer)
+  listRequest?.abort()
 })
 </script>
 

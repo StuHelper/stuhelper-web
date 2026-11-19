@@ -3,11 +3,12 @@ import ActionError from './ActionError.vue'
 import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { CircleCheck, Copy, RefreshCw } from 'lucide-vue-next'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useLeaveGuard } from '../../shared/composables/leave'
+import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { toast } from '../../shared/ui/toast'
@@ -29,7 +30,8 @@ const { t, te } = useI18n()
 const format = useFormat()
 const flow = useVerificationFlow()
 const { form, removal } = flow
-onMounted(flow.reload)
+const session = useSession()
+watch(() => session.state.value, state => { if (state === 'member') void flow.reload() }, { immediate: true })
 useLeaveGuard(() => (flow.busy.value || Object.entries(form).some(([field, value]) => field !== 'material_type' && value) || flow.smsCode.value ? t('common.leaveUnsaved') : ''))
 if (props.scope === 'identity') flow.selectMode('identity')
 // 实名认证通过后不再需要表单。实名提交只更新状态，不产生认证申请，所以申请和学习经历只在学生认证页显示。

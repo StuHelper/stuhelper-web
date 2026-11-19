@@ -90,3 +90,16 @@ it('reads caller-owned vote receipts without requesting another author’s revie
   expect(votes).toEqual([vote])
   expect(fetcher.mock.calls.map(([url]) => String(url))).toEqual(['/api/v1/reviews/me/votes?limit=20'])
 })
+
+it('reuses the current school rating text across reads and keeps transports separate', async () => {
+  const view = { effective: { school_id: 'school', revision: 0, rating_texts: {} }, configured: null, source: 'default' }
+  const first = vi.fn<typeof fetch>(async () => json(view))
+  const second = vi.fn<typeof fetch>(async () => json(view))
+  const api = new AcademicApi(new Http(first))
+  await api.presentation('school')
+  await new Promise(resolve => setTimeout(resolve, 0))
+  await api.presentation('school')
+  await new AcademicApi(new Http(second)).presentation('school')
+  expect(first).toHaveBeenCalledTimes(1)
+  expect(second).toHaveBeenCalledTimes(1)
+})

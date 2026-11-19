@@ -7,6 +7,7 @@ import { createApp, h, nextTick, ref } from 'vue';
 import { createI18n } from 'vue-i18n';
 import SessionNotice from './ui/SessionNotice.vue';
 import { createSessionStore, sessionKey } from './session'
+import { createAccessStore } from '../features/account/access'
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers() })
 const logoutSchema = sessionContract.paths['/api/v1/auth/logout'].post.responses['200'].content['application/json'].schema
@@ -14,6 +15,32 @@ const parseLogout = schemaOf<{ signed_out: boolean; upstream_ended?: boolean }>(
 const session = { authenticated: true, content_school_id: 'school', profile: { id: '00000000-0000-4000-8000-000000000001', nickname: 'A', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, group_card_consent: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false }, revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: false, administrator: false, expires_at: '2030-01-01T00:00:00Z' }
 
 describe('application session', () => {
+  it('reloads the verification summary when the account changes during revalidation', async () => {
+    let id = session.profile.id
+    const account = createSessionStore(async () => Response.json({ ...session, profile: { ...session.profile, id } }))
+    const summary = (verified: boolean) => Response.json({
+      identity_verified: verified, campus_eligibility: false, teacher_verified: false,
+      evaluated_at: '2026-01-01T00:00:00Z', next_evaluation_at: null, revision: 1,
+    })
+    let finish!: (value: Response) => void
+    const next = new Promise<Response>(resolve => { finish = resolve })
+    const reads: string[] = []
+    const access = createAccessStore(async input => {
+      if (String(input) !== '/api/v1/verification/summary') return Response.json([])
+      reads.push(id)
+      return id === session.profile.id ? summary(true) : next
+    }, account)
+    await account.reload()
+    await vi.waitFor(() => expect(access.summary.value?.identity_verified).toBe(true))
+    await account.reload()
+    expect(reads).toEqual([id])
+    id = '00000000-0000-4000-8000-000000000002'
+    await account.reload()
+    expect(reads).toEqual([session.profile.id, id])
+    expect(access.summary.value).toBeUndefined()
+    finish(summary(false))
+    await vi.waitFor(() => expect(access.summary.value?.identity_verified).toBe(false))
+  })
   it('clears recent pages on every sign-out path using contract-valid logout response', async () => {
     const removed: string[] = []
     const paths: string[] = []
