@@ -16,12 +16,12 @@ import { useAcademic } from '../academic/api'
 import CameraCapture from './CameraCapture.vue'
 import MaterialThumb from './MaterialThumb.vue'
 import SchoolPicker from './SchoolPicker.vue'
-import { teacherDisclosures, useVerification, type Application, type Material, type School, type TeacherCredential, type TeacherDisclosure } from './api'
+import { verificationPages, teacherDisclosures, useVerification, type Application, type Material, type School, type TeacherCredential, type TeacherDisclosure } from './api'
 
 // Teacher verification: the person applies with photographed evidence, an
 // administrator reviews it and binds catalog teacher profiles. Each public
 // attribute is shown only with the person's consent, and can be changed later.
-const { t } = useI18n()
+const { t, te } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
 const api = useVerification()
@@ -29,11 +29,11 @@ const academic = useAcademic()
 
 const data = useAsync(async (signal) => {
   const [schools, applications, owned] = await Promise.all([
-    api.list('School', '/api/v1/verification/schools', { limit: 100, signal }),
-    api.list('Application', '/api/v1/verification/applications', { limit: 100, signal }),
-    api.list('TeacherCredential', '/api/v1/verification/teacher-credentials', { limit: 100, signal }),
+    verificationPages(after => api.list('School', '/api/v1/verification/schools', { limit: 100, after, signal })),
+    verificationPages(after => api.list('Application', '/api/v1/verification/applications', { limit: 100, after, signal })),
+    verificationPages(after => api.list('TeacherCredential', '/api/v1/verification/teacher-credentials', { limit: 100, after, signal })),
   ])
-  const teacherApps = applications.items.filter((item) => item.kind === 'teacher')
+  const teacherApps = applications.items.filter((item) => item.kind === 'teacher').sort((a, b) => b.updated_at.localeCompare(a.updated_at))
   const ids = owned.items.flatMap((item) => item.teacher_ids)
   const names = ids.length ? await academic.lookup(ids, signal).catch(() => new Map<string, { name: string }>()) : new Map<string, { name: string }>()
   return { schools: schools.items.filter((item) => item.enabled), applications: teacherApps, credentials: owned.items, names }
@@ -96,18 +96,27 @@ const editable = computed(() => !!open.value && open.value.state !== 'pending_re
 const dirty = computed(() => !!formFor.value && JSON.stringify([form, materials.value.map((item) => item.id)]) !== baseline.value)
 useLeaveGuard(() => (dirty.value || task.busy.value ? t('common.leaveUnsaved') : ''))
 async function loadForm(application: Application) {
-  if (formFor.value === application.id) return
-  formFor.value = application.id
+  if (formFor.value === application.id || task.busy.value) return
   const path = `/api/v1/verification/applications/${encodeURIComponent(application.id)}`
-  materials.value = (await api.list('Material', `${path}/materials`)).items
-  const types = schoolOf(application.school_id)?.material_types ?? []
-  Object.assign(form, { name: '', organization: '', gender: '', email: '', material_type: types[0] ?? '', disclosures: ['teacher'] })
-  try {
-    const saved = await api.get('TeacherForm', `${path}/teacher-form`)
-    Object.assign(form, { name: saved.name, organization: saved.organization, gender: saved.gender ?? '', email: saved.email, material_type: saved.material_type || form.material_type, disclosures: [...saved.disclosures] })
-  } catch (failure) {
-    if (errorCode(failure) !== 'not_found') toast(errorText(errorCode(failure)))
-  }
+  const loaded = await task.run(async () => {
+    const [evidence, saved] = await Promise.all([
+      api.list('Material', `${path}/materials`),
+      api.get('TeacherForm', `${path}/teacher-form`).catch(failure => {
+        if (errorCode(failure) !== 'not_found') throw failure
+        return undefined
+      }),
+    ])
+    return { evidence, saved }
+  })
+  if (!loaded || open.value?.id !== application.id) return
+  const { evidence, saved } = loaded
+  materials.value = evidence.items
+  Object.assign(form, {
+    name: saved?.name ?? '', organization: saved?.organization ?? '', gender: saved?.gender ?? '',
+    email: saved?.email ?? '', material_type: saved?.material_type || schoolOf(application.school_id)?.material_types[0] || '',
+    disclosures: saved ? [...saved.disclosures] : ['teacher'],
+  })
+  formFor.value = application.id
   baseline.value = JSON.stringify([form, materials.value.map((item) => item.id)])
 }
 const ready = computed(() => !!form.name.trim() && !!form.organization.trim() && /^[^\s@]+@[^\s@]+$/.test(form.email.trim()) && !!form.material_type && materials.value.length > 0 && materials.value.length <= 5)
@@ -318,6 +327,7 @@ function schoolName(id: string, schools: School[]) {
               v-if="editable && formFor !== open.id"
               class="btn btn-primary"
               type="button"
+              :disabled="task.busy.value"
               @click="loadForm(open)"
             >
               {{ t(open.state === 'supplement_required' ? 'teacher.supplement' : 'teacher.fillForm') }}
@@ -391,7 +401,7 @@ function schoolName(id: string, schools: School[]) {
                       type="radio"
                       :value="type"
                     >
-                    <span>{{ type }}</span>
+                    <span>{{ te(`verification.materialTypes.${type}`) ? t(`verification.materialTypes.${type}`) : type }}</span>
                   </label>
                 </fieldset>
                 <div class="stack-sm">

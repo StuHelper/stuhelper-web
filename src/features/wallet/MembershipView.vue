@@ -5,6 +5,8 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
+import { useNow } from '../../shared/composables/clock'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { toast } from '../../shared/ui/toast'
@@ -12,7 +14,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from '../account/MeLayout.vue'
 import { useAcademic } from '../academic/api'
 import { localName, useResourcesApi, type Coverage } from '../resources/api'
-import { minorText, useWalletApi, type PayAccount, type Plan } from './api'
+import { minorText, useWalletApi, type Order, type PayAccount, type Plan } from './api'
 
 // Membership plans and the caller's memberships. A plan only covers the resources its
 // coverage lists; the name alone grants nothing, so every plan shows its actual scope.
@@ -27,8 +29,8 @@ const mine = useAsync((signal) => wallet.memberships(signal))
 const plans = useAsync((signal) => wallet.plans(signal))
 void mine.reload()
 void plans.reload()
-const now = Date.now()
-const active = (until: string) => Date.parse(until) > now
+const now = useNow()
+const active = (until: string) => Date.parse(until) > now.value
 
 // Coverage per plan: undefined while loading, null when not configured, '' on a read failure.
 const coverage = shallowRef(new Map<string, Coverage | null | string>())
@@ -83,7 +85,13 @@ const chosen = ref<Plan>()
 const account = ref<PayAccount>('points')
 const write = useMutation()
 const balance = useAsync((signal) => wallet.wallet(signal))
+const locked = computed(() => write.busy.value || write.uncertain.value)
+const orderState = ref<Order['state']>()
+useLeaveGuard(() => locked.value ? t('common.leaveUncertain') : '')
+
 function open(plan: Plan) {
+  if (locked.value) return
+  orderState.value = undefined
   chosen.value = plan
   account.value = plan.points ? 'points' : 'ivory'
   write.dismiss()
@@ -100,16 +108,18 @@ watch(() => write.error.value, (code) => {
 })
 async function buy() {
   const plan = chosen.value
-  if (!plan) return
+  if (!plan || locked.value) return
   const order = await write.run(`membership:${plan.id}:${account.value}`, { plan_id: plan.id, account: account.value }, (body, key) => wallet.buyMembership(body, key))
-  if (order) done()
+  if (order) done(order)
 }
 async function retry() {
-  if (await write.retry()) done()
+  const order = await write.retry()
+  if (order) done(order as Order)
 }
-function done() {
+function done(order: Order) {
   chosen.value = undefined
-  toast(t('membership.bought'))
+  if (order.state === 'succeeded' || order.state === 'fulfilled') toast(t('membership.bought'))
+  else orderState.value = order.state
   void mine.reload()
 }
 const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === plan.id && active(item.valid_until))
@@ -120,6 +130,16 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
     :title="t('membership.title')"
     :description="t('membership.description')"
   >
+    <p
+      v-if="orderState"
+      class="notice"
+      role="status"
+    >
+      {{ t(`wallet.state.${orderState}`) }}
+      <RouterLink to="/me/wallet">
+        {{ t('wallet.title') }}
+      </RouterLink>
+    </p>
     <section
       class="section"
       aria-labelledby="membership-mine"
@@ -251,14 +271,17 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
       :open="!!chosen"
       :title="chosen ? t(owned(chosen) ? 'membership.renewTitle' : 'membership.buyTitle', { name: chosen.name }) : ''"
       :description="chosen && owned(chosen) ? t('membership.renewHint') : ''"
-      @close="chosen = undefined"
+      @close="!locked && (chosen = undefined)"
     >
       <form
         v-if="chosen"
         class="stack"
         @submit.prevent="void buy()"
       >
-        <fieldset class="stack-sm">
+        <fieldset
+          class="stack-sm"
+          :disabled="locked"
+        >
           <legend class="small">
             {{ t('resources.unlock.payWith') }}
           </legend>
@@ -300,14 +323,14 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
             type="button"
             @click="void retry()"
           >
-            {{ t('common.retry') }}
+            {{ t(write.error.value === 'write_response_unrecognized' ? 'common.refresh' : 'common.retry') }}
           </button>
         </p>
         <div class="form-actions">
           <button
             class="btn btn-primary"
             type="submit"
-            :disabled="write.busy.value"
+            :disabled="locked"
           >
             {{ t('membership.confirm', { price: account === 'points' ? points(chosen.points ?? 0) : ivory(chosen.ivory_minor ?? 0) }) }}
           </button>

@@ -110,7 +110,7 @@ async function acted(action: ReviewAction, result: { state: string }) {
     return
   }
   try {
-    emit('updated', props.review.mine && props.review.state !== 'published' ? await api.myEntry(props.review.id) : await api.review(props.review.id))
+    emit('updated', props.review.mine ? await api.myEntry(props.review.id) : await api.review(props.review.id))
   } catch {
     // The write succeeded; the list refresh will show the current state.
   }

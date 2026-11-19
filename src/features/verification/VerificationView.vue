@@ -114,14 +114,13 @@ function label(prefix: string, code: string, fallback = '') {
   return te(key) ? t(key) : fallback || t('common.unknown')
 }
 
-function profileValue(value: unknown, field: string) {
-  if (value === null || value === undefined || value === '') return t('common.notProvided')
-  if (field === 'identity_valid_until' && typeof value === 'string' && Number.isFinite(Date.parse(value))) return format.value.dateTime(value)
-  return typeof value === 'string' ? value : JSON.stringify(value)
-}
-// The card lists exactly the fields the server projected, student number, name and college first.
-const leading = ['student_id', 'name', 'college_name', 'department']
-const profileRows = computed(() => Object.entries(flow.profile.value?.fields ?? {}).sort(([a], [b]) => (leading.indexOf(a) + 1 || 99) - (leading.indexOf(b) + 1 || 99)))
+// Older school profiles call the college field department.
+const profileRows = computed(() => {
+  const fields = flow.profile.value?.fields ?? {}
+  const college = fields.college_name ? 'college_name' : 'department'
+  return ['student_id', 'name', college].filter(key => Object.hasOwn(fields, key))
+    .map(key => [key, typeof fields[key] === 'string' && fields[key] ? fields[key] : t('common.notProvided')] as const)
+})
 const credentialLine = (credential: { kind: string; stage: string; student_display: string }) => [credential.kind === 'unknown' ? '' : label('verification.kinds', credential.kind), credential.stage === 'unknown' ? '' : label('verification.stages', credential.stage), credential.student_display ? isolate(credential.student_display) : undefined].filter(Boolean).join(' · ')
 </script>
 
@@ -926,7 +925,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
                   <dt>
                     {{ label('verification.profileFields', field) }}
                   </dt>
-                  <dd>{{ profileValue(value, field) }}</dd>
+                  <dd>{{ value }}</dd>
                 </div>
               </dl>
               <p class="subtle">
