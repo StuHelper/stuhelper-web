@@ -283,7 +283,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
               class="face"
               :style="{ background: tint(row.object.id) }"
               aria-hidden="true"
-            >{{ row.object.name.slice(0, 1) }}</span>
+            >{{ [...row.object.name][0] }}</span>
             <span class="group-body">
               <RouterLink
                 class="card-title"

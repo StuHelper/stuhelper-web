@@ -885,7 +885,8 @@
       "directoryChooseCourse": "먼저 과목을 선택하면 폴더를 지정할 수 있으며, 비워 두면 루트에 배치됩니다.",
       "selectedDirectory": "선택된 폴더",
       "dropOrBrowse": "파일을 여기에 끌어다 놓거나 클릭하여 선택",
-      "uploadProgress": "전송됨 {loaded} / {total} ({percent})"
+      "uploadProgress": "전송됨 {loaded} / {total} ({percent})",
+      "tagLimits": "태그는 최대 20개, 각 64자까지 입력할 수 있습니다."
     },
     "request": {
       "resourceId": "자료 ID",
@@ -905,7 +906,7 @@
       "reason": "이유 및 설명",
       "contact": "연락처",
       "evidence": "권리·허가 및 기타 증거",
-      "evidenceHint": "한 줄에 하나씩 최대 4개입니다. 증거 설명이나 링크를 입력하세요.",
+      "evidenceHint": "항목은 줄마다 하나씩 최대 4개, 각 2,000자까지 입력할 수 있습니다.",
       "received": "요청이 접수되었습니다. 자료 상태는 처리 결과에 따라 변경됩니다.",
       "state": {
         "pending": "검토 대기",
@@ -940,7 +941,8 @@
       "currentBalance": "사용 가능 잔액: {balance}",
       "confirmTitle": "결제 확인",
       "confirmMessage": "{price}을(를) 결제하여 이 자료의 열람 권한을 여시겠습니까?",
-      "confirmMessageWithBalance": "{price}을(를) 결제하여 이 자료의 열람 권한을 여시겠습니까? (사용 가능 잔액: {balance})"
+      "confirmMessageWithBalance": "{price}을(를) 결제하여 이 자료의 열람 권한을 여시겠습니까? (사용 가능 잔액: {balance})",
+      "insufficient": "{account} 잔액이 부족합니다."
     }
   },
   "verification": {

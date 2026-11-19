@@ -885,7 +885,8 @@
       "directoryChooseCourse": "اختر المقرر أولًا لتحديد مجلد، أو اتركه فارغًا لوضعه في المجلد الرئيسي.",
       "selectedDirectory": "المجلد المحدد",
       "dropOrBrowse": "اسحب ملفًا إلى هنا أو انقر للاختيار",
-      "uploadProgress": "تم نقل {loaded} من {total} ({percent})"
+      "uploadProgress": "تم نقل {loaded} من {total} ({percent})",
+      "tagLimits": "الحد الأقصى ٢٠ وسمًا، و٦٤ حرفًا لكل وسم."
     },
     "request": {
       "resourceId": "معرّف المورد",
@@ -905,7 +906,7 @@
       "reason": "السبب والتفاصيل",
       "contact": "بيانات التواصل",
       "evidence": "أدلة الحقوق أو الإذن أو غيرها",
-      "evidenceHint": "عنصر في كل سطر، بحد أقصى أربعة. أضف وصف الدليل أو رابطه.",
+      "evidenceHint": "أدخل حتى أربعة عناصر، كل عنصر في سطر وبحد أقصى ٢٠٠٠ حرف.",
       "received": "تم تسجيل الطلب وهو قيد الانتظار. تتحدد حالة المادة وفق القرار.",
       "state": {
         "pending": "بانتظار المراجعة",
@@ -940,7 +941,8 @@
       "currentBalance": "الرصيد المتاح: {balance}",
       "confirmTitle": "تأكيد الدفع",
       "confirmMessage": "سيتم خصم {price} لفتح الوصول إلى هذه المادة. هل تريد المتابعة؟",
-      "confirmMessageWithBalance": "سيتم خصم {price} لفتح الوصول إلى هذه المادة (الرصيد المتاح: {balance}). هل تريد المتابعة؟"
+      "confirmMessageWithBalance": "سيتم خصم {price} لفتح الوصول إلى هذه المادة (الرصيد المتاح: {balance}). هل تريد المتابعة؟",
+      "insufficient": "رصيد {account} غير كافٍ."
     }
   },
   "verification": {

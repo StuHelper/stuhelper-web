@@ -885,7 +885,8 @@
       "directoryChooseCourse": "Select a course first to choose a folder, or leave blank for the course root.",
       "selectedDirectory": "Selected folder",
       "dropOrBrowse": "Drop a file here or click to choose",
-      "uploadProgress": "Transferred {loaded} / {total} ({percent})"
+      "uploadProgress": "Transferred {loaded} / {total} ({percent})",
+      "tagLimits": "Use up to 20 tags of 64 characters each."
     },
     "request": {
       "resourceId": "Resource ID",
@@ -905,7 +906,7 @@
       "reason": "Reason and details",
       "contact": "Contact information",
       "evidence": "Rights, authorization or other evidence",
-      "evidenceHint": "One item per line, up to four. Provide evidence descriptions or links.",
+      "evidenceHint": "Up to four entries, one per line, with at most 2,000 characters each.",
       "received": "Request recorded and awaiting processing. Resource status follows the decision.",
       "state": {
         "pending": "Pending review",
@@ -940,7 +941,8 @@
       "currentBalance": "Available balance: {balance}",
       "confirmTitle": "Confirm payment",
       "confirmMessage": "Pay {price} to unlock access to this resource?",
-      "confirmMessageWithBalance": "Pay {price} to unlock access to this resource? Available balance: {balance}."
+      "confirmMessageWithBalance": "Pay {price} to unlock access to this resource? Available balance: {balance}.",
+      "insufficient": "Insufficient {account} balance."
     }
   },
   "verification": {

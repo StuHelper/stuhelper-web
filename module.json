@@ -239,6 +239,9 @@
     ],
     "PC-01": [
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
+    ],
+    "ST-01": [
+      "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte"
     ]
   }
 }

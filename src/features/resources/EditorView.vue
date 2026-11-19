@@ -37,6 +37,8 @@ const attaching = useMutation()
 const submitting = useMutation()
 const entry = shallowRef<Resource>()
 const tagText = ref('')
+const tags = computed(() => tagText.value.split(/[,，]/u).map(tag => tag.trim()).filter(Boolean))
+const tagsInvalid = computed(() => tags.value.length > 20 || tags.value.some(tag => [...tag].length > 64))
 const consent = ref(false)
 const file = shallowRef<File>()
 const uploadState = ref('')
@@ -126,10 +128,10 @@ function changeCategory() {
 async function save() {
   const current = category.value
   const terms = capabilities.value?.terms
-  if (!current || !terms) return
+  if (!current || !terms || tagsInvalid.value) return
   const body = snapshot(metadata.value)
   body.category_revision = current.revision
-  body.tags = tagText.value.split(',').map((tag) => tag.trim()).filter(Boolean)
+  body.tags = tags.value
   if (body.origin.kind === 'original') body.origin.consent = { accepted: consent.value, version: terms.version, digest: terms.digest }
   else delete body.origin.consent
   const id = entry.value?.id
@@ -178,7 +180,7 @@ async function sendFile() {
   const current = entry.value
   if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value || cancelling.value) return
   uploadError.value = ''
-  if (chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
+  if (!chosen.size || chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
     uploadError.value = 'file_not_allowed'
     return
   }
@@ -399,10 +401,15 @@ function uploadMessage(state: string) {
                   <input
                     v-model="tagText"
                     class="input"
-                    maxlength="1000"
+                    :aria-invalid="tagsInvalid"
                   >
                 </label>
                 <span class="field-hint">{{ t('resources.editor.tagsHint') }}</span>
+                <span
+                  v-if="tagsInvalid"
+                  class="field-error"
+                  role="alert"
+                >{{ t('resources.editor.tagLimits') }}</span>
               </div>
               <label class="field">
                 <span class="field-label">{{ t('resources.detail.access') }}</span>
@@ -541,7 +548,7 @@ function uploadMessage(state: string) {
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="!category || anyBusy || anyUncertain || (!dirty && !!proposal)"
+              :disabled="tagsInvalid || !category || anyBusy || anyUncertain || (!dirty && !!proposal)"
             >
               {{ t(entry ? 'resources.editor.saveChanges' : 'resources.editor.create') }}
             </button>

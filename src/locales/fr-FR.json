@@ -885,7 +885,8 @@
       "directoryChooseCourse": "Choisissez d’abord un cours pour sélectionner un dossier, ou laissez vide pour la racine.",
       "selectedDirectory": "Dossier sélectionné",
       "dropOrBrowse": "Déposez un fichier ici ou cliquez pour parcourir",
-      "uploadProgress": "Transféré : {loaded} / {total} ({percent})"
+      "uploadProgress": "Transféré : {loaded} / {total} ({percent})",
+      "tagLimits": "20 étiquettes maximum, de 64 caractères chacune."
     },
     "request": {
       "resourceId": "Identifiant de la ressource",
@@ -905,7 +906,7 @@
       "reason": "Motif et précisions",
       "contact": "Coordonnées",
       "evidence": "Preuves de droits, d’autorisation ou autres",
-      "evidenceHint": "Un élément par ligne, quatre au maximum. Indiquez des descriptions ou des liens.",
+      "evidenceHint": "Quatre éléments au maximum, un par ligne et 2 000 caractères par élément.",
       "received": "Demande enregistrée, en attente de traitement. Le statut dépendra de la décision.",
       "state": {
         "pending": "En attente d’examen",
@@ -940,7 +941,8 @@
       "currentBalance": "Solde disponible : {balance}",
       "confirmTitle": "Confirmer le paiement",
       "confirmMessage": "Payer {price} pour débloquer l’accès à ce document ?",
-      "confirmMessageWithBalance": "Payer {price} pour débloquer l’accès à ce document ? Solde disponible : {balance}."
+      "confirmMessageWithBalance": "Payer {price} pour débloquer l’accès à ce document ? Solde disponible : {balance}.",
+      "insufficient": "Solde insuffisant pour {account}."
     }
   },
   "verification": {

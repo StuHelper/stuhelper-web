@@ -885,7 +885,8 @@
       "directoryChooseCourse": "先选择关联课程后可指定目录；留空则放在课程根目录。",
       "selectedDirectory": "已选目录",
       "dropOrBrowse": "拖拽文件到此处，或点击选择文件",
-      "uploadProgress": "已传输 {loaded} / {total}（{percent}）"
+      "uploadProgress": "已传输 {loaded} / {total}（{percent}）",
+      "tagLimits": "最多 20 个标签，每个最多 64 个字符。"
     },
     "request": {
       "resourceId": "资料编号",
@@ -905,7 +906,7 @@
       "reason": "原因与说明",
       "contact": "联系方式",
       "evidence": "权利、授权或其他证据",
-      "evidenceHint": "每行一项，最多四项；可填写证明说明或证据链接。",
+      "evidenceHint": "每行一项，最多四项，每项最多 2000 个字符。",
       "received": "申请已登记，等待处理。资料状态由处理结果决定。",
       "state": {
         "pending": "等待审核",
@@ -940,7 +941,8 @@
       "currentBalance": "当前可用：{balance}",
       "confirmTitle": "确认支付并解锁",
       "confirmMessage": "将扣除 {price} 用于解锁该资料，确认继续吗？",
-      "confirmMessageWithBalance": "将扣除 {price} 用于解锁该资料（当前可用：{balance}），确认继续吗？"
+      "confirmMessageWithBalance": "将扣除 {price} 用于解锁该资料（当前可用：{balance}），确认继续吗？",
+      "insufficient": "{account}余额不足。"
     }
   },
   "verification": {

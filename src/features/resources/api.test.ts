@@ -132,6 +132,7 @@ it('preserves a completed upload when cancellation is rejected', async () => {
 it('uses configured fields without category-name branches and preserves missing values', () => {
   const field: Field = { key: 'edition', names: { 'zh-CN': '版次' }, kind: 'integer', required: false, filterable: true, groupable: true, min: 1900, max: 2100 }
   expect(attribute(field, '')).toBeUndefined()
+  expect(attribute(field, '   ')).toBeUndefined()
   expect(attribute(field, '2025')).toEqual({ number: 2025 })
   expect(() => attribute(field, '2025.5')).toThrow()
   expect(attributeText(field, { number: 2025 }, 'en-US')).toBe('2025')

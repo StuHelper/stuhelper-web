@@ -885,7 +885,8 @@
       "directoryChooseCourse": "Seleccione primero un curso para elegir una carpeta o déjelo vacío para la raíz.",
       "selectedDirectory": "Carpeta seleccionada",
       "dropOrBrowse": "Arrastre un archivo aquí o haga clic para elegir",
-      "uploadProgress": "Transferido {loaded} / {total} ({percent})"
+      "uploadProgress": "Transferido {loaded} / {total} ({percent})",
+      "tagLimits": "Hasta 20 etiquetas de 64 caracteres cada una."
     },
     "request": {
       "resourceId": "ID del recurso",
@@ -905,7 +906,7 @@
       "reason": "Motivo y detalles",
       "contact": "Datos de contacto",
       "evidence": "Pruebas de derechos, autorización u otras",
-      "evidenceHint": "Un elemento por línea, hasta cuatro. Incluye descripciones o enlaces a pruebas.",
+      "evidenceHint": "Hasta cuatro elementos, uno por línea y hasta 2000 caracteres por elemento.",
       "received": "Solicitud registrada y pendiente. El estado del material dependerá de la decisión.",
       "state": {
         "pending": "Pendiente de revisión",
@@ -940,7 +941,8 @@
       "currentBalance": "Saldo disponible: {balance}",
       "confirmTitle": "Confirmar pago",
       "confirmMessage": "¿Pagar {price} para desbloquear el acceso a este material?",
-      "confirmMessageWithBalance": "¿Pagar {price} para desbloquear el acceso a este material? Saldo disponible: {balance}."
+      "confirmMessageWithBalance": "¿Pagar {price} para desbloquear el acceso a este material? Saldo disponible: {balance}.",
+      "insufficient": "Saldo insuficiente de {account}."
     }
   },
   "verification": {

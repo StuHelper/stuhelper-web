@@ -107,8 +107,10 @@ test('without an enabled channel the page offers no top-up', async ({ page }, in
 });
 
 test('refund checks the amount, then asks for payout details when review requires them', async ({ page }, info) => {
-  const all = catalogue(info), w = all.wallet, state = await billing(page);
+  const all = catalogue(info), w = all.wallet;
+  const state = await billing(page, { channels: [{ id: 'demo-pay', enabled: false, amounts_minor: [1000], original_refunds: true }] });
   await page.goto(`${base}/me/wallet?lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(w.topup.unavailable, { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: w.tabs.orders, exact: true }).click();
   await page.getByRole('button', { name: w.refund.action, exact: true }).click();
   const dialog = page.getByRole('dialog');
