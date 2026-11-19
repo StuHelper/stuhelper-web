@@ -74,8 +74,11 @@ test('marking all as read and switching interaction notifications off', async ({
   await page.getByRole('button', { name: n.readAll, exact: true }).click();
   await expect(page.getByText(n.allRead, { exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: n.readAll, exact: true })).toBeDisabled();
-  await page.getByRole('checkbox', { name: n.interaction, exact: true }).uncheck();
+  const toggle = page.getByRole('checkbox', { name: n.interaction, exact: true });
+  await toggle.uncheck();
   await expect(page.getByText(n.interactionOff, { exact: true })).toBeVisible();
+  await expect(toggle).not.toBeChecked();
+  expect(state.preferences.interaction_enabled).toBe(false);
   expect(state.writes).toEqual([{ method: 'POST', path: '/read-all', body: undefined }, { method: 'PUT', path: '/preferences', body: { interaction_enabled: false } }]);
 });
 
@@ -159,4 +162,49 @@ test('a failed unread count leaves the bell without a number and breaks nothing'
   await expect(page.locator('header a[href="/notifications"]')).toHaveAccessibleName(n.link);
   await expect(page.locator('header a[href="/notifications"] .d-unread')).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('a rejected preference change restores the saved switch state', async ({ page }, info) => {
+  const state = await server(page, []);
+  let release;
+  const pending = new Promise(resolve => { release = resolve; });
+  const attempts = [];
+  await page.route('**/api/v1/notifications/preferences', async route => {
+    if (route.request().method() !== 'PUT') return route.fallback();
+    attempts.push(route.request().postDataJSON());
+    await pending;
+    return route.fulfill({ status: 503, json: { code: 'unavailable' } });
+  });
+  await page.goto(`${base}/notifications?lang=${info.project.metadata.locale}`);
+  const toggle = page.getByRole('checkbox');
+  await expect(toggle).toBeChecked();
+  await toggle.uncheck();
+  await expect(toggle).toBeDisabled();
+  await expect.poll(() => attempts).toEqual([{ interaction_enabled: false }]);
+  release();
+  await expect(toggle).toBeEnabled();
+  await expect(toggle).toBeChecked();
+  expect(state.preferences.interaction_enabled).toBe(true);
+});
+
+test('opening an unread notification twice changes the count only once', async ({ page }, info) => {
+  const n = catalogue(info).notifications;
+  const entries = ['one', 'two'].map(id => note({ id, target: { kind: 'resource', id }, title_key: 'notifications.content.removed', title_params: { content_id: id }, target_status: 'inaccessible' }));
+  const state = await server(page, entries);
+  let release, requests = 0;
+  const pending = new Promise(resolve => { release = resolve; });
+  await page.route('**/api/v1/notifications/one/read', async route => {
+    requests++;
+    await pending;
+    return route.fallback();
+  });
+  await page.goto(`${base}/notifications?box=review&lang=${info.project.metadata.locale}`);
+  const row = page.getByRole('button', { name: fill(n.titles.content.removed, { content_id: isolate('one') }) });
+  await row.dispatchEvent('click');
+  await row.dispatchEvent('click');
+  await expect.poll(() => requests).toBe(1);
+  release();
+  await expect.poll(() => state.items.filter(item => !item.read_at).length).toBe(1);
+  await expect(page.locator('header a[href="/notifications"] .d-unread')).toHaveText(number(info, 1));
+  expect(requests).toBe(1);
 });

@@ -115,7 +115,7 @@ test('owned file reuse avoids content transfer and keeps separate review', async
   await expect(page.getByText(m.editor.reusePending, { exact: true })).toBeVisible();
   const puts = () => s.calls.filter((x) => x.path?.startsWith('/api/v1/media') && x.method === 'PUT');
   expect(puts()).toHaveLength(0);
-  s.media.state = 'awaiting_approval';
+  s.media.state = 'ready';
   await page.getByRole('button', { name: all.common.retry, exact: true }).click();
   await expect(page.getByText(m.editor.reused, { exact: true })).toBeVisible();
   await expect(page.getByText(m.editor.uploadState.attached, { exact: true })).toBeVisible();
@@ -280,6 +280,43 @@ test('transient list download failures toast in place and my-resources withdrawa
   await page.getByRole('link', { name: all.me.requestWithdrawal, exact: true }).click();
   await expect(page.getByLabel(m.request.reason, { exact: true })).toBeVisible();
   await layout(page, errors, locale);
+});
+
+test('a signed-in rights holder can file a complaint when resource details are denied', async ({ page }, info) => {
+  const state = fixture();
+  await routes(page, state);
+  await page.route('**/api/v1/resources/items/resource', route => route.fulfill({ status: 403, json: { code: 'resources_permission_denied' } }));
+  const all = JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
+  await page.goto(`http://127.0.0.1:18787/resources/items/resource?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: all.resources.detail.complain }).click();
+  await page.getByLabel(all.resources.request.reason, { exact: true }).fill('Fixture rights claim');
+  await page.getByLabel(all.resources.request.contact, { exact: true }).fill('fixture@example.invalid');
+  await page.getByLabel(all.resources.request.evidence, { exact: true }).fill('Fixture ownership evidence');
+  await page.getByRole('button', { name: all.common.submit, exact: true }).click();
+  await expect(page.getByText(all.resources.request.received)).toBeVisible();
+  expect(state.calls.filter(c => c.path === '/items/resource/requests' && c.method === 'POST').map(c => c.body.kind)).toEqual(['complaint']);
+});
+
+test('an uploader can correct owned metadata using its saved category when category browsing is denied', async ({ page }, info) => {
+  const state = fixture();
+  const saved = structuredClone(state.metadata);
+  await routes(page, state);
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: {
+    campus_eligibility: false, teacher_verified: false, identity_verified: false,
+    evaluated_at: '2026-11-01T00:00:00Z', revision: 1, next_evaluation_at: null,
+  } }));
+  await page.route('**/api/v1/resources/categories?**', route => route.fulfill({ status: 403, json: { code: 'permission_denied' } }));
+  const locale = info.project.metadata.locale;
+  const m = JSON.parse(fs.readFileSync(`src/locales/${locale}.json`, 'utf8')).resources;
+  await page.goto(`http://127.0.0.1:18787/resources/items/resource/edit?lang=${locale}`);
+  await page.locator('.stepper').getByRole('button', { name: m.editor.step1 }).click();
+  await expect(page.getByLabel(m.editor.title, { exact: true })).toHaveValue(saved.title);
+  await page.getByLabel(m.editor.title, { exact: true }).fill('Corrected title');
+  await page.getByRole('button', { name: m.editor.saveChanges, exact: true }).click();
+  await expect.poll(() => state.resource.proposal?.metadata.title).toBe('Corrected title');
+  expect(state.resource.proposal.metadata).toEqual({ ...saved, title: 'Corrected title' });
+  expect(state.resource.current.metadata.title).toBe(saved.title);
+  expect(state.calls.filter(call => call.method === 'PUT' && call.path === '/items/resource')).toHaveLength(1);
 });
 
 test('course suggestions load on opening the picker and closing discards a pending search', async ({ page }, info) => {

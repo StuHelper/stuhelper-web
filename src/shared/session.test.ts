@@ -2,6 +2,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import sessionContract from '../../contracts/session.openapi.json'
 import { schemaOf } from './api/schema'
+import { setUnread, unreadCount } from '../features/notifications/unread'
+import { toggleCompare, compareList } from '../features/search/compare'
+import { favoriteOf, rememberFavorite } from '../features/favorites/state'
 import { sessionFetch } from './api/transport'
 import { createApp, h, nextTick, ref } from 'vue';
 import { createI18n } from 'vue-i18n';
@@ -54,7 +57,41 @@ describe('application session', () => {
     await store.signOut(false)
     await store.signOut(true)
     expect(paths).toEqual(['/api/v1/auth/logout', '/api/v1/auth/logout-all'])
-    expect(removed).toEqual(['stuhelper.recent', 'stuhelper.recent'])
+    expect(removed.filter(key => key === 'stuhelper.recent')).toHaveLength(2)
+  })
+
+  it('forgets saved return filters and unread counts when the current session ends', () => {
+    const store = createSessionStore(vi.fn<typeof fetch>())
+    sessionStorage.setItem('stuhelper.returnFilters', JSON.stringify({ path: '/courses', filters: { q: 'previous search' } }))
+    setUnread(3)
+    store.invalidate()
+    expect(sessionStorage.getItem('stuhelper.returnFilters')).toBeNull()
+    expect(unreadCount.value).toBeUndefined()
+  })
+
+  it.each([200, 401, 403])('clears account data on logout response %i while preserving appearance', async status => {
+    const store = createSessionStore(async () => status === 200
+      ? Response.json({ signed_out: true, upstream_ended: false })
+      : new Response(null, { status }))
+    localStorage.setItem('stuhelper.recent', 'private')
+    localStorage.setItem('stuhelper.theme', 'dark')
+    sessionStorage.setItem('stuhelper.folder.course', 'private')
+    rememberFavorite('course', 'test', null)
+    toggleCompare('course', 'test')
+    vi.stubGlobal('window', { location: { assign: () => {} } })
+    if (status === 403) await expect(store.signOut(false)).rejects.toMatchObject({ status: 403 })
+    else {
+      await store.signOut(false)
+      expect(sessionStorage.getItem('stuhelper.upstreamLogoutUnconfirmed')).toBe('1')
+    }
+    await nextTick()
+    expect(store.state.value).toBe('guest')
+    expect(localStorage.getItem('stuhelper.recent')).toBeNull()
+    expect(localStorage.getItem('stuhelper.compare')).toBeNull()
+    expect(compareList.course).toEqual([])
+    expect(favoriteOf('course', 'test')).toBeUndefined()
+    expect(sessionStorage.getItem('stuhelper.folder.course')).toBeNull()
+    expect(localStorage.getItem('stuhelper.theme')).toBe('dark')
   })
 
   it('adds the session-bound CSRF value on writes only and stays same-origin', async () => {

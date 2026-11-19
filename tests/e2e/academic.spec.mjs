@@ -350,6 +350,8 @@ test('the quick view names the course at once, gives a verdict in words and retr
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
   await expect(page.locator('main li.line')).toHaveCount(1);
+  // The directory publishes a four-band recommendation; the detailed fixture has level 3.
+  await expect(page.locator('main li.line .d-level:visible')).toHaveText(b.levelRecommended);
   const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
   if (await quick.isVisible()) await quick.click();
   else {
@@ -362,8 +364,11 @@ test('the quick view names the course at once, gives a verdict in words and retr
   expect(summaries).toBe(1);
   // Ratings load on their own: the verdict names the level in words for every dimension.
   const verdict = drawer.getByRole('region', { name: b.recommendation, exact: true });
-  await expect(verdict.locator('.d-level').first()).toHaveText(b.levelRecommended);
+  await expect(verdict.locator('.d-level').first()).toHaveText(b.levelAverage);
   await expect(verdict.locator('.d-level')).toHaveCount(5);
+  await expect(drawer.locator('.radar').getByRole('img', { name: `${b.recommendation} ${b.levelAverage}` })).toBeVisible();
+  const termLevel = b.termLevel.replace('{term}', 'Fall semester').replace('{level}', b.levelAverage);
+  await expect(drawer.locator('.trend circle title')).toHaveText(termLevel);
   await expect(verdict).not.toContainText(/\d[.,]\d/);
   held();
   await expect(drawer.getByRole('alert')).toContainText(b.quickViewUnavailable);
@@ -576,4 +581,22 @@ test('verified not-found links back to campus and fresh review edit window count
   await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: r.requestEdit, exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: r.requestDelete, exact: true })).toBeVisible();
+});
+
+test('a nature filter in navigation state reaches the directory without changing the URL', async ({ page }, info) => {
+  const seen = [];
+  await academicFixture(page);
+  page.on('request', req => {
+    const url = new URL(req.url());
+    if (url.pathname === '/api/v1/catalog/directory') seen.push(url.searchParams.get('nature_id'));
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  await page.evaluate(() => {
+    history.replaceState({ ...history.state, filters: { nature: 'optional' } }, '');
+  });
+  seen.length = 0;
+  await page.reload();
+  await expect.poll(() => seen).toContain('optional');
+  expect(new URL(page.url()).searchParams.has('nature')).toBe(false);
+  expect(new URL(page.url()).hash).toBe('');
 });

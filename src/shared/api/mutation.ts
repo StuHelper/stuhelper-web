@@ -32,6 +32,7 @@ export function snapshot<T>(value: T): T {
 }
 
 interface Pending {
+  invalidReceipt?: ApiError
   signature: string
   body: unknown
   key: string
@@ -70,11 +71,13 @@ export class Mutation {
   private async settle() {
     const pending = this.pending
     if (!pending) throw new ApiError('retry_required')
+    if (pending.invalidReceipt) throw pending.invalidReceipt
     try {
       const result = await pending.send(pending.body, pending.key)
       if (this.pending === pending) this.pending = undefined
       return result
     } catch (error) {
+      if (error instanceof ApiError && error.code === 'write_response_unrecognized') pending.invalidReceipt = error
       if (!isUncertain(error) && this.pending === pending) this.pending = undefined
       throw error
     }

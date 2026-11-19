@@ -4,7 +4,12 @@ import type { components, operations } from '../api/session.gen'
 import { ApiError } from './api/errors'
 import { Http } from './api/http'
 import { extras } from './extras'
-import { keepFiltersForReturn } from './pageFilters'
+import { forgetReturnFilters, keepFiltersForReturn } from './pageFilters'
+import { toasts } from './ui/toast'
+import { setUnread } from '../features/notifications/unread'
+import { resetFavorites } from '../features/favorites/state'
+import { clearCompare } from '../features/search/compare'
+import { forgetTrails } from '../features/resources/browseState'
 import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
 import { useHostFetch } from './api/transport'
@@ -33,29 +38,27 @@ export function createSessionStore(fetcher: typeof fetch) {
   let pending: Promise<void> | undefined;
   let retryAt = 0;
   let failures = 0;
- let generation=0;
+  let generation = 0
 
   async function load() {
- const current=generation;
+    const current = generation
     const wait = retryAt - Date.now();
     if (wait > 0) await new Promise<void>((resolve) => setTimeout(resolve, wait));
+    if (current !== generation) return
     try {
       const value = await http.json('/api/v1/auth/session', parseSession, { timeout: 10_000 })
-      if(current!==generation)return;
+      if (current !== generation) return
       if (!value.authenticated) throw new ApiError('incompatible')
+      if (session.value && session.value.profile.id !== value.profile.id) clearAccountData()
       session.value = value
       state.value = 'member';
       unavailable.value = false;
       failures = 0;
       retryAt = 0;
     } catch (error) {
- if(current!==generation)return;
+      if (current !== generation) return
       if (error instanceof ApiError && error.denied) {
-        session.value = null;
-        state.value = 'guest';
-        unavailable.value = false;
-        failures = 0;
-        retryAt = 0;
+        invalidate()
       } else {
         // Keep mounted forms and their valid input during a temporary outage.
         // Every business action is still authorized independently by the server.
@@ -70,10 +73,12 @@ export function createSessionStore(fetcher: typeof fetch) {
   }
 
   function reload() {
-    pending ??= load().finally(() => {
-      pending = undefined
+    if (pending) return pending
+    const request = load().finally(() => {
+      if (pending === request) pending = undefined
     })
-    return pending
+    pending = request
+    return request
   }
 
   /** A business API rejected the account; confirm whether the session ended. */
@@ -81,7 +86,27 @@ export function createSessionStore(fetcher: typeof fetch) {
     if (state.value === 'member' && (!serviceUnavailable || !unavailable.value)) void reload()
   }
 
-  function invalidate(){generation++;session.value=null;state.value='guest';unavailable.value=false;failures=0;retryAt=0;}
+  function clearAccountData() {
+    toasts.value = []
+    resetFavorites()
+    setUnread(undefined)
+    forgetReturnFilters()
+    clearCompare('course')
+    clearCompare('teacher')
+    forgetPages()
+    forgetTrails()
+  }
+
+  function invalidate() {
+    generation++
+    pending = undefined
+    session.value = null
+    state.value = 'guest'
+    unavailable.value = false
+    failures = 0
+    retryAt = 0
+    clearAccountData()
+  }
   function startSignIn(provider?: LoginProvider) {
     if (extras.signIn) return extras.signIn()
     const target = window.location.href.split('#')[0] ?? window.location.origin
@@ -96,10 +121,24 @@ export function createSessionStore(fetcher: typeof fetch) {
 
   /** End this application's session on this device or on all devices. */
   async function signOut(all: boolean) {
-    await http.send(`/api/v1/auth/${all ? 'logout-all' : 'logout'}`, { method: 'POST', timeout: 10_000 })
-    forgetPages()
-    session.value = null
-    state.value = 'guest'
+    let upstreamEnded = false
+    try {
+      upstreamEnded = await http.json(`/api/v1/auth/${all ? 'logout-all' : 'logout'}`, (body) => {
+        if (!body || typeof body !== 'object' || !('signed_out' in body) || body.signed_out !== true) throw new ApiError('incompatible')
+        return 'upstream_ended' in body && body.upstream_ended === true
+      }, { method: 'POST', timeout: 10_000 })
+    } catch (error) {
+      if (!(error instanceof ApiError) || !error.denied) throw error
+      if (error.status !== 401) {
+        invalidate()
+        throw error
+      }
+    }
+    invalidate()
+    try {
+      if (!upstreamEnded) sessionStorage.setItem('stuhelper.upstreamLogoutUnconfirmed', '1')
+      else sessionStorage.removeItem('stuhelper.upstreamLogoutUnconfirmed')
+    } catch { /* Storage is optional. */ }
     window.location.assign('/')
   }
 

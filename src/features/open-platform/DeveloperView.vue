@@ -87,6 +87,7 @@ function saved(app: Application) {
 function closeEditor() {
   if (write.busy.value || write.uncertain.value) return
   editing.value = undefined
+  write.dismiss()
 }
 
 // Credential rotation: the secret appears once. Losing it means rotating again.
@@ -426,6 +427,7 @@ function answered(notice: Notice) {
             >
               <input
                 v-model="form.clientType"
+                name="application-client-type"
                 type="radio"
                 :value="type"
               >
@@ -603,6 +605,7 @@ function answered(notice: Notice) {
                 >
                   <input
                     v-model="answer.status"
+                    name="notice-status"
                     type="radio"
                     :value="status"
                   >
