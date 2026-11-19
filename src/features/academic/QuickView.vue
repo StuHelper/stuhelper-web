@@ -14,7 +14,8 @@ import { useResourcesApi } from '../resources/api'
 import { compareList, maxCompare, toggleCompare } from '../search/compare'
 import { knownCredits, useAcademic } from './api'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
-import { dimensionLabelKeys, dimensionNames } from './ratings/levels'
+import { useRatingText } from './presentation'
+import { dimensionNames } from './ratings/levels'
 import RatingDistribution from './ratings/RatingDistribution.vue'
 import RatingLevel from './ratings/RatingLevel.vue'
 import RatingRadar from './ratings/RatingRadar.vue'
@@ -51,6 +52,7 @@ watch(() => props.id, (id) => {
 }, { immediate: true })
 
 const object = computed(() => summary.data.value?.object)
+const ratingText = useRatingText(() => object.value?.school_id ?? campus.value, 'browse')
 const name = computed(() => object.value?.name ?? props.name ?? '')
 const note = computed(() => {
   const s = summary.data.value
@@ -126,10 +128,10 @@ function compare() {
       <!-- The verdict in words first; the charts below give the shape and the trend. -->
       <section
         class="card verdict appear"
-        :aria-label="t('browse.recommendation')"
+        :aria-label="ratingText(0, 0)"
       >
         <div class="verdict-main">
-          <span class="subtle">{{ t('browse.recommendation') }}</span>
+          <span class="subtle">{{ ratingText(0, 0) }}</span>
           <RatingLevel
             class="verdict-level"
             :level="recommendation"
@@ -141,7 +143,7 @@ function compare() {
             v-for="(dimension, index) in dimensionNames.slice(1)"
             :key="dimension"
           >
-            <dt>{{ t(dimensionLabelKeys[dimension]) }}</dt>
+            <dt>{{ ratingText(index + 1, 0) }}</dt>
             <dd>
               <RatingLevel
                 :level="levels[index + 1] ?? 0"

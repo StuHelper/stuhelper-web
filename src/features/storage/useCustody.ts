@@ -2,13 +2,13 @@ import { onMounted, onScopeDispose, readonly, shallowRef } from 'vue';
 import { ApiError } from '../../shared/api/errors';
 import { segment } from '../../shared/api/http';
 import { useHttp } from '../../shared/session';
-import { useHostFetch } from '../../shared/api/transport';
 import { custodyAPI, CustodyError, parseCustodyBinding, type CustodyBinding, type CustodyPage, type CustodyPolicy, type CustodyRequest } from '../../api/custody';
+import { useStorageFetch } from './transport';
 
 // The provider SDK maps a missing operation and a temporary outage to the same error.
 // For recovery the caller needs the HTTP status to decide whether fresh input is possible.
 function useCustodyApi() {
-  const api = custodyAPI(useHostFetch());
+  const api = custodyAPI(useStorageFetch());
   const http = useHttp();
   return {
     ...api,

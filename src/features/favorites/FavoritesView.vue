@@ -81,13 +81,6 @@ const tiles: Record<FavoriteKind, string> = { course: 'var(--c-blue)', teacher: 
 const kindLabel = (value: FavoriteKind) => t(`favorites.${value === 'course' ? 'kindCourse' : value === 'teacher' ? 'kindTeacher' : 'kindResource'}`)
 const target = (row: Favorite) => `/${links[row.kind]}/${encodeURIComponent(row.target_id)}`
 const title = (row: Favorite) => row.title || t('favorites.untitled')
-/** How long ago a favorite was saved, in the largest whole unit. */
-function ago(at: string) {
-  const seconds = Math.round((Date.parse(at) - Date.now()) / 1000)
-  const units: [Intl.RelativeTimeFormatUnit, number][] = [['year', 31_536_000], ['month', 2_592_000], ['day', 86_400], ['hour', 3600], ['minute', 60]]
-  for (const [unit, size] of units) if (Math.abs(seconds) >= size) return format.value.relative(Math.trunc(seconds / size), unit)
-  return format.value.relative(0, 'minute')
-}
 const folderOf = (id: string) => folderRows.value.find((row) => row.id === id)
 
 // Creating and renaming use the same inline field in the folder list.
@@ -520,7 +513,7 @@ function replace(row: Favorite, next: Favorite | undefined) {
                     </DropdownMenuRoot>
                   </div>
                   <div class="foot">
-                    <span class="subtle truncate"><template v-if="!folder && folderOf(f.folder_id)">{{ folderName(folderOf(f.folder_id)!) }} · </template>{{ t('favorites.savedAt', { p0: ago(f.created_at) }) }}</span>
+                    <span class="subtle truncate"><template v-if="!folder && folderOf(f.folder_id)">{{ folderName(folderOf(f.folder_id)!) }} · </template>{{ t('favorites.savedAt', { p0: format.ago(f.created_at) }) }}</span>
                     <RouterLink
                       class="btn btn-sm"
                       :to="target(f)"

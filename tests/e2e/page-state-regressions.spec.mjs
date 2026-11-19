@@ -142,6 +142,7 @@ test('own vote receipts open their discussion and a withdrawal removes only the 
     return route.fulfill({ json: { id: 'down', state: 'published', revision: 2 } });
   });
   await page.goto(`${base}/me/reviews?tab=votes&lang=${info.project.metadata.locale}`);
+  await expect(page).toHaveURL(/\/me\/reviews\?tab=votes(?:&|$)/);
   const down = page.getByRole('article').filter({ hasText: all.search.votes.down });
   await expect(down.getByRole('link', { name: 'Referenced course' })).toHaveAttribute('href', '/reviews/discussion');
   await down.getByRole('button', { name: all.search.votes.cancel }).click();
@@ -199,4 +200,23 @@ test('legacy personal links resolve to the current page and storage tab', async 
     await push(page, old);
     await expect(page).toHaveURL(base + current);
   }
+});
+
+test('custom school rating texts apply to browse levels', async ({ page }, info) => {
+  const locale = info.project.metadata.locale;
+  await academicFixture(page);
+  const customBand = ['Custom Rec', 'C1', 'C2', 'C3', 'Solid Pick', 'Must Take'];
+  await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({
+    json: {
+      effective: {
+        school_id: 'school',
+        revision: 1,
+        rating_texts: { [locale]: Array.from({ length: 5 }, () => customBand) },
+      },
+      configured: null,
+      source: 'custom',
+    },
+  }));
+  await page.goto(`${base}/courses?lang=${locale}`);
+  await expect(page.locator('.d-level:visible').first()).toHaveText('Solid Pick');
 });
