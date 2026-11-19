@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useAsync, useMutation } from '../../shared/composables/async'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -51,6 +52,7 @@ const confirmMessage = computed(() => (currentBalanceText.value
   : t('resources.unlock.confirmMessage', { price: priceText(account.value) })))
 
 const write = useMutation()
+useLeaveGuard(() => write.uncertain.value ? t('common.leaveUncertain') : '')
 const order = ref<Order>()
 const waiting = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -89,6 +91,7 @@ async function retry() {
 
 // Poll the order until access is granted or the payment is returned; wait up to about a minute.
 function follow(current: Order, attempt = 0) {
+  if (stopped) return
   order.value = current
   if (current.state === 'fulfilled') {
     waiting.value = false
@@ -101,11 +104,11 @@ function follow(current: Order, attempt = 0) {
     return
   }
   waiting.value = true
-  if (attempt >= 12 || stopped) return
+  if (attempt >= 12) { waiting.value = false; return }
   timer = setTimeout(() => {
     wallet.order(current.id).then((next) => follow(next, attempt + 1), (failure) => {
       // Keep the paid order on screen; a failed status read does not mean the purchase failed.
-      if (errorCode(failure) && attempt + 1 < 12) follow(current, attempt + 1)
+      if (errorCode(failure)) follow(current, attempt + 1)
     })
   }, Math.min(1000 * 2 ** Math.min(attempt, 3), 5000))
 }
@@ -181,7 +184,7 @@ const pending = computed(() => order.value && !finalStates.includes(order.value.
           type="button"
           @click="void retry()"
         >
-          {{ t('common.retry') }}
+          {{ t(write.error.value === 'write_response_unrecognized' ? 'common.refresh' : 'common.retry') }}
         </button>
       </p>
       <div class="row">
@@ -216,6 +219,14 @@ const pending = computed(() => order.value && !finalStates.includes(order.value.
         role="status"
       >
         {{ waiting ? t('resources.unlock.granting') : t('resources.unlock.paid') }}
+        <button
+          v-if="!waiting"
+          type="button"
+          class="btn btn-sm"
+          @click="follow(order, 0)"
+        >
+          {{ t('common.refresh') }}
+        </button>
         <RouterLink
           class="btn btn-sm"
           to="/me/wallet"

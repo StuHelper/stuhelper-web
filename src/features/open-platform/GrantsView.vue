@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import { usePaged, useMutation } from '../../shared/composables/async'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
@@ -23,6 +24,7 @@ const active = computed(() => grants.items.value.filter((grant) => grant.state =
 const target = shallowRef<Grant>()
 const chosen = ref<Scope[]>([])
 const write = useMutation()
+useLeaveGuard(() => write.busy.value || write.uncertain.value ? t('common.leaveUncertain') : '')
 function open(grant: Grant) {
   target.value = grant
   chosen.value = [...grant.scopes]
@@ -45,6 +47,7 @@ function done(result: Grant) {
 }
 function close() {
   if (!write.busy.value && !write.uncertain.value) target.value = undefined
+  write.dismiss()
 }
 </script>
 

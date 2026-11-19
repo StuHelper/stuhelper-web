@@ -38,11 +38,15 @@ it('releases a known rejected mutation and clears private state even for non-JSO
   expect(mutation.uncertain).toBe(false)
 })
 
-it('rejects incompatible response shapes and retains unknown write outcomes', async () => {
-  const api = new ResourcesApi(new Http(async () => Response.json({ ...resource, revision: 'wrong' })))
+it.each(['malformed', JSON.stringify({ ...resource, revision: 'wrong' }), 'x'.repeat((4 << 20) + 1)])('keeps an acknowledged write with an unreadable receipt from being sent again', async (receipt) => {
+  const send = vi.fn(async () => new Response(receipt, { status: 201 }))
+  const api = new ResourcesApi(new Http(send))
   const mutation = new Mutation()
-  await expect(mutation.run('create', draft, (body, key) => api.createDraft(body, key))).rejects.toMatchObject({ code: 'incompatible', uncertain: true })
+  const error = { code: 'write_response_unrecognized', uncertain: true, status: 201 }
+  await expect(mutation.run('create', draft, (body, key) => api.createDraft(body, key))).rejects.toMatchObject(error)
+  await expect(mutation.retry()).rejects.toMatchObject(error)
   expect(mutation.uncertain).toBe(true)
+  expect(send).toHaveBeenCalledTimes(1)
 })
 
 it('passes current host credentials and cancellation on every request', async () => {
@@ -192,4 +196,55 @@ it('detects inline previewable files, resolves own references and reports upload
   expect(version.state).toBe('awaiting_approval')
   expect(progress).toEqual([[0, 5], [5, 5]])
   expect(seenPaths).toContain('GET /api/v1/resources/items/res-1/preview')
+})
+
+it('hashes a file incrementally and submits the digest of all its bytes', async () => {
+  const file = new File([new Uint8Array(3 << 20), 'end'], 'sample.bin')
+  const expected = Buffer.from(await webcrypto.subtle.digest('SHA-256', await file.arrayBuffer())).toString('hex')
+  const wholeFile = vi.spyOn(file, 'arrayBuffer').mockRejectedValue(new Error('whole-file allocation'))
+  let digest = ''
+  const api = new ResourcesApi(new Http(async (_url, init) => {
+    if (init?.method === 'POST') {
+      digest = JSON.parse(String(init.body)).sha256
+      return Response.json(media)
+    }
+    return view({ state: 'ready' })
+  }))
+  await new Upload(api, file, 'purpose').run()
+  expect(wholeFile).not.toHaveBeenCalled()
+  expect(digest).toBe(expected)
+})
+
+it('waits for server verification without resending file content', async () => {
+  const methods: string[] = []
+  const received: string[] = []
+  let state: MediaVersion['state'] = 'created'
+  const api = new ResourcesApi(new Http(async (_path, init) => {
+    methods.push(init?.method ?? 'GET')
+    if (init?.method === 'POST') return Response.json(media)
+    if (init?.method === 'PUT' && init.body instanceof Blob) {
+      received.push(await init.body.text())
+      state = 'verifying'
+      if (received.length === 1) throw new TypeError('lost upload response')
+      return Response.json({ ...media, state })
+    }
+    return view({ state })
+  }))
+  const upload = new Upload(api, new File(['hello'], 'lecture.txt'), 'purpose')
+  await expect(upload.run()).rejects.toMatchObject({ uncertain: true })
+  expect((await upload.run()).state).toBe('verifying')
+  state = 'ready'
+  expect((await upload.run()).state).toBe('ready')
+  expect(methods).toEqual(['POST', 'GET', 'PUT', 'GET', 'GET'])
+  expect(received).toEqual(['hello'])
+})
+
+it('cancels during hashing without creating a media session', async () => {
+  const send = vi.fn<typeof fetch>(async () => Response.json(media))
+  const upload = new Upload(new ResourcesApi(new Http(send)), new File(['hello'], 'lecture.txt'), 'purpose')
+  const transfer = upload.run()
+  const stopped = expect(transfer).rejects.toMatchObject({ code: 'cancelled' })
+  await expect(upload.cancel()).rejects.toMatchObject({ code: 'cancelled', uncertain: false })
+  await stopped
+  expect(send).not.toHaveBeenCalled()
 })

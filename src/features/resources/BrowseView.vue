@@ -124,7 +124,7 @@ const chips = computed(() => {
   if (applied.value.course) list.push({ key: 'course', label: courseName.data.value || t('academic.course'), clear: { course_id: undefined, dir: undefined } })
   if (applied.value.fileType) list.push({ key: 'file_type', label: applied.value.fileType.toUpperCase(), clear: { file_type: undefined } })
   const count = Object.keys(applied.value.fields).length
-  if (count) list.push({ key: 'fields', label: t('resources.browse.fieldCount', { count: format.value.number(count) }), clear: { attrs: undefined } })
+  if (count) list.push({ key: 'fields', label: t('resources.browse.fieldCount', { count: format.value.number(count) }, count), clear: { attrs: undefined } })
   return list
 })
 

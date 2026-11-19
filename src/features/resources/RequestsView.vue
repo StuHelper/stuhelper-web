@@ -23,6 +23,7 @@ const retrying = useMutation()
 const open = ref<Receipt>()
 const openError = ref('')
 const appealing = ref(false)
+const complaining = ref(false)
 const receipts = usePaged(async (after, signal) => {
   const page = await api.requests({ after }, signal)
   return { items: page.items, next: page.next_cursor }
@@ -62,6 +63,18 @@ function tone(state: Receipt['state']) {
     :description="t('me.requestsIntro')"
   >
     <div class="stack-lg">
+      <button
+        type="button"
+        class="btn"
+        :aria-expanded="complaining"
+        @click="complaining = !complaining"
+      >
+        {{ t('resources.detail.complain') }}
+      </button>
+      <RequestForm
+        v-if="complaining"
+        @saved="receipts.reload"
+      />
       <PagedState
         :status="receipts.status.value"
         :error="receipts.error.value"

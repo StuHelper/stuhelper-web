@@ -3,7 +3,8 @@ import { Bot, Copy, Link2, MessageSquare } from 'lucide-vue-next'
 import { computed, onScopeDispose, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { errorCode } from '../../shared/api/errors'
-import { useAsync } from '../../shared/composables/async'
+import { useLeaveGuard } from '../../shared/composables/leave'
+import { useAsync, useMutation } from '../../shared/composables/async'
 import { useNow } from '../../shared/composables/clock'
 import { isolate } from '../../shared/format'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
@@ -14,7 +15,7 @@ import { maskQq, useQqBindingApi, type BotPart, type QqCode, type QqPart, type Q
 
 // The three QQ binding parts. Each is verified on its own, and binding is complete only
 // when all three are bound. The server reports completion; the page never derives it.
-const { t } = useI18n()
+const { t, te } = useI18n()
 const api = useQqBindingApi()
 const now = useNow(1000)
 const status = useAsync((signal) => api.status(signal))
@@ -32,7 +33,8 @@ const count = computed(() => (status.data.value ? parts.filter((part) => bound(s
 function message(failure: unknown) {
   const code = errorCode(failure).replace(/^qq_binding_/, '')
   const key = `qq.errors.${code}`
-  return t(['already_bound', 'ownership_conflict', 'rate_limited', 'unavailable', 'account_closed', 'revision_conflict'].includes(code) ? key : 'qq.errors.unavailable')
+  if (te(key)) return t(key)
+  return t(te(`errors.${code}`) ? `errors.${code}` : 'qq.errors.unavailable')
 }
 
 // Bot verification: show a one-time code and wait for the bot to report it.
@@ -113,22 +115,18 @@ async function connect() {
 }
 
 const unlinking = ref<QqPart>()
-const busy = ref(false)
+const unlinkWrite = useMutation()
+useLeaveGuard(() => unlinkWrite.uncertain.value ? t('common.leaveUncertain') : unlinkWrite.busy.value ? t('common.leaveUnsaved') : '')
+const busy = unlinkWrite.busy
 async function unlink() {
   const kind = unlinking.value
   const value = status.data.value
   if (!kind || !value || busy.value) return
-  busy.value = true
-  try {
-    status.data.value = await api.unlink(kind, value[kind].revision, crypto.randomUUID())
-    unlinking.value = undefined
-    toast(t('qq.unlinked', { part: t(`qq.parts.${kind}.title`) }))
-  } catch (failure) {
-    toast(message(failure))
-    void status.reload()
-  } finally {
-    busy.value = false
-  }
+  const saved = unlinkWrite.uncertain.value ? await unlinkWrite.retry() : await unlinkWrite.run(`unlink:${kind}`, { kind, revision: value[kind].revision }, (body, key) => api.unlink(body.kind, body.revision, key))
+  if (!saved) { toast(te(`errors.${unlinkWrite.error.value}`) ? t(`errors.${unlinkWrite.error.value}`) : t('qq.errors.unavailable')); return }
+  status.data.value = saved as QqStatus
+  unlinking.value = undefined
+  toast(t('qq.unlinked', { part: t(`qq.parts.${kind}.title`) }))
 }
 function detail(value: QqStatus, kind: QqPart) {
   if (!bound(value, kind)) return t(`qq.parts.${kind}.hint`)
@@ -298,7 +296,7 @@ function detail(value: QqStatus, kind: QqPart) {
       :busy="busy"
       danger
       @confirm="unlink"
-      @cancel="unlinking = undefined"
+      @cancel="!busy && !unlinkWrite.uncertain.value && (unlinking = undefined)"
     />
   </section>
 </template>

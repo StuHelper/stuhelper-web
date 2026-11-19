@@ -81,7 +81,7 @@ const related = usePaged(async (after, signal) => {
 })
 
 
-watch(() => props.id, () => {
+watch(() => [props.kind, props.id], () => {
   composing.value = false
   published.value = ''
   tab.value = 'reviews'

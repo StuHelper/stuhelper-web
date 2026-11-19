@@ -8,6 +8,7 @@ import { httpsUrl } from '../../shared/urls'
 import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
@@ -16,6 +17,7 @@ import StatusTag from '../../shared/ui/StatusTag.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
+import PayeeFields from './PayeeFields.vue'
 import MeLayout from '../account/MeLayout.vue'
 import { expiringPoints, finalStates, minorText, parseIvory, useWalletApi, type Channel, type Entry, type Offer, type Order } from './api'
 
@@ -151,13 +153,17 @@ async function cancelPayment() {
   const result = await cancelWrite.run(`cancel:${order.id}`, undefined, (_, key) => api.cancel(order.id, key))
   if (result) settled(result)
 }
+async function retryCancel() {
+  const order = await cancelWrite.retry()
+  if (order) settled(order as Order)
+}
 function settled(order: Order) {
   paying.value = order
   refreshAll()
   if (order.state === 'succeeded') toast(t('wallet.topup.credited', { amount: ivory(order.amount_minor) }))
 }
 function closeTopup() {
-  if (topupWrite.busy.value || topupWrite.uncertain.value) return
+  if (topupWrite.busy.value || topupWrite.uncertain.value || cancelWrite.busy.value || cancelWrite.uncertain.value) return
   topupOpen.value = false
   paying.value = undefined
   qr.value = ''
@@ -197,6 +203,44 @@ function bought(order: Order) {
 
 // Refund of a top-up: the amount may not exceed the paid amount; the server checks
 // the refundable balance and the refund then follows review and payout states.
+const emptyPayee = () => ({ method: '', name: '', account: '' })
+const payee = ref(emptyPayee())
+const includePayee = ref(false)
+const payeeComplete = computed(() => Object.values(payee.value).every(value => !!value.trim()))
+const payeeFor = shallowRef<Order>()
+const payeeWrite = useMutation()
+const savedPayee = useAsync(async signal => {
+  if (!payeeFor.value) return false
+  try {
+    await api.payee(payeeFor.value.id, signal)
+    return true
+  } catch (failure) {
+    if (['billing_not_found', 'not_found'].includes(errorCode(failure))) return false
+    throw failure
+  }
+})
+function openPayee(order: Order) {
+  payeeWrite.dismiss()
+  payeeFor.value = order
+  payee.value = emptyPayee()
+  void savedPayee.reload()
+}
+function closePayee() {
+  if (payeeWrite.busy.value || payeeWrite.uncertain.value) return
+  payeeFor.value = undefined
+  payee.value = emptyPayee()
+  savedPayee.clear()
+}
+async function savePayee(retry = false) {
+  const order = payeeFor.value
+  if (!order || !payeeComplete.value) return
+  const result = retry ? await payeeWrite.retry() : await payeeWrite.run(`payee:${order.id}`, payee.value, (body, key) => api.setPayee(order.id, body, key))
+  if (result) {
+    closePayee()
+    void orders.reload()
+    toast(t('wallet.receipt.submitted'))
+  }
+}
 const refunding = shallowRef<Order>()
 const refundAmount = ref('')
 const refundReason = ref('')
@@ -208,7 +252,10 @@ const refundError = computed(() => {
   if (value === undefined || value <= 0) return t('wallet.refund.invalidAmount')
   return refunding.value && value > refunding.value.amount_minor ? t('wallet.refund.tooMuch', { amount: ivory(refunding.value.amount_minor) }) : ''
 })
+watch(refunding, order => { if (!order) payee.value = emptyPayee() })
 function openRefund(order: Order) {
+  payee.value = emptyPayee()
+  includePayee.value = false
   refunding.value = order
   refundAmount.value = minorText(order.amount_minor)
   refundReason.value = ''
@@ -216,14 +263,15 @@ function openRefund(order: Order) {
 async function submitRefund() {
   const order = refunding.value
   const minor = refundMinor.value
-  if (!order || minor === undefined || refundError.value || !refundReason.value.trim()) return
-  const result = await refundWrite.run(`refund:${order.id}`, { topup_id: order.id, amount_minor: minor, reason: refundReason.value.trim() }, (body, key) => api.refund(body, key))
+  if ((includePayee.value && !payeeComplete.value) || !order || minor === undefined || refundError.value || !refundReason.value.trim()) return
+  const result = await refundWrite.run(`refund:${order.id}`, { topup_id: order.id, amount_minor: minor, reason: refundReason.value.trim(), ...(includePayee.value ? { payee: payee.value } : {}) }, (body, key) => api.refund(body, key))
   if (result) refunded()
 }
 async function retryRefund() {
   if (await refundWrite.retry()) refunded()
 }
 function refunded() {
+  payee.value = emptyPayee()
   refunding.value = undefined
   tab.value = 'orders'
   refreshAll()
@@ -234,6 +282,7 @@ function refunded() {
 const receiptFor = shallowRef<Order>()
 const receipt = ref('')
 const receiptWrite = useMutation()
+useLeaveGuard(() => [topupWrite, buyWrite, cancelWrite, refundWrite, receiptWrite].some(action => action.uncertain.value) ? t('common.leaveUncertain') : '')
 async function submitReceipt() {
   const order = receiptFor.value
   if (!order || !receipt.value.trim()) return
@@ -427,6 +476,14 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
                 {{ t('wallet.topup.resume') }}
               </button>
               <button
+                v-if="order.kind === 'refund' && ['submitted', 'awaiting_details', 'awaiting_manual'].includes(order.state)"
+                class="btn btn-sm"
+                type="button"
+                @click="openPayee(order)"
+              >
+                {{ t('wallet.payee.title') }}
+              </button>
+              <button
                 v-if="refundable(order)"
                 class="btn btn-sm"
                 type="button"
@@ -573,7 +630,7 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
           :busy="cancelWrite.busy.value"
           :error="cancelWrite.error.value"
           :uncertain="cancelWrite.uncertain.value"
-          @retry="cancelWrite.retry"
+          @retry="retryCancel"
         />
         <div class="form-actions">
           <button
@@ -708,6 +765,19 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
             :disabled="refundWrite.busy.value || refundWrite.uncertain.value"
           />
         </div>
+        <label class="check">
+          <input
+            v-model="includePayee"
+            type="checkbox"
+            :disabled="refundWrite.busy.value || refundWrite.uncertain.value"
+          >
+          {{ t('wallet.payee.title') }}
+        </label>
+        <PayeeFields
+          v-if="includePayee"
+          v-model="payee"
+          :disabled="refundWrite.busy.value || refundWrite.uncertain.value"
+        />
         <MutationNotice
           :busy="refundWrite.busy.value"
           :error="refundWrite.error.value"
@@ -718,7 +788,7 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
           <button
             class="btn btn-primary"
             type="submit"
-            :disabled="!refundMinor || !!refundError || !refundReason.trim() || refundWrite.busy.value || refundWrite.uncertain.value"
+            :disabled="(includePayee && !payeeComplete) || !refundMinor || !!refundError || !refundReason.trim() || refundWrite.busy.value || refundWrite.uncertain.value"
           >
             {{ t('wallet.refund.submit') }}
           </button>
@@ -734,6 +804,51 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
       </form>
     </SheetDialog>
 
+    <SheetDialog
+      :open="!!payeeFor"
+      :title="t('wallet.payee.title')"
+      @close="closePayee"
+    >
+      <p v-if="savedPayee.data.value">
+        {{ t('wallet.payee.onFile') }}
+      </p>
+      <p
+        v-if="savedPayee.error.value"
+        role="alert"
+      >
+        {{ errorText(savedPayee.error.value) }}
+      </p>
+      <form
+        class="stack"
+        @submit.prevent="savePayee()"
+      >
+        <PayeeFields
+          v-model="payee"
+          :disabled="payeeWrite.busy.value || payeeWrite.uncertain.value"
+        />
+        <MutationNotice
+          :busy="payeeWrite.busy.value"
+          :error="payeeWrite.error.value"
+          :uncertain="payeeWrite.uncertain.value"
+          @retry="savePayee(true)"
+        />
+        <button
+          type="submit"
+          class="btn btn-primary"
+          :disabled="!payeeComplete || payeeWrite.busy.value || payeeWrite.uncertain.value"
+        >
+          {{ t('common.submit') }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          :disabled="payeeWrite.busy.value || payeeWrite.uncertain.value"
+          @click="closePayee"
+        >
+          {{ t('common.cancel') }}
+        </button>
+      </form>
+    </SheetDialog>
     <SheetDialog
       :open="!!receiptFor"
       :title="t('wallet.receipt.title')"

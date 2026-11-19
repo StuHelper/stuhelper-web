@@ -9,7 +9,7 @@ const fill = (text, values) => Object.entries(values).reduce((out, [key, value])
 test('my-reviews covers own entries, withdrawn countdown, uncertain draft delete retry and moderation appeals', async ({ page }, info) => {
   const all = catalogue(info);
   const locale = info.project.metadata.locale;
-  await page.clock.install({ time: new Date('2026-11-18T12:00:00Z') });
+  await page.clock.setFixedTime(new Date('2026-11-18T12:00:00Z'));
   await academicFixture(page);
 
   const pendingEntry = {
@@ -105,9 +105,11 @@ test('my-reviews covers own entries, withdrawn countdown, uncertain draft delete
   await expect(page.getByText(fill(all.academic.editor.remaining, { hours: fmt.format(2), minutes: fmt.format(30) }), { exact: true })).toBeVisible();
   await page.getByRole('button', { name: all.me.deleteDraft, exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
-  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
-  await expect(page.getByText(all.common.uncertain, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: all.common.retryOriginal, exact: true }).click();
+  const confirmation = page.getByRole('dialog');
+  await expect(confirmation.getByRole('alert')).toContainText(all.common.uncertain);
+  await expect(confirmation.getByRole('button', { name: all.common.cancel, exact: true })).toBeDisabled();
+  await confirmation.getByRole('button', { name: all.common.retryOriginal, exact: true }).click();
+  await expect(confirmation).toHaveCount(0);
   await expect(page.getByText('Normal draft', { exact: true })).toHaveCount(0);
   const deletes = writes.filter((w) => w.method === 'DELETE');
   expect(deletes).toHaveLength(2);

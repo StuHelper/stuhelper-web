@@ -140,7 +140,13 @@ watch(version, (value) => {
   if (value?.metadata.title) rememberPage({ path: `/resources/items/${encodeURIComponent(props.id)}`, title: value.metadata.title, kind: 'resource' })
 })
 
+function condition(code: string) {
+  return te(`academic.requirement.${code}`) ? t(`academic.requirement.${code}`) : t(`resources.access.${code}`)
+}
 function accessReason(code: string) {
+  if (code === 'purchase_unavailable') return t('resources.access.not_purchasable')
+  if (code === 'service_unavailable') return t('errors.unavailable')
+  if (code === 'permission_denied') return t('errors.forbidden')
   return te(`resources.access.${code}`) ? t(`resources.access.${code}`) : t('resources.detail.accessRequired')
 }
 </script>
@@ -218,10 +224,16 @@ function accessReason(code: string) {
       </PageHeader>
 
       <p
-        v-if="!entryValue.download_allowed && !entryValue.available_methods?.includes('purchase')"
+        v-if="!entryValue.download_allowed"
         class="notice notice-info"
       >
         <span>{{ accessReason(entryValue.unlock_reason || entryValue.access_reason) }}</span>
+        <span v-if="entryValue.missing_conditions?.length">
+          {{ t('resources.access.missing', { conditions: format.list(entryValue.missing_conditions.map(condition)) }) }}
+        </span>
+        <span v-if="entryValue.unavailable_conditions?.length">
+          {{ t('resources.access.unavailable', { conditions: format.list(entryValue.unavailable_conditions.map(condition)) }) }}
+        </span>
       </p>
       <UnlockPanel
         v-if="capabilities.has(feature.unlock) && !entryValue.download_allowed && entryValue.available_methods?.includes('purchase')"
@@ -457,6 +469,23 @@ function accessReason(code: string) {
       </SheetDialog>
     </div>
   </AsyncState>
+  <section
+    v-if="!entryValue && ['forbidden', 'not_found'].includes(entry.error.value || download.error.value)"
+    class="card stack"
+  >
+    <button
+      type="button"
+      class="btn"
+      :aria-expanded="requesting"
+      @click="requesting = !requesting"
+    >
+      {{ t('resources.detail.complain') }}
+    </button>
+    <RequestForm
+      v-if="requesting"
+      :resource-id="id"
+    />
+  </section>
 </template>
 
 <style scoped>

@@ -6,7 +6,8 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
-import { useAsync } from '../../shared/composables/async'
+import { useLeaveGuard } from '../../shared/composables/leave'
+import { useAsync, useMutation } from '../../shared/composables/async'
 import { useSession } from '../../shared/session'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -59,35 +60,26 @@ const requestOpen = ref(false)
 const acknowledged = ref(false)
 const phrase = ref('')
 const confirmPhrase = computed(() => t('security.closure.phrase'))
-const working = ref(false)
+const closureWrite = useMutation()
+useLeaveGuard(() => closureWrite.uncertain.value ? t('common.leaveUncertain') : closureWrite.busy.value ? t('common.leaveUnsaved') : '')
+const working = closureWrite.busy
 async function requestClosure() {
   if (!acknowledged.value || phrase.value.trim() !== confirmPhrase.value || working.value) return
-  working.value = true
-  try {
-    closure.data.value = await closures.request(crypto.randomUUID())
-    requestOpen.value = false
-    acknowledged.value = false
-    phrase.value = ''
-    toast(t('security.closure.requested'))
-  } catch (failure) {
-    toast(errorText(errorCode(failure)))
-  } finally {
-    working.value = false
-  }
+  const result = closureWrite.uncertain.value ? await closureWrite.retry() : await closureWrite.run('closure', {}, (_, key) => closures.request(key))
+  if (!result) { toast(errorText(closureWrite.error.value)); return }
+  closure.data.value = result as Closure
+  requestOpen.value = false
+  acknowledged.value = false
+  phrase.value = ''
+  toast(t('security.closure.requested'))
 }
 const cancelOpen = ref(false)
 async function cancelClosure(value: Closure) {
-  working.value = true
-  try {
-    closure.data.value = await closures.cancel(value.id, crypto.randomUUID())
-    cancelOpen.value = false
-    toast(t('security.closure.cancelled'))
-  } catch (failure) {
-    toast(errorText(errorCode(failure)))
-    void closure.reload()
-  } finally {
-    working.value = false
-  }
+  const result = closureWrite.uncertain.value ? await closureWrite.retry() : await closureWrite.run(`cancel:${value.id}`, { id: value.id }, (body, key) => closures.cancel(body.id, key))
+  if (!result) { toast(errorText(closureWrite.error.value)); return }
+  closure.data.value = result as Closure
+  cancelOpen.value = false
+  toast(t('security.closure.cancelled'))
 }
 const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(value.cooling_ends_at) > Date.now()
 </script>
@@ -286,13 +278,13 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
       :confirm-label="t('security.closure.cancel')"
       :busy="working"
       @confirm="active && cancelClosure(active)"
-      @cancel="cancelOpen = false"
+      @cancel="!working && !closureWrite.uncertain.value && (cancelOpen = false)"
     />
     <SheetDialog
       :open="requestOpen"
       :title="t('security.closure.request')"
       :description="t('security.closure.cooling')"
-      @close="requestOpen = false"
+      @close="!working && !closureWrite.uncertain.value && (requestOpen = false)"
     >
       <ul class="stack-sm muted small terms">
         <li>{{ t('security.closure.scope') }}</li>
@@ -326,6 +318,7 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
         <button
           class="btn"
           type="button"
+          :disabled="working || closureWrite.uncertain.value"
           @click="requestOpen = false"
         >
           {{ t('common.cancel') }}

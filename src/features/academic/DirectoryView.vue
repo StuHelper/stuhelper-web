@@ -31,7 +31,7 @@ const { t } = useI18n()
 const format = useFormat()
 const api = useAcademic()
 const campus = useCampusId()
-const page = usePageFilters(['q', 'category', 'department', 'teacher', 'sort'] as const)
+const page = usePageFilters(['q', 'category', 'nature', 'department', 'teacher', 'sort'] as const)
 const sorts = computed<DirectorySort[]>(() => (props.kind === 'course' ? ['hot', 'reviews', 'name'] : ['hot', 'recommend', 'name']))
 const applied = computed(() => {
   const f = page.values.value
@@ -39,6 +39,7 @@ const applied = computed(() => {
   return {
     q: f.q.trim().slice(0, 200),
     category: course ? f.category : '',
+    nature: course ? f.nature : '',
     department: f.department,
     teacher: course ? f.teacher : '',
     sort: (sorts.value as string[]).includes(f.sort) ? (f.sort as DirectorySort) : 'hot',
@@ -59,7 +60,7 @@ const facets = shallowRef<{ total: number; facetTotal: number; categories: Direc
 const pageSize = computed(() => (props.kind === 'teacher' ? 100 : grouped.value ? 1 : 50))
 const query = (after: string, overrides: Record<string, string | number | undefined> = {}) => {
   const f = applied.value
-  return { kind: props.kind, school_id: campus.value, q: f.q || undefined, category_id: f.category || undefined, department_id: f.department || undefined, teacher_id: f.teacher || undefined, sort: f.sort, after: after || undefined, limit: pageSize.value, ...overrides }
+  return { kind: props.kind, school_id: campus.value, q: f.q || undefined, category_id: f.category || undefined, nature_id: f.nature || undefined, department_id: f.department || undefined, teacher_id: f.teacher || undefined, sort: f.sort, after: after || undefined, limit: pageSize.value, ...overrides }
 }
 // Each arrival of a first page replays the list entrance; appended pages do not.
 const arrival = ref(0)
@@ -99,10 +100,11 @@ watch(text, (value) => {
   if (value.trim() === applied.value.q) return
   typing = setTimeout(() => page.replace({ q: value.trim() || undefined }), 300)
 })
-const set = (changes: Partial<Record<'q' | 'category' | 'department' | 'teacher' | 'sort', string | undefined>>) => page.replace(changes)
-const clear = () => { text.value = ''; set({ q: undefined, category: undefined, department: undefined, teacher: undefined }) }
+const set = (changes: Partial<Record<'q' | 'category' | 'nature' | 'department' | 'teacher' | 'sort', string | undefined>>) => page.replace(changes)
+const clear = () => { text.value = ''; set({ q: undefined, category: undefined, nature: undefined, department: undefined, teacher: undefined }) }
 
 const activeFilters = computed(() => [
+  ...(applied.value.nature ? [{ key: 'nature', label: t('academic.directory.nature'), clear: () => set({ nature: undefined }) }] : []),
   ...(applied.value.category ? [{ key: 'category', label: facets.value.categories.find((f) => f.id === applied.value.category)?.name ?? t('browse.category'), clear: () => set({ category: undefined }) }] : []),
   ...(applied.value.department ? [{ key: 'department', label: departmentName(applied.value.department) || t('browse.department'), clear: () => set({ department: undefined }) }] : []),
   ...(applied.value.teacher ? [{ key: 'teacher', label: t('academic.directory.taughtBy', { name: teacherName.data.value || t('common.unknown') }), clear: () => set({ teacher: undefined }) }] : []),

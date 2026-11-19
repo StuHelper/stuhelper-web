@@ -24,7 +24,7 @@ const count = computed(() => unreadCount.value ?? 0)
 const badge = computed(() => (count.value > 99 ? `${format.value.number(99)}+` : format.value.number(count.value)))
 const refresh = () => { if (shown.value && document.visibilityState === 'visible') void refreshUnread(() => api.unread()) }
 
-watch(shown, (value) => {
+watch([shown, () => session.session.value?.profile.id], ([value]) => {
   if (value) refresh()
   // Another account must not inherit this one's number.
   else setUnread(undefined)
