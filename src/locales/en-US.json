@@ -1964,7 +1964,14 @@
       "label": "Receiving account or reference",
       "submitted": "Payout details submitted."
     },
-    "ivoryBalance": "Ivory balance"
+    "ivoryBalance": "Ivory balance",
+    "payee": {
+      "title": "Refund recipient details",
+      "method": "Payout method",
+      "name": "Recipient name",
+      "account": "Receiving account",
+      "onFile": "Payout details are on file. Enter new details to replace them."
+    }
   },
   "platform": {
     "scopes": {

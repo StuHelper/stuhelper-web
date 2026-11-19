@@ -1964,7 +1964,14 @@
       "label": "受取口座または参照番号",
       "submitted": "受取情報を送信しました。"
     },
-    "ivoryBalance": "Ivory 残高"
+    "ivoryBalance": "Ivory 残高",
+    "payee": {
+      "title": "返金先情報",
+      "method": "受取方法",
+      "name": "受取人名",
+      "account": "受取口座",
+      "onFile": "返金先情報が登録されています。変更するには新しい情報を入力してください。"
+    }
   },
   "platform": {
     "scopes": {

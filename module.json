@@ -213,6 +213,9 @@
     ],
     "PC-03": [
       "tests/e2e/resources.spec.mjs#an uploader can correct owned metadata using its saved category when category browsing is denied"
+    ],
+    "WP-20": [
+      "tests/e2e/wallet.spec.mjs#a refund stores and replaces payout details without showing the stored account"
     ]
   }
 }

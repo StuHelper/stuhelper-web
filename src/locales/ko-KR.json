@@ -1964,7 +1964,14 @@
       "label": "수취 계좌 또는 참조 번호",
       "submitted": "수취 정보를 제출했습니다."
     },
-    "ivoryBalance": "Ivory 잔액"
+    "ivoryBalance": "Ivory 잔액",
+    "payee": {
+      "title": "환불 수취 정보",
+      "method": "수취 방법",
+      "name": "수취인 이름",
+      "account": "수취 계좌",
+      "onFile": "수취 정보가 등록되어 있습니다. 변경하려면 새 정보를 입력하세요."
+    }
   },
   "platform": {
     "scopes": {
