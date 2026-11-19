@@ -876,7 +876,8 @@
       "directoryChooseCourse": "先に科目を選択するとフォルダを指定できます。未指定の場合はルートに配置されます。",
       "selectedDirectory": "選択中のフォルダ",
       "dropOrBrowse": "ここにファイルをドロップするか、クリックして選択",
-      "uploadProgress": "転送済み {loaded} / {total}（{percent}）"
+      "uploadProgress": "転送済み {loaded} / {total}（{percent}）",
+      "tagLimits": "タグは最大20個、各タグは64文字までです。"
     },
     "request": {
       "title": "通報・取り下げ・異議申立て",
@@ -895,7 +896,7 @@
       "reason": "理由と説明",
       "contact": "連絡先",
       "evidence": "権利・許諾などの証拠",
-      "evidenceHint": "1行に1件、最大4件。証拠の説明またはリンクを入力してください。",
+      "evidenceHint": "1行に1件、最大4件、各件2,000文字まで入力できます。",
       "received": "申請を受け付けました。資料の状態は審査結果に従います。",
       "state": {
         "pending": "審査待ち",
@@ -930,7 +931,8 @@
       "currentBalance": "利用可能残高：{balance}",
       "confirmTitle": "支払いの確認",
       "confirmMessage": "{price} を支払ってこの資料の閲覧権を取得しますか？",
-      "confirmMessageWithBalance": "{price} を支払ってこの資料の閲覧権を取得しますか？（利用可能残高：{balance}）"
+      "confirmMessageWithBalance": "{price} を支払ってこの資料の閲覧権を取得しますか？（利用可能残高：{balance}）",
+      "insufficient": "{account}の残高が不足しています。"
     }
   },
   "verification": {

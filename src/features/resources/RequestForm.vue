@@ -17,16 +17,19 @@ const kind = ref<RequestInput['kind']>(props.previousTaskId ? 'appeal' : props.o
 const reason = ref('')
 const contact = ref('')
 const evidence = ref('')
+const lines = computed(() => evidence.value.split('\n').map(line => line.trim()).filter(Boolean))
+const evidenceInvalid = computed(() => lines.value.length > 4 || lines.value.some(line => [...line].length > 2000))
 const receipt = ref<Receipt>()
 const complaint = computed(() => kind.value === 'complaint')
 const locked = computed(() => write.busy.value || write.uncertain.value || !!receipt.value)
 
 async function submit() {
+  if (evidenceInvalid.value) return
   const body: RequestInput = {
     kind: kind.value,
     reason: reason.value.trim(),
     ...(contact.value.trim() ? { contact: contact.value.trim() } : {}),
-    evidence: evidence.value.split('\n').map((line) => line.trim()).filter(Boolean),
+    evidence: lines.value,
     ...(props.previousTaskId ? { previous_task_id: props.previousTaskId } : {}),
   }
   const result = await write.run(`request:${props.resourceId}:${kind.value}`, body, (value, key) => api.createRequest(props.resourceId, value, key))
@@ -97,6 +100,7 @@ async function retry() {
           <span class="field-label">{{ t('resources.request.evidence') }}</span>
           <textarea
             v-model="evidence"
+            :aria-invalid="evidenceInvalid"
             class="textarea"
             :required="complaint"
             maxlength="8000"
@@ -119,7 +123,7 @@ async function retry() {
       <button
         class="btn btn-primary"
         type="submit"
-        :disabled="locked || !reason.trim()"
+        :disabled="locked || !reason.trim() || evidenceInvalid"
       >
         {{ t('common.submit') }}
       </button>

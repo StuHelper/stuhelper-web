@@ -30,11 +30,11 @@ const api = useWalletApi()
 
 const summary = useAsync(async (signal) => {
   const [wallet, lots, channels, offers] = await Promise.all([api.wallet(signal), api.pointLots(signal), api.channels(signal), api.offers(signal)])
-  return { wallet, expiring: expiringPoints(lots).slice(0, 3), channels: channels.items.filter((item) => item.enabled), offers: offers.items.filter((item) => item.enabled) }
+  return { wallet, expiring: expiringPoints(lots).slice(0, 3), channels: channels.items, offers: offers.items.filter((item) => item.enabled) }
 })
 void summary.reload()
 
-const ivory = (minor: number) => format.value.number(Number(minorText(minor)), { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const ivory = (minor: number) => format.value.number(minorText(minor), { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 const cny = (minor: number) => format.value.currency(minorText(minor), 'CNY')
 const points = (value: number) => format.value.number(value)
 const label = (key: string, fallback: string) => (te(key) ? t(key) : fallback)
@@ -55,7 +55,7 @@ function refreshAll() {
 // Signed amounts are isolated so right-to-left text keeps the sign next to the number.
 function amountText(entry: Entry) {
   const signed = entry.asset === 'ivory'
-    ? format.value.number(entry.amount / 100, { signDisplay: 'exceptZero', minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    ? format.value.number(minorText(entry.amount), { signDisplay: 'exceptZero', minimumFractionDigits: 2, maximumFractionDigits: 2 })
     : format.value.number(entry.amount, { signDisplay: 'exceptZero' })
   return entry.asset === 'ivory' ? `${isolate(signed)} Ivory` : t('wallet.pointsAmount', { amount: isolate(signed) })
 }
@@ -76,7 +76,7 @@ const amount = ref(0)
 const topupWrite = useMutation()
 const paying = shallowRef<Order>()
 const qr = ref('')
-const channels = computed<Channel[]>(() => summary.data.value?.channels ?? [])
+const channels = computed<Channel[]>(() => summary.data.value?.channels.filter(item => item.enabled) ?? [])
 const amounts = computed(() => channels.value.find((item) => item.id === channel.value)?.amounts_minor ?? [])
 function openTopup() {
   channel.value = channels.value[0]?.id ?? ''
@@ -249,7 +249,7 @@ function receiptDone() {
   refreshAll()
   toast(t('wallet.receipt.submitted'))
 }
-const refundable = (order: Order) => order.kind === 'topup' && order.state === 'succeeded' && channels.value.some((item) => item.id === order.channel && item.original_refunds)
+const refundable = (order: Order) => order.kind === 'topup' && order.state === 'succeeded' && summary.data.value?.channels.some((item) => item.id === order.channel && item.original_refunds)
 </script>
 
 <template>

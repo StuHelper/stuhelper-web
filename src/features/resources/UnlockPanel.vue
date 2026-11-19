@@ -167,7 +167,7 @@ const pending = computed(() => order.value && !finalStates.includes(order.value.
         class="notice notice-error"
         role="alert"
       >
-        <span>{{ write.error.value === 'billing_insufficient_funds' && missing ? t('resources.unlock.short', { amount: missing }) : errorText(write.error.value) }}</span>
+        <span>{{ write.error.value === 'billing_insufficient_funds' ? (missing ? t('resources.unlock.short', { amount: missing }) : t('resources.unlock.insufficient', { account: account === 'points' ? t('wallet.points') : 'Ivory' })) : errorText(write.error.value) }}</span>
         <RouterLink
           v-if="write.error.value === 'billing_insufficient_funds'"
           class="btn btn-sm"

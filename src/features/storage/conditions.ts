@@ -7,10 +7,14 @@ export function parseGB(raw: string): number | null {
   const bytes = BigInt(whole) * 1_000_000_000n + BigInt(fraction.padEnd(9, '0'));
   return bytes <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(bytes) : null;
 }
-export function gbInput(bytes: number): string { return (bytes / 1_000_000_000).toFixed(9).replace(/\.?0+$/, ''); }
+export function gbInput(bytes: number): string {
+  const exact = BigInt(bytes);
+  const fraction = (exact % 1_000_000_000n).toString().padStart(9, '0').replace(/0+$/, '');
+  return (exact / 1_000_000_000n).toString() + (fraction ? '.' + fraction : '');
+}
 export function localDateInput(instant: number): string {
   const date = new Date(instant);
-  return new Date(instant - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
+  return new Date(instant - date.getTimezoneOffset() * 60_000).toISOString().replace(/Z$/, '');
 }
 export function conditions(limit: string, reserve: string, until: string, policy: Pick<Policy, 'min_bytes' | 'max_bytes' | 'min_term_seconds' | 'max_term_seconds'>, now: number, configureUntil?: string): Conditions | null {
   const limit_bytes = parseGB(limit), personal_reserve = parseGB(reserve);

@@ -113,6 +113,7 @@ export function localName(names: Record<string, string>, locale: string) {
 
 /** Convert form text to a configured attribute value; empty means "not provided". */
 export function attribute(field: Field, raw: string): Value | undefined {
+  raw = raw.trim()
   if (raw === '') return undefined
   if (field.kind === 'integer') {
     const number = Number(raw)
