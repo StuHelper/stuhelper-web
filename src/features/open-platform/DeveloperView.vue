@@ -426,6 +426,7 @@ function answered(notice: Notice) {
             >
               <input
                 v-model="form.clientType"
+                name="application-client-type"
                 type="radio"
                 :value="type"
               >
@@ -603,6 +604,7 @@ function answered(notice: Notice) {
                 >
                   <input
                     v-model="answer.status"
+                    name="notice-status"
                     type="radio"
                     :value="status"
                   >

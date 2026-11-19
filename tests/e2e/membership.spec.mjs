@@ -73,3 +73,13 @@ test('an insufficient balance names the missing points in the purchase dialog', 
   const missing = fill(all.wallet.pointsAmount, { amount: new Intl.NumberFormat(info.project.metadata.locale).format(180) });
   await expect(page.getByText(fill(all.resources.unlock.short, { amount: missing }), { exact: true })).toBeVisible();
 });
+
+test('a purchase sheet exposes a close button and returns focus to the plan', async ({ page }, info) => {
+  const { all, state } = await setup(page, info);
+  const opener = page.getByRole('listitem').filter({ hasText: 'Semester pass' }).getByRole('button', { name: all.membership.buy, exact: true });
+  await opener.click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.close, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  expect(state.buys).toHaveLength(0);
+});

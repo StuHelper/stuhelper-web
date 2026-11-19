@@ -181,6 +181,7 @@ watch(error, (value) => {
             <span class="field-label">{{ t('custody.until', { zone }) }}</span>
             <AppDateTime
               v-model="until"
+              :aria-label="t('custody.until', { zone })"
               required
             />
             <span class="field-hint">{{ t('custody.maxTermHint', { days: format.number(Math.max(1, Math.round(policy.max_term_seconds / 86400))) }) }}</span>
