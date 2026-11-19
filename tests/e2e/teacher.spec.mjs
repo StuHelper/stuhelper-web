@@ -154,6 +154,24 @@ test('an in-progress teacher draft can switch school and syncs phone-captured ma
   await expect(page.getByRole('region', { name: t.application, exact: true }).getByText(secondSchool.name, { exact: true })).toBeVisible();
 });
 
+test('a failed teacher evidence read can be retried before editing', async ({ page }, info) => {
+  const m = catalogue(info);
+  const state = await server(page, { applications: [application({})] });
+  let reads = 0;
+  await page.route('**/applications/ta/materials?**', route => {
+    reads++;
+    return reads === 1 ? route.fulfill({ status: 503, json: { code: 'unavailable' } }) : route.fallback();
+  });
+  await page.goto(`${base}/me/verification/teacher?lang=${info.project.metadata.locale}`);
+  const edit = page.getByRole('button', { name: m.teacher.fillForm, exact: true });
+  await edit.click();
+  await expect(page.getByRole('alert')).toContainText(m.errors.unavailable);
+  await edit.click();
+  await expect(page.locator('#teacher-email')).toBeEditable();
+  expect(reads).toBe(2);
+  expect(state.writes).toEqual([]);
+});
+
 test('the current teacher application and its school can both follow a full first page', async ({ page }, info) => {
   const t = catalogue(info).teacher;
   const state = await server(page);

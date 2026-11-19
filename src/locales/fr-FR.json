@@ -69,6 +69,9 @@
     "opensInNewTab": "(s’ouvre dans un nouvel onglet)"
   },
   "errors": {
+    "disabled": "Le service des groupes est désactivé.",
+    "cooldown": "Un délai ou une limite de demandes en attente s’applique. Réessayez plus tard.",
+    "write_response_unrecognized": "Le serveur a accepté la demande, mais son reçu est illisible. Actualisez la page pour vérifier le résultat.",
     "network": "La connexion a échoué ou expiré. Les saisies valides sont conservées ; réessayez.",
     "timeout": "Le service a mis trop de temps à répondre. Réessayez.",
     "cancelled": "La demande a été annulée.",
@@ -304,6 +307,7 @@
     "home": "Retour à l’accueil"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "Vous êtes déconnecté de ce site. Votre session d’authentification unique est peut-être encore active.",
     "signIn": "Se connecter",
     "signOut": "Déconnecter cet appareil",
     "signOutAll": "Déconnecter tous les appareils",
@@ -779,6 +783,10 @@
       "checksum": "Empreinte du fichier"
     },
     "access": {
+      "missing": "Conditions manquantes : {conditions}",
+      "unavailable": "Vérification indisponible : {conditions}",
+      "content_access": "Accès aux contenus du campus",
+      "resource_entitlement": "Droit d’accès à la ressource",
       "allowed": "Téléchargement possible.",
       "not_published": "La ressource n’est pas encore publiée.",
       "already_accessible": "Vous avez déjà accès à cette ressource.",
@@ -825,6 +833,7 @@
       "accept": "J’ai lu et j’accepte les conditions actuelles"
     },
     "editor": {
+      "selectCategory": "Choisissez une catégorie de ressources disponible.",
       "intro": "Trois étapes : enregistrer les informations, déposer le fichier, soumettre. La version publiée reste disponible pendant la validation.",
       "step1": "1. Informations",
       "step2": "2. Fichier",
@@ -879,6 +888,7 @@
       "uploadProgress": "Transféré : {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "Identifiant de la ressource",
       "title": "Signalements et demandes",
       "appealTitle": "Contester",
       "kind": "Type de demande",
@@ -1957,7 +1967,14 @@
       "label": "Compte de réception ou référence",
       "submitted": "Coordonnées envoyées."
     },
-    "ivoryBalance": "Solde Ivory"
+    "ivoryBalance": "Solde Ivory",
+    "payee": {
+      "title": "Coordonnées de remboursement",
+      "method": "Mode de versement",
+      "name": "Nom du bénéficiaire",
+      "account": "Compte bénéficiaire",
+      "onFile": "Des coordonnées sont enregistrées. Saisissez les nouvelles pour les remplacer."
+    }
   },
   "platform": {
     "scopes": {

@@ -87,6 +87,7 @@ function saved(app: Application) {
 function closeEditor() {
   if (write.busy.value || write.uncertain.value) return
   editing.value = undefined
+  write.dismiss()
 }
 
 // Credential rotation: the secret appears once. Losing it means rotating again.

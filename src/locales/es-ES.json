@@ -69,6 +69,9 @@
     "opensInNewTab": "(se abre en una pestaña nueva)"
   },
   "errors": {
+    "disabled": "El servicio de grupos está desactivado.",
+    "cooldown": "Hay un período de espera o un límite de solicitudes pendientes. Inténtalo más tarde.",
+    "write_response_unrecognized": "El servidor aceptó la solicitud, pero no se pudo leer el recibo. Actualiza la página para comprobar el resultado.",
     "network": "La conexión falló o caducó. Se conservan los datos válidos; inténtalo de nuevo.",
     "timeout": "El servicio tardó demasiado en responder. Inténtalo de nuevo.",
     "cancelled": "La solicitud se canceló.",
@@ -304,6 +307,7 @@
     "home": "Volver al inicio"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "Has salido de este sitio. Tu sesión de inicio de sesión único puede seguir activa.",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión en este dispositivo",
     "signOutAll": "Cerrar sesión en todos los dispositivos",
@@ -779,6 +783,10 @@
       "checksum": "Suma de verificación"
     },
     "access": {
+      "missing": "Faltan requisitos: {conditions}",
+      "unavailable": "No se pudo verificar: {conditions}",
+      "content_access": "Acceso al contenido del campus",
+      "resource_entitlement": "Derecho de acceso al recurso",
       "allowed": "Puedes descargarlo.",
       "not_published": "El material aún no está publicado.",
       "already_accessible": "Ya tienes acceso a este recurso.",
@@ -825,6 +833,7 @@
       "accept": "He leído y acepto las condiciones actuales"
     },
     "editor": {
+      "selectCategory": "Elige una categoría de recursos disponible.",
       "intro": "Tres pasos: guardar los datos, subir el archivo y enviar a revisión. La versión publicada sigue disponible durante la revisión.",
       "step1": "1. Datos",
       "step2": "2. Archivo",
@@ -879,6 +888,7 @@
       "uploadProgress": "Transferido {loaded} / {total} ({percent})"
     },
     "request": {
+      "resourceId": "ID del recurso",
       "title": "Reclamaciones y solicitudes",
       "appealTitle": "Presentar alegación",
       "kind": "Tipo de solicitud",
@@ -1957,7 +1967,14 @@
       "label": "Cuenta de cobro o referencia",
       "submitted": "Datos de cobro enviados."
     },
-    "ivoryBalance": "Saldo de Ivory"
+    "ivoryBalance": "Saldo de Ivory",
+    "payee": {
+      "title": "Datos del destinatario del reembolso",
+      "method": "Método de cobro",
+      "name": "Nombre del destinatario",
+      "account": "Cuenta receptora",
+      "onFile": "Ya hay datos registrados. Introduce otros para sustituirlos."
+    }
   },
   "platform": {
     "scopes": {

@@ -53,8 +53,27 @@ it('sends each write with the caller idempotency key and rejects responses outsi
     return sent.length === 1 ? Response.json(order) : Response.json({ ...order, state: 'settled' })
   }))
   await expect(api.topup({ channel: 'demo-pay', amount_minor: 1000 }, 'key-1')).resolves.toMatchObject({ state: 'awaiting_payment' })
-  await expect(api.refresh('order', 'key-2')).rejects.toMatchObject({ code: 'incompatible' })
+  await expect(api.refresh('order', 'key-2')).rejects.toMatchObject({ code: 'write_response_unrecognized', uncertain: true })
   expect(sent[0]).toMatchObject({ key: 'key-1', body: { channel: 'demo-pay', amount_minor: 1000 } })
   expect(sent[1]!.url).toContain('/api/v1/billing/orders/order/refresh')
   expect(sent[1]!.key).toBe('key-2')
+})
+
+it('updates payout details for the selected refund and reads back only the masked record', async () => {
+  let stored: unknown = null
+  const reads: string[] = []
+  const masked = { method: '***', name: '***', account: '***' }
+  const api = new WalletApi(new Http(async (url, init) => {
+    reads.push(String(url))
+    if (init?.method === 'PUT') {
+      expect(new Headers(init.headers).get('Idempotency-Key')).toBe('payee-key')
+      stored = JSON.parse(String(init.body))
+    }
+    return Response.json(masked)
+  }))
+  const input = { method: 'test method', name: 'Test recipient', account: 'sample account' }
+  expect(await api.setPayee('refund', input, 'payee-key')).toEqual(masked)
+  expect(stored).toEqual(input)
+  expect(await api.payee('refund')).toEqual(masked)
+  expect(reads).toEqual(Array(2).fill('/api/v1/billing/refunds/refund/payee'))
 })

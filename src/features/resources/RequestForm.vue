@@ -8,12 +8,14 @@ import { useResourcesApi, type Receipt, type RequestInput } from './api'
 
 // Withdrawal requests (owner), infringement complaints (anyone) and appeals of
 // a previous decision. Submitting a request never changes the resource itself.
-const props = withDefaults(defineProps<{ resourceId: string; owned?: boolean; previousTaskId?: string }>(), { owned: false, previousTaskId: undefined })
+const props = withDefaults(defineProps<{ resourceId?: string; owned?: boolean; previousTaskId?: string }>(), { resourceId: undefined, owned: false, previousTaskId: undefined })
 const emit = defineEmits<{ saved: [receipt: Receipt] }>()
 const { t } = useI18n()
 const api = useResourcesApi()
 const write = useMutation()
 const kind = ref<RequestInput['kind']>(props.previousTaskId ? 'appeal' : props.owned ? 'withdrawal' : 'complaint')
+const enteredId = ref('')
+const resource = computed(() => props.resourceId ?? enteredId.value.trim())
 const reason = ref('')
 const contact = ref('')
 const evidence = ref('')
@@ -22,6 +24,8 @@ const complaint = computed(() => kind.value === 'complaint')
 const locked = computed(() => write.busy.value || write.uncertain.value || !!receipt.value)
 
 async function submit() {
+  const id = resource.value
+  if (!id) return
   const body: RequestInput = {
     kind: kind.value,
     reason: reason.value.trim(),
@@ -29,7 +33,7 @@ async function submit() {
     evidence: evidence.value.split('\n').map((line) => line.trim()).filter(Boolean),
     ...(props.previousTaskId ? { previous_task_id: props.previousTaskId } : {}),
   }
-  const result = await write.run(`request:${props.resourceId}:${kind.value}`, body, (value, key) => api.createRequest(props.resourceId, value, key))
+  const result = await write.run(`request:${id}:${kind.value}`, body, (value, key) => api.createRequest(id, value, key))
   if (result) {
     receipt.value = result
     emit('saved', result)
@@ -55,6 +59,18 @@ async function retry() {
       class="stack"
       :disabled="locked"
     >
+      <label
+        v-if="!resourceId"
+        class="field"
+      >
+        <span class="field-label">{{ t('resources.request.resourceId') }}</span>
+        <input
+          v-model="enteredId"
+          class="input"
+          required
+          maxlength="128"
+        >
+      </label>
       <label
         v-if="!previousTaskId"
         class="field"
