@@ -303,7 +303,7 @@ async function cancel() {
           </p>
           <div class="row">
             <button
-              v-if="composer.state === 'unauthenticated' && session.state.value !== 'member'"
+              v-if="session.state.value !== 'member'"
               class="btn btn-sm btn-primary"
               type="button"
               @click="session.signIn"

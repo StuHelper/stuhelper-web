@@ -76,7 +76,7 @@ function restartSchool() {
 }
 async function start() {
   const chosen = schoolOf(school.value)
-  if (!chosen || !consent.value) return
+  if (!chosen?.teacher_enabled || !consent.value) return
   const created = await task.run(() => api.write('Application', '/api/v1/verification/teacher-applications', { school_id: chosen.id, notice_version: chosen.notice_version, consent: true }))
   if (created) {
     selectedDraft.value = created
@@ -113,7 +113,7 @@ async function loadForm(application: Application) {
   materials.value = evidence.items
   Object.assign(form, {
     name: saved?.name ?? '', organization: saved?.organization ?? '', gender: saved?.gender ?? '',
-    email: saved?.email ?? '', material_type: saved?.material_type || schoolOf(application.school_id)?.material_types[0] || '',
+    email: saved?.email ?? '', material_type: saved?.material_type || schoolOf(application.school_id)?.teacher_material_types?.[0] || '',
     disclosures: saved ? [...saved.disclosures] : ['teacher'],
   })
   formFor.value = application.id
@@ -392,7 +392,7 @@ function schoolName(id: string, schools: School[]) {
                     {{ t('teacher.materialType') }}
                   </legend>
                   <label
-                    v-for="type in schoolOf(open.school_id)?.material_types ?? []"
+                    v-for="type in schoolOf(open.school_id)?.teacher_material_types ?? []"
                     :key="type"
                     class="check"
                   >
@@ -513,7 +513,7 @@ function schoolName(id: string, schools: School[]) {
               <button
                 class="btn btn-primary"
                 type="submit"
-                :disabled="!school || !consent || task.busy.value"
+                :disabled="!schoolOf(school)?.teacher_enabled || !consent || task.busy.value"
               >
                 {{ t('teacher.apply') }}
               </button>

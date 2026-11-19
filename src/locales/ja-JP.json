@@ -118,7 +118,8 @@
     "school_credentials_rejected": "学校アカウントまたはパスワードが正しくありません。再試行してください。",
     "school_account_locked": "学校アカウントがロックされています。学校に解除を依頼してから再試行してください。",
     "school_account_disabled": "学校アカウントが無効になっています。学校に問い合わせるか、別の認証方法を選んでください。",
-    "school_account_unavailable": "学校アカウントは現在認証に利用できません。別の認証方法を選んでください。"
+    "school_account_unavailable": "学校アカウントは現在認証に利用できません。別の認証方法を選んでください。",
+    "snapshot_expired": "ランキングの有効期限が切れました。更新して最新の順位を表示してください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -617,7 +618,9 @@
       "campus_eligibility": "認証する",
       "identity_verified": "本人確認",
       "course_enrollment": "マイ授業を見る"
-    }
+    },
+    "followUp": "追記",
+    "submitFollowUp": "追記を送信"
   },
   "me": {
     "title": "マイページ",
@@ -1070,7 +1073,8 @@
       "failed": "未完了",
       "running": "処理中",
       "manual": "管理者の対応待ち",
-      "done": "完了"
+      "done": "完了",
+      "cancelled": "取り下げ済み"
     },
     "materialTypes": {
       "staff_card": "教職員証",
@@ -1352,7 +1356,8 @@
       "result_unknown": "まだ結果が返っていません。後で確認してください。",
       "conflict": "このアカウントは接続済みか、変更されたばかりです。更新してください。",
       "attempts_exhausted": "再試行に失敗しました。管理者が対応します。",
-      "credentials_required": "アカウントとパスワードを再入力してください。"
+      "credentials_required": "アカウントとパスワードを再入力してください。",
+      "interactive_verification_required": "ストレージ側で本人確認を完了してから再試行してください。"
     },
     "maxTermHint": "最長認可期間：{days} 日。"
   },
@@ -1938,7 +1943,8 @@
       "approved": "承認済み",
       "rejected": "不承認",
       "expired": "期限切れ",
-      "deleted": "削除済み"
+      "deleted": "削除済み",
+      "cancelled": "取り下げ済み"
     },
     "disclosure": {
       "real_name": "氏名",
@@ -2063,7 +2069,8 @@
       "review": "評価",
       "up": "役に立った",
       "cancel": "投票を取り消す",
-      "down": "役に立たなかった"
+      "down": "役に立たなかった",
+      "readable": "投票した閲覧可能な投稿"
     },
     "compare": {
       "title": "比較",

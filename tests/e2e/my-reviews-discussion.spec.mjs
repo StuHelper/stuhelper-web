@@ -179,8 +179,8 @@ test('discussion view redirects reply deep links, targets a reply and posts a re
   ];
   const posted = [];
 
-  await page.route('**/api/v1/reviews/reply-1', (route) => route.fulfill({ json: replies[0] }));
-  await page.route('**/api/v1/reviews/root-rev', (route) => route.fulfill({ json: rootReview }));
+  await page.route('**/api/v1/reviews/reply-1{,?*}', (route) => route.fulfill({ json: replies[0] }));
+  await page.route('**/api/v1/reviews/root-rev{,?*}', (route) => route.fulfill({ json: rootReview }));
   await page.route('**/api/v1/reviews?**', (route) => {
     const url = new URL(route.request().url());
     if (url.searchParams.get('kind') === 'reply') return route.fulfill({ json: { items: replies, next: '' } });

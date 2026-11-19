@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-catalog",
-  "revision": "eb28c90679371c7a3b3f0859c63abf3204a11820",
+  "revision": "38aebc168aea8edf9f2efbf82505788367a35711",
   "version": "0.10.0",
   "files": {
     "contracts/catalog.openapi.json": "contracts/catalog.openapi.json",
     "sdk/catalog.gen.ts": "src/api/catalog.gen.ts"
   },
   "sha256": {
-    "contracts/catalog.openapi.json": "0777d86d05c9c764f25fd454b206d2b550debb7b28d6e03821981a92a8c4a855",
-    "src/api/catalog.gen.ts": "8390860863ee377996e4bb77e08ec5beb167fa7f56261e5166a8a77c63c86eed"
+    "contracts/catalog.openapi.json": "0f3c580747a6796a267c330b408086ed824888a70ea2d98f46b55036bd7531c3",
+    "src/api/catalog.gen.ts": "e262cd24111f6ae122f7c5fd3a52ff5bbdffcc285425a0ae802c4f06bca83735"
   }
 }

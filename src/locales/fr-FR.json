@@ -118,7 +118,8 @@
     "school_credentials_rejected": "Le compte universitaire ou le mot de passe est incorrect. Réessayez.",
     "school_account_locked": "Votre compte universitaire est verrouillé. Contactez votre établissement pour le déverrouiller puis réessayez.",
     "school_account_disabled": "Votre compte universitaire est désactivé. Contactez votre établissement ou choisissez une autre méthode.",
-    "school_account_unavailable": "Votre compte universitaire ne permet pas la vérification actuellement. Choisissez une autre méthode."
+    "school_account_unavailable": "Votre compte universitaire ne permet pas la vérification actuellement. Choisissez une autre méthode.",
+    "snapshot_expired": "Ce classement a expiré. Actualisez pour afficher le nouveau classement."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -617,7 +618,9 @@
       "campus_eligibility": "Vérifier",
       "identity_verified": "Vérifier l’identité",
       "course_enrollment": "Voir mes cours"
-    }
+    },
+    "followUp": "Complément",
+    "submitFollowUp": "Envoyer le complément"
   },
   "me": {
     "title": "Espace personnel",
@@ -1070,7 +1073,8 @@
       "failed": "Non terminé",
       "running": "Traitement en cours",
       "manual": "Action administrative requise",
-      "done": "Terminé"
+      "done": "Terminé",
+      "cancelled": "Retirée"
     },
     "materialTypes": {
       "staff_card": "Carte professionnelle",
@@ -1352,7 +1356,8 @@
       "result_unknown": "Le service n’a pas encore répondu. Revenez plus tard.",
       "conflict": "Ce compte est déjà connecté ou vient de changer. Veuillez actualiser.",
       "attempts_exhausted": "Les tentatives ont échoué. Un administrateur vous aidera.",
-      "credentials_required": "Saisissez à nouveau le compte et le mot de passe."
+      "credentials_required": "Saisissez à nouveau le compte et le mot de passe.",
+      "interactive_verification_required": "Terminez la vérification interactive du service de stockage, puis réessayez."
     },
     "maxTermHint": "Durée maximale d’autorisation : {days} jours."
   },
@@ -1938,7 +1943,8 @@
       "approved": "Approuvée",
       "rejected": "Refusée",
       "expired": "Expirée",
-      "deleted": "Supprimée"
+      "deleted": "Supprimée",
+      "cancelled": "Retirée"
     },
     "disclosure": {
       "real_name": "Nom réel",
@@ -2063,7 +2069,8 @@
       "review": "Avis",
       "up": "Utile",
       "cancel": "Retirer mon vote",
-      "down": "Pas utile"
+      "down": "Pas utile",
+      "readable": "Contenus accessibles pour lesquels j’ai voté"
     },
     "compare": {
       "title": "Comparer",

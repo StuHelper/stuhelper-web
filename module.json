@@ -243,6 +243,12 @@
     ],
     "ST-01": [
       "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte"
+    ],
+    "DS-01": [
+      "tests/e2e/search.spec.mjs#expired popular ranking stays on screen until the reader refreshes"
+    ],
+    "SSO-01": [
+      "tests/e2e/profile.spec.mjs#profile writes use the current browser session and origin"
     ]
   }
 }

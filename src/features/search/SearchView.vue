@@ -19,6 +19,11 @@ const api = useSearchApi()
 const kinds = (['school', 'course', 'teacher', 'review', 'resource'] as const).filter((kind) => teacherDirectoryEnabled || kind !== 'teacher')
 const icons: Record<SearchKind, Component> = { school: Building2, course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
 
+const readableVotes = usePaged((cursor, signal) => api.myVotes(cursor, signal))
+function showReadableVotes(event: Event) {
+  if (event.currentTarget instanceof HTMLDetailsElement && event.currentTarget.open) void readableVotes.reload()
+}
+
 const q = computed(() => page.values.value.q.trim().slice(0, 200))
 const kind = computed<SearchKind | ''>(() => (kinds as readonly string[]).includes(page.values.value.kind) ? page.values.value.kind as SearchKind : '')
 const draft = ref(q.value)
@@ -43,6 +48,33 @@ function submit() {
 <template>
   <div class="stack-lg">
     <PageHeader :title="t('search.title')" />
+    <details @toggle="showReadableVotes">
+      <summary>{{ t('search.votes.readable') }}</summary>
+      <PagedState
+        :status="readableVotes.status.value"
+        :error="readableVotes.error.value"
+        :count="readableVotes.items.value.length"
+        :next="readableVotes.next.value"
+        :appending="readableVotes.appending.value"
+        :empty-text="t('search.votes.empty')"
+        @retry="readableVotes.reload"
+        @more="readableVotes.loadMore"
+      >
+        <ul class="group">
+          <li
+            v-for="vote in readableVotes.items.value"
+            :key="vote.target.id"
+          >
+            <RouterLink
+              class="group-row"
+              :to="targetRoute(vote.target)"
+            >
+              {{ vote.title || t('search.votes.review') }} · {{ t(vote.choice === 'up' ? 'search.votes.up' : 'search.votes.down') }}
+            </RouterLink>
+          </li>
+        </ul>
+      </PagedState>
+    </details>
     <form
       class="search-row"
       role="search"

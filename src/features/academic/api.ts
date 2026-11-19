@@ -228,7 +228,7 @@ export class AcademicApi {
   }
 
   review(id: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/reviews/${segment(id)}`, parse.review, { signal })
+    return this.http.json(`/api/v1/reviews/${segment(id)}`, parse.review, { query: { include_appends: true }, signal })
   }
 
   statistics(query: Query, signal?: AbortSignal) {
@@ -271,7 +271,7 @@ export class AcademicApi {
   }
 
   myEntry(id: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/reviews/me/entries/${segment(id)}`, parse.review, { signal })
+    return this.http.json(`/api/v1/reviews/me/entries/${segment(id)}`, parse.review, { query: { include_appends: true }, signal })
   }
 
   myDrafts(query: Query, signal?: AbortSignal) {
