@@ -412,120 +412,126 @@ function replace(row: Favorite, next: Favorite | undefined) {
             />
           </div>
 
-          <PagedState
-            :status="rows.status.value"
-            :error="rows.error.value"
-            :count="rows.items.value.length"
-            :next="rows.next.value"
-            :appending="rows.appending.value"
-            @retry="rows.reload()"
-            @more="rows.loadMore()"
+          <div
+            id="favorite-panel"
+            role="tabpanel"
+            :aria-labelledby="`favorite-tab-${kind}`"
           >
-            <template #empty>
-              <div class="card empty stack">
-                <Folder
-                  class="empty-icon"
-                  aria-hidden="true"
-                />
-                <template v-if="query">
-                  <p>{{ t('favorites.noMatch', { p0: query }) }}</p>
-                  <button
-                    class="btn btn-sm center"
-                    type="button"
-                    @click="q = ''; query = ''"
-                  >
-                    {{ t('favorites.clearSearch') }}
-                  </button>
-                </template>
-                <template v-else>
-                  <p>{{ selected ? t('favorites.folderEmpty', { p0: heading }) : t('favorites.empty') }}</p>
-                  <p class="subtle">
-                    {{ t('favorites.emptyHint') }}
-                  </p>
-                  <RouterLink
-                    class="btn btn-sm btn-primary center"
-                    to="/courses"
-                  >
-                    {{ t('favorites.browseCourses') }}
-                  </RouterLink>
-                </template>
-              </div>
-            </template>
-            <TransitionGroup
-              tag="ul"
-              name="fav"
-              class="cards"
+            <PagedState
+              :status="rows.status.value"
+              :error="rows.error.value"
+              :count="rows.items.value.length"
+              :next="rows.next.value"
+              :appending="rows.appending.value"
+              @retry="rows.reload()"
+              @more="rows.loadMore()"
             >
-              <li
-                v-for="f in rows.items.value"
-                :key="f.id"
-                class="card fav"
-              >
-                <div class="head">
-                  <span
-                    class="icon-tile"
-                    :style="{ '--tile': tiles[f.kind] }"
-                  ><component
-                    :is="icons[f.kind]"
+              <template #empty>
+                <div class="card empty stack">
+                  <Folder
+                    class="empty-icon"
                     aria-hidden="true"
-                  /></span>
-                  <div class="group-body">
+                  />
+                  <template v-if="query">
+                    <p>{{ t('favorites.noMatch', { p0: query }) }}</p>
+                    <button
+                      class="btn btn-sm center"
+                      type="button"
+                      @click="q = ''; query = ''"
+                    >
+                      {{ t('favorites.clearSearch') }}
+                    </button>
+                  </template>
+                  <template v-else>
+                    <p>{{ selected ? t('favorites.folderEmpty', { p0: heading }) : t('favorites.empty') }}</p>
+                    <p class="subtle">
+                      {{ t('favorites.emptyHint') }}
+                    </p>
                     <RouterLink
-                      class="card-title"
+                      class="btn btn-sm btn-primary center"
+                      to="/courses"
+                    >
+                      {{ t('favorites.browseCourses') }}
+                    </RouterLink>
+                  </template>
+                </div>
+              </template>
+              <TransitionGroup
+                tag="ul"
+                name="fav"
+                class="cards"
+              >
+                <li
+                  v-for="f in rows.items.value"
+                  :key="f.id"
+                  class="card fav"
+                >
+                  <div class="head">
+                    <span
+                      class="icon-tile"
+                      :style="{ '--tile': tiles[f.kind] }"
+                    ><component
+                      :is="icons[f.kind]"
+                      aria-hidden="true"
+                    /></span>
+                    <div class="group-body">
+                      <RouterLink
+                        class="card-title"
+                        :to="target(f)"
+                      >
+                        {{ title(f) }}
+                      </RouterLink>
+                      <span class="subtle truncate">{{ kindLabel(f.kind) }}</span>
+                    </div>
+                    <DropdownMenuRoot :modal="false">
+                      <DropdownMenuTrigger
+                        class="btn btn-sm btn-icon plain"
+                        :aria-label="t('favorites.manageItem', { p0: title(f) })"
+                        :disabled="working.has(f.id)"
+                      >
+                        <MoreHorizontal aria-hidden="true" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuContent
+                          class="menu"
+                          align="end"
+                          :side-offset="6"
+                        >
+                          <DropdownMenuLabel class="menu-label">
+                            {{ t('favorites.moveTo') }}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem
+                            v-for="x in folderRows.filter((y) => y.id !== f.folder_id)"
+                            :key="x.id"
+                            class="menu-item"
+                            @select="move(f, x)"
+                          >
+                            <Folder aria-hidden="true" />{{ folderName(x) }}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator class="menu-sep" />
+                          <DropdownMenuItem
+                            class="menu-item"
+                            @select="remove(f)"
+                          >
+                            <Trash2 aria-hidden="true" />{{ t('favorites.remove') }}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuRoot>
+                  </div>
+                  <div class="foot">
+                    <span class="subtle truncate"><template v-if="!folder && folderOf(f.folder_id)">{{ folderName(folderOf(f.folder_id)!) }} · </template>{{ t('favorites.savedAt', { p0: ago(f.created_at) }) }}</span>
+                    <RouterLink
+                      class="btn btn-sm"
                       :to="target(f)"
                     >
-                      {{ title(f) }}
+                      {{ t('favorites.viewDetails') }}
                     </RouterLink>
-                    <span class="subtle truncate">{{ kindLabel(f.kind) }}</span>
                   </div>
-                  <DropdownMenuRoot :modal="false">
-                    <DropdownMenuTrigger
-                      class="btn btn-sm btn-icon plain"
-                      :aria-label="t('favorites.manageItem', { p0: title(f) })"
-                      :disabled="working.has(f.id)"
-                    >
-                      <MoreHorizontal aria-hidden="true" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuContent
-                        class="menu"
-                        align="end"
-                        :side-offset="6"
-                      >
-                        <DropdownMenuLabel class="menu-label">
-                          {{ t('favorites.moveTo') }}
-                        </DropdownMenuLabel>
-                        <DropdownMenuItem
-                          v-for="x in folderRows.filter((y) => y.id !== f.folder_id)"
-                          :key="x.id"
-                          class="menu-item"
-                          @select="move(f, x)"
-                        >
-                          <Folder aria-hidden="true" />{{ folderName(x) }}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator class="menu-sep" />
-                        <DropdownMenuItem
-                          class="menu-item"
-                          @select="remove(f)"
-                        >
-                          <Trash2 aria-hidden="true" />{{ t('favorites.remove') }}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuRoot>
-                </div>
-                <div class="foot">
-                  <span class="subtle truncate"><template v-if="!folder && folderOf(f.folder_id)">{{ folderName(folderOf(f.folder_id)!) }} · </template>{{ t('favorites.savedAt', { p0: ago(f.created_at) }) }}</span>
-                  <RouterLink
-                    class="btn btn-sm"
-                    :to="target(f)"
-                  >
-                    {{ t('favorites.viewDetails') }}
-                  </RouterLink>
-                </div>
-              </li>
-            </TransitionGroup>
-          </PagedState>
+                </li>
+              </TransitionGroup>
+            </PagedState>
+          </div>
         </section>
       </div>
     </AsyncState>

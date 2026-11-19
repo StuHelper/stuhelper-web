@@ -219,6 +219,7 @@ function removeReview(id: string) {
           {{ success }}
         </p>
         <MutationNotice
+          v-if="!removing && !appealing"
           :busy="write.busy.value"
           :error="write.error.value"
           :uncertain="write.uncertain.value"
@@ -433,6 +434,9 @@ function removeReview(id: string) {
       :message="t('me.deleteDraftConfirm')"
       :danger="removing?.kind === 'draft'"
       :busy="write.busy.value"
+      :error="write.error.value"
+      :uncertain="write.uncertain.value"
+      @retry="retry"
       @confirm="confirmRemove"
       @cancel="removing = undefined"
     />
@@ -442,6 +446,9 @@ function removeReview(id: string) {
       :message="t('me.appealHint')"
       :confirm-label="t('common.submit')"
       :busy="write.busy.value"
+      :error="write.error.value"
+      :uncertain="write.uncertain.value"
+      @retry="retry"
       @confirm="appeal"
       @cancel="appealing = undefined"
     >

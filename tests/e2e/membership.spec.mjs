@@ -95,3 +95,13 @@ test('a pending purchase keeps its account and reports the returned order state'
   expect(state.buys[1]).toEqual(state.buys[0]);
   expect(state.mine).toEqual([]);
 });
+
+test('a purchase sheet exposes a close button and returns focus to the plan', async ({ page }, info) => {
+  const { all, state } = await setup(page, info);
+  const opener = page.getByRole('listitem').filter({ hasText: 'Semester pass' }).getByRole('button', { name: all.membership.buy, exact: true });
+  await opener.click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.close, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  expect(state.buys).toHaveLength(0);
+});

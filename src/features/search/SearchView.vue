@@ -72,47 +72,53 @@ function submit() {
       :label="t('search.filter')"
       id-prefix="search-kind"
     />
-    <p
-      v-if="!q"
-      class="muted"
+    <div
+      id="search-kind-panel"
+      role="tabpanel"
+      :aria-labelledby="`search-kind-tab-${filter}`"
     >
-      {{ t('search.typeToSearch') }}
-    </p>
-    <PagedState
-      v-else
-      :status="list.status.value"
-      :error="list.error.value"
-      :count="list.items.value.length"
-      :next="list.next.value"
-      :appending="list.appending.value"
-      :empty-text="t('search.noMatch')"
-      @retry="list.reload"
-      @more="list.loadMore"
-    >
-      <ul
-        class="group"
-        :aria-label="t('search.results')"
+      <p
+        v-if="!q"
+        class="muted"
       >
-        <li
-          v-for="item in list.items.value"
-          :key="`${item.target.kind}:${item.target.id}`"
+        {{ t('search.typeToSearch') }}
+      </p>
+      <PagedState
+        v-else
+        :status="list.status.value"
+        :error="list.error.value"
+        :count="list.items.value.length"
+        :next="list.next.value"
+        :appending="list.appending.value"
+        :empty-text="t('search.noMatch')"
+        @retry="list.reload"
+        @more="list.loadMore"
+      >
+        <ul
+          class="group"
+          :aria-label="t('search.results')"
         >
-          <RouterLink
-            class="group-row has-icon"
-            :to="targetRoute(item.target)"
+          <li
+            v-for="item in list.items.value"
+            :key="`${item.target.kind}:${item.target.id}`"
           >
-            <span class="icon-tile"><component
-              :is="icons[item.target.kind]"
-              aria-hidden="true"
-            /></span>
-            <span class="group-body">
-              <span class="group-title">{{ item.title }}</span>
-              <span class="subtle">{{ t(`search.kinds.${item.target.kind}`) }}</span>
-            </span>
-          </RouterLink>
-        </li>
-      </ul>
-    </PagedState>
+            <RouterLink
+              class="group-row has-icon"
+              :to="targetRoute(item.target)"
+            >
+              <span class="icon-tile"><component
+                :is="icons[item.target.kind]"
+                aria-hidden="true"
+              /></span>
+              <span class="group-body">
+                <span class="group-title">{{ item.title }}</span>
+                <span class="subtle">{{ t(`search.kinds.${item.target.kind}`) }}</span>
+              </span>
+            </RouterLink>
+          </li>
+        </ul>
+      </PagedState>
+    </div>
   </div>
 </template>
 

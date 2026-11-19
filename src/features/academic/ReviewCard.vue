@@ -435,6 +435,7 @@ async function retry() {
     </form>
 
     <MutationNotice
+      v-if="!confirming"
       :busy="write.busy.value"
       :error="write.error.value"
       :uncertain="write.uncertain.value"
@@ -456,6 +457,9 @@ async function retry() {
       :confirm-label="t(confirming === 'delete' ? 'academic.review.delete' : 'academic.review.withdraw')"
       :danger="confirming === 'delete'"
       :busy="write.busy.value"
+      :error="write.error.value"
+      :uncertain="write.uncertain.value"
+      @retry="retry"
       @confirm="confirm"
       @cancel="confirming = ''"
     />

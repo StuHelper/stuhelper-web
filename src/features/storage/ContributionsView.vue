@@ -314,6 +314,7 @@ watch(completed, (value) => {
                 <span class="field-label">{{ t('contribution.untilInput', { zone }) }}</span>
                 <AppDateTime
                   v-model="until"
+                  :aria-label="t('contribution.untilInput', { zone })"
                   required
                 />
               </label>

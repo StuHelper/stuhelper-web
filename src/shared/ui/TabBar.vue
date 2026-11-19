@@ -3,7 +3,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 // Segmented control following the WAI-ARIA tabs pattern with automatic
 // activation. The thumb is measured so it can slide between labels of any length.
-const props = defineProps<{ tabs: { value: T; label: string }[]; label: string; idPrefix: string }>()
+const props = withDefaults(defineProps<{ tabs: { value: T; label: string }[]; label: string; idPrefix: string; panelId?: string }>(), { panelId: undefined })
 const model = defineModel<T>({ required: true })
 const root = ref<HTMLElement>()
 const buttons = ref<HTMLButtonElement[]>([])
@@ -75,7 +75,7 @@ onBeforeUnmount(() => observer?.disconnect())
       role="tab"
       type="button"
       :aria-selected="model === tab.value"
-      :aria-controls="`${idPrefix}-panel`"
+      :aria-controls="panelId ?? `${idPrefix}-panel`"
       :tabindex="model === tab.value ? 0 : -1"
       @click="model = tab.value"
       @keydown="move($event, index)"

@@ -398,6 +398,7 @@ function schoolName(id: string, schools: School[]) {
                   >
                     <input
                       v-model="form.material_type"
+                      name="teacher-material-type"
                       type="radio"
                       :value="type"
                     >
