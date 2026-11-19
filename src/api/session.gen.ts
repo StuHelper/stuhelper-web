@@ -20,6 +20,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description List the authenticated user's active local sessions using domain-separated opaque identifiers. */
+        get: operations["listSessions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/sessions/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Revoke a single active local session owned by the authenticated user. */
+        delete: operations["revokeSession"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/logout": {
         parameters: {
             query?: never;
@@ -391,6 +425,24 @@ export interface components {
         SessionMutationResult: {
             success: boolean;
         };
+        ActiveSession: {
+            id: string;
+            current: boolean;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            confirmed_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        ActiveSessionList: {
+            items: components["schemas"]["ActiveSession"][];
+        };
+        RevokeSessionResult: {
+            signed_out: boolean;
+            current_session: boolean;
+            upstream_ended?: boolean;
+        };
         /** @description Casdoor 4.24.0 record payload. Target is object.id or object.owner/name; user is the actor and is never the target. Extra official record fields are ignored. */
         CasdoorEvent: {
             /** Format: int64 */
@@ -398,8 +450,7 @@ export interface components {
             name: string;
             /** Format: date-time */
             createdTime: string;
-            /** @enum {string} */
-            action: "update-user" | "delete-user";
+            action: string;
             object: string;
             response: string;
         };
@@ -468,6 +519,123 @@ export interface operations {
             };
             /** @description Capacity exceeded */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    listSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActiveSessionList"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    revokeSession: {
+        parameters: {
+            query?: never;
+            header: {
+                Origin: string;
+                "X-CSRF-Token": string;
+            };
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RevokeSessionResult"];
+                };
+            };
+            /** @description Invalid session identifier */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden or invalid CSRF */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Session not found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -677,6 +845,15 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
+            /** @description Capacity exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
             /** @description dependency_unavailable when QQ has no configured provider name or the login flow cannot be saved */
             503: {
                 headers: {
@@ -701,7 +878,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Validated one-use response sets an HttpOnly application session and returns to the original frontend URL */
+            /** @description Validated one-use response sets an HttpOnly application session and returns to the original frontend URL; HTML browser requests on callback failures redirect to the primary configured frontend origin with ?auth_error=<code> */
             303: {
                 headers: {
                     [name: string]: unknown;
@@ -713,21 +890,45 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description Invalid token, issuer, audience or nonce */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden or closed business account */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Capacity exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description Provider or database unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };
@@ -799,7 +1000,10 @@ export interface operations {
     updateSessionPolicy: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                Origin: string;
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -868,7 +1072,10 @@ export interface operations {
     forceLogout: {
         parameters: {
             query?: never;
-            header?: never;
+            header: {
+                Origin: string;
+                "X-CSRF-Token": string;
+            };
             path?: never;
             cookie?: never;
         };
@@ -907,6 +1114,15 @@ export interface operations {
             };
             /** @description Forbidden */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description No matching known account */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

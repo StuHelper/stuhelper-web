@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import { member } from './demo-fixture.mjs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
@@ -22,6 +23,33 @@ function profiles(page, conflictFirst = false) {
   });
   return state;
 }
+
+test('profile writes use the current browser session and origin', async ({ page }, info) => {
+  const sessionId = randomUUID();
+  let csrf = randomUUID();
+  await page.context().addCookies([
+    { url: base, name: 'stuhelper_session', value: sessionId, httpOnly: true },
+    { url: base, name: 'stuhelper_csrf', value: csrf },
+  ]);
+  const writes = [];
+  await page.route('**/api/v1/profiles/me', async route => {
+    if (route.request().method() === 'GET') return route.fulfill({ json: member.profile });
+    const headers = await route.request().allHeaders();
+    writes.push({
+      session: headers.cookie?.split('; ').includes(`stuhelper_session=${sessionId}`),
+      origin: headers.origin,
+      csrf: headers['x-csrf-token'] === csrf,
+    });
+    return route.fulfill({ json: { ...member.profile, ...route.request().postDataJSON(), revision: member.profile.revision + 1 } });
+  });
+  const labels = catalogue(info).profile;
+  await page.goto(`${base}/me/profile?lang=${info.project.metadata.locale}`);
+  await page.getByRole('textbox', { name: labels.nickname, exact: true }).fill('Updated name');
+  csrf = randomUUID();
+  await page.context().addCookies([{ url: base, name: 'stuhelper_csrf', value: csrf }]);
+  await page.getByRole('button', { name: labels.save, exact: true }).click();
+  await expect.poll(() => writes).toEqual([{ session: true, origin: base, csrf: true }]);
+});
 
 test('profile counts code points, saves visibility and keeps input after a conflict', async ({ page }, info) => {
   const all = catalogue(info), p = all.profile, state = profiles(page, true);
