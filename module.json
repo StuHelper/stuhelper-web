@@ -19,18 +19,28 @@
   ],
   "scenario_tests": {
     "AE-ACCESS-05": [
-      "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote"
+      "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote",
+      "tests/e2e/search.spec.mjs#a member without campus access withdraws a selected review vote on the personal votes page"
+    ],
+    "PC-02": [
+      "tests/e2e/page-state-regressions.spec.mjs#an expired member edits draft text without resolving unverified catalog references"
     ],
     "DIRECTORY-NAVIGATION-01": [
       "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"
     ],
     "RES-CLIENT-01": [
+      "src/features/resources/api.test.ts#hashes a file incrementally and submits the digest of all its bytes",
+      "src/shared/api/http.test.ts#keeps a progressing download alive beyond a single timeout interval",
+      "src/features/resources/api.test.ts#waits for server verification without resending file content",
+      "src/features/resources/api.test.ts#cancels during hashing without creating a media session",
       "src/features/resources/api.test.ts#retries unknown writes with the frozen nested payload and original key",
-      "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again"
+      "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again",
+      "src/shared/api/http.test.ts#keeps a completed upload with an unreadable browser receipt from being sent twice"
     ],
     "RES-CLIENT-02": [
       "src/features/resources/api.test.ts#passes current host credentials and cancellation on every request",
-      "src/features/resources/api.test.ts#releases a known rejected mutation and clears private state even for non-JSON denial"
+      "src/features/resources/api.test.ts#releases a known rejected mutation and clears private state even for non-JSON denial",
+      "src/shared/composables/async.test.ts#clears private rows and their cursor on HTTP denial regardless of the business code"
     ],
     "RES-CLIENT-03": [
       "tests/e2e/resources.spec.mjs#configured category field filters and grouping follow server configuration"
@@ -104,7 +114,8 @@
     ],
     "WP-CLIENT-02": [
       "tests/e2e/membership.spec.mjs#buying a plan pays from the chosen account and lists the membership",
-      "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog"
+      "tests/e2e/membership.spec.mjs#an insufficient balance names the missing points in the purchase dialog",
+      "tests/e2e/membership.spec.mjs#a pending purchase keeps its account and reports the returned order state"
     ],
     "CAP-01": [
       "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
@@ -118,7 +129,8 @@
     "SESSION-AVAILABILITY-02": [
       "src/shared/session.test.ts#the retry component backs off and leaves an in-progress form mounted",
       "src/shared/session.test.ts#clears the snapshot after an explicit rejection even after an outage",
-      "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401"
+      "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401",
+      "src/shared/session.test.ts#forgets saved return filters and unread counts when the current session ends"
     ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
@@ -197,6 +209,18 @@
     ],
     "REVIEW-REPLY-PREVIEW-01": [
       "tests/e2e/academic.spec.mjs#review cards show the reply preview from the list without asking for replies one by one"
+    ],
+    "RS-27": [
+      "tests/e2e/resources.spec.mjs#a signed-in rights holder can file a complaint when resource details are denied"
+    ],
+    "PC-03": [
+      "tests/e2e/resources.spec.mjs#an uploader can correct owned metadata using its saved category when category browsing is denied"
+    ],
+    "WP-20": [
+      "tests/e2e/wallet.spec.mjs#a refund stores and replaces payout details without showing the stored account"
+    ],
+    "SV-TEACHER-01": [
+      "tests/e2e/teacher.spec.mjs#a failed teacher evidence read can be retried before editing"
     ]
   }
 }

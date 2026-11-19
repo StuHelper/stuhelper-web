@@ -12,8 +12,11 @@ const known = reactive(new Map<string, Entry>())
 const failed = reactive(new Set<string>())
 const pending = new Map<FavoriteKind, Set<string>>()
 let scheduled = false
+let generation = 0
 
 const keyOf = (kind: FavoriteKind, target: string) => `${kind}:${target}`
+
+export function favoriteGeneration() { return generation }
 
 export function favoriteOf(kind: FavoriteKind, target: string): Entry {
   return known.get(keyOf(kind, target))
@@ -41,7 +44,9 @@ export function requestFavorite(api: FavoritesApi, kind: FavoriteKind, target: s
   pending.set(kind, set)
   if (scheduled) return
   scheduled = true
+  const current = generation
   queueMicrotask(() => {
+    if (current !== generation) return
     scheduled = false
     const batches = [...pending]
     pending.clear()
@@ -50,10 +55,13 @@ export function requestFavorite(api: FavoritesApi, kind: FavoriteKind, target: s
 }
 
 async function load(api: FavoritesApi, kind: FavoriteKind, targets: string[]) {
+  const current = generation
   try {
     const found = await api.lookup(kind, targets)
+    if (current !== generation) return
     for (const target of targets) rememberFavorite(kind, target, found.get(target) ?? null)
   } catch (failure) {
+    if (current !== generation) return
     // Signed-out viewers have no favorites; any other failure leaves the state unknown.
     const signedOut = errorCode(failure) === 'unauthenticated'
     for (const target of targets) {
@@ -65,6 +73,10 @@ async function load(api: FavoritesApi, kind: FavoriteKind, targets: string[]) {
 
 /** Forget every known state, for example after signing out. */
 export function resetFavorites() {
+  moveTarget.value = undefined
+  generation++
+  scheduled = false
+  pending.clear()
   known.clear()
   failed.clear()
 }

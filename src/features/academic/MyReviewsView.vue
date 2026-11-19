@@ -2,8 +2,9 @@
 import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useErrorText } from '../../shared/ui/messages'
 import { useFormat } from '../../app/i18n'
-import { errorCode } from '../../shared/api/errors'
+import { ApiError, errorCode } from '../../shared/api/errors'
 import { useNow } from '../../shared/composables/clock'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
@@ -11,7 +12,7 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
-import { useCampusId } from '../account/access'
+import { useAccess, useCampusId } from '../account/access'
 import MeLayout from '../account/MeLayout.vue'
 import { arrayCursor, listSize, useAcademic, type Draft, type OwnOverview, type OwnVote, type Reference, type Result, type Review, type Task } from './api'
 import ReviewCard from './ReviewCard.vue'
@@ -38,9 +39,11 @@ const tab = computed<Tab>({
 })
 const tabs = computed(() => tabNames.map((value) => ({ value, label: t(`me.reviewTabs.${value}`) })))
 const names = shallowRef(new Map<string, Reference>())
-const editingSchool = ref('')
+const access = useAccess()
+const editingSchool = computed(() => access.state.value === 'verified' ? access.campus.value?.id ?? '' : '')
 const editing = shallowRef<Draft>()
 const composingPending = shallowRef<{ courseId: string; termId: string; schoolId: string }>()
+const errorText = useErrorText()
 const editError = ref('')
 const removing = shallowRef<{ kind: 'draft'; draft: Draft }>()
 const appealing = shallowRef<Task>()
@@ -68,14 +71,17 @@ const rows = usePaged<Row>(async (after, signal) => {
     const list = await api.myDrafts(query, signal)
     items = list.map((draft) => ({ kind: 'draft', draft }))
     next = arrayCursor(list, (row) => row.id)
-    ids = list.map((row) => row.input.target_id)
+    ids = list.flatMap((row) => row.reference_ids)
   } else {
     const list = await api.myTasks(query, signal)
     items = list.map((task) => ({ kind: 'task', task }))
     next = arrayCursor(list, (row) => row.id)
     ids = []
   }
-  const found = await api.references(ids, signal)
+  const found = await api.references(ids, signal).catch(error => {
+    if (error instanceof ApiError && error.status === 404) return new Map<string, Reference>()
+    throw error
+  })
   names.value = new Map([...(after ? names.value : []), ...found])
   return { items, next }
 })
@@ -113,8 +119,6 @@ async function edit(draft: Draft) {
   try {
     // Open the current saved copy, which another device may have changed.
     const current = await api.draft(draft.id)
-    // Editing validates against the current catalog, which requires content admission.
-    editingSchool.value = (await api.object(current.input.target_id)).school_id
     editing.value = current
   } catch (failure) {
     editError.value = errorCode(failure)
@@ -225,7 +229,7 @@ function removeReview(id: string) {
           class="notice notice-error"
           role="alert"
         >
-          {{ t('academic.editor.latestUnavailable') }}
+          {{ errorText(editError) }}
         </p>
 
         <ReviewEditor
@@ -401,7 +405,7 @@ function removeReview(id: string) {
                   <div class="row">
                     <RouterLink
                       class="btn btn-sm btn-ghost"
-                      :to="`/reviews/${encodeURIComponent(row.task.submission.object_id)}`"
+                      :to="`${row.task.submission.kind === 'report' ? '/reviews' : '/me/reviews/entries'}/${encodeURIComponent(row.task.submission.object_id)}`"
                     >
                       {{ t('me.viewContent') }}
                     </RouterLink>

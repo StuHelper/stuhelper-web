@@ -128,3 +128,34 @@ test('refund checks the amount, then asks for payout details when review require
   await expect(page.getByText(w.state.awaiting_manual, { exact: true })).toBeVisible();
   expect(state.writes.at(-1)).toMatchObject({ path: '/refunds/refund/receipt', body: { receipt_reference: 'Synthetic account 01' } });
 });
+
+test('a refund stores and replaces payout details without showing the stored account', async ({ page }, info) => {
+  const all = catalogue(info), w = all.wallet, state = await billing(page);
+  let record, writes = 0, reads = 0;
+  await page.route('**/api/v1/billing/refunds/refund/payee', route => {
+    if (route.request().method() === 'PUT') {
+      record = route.request().postDataJSON();
+      writes++;
+      state.orders = state.orders.map(row => row.id === 'refund' ? { ...row, state: 'awaiting_manual' } : row);
+    } else reads++;
+    return route.fulfill({ json: { method: '***', name: '***', account: '***' } });
+  });
+  await page.goto(`${base}/me/wallet?lang=${info.project.metadata.locale}`);
+  await page.getByRole('tab', { name: w.tabs.orders, exact: true }).click();
+  await page.getByRole('button', { name: w.refund.action, exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByLabel(w.refund.amount, { exact: true }).fill('1.00');
+  await dialog.getByLabel(w.refund.reason, { exact: true }).fill('Fixture refund');
+  await dialog.getByRole('checkbox', { name: w.payee.title, exact: true }).check();
+  const payee = { method: 'test method', name: 'Fixture recipient', account: 'sample-01' };
+  for (const [field, value] of Object.entries(payee)) await dialog.getByLabel(w.payee[field], { exact: true }).fill(value);
+  await dialog.getByRole('button', { name: w.refund.submit, exact: true }).click();
+  await expect.poll(() => state.writes.find(row => row.path === '/refunds')?.body.payee).toEqual(payee);
+  await page.getByRole('button', { name: w.payee.title, exact: true }).click();
+  await expect(dialog.getByText(w.payee.onFile, { exact: true })).toBeVisible();
+  await expect(dialog.getByLabel(w.payee.account, { exact: true })).toHaveValue('');
+  for (const [field, value] of Object.entries({ ...payee, account: 'sample-02' })) await dialog.getByLabel(w.payee[field], { exact: true }).fill(value);
+  await dialog.getByRole('button', { name: all.common.submit, exact: true }).click();
+  await expect(page.getByText(w.state.awaiting_manual, { exact: true })).toBeVisible();
+  expect({ reads, writes, record }).toEqual({ reads: 1, writes: 1, record: { ...payee, account: 'sample-02' } });
+});
