@@ -175,3 +175,18 @@ test('an expired member edits draft text without resolving unverified catalog re
   expect(saves[0]).toMatchObject({ id: 'draft', revision: 1, input: { target_id: 'hidden', title: 'Edited', term_id: 'term' } });
   expect(lookups).toEqual([]);
 });
+
+test('discarding a root reply clears its text and sends no write', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const writes = [];
+  page.on('request', req => { if (req.method() === 'POST' && req.url().includes('/reviews/')) writes.push(req.url()); });
+  await page.goto(`${base}/reviews/review?lang=${info.project.metadata.locale}`);
+  const form = page.locator('form.editor');
+  const body = form.getByRole('textbox').last();
+  await body.fill('Draft to discard');
+  await form.getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
+  await expect(body).toHaveValue('');
+  expect(writes).toEqual([]);
+});

@@ -196,7 +196,8 @@
       "tests/e2e/academic.spec.mjs#the quick view names the course at once, gives a verdict in words and retries a failed overview"
     ],
     "REVIEW-EDITOR-01": [
-      "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters"
+      "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters",
+      "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write"
     ],
     "NOTIFY-BELL-01": [
       "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center",
