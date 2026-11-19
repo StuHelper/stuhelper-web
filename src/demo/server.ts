@@ -164,7 +164,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return json({ signed_out: true, upstream_ended: true }) }
   if (p === '/profiles/me' && method === 'PUT') {
     const b = await body(init)
-    if (b.revision !== demoProfile.revision) return nope('conflict', 409)
+    if (b.revision !== demoProfile.revision) return json({ code: 'conflict', current: demoProfile }, 409)
     Object.assign(demoProfile, { nickname: b.nickname, bio: b.bio ?? demoProfile.bio, visibility: b.visibility ?? demoProfile.visibility, group_card_consent: b.group_card_consent ?? demoProfile.group_card_consent, revision: demoProfile.revision + 1 })
     return json(demoProfile)
   }

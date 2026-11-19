@@ -31,6 +31,14 @@ const academic = {
 }
 
 const routes: RouteRecordRaw[] = [
+  { path: '/community', redirect: '/campus' },
+  { path: '/community/me', redirect: '/me' },
+  { path: '/verification', redirect: '/me/verification' },
+  { path: '/contributions', redirect: '/me/storage' },
+  { path: '/storage-accounts', redirect: to => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
+  { path: '/me/storage-accounts', redirect: to => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
+  { path: '/resources/me', redirect: '/me/resources' },
+  { path: '/resources/requests', redirect: '/me/requests' },
   { path: '/', component: () => import('../features/portal/PortalView.vue'), meta: { section: 'portal' } },
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },

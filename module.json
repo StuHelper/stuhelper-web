@@ -210,7 +210,8 @@
       "tests/e2e/notifications.spec.mjs#opening an unread notification twice changes the count only once"
     ],
     "ME-MENU-01": [
-      "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
+      "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen",
+      "tests/e2e/page-state-regressions.spec.mjs#legacy personal links resolve to the current page and storage tab"
     ],
     "NOTIFY-NAME-01": [
       "src/features/notifications/title.test.ts#uses the current content name when the server provides it",

@@ -190,3 +190,13 @@ test('discarding a root reply clears its text and sends no write', async ({ page
   await expect(body).toHaveValue('');
   expect(writes).toEqual([]);
 });
+
+test('legacy personal links resolve to the current page and storage tab', async ({ page }, info) => {
+  await demo(page);
+  await page.goto(`${base}/?lang=${info.project.metadata.locale}`);
+  const routes = { '/community': '/campus', '/community/me': '/me', '/verification': '/me/verification', '/contributions': '/me/storage', '/storage-accounts': '/me/storage?tab=accounts', '/me/storage-accounts': '/me/storage?tab=accounts', '/resources/me': '/me/resources', '/resources/requests': '/me/requests' };
+  for (const [old, current] of Object.entries(routes)) {
+    await push(page, old);
+    await expect(page).toHaveURL(base + current);
+  }
+});

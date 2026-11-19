@@ -67,6 +67,8 @@ make dev
 
 “我的课程”功能开关位于 `src/app/features.ts`，正式构建恒为关闭，校园首页不读取选课记录。仅在同时设置 `VITE_DEMO=1` 与 `VITE_DEMO_MY_COURSES=1` 启动审阅原型时使用模拟数据展示周课表。
 
+旧入口 `/community`、`/community/me`、`/verification` 跳转到现行校园、个人中心及认证页。旧贡献和托管入口进入相应存储标签，`/resources/me` 与 `/resources/requests` 进入本人资料与回执页。
+
 ## 代码结构与传输层
 
 ```text
