@@ -304,6 +304,7 @@
     "home": "Volver al inicio"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "Has salido de este sitio. Tu sesión de inicio de sesión único puede seguir activa.",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión en este dispositivo",
     "signOutAll": "Cerrar sesión en todos los dispositivos",
