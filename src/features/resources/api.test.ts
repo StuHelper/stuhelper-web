@@ -209,3 +209,37 @@ it('hashes a file incrementally and submits the digest of all its bytes', async 
   expect(wholeFile).not.toHaveBeenCalled()
   expect(digest).toBe(expected)
 })
+
+it('waits for server verification without resending file content', async () => {
+  const methods: string[] = []
+  const received: string[] = []
+  let state: MediaVersion['state'] = 'created'
+  const api = new ResourcesApi(new Http(async (_path, init) => {
+    methods.push(init?.method ?? 'GET')
+    if (init?.method === 'POST') return Response.json(media)
+    if (init?.method === 'PUT' && init.body instanceof Blob) {
+      received.push(await init.body.text())
+      state = 'verifying'
+      if (received.length === 1) throw new TypeError('lost upload response')
+      return Response.json({ ...media, state })
+    }
+    return view({ state })
+  }))
+  const upload = new Upload(api, new File(['hello'], 'lecture.txt'), 'purpose')
+  await expect(upload.run()).rejects.toMatchObject({ uncertain: true })
+  expect((await upload.run()).state).toBe('verifying')
+  state = 'ready'
+  expect((await upload.run()).state).toBe('ready')
+  expect(methods).toEqual(['POST', 'GET', 'PUT', 'GET', 'GET'])
+  expect(received).toEqual(['hello'])
+})
+
+it('cancels during hashing without creating a media session', async () => {
+  const send = vi.fn<typeof fetch>(async () => Response.json(media))
+  const upload = new Upload(new ResourcesApi(new Http(send)), new File(['hello'], 'lecture.txt'), 'purpose')
+  const transfer = upload.run()
+  const stopped = expect(transfer).rejects.toMatchObject({ code: 'cancelled' })
+  await expect(upload.cancel()).rejects.toMatchObject({ code: 'cancelled', uncertain: false })
+  await stopped
+  expect(send).not.toHaveBeenCalled()
+})

@@ -828,6 +828,7 @@
       "accept": "He leído y acepto las condiciones actuales"
     },
     "editor": {
+      "selectCategory": "Elige una categoría de recursos disponible.",
       "intro": "Tres pasos: guardar los datos, subir el archivo y enviar a revisión. La versión publicada sigue disponible durante la revisión.",
       "step1": "1. Datos",
       "step2": "2. Archivo",

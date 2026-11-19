@@ -27,6 +27,8 @@
     "RES-CLIENT-01": [
       "src/features/resources/api.test.ts#hashes a file incrementally and submits the digest of all its bytes",
       "src/shared/api/http.test.ts#keeps a progressing download alive beyond a single timeout interval",
+      "src/features/resources/api.test.ts#waits for server verification without resending file content",
+      "src/features/resources/api.test.ts#cancels during hashing without creating a media session",
       "src/features/resources/api.test.ts#retries unknown writes with the frozen nested payload and original key",
       "src/features/resources/api.test.ts#resolves a lost upload response by querying state without sending bytes again"
     ],
