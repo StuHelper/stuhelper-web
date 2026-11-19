@@ -4,6 +4,7 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CustodyBinding } from '../../api/custody'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
@@ -28,6 +29,7 @@ const showForm = computed(() => !!editing.value || adding.value || !data.value?.
 const invalid = ref(false)
 const title = ref<HTMLElement>()
 const locked = computed(() => loading.value || sending.value || !!recovery.value)
+useLeaveGuard(() => recovery.value ? t('common.leaveUncertain') : sending.value ? t('common.leaveUnsaved') : '')
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
 
@@ -83,7 +85,7 @@ function goFirst() {
   void reload('')
 }
 const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
-defineExpose({ refresh: () => { paged.value = false; return reload('') } })
+defineExpose({ clearSecrets, refresh: () => { paged.value = false; return reload('') } })
 watch(error, (value) => {
   if (value === 'forbidden' || value === 'unauthenticated') reset()
 })

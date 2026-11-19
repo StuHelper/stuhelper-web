@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { CircleCheck, CircleX } from 'lucide-vue-next'
-import { onMounted, ref } from 'vue'
+import { onMounted, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { errorCode } from '../../shared/api/errors'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import { useQqBindingApi, type QqStatus } from './api'
@@ -20,10 +21,17 @@ const result = ref<QqStatus>()
 
 const single = (value: unknown) => (typeof value === 'string' ? value : '')
 
-onMounted(async () => {
-  const state = single(route.query.state)
-  const code = single(route.query.code)
-  void router.replace({ path: route.path, query: {} })
+const lifetime = new AbortController()
+onBeforeUnmount(() => lifetime.abort())
+const key = crypto.randomUUID()
+const state = single(route.query.state)
+const code = single(route.query.code)
+const providerError = single(route.query.error)
+const retryable = ref(false)
+useLeaveGuard(() => phase.value === 'working' || retryable.value ? t('common.leaveUncertain') : '')
+async function confirm() {
+  retryable.value = false
+  phase.value = 'working'
   if (!state) {
     phase.value = 'failed'
     failure.value = 'invalid_state'
@@ -31,17 +39,22 @@ onMounted(async () => {
   }
   try {
     if (code) {
-      result.value = await api.confirmConnect({ state, code }, crypto.randomUUID())
+      result.value = await api.confirmConnect({ state, code }, key, undefined, lifetime.signal)
       phase.value = 'bound'
     } else {
       // Declining at QQ still ends this attempt so the state cannot be used later.
-      result.value = await api.cancelConnect({ state }, crypto.randomUUID())
-      phase.value = 'declined'
+      result.value = await api.cancelConnect({ state }, key, lifetime.signal)
+      phase.value = providerError === 'access_denied' ? 'declined' : 'failed'
     }
   } catch (error) {
     phase.value = 'failed'
+    retryable.value = !lifetime.signal.aborted && ['network', 'timeout', 'processing', 'unavailable'].includes(errorCode(error))
     failure.value = errorCode(error).replace(/^qq_binding_/, '')
   }
+}
+onMounted(() => {
+  void router.replace({ path: route.path, query: {} })
+  void confirm()
 })
 
 const known = ['invalid_state', 'reauthorization_required', 'processing', 'unionid_missing', 'already_bound', 'ownership_conflict', 'rate_limited', 'account_closed', 'unavailable']
@@ -88,6 +101,14 @@ const known = ['invalid_state', 'reauthorization_required', 'processing', 'union
         />
         <p>{{ t(known.includes(failure) ? `qq.errors.${failure}` : 'qq.errors.unavailable') }}</p>
       </template>
+      <button
+        v-if="retryable"
+        class="btn"
+        type="button"
+        @click="confirm"
+      >
+        {{ t('common.retryOriginal') }}
+      </button>
       <RouterLink
         v-if="phase !== 'working'"
         class="btn btn-primary"

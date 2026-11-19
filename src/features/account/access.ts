@@ -3,7 +3,7 @@ import { ApiError } from '../../shared/api/errors'
 import { Http } from '../../shared/api/http'
 import type { SessionStore } from '../../shared/session'
 import { AcademicApi, type CatalogObject } from '../academic/api'
-import { VerificationApi, type Application, type Credential, type Summary } from '../verification/api'
+import { VerificationApi, verificationPages, type Application, type Credential, type Summary } from '../verification/api'
 
 /** Whether the current account may enter content pages. Specific actions keep their own rules. */
 export type AccessState = 'loading' | 'guest' | 'unverified' | 'processing' | 'verified' | 'expired' | 'unavailable'
@@ -12,7 +12,7 @@ const open = new Set<Application['state']>(['in_progress', 'pending_review', 'su
 
 export function deriveAccess(summary: Summary, applications: Application[], credentials: Credential[]): AccessState {
   if (summary.campus_eligibility) return 'verified'
-  if (applications.some((row) => open.has(row.state))) return 'processing'
+  if (applications.some((row) => row.kind !== 'teacher' && open.has(row.state))) return 'processing'
   if (credentials.some((row) => row.state === 'expired' || row.state === 'revoked')) return 'expired'
   return 'unverified'
 }
@@ -46,8 +46,8 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
       let next: AccessState = 'verified'
       if (!summary.campus_eligibility) {
         const [applications, credentials] = await Promise.all([
-          verification.list('Application', '/api/v1/verification/applications', {}),
-          verification.list('Credential', '/api/v1/verification/credentials', {}),
+          verificationPages(after => verification.list('Application', '/api/v1/verification/applications', { after, limit: 100 })),
+          verificationPages(after => verification.list('Credential', '/api/v1/verification/credentials', { after, limit: 100 })),
         ])
         next = deriveAccess(summary, applications.items, credentials.items)
       }

@@ -21,6 +21,8 @@ async function setup(page, info, options = {}) {
     if (path === '/api/v1/billing/memberships' && request.method() === 'POST') {
       state.buys.push({ body: request.postDataJSON(), key: request.headers()['idempotency-key'] });
       if (options.buyCode) return route.fulfill({ status: 409, json: { code: options.buyCode } });
+      if (options.dropFirst && state.buys.length === 1) return route.abort();
+      if (options.orderState) return route.fulfill({ json: { ...order, state: options.orderState } });
       state.mine = [{ plan_id: 'semester', plan_name: 'Semester pass', valid_from: '2026-11-10T00:00:00Z', valid_until: '2027-03-10T00:00:00Z', revision: 1, source: 'purchase' }];
       return route.fulfill({ json: order });
     }
@@ -72,6 +74,26 @@ test('an insufficient balance names the missing points in the purchase dialog', 
   await page.getByRole('dialog').getByRole('button', { name: new RegExp(m.confirm.replace('{price}', '.+')) }).click();
   const missing = fill(all.wallet.pointsAmount, { amount: new Intl.NumberFormat(info.project.metadata.locale).format(180) });
   await expect(page.getByText(fill(all.resources.unlock.short, { amount: missing }), { exact: true })).toBeVisible();
+});
+
+
+test('a pending purchase keeps its account and reports the returned order state', async ({ page }, info) => {
+  const { all, state } = await setup(page, info, { dropFirst: true, orderState: 'processing' });
+  const plan = page.getByRole('listitem').filter({ hasText: 'Semester pass' });
+  await plan.getByRole('button', { name: all.membership.buy, exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByRole('button', { name: new RegExp(all.membership.confirm.replace('{price}', '.+')) }).click();
+  const retry = dialog.getByRole('button', { name: all.common.retry, exact: true });
+  await expect(retry).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('radio').last()).toBeDisabled();
+  await retry.click();
+  await expect(page.getByRole('status').filter({ hasText: all.wallet.state.processing })).toBeVisible();
+  await expect(page.getByText(all.membership.bought, { exact: true })).toHaveCount(0);
+  expect(state.buys).toHaveLength(2);
+  expect(state.buys[1]).toEqual(state.buys[0]);
+  expect(state.mine).toEqual([]);
 });
 
 test('a purchase sheet exposes a close button and returns focus to the plan', async ({ page }, info) => {

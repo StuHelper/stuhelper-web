@@ -50,6 +50,7 @@ const shortcuts = [
   { to: '/courses', title: 'nav.courses', icon: BookOpen, tile: 'var(--c-blue)' },
   ...(teacherDirectoryEnabled ? [{ to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: 'var(--c-purple)' }] : []),
   { to: '/resources', title: 'nav.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
+  { to: '/popular', title: 'search.popular.title', icon: Flame, tile: 'var(--c-orange)' },
   { to: '/compare', title: 'search.compare.title', icon: Scale, tile: 'var(--c-indigo)' },
   { to: '/me/favorites', title: 'browse.favorites', icon: Bookmark, tile: 'var(--c-pink)' },
 ] as const
@@ -116,7 +117,8 @@ const hotDetail = (row: NonNullable<typeof hot.data.value>[number]) => {
 const kindLabel = (kind: string) => t(kind === 'course' ? 'nav.courses' : kind === 'teacher' ? 'nav.teachers' : 'browse.resourcesShort')
 function search() {
   const q = query.value.trim()
-  void router.push(q ? withFilters('/courses', { q }) : '/courses')
+  const path = available('/search') ? '/search' : '/courses'
+  void router.push(q ? withFilters(path, { q }) : path)
 }
 </script>
 
@@ -178,8 +180,8 @@ function search() {
       >
         <SearchField
           v-model="query"
-          :aria-label="t('browse.searchHomeLabel')"
-          :placeholder="t('browse.searchHomeHint')"
+          :aria-label="t(available('/search') ? 'browse.searchHomeLabel' : 'nav.courses')"
+          :placeholder="t(available('/search') ? 'browse.searchHomeHint' : 'nav.courses')"
         />
       </form>
     </header>

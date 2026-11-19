@@ -5,6 +5,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import type { Command, Contribution } from '../../api/contribution'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -28,6 +29,7 @@ const bytes = (value: number) => format.value.bytes(value)
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
 const desired: Record<Contribution['desired_state'], string> = { active: 'resume', paused: 'pause', exiting: 'exit', revoked: 'revoke' }
 const locked = computed(() => loading.value || sending.value || !!pending.value)
+useLeaveGuard(() => pending.value ? t('common.leaveUncertain') : sending.value ? t('common.leaveUnsaved') : '')
 const instance = ref('')
 const limit = ref('')
 const reserve = ref('0')
@@ -49,7 +51,10 @@ const custody = ref<InstanceType<typeof CustodyPanel>>()
 const custodyOpened = ref(tab.value === 'accounts')
 watch(tab, (value) => {
   if (value === 'accounts') custodyOpened.value = true
-  else void reload()
+  else {
+    custody.value?.clearSecrets()
+    void reload()
+  }
 })
 function refresh() {
   void reload()

@@ -1,4 +1,5 @@
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
+import { verificationPages } from './api'
 import { ApiError, errorCode } from '../../shared/api/errors'
 import { useVerification, type Application, type Credential, type EmailChallenge, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
 
@@ -120,8 +121,8 @@ export function useVerificationFlow() {
       const signal = lifetime.signal
       const [s, a, c, r, state] = await Promise.all([
         api.list('School', '/api/v1/verification/schools', { limit: 100, signal }),
-        api.list('Application', '/api/v1/verification/applications', { signal }),
-        api.list('Credential', '/api/v1/verification/credentials', { signal }),
+        verificationPages(after => api.list('Application', '/api/v1/verification/applications', { after, limit: 100, signal })),
+        verificationPages(after => api.list('Credential', '/api/v1/verification/credentials', { after, limit: 100, signal })),
         api.list('RemovalRequest', '/api/v1/verification/requests', { signal }),
         api.get('Summary', '/api/v1/verification/summary', signal),
       ])
@@ -362,8 +363,9 @@ export function useVerificationFlow() {
     form.code = ''
     await reload()
     // A finished application leaves nothing to edit; start over with the outcome shown.
-    if (active.value?.state === 'approved') backToMethod()
-    notice.value = 'verified'
+    const approved = active.value?.state === 'approved'
+    if (approved) backToMethod()
+    notice.value = approved ? 'verified' : 'schoolProgress'
   }, 'email')
 
   const refreshApplication = () => action(async () => {

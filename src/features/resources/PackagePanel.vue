@@ -42,7 +42,7 @@ async function download(number: number) {
   <section class="card stack">
     <h2>{{ t('resources.package.title') }}</h2>
     <p class="small muted">
-      {{ t('resources.package.instructions', { count: format.number(pack.parts.length) }) }}
+      {{ t('resources.package.instructions', { count: format.number(pack.parts.length) }, pack.parts.length) }}
     </p>
     <div
       v-if="expired"
