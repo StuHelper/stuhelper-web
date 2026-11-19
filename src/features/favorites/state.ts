@@ -80,3 +80,10 @@ export function resetFavorites() {
   known.clear()
   failed.clear()
 }
+
+
+export function forgetFolderFavorites(folder: string) {
+  for (const [key, item] of known) {
+    if (item?.folder_id === folder) known.delete(key)
+  }
+}
