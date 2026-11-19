@@ -9,7 +9,7 @@ const disposals: (() => void)[] = [];
 afterEach(() => { for (const dispose of disposals.splice(0)) dispose(); });
 async function settle() { for (let i = 0; i < 10; i++) await Promise.resolve(); await nextTick(); }
 function fixture() {
-  return { list: vi.fn().mockResolvedValue(parsePage(example.page)), options: vi.fn().mockResolvedValue(example.options), policy: vi.fn().mockResolvedValue(parsePolicy(example.policy)), statistics: vi.fn().mockResolvedValue(parseStatistics(example.statistics)), get: vi.fn(), execute: vi.fn() };
+  return { metrics: vi.fn(), list: vi.fn().mockResolvedValue(parsePage(example.page)), options: vi.fn().mockResolvedValue(example.options), policy: vi.fn().mockResolvedValue(parsePolicy(example.policy)), statistics: vi.fn().mockResolvedValue(parseStatistics(example.statistics)), get: vi.fn(), execute: vi.fn() };
 }
 function mount(api: ReturnType<typeof fixture>, admin = false) {
   let model: ReturnType<typeof useContributions> | undefined;

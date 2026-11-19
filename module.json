@@ -249,6 +249,14 @@
     ],
     "SSO-01": [
       "tests/e2e/profile.spec.mjs#profile writes use the current browser session and origin"
+    ],
+    "CM-10": [
+      "src/features/account/lifecycle-actions.test.ts#keeps evidence after a refusal and appends it to the selected pending appeal",
+      "tests/e2e/my-reviews-discussion.spec.mjs#a pending appeal receipt appends evidence to its original request after a lost response"
+    ],
+    "ST-03": [
+      "src/features/account/lifecycle-actions.test.ts#requires new consent and a future end date to reopen the exited binding",
+      "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command"
     ]
   }
 }

@@ -703,7 +703,11 @@
       "services": "その他のサービス"
     },
     "pendingCoursesTitle": "評価待ちの授業",
-    "writePendingReview": "評価を書く"
+    "writePendingReview": "評価を書く",
+    "addEvidence": "証拠を追加",
+    "addEvidenceHint": "審査待ちの異議申立てに新しい証拠を追加します。",
+    "evidenceText": "追加する証拠",
+    "evidenceAdded": "元の異議申立てに証拠を追加しました。"
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -1296,7 +1300,8 @@
       "revoke": "認可を取り消す",
       "configure": "共有上限を変更",
       "renew": "期間を延長",
-      "retry": "処理を再試行"
+      "retry": "処理を再試行",
+      "reopen": "再有効化"
     },
     "states": {
       "pending": "処理待ち",

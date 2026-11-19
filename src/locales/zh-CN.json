@@ -703,7 +703,11 @@
       "services": "更多服务"
     },
     "pendingCoursesTitle": "待评价课程",
-    "writePendingReview": "去写评价"
+    "writePendingReview": "去写评价",
+    "addEvidence": "补充证据",
+    "addEvidenceHint": "新证据将追加到这条待审复核申请。",
+    "evidenceText": "补充证据内容",
+    "evidenceAdded": "证据已追加到原复核申请。"
   },
   "resources": {
     "eyebrow": "资料共享",
@@ -1296,7 +1300,8 @@
       "revoke": "撤销授权",
       "configure": "调整共享额度",
       "renew": "续期",
-      "retry": "重试处理"
+      "retry": "重试处理",
+      "reopen": "重新启用"
     },
     "states": {
       "pending": "等待处理",

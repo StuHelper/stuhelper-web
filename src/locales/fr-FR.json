@@ -703,7 +703,11 @@
       "services": "Autres services"
     },
     "pendingCoursesTitle": "Cours en attente de votre avis",
-    "writePendingReview": "Rédiger un avis"
+    "writePendingReview": "Rédiger un avis",
+    "addEvidence": "Ajouter des éléments",
+    "addEvidenceHint": "Ajoutez des éléments à ce recours en attente.",
+    "evidenceText": "Éléments supplémentaires",
+    "evidenceAdded": "Les éléments ont été ajoutés au recours initial."
   },
   "resources": {
     "eyebrow": "Partage de ressources",
@@ -1296,7 +1300,8 @@
       "revoke": "Révoquer l’autorisation",
       "configure": "Modifier le quota",
       "renew": "Renouveler",
-      "retry": "Relancer le traitement"
+      "retry": "Relancer le traitement",
+      "reopen": "Réactiver"
     },
     "states": {
       "pending": "En attente",

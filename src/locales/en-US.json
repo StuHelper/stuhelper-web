@@ -703,7 +703,11 @@
       "services": "More services"
     },
     "pendingCoursesTitle": "Courses waiting for your review",
-    "writePendingReview": "Write review"
+    "writePendingReview": "Write review",
+    "addEvidence": "Add evidence",
+    "addEvidenceHint": "Add new evidence to this pending appeal.",
+    "evidenceText": "Additional evidence",
+    "evidenceAdded": "Evidence added to the original appeal."
   },
   "resources": {
     "eyebrow": "Resource sharing",
@@ -1296,7 +1300,8 @@
       "revoke": "Revoke authorization",
       "configure": "Adjust quota",
       "renew": "Renew",
-      "retry": "Retry processing"
+      "retry": "Retry processing",
+      "reopen": "Reactivate"
     },
     "states": {
       "pending": "Pending",

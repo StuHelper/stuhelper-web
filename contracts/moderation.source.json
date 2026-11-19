@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-moderation",
-  "revision": "25e9c5b6edfd6f94d7196e82a4542180e388bcb7",
+  "revision": "a8f5a3e39ba1c9c830562d5ad0701520cdf64c5f",
   "version": "0.4.0",
   "files": {
     "contracts/moderation.openapi.json": "contracts/moderation.openapi.json",
     "sdk/moderation.gen.ts": "src/api/moderation.gen.ts"
   },
   "sha256": {
-    "contracts/moderation.openapi.json": "0f69bd516da661cfe4b772e373c2a8759606463a6a5d5a847456ed5999c6280a",
-    "src/api/moderation.gen.ts": "778609f61ce58b9af7ed5f191c4baac6e837cd00b0e7c8d2f7a909f8979c0e6e"
+    "contracts/moderation.openapi.json": "64447a73c4c32486d9f71123a7bd079bb65a1747283a08b1315afe0c248ea16f",
+    "src/api/moderation.gen.ts": "751de0cafde727b8d501d95df07087630dd515efa37326eadccdcb3f5afbf717"
   }
 }

@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-resources",
-  "revision": "22bbb70415e833a7d81a36e29dbc36d9a0dbf92a",
+  "revision": "e766edf47daa0a5d8a8da631a76a00affd4b3a24",
   "version": "0.6.1",
   "files": {
     "contracts/resources.openapi.json": "contracts/resources.openapi.json",

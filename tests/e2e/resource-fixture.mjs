@@ -69,6 +69,7 @@ export function fixture() {
     approved: false,
     upload_expires_at: '2030-01-01T00:00:00Z',
     retain_until: '2030-01-02T00:00:00Z',
+    uploaded_bytes: 0,
     cleanup_complete: false,
     error_code: '',
   };
