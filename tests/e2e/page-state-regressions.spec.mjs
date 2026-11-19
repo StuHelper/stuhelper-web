@@ -149,3 +149,18 @@ test('own vote receipts open their discussion and a withdrawal removes only the 
   await expect(page.getByText(all.search.votes.up, { exact: true })).toBeVisible();
   expect(votes.map(vote => vote.id)).toEqual(['up']);
 });
+
+test('discarding a root reply clears its text and sends no write', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const writes = [];
+  page.on('request', req => { if (req.method() === 'POST' && req.url().includes('/reviews/')) writes.push(req.url()); });
+  await page.goto(`${base}/reviews/review?lang=${info.project.metadata.locale}`);
+  const form = page.locator('form.editor');
+  const body = form.getByRole('textbox').last();
+  await body.fill('Draft to discard');
+  await form.getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
+  await expect(body).toHaveValue('');
+  expect(writes).toEqual([]);
+});

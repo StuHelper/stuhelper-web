@@ -3,7 +3,7 @@ import { ChevronDown } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
-import { errorCode } from '../../shared/api/errors'
+import { ApiError, errorCode } from '../../shared/api/errors'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 
 // One department in the grouped course directory. The section reads its own first rows when
@@ -29,7 +29,7 @@ const expanded = ref(false)
 const complete = ref(false)
 let controller: AbortController | undefined
 
-async function read(all: boolean) {
+async function read(all: boolean, retryConflict = true) {
   controller?.abort()
   const current = new AbortController()
   controller = current
@@ -44,19 +44,23 @@ async function read(all: boolean) {
     } else {
       // Rows appear page by page so a large department does not wait for its last page.
       let after = ''
-      let loaded: T[] = []
+      const loaded: T[] = []
+      const cursors = new Set<string>()
       do {
         const page = await props.load(after, pageLimit, current.signal)
         if (controller !== current) return
-        loaded = [...loaded, ...page.items]
-        rows.value = loaded
-        after = page.next && page.next !== after ? page.next : ''
+        loaded.push(...page.items)
+        rows.value = [...loaded]
+        after = page.next
+        if (after && (cursors.has(after) || !page.items.length || loaded.length >= props.count)) throw new ApiError('conflict', false, 409)
+        cursors.add(after)
       } while (after)
       complete.value = true
     }
     status.value = 'ready'
   } catch (failure) {
     if (controller !== current) return
+    if (retryConflict && all && failure instanceof ApiError && failure.status === 409) return read(all, false)
     error.value = errorCode(failure)
     status.value = 'error'
   }
