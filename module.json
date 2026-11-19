@@ -26,6 +26,7 @@
       "tests/e2e/page-state-regressions.spec.mjs#an expired member edits draft text without resolving unverified catalog references"
     ],
     "DIRECTORY-NAVIGATION-01": [
+      "tests/e2e/academic.spec.mjs#a nature filter in navigation state reaches the directory without changing the URL",
       "tests/e2e/academic.spec.mjs#course and teacher directories keep filters independent across navigation"
     ],
     "RES-CLIENT-01": [
