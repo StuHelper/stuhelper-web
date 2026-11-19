@@ -98,3 +98,24 @@ test('closure needs the points acknowledgement and the typed phrase, and can be 
   await page.getByRole('alertdialog').or(page.getByRole('dialog')).getByRole('button', { name: c.cancel, exact: true }).click();
   await expect(page.getByRole('button', { name: c.request, exact: true })).toBeVisible();
 });
+
+test('a lost QQ confirmation retries the original callback without returning its code to the address', async ({ page }, info) => {
+  const all = catalogue(info);
+  const state = qq(page), calls = [];
+  await page.route('**/api/v1/qq-binding/connect/confirm', route => {
+    calls.push({ key: route.request().headers()['idempotency-key'], body: route.request().postDataJSON() });
+    return calls.length === 1 ? route.abort() : route.fallback();
+  });
+  await page.goto(`${base}/me/qq/callback?state=fixture-state&code=fixture-code&lang=${info.project.metadata.locale}`);
+  const retry = page.getByRole('button', { name: all.common.retryOriginal, exact: true });
+  await expect(retry).toBeVisible();
+  expect(new URL(page.url()).searchParams.has('code')).toBe(false);
+  await page.getByRole('link', { name: all.qq.callback.back, exact: true }).last().click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await retry.click();
+  await expect(page.getByText(all.qq.callback.bound, { exact: true })).toBeVisible();
+  expect(state.parts.connect).toEqual({ bound: true, revision: 1 });
+  expect(calls).toHaveLength(2);
+  expect(calls[0]).toMatchObject({ key: expect.any(String), body: { state: 'fixture-state', code: 'fixture-code' } });
+  expect(calls[1]).toEqual(calls[0]);
+});

@@ -169,3 +169,27 @@ test('the quick view can move a favorite and recovers the saved revision after a
   await expect(picker).toHaveCount(0);
   expect(moves).toBe(2);
 });
+
+test('a rejected folder name keeps the input but lets focus move without another write', async ({ page }, info) => {
+  const f = catalogue(info).favorites;
+  const state = favorites(page);
+  const attempts = [];
+  await page.route('**/api/v1/favorites/folders', route => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    attempts.push(route.request().postDataJSON());
+    return route.fulfill({ status: 409, json: { code: 'conflict' } });
+  });
+  await page.goto(`${base}/me/favorites?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: f.newFolder, exact: true }).click();
+  const name = page.getByRole('textbox', { name: f.newFolderName, exact: true });
+  const search = page.getByRole('searchbox', { name: f.search, exact: true });
+  await name.fill('Already used');
+  await search.click();
+  await expect(page.getByRole('alert')).toHaveText(f.folderNameTaken);
+  await expect(search).toBeFocused();
+  await name.focus();
+  await search.focus();
+  await expect(name).toHaveValue('Already used');
+  expect(attempts).toEqual([{ name: 'Already used' }]);
+  expect(state.folders.map(folder => folder.id)).toEqual(['default', 'exam']);
+});
