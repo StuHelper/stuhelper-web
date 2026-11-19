@@ -273,15 +273,37 @@ export class Http {
 
   /** Download a bounded binary response. */
   async blob(path: string, limit: number, options: RequestOptions = {}): Promise<Blob> {
-    const opened = await this.open(path, { timeout: 120_000, redirect: 'follow', ...options, headers: { Accept: '*/*', ...options.headers } })
+    const timeout = options.timeout ?? 120_000
+    const idle = new AbortController()
+    const signal = options.signal ? AbortSignal.any([options.signal, idle.signal]) : idle.signal
+    const opened = await this.open(path, { redirect: 'follow', ...options, timeout, signal, headers: { Accept: '*/*', ...options.headers } })
+    // After headers the budget applies to inactivity between chunks, not the size of the download.
+    opened.finish()
+    let timer: ReturnType<typeof setTimeout>
+    const progress = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => idle.abort(), timeout)
+    }
+    progress()
     try {
-      const bytes = await readLimited(opened.response, limit, opened.signal)
-      return new Blob([bytes], { type: opened.response.headers.get('Content-Type') ?? 'application/octet-stream' })
+      const { body, headers } = opened.response
+      const type = headers.get('Content-Type') ?? 'application/octet-stream'
+      if (!body) return new Blob([], { type })
+      let size = 0
+      const bounded = body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+        transform(chunk, controller) {
+          size += chunk.byteLength
+          if (size > limit) throw new ApiError('capacity_exceeded')
+          progress()
+          controller.enqueue(chunk)
+        },
+      }), { signal })
+      return await new Response(bounded, { headers: { 'Content-Type': type } }).blob()
     } catch (failure) {
       if (failure instanceof ApiError) throw failure
-      throw opened.failure()
+      throw new ApiError(options.signal?.aborted ? 'cancelled' : idle.signal.aborted ? 'timeout' : 'network')
     } finally {
-      opened.finish()
+      clearTimeout(timer!)
     }
   }
 }
