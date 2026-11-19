@@ -100,7 +100,8 @@
       "tests/e2e/groups.spec.mjs#an empty list and a failed load each say so"
     ],
     "PC-12": [
-      "tests/e2e/profile.spec.mjs#group card fields start off and only the allowed ones are saved"
+      "tests/e2e/profile.spec.mjs#group card fields start off and only the allowed ones are saved",
+      "tests/e2e/profile.spec.mjs#an interrupted profile update retries the original content and key"
     ],
     "RES-CLIENT-08": [
       "tests/e2e/unlock.spec.mjs#buying access waits for the grant before offering the download",

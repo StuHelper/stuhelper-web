@@ -8,6 +8,7 @@ import { httpsUrl } from '../../shared/urls'
 import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation, usePaged } from '../../shared/composables/async'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
@@ -152,13 +153,17 @@ async function cancelPayment() {
   const result = await cancelWrite.run(`cancel:${order.id}`, undefined, (_, key) => api.cancel(order.id, key))
   if (result) settled(result)
 }
+async function retryCancel() {
+  const order = await cancelWrite.retry()
+  if (order) settled(order as Order)
+}
 function settled(order: Order) {
   paying.value = order
   refreshAll()
   if (order.state === 'succeeded') toast(t('wallet.topup.credited', { amount: ivory(order.amount_minor) }))
 }
 function closeTopup() {
-  if (topupWrite.busy.value || topupWrite.uncertain.value) return
+  if (topupWrite.busy.value || topupWrite.uncertain.value || cancelWrite.busy.value || cancelWrite.uncertain.value) return
   topupOpen.value = false
   paying.value = undefined
   qr.value = ''
@@ -277,6 +282,7 @@ function refunded() {
 const receiptFor = shallowRef<Order>()
 const receipt = ref('')
 const receiptWrite = useMutation()
+useLeaveGuard(() => [topupWrite, buyWrite, cancelWrite, refundWrite, receiptWrite].some(action => action.uncertain.value) ? t('common.leaveUncertain') : '')
 async function submitReceipt() {
   const order = receiptFor.value
   if (!order || !receipt.value.trim()) return
@@ -624,7 +630,7 @@ const refundable = (order: Order) => order.kind === 'topup' && order.state === '
           :busy="cancelWrite.busy.value"
           :error="cancelWrite.error.value"
           :uncertain="cancelWrite.uncertain.value"
-          @retry="cancelWrite.retry"
+          @retry="retryCancel"
         />
         <div class="form-actions">
           <button
