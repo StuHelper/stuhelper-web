@@ -1074,6 +1074,8 @@
       "done": "Completed"
     },
     "materialTypes": {
+      "staff_card": "Staff ID card",
+      "contract": "Employment contract",
       "student_card": "Student or campus card",
       "admission_letter": "Admission letter",
       "enrollment_certificate": "Enrollment certificate",

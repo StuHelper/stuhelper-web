@@ -73,7 +73,7 @@ test('a teacher starts an application, fills the form and submits it for review'
   await page.getByRole('textbox', { name: t.name, exact: true }).fill('Lin Wei');
   await page.getByRole('textbox', { name: t.organization, exact: true }).fill('School of Computing');
   await page.getByRole('textbox', { name: t.email, exact: true }).fill('lin@demo.edu');
-  await page.getByLabel('contract', { exact: true }).check();
+  await page.getByLabel(m.verification.materialTypes.contract, { exact: true }).check();
   await page.getByRole('checkbox', { name: t.disclosure.real_name, exact: true }).check();
   await submit.click();
   await expect(page.getByText(t.submitted, { exact: true })).toBeVisible();
@@ -169,5 +169,28 @@ test('a failed teacher evidence read can be retried before editing', async ({ pa
   await edit.click();
   await expect(page.locator('#teacher-email')).toBeEditable();
   expect(reads).toBe(2);
+  expect(state.writes).toEqual([]);
+});
+
+test('the current teacher application and its school can both follow a full first page', async ({ page }, info) => {
+  const t = catalogue(info).teacher;
+  const state = await server(page);
+  const calls = { schools: [], applications: [] };
+  const ids = Array.from({ length: 100 }, (_, index) => String(index).padStart(3, '0'));
+  for (const kind of ['schools', 'applications']) {
+    await page.route(`**/api/v1/verification/${kind}?**`, route => {
+      const after = new URL(route.request().url()).searchParams.get('after') ?? '';
+      calls[kind].push(after);
+      const first = ids.map(id => kind === 'schools' ? { ...school, id, name: id } : application({ id, state: 'approved' }));
+      const last = kind === 'schools' ? secondSchool : application({ school_id: secondSchool.id });
+      return route.fulfill({ json: after === '099' ? [last] : first });
+    });
+  }
+  await page.goto(`${base}/me/verification/teacher?lang=${info.project.metadata.locale}`);
+  const active = page.getByRole('region', { name: t.application, exact: true });
+  await expect(active.getByText(secondSchool.name, { exact: true })).toBeVisible();
+  await active.getByRole('button', { name: t.fillForm, exact: true }).click();
+  await expect(page.locator('#teacher-email')).toBeEditable();
+  expect(calls).toEqual({ schools: ['', '099'], applications: ['', '099'] });
   expect(state.writes).toEqual([]);
 });

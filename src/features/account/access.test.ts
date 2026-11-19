@@ -37,3 +37,9 @@ describe('content access', () => {
     expect(deriveAccess(withIdentity, [application('in_progress')], [credential('expired')])).toBe('processing')
   })
 })
+
+it('leaves student qualification unchanged when only a teacher application is pending', () => {
+  const teacher = { ...application('pending_review'), kind: 'teacher' as const }
+  expect(deriveAccess(summary(false), [teacher], [])).toBe('unverified')
+  expect(deriveAccess(summary(false), [teacher], [credential('expired')])).toBe('expired')
+})

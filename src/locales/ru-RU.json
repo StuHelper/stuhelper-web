@@ -1074,6 +1074,8 @@
       "done": "Завершено"
     },
     "materialTypes": {
+      "staff_card": "Удостоверение сотрудника",
+      "contract": "Трудовой договор",
       "student_card": "Студенческий билет",
       "admission_letter": "Письмо о зачислении",
       "enrollment_certificate": "Справка об обучении",

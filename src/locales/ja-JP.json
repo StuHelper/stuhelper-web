@@ -1074,6 +1074,8 @@
       "done": "完了"
     },
     "materialTypes": {
+      "staff_card": "教職員証",
+      "contract": "雇用契約書",
       "student_card": "学生証・キャンパスカード",
       "admission_letter": "入学許可通知",
       "enrollment_certificate": "在学証明書",

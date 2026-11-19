@@ -67,7 +67,8 @@
       "tests/e2e/access.spec.mjs#an account read failure keeps content closed and explains the retry"
     ],
     "AE-ACCESS-03": [
-      "tests/e2e/access.spec.mjs#each qualification state gets its own next step"
+      "tests/e2e/access.spec.mjs#each qualification state gets its own next step",
+      "src/features/account/access.test.ts#leaves student qualification unchanged when only a teacher application is pending"
     ],
     "AE-ACCESS-04": [
       "tests/e2e/access.spec.mjs#a verified user enters content; the home page becomes a workspace"
@@ -222,7 +223,8 @@
       "tests/e2e/wallet.spec.mjs#a refund stores and replaces payout details without showing the stored account"
     ],
     "SV-TEACHER-01": [
-      "tests/e2e/teacher.spec.mjs#a failed teacher evidence read can be retried before editing"
+      "tests/e2e/teacher.spec.mjs#a failed teacher evidence read can be retried before editing",
+      "tests/e2e/teacher.spec.mjs#the current teacher application and its school can both follow a full first page"
     ]
   }
 }

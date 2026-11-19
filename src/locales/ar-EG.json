@@ -1074,6 +1074,8 @@
       "done": "مكتمل"
     },
     "materialTypes": {
+      "staff_card": "بطاقة الموظف",
+      "contract": "عقد العمل",
       "student_card": "بطاقة الطالب أو الجامعة",
       "admission_letter": "خطاب القبول",
       "enrollment_certificate": "شهادة قيد دراسي",
