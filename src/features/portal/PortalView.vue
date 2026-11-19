@@ -6,6 +6,7 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
+import { myCoursesEnabled } from '../../app/features'
 import { products } from '../../app/products'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { vSpotlight, vTilt } from '../../shared/ui/pointer'
@@ -16,6 +17,14 @@ import '../../styles/landing.css'
 // The portal of the whole brand. The largest element is the logo and the name;
 // each product then gets its name, a short phrase and an explanation.
 const { t } = useI18n()
+function takeLogoutNotice() {
+  try {
+    const show = sessionStorage.getItem('stuhelper.upstreamLogoutUnconfirmed') === '1'
+    sessionStorage.removeItem('stuhelper.upstreamLogoutUnconfirmed')
+    return show
+  } catch { return false }
+}
+const showLogoutNotice = takeLogoutNotice()
 const available = useLinkAvailable()
 // The open platform section and tile describe a module that may be switched off.
 const platformOn = computed(() => available('/me/developer'))
@@ -27,12 +36,13 @@ const allTiles = [
   { to: { path: '/', hash: '#platform' }, key: 'platform', name: 'nav.platform', icon: Network },
 ] as const
 const tiles = computed(() => allTiles.filter((tile) => tile.key !== 'platform' || platformOn.value))
-const campus = [
+const allCampus = [
   { key: 'reviews', icon: MessageSquareText },
   { key: 'resources', icon: FolderOpen },
   { key: 'compare', icon: Scale },
   { key: 'schedule', icon: CalendarDays },
 ] as const
+const campus = computed(() => allCampus.filter((point) => point.key !== 'schedule' || myCoursesEnabled))
 const api = [
   { key: 'protocols', icon: Waypoints },
   { key: 'tokens', icon: KeyRound },
@@ -53,6 +63,13 @@ const platform = [
 
 <template>
   <div class="lp">
+    <p
+      v-if="showLogoutNotice"
+      class="notice notice-warning"
+      role="status"
+    >
+      {{ t('account.upstreamLogoutUnconfirmed') }}
+    </p>
     <section class="lp-hero">
       <div class="lp-wordmark">
         <img

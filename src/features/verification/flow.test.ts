@@ -6,7 +6,7 @@ import { ApiError } from '../../shared/api/errors'
 import CameraCapture from './CameraCapture.vue'
 import { useVerificationFlow } from './flow'
 
-const api = vi.hoisted(() => ({ list: vi.fn(), get: vi.fn(), write: vi.fn(), upload: vi.fn() }))
+const api = vi.hoisted(() => ({ list: vi.fn(), get: vi.fn(), write: vi.fn(), upload: vi.fn(), material: vi.fn() }))
 vi.mock('./api', async (importOriginal) => ({ ...(await importOriginal<typeof import('./api')>()), useVerification: () => api }))
 
 const pending = { id: 'a', school_id: 's101', method: 'school_sso', stage: 'bachelor', kind: 'student', state: 'in_progress', revision: 1, school_challenge: { id: 'challenge', state: 'waiting_sms', code: '', expires_at: '2026-10-29T00:00:00Z', masked_phone: '***' } }

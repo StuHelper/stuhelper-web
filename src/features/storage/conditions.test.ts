@@ -14,3 +14,7 @@ describe('contribution conditions', () => {
     expect(conditions('10', '1', '', example.policy, now, '2030-01-01T00:00:00Z')?.until).toBe('2030-01-01T00:00:00.000Z');
   });
 });
+
+it('round trips the largest supported GB value to the exact byte', () => {
+  for (const bytes of [Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER - 1]) expect(parseGB(gbInput(bytes))).toBe(bytes)
+})

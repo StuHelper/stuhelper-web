@@ -16,8 +16,22 @@ export function installTips() {
   let timer: number | undefined
   let current: Element | null = null
   let holdUntil = 0
+  let invalidControl: HTMLElement | undefined
+  tip.id = 'stuhelper-control-tip'
 
-  const hide = () => { window.clearTimeout(timer); current = null; tip.hidden = true; tip.classList.remove('app-tip-error') }
+  const hide = () => {
+    window.clearTimeout(timer)
+    if (invalidControl) {
+      const ids = (invalidControl.getAttribute('aria-describedby') ?? '').split(' ').filter(id => id && id !== tip.id)
+      if (ids.length) invalidControl.setAttribute('aria-describedby', ids.join(' '))
+      else invalidControl.removeAttribute('aria-describedby')
+      invalidControl = undefined
+    }
+    current = null
+    tip.hidden = true
+    tip.removeAttribute('role')
+    tip.classList.remove('app-tip-error')
+  }
   const place = (target: Element, text: string) => {
     if (!target.isConnected || !text) return
     tip.textContent = text
@@ -52,11 +66,14 @@ export function installTips() {
     if (performance.now() < holdUntil || !(event.target instanceof HTMLElement)) return
     const field = event.target as HTMLInputElement
     const visible = field.closest('.app-control')?.querySelector<HTMLElement>('button') ?? field
-    const message = field.validity.valueMissing ? i18n.global.t('common.fieldRequired') : field.validationMessage
+    const message = field.validity.valueMissing ? i18n.global.t('common.fieldRequired') : i18n.global.t('errors.invalid_input')
     holdUntil = performance.now() + INVALID_TIME
     visible.scrollIntoView({ block: 'nearest' })
     visible.focus({ preventScroll: true })
     window.clearTimeout(timer)
+    invalidControl = visible
+    visible.setAttribute('aria-describedby', [visible.getAttribute('aria-describedby'), tip.id].filter(Boolean).join(' '))
+    tip.setAttribute('role', 'alert')
     tip.classList.add('app-tip-error')
     place(visible, message)
     timer = window.setTimeout(() => { holdUntil = 0; hide() }, INVALID_TIME)

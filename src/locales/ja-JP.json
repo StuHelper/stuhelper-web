@@ -9,7 +9,8 @@
     "footer": "授業・評価・学習資料のキャンパス情報",
     "themeLight": "ライト表示に切り替える",
     "themeDark": "ダーク表示に切り替える",
-    "contact": "お問い合わせ・フィードバック"
+    "contact": "お問い合わせ・フィードバック",
+    "themeSystem": "システムの外観に合わせる"
   },
   "nav": {
     "primary": "メインナビゲーション",
@@ -68,6 +69,9 @@
     "opensInNewTab": "（新しいタブで開きます）"
   },
   "errors": {
+    "disabled": "グループサービスは無効です。",
+    "cooldown": "待機時間または保留中の操作数の制限に達しました。しばらくしてから再試行してください。",
+    "write_response_unrecognized": "サーバーはリクエストを受け付けましたが、応答を読み取れませんでした。ページを更新して結果を確認してください。",
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
     "timeout": "サービスの応答がタイムアウトしました。再試行してください。",
     "cancelled": "リクエストはキャンセルされました。",
@@ -173,15 +177,15 @@
     "more": "{name} について",
     "visit": "{host} へ移動",
     "tiles": {
-      "campus": "授業と教員の評価、学習資料、時間割",
+      "campus": "授業と教員の評価、学習資料、授業比較",
       "api": "複数の大規模モデルをひとつのインターフェースで",
       "store": "GPT サブスクリプションと Codex クレジットの代行チャージ",
       "platform": "統合認証とサードパーティアプリの連携"
     },
     "campus": {
       "name": "StuHelper キャンパス",
-      "tag": "授業・教員・資料・時間割",
-      "lead": "在学生のための授業コミュニティです。授業や教員の評価を読み、過去問やノートを探し、候補の授業を比較し、自分の時間割を管理できます。現在は北京航空航天大学で利用できます。",
+      "tag": "授業・教員・資料・比較",
+      "lead": "学内メンバーのための授業コミュニティです。授業や教員の評価を読み、過去問やノートを探し、候補の授業を比較できます。",
       "action": "キャンパスへ",
       "points": {
         "reviews": {
@@ -301,6 +305,7 @@
     "home": "ホームへ戻る"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "このサイトからログアウトしました。シングルサインオンのセッションが有効な場合があります。",
     "signIn": "ログイン",
     "signOut": "この端末からログアウト",
     "signOutAll": "すべての端末からログアウト",
@@ -470,7 +475,8 @@
       "newest": "新しい順",
       "oldest": "古い順",
       "empty": "授業評価はまだありません。",
-      "emptyMentor": "指導教員評価はまだありません。"
+      "emptyMentor": "指導教員評価はまだありません。",
+      "upvotes": "賛同の多い順"
     },
     "review": {
       "featured": "おすすめの投稿",
@@ -499,7 +505,8 @@
       "deleteReplyConfirm": "この返信を完全に削除しますか？他の内容は残ります。",
       "withdrawConfirm": "取り下げるとスレッドを非公開にします。再投稿時も初回投稿日時、返信、投票を保持します。期限切れの下書きは削除されます。",
       "expand": "全文を表示",
-      "collapse": "折りたたむ"
+      "collapse": "折りたたむ",
+      "editWindowRemaining": "直接取り下げ・削除残り {time}"
     },
     "replies": {
       "title": "返信一覧",
@@ -691,7 +698,9 @@
     "groups": {
       "account": "アカウント",
       "services": "その他のサービス"
-    }
+    },
+    "pendingCoursesTitle": "評価待ちの授業",
+    "writePendingReview": "評価を書く"
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -724,7 +733,11 @@
       "filtersFailed": "絞り込みを読み込めません。キーワード検索は利用できます。",
       "filtersRetry": "絞り込みを再読み込み",
       "reload": "資料を再読み込み",
-      "currentFolder": "現在のフォルダー"
+      "currentFolder": "現在のフォルダー",
+      "fileType": "ファイル形式",
+      "sort": "並び順",
+      "sortNewest": "新しい順",
+      "sortDefault": "標準順"
     },
     "package": {
       "title": "ダウンロードパッケージ",
@@ -733,7 +746,9 @@
       "part": "パッケージ {number}",
       "size": "{size} · ファイル数：{files}",
       "download": "このパッケージをダウンロード",
-      "downloaded": "ダウンロード済み"
+      "downloaded": "ダウンロード済み",
+      "expiredNotice": "このダウンロードパッケージは有効期限切れです。再作成してからダウンロードしてください。",
+      "recreate": "パッケージを再作成"
     },
     "picker": {
       "search": "「{label}」を検索",
@@ -753,9 +768,22 @@
       "about": "資料について",
       "file": "資料ファイル",
       "access": "アクセス",
-      "course": "関連する授業を見る"
+      "course": "関連する授業を見る",
+      "preview": "オンラインプレビュー",
+      "hidePreview": "プレビューを閉じる",
+      "previewTitle": "ファイルプレビュー",
+      "fullscreenPreview": "全画面表示",
+      "emptyPreview": "ファイルの内容は空です。",
+      "previewTooLarge": "{size} を超えるファイルはページ内でプレビューできません。直接ダウンロードしてください。",
+      "proposalTitle": "審査中バージョンの内容",
+      "proposalFile": "提出済みファイル",
+      "checksum": "チェックサム"
     },
     "access": {
+      "missing": "未達の条件：{conditions}",
+      "unavailable": "確認できない条件：{conditions}",
+      "content_access": "キャンパスコンテンツへのアクセス",
+      "resource_entitlement": "資料へのアクセス権",
       "allowed": "ダウンロードできます。",
       "not_published": "資料はまだ公開されていません。",
       "already_accessible": "この資料には既にアクセスできます。",
@@ -802,6 +830,7 @@
       "accept": "現在の規約を読み、同意します"
     },
     "editor": {
+      "selectCategory": "利用できる資料カテゴリを選択してください。",
       "intro": "資料情報の保存、ファイルのアップロード、審査提出の3ステップです。審査中も公開済みの版は利用できます。",
       "step1": "1. 資料情報",
       "step2": "2. ファイル",
@@ -849,9 +878,15 @@
       "proposalState": "現在の版の状態：",
       "submit": "審査に提出",
       "submitted": "審査に提出しました。結果は「自分の資料」に表示されます。",
-      "view": "資料を見る"
+      "view": "資料を見る",
+      "directoryChooseCourse": "先に科目を選択するとフォルダを指定できます。未指定の場合はルートに配置されます。",
+      "selectedDirectory": "選択中のフォルダ",
+      "dropOrBrowse": "ここにファイルをドロップするか、クリックして選択",
+      "uploadProgress": "転送済み {loaded} / {total}（{percent}）",
+      "tagLimits": "タグは最大20個、各タグは64文字までです。"
     },
     "request": {
+      "resourceId": "資料 ID",
       "title": "通報・取り下げ・異議申立て",
       "appealTitle": "異議を申し立てる",
       "kind": "申請種別",
@@ -868,7 +903,7 @@
       "reason": "理由と説明",
       "contact": "連絡先",
       "evidence": "権利・許諾などの証拠",
-      "evidenceHint": "1行に1件、最大4件。証拠の説明またはリンクを入力してください。",
+      "evidenceHint": "1行に1件、最大4件、各件2,000文字まで入力できます。",
       "received": "申請を受け付けました。資料の状態は審査結果に従います。",
       "state": {
         "pending": "審査待ち",
@@ -899,7 +934,12 @@
       "granting": "支払い済みです。アクセス権を付与しています。しばらくお待ちください。結果は後でウォレットの注文からも確認できます。",
       "viewOrder": "注文を見る",
       "refunded": "この資料は現在提供できないため、代金は支払元のアカウントに返金されました。",
-      "done": "アクセス権が付与されました。ダウンロードできます。"
+      "done": "アクセス権が付与されました。ダウンロードできます。",
+      "currentBalance": "利用可能残高：{balance}",
+      "confirmTitle": "支払いの確認",
+      "confirmMessage": "{price} を支払ってこの資料の閲覧権を取得しますか？",
+      "confirmMessageWithBalance": "{price} を支払ってこの資料の閲覧権を取得しますか？（利用可能残高：{balance}）",
+      "insufficient": "{account}の残高が不足しています。"
     }
   },
   "verification": {
@@ -988,7 +1028,9 @@
       "scan": "スマートフォンで読み取って撮影",
       "ticketExpiry": "撮影リンクの有効期限：{time}",
       "open": "撮影ページを開く",
-      "done": "写真を送信しました。元の端末で資料一覧を更新し、申請を続けてください。"
+      "done": "写真を送信しました。元の端末で資料一覧を更新し、申請を続けてください。",
+      "sync": "送信済み写真を確認",
+      "waitingPhone": "スマートフォンで送信すると、この画面に自動反映されます。"
     },
     "methods": {
       "real_name_identity_check": "学校の本人情報と照合",
@@ -1031,6 +1073,8 @@
       "done": "完了"
     },
     "materialTypes": {
+      "staff_card": "教職員証",
+      "contract": "雇用契約書",
       "student_card": "学生証・キャンパスカード",
       "admission_letter": "入学許可通知",
       "enrollment_certificate": "在学証明書",
@@ -1194,7 +1238,10 @@
       "student_email_inbound_challenge": "学校メールから指定アドレスにメールを 1 通送ります",
       "manual_material_review": "学生証などを撮影し、管理者が審査します"
     },
-    "changeSchool": "学校を変更"
+    "changeSchool": "学校を変更",
+    "copyInboundAddress": "宛先アドレスをコピー",
+    "inboundAddressCopied": "宛先アドレスをコピーしました。",
+    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
@@ -1306,16 +1353,17 @@
       "conflict": "このアカウントは接続済みか、変更されたばかりです。更新してください。",
       "attempts_exhausted": "再試行に失敗しました。管理者が対応します。",
       "credentials_required": "アカウントとパスワードを再入力してください。"
-    }
+    },
+    "maxTermHint": "最長認可期間：{days} 日。"
   },
   "gate": {
     "guest": {
       "title": "ログインして続行",
-      "text": "授業、教員、評価、資料は認証済みの北京航空航天大学の学生と教員に公開されています。",
+      "text": "授業、教員、評価、資料はキャンパス認証済みの学生と教員に公開されています。",
       "action": "ログイン"
     },
     "unverified": {
-      "title": "北京航空航天大学の認証を完了して続行",
+      "title": "キャンパス認証を完了して続行",
       "text": "認証後、開こうとしたページに戻ります。",
       "action": "認証を開始"
     },
@@ -1412,7 +1460,8 @@
     "mine": "マイ",
     "defaultFolder": "デフォルト",
     "unknown": "お気に入りの状態を確認できません",
-    "untitled": "表示できなくなった内容"
+    "untitled": "表示できなくなった内容",
+    "deleteFolderConfirm": "フォルダ「{p0}」を削除しますか？中の保存済み項目は「{p1}」に移動します。"
   },
   "qq": {
     "title": "QQ 連携",
@@ -1681,7 +1730,14 @@
       "label": "受取口座または参照番号",
       "submitted": "受取情報を送信しました。"
     },
-    "ivoryBalance": "Ivory 残高"
+    "ivoryBalance": "Ivory 残高",
+    "payee": {
+      "title": "返金先情報",
+      "method": "受取方法",
+      "name": "受取人名",
+      "account": "受取口座",
+      "onFile": "返金先情報が登録されています。変更するには新しい情報を入力してください。"
+    }
   },
   "platform": {
     "scopes": {
@@ -1766,7 +1822,8 @@
       "redirectProblem": {
         "invalid": "リダイレクト URI の形式が正しくありません。",
         "https": "リダイレクト URI は HTTPS を使用してください。",
-        "fragment": "リダイレクト URI に # フラグメントは使えません。"
+        "fragment": "リダイレクト URI に # フラグメントは使えません。",
+        "duplicate": "リダイレクト URI が重複しています。"
       },
       "policy": "認可期間と上限",
       "policyValue": "ユーザー許可 {grant} 日、アクセストークン {token} 分、1 日 {quota} 回まで",
@@ -1814,8 +1871,10 @@
         "retentionReason": "保持の根拠（必須）",
         "noteOptional": "補足（任意）",
         "send": "報告を送信",
-        "recorded": "対応結果を記録しました。"
-      }
+        "recorded": "対応結果を記録しました。",
+        "pendingBadge": "未報告の撤回通知あり"
+      },
+      "secretCloseConfirm": "このシークレットは一度しか表示されず、閉じた後は再確認できません。先にコピーするか保存済みボタンを押してください。"
     },
     "consent": {
       "title": "アプリの許可",
@@ -1889,6 +1948,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "未読 {count} 件以上",
     "title": "メッセージ",
     "link": "メッセージ",
     "description": "反応、審査結果、認証結果、システム通知をまとめています。",
@@ -2002,6 +2062,7 @@
       "empty": "まだ投票していません。",
       "review": "評価",
       "up": "役に立った",
+      "cancel": "投票を取り消す",
       "down": "役に立たなかった"
     },
     "compare": {
@@ -2025,7 +2086,12 @@
       "tray": "比較リスト",
       "progress": "{count} / {max} 件を選択中",
       "start": "比較する",
-      "pickMore": "もう 1 件選ぶと比較できます"
+      "pickMore": "もう 1 件選ぶと比較できます",
+      "clear": "比較をクリア",
+      "addCourse": "比較する授業を検索して追加",
+      "addTeacher": "比較する教員を検索して追加",
+      "taughtCourses": "担当授業数",
+      "ratedCourses": "集計対象授業数"
     }
   },
   "groups": {
@@ -2063,7 +2129,7 @@
     },
     "fact": {
       "student_eligibility": "学生資格",
-      "student_stage": "在籍区分"
+      "student_stage": "学習段階"
     },
     "hint": {
       "submit_password": "グループのお知らせに従い、グループ内で参加パスワードを送信してください。",
@@ -2072,7 +2138,9 @@
     "action": {
       "bind_qq": "QQ を連携",
       "verify_student": "学生認証へ"
-    }
+    },
+    "passwordMode": "参加方式",
+    "passwordRequired": "グループ合言葉が必要"
   },
   "membership": {
     "title": "メンバーシップ",

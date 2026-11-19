@@ -84,7 +84,7 @@ test('lost response retries original mutation, paginates and clears revoked data
   await page.route('**/api/v1/storage-contributions?*', route => route.fulfill({ json: { ...example.page, next_cursor: 'fixture-next' } }), { times: 1 });
   await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
   const next = page.waitForRequest(r => r.method() === 'GET' && new URL(r.url()).searchParams.get('after') === 'fixture-next');
-  await page.getByRole('button', { name: c.loadMore, exact: true }).click(); await next;
+  await page.getByRole('button', { name: c.next, exact: true }).click(); await next;
   await expect(page.locator('article')).toHaveCount(1); expect(errors).toEqual([]);
   if (process.env.CONTRIBUTION_SCREENSHOTS) { fs.mkdirSync(process.env.CONTRIBUTION_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: path.join(process.env.CONTRIBUTION_SCREENSHOTS, `web-${info.project.name}.png`), fullPage: true }); }
   state.reject = 403; await page.getByRole('button', { name: c.refresh, exact: true }).first().click();

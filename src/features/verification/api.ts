@@ -1,5 +1,5 @@
 import type { components } from '../../api/verification.gen'
-import { ApiError, isUncertain } from '../../shared/api/errors'
+import { ApiError, isUncertain, normalizeCode } from '../../shared/api/errors'
 import { readLimited, segment, type Http } from '../../shared/api/http'
 import { useHttp } from '../../shared/session'
 
@@ -144,7 +144,8 @@ export class VerificationApi {
       this.keys.set(print, key)
     }
     try {
-      for (let attempt = 0; attempt < 12; attempt++) {
+      const deadline = Date.now() + 60_000
+      while (Date.now() < deadline) {
         const response = await this.http.send(path, { method, body: input, key, signal, timeout: 25_000 })
         const value = await this.body(response)
         if (response.status !== 202) {
@@ -154,9 +155,9 @@ export class VerificationApi {
         }
         // 202: the provider is still working; ask for the operation and send the same request again.
         if (!object(value) || !text(value.operation_id) || !operationId.test(value.operation_id)) throw new ApiError('incompatible', true)
-        await new Promise((resolve) => setTimeout(resolve, 250))
+        await new Promise((resolve) => setTimeout(resolve, 500))
         const operation = await this.get('Operation', `/api/v1/verification/operations/${value.operation_id}`, signal)
-        if (operation.state === 'failed') throw new ApiError(operation.code || 'unavailable')
+        if (operation.state === 'failed') throw new ApiError(normalizeCode(operation.code || 'unavailable'))
         if (signal?.aborted) throw new ApiError('cancelled', true)
       }
       throw new ApiError('processing', true)
@@ -168,7 +169,7 @@ export class VerificationApi {
 
   /** Upload a captured image with a single-use capture token. */
   async upload(token: string, image: Blob): Promise<Material> {
-    return this.http.json('/api/v1/verification/capture', (value) => parseEntity('Material', value), { method: 'POST', bytes: image, headers: { 'X-Capture-Token': token }, timeout: 60_000 })
+    return this.http.json('/api/v1/verification/capture', (value) => parseEntity('Material', value), { method: 'POST', bytes: image, headers: { 'X-Capture-Token': token }, timeout: 90_000 })
   }
 
   async material(id: string, signal?: AbortSignal): Promise<Blob> {
@@ -176,6 +177,21 @@ export class VerificationApi {
     if (!['image/jpeg', 'image/png', 'application/pdf'].includes(blob.type)) throw new ApiError('incompatible')
     return blob
   }
+}
+
+// These lists are sorted by identifier; an open application can follow older completed rows.
+export async function verificationPages<T>(load: (after: string) => Promise<{ items: T[]; next: string }>) {
+  const items: T[] = []
+  const seen = new Set<string>()
+  let after = ''
+  do {
+    const page = await load(after)
+    items.push(...page.items)
+    after = page.next
+    if (after && seen.has(after)) throw new ApiError('incompatible')
+    seen.add(after)
+  } while (after)
+  return { items, next: '' }
 }
 
 export function useVerification() {

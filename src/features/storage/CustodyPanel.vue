@@ -4,6 +4,7 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CustodyBinding } from '../../api/custody'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
@@ -11,9 +12,11 @@ import { useCustody } from './useCustody'
 
 // Connect a BHpan account for storage contribution. Passwords go only to this
 // submission: they are cleared right after sending and never kept for retries.
+const emit = defineEmits<{ updated: [] }>()
 const { t, te } = useI18n()
 const format = useFormat()
 const { data, policy, loading, sending, error, recovery, reload, submit, resume, recover } = useCustody(false)
+const paged = ref(false)
 const mode = ref<'local' | 'sso'>('local')
 const username = ref('')
 const password = ref('')
@@ -26,6 +29,7 @@ const showForm = computed(() => !!editing.value || adding.value || !data.value?.
 const invalid = ref(false)
 const title = ref<HTMLElement>()
 const locked = computed(() => loading.value || sending.value || !!recovery.value)
+useLeaveGuard(() => recovery.value ? t('common.leaveUncertain') : sending.value ? t('common.leaveUnsaved') : '')
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
 
@@ -58,10 +62,30 @@ async function send() {
   clearSecrets()
   accepted.value = false
   await task
-  if (!error.value) reset()
+  if (!error.value) {
+    reset()
+    emit('updated')
+  }
+}
+async function resumeAccount(item: CustodyBinding) {
+  await resume(item)
+  if (!error.value) emit('updated')
+}
+async function recoverAccount() {
+  await recover()
+  if (!error.value) emit('updated')
+}
+function goNext() {
+  if (!data.value?.next_cursor) return
+  paged.value = true
+  void reload(data.value.next_cursor)
+}
+function goFirst() {
+  paged.value = false
+  void reload('')
 }
 const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
-defineExpose({ refresh: () => reload('') })
+defineExpose({ clearSecrets, refresh: () => { paged.value = false; return reload('') } })
 watch(error, (value) => {
   if (value === 'forbidden' || value === 'unauthenticated') reset()
 })
@@ -95,7 +119,7 @@ watch(error, (value) => {
           class="btn btn-sm"
           type="button"
           :disabled="loading || sending"
-          @click="recover"
+          @click="recoverAccount"
         >
           {{ t('custody.recover') }}
         </button>
@@ -159,8 +183,10 @@ watch(error, (value) => {
             <span class="field-label">{{ t('custody.until', { zone }) }}</span>
             <AppDateTime
               v-model="until"
+              :aria-label="t('custody.until', { zone })"
               required
             />
+            <span class="field-hint">{{ t('custody.maxTermHint', { days: format.number(Math.max(1, Math.round(policy.max_term_seconds / 86400))) }) }}</span>
           </label>
         </div>
         <p class="small muted">
@@ -211,15 +237,26 @@ watch(error, (value) => {
     >
       <div class="section-head">
         <h2>{{ t('custody.accounts') }}</h2>
-        <button
-          v-if="data.items.length && !showForm"
-          class="btn btn-sm"
-          type="button"
-          :disabled="locked"
-          @click="adding = true"
-        >
-          {{ t('custody.connect') }}
-        </button>
+        <div class="row">
+          <button
+            v-if="paged"
+            class="btn btn-sm"
+            type="button"
+            :disabled="locked"
+            @click="goFirst"
+          >
+            {{ t('contribution.first') }}
+          </button>
+          <button
+            v-if="data.items.length && !showForm"
+            class="btn btn-sm"
+            type="button"
+            :disabled="locked"
+            @click="adding = true"
+          >
+            {{ t('custody.connect') }}
+          </button>
+        </div>
       </div>
       <ul class="grid-wide list">
         <li
@@ -257,7 +294,7 @@ watch(error, (value) => {
                 class="btn btn-sm"
                 type="button"
                 :disabled="locked"
-                @click="resume(item)"
+                @click="resumeAccount(item)"
               >
                 {{ t('custody.resume') }}
               </button>
@@ -270,7 +307,7 @@ watch(error, (value) => {
         class="btn"
         type="button"
         :disabled="locked"
-        @click="reload(data.next_cursor)"
+        @click="goNext"
       >
         {{ t('common.next') }}
       </button>

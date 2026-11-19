@@ -1,5 +1,6 @@
 import { ApiError, serverCode } from './errors'
 import type { Validator } from './schema'
+import { sessionFetch } from './transport'
 
 export type QueryValue = string | number | boolean | undefined | null
 export type Query = Record<string, QueryValue>
@@ -19,6 +20,8 @@ export interface RequestOptions {
   timeout?: number
   /** JSON endpoints never redirect; downloads may follow a signed delivery URL. */
   redirect?: RequestRedirect
+  /** Upload byte progress callback for binary transfers. */
+  onUploadProgress?: (loaded: number, total: number) => void
 }
 
 export interface HttpOptions {
@@ -146,43 +149,161 @@ export class Http {
 
   /** Send a request and validate the JSON response against the contract. */
   async json<T>(path: string, validate: Validator<T>, options: RequestOptions = {}): Promise<T> {
+    if (options.bytes && options.onUploadProgress && this.fetcher === sessionFetch && import.meta.env.VITE_DEMO !== '1' && typeof XMLHttpRequest !== 'undefined') {
+      return this.xhrJson(path, validate, options)
+    }
     const write = !readMethods.has((options.method ?? 'GET').toUpperCase())
+    if (options.bytes && options.onUploadProgress) options.onUploadProgress(0, options.bytes.size)
     const opened = await this.open(path, options)
     const { response } = opened
     let bytes: Uint8Array<ArrayBuffer>
     try {
       bytes = await readLimited(response, jsonLimit, opened.signal)
     } catch (failure) {
-      if (failure instanceof ApiError) throw new ApiError('incompatible', write, response.status)
+      if (failure instanceof ApiError) throw new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, response.status)
       // The body stopped arriving: a write may already have taken effect.
       throw opened.failure()
     } finally {
       opened.finish()
     }
+    if (options.bytes && options.onUploadProgress) options.onUploadProgress(options.bytes.size, options.bytes.size)
     let value: unknown
     try {
       value = parseJson(bytes)
     } catch {
-      throw new ApiError('incompatible', write, response.status)
+      throw new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, response.status)
     }
     try {
       return validate(value)
     } catch {
-      throw new ApiError('incompatible', write, response.status)
+      throw new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, response.status)
     }
+  }
+
+  /** Binary upload with byte progress on the default same-origin browser transport. */
+  private xhrJson<T>(path: string, validate: Validator<T>, options: RequestOptions): Promise<T> {
+    if (!path.startsWith('/api/')) return Promise.reject(new ApiError('invalid_input'))
+    const method = (options.method ?? 'PUT').toUpperCase()
+    const write = !readMethods.has(method)
+    const body = options.bytes!
+    return new Promise<T>((resolve, reject) => {
+      if (options.signal?.aborted) {
+        reject(new ApiError('cancelled', write))
+        return
+      }
+      const xhr = new XMLHttpRequest()
+      const url = path + queryString(options.query)
+      if (typeof window !== 'undefined' && new URL(url, window.location.href).origin !== window.location.origin) {
+        reject(new ApiError('network', write))
+        return
+      }
+      xhr.open(method, url, true)
+      xhr.withCredentials = true
+      xhr.responseType = 'arraybuffer'
+      xhr.timeout = options.timeout ?? 20_000
+      const headers: Record<string, string> = { Accept: 'application/json', 'Content-Type': body.type || 'application/octet-stream', ...options.headers }
+      if (options.key) headers['Idempotency-Key'] = options.key
+      if (write && typeof document !== 'undefined') {
+        const csrf = document.cookie.split(';').map((part) => part.trim()).find((part) => part.startsWith('stuhelper_csrf='))?.slice('stuhelper_csrf='.length)
+        if (csrf) headers['X-CSRF-Token'] = csrf
+      }
+      for (const [name, value] of Object.entries(headers)) xhr.setRequestHeader(name, value)
+      options.onUploadProgress?.(0, body.size)
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) options.onUploadProgress?.(event.loaded, event.total)
+      }
+      const onAbort = () => xhr.abort()
+      options.signal?.addEventListener('abort', onAbort, { once: true })
+      const cleanup = () => options.signal?.removeEventListener('abort', onAbort)
+      xhr.onabort = () => {
+        cleanup()
+        reject(new ApiError('cancelled', write))
+      }
+      xhr.ontimeout = () => {
+        cleanup()
+        reject(new ApiError('timeout', write))
+      }
+      xhr.onerror = () => {
+        cleanup()
+        reject(new ApiError('network', write))
+      }
+      xhr.onload = () => {
+        cleanup()
+        if (xhr.responseURL && typeof window !== 'undefined' && new URL(xhr.responseURL, window.location.href).origin !== window.location.origin) {
+          reject(new ApiError('network', write))
+          return
+        }
+        const raw = xhr.response instanceof ArrayBuffer ? new Uint8Array(xhr.response) : new Uint8Array(0)
+        if (xhr.status >= 200 && xhr.status < 300) {
+          options.onUploadProgress?.(body.size, body.size)
+          if (raw.byteLength > jsonLimit) {
+            reject(new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, xhr.status))
+            return
+          }
+          let value: unknown
+          try {
+            value = parseJson(raw)
+          } catch {
+            reject(new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, xhr.status))
+            return
+          }
+          try {
+            resolve(validate(value))
+          } catch {
+            reject(new ApiError(write ? 'write_response_unrecognized' : 'incompatible', write, xhr.status))
+          }
+          return
+        }
+        let problem: unknown = null
+        if (raw.byteLength <= errorLimit) {
+          try {
+            problem = parseJson(raw)
+          } catch {
+            // Non-JSON error bodies fall back to HTTP status mapping.
+          }
+        }
+        const operation = typeof problem === 'object' && problem !== null && 'operation_id' in problem && typeof problem.operation_id === 'string' && /^[a-f0-9]{64}$/.test(problem.operation_id) ? problem.operation_id : undefined
+        if (xhr.status === 503) this.options.onUnavailable?.()
+        if (xhr.status === 401 || xhr.status === 403) this.options.onDenied?.(xhr.status)
+        reject(new ApiError(serverCode(problem, xhr.status), write && xhr.status >= 500 && !operation, xhr.status, operation))
+      }
+      xhr.send(body)
+    })
   }
 
   /** Download a bounded binary response. */
   async blob(path: string, limit: number, options: RequestOptions = {}): Promise<Blob> {
-    const opened = await this.open(path, { timeout: 120_000, redirect: 'follow', ...options, headers: { Accept: '*/*', ...options.headers } })
+    const timeout = options.timeout ?? 120_000
+    const idle = new AbortController()
+    const signal = options.signal ? AbortSignal.any([options.signal, idle.signal]) : idle.signal
+    const opened = await this.open(path, { redirect: 'follow', ...options, timeout, signal, headers: { Accept: '*/*', ...options.headers } })
+    // After headers the budget applies to inactivity between chunks, not the size of the download.
+    opened.finish()
+    let timer: ReturnType<typeof setTimeout>
+    const progress = () => {
+      clearTimeout(timer)
+      timer = setTimeout(() => idle.abort(), timeout)
+    }
+    progress()
     try {
-      const bytes = await readLimited(opened.response, limit, opened.signal)
-      return new Blob([bytes], { type: opened.response.headers.get('Content-Type') ?? 'application/octet-stream' })
+      const { body, headers } = opened.response
+      const type = headers.get('Content-Type') ?? 'application/octet-stream'
+      if (!body) return new Blob([], { type })
+      let size = 0
+      const bounded = body.pipeThrough(new TransformStream<Uint8Array, Uint8Array>({
+        transform(chunk, controller) {
+          size += chunk.byteLength
+          if (size > limit) throw new ApiError('capacity_exceeded')
+          progress()
+          controller.enqueue(chunk)
+        },
+      }), { signal })
+      return await new Response(bounded, { headers: { 'Content-Type': type } }).blob()
     } catch (failure) {
       if (failure instanceof ApiError) throw failure
-      throw opened.failure()
+      throw new ApiError(options.signal?.aborted ? 'cancelled' : idle.signal.aborted ? 'timeout' : 'network')
     } finally {
-      opened.finish()
+      clearTimeout(timer!)
     }
   }
 }

@@ -5,6 +5,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import type { Command, Contribution } from '../../api/contribution'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -28,6 +29,7 @@ const bytes = (value: number) => format.value.bytes(value)
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
 const desired: Record<Contribution['desired_state'], string> = { active: 'resume', paused: 'pause', exiting: 'exit', revoked: 'revoke' }
 const locked = computed(() => loading.value || sending.value || !!pending.value)
+useLeaveGuard(() => pending.value ? t('common.leaveUncertain') : sending.value ? t('common.leaveUnsaved') : '')
 const instance = ref('')
 const limit = ref('')
 const reserve = ref('0')
@@ -47,7 +49,13 @@ const tabs = computed(() => [{ value: 'contributions' as const, label: t('contri
 const creating = ref(false)
 const custody = ref<InstanceType<typeof CustodyPanel>>()
 const custodyOpened = ref(tab.value === 'accounts')
-watch(tab, (value) => { if (value === 'accounts') custodyOpened.value = true })
+watch(tab, (value) => {
+  if (value === 'accounts') custodyOpened.value = true
+  else {
+    custody.value?.clearSecrets()
+    void reload()
+  }
+})
 function refresh() {
   void reload()
   if (tab.value === 'accounts') custody.value?.refresh()
@@ -185,6 +193,7 @@ watch(completed, (value) => {
       v-if="custodyOpened && !needsSignIn"
       v-show="tab === 'accounts'"
       ref="custody"
+      @updated="reload()"
     />
     <div
       v-if="(tab === 'contributions' || needsSignIn) && ((completed && !error) || needsSignIn || (error && !pending))"
@@ -305,6 +314,7 @@ watch(completed, (value) => {
                 <span class="field-label">{{ t('contribution.untilInput', { zone }) }}</span>
                 <AppDateTime
                   v-model="until"
+                  :aria-label="t('contribution.untilInput', { zone })"
                   required
                 />
               </label>
@@ -539,7 +549,7 @@ watch(completed, (value) => {
           :disabled="locked"
           @click="goNext"
         >
-          {{ t('common.loadMore') }}
+          {{ t('common.next') }}
         </button>
       </section>
     </template>

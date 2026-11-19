@@ -48,7 +48,7 @@ async function signOut() {
       class="avatar"
       :aria-label="t('nav.account')"
     >
-      <span aria-hidden="true">{{ [...session.session.value.profile.nickname][0] }}</span>
+      <span aria-hidden="true">{{ [...session.session.value.profile.nickname][0] || t('nav.account').slice(0, 1) }}</span>
     </DropdownMenuTrigger>
     <DropdownMenuPortal>
       <DropdownMenuContent
@@ -61,7 +61,7 @@ async function signOut() {
             class="menu-item menu-head"
             to="/me"
           >
-            <span class="menu-name truncate">{{ session.session.value.profile.nickname }}</span>
+            <span class="menu-name truncate">{{ session.session.value.profile.nickname_required && !session.session.value.profile.nickname ? t('profile.nicknameRequired') : session.session.value.profile.nickname }}</span>
             <small v-if="statusKey">{{ t(statusKey) }}</small>
           </RouterLink>
         </DropdownMenuItem>

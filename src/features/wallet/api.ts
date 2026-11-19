@@ -8,6 +8,7 @@ type Schemas = components['schemas']
 export type Wallet = Schemas['Wallet']
 export type Entry = Schemas['Entry']
 export type Lot = Schemas['Lot']
+export type Payee = Schemas['Payee']
 export type Order = Schemas['Order']
 export type Channel = Schemas['Channel']
 export type Offer = Schemas['Offer']
@@ -19,6 +20,7 @@ export type PayAccount = 'points' | 'ivory'
 
 const schemas = billingContract.components.schemas
 const parse = {
+  payee: schemaOf<Payee>(schemas, 'Payee'),
   wallet: schemaOf<Wallet>(schemas, 'Wallet'),
   ledger: schemaOf<Schemas['LedgerPage']>(schemas, 'LedgerPage'),
   lots: schemaOf<Schemas['LotPage']>(schemas, 'LotPage'),
@@ -86,8 +88,16 @@ export class WalletApi {
     return this.http.json('/api/v1/billing/purchases', parse.order, { method: 'POST', body, key })
   }
 
-  refund(body: { topup_id: string; amount_minor: number; reason: string }, key: string) {
+  refund(body: Schemas['RefundInput'], key: string) {
     return this.http.json('/api/v1/billing/refunds', parse.order, { method: 'POST', body, key })
+  }
+
+  payee(id: string, signal?: AbortSignal) {
+    return this.http.json(`/api/v1/billing/refunds/${segment(id)}/payee`, parse.payee, { signal })
+  }
+
+  setPayee(id: string, body: Payee, key: string) {
+    return this.http.json(`/api/v1/billing/refunds/${segment(id)}/payee`, parse.payee, { method: 'PUT', body, key })
   }
 
   receipt(id: string, body: { receipt_reference: string }, key: string) {

@@ -63,3 +63,16 @@ test('an empty list and a failed load each say so', async ({ page }, info) => {
   await page.getByRole('button', { name: all.common.retry, exact: true }).click();
   await expect(page.getByText(all.groups.empty, { exact: true })).toBeVisible();
 });
+
+test('group cards show school name and passcode requirement, and hide QQ binding action when qq-binding module is off', async ({ page }, info) => {
+  const all = catalogue(info), g = all.groups;
+  await page.route('**/api/v1/system/capabilities', (route) => route.fulfill({ json: { api_version: 1, capabilities: ['groups.read'] } }));
+  await page.route('**/api/v1/verification/schools**', (route) => route.fulfill({ json: [{ id: 'school', name: 'Demo University', enabled: true, methods: ['school_sso'], notice_version: 'v1', opening_date: '2026-09-01', newcomer_days: 30, email_domain: 'demo.edu', material_types: [], revision: 1 }] }));
+  await server(page, (route) => route.fulfill({ json: { items: [group('g1', 'Security Lab', { requires_password: true, eligibility: 'ineligible', missing_conditions: ['qq_binding', 'password'], next_actions: ['bind_qq', 'verify_student'] })], next_cursor: '' } }));
+  await page.goto(`${base}/me/groups?lang=${info.project.metadata.locale}`);
+  const card = page.getByRole('listitem').filter({ hasText: 'Security Lab' });
+  await expect(card.getByText('Demo University', { exact: true })).toBeVisible();
+  await expect(card.getByText(g.passwordRequired, { exact: true })).toBeVisible();
+  await expect(card.getByRole('link', { name: g.action.bind_qq, exact: true })).toHaveCount(0);
+  await expect(card.getByRole('link', { name: g.action.verify_student, exact: true })).toBeVisible();
+});

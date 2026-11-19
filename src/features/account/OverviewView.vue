@@ -19,7 +19,6 @@ import { useNotificationsApi } from '../notifications/api'
 import { useResourcesApi } from '../resources/api'
 import { useWalletApi } from '../wallet/api'
 import { useAccess } from './access'
-import { useVerification } from '../verification/api'
 import { meGroups, meLinks } from './links'
 import MeLayout from './MeLayout.vue'
 
@@ -28,10 +27,10 @@ import MeLayout from './MeLayout.vue'
 const { t } = useI18n()
 const errorText = useErrorText()
 const session = useSession()
-const verification = useVerification()
 const save = useMutation()
 const editing = ref(false)
 const nickname = ref('')
+const nicknameValid = computed(() => !!nickname.value.trim() && [...nickname.value.trim()].length <= 20)
 const saved = ref('')
 const current = ref<Profile>()
 const signingOut = ref<'' | 'device' | 'all'>('')
@@ -39,7 +38,6 @@ const signOutError = ref('')
 const signOutBusy = ref(false)
 const available = useLinkAvailable()
 
-const summary = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
 const format = useFormat()
 const access = useAccess()
 const verified = computed(() => access.state.value === 'verified')
@@ -80,9 +78,6 @@ const pending = computed(() => (overview.data.value?.pending_courses.state === '
 const hasTodos = computed(() => !!pending.value?.count || !!overview.data.value?.draft_count)
 const noticeTitle = useNotificationTitle()
 const profile = computed(() => session.session.value?.profile)
-watch(() => session.state.value, (state) => {
-  if (state === 'member') void summary.reload()
-}, { immediate: true })
 onMounted(() => {
   nickname.value = profile.value?.nickname ?? ''
 })
@@ -98,7 +93,7 @@ function startEdit() {
 }
 
 async function submit() {
-  if (!profile.value) return
+  if (!nicknameValid.value || !profile.value) return
   saved.value = ''
   const body: ProfileUpdate = { nickname: nickname.value.trim(), revision: profile.value.revision }
   const result = await save.run('profile', body, (value, key) => session.saveProfile(value, key))
@@ -136,6 +131,7 @@ function useCurrent() {
 async function keepMine() {
   if (!current.value) return
   // Resubmit the typed nickname against the version now on the server.
+  if (!nicknameValid.value) return
   const body: ProfileUpdate = { nickname: nickname.value.trim(), revision: current.value.revision }
   current.value = undefined
   const result = await save.run('profile', body, (value, key) => session.saveProfile(value, key))
@@ -170,10 +166,10 @@ async function signOut() {
           <span
             class="profile-avatar"
             aria-hidden="true"
-          >{{ [...profile.nickname][0] }}</span>
+          >{{ [...profile.nickname][0] || t('nav.me').slice(0, 1) }}</span>
           <div class="profile-copy">
             <h2 class="truncate">
-              {{ profile.nickname }}
+              {{ profile.nickname_required && !profile.nickname ? t('profile.nicknameRequired') : profile.nickname }}
             </h2>
             <p
               v-if="verified"
@@ -197,6 +193,20 @@ async function signOut() {
             {{ t('me.profile.edit') }}
           </button>
         </div>
+        <div
+          class="row"
+          :aria-label="t('me.status.title')"
+        >
+          <StatusTag :tone="access.summary.value?.campus_eligibility ? 'success' : 'neutral'">
+            {{ t('verification.campus') }} · {{ t(access.summary.value ? (access.summary.value.campus_eligibility ? 'verification.eligible' : 'verification.notEligible') : 'me.status.unknown') }}
+          </StatusTag>
+          <StatusTag :tone="access.summary.value?.identity_verified ? 'success' : 'neutral'">
+            {{ t('verification.identity') }} · {{ t(access.summary.value ? (access.summary.value.identity_verified ? 'verification.identityVerified' : 'verification.identityMissing') : 'me.status.unknown') }}
+          </StatusTag>
+          <StatusTag :tone="session.session.value.phone_bound ? 'success' : 'warning'">
+            {{ t('verification.phone') }} · {{ t(session.session.value.phone_bound ? 'verification.phoneBound' : 'verification.phoneMissing') }}
+          </StatusTag>
+        </div>
         <form
           v-if="editing"
           class="stack profile-form"
@@ -208,7 +218,7 @@ async function signOut() {
               <input
                 v-model="nickname"
                 class="input"
-                maxlength="64"
+                :aria-invalid="[...nickname.trim()].length > 20"
                 required
                 :disabled="save.busy.value || save.uncertain.value"
               >
@@ -248,7 +258,7 @@ async function signOut() {
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="save.busy.value || save.uncertain.value || !nickname.trim()"
+              :disabled="save.busy.value || save.uncertain.value || !nicknameValid"
             >
               {{ t('common.save') }}
             </button>
@@ -300,7 +310,7 @@ async function signOut() {
         <RouterLink
           v-if="pending?.count"
           class="todo"
-          :to="pending.items[0] ? `/courses/${encodeURIComponent(pending.items[0].course_id)}` : '/me/reviews'"
+          to="/me/reviews"
         >
           <span
             class="icon-tile"

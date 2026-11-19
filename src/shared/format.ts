@@ -19,7 +19,10 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
   // Validate the selected time zone before rendering any temporal field.
   new Intl.DateTimeFormat(locale, { timeZone }).format(0);
   return {
-    number: (value: number | bigint, options: Intl.NumberFormatOptions = {}) => new Intl.NumberFormat(locale, options).format(value),
+    number(value: number | bigint | string, options: Intl.NumberFormatOptions = {}) {
+      if (typeof value === 'string' && !/^-?\d+(?:\.\d+)?$/.test(value)) throw new RangeError('Expected a decimal value');
+      return (new Intl.NumberFormat(locale, options).format as (value: number | bigint | string) => string)(value);
+    },
     percent: (value: number, options: Intl.NumberFormatOptions = {}) => new Intl.NumberFormat(locale, { ...options, style: 'percent' }).format(value),
     currency(value: string | number | bigint, currency: string, options: Intl.NumberFormatOptions = {}) {
       if (typeof value === 'string' && !/^-?\d+(?:\.\d+)?$/.test(value)) throw new RangeError('Currency requires a canonical decimal value');

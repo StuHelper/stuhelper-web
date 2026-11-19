@@ -350,6 +350,8 @@ test('the quick view names the course at once, gives a verdict in words and retr
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
   await expect(page.locator('main li.line')).toHaveCount(1);
+  // The directory publishes a four-band recommendation; the detailed fixture has level 3.
+  await expect(page.locator('main li.line .d-level:visible')).toHaveText(b.levelRecommended);
   const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
   if (await quick.isVisible()) await quick.click();
   else {
@@ -362,8 +364,11 @@ test('the quick view names the course at once, gives a verdict in words and retr
   expect(summaries).toBe(1);
   // Ratings load on their own: the verdict names the level in words for every dimension.
   const verdict = drawer.getByRole('region', { name: b.recommendation, exact: true });
-  await expect(verdict.locator('.d-level').first()).toHaveText(b.levelRecommended);
+  await expect(verdict.locator('.d-level').first()).toHaveText(b.levelAverage);
   await expect(verdict.locator('.d-level')).toHaveCount(5);
+  await expect(drawer.locator('.radar').getByRole('img', { name: `${b.recommendation} ${b.levelAverage}` })).toBeVisible();
+  const termLevel = b.termLevel.replace('{term}', 'Fall semester').replace('{level}', b.levelAverage);
+  await expect(drawer.locator('.trend circle title')).toHaveText(termLevel);
   await expect(verdict).not.toContainText(/\d[.,]\d/);
   held();
   await expect(drawer.getByRole('alert')).toContainText(b.quickViewUnavailable);
@@ -489,4 +494,109 @@ test('a course shows its English name and former codes, and an old course id ope
   // The English name is no longer listed again as an alias of the course.
   await expect(facts.getByText(s.aliases, { exact: true })).toHaveCount(0);
   expect(errors).toEqual([]);
+});
+
+test('course page defaults review sort to upvotes, renders distribution and trend charts, and my reviews opens pending courses prefilled', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, b = all.browse, errors = watch(page), sorts = [];
+  await academicFixture(page);
+  await page.route('**/api/v1/reviews?*', (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    if (q.get('kind') === 'course') sorts.push(q.get('sort'));
+    return route.fallback();
+  });
+  await page.route('**/api/v1/reviews/me/overview', (route) => route.fulfill({ json: {
+    review_count: 1,
+    draft_count: 0,
+    pending_courses: {
+      state: 'available',
+      reason: '',
+      count: 2,
+      items: [
+        { course_id: 'course', course_name: 'Test Course', term_id: 'spring', term_name: 'Spring semester' },
+      ],
+    },
+  } }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await expect.poll(() => sorts.at(0)).toBe('upvotes');
+  await expect(page.getByRole('heading', { name: b.recommendationDist, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: b.trendByTerm, exact: true })).toBeVisible();
+  await page.getByRole('combobox', { name: a.feed.sort }).click();
+  await page.getByRole('option', { name: a.feed.newest, exact: true }).click();
+  await expect.poll(() => sorts.at(-1)).toBe('newest');
+
+  await page.goto(`http://127.0.0.1:18787/me/reviews?lang=${locale}`);
+  const pendingRegion = page.getByRole('region', { name: all.me.pendingCoursesTitle, exact: true });
+  await expect(pendingRegion.getByRole('link', { name: 'Test Course', exact: true })).toBeVisible();
+  await pendingRegion.getByRole('button', { name: all.me.writePendingReview, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await expect(editor.locator('input[value="spring"]')).toBeChecked();
+  await expect(editor.getByText('Teacher B', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('verified not-found links back to campus and fresh review edit window counts down to request actions', async ({ page }, info) => {
+  const all = catalogue(info);
+  const r = all.academic.review;
+  await page.clock.install({ time: new Date('2026-11-18T09:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-11-18T10:00:10Z'));
+  await academicFixture(page);
+  await page.goto(`http://127.0.0.1:18787/no-such-campus-page?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('link', { name: all.notFound.home, exact: true })).toHaveAttribute('href', '/campus');
+
+  const freshReview = {
+    id: 'fresh-rev',
+    root_id: 'fresh-rev',
+    kind: 'course',
+    school_id: 'school',
+    target_id: 'course',
+    term_id: 'fall',
+    title: 'Fresh review',
+    body: 'Published ten seconds ago.',
+    ratings: [4, 4, 3, 3, 4],
+    author: { anonymous: true, handle: 'author' },
+    revision: 1,
+    published_at: '2026-11-18T10:00:00Z',
+    upvotes: 0,
+    downvotes: 0,
+    my_vote: 0,
+    mine: true,
+    state: 'published',
+    can_edit: true,
+  };
+  let permissionReads = 0;
+  await page.route('**/api/v1/reviews/me/entries/fresh-rev', route => {
+    permissionReads++;
+    return route.fulfill({ json: { ...freshReview, can_edit: permissionReads === 1 } });
+  });
+  await page.route('**/api/v1/reviews?**', (route) => route.fulfill({ json: { items: [freshReview], next: '' } }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toBeVisible();
+  await expect(page.getByText(r.editWindowRemaining.replace('{time}', '4:50'), { exact: true })).toBeVisible();
+  await page.clock.fastForward('05:00');
+  await expect.poll(() => permissionReads).toBe(1);
+  await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toBeVisible();
+  await page.clock.fastForward('00:31');
+  await expect.poll(() => permissionReads).toBe(2);
+  await expect(page.getByRole('button', { name: r.withdraw, exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: r.requestEdit, exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: r.requestDelete, exact: true })).toBeVisible();
+});
+
+test('a nature filter in navigation state reaches the directory without changing the URL', async ({ page }, info) => {
+  const seen = [];
+  await academicFixture(page);
+  page.on('request', req => {
+    const url = new URL(req.url());
+    if (url.pathname === '/api/v1/catalog/directory') seen.push(url.searchParams.get('nature_id'));
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  await page.evaluate(() => {
+    history.replaceState({ ...history.state, filters: { nature: 'optional' } }, '');
+  });
+  seen.length = 0;
+  await page.reload();
+  await expect.poll(() => seen).toContain('optional');
+  expect(new URL(page.url()).searchParams.has('nature')).toBe(false);
+  expect(new URL(page.url()).hash).toBe('');
 });

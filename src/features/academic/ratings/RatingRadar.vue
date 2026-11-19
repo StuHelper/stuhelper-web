@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useInView } from '../../../shared/composables/inView'
 import { useRatingText } from '../presentation'
 import { dimensionNames } from './levels'
@@ -7,6 +8,7 @@ import { dimensionNames } from './levels'
 // The drawing is always left-to-right with explicit anchors, so labels sit outside the
 // shape in right-to-left languages too; the label text itself keeps its own direction.
 const props = withDefaults(defineProps<{ series: { name: string; values: number[] }[]; size?: number; schoolId?: string }>(), { size: 340, schoolId: undefined })
+const { t } = useI18n()
 const ratingText = useRatingText(() => props.schoolId, 'browse')
 const colors = ['var(--accent-fill)', 'var(--c-pink)', 'var(--c-green)', 'var(--c-orange)', 'var(--c-purple)']
 const c = 130
@@ -24,7 +26,13 @@ const pt = (i: number, r: number) => { const a = (Math.PI * 2 * i) / 5 - Math.PI
 const anchor = (i: number) => { const dx = pt(i, R)[0] - c; return Math.abs(dx) < 4 ? 'middle' : dx > 0 ? 'start' : 'end' }
 const ring = (lv: number) => [0, 1, 2, 3, 4].map((i) => pt(i, (R * lv) / 5).join(',')).join(' ')
 const shape = (v: number[]) => v.map((x, i) => pt(i, (R * x) / 5).join(',')).join(' ')
-const text = computed(() => props.series.map((s) => `${s.name}: ${labels.value.map((l, i) => `${l} ${s.values[i] ?? 0}/5`).join(', ')}`).join('; '))
+const text = computed(() => props.series.map((s) => {
+  const values = labels.value.map((label, i) => {
+    const level = s.values[i] ?? 0
+    return `${label} ${level ? ratingText(i, level) : t('browse.levelNone')}`
+  })
+  return `${s.name}: ${values.join(', ')}`
+}).join('; '))
 const root = ref<SVGSVGElement>()
 const seen = useInView(root)
 </script>

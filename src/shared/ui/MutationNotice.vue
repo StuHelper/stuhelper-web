@@ -16,14 +16,14 @@ const errorText = useErrorText()
     class="notice notice-warning"
     role="alert"
   >
-    <span>{{ t('common.uncertain') }}</span>
+    <span>{{ error === 'write_response_unrecognized' ? errorText(error) : t('common.uncertain') }}</span>
     <button
       class="btn btn-sm"
       type="button"
       :disabled="busy"
       @click="emit('retry')"
     >
-      {{ t('common.retryOriginal') }}
+      {{ t(error === 'write_response_unrecognized' ? 'common.refresh' : 'common.retryOriginal') }}
     </button>
   </div>
   <p

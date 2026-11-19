@@ -7,6 +7,10 @@ function undo(row: Toast) {
   row.undo?.()
   dismiss(row.id)
 }
+function runAction(row: Toast) {
+  row.action?.run()
+  dismiss(row.id)
+}
 </script>
 
 <template>
@@ -20,6 +24,14 @@ function undo(row: Toast) {
       class="toast"
     >
       <span>{{ row.text }}</span>
+      <button
+        v-if="row.action"
+        class="btn btn-sm"
+        type="button"
+        @click="runAction(row)"
+      >
+        {{ row.action.label }}
+      </button>
       <button
         v-if="row.undo"
         class="btn btn-sm"

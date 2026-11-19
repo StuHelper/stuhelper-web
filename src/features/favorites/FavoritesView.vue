@@ -6,18 +6,19 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
-import { usePaged } from '../../shared/composables/async'
+import { useAsync, usePaged } from '../../shared/composables/async'
+import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import AsyncState from '../../shared/ui/AsyncState.vue'
+import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import SearchField from '../../shared/ui/SearchField.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
-import { useAsync } from '../../shared/composables/async'
 import { useFavoritesApi, type Favorite, type FavoriteKind, type FavoriteSort, type Folder as FolderRow } from './api'
-import { rememberFavorite } from './state'
+import { forgetFolderFavorites, rememberFavorite } from './state'
 
 // The caller's favorites and folders. Titles are the snapshots the favorites module keeps,
 // so the page works without content admission; details stay behind the original pages.
@@ -26,11 +27,15 @@ const format = useFormat()
 const errorText = useErrorText()
 const api = useFavoritesApi()
 
-const folder = ref('')
-const kind = ref<'all' | FavoriteKind>('all')
-const q = ref('')
-const query = ref('')
-const sort = ref<FavoriteSort>('newest')
+const page = usePageFilters(['folder', 'kind', 'q', 'sort'] as const)
+const validKinds = ['all', 'course', 'teacher', 'resource'] as const
+const initialKind = page.values.value.kind
+const initialSort = page.values.value.sort
+const folder = ref(page.values.value.folder)
+const kind = ref<'all' | FavoriteKind>((validKinds as readonly string[]).includes(initialKind) ? (initialKind as 'all' | FavoriteKind) : 'all')
+const q = ref(page.values.value.q)
+const query = ref(page.values.value.q)
+const sort = ref<FavoriteSort>(initialSort === 'name' ? 'name' : 'newest')
 
 const folders = useAsync((signal) => api.allFolders(signal))
 void folders.reload()
@@ -50,10 +55,18 @@ const selected = computed(() => folderRows.value.find((row) => row.id === folder
 const heading = computed(() => (selected.value ? folderName(selected.value) : t('favorites.all')))
 
 const rows = usePaged<Favorite>(async (after, signal) => {
-  const page = await api.items({ after, folder_id: folder.value || undefined, kind: kind.value === 'all' ? undefined : kind.value, q: query.value || undefined, sort: sort.value }, signal)
-  return { items: page.items, next: page.next ?? '' }
+  const result = await api.items({ after, folder_id: folder.value || undefined, kind: kind.value === 'all' ? undefined : kind.value, q: query.value || undefined, sort: sort.value }, signal)
+  return { items: result.items, next: result.next ?? '' }
 })
-watch([folder, kind, query, sort], () => void rows.reload(), { immediate: true })
+watch([folder, kind, query, sort], () => {
+  page.replace({
+    folder: folder.value || undefined,
+    kind: kind.value === 'all' ? undefined : kind.value,
+    q: query.value || undefined,
+    sort: sort.value === 'newest' ? undefined : sort.value,
+  })
+  void rows.reload()
+}, { immediate: true })
 // Searching waits for a short pause in typing so each keystroke does not send a request.
 let typing: ReturnType<typeof setTimeout> | undefined
 watch(q, (value) => {
@@ -79,6 +92,7 @@ const saving = ref(false)
 const nameError = ref('')
 const trimmed = computed(() => name.value.trim())
 const nameTaken = computed(() => folderRows.value.some((row) => folderName(row) === trimmed.value && !(editing.value === 'rename' && row.id === folder.value)))
+watch(name, () => { nameError.value = '' })
 const nameValid = computed(() => !!trimmed.value && [...trimmed.value].length <= 20 && !nameTaken.value)
 function focusInput() {
   void nextTick(() => {
@@ -113,7 +127,6 @@ async function saveEdit() {
   } catch (failure) {
     // A taken name and a stale revision both return 409; keep the field open either way.
     nameError.value = errorCode(failure) === 'conflict' ? t('favorites.folderNameTaken') : errorText(errorCode(failure))
-    focusInput()
   } finally {
     saving.value = false
   }
@@ -137,20 +150,32 @@ async function editKeydown(event: KeyboardEvent) {
   }
 }
 function editBlur() {
-  if (!editing.value || saving.value) return
+  if (!editing.value || saving.value || nameError.value) return
   if (nameValid.value) void saveEdit()
   else editing.value = ''
 }
-async function removeFolder() {
+const deletingFolder = ref<FolderRow>()
+const deletingBusy = ref(false)
+function requestRemoveFolder() {
   const current = selected.value
   if (!current || current.is_default) return
+  deletingFolder.value = current
+}
+async function confirmRemoveFolder() {
+  const current = deletingFolder.value
+  if (!current || current.is_default || deletingBusy.value) return
+  deletingBusy.value = true
   try {
     await api.deleteFolder(current.id, { revision: current.revision }, crypto.randomUUID())
-    folder.value = ''
+    forgetFolderFavorites(current.id)
+    if (folder.value === current.id) folder.value = ''
+    deletingFolder.value = undefined
     toast(t('favorites.folderDeleted', { p0: folderName(current), p1: defaultFolder.value ? folderName(defaultFolder.value) : t('favorites.defaultFolder') }))
     await refreshFolders()
   } catch (failure) {
     toast(errorText(errorCode(failure)))
+  } finally {
+    deletingBusy.value = false
   }
 }
 // On phones the folder list scrolls sideways; keep the selected folder's menu button in view.
@@ -183,9 +208,11 @@ async function update(row: Favorite, work: () => Promise<void>) {
 function move(row: Favorite, to: FolderRow) {
   void update(row, async () => {
     const moved = await api.move(row.id, { folder_id: to.id, revision: row.revision }, crypto.randomUUID())
+    rememberFavorite(row.kind, row.target_id, moved)
     replace(row, folder.value && folder.value !== to.id ? undefined : moved)
     toast(t('favorites.movedTo', { p0: folderName(to) }), () => void update(moved, async () => {
-      await api.move(moved.id, { folder_id: row.folder_id, revision: moved.revision }, crypto.randomUUID())
+      const restored = await api.move(moved.id, { folder_id: row.folder_id, revision: moved.revision }, crypto.randomUUID())
+      rememberFavorite(restored.kind, restored.target_id, restored)
       void rows.reload()
     }))
   })
@@ -295,7 +322,7 @@ function replace(row: Favorite, next: Favorite | undefined) {
                     <DropdownMenuItem
                       v-if="!x.is_default"
                       class="menu-item"
-                      @select="removeFolder"
+                      @select="requestRemoveFolder"
                     >
                       <Trash2 aria-hidden="true" />{{ t('favorites.deleteFolder') }}
                     </DropdownMenuItem>
@@ -378,123 +405,139 @@ function replace(row: Favorite, next: Favorite | undefined) {
             />
           </div>
 
-          <PagedState
-            :status="rows.status.value"
-            :error="rows.error.value"
-            :count="rows.items.value.length"
-            :next="rows.next.value"
-            :appending="rows.appending.value"
-            @retry="rows.reload()"
-            @more="rows.loadMore()"
+          <div
+            id="favorite-panel"
+            role="tabpanel"
+            :aria-labelledby="`favorite-tab-${kind}`"
           >
-            <template #empty>
-              <div class="card empty stack">
-                <Folder
-                  class="empty-icon"
-                  aria-hidden="true"
-                />
-                <template v-if="query">
-                  <p>{{ t('favorites.noMatch', { p0: query }) }}</p>
-                  <button
-                    class="btn btn-sm center"
-                    type="button"
-                    @click="q = ''; query = ''"
-                  >
-                    {{ t('favorites.clearSearch') }}
-                  </button>
-                </template>
-                <template v-else>
-                  <p>{{ selected ? t('favorites.folderEmpty', { p0: heading }) : t('favorites.empty') }}</p>
-                  <p class="subtle">
-                    {{ t('favorites.emptyHint') }}
-                  </p>
-                  <RouterLink
-                    class="btn btn-sm btn-primary center"
-                    to="/courses"
-                  >
-                    {{ t('favorites.browseCourses') }}
-                  </RouterLink>
-                </template>
-              </div>
-            </template>
-            <TransitionGroup
-              tag="ul"
-              name="fav"
-              class="cards"
+            <PagedState
+              :status="rows.status.value"
+              :error="rows.error.value"
+              :count="rows.items.value.length"
+              :next="rows.next.value"
+              :appending="rows.appending.value"
+              @retry="rows.reload()"
+              @more="rows.loadMore()"
             >
-              <li
-                v-for="f in rows.items.value"
-                :key="f.id"
-                class="card fav"
-              >
-                <div class="head">
-                  <span
-                    class="icon-tile"
-                    :style="{ '--tile': tiles[f.kind] }"
-                  ><component
-                    :is="icons[f.kind]"
+              <template #empty>
+                <div class="card empty stack">
+                  <Folder
+                    class="empty-icon"
                     aria-hidden="true"
-                  /></span>
-                  <div class="group-body">
+                  />
+                  <template v-if="query">
+                    <p>{{ t('favorites.noMatch', { p0: query }) }}</p>
+                    <button
+                      class="btn btn-sm center"
+                      type="button"
+                      @click="q = ''; query = ''"
+                    >
+                      {{ t('favorites.clearSearch') }}
+                    </button>
+                  </template>
+                  <template v-else>
+                    <p>{{ selected ? t('favorites.folderEmpty', { p0: heading }) : t('favorites.empty') }}</p>
+                    <p class="subtle">
+                      {{ t('favorites.emptyHint') }}
+                    </p>
                     <RouterLink
-                      class="card-title"
+                      class="btn btn-sm btn-primary center"
+                      to="/courses"
+                    >
+                      {{ t('favorites.browseCourses') }}
+                    </RouterLink>
+                  </template>
+                </div>
+              </template>
+              <TransitionGroup
+                tag="ul"
+                name="fav"
+                class="cards"
+              >
+                <li
+                  v-for="f in rows.items.value"
+                  :key="f.id"
+                  class="card fav"
+                >
+                  <div class="head">
+                    <span
+                      class="icon-tile"
+                      :style="{ '--tile': tiles[f.kind] }"
+                    ><component
+                      :is="icons[f.kind]"
+                      aria-hidden="true"
+                    /></span>
+                    <div class="group-body">
+                      <RouterLink
+                        class="card-title"
+                        :to="target(f)"
+                      >
+                        {{ title(f) }}
+                      </RouterLink>
+                      <span class="subtle truncate">{{ kindLabel(f.kind) }}</span>
+                    </div>
+                    <DropdownMenuRoot :modal="false">
+                      <DropdownMenuTrigger
+                        class="btn btn-sm btn-icon plain"
+                        :aria-label="t('favorites.manageItem', { p0: title(f) })"
+                        :disabled="working.has(f.id)"
+                      >
+                        <MoreHorizontal aria-hidden="true" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuContent
+                          class="menu"
+                          align="end"
+                          :side-offset="6"
+                        >
+                          <DropdownMenuLabel class="menu-label">
+                            {{ t('favorites.moveTo') }}
+                          </DropdownMenuLabel>
+                          <DropdownMenuItem
+                            v-for="x in folderRows.filter((y) => y.id !== f.folder_id)"
+                            :key="x.id"
+                            class="menu-item"
+                            @select="move(f, x)"
+                          >
+                            <Folder aria-hidden="true" />{{ folderName(x) }}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator class="menu-sep" />
+                          <DropdownMenuItem
+                            class="menu-item"
+                            @select="remove(f)"
+                          >
+                            <Trash2 aria-hidden="true" />{{ t('favorites.remove') }}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenuRoot>
+                  </div>
+                  <div class="foot">
+                    <span class="subtle truncate"><template v-if="!folder && folderOf(f.folder_id)">{{ folderName(folderOf(f.folder_id)!) }} · </template>{{ t('favorites.savedAt', { p0: format.ago(f.created_at) }) }}</span>
+                    <RouterLink
+                      class="btn btn-sm"
                       :to="target(f)"
                     >
-                      {{ title(f) }}
+                      {{ t('favorites.viewDetails') }}
                     </RouterLink>
-                    <span class="subtle truncate">{{ kindLabel(f.kind) }}</span>
                   </div>
-                  <DropdownMenuRoot :modal="false">
-                    <DropdownMenuTrigger
-                      class="btn btn-sm btn-icon plain"
-                      :aria-label="t('favorites.manageItem', { p0: title(f) })"
-                      :disabled="working.has(f.id)"
-                    >
-                      <MoreHorizontal aria-hidden="true" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuContent
-                        class="menu"
-                        align="end"
-                        :side-offset="6"
-                      >
-                        <DropdownMenuLabel class="menu-label">
-                          {{ t('favorites.moveTo') }}
-                        </DropdownMenuLabel>
-                        <DropdownMenuItem
-                          v-for="x in folderRows.filter((y) => y.id !== f.folder_id)"
-                          :key="x.id"
-                          class="menu-item"
-                          @select="move(f, x)"
-                        >
-                          <Folder aria-hidden="true" />{{ folderName(x) }}
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator class="menu-sep" />
-                        <DropdownMenuItem
-                          class="menu-item"
-                          @select="remove(f)"
-                        >
-                          <Trash2 aria-hidden="true" />{{ t('favorites.remove') }}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenuRoot>
-                </div>
-                <div class="foot">
-                  <span class="subtle truncate"><template v-if="!folder && folderOf(f.folder_id)">{{ folderName(folderOf(f.folder_id)!) }} · </template>{{ t('favorites.savedAt', { p0: format.ago(f.created_at) }) }}</span>
-                  <RouterLink
-                    class="btn btn-sm"
-                    :to="target(f)"
-                  >
-                    {{ t('favorites.viewDetails') }}
-                  </RouterLink>
-                </div>
-              </li>
-            </TransitionGroup>
-          </PagedState>
+                </li>
+              </TransitionGroup>
+            </PagedState>
+          </div>
         </section>
       </div>
     </AsyncState>
+    <ConfirmDialog
+      :open="!!deletingFolder"
+      :title="t('favorites.deleteFolder')"
+      :message="deletingFolder ? t('favorites.deleteFolderConfirm', { p0: folderName(deletingFolder), p1: defaultFolder ? folderName(defaultFolder) : t('favorites.defaultFolder') }) : ''"
+      :confirm-label="t('favorites.deleteFolder')"
+      danger
+      :busy="deletingBusy"
+      @confirm="void confirmRemoveFolder()"
+      @cancel="deletingFolder = undefined"
+    />
   </div>
 </template>
 

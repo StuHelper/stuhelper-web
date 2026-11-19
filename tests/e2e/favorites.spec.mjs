@@ -36,6 +36,11 @@ function favorites(page) {
       Object.assign(folder, { name: body.name, revision: folder.revision + 1 });
       return route.fulfill({ json: view(folder) });
     }
+    if (kind === 'folders' && action === 'delete') {
+      state.folders = state.folders.filter((row) => row.id !== id);
+      for (const item of state.items) if (item.folder_id === id) item.folder_id = 'default';
+      return route.fulfill({ json: { id, removed: true } });
+    }
     if (kind === 'items' && action === 'move') {
       const item = state.items.find((row) => row.id === id);
       Object.assign(item, { folder_id: body.folder_id, revision: item.revision + 1 });
@@ -97,4 +102,94 @@ test('the course page shows the saved state and removes the favorite', async ({ 
   await button.click();
   await expect(page.getByRole('button', { name: f.add, exact: true })).toHaveAttribute('aria-pressed', 'false');
   expect(state.writes.at(-1)).toMatchObject({ path: '/items/f1/remove', body: { revision: 1 } });
+});
+
+test('saving a favorite offers quick move to folder, persists selected folder on back, and confirms folder deletion', async ({ page }, info) => {
+  const all = catalogue(info), f = all.favorites;
+  await academicFixture(page);
+  const state = favorites(page);
+  state.items = state.items.filter((row) => row.id !== 'f1');
+
+  await page.goto(`${base}/courses/course?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: f.add, exact: true }).click();
+  await page.getByRole('button', { name: f.moveTo, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: /Exam/ }).click();
+  await expect(page.getByText(f.movedTo.replace('{p0}', 'Exam'))).toBeVisible();
+  expect(state.writes.at(-1)).toMatchObject({ path: '/items/f4/move', body: { folder_id: 'exam', revision: 1 } });
+
+  await page.goto(`${base}/me/favorites?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: /Exam/ }).click();
+  expect(new URL(page.url()).searchParams.has('folder')).toBe(false);
+  await page.getByRole('link', { name: 'Test Course', exact: true }).first().click();
+  await expect(page).toHaveURL(/\/courses\/course/);
+  await page.goBack();
+  await expect(page.getByRole('button', { name: /Exam/ }).first()).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('button', { name: f.manageFolderItem.replace('{p0}', 'Exam') }).click();
+  await page.getByRole('menuitem', { name: f.deleteFolder }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
+  expect(state.writes.some((w) => w.path === '/folders/exam/delete')).toBe(false);
+
+  await page.getByRole('button', { name: f.manageFolderItem.replace('{p0}', 'Exam') }).click();
+  await page.getByRole('menuitem', { name: f.deleteFolder }).click();
+  await page.getByRole('dialog').getByRole('button', { name: f.deleteFolder, exact: true }).click();
+  await expect.poll(() => state.writes.at(-1)).toMatchObject({ path: '/folders/exam/delete', body: { revision: 1 } });
+});
+
+test('the quick view can move a favorite and recovers the saved revision after a lost move response', async ({ page }, info) => {
+  const all = catalogue(info), f = all.favorites, b = all.browse;
+  await academicFixture(page);
+  const state = favorites(page);
+  state.items = state.items.filter(row => row.id !== 'f1');
+  await page.goto(`${base}/courses?lang=${info.project.metadata.locale}`);
+  await expect(page.locator('main li.line')).toHaveCount(1);
+  const quick = page.getByRole('button', { name: b.quickViewItem.replace('{p0}', 'Test Course') });
+  if (await quick.isVisible()) await quick.click();
+  else {
+    await page.getByRole('button', { name: b.moreActionsFor.replace('{p0}', 'Test Course') }).click();
+    await page.getByRole('menuitem', { name: b.quickView }).click();
+  }
+  const drawer = page.getByRole('dialog');
+  await drawer.getByRole('button', { name: f.add, exact: true }).click();
+  await drawer.getByRole('button', { name: f.moveTo, exact: true }).click();
+  const picker = page.getByRole('dialog', { name: f.moveTo, exact: true });
+  let moves = 0;
+  await page.route('**/api/v1/favorites/items/f4/move', route => {
+    moves++;
+    const item = state.items.find(row => row.id === 'f4');
+    const body = route.request().postDataJSON();
+    expect(body.revision).toBe(item.revision);
+    Object.assign(item, { folder_id: body.folder_id, revision: item.revision + 1 });
+    return moves === 1 ? route.abort('failed') : route.fulfill({ json: item });
+  });
+  await picker.getByRole('button', { name: /Exam/ }).click();
+  await expect(picker.getByRole('button', { name: /Exam/ })).toHaveAttribute('aria-pressed', 'true');
+  await picker.getByRole('button', { name: new RegExp(f.defaultFolder) }).click();
+  await expect(picker).toHaveCount(0);
+  expect(moves).toBe(2);
+});
+
+test('a rejected folder name keeps the input but lets focus move without another write', async ({ page }, info) => {
+  const f = catalogue(info).favorites;
+  const state = favorites(page);
+  const attempts = [];
+  await page.route('**/api/v1/favorites/folders', route => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    attempts.push(route.request().postDataJSON());
+    return route.fulfill({ status: 409, json: { code: 'conflict' } });
+  });
+  await page.goto(`${base}/me/favorites?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: f.newFolder, exact: true }).click();
+  const name = page.getByRole('textbox', { name: f.newFolderName, exact: true });
+  const search = page.getByRole('searchbox', { name: f.search, exact: true });
+  await name.fill('Already used');
+  await search.click();
+  await expect(page.getByRole('alert')).toHaveText(f.folderNameTaken);
+  await expect(search).toBeFocused();
+  await name.focus();
+  await search.focus();
+  await expect(name).toHaveValue('Already used');
+  expect(attempts).toEqual([{ name: 'Already used' }]);
+  expect(state.folders.map(folder => folder.id)).toEqual(['default', 'exam']);
 });
