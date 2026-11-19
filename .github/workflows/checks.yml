@@ -41,7 +41,10 @@ jobs:
       - name: Record source combination
         run: |
           git rev-parse HEAD >> "$GITHUB_STEP_SUMMARY"
-          cat contracts/contribution.source.json >> "$GITHUB_STEP_SUMMARY"
+          for record in contracts/*.source.json; do
+            echo "#### $record" >> "$GITHUB_STEP_SUMMARY"
+            cat "$record" >> "$GITHUB_STEP_SUMMARY"
+          done
       - run: make build
       - uses: StuHelper/stuhelper-tooling/actions/chromium@v0.1.10
       - run: pnpm browser
