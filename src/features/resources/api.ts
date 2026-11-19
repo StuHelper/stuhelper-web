@@ -1,3 +1,5 @@
+import { sha256 as sha256Hash } from '@noble/hashes/sha2.js'
+import { bytesToHex } from '@noble/hashes/utils.js'
 import mediaContract from '../../../contracts/media.openapi.json'
 import resourcesContract from '../../../contracts/resources.openapi.json'
 import type { components as Media } from '../../api/media.gen'
@@ -263,9 +265,19 @@ export function useResourcesApi() {
   return new ResourcesApi(useHttp())
 }
 
-async function sha256(file: File) {
-  const digest = await crypto.subtle.digest('SHA-256', await file.arrayBuffer())
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, '0')).join('')
+async function sha256(file: File, signal: AbortSignal) {
+  const hash = sha256Hash.create()
+  // A fixed-size slice also bounds memory on browsers that buffer an entire Blob stream.
+  const chunkSize = 1 << 20
+  try {
+    for (let offset = 0; offset < file.size; offset += chunkSize) {
+      signal.throwIfAborted()
+      const chunk = await file.slice(offset, offset + chunkSize).arrayBuffer()
+      hash.update(new Uint8Array(chunk))
+    }
+    signal.throwIfAborted()
+    return bytesToHex(hash.digest())
+  } finally { hash.destroy() }
 }
 
 export const readyStates = ['awaiting_approval', 'approved', 'ready']
@@ -295,7 +307,7 @@ export class Upload {
 
   async run(onProgress?: (loaded: number, total: number) => void): Promise<MediaVersion> {
     this.stop = new AbortController()
-    this.request ??= { reuse_existing: true, purpose: this.purpose, filename: this.file.name, content_type: this.file.type || 'application/octet-stream', size: this.file.size, sha256: await sha256(this.file) }
+    this.request ??= { reuse_existing: true, purpose: this.purpose, filename: this.file.name, content_type: this.file.type || 'application/octet-stream', size: this.file.size, sha256: await sha256(this.file, this.stop.signal) }
     // Keep a pending creation receipt so concurrent cancellation can name the session.
     if (!this.creating && this.cancelled) throw new ApiError('cancelled')
     this.creating = true
@@ -314,7 +326,7 @@ export class Upload {
   /** Request cancellation. Only a confirmed server state counts as cancelled. */
   async cancel(): Promise<MediaVersion> {
     this.cancelled = true
-    this.stop?.abort()
+    this.stop?.abort(new ApiError('cancelled'))
     if (!this.version) throw new ApiError(this.creating ? 'cancel_pending' : 'cancelled', this.creating)
     try {
       this.version = await this.api.cancelUpload(this.version.upload_id, this.cancelKey)
