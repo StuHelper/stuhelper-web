@@ -184,7 +184,7 @@ const pending = computed(() => order.value && !finalStates.includes(order.value.
           type="button"
           @click="void retry()"
         >
-          {{ t('common.retry') }}
+          {{ t(write.error.value === 'write_response_unrecognized' ? 'common.refresh' : 'common.retry') }}
         </button>
       </p>
       <div class="row">

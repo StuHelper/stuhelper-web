@@ -116,3 +116,63 @@ memberTest('comparison page adds courses from in-page search, shows summary fact
   await page.getByRole('button', { name: c.clear, exact: true }).click();
   await expect(page.getByRole('heading', { name: c.emptyTitle, exact: true })).toBeVisible();
 });
+
+memberTest('a member without campus access withdraws a selected review vote on the personal votes page', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: {
+    campus_eligibility: false, teacher_verified: false, identity_verified: false,
+    evaluated_at: '2026-11-01T00:00:00Z', revision: 1, next_evaluation_at: null,
+  } }));
+  let votes = ['keep', 'withdraw'].map(id => ({ target: { source: 'reviews', id, kind: 'review' }, choice: 'up' }));
+  const writes = [];
+  await searchServer(page, { '/api/v1/search/my-votes': () => ({ items: votes, next_cursor: '' }) });
+  await page.route('**/api/v1/reviews/me/references?**', route => route.fulfill({ json: {
+    items: votes.map(({ target }) => ({ id: target.id, kind: 'review', name: target.id })), missing_ids: [],
+  } }));
+  await page.route('**/api/v1/reviews/withdraw/actions', route => {
+    const req = route.request();
+    writes.push({ key: req.headers()['idempotency-key'], body: req.postDataJSON() });
+    if (writes.length === 1) {
+      votes = votes.filter(vote => vote.target.id !== 'withdraw');
+      return route.abort();
+    }
+    return route.fulfill({ json: { id: 'withdraw', state: 'published', revision: 2 } });
+  });
+  await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
+  const row = page.getByRole('listitem').filter({ has: page.getByRole('link', { name: /withdraw/ }) });
+  await row.getByRole('button', { name: all.search.votes.cancel }).click();
+  await page.getByRole('button', { name: all.common.retryOriginal }).click();
+  await expect(row).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /keep/ })).toBeVisible();
+  expect(votes.map(vote => vote.target.id)).toEqual(['keep']);
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toEqual(writes[0]);
+  expect(writes[0]).toMatchObject({ key: expect.any(String), body: { action: 'vote', vote: 0 } });
+});
+
+memberTest('an unavailable comparison target can be removed without losing the other target', async ({ page }, info) => {
+  const c = catalogue(info).search.compare;
+  await academicFixture(page);
+  await page.addInitScript(() => localStorage.setItem('stuhelper.compare', JSON.stringify({ course: [], teacher: ['teacher-a', 'teacher-b'] })));
+  await page.route('**/api/v1/reviews/statistics?**', route => new URL(route.request().url()).searchParams.get('target_id') === 'teacher-b'
+    ? route.fulfill({ status: 404, json: { code: 'not_found' } }) : route.fallback());
+  await page.goto(`${base}/compare?kind=teacher&lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('columnheader', { name: /Teacher A/ })).toBeVisible();
+  await page.getByRole('button', { name: fill(c.remove, { name: 'Teacher B' }) }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('stuhelper.compare')).teacher)).toEqual(['teacher-a']);
+});
+
+memberTest('a course outside the visible catalog can be removed from comparison while the visible course remains', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  await page.addInitScript(() => localStorage.setItem('stuhelper.compare', JSON.stringify({ course: ['archived', 'course'], teacher: [] })));
+  await page.route('**/api/v1/reviews/statistics?**', route => new URL(route.request().url()).searchParams.get('target_id') === 'archived'
+    ? route.fulfill({ status: 404, json: { code: 'not_found' } }) : route.fallback());
+  await page.goto(`${base}/compare?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('columnheader', { name: /Test Course/ })).toBeVisible();
+  const hidden = page.getByRole('columnheader').filter({ hasText: all.errors.not_found });
+  await hidden.getByRole('button', { name: fill(all.search.compare.remove, { name: all.common.unknown }) }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('stuhelper.compare')).course)).toEqual(['course']);
+  await expect(page.getByRole('columnheader', { name: /Test Course/ })).toBeVisible();
+});

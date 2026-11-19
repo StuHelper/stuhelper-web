@@ -33,7 +33,8 @@ const count = computed(() => (status.data.value ? parts.filter((part) => bound(s
 function message(failure: unknown) {
   const code = errorCode(failure).replace(/^qq_binding_/, '')
   const key = `qq.errors.${code}`
-  return t(['already_bound', 'ownership_conflict', 'rate_limited', 'unavailable', 'account_closed', 'revision_conflict'].includes(code) ? key : 'qq.errors.unavailable')
+  if (te(key)) return t(key)
+  return t(te(`errors.${code}`) ? `errors.${code}` : 'qq.errors.unavailable')
 }
 
 // Bot verification: show a one-time code and wait for the bot to report it.
