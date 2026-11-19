@@ -306,6 +306,7 @@
     "home": "Return home"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "You are signed out of this site. Your single sign-on session may still be active.",
     "signIn": "Sign in",
     "signOut": "Sign out this device",
     "signOutAll": "Sign out all devices",

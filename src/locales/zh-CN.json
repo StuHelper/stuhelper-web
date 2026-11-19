@@ -306,6 +306,7 @@
     "home": "返回首页"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "已退出本站。统一登录会话可能仍然有效。",
     "signIn": "登录",
     "signOut": "退出当前设备",
     "signOutAll": "退出全部设备",

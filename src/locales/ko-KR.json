@@ -306,6 +306,7 @@
     "home": "홈으로 돌아가기"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "이 사이트에서 로그아웃했습니다. 통합 로그인 세션은 여전히 활성 상태일 수 있습니다.",
     "signIn": "로그인",
     "signOut": "이 기기에서 로그아웃",
     "signOutAll": "모든 기기에서 로그아웃",
