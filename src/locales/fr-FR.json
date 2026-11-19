@@ -69,6 +69,8 @@
     "opensInNewTab": "(s’ouvre dans un nouvel onglet)"
   },
   "errors": {
+    "disabled": "Le service des groupes est désactivé.",
+    "cooldown": "Un délai ou une limite de demandes en attente s’applique. Réessayez plus tard.",
     "network": "La connexion a échoué ou expiré. Les saisies valides sont conservées ; réessayez.",
     "timeout": "Le service a mis trop de temps à répondre. Réessayez.",
     "cancelled": "La demande a été annulée.",
@@ -304,6 +306,7 @@
     "home": "Retour à l’accueil"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "Vous êtes déconnecté de ce site. Votre session d’authentification unique est peut-être encore active.",
     "signIn": "Se connecter",
     "signOut": "Déconnecter cet appareil",
     "signOutAll": "Déconnecter tous les appareils",
@@ -829,6 +832,7 @@
       "accept": "J’ai lu et j’accepte les conditions actuelles"
     },
     "editor": {
+      "selectCategory": "Choisissez une catégorie de ressources disponible.",
       "intro": "Trois étapes : enregistrer les informations, déposer le fichier, soumettre. La version publiée reste disponible pendant la validation.",
       "step1": "1. Informations",
       "step2": "2. Fichier",

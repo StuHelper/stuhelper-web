@@ -34,3 +34,13 @@ export function readTrail(id: string): Directory[] {
   }
   return [{ id, names: {} } as Directory]
 }
+
+
+export function forgetTrails() {
+  try {
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const name = sessionStorage.key(i)
+      if (name?.startsWith('stuhelper.folder.')) sessionStorage.removeItem(name)
+    }
+  } catch { /* Storage can be unavailable. */ }
+}

@@ -69,6 +69,8 @@
     "opensInNewTab": "（在新标签页打开）"
   },
   "errors": {
+    "disabled": "群服务未启用。",
+    "cooldown": "当前操作受冷却时间或待处理数量限制，请稍后重试。",
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
     "timeout": "服务响应超时，请重试。",
     "cancelled": "请求已取消。",
@@ -304,6 +306,7 @@
     "home": "返回首页"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "已退出本站。统一登录会话可能仍然有效。",
     "signIn": "登录",
     "signOut": "退出当前设备",
     "signOutAll": "退出全部设备",
@@ -829,6 +832,7 @@
       "accept": "我已阅读并同意当前版本条款"
     },
     "editor": {
+      "selectCategory": "请选择可用的资料分类。",
       "intro": "按顺序完成三步：保存资料信息、上传文件、提交审核。审核期间，已发布的版本继续可用。",
       "step1": "1. 资料信息",
       "step2": "2. 文件",

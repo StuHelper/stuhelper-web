@@ -14,7 +14,7 @@ import { maskQq, useQqBindingApi, type BotPart, type QqCode, type QqPart, type Q
 
 // The three QQ binding parts. Each is verified on its own, and binding is complete only
 // when all three are bound. The server reports completion; the page never derives it.
-const { t } = useI18n()
+const { t, te } = useI18n()
 const api = useQqBindingApi()
 const now = useNow(1000)
 const status = useAsync((signal) => api.status(signal))
@@ -32,7 +32,8 @@ const count = computed(() => (status.data.value ? parts.filter((part) => bound(s
 function message(failure: unknown) {
   const code = errorCode(failure).replace(/^qq_binding_/, '')
   const key = `qq.errors.${code}`
-  return t(['already_bound', 'ownership_conflict', 'rate_limited', 'unavailable', 'account_closed', 'revision_conflict'].includes(code) ? key : 'qq.errors.unavailable')
+  if (te(key)) return t(key)
+  return t(te(`errors.${code}`) ? `errors.${code}` : 'qq.errors.unavailable')
 }
 
 // Bot verification: show a one-time code and wait for the bot to report it.

@@ -115,7 +115,7 @@ test('owned file reuse avoids content transfer and keeps separate review', async
   await expect(page.getByText(m.editor.reusePending, { exact: true })).toBeVisible();
   const puts = () => s.calls.filter((x) => x.path?.startsWith('/api/v1/media') && x.method === 'PUT');
   expect(puts()).toHaveLength(0);
-  s.media.state = 'awaiting_approval';
+  s.media.state = 'ready';
   await page.getByRole('button', { name: all.common.retry, exact: true }).click();
   await expect(page.getByText(m.editor.reused, { exact: true })).toBeVisible();
   await expect(page.getByText(m.editor.uploadState.attached, { exact: true })).toBeVisible();
