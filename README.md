@@ -78,6 +78,8 @@ src/locales/      八种语言界面词条
 
 `src/shared/api/http.ts` 统一负责同源请求、CSRF 头注入、`redirect: 'error'`、超时取消、响应体积上限与错误码归一。接口封装使用 `schemaOf` 等解析器，按提供方契约校验 JSON 响应。
 
+列表请求收到 HTTP 401 或 403 时清除私有记录和分页游标。账务冲突和余额不足继续使用业务错误码展示原因。
+
 使用 `useMutation` 的幂等写入携带 `Idempotency-Key`。遇到结果不明的网络或网关故障时，表单进入 `uncertain` 状态，重试复用原请求体和幂等键。
 
 会员购买等待回执期间锁定套餐与付款账户。仅在订单状态为 succeeded 或 fulfilled 时提示已开通，其他状态显示订单进度，可在钱包查看。

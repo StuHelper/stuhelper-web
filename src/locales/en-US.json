@@ -69,6 +69,8 @@
     "opensInNewTab": "(opens in a new tab)"
   },
   "errors": {
+    "disabled": "Group services are disabled.",
+    "cooldown": "A cooldown or pending action limit applies. Try again later.",
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
     "timeout": "The service took too long to respond. Please try again.",
     "cancelled": "The request was cancelled.",

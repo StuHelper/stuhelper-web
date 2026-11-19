@@ -30,7 +30,8 @@
     ],
     "RES-CLIENT-02": [
       "src/features/resources/api.test.ts#passes current host credentials and cancellation on every request",
-      "src/features/resources/api.test.ts#releases a known rejected mutation and clears private state even for non-JSON denial"
+      "src/features/resources/api.test.ts#releases a known rejected mutation and clears private state even for non-JSON denial",
+      "src/shared/composables/async.test.ts#clears private rows and their cursor on HTTP denial regardless of the business code"
     ],
     "RES-CLIENT-03": [
       "tests/e2e/resources.spec.mjs#configured category field filters and grouping follow server configuration"
