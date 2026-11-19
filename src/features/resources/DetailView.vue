@@ -471,16 +471,19 @@ function accessReason(code: string) {
   </AsyncState>
   <section
     v-if="!entryValue && ['forbidden', 'not_found'].includes(entry.error.value || download.error.value)"
-    class="card stack"
+    class="stack-sm"
   >
-    <button
-      type="button"
-      class="btn"
-      :aria-expanded="requesting"
-      @click="requesting = !requesting"
-    >
-      {{ t('resources.detail.complain') }}
-    </button>
+    <p class="muted small row">
+      {{ t('resources.detail.complainHidden') }}
+      <button
+        type="button"
+        class="btn btn-sm btn-ghost"
+        :aria-expanded="requesting"
+        @click="requesting = !requesting"
+      >
+        {{ t('resources.detail.complain') }}
+      </button>
+    </p>
     <RequestForm
       v-if="requesting"
       :resource-id="id"

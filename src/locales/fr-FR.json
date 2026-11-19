@@ -769,6 +769,7 @@
       "download": "Télécharger le fichier",
       "requestOwner": "Demander le retrait ou se plaindre",
       "complain": "Signaler une atteinte ou un contenu",
+      "complainHidden": "Ce document porte atteinte à vos droits ?",
       "accessRequired": "Votre compte ne peut pas télécharger cette ressource pour le moment.",
       "pendingVersion": "Une nouvelle version est en cours de traitement. La version publiée reste disponible.",
       "noDescription": "Pas de description.",
@@ -850,6 +851,9 @@
       "tagsHint": "Séparez les étiquettes par des virgules.",
       "associations": "Liens avec les cours",
       "associationsHint": "Choisir le cours suffit. Si le document est daté ou ne vaut que pour un semestre ou un enseignant précis, vous pouvez aussi indiquer le semestre et l’enseignant (facultatif).",
+      "term": "Semestre",
+      "chooseCourse": "Choisir un cours",
+      "courseRequired": "Choisissez le cours auquel ce document se rapporte.",
       "directory": "Dossier suggéré",
       "directoryHint": "Facultatif. Les modérateurs organisent les dossiers ; votre suggestion est indicative.",
       "create": "Enregistrer et créer le brouillon",
@@ -1984,33 +1988,33 @@
         "removed": "Votre contenu {content_id} a été retiré"
       },
       "resource_removal": {
-        "approved": "La demande de retrait {request_id} a été acceptée",
-        "rejected": "La demande de retrait {request_id} a été refusée"
+        "approved": "La demande de retrait a été acceptée",
+        "rejected": "La demande de retrait a été refusée"
       },
       "report": {
-        "approved": "Votre signalement {report_id} a été retenu",
-        "rejected": "Votre signalement {report_id} n’a pas été retenu après examen"
+        "approved": "Votre signalement a été retenu",
+        "rejected": "Votre signalement n’a pas été retenu après examen"
       },
       "student_verification": {
-        "approved": "La vérification étudiante {application_id} a été approuvée",
-        "rejected": "La vérification étudiante {application_id} n’a pas été approuvée",
-        "revoked": "La vérification étudiante {credential_id} a été révoquée"
+        "approved": "La vérification étudiante a été approuvée",
+        "rejected": "La vérification étudiante n’a pas été approuvée",
+        "revoked": "La vérification étudiante a été révoquée"
       },
       "identity_verification": {
-        "approved": "La vérification d’identité {operation_id} a réussi",
-        "rejected": "La vérification d’identité {operation_id} a échoué"
+        "approved": "La vérification d’identité a réussi",
+        "rejected": "La vérification d’identité a échoué"
       },
       "verification_revocation": {
-        "approved": "La demande de révocation {request_id} a été acceptée",
-        "rejected": "La demande de révocation {request_id} a été refusée"
+        "approved": "La demande de révocation a été acceptée",
+        "rejected": "La demande de révocation a été refusée"
       },
       "verification_deletion": {
-        "approved": "La demande de suppression {request_id} a été acceptée",
-        "rejected": "La demande de suppression {request_id} a été refusée"
+        "approved": "La demande de suppression a été acceptée",
+        "rejected": "La demande de suppression a été refusée"
       },
       "teacher_verification": {
-        "approved": "La vérification enseignant {application_id} a été approuvée",
-        "rejected": "La vérification enseignant {application_id} n’a pas été approuvée"
+        "approved": "La vérification enseignant a été approuvée",
+        "rejected": "La vérification enseignant n’a pas été approuvée"
       },
       "system": {
         "notice": "Avis du système, référence {reference_id}",
@@ -2084,7 +2088,7 @@
       "teachers": "Enseignants ({count})",
       "kind": "Type de comparaison",
       "emptyTitle": "Rien à comparer pour l’instant",
-      "emptyHint": "Choisissez « Ajouter à la comparaison » sur une page de cours ou d’enseignant, puis revenez ici.",
+      "emptyHint": "Recherchez ci-dessus pour ajouter, ou choisissez « Ajouter à la comparaison » sur une page de cours ou d’enseignant.",
       "browseCourses": "Parcourir les cours",
       "browseTeachers": "Parcourir les enseignants",
       "dimension": "Critère",

@@ -769,6 +769,7 @@
       "download": "Download file",
       "requestOwner": "Request withdrawal or complain",
       "complain": "Report infringement or content",
+      "complainHidden": "Believe this material infringes your rights?",
       "accessRequired": "Your account cannot download this resource right now.",
       "pendingVersion": "A new version is being processed. The published version remains available.",
       "noDescription": "No description.",
@@ -850,6 +851,9 @@
       "tagsHint": "Separate tags with commas.",
       "associations": "Course associations",
       "associationsHint": "Choosing the course is enough. If the material is time-sensitive or only fits a certain term or teacher, you can also add the term and teacher (optional).",
+      "term": "Term",
+      "chooseCourse": "Select a course",
+      "courseRequired": "Select the course this material belongs to.",
       "directory": "Suggested folder",
       "directoryHint": "Optional. Moderators organise folders; your suggestion is advisory.",
       "create": "Save and create draft",
@@ -1984,33 +1988,33 @@
         "removed": "Your content {content_id} was taken down"
       },
       "resource_removal": {
-        "approved": "Takedown request {request_id} was accepted",
-        "rejected": "Takedown request {request_id} was declined"
+        "approved": "Takedown request was accepted",
+        "rejected": "Takedown request was declined"
       },
       "report": {
-        "approved": "Your report {report_id} was upheld",
-        "rejected": "Your report {report_id} was not upheld after review"
+        "approved": "Your report was upheld",
+        "rejected": "Your report was not upheld after review"
       },
       "student_verification": {
-        "approved": "Student verification {application_id} was approved",
-        "rejected": "Student verification {application_id} was not approved",
-        "revoked": "Student verification {credential_id} was revoked"
+        "approved": "Student verification was approved",
+        "rejected": "Student verification was not approved",
+        "revoked": "Student verification was revoked"
       },
       "identity_verification": {
-        "approved": "Identity check {operation_id} passed",
-        "rejected": "Identity check {operation_id} did not pass"
+        "approved": "Identity check passed",
+        "rejected": "Identity check did not pass"
       },
       "verification_revocation": {
-        "approved": "Verification revocation request {request_id} was accepted",
-        "rejected": "Verification revocation request {request_id} was declined"
+        "approved": "Verification revocation request was accepted",
+        "rejected": "Verification revocation request was declined"
       },
       "verification_deletion": {
-        "approved": "Verification deletion request {request_id} was accepted",
-        "rejected": "Verification deletion request {request_id} was declined"
+        "approved": "Verification deletion request was accepted",
+        "rejected": "Verification deletion request was declined"
       },
       "teacher_verification": {
-        "approved": "Teacher verification {application_id} was approved",
-        "rejected": "Teacher verification {application_id} was not approved"
+        "approved": "Teacher verification was approved",
+        "rejected": "Teacher verification was not approved"
       },
       "system": {
         "notice": "System notice, reference {reference_id}",
@@ -2084,7 +2088,7 @@
       "teachers": "Teachers ({count})",
       "kind": "Compare",
       "emptyTitle": "Nothing to compare yet",
-      "emptyHint": "Choose “Add to compare” on a course or teacher page, then come back here.",
+      "emptyHint": "Search above to add items, or select “Add to compare” on a course or teacher page.",
       "browseCourses": "Browse courses",
       "browseTeachers": "Browse teachers",
       "dimension": "Rating",

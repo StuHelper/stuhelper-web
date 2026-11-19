@@ -62,7 +62,7 @@ function tone(state: Receipt['state']) {
     :title="t('me.requests')"
     :description="t('me.requestsIntro')"
   >
-    <div class="stack-lg">
+    <template #actions>
       <button
         type="button"
         class="btn"
@@ -71,6 +71,8 @@ function tone(state: Receipt['state']) {
       >
         {{ t('resources.detail.complain') }}
       </button>
+    </template>
+    <div class="stack-lg">
       <RequestForm
         v-if="complaining"
         @saved="receipts.reload"

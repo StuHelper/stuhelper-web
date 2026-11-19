@@ -769,6 +769,7 @@
       "download": "ファイルをダウンロード",
       "requestOwner": "取り下げ申請・苦情",
       "complain": "権利侵害・内容の苦情",
+      "complainHidden": "この資料があなたの権利を侵害していると思いますか？",
       "accessRequired": "現在のアカウントではこの資料をダウンロードできません。",
       "pendingVersion": "新しい版を処理中です。公開済みの版は引き続き利用できます。",
       "noDescription": "紹介はありません。",
@@ -850,6 +851,9 @@
       "tagsHint": "複数のタグはカンマで区切ります。",
       "associations": "授業との関連",
       "associationsHint": "科目を選ぶだけで十分です。資料に時期の制約がある場合や、特定の学期・教員の授業にだけ当てはまる場合は、学期と教員も指定できます（任意）。",
+      "term": "学期",
+      "chooseCourse": "科目を選択",
+      "courseRequired": "資料が対応する科目を選択してください。",
       "directory": "希望のフォルダ",
       "directoryHint": "任意です。フォルダは管理者が整理し、提案は参考にされます。",
       "create": "保存して下書きを作成",
@@ -1984,33 +1988,33 @@
         "removed": "コンテンツ {content_id} が非公開になりました"
       },
       "resource_removal": {
-        "approved": "資料の削除申請 {request_id} が承認されました",
-        "rejected": "資料の削除申請 {request_id} は承認されませんでした"
+        "approved": "資料の削除申請が承認されました",
+        "rejected": "資料の削除申請は承認されませんでした"
       },
       "report": {
-        "approved": "通報 {report_id} は対応されました",
-        "rejected": "通報 {report_id} は確認の結果、対応されませんでした"
+        "approved": "通報は対応されました",
+        "rejected": "通報は確認の結果、対応されませんでした"
       },
       "student_verification": {
-        "approved": "学生認証の申請 {application_id} が承認されました",
-        "rejected": "学生認証の申請 {application_id} は承認されませんでした",
-        "revoked": "学生認証 {credential_id} が取り消されました"
+        "approved": "学生認証の申請が承認されました",
+        "rejected": "学生認証の申請は承認されませんでした",
+        "revoked": "学生認証が取り消されました"
       },
       "identity_verification": {
-        "approved": "本人確認 {operation_id} が完了しました",
-        "rejected": "本人確認 {operation_id} は完了しませんでした"
+        "approved": "本人確認が完了しました",
+        "rejected": "本人確認は完了しませんでした"
       },
       "verification_revocation": {
-        "approved": "認証の取り消し申請 {request_id} が承認されました",
-        "rejected": "認証の取り消し申請 {request_id} は承認されませんでした"
+        "approved": "認証の取り消し申請が承認されました",
+        "rejected": "認証の取り消し申請は承認されませんでした"
       },
       "verification_deletion": {
-        "approved": "認証の削除申請 {request_id} が承認されました",
-        "rejected": "認証の削除申請 {request_id} は承認されませんでした"
+        "approved": "認証の削除申請が承認されました",
+        "rejected": "認証の削除申請は承認されませんでした"
       },
       "teacher_verification": {
-        "approved": "教員認証の申請 {application_id} が承認されました",
-        "rejected": "教員認証の申請 {application_id} は承認されませんでした"
+        "approved": "教員認証の申請が承認されました",
+        "rejected": "教員認証の申請は承認されませんでした"
       },
       "system": {
         "notice": "システムからのお知らせ（関連番号 {reference_id}）",
@@ -2084,7 +2088,7 @@
       "teachers": "教員（{count}）",
       "kind": "比較の種類",
       "emptyTitle": "比較する項目がありません",
-      "emptyHint": "授業または教員のページで「比較に追加」を選んでから、ここに戻ってください。",
+      "emptyHint": "上の検索から追加するか、科目・教員ページで「比較に追加」を選んでください。",
       "browseCourses": "授業を探す",
       "browseTeachers": "教員を探す",
       "dimension": "評価項目",

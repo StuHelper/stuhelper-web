@@ -660,9 +660,9 @@
     "correct": "更正或提交新版本",
     "requestWithdrawal": "申请下架",
     "requests": "我的申请",
-    "requestsIntro": "资料下架、侵权投诉与异议的持久回执和当前处理状态。",
+    "requestsIntro": "资料下架、侵权投诉与异议的处理进度。",
     "requestsEmpty": "暂无申请记录。",
-    "checkStatus": "查看当前处理状态",
+    "checkStatus": "查看进度",
     "retryRequest": "重新处理",
     "links": {
       "reviews": "已发布和审核中的评价与回复。",
@@ -769,6 +769,7 @@
       "download": "下载文件",
       "requestOwner": "申请下架或投诉",
       "complain": "侵权或内容投诉",
+      "complainHidden": "认为这份资料侵犯了你的权利？",
       "accessRequired": "当前账号暂时无法下载该资料。",
       "pendingVersion": "新版本正在处理，当前已发布版本继续提供下载。",
       "noDescription": "未填写简介。",
@@ -850,6 +851,9 @@
       "tagsHint": "多个标签用逗号分隔。",
       "associations": "关联课程信息",
       "associationsHint": "选择资料对应的课程即可。如果资料有时效性，或只适用于某个学期、某位老师的课，可以再标注学期和教师（可选）。",
+      "term": "学期",
+      "chooseCourse": "请选择课程",
+      "courseRequired": "请先选择资料对应的课程。",
       "directory": "建议目录",
       "directoryHint": "可选。目录由管理员整理，你的建议仅供参考。",
       "create": "保存并创建草稿",
@@ -916,7 +920,7 @@
         "pending": "等待审核",
         "submitted": "已转交处理",
         "waiting": "等待处理",
-        "decided": "决定已登记，等待执行",
+        "decided": "已作出处理决定，等待执行",
         "applied": "处理已生效",
         "failed": "处理失败，可重试"
       },
@@ -1984,33 +1988,33 @@
         "removed": "你的内容 {content_id} 已被下架"
       },
       "resource_removal": {
-        "approved": "资料下架申请 {request_id} 已通过",
-        "rejected": "资料下架申请 {request_id} 未通过"
+        "approved": "资料下架申请已通过",
+        "rejected": "资料下架申请未通过"
       },
       "report": {
-        "approved": "你的举报 {report_id} 已处理并采纳",
-        "rejected": "你的举报 {report_id} 经核实未采纳"
+        "approved": "你的举报已处理并采纳",
+        "rejected": "你的举报经核实未采纳"
       },
       "student_verification": {
-        "approved": "学生认证申请 {application_id} 已通过",
-        "rejected": "学生认证申请 {application_id} 未通过",
-        "revoked": "学生认证 {credential_id} 已被撤销"
+        "approved": "学生认证申请已通过",
+        "rejected": "学生认证申请未通过",
+        "revoked": "学生认证已被撤销"
       },
       "identity_verification": {
-        "approved": "实名核验 {operation_id} 已通过",
-        "rejected": "实名核验 {operation_id} 未通过"
+        "approved": "实名核验已通过",
+        "rejected": "实名核验未通过"
       },
       "verification_revocation": {
-        "approved": "认证撤销申请 {request_id} 已通过",
-        "rejected": "认证撤销申请 {request_id} 未通过"
+        "approved": "认证撤销申请已通过",
+        "rejected": "认证撤销申请未通过"
       },
       "verification_deletion": {
-        "approved": "认证删除申请 {request_id} 已通过",
-        "rejected": "认证删除申请 {request_id} 未通过"
+        "approved": "认证删除申请已通过",
+        "rejected": "认证删除申请未通过"
       },
       "teacher_verification": {
-        "approved": "教师认证申请 {application_id} 已通过",
-        "rejected": "教师认证申请 {application_id} 未通过"
+        "approved": "教师认证申请已通过",
+        "rejected": "教师认证申请未通过"
       },
       "system": {
         "notice": "系统通知，相关编号 {reference_id}",
@@ -2084,7 +2088,7 @@
       "teachers": "教师（{count}）",
       "kind": "对比类型",
       "emptyTitle": "尚未选择对比项目",
-      "emptyHint": "在课程或教师页面点击“加入对比”，然后返回此处查看。",
+      "emptyHint": "在上方搜索并添加，或在课程、教师页面点击“加入对比”。",
       "browseCourses": "浏览课程",
       "browseTeachers": "浏览教师",
       "dimension": "评分项",
