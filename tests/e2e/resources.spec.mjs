@@ -318,3 +318,27 @@ test('an uploader can correct owned metadata using its saved category when categ
   expect(state.resource.current.metadata.title).toBe(saved.title);
   expect(state.calls.filter(call => call.method === 'PUT' && call.path === '/items/resource')).toHaveLength(1);
 });
+
+test('course suggestions load on opening the picker and closing discards a pending search', async ({ page }, info) => {
+  const searches = [];
+  page.on('request', request => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/v1/catalog/objects' && url.searchParams.get('kind') === 'course') searches.push(url.searchParams.get('q') ?? '');
+  });
+  await page.clock.install();
+  const { all } = await setup(page, info, '/resources/new');
+  const picker = page.getByRole('combobox', { name: all.academic.course, exact: true });
+  await expect(picker).toBeVisible();
+  await page.clock.fastForward(1000);
+  expect(searches).toEqual([]);
+  await picker.click();
+  await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
+  await picker.fill('discarded');
+  await picker.press('Escape');
+  await expect(picker).toHaveAttribute('aria-expanded', 'false');
+  await page.clock.fastForward(1000);
+  expect(searches).toEqual(['']);
+  await picker.click();
+  await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
+  expect(searches).not.toContain('discarded');
+});

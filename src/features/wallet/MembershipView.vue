@@ -35,36 +35,51 @@ const active = (until: string) => Date.parse(until) > now.value
 // Coverage per plan: undefined while loading, null when not configured, '' on a read failure.
 const coverage = shallowRef(new Map<string, Coverage | null | string>())
 const names = shallowRef(new Map<string, string>())
-watch(() => plans.data.value, async (list) => {
+watch(() => plans.data.value, async (list, _, onCleanup) => {
   if (!list) return
+  const controller = new AbortController()
+  const { signal } = controller
+  onCleanup(() => controller.abort())
   const next = new Map<string, Coverage | null | string>()
-  await Promise.all(list.map(async (plan) => {
-    try {
-      next.set(plan.id, await resources.coverage(plan.id))
-    } catch (failure) {
-      next.set(plan.id, errorCode(failure) === 'not_found' ? null : errorCode(failure))
+  const remaining = list.values()
+  async function readPlans() {
+    for (const plan of remaining) {
+      if (signal.aborted) return
+      try { next.set(plan.id, await resources.coverage(plan.id, signal)) }
+      catch (failure) { next.set(plan.id, errorCode(failure) === 'not_found' ? null : errorCode(failure)) }
     }
-  }))
+  }
+  await Promise.all(Array.from({ length: Math.min(list.length, 4) }, readPlans))
+  if (signal.aborted) return
   coverage.value = next
-  await resolveNames([...next.values()].filter((value): value is Coverage => !!value && typeof value === 'object'))
+  await resolveNames([...next.values()].filter((value): value is Coverage => !!value && typeof value === 'object'), signal)
 })
 // Names make the scope readable; a name that cannot be read falls back to a neutral label.
-async function resolveNames(list: Coverage[]) {
+async function resolveNames(list: Coverage[], signal: AbortSignal) {
   const rules = list.flatMap((item) => item.rules)
   const found = new Map<string, string>()
   try {
-    for (const [id, object] of await academic.lookup(rules.map((rule) => rule.school_id))) found.set(id, object.name)
+    for (const [id, object] of await academic.lookup(rules.map((rule) => rule.school_id), signal)) found.set(id, object.name)
   } catch { /* School names are optional. */ }
   try {
-    for (const category of await resources.categories()) found.set(`category:${category.id}`, localName(category.names ?? {}, locale.value))
+    for (const category of rules.some(rule => rule.category_id) ? await resources.categories(signal) : []) found.set(`category:${category.id}`, localName(category.names ?? {}, locale.value))
   } catch { /* Category names are optional. */ }
   for (const school of new Set(rules.filter((rule) => rule.directory_id).map((rule) => rule.school_id))) {
     try {
-      const page = await resources.directories({ school_id: school, limit: 100 })
-      for (const directory of page.items) found.set(`directory:${directory.id}`, localName(directory.names ?? {}, locale.value))
+      const needed = new Set(rules.filter(rule => rule.school_id === school && rule.directory_id).map(rule => rule.directory_id))
+      const cursors = new Set<string>()
+      let after = ''
+      do {
+        cursors.add(after)
+        const page = await resources.directories({ school_id: school, limit: 100, after }, signal)
+        for (const directory of page.items) {
+          if (needed.delete(directory.id)) found.set(`directory:${directory.id}`, localName(directory.names ?? {}, locale.value))
+        }
+        after = page.next_cursor ?? ''
+      } while (needed.size && after && !cursors.has(after))
     } catch { /* Directory names are optional. */ }
   }
-  names.value = found
+  if (!signal.aborted) names.value = found
 }
 const ruleText = (rule: Coverage['rules'][number]) => [
   names.value.get(rule.school_id) ?? t('membership.school'),
