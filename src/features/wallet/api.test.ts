@@ -53,7 +53,7 @@ it('sends each write with the caller idempotency key and rejects responses outsi
     return sent.length === 1 ? Response.json(order) : Response.json({ ...order, state: 'settled' })
   }))
   await expect(api.topup({ channel: 'demo-pay', amount_minor: 1000 }, 'key-1')).resolves.toMatchObject({ state: 'awaiting_payment' })
-  await expect(api.refresh('order', 'key-2')).rejects.toMatchObject({ code: 'incompatible' })
+  await expect(api.refresh('order', 'key-2')).rejects.toMatchObject({ code: 'write_response_unrecognized', uncertain: true })
   expect(sent[0]).toMatchObject({ key: 'key-1', body: { channel: 'demo-pay', amount_minor: 1000 } })
   expect(sent[1]!.url).toContain('/api/v1/billing/orders/order/refresh')
   expect(sent[1]!.key).toBe('key-2')

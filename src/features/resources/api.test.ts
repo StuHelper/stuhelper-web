@@ -38,11 +38,15 @@ it('releases a known rejected mutation and clears private state even for non-JSO
   expect(mutation.uncertain).toBe(false)
 })
 
-it('rejects incompatible response shapes and retains unknown write outcomes', async () => {
-  const api = new ResourcesApi(new Http(async () => Response.json({ ...resource, revision: 'wrong' })))
+it.each(['malformed', JSON.stringify({ ...resource, revision: 'wrong' }), 'x'.repeat((4 << 20) + 1)])('keeps an acknowledged write with an unreadable receipt from being sent again', async (receipt) => {
+  const send = vi.fn(async () => new Response(receipt, { status: 201 }))
+  const api = new ResourcesApi(new Http(send))
   const mutation = new Mutation()
-  await expect(mutation.run('create', draft, (body, key) => api.createDraft(body, key))).rejects.toMatchObject({ code: 'incompatible', uncertain: true })
+  const error = { code: 'write_response_unrecognized', uncertain: true, status: 201 }
+  await expect(mutation.run('create', draft, (body, key) => api.createDraft(body, key))).rejects.toMatchObject(error)
+  await expect(mutation.retry()).rejects.toMatchObject(error)
   expect(mutation.uncertain).toBe(true)
+  expect(send).toHaveBeenCalledTimes(1)
 })
 
 it('passes current host credentials and cancellation on every request', async () => {

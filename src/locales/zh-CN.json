@@ -71,6 +71,7 @@
   "errors": {
     "disabled": "群服务未启用。",
     "cooldown": "当前操作受冷却时间或待处理数量限制，请稍后重试。",
+    "write_response_unrecognized": "服务端已受理请求，但回执无法读取。请刷新页面核对结果。",
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
     "timeout": "服务响应超时，请重试。",
     "cancelled": "请求已取消。",

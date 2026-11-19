@@ -71,6 +71,7 @@
   "errors": {
     "disabled": "Group services are disabled.",
     "cooldown": "A cooldown or pending action limit applies. Try again later.",
+    "write_response_unrecognized": "The server accepted the request, but its receipt could not be read. Refresh the page to check the result.",
     "network": "The connection failed or timed out. Valid input is kept; please try again.",
     "timeout": "The service took too long to respond. Please try again.",
     "cancelled": "The request was cancelled.",

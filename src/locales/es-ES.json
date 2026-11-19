@@ -71,6 +71,7 @@
   "errors": {
     "disabled": "El servicio de grupos está desactivado.",
     "cooldown": "Hay un período de espera o un límite de solicitudes pendientes. Inténtalo más tarde.",
+    "write_response_unrecognized": "El servidor aceptó la solicitud, pero no se pudo leer el recibo. Actualiza la página para comprobar el resultado.",
     "network": "La conexión falló o caducó. Se conservan los datos válidos; inténtalo de nuevo.",
     "timeout": "El servicio tardó demasiado en responder. Inténtalo de nuevo.",
     "cancelled": "La solicitud se canceló.",

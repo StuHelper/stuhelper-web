@@ -71,6 +71,7 @@
   "errors": {
     "disabled": "Le service des groupes est désactivé.",
     "cooldown": "Un délai ou une limite de demandes en attente s’applique. Réessayez plus tard.",
+    "write_response_unrecognized": "Le serveur a accepté la demande, mais son reçu est illisible. Actualisez la page pour vérifier le résultat.",
     "network": "La connexion a échoué ou expiré. Les saisies valides sont conservées ; réessayez.",
     "timeout": "Le service a mis trop de temps à répondre. Réessayez.",
     "cancelled": "La demande a été annulée.",

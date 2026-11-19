@@ -320,7 +320,7 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
             type="button"
             @click="void retry()"
           >
-            {{ t('common.retry') }}
+            {{ t(write.error.value === 'write_response_unrecognized' ? 'common.refresh' : 'common.retry') }}
           </button>
         </p>
         <div class="form-actions">
