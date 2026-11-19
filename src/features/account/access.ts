@@ -3,7 +3,7 @@ import { ApiError } from '../../shared/api/errors'
 import { Http } from '../../shared/api/http'
 import type { SessionStore } from '../../shared/session'
 import { AcademicApi, type CatalogObject } from '../academic/api'
-import { VerificationApi, type Application, type Credential, type Summary } from '../verification/api'
+import { VerificationApi, verificationPages, type Application, type Credential, type Summary } from '../verification/api'
 
 /** Whether the current account may enter content pages. Specific actions keep their own rules. */
 export type AccessState = 'loading' | 'guest' | 'unverified' | 'processing' | 'verified' | 'expired' | 'unavailable'
@@ -12,7 +12,7 @@ const open = new Set<Application['state']>(['in_progress', 'pending_review', 'su
 
 export function deriveAccess(summary: Summary, applications: Application[], credentials: Credential[]): AccessState {
   if (summary.campus_eligibility) return 'verified'
-  if (applications.some((row) => open.has(row.state))) return 'processing'
+  if (applications.some((row) => row.kind !== 'teacher' && open.has(row.state))) return 'processing'
   if (credentials.some((row) => row.state === 'expired' || row.state === 'revoked')) return 'expired'
   return 'unverified'
 }
@@ -34,27 +34,36 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
   const verification = new VerificationApi(http)
   const academic = new AcademicApi(http)
   const result = ref<AccessState>('loading')
+  const summary = shallowRef<Summary>()
   const campus = shallowRef<CatalogObject>()
   let generation = 0
 
   async function evaluate(signalLoading: boolean) {
+    if (session.state.value !== 'member') return
     const current = ++generation
     // A background recheck must not unmount the page the user is working in.
     if (signalLoading) result.value = 'loading'
     try {
-      const summary = await verification.get('Summary', '/api/v1/verification/summary')
+      const latest = await verification.get('Summary', '/api/v1/verification/summary')
+      if (current !== generation) return
+      summary.value = latest
       let next: AccessState = 'verified'
-      if (!summary.campus_eligibility) {
+      if (!latest.campus_eligibility) {
         const [applications, credentials] = await Promise.all([
-          verification.list('Application', '/api/v1/verification/applications', {}),
-          verification.list('Credential', '/api/v1/verification/credentials', {}),
+          verificationPages(after => verification.list('Application', '/api/v1/verification/applications', { after, limit: 100 })),
+          verificationPages(after => verification.list('Credential', '/api/v1/verification/credentials', { after, limit: 100 })),
         ])
-        next = deriveAccess(summary, applications.items, credentials.items)
+        next = deriveAccess(latest, applications.items, credentials.items)
       }
-      if (next === 'verified' && !campus.value) campus.value = chooseCampus(await academic.options({ kind: 'school' }), session.session.value?.content_school_id)
+      if (next === 'verified' && !campus.value) {
+        const schools = await academic.options({ kind: 'school' })
+        if (current !== generation) return
+        campus.value = chooseCampus(schools, session.session.value?.content_school_id)
+      }
       if (current === generation) result.value = next
     } catch (failure) {
       if (current !== generation) return
+      if (failure instanceof ApiError && failure.denied) summary.value = undefined
       if (failure instanceof ApiError && failure.code === 'unauthenticated') session.revalidate()
       result.value = 'unavailable'
     }
@@ -67,12 +76,13 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
     return result.value
   })
 
-  watch(() => session.state.value, (value) => {
-    if (value === 'member') void evaluate(true)
+  watch([() => session.state.value, () => session.session.value?.profile.id, () => session.session.value?.content_school_id], ([state]) => {
+    campus.value = undefined
+    summary.value = undefined
+    if (state === 'member') void evaluate(true)
     else {
       generation++
       result.value = 'loading'
-      campus.value = undefined
     }
   }, { immediate: true })
 
@@ -81,7 +91,7 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
     if (session.state.value === 'member') await evaluate(true)
   }
 
-  return { state, campus: readonly(campus), retry, refresh: () => evaluate(false) }
+  return { state, summary: readonly(summary), campus: readonly(campus), retry, refresh: () => evaluate(false) }
 }
 
 export type AccessStore = ReturnType<typeof createAccessStore>

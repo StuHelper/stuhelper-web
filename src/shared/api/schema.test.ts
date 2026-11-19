@@ -73,7 +73,7 @@ describe('schemas without a type', () => {
   it('accepts a teacher summary whose department is null', async () => {
     const contract = (await import('../../../contracts/catalog.openapi.json')).default
     const teacher = { id: 't', kind: 'teacher', school_id: 's', name: 'Teacher', credits: null, aliases: [], revision: 1, updated_at: '2026-11-15T00:00:00Z' }
-    const summary = { object: teacher, school: { ...teacher, id: 's', kind: 'school' }, department: null, categories: [], natures: [], course_count: 1, teacher_count: 1 }
+    const summary = { object: teacher, school: { ...teacher, id: 's', kind: 'school' }, department: null, categories: [], natures: [], courses: [], teachers: [], course_count: 1, teacher_count: 1 }
     expect(validates(summary, { $ref: '#/components/schemas/PublicSummary' }, contract.components.schemas)).toBe(true)
   })
 })

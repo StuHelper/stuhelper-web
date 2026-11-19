@@ -12,8 +12,8 @@ async function pickDate(page, month, day) {
 }
 const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
-async function setup(page, info, empty = false) {
-  const all = catalogue(info), m = all.contribution, c = all.common, state = { item: structuredClone(example.page.items[0]), empty, reject: 0, failNext: false, requests: [], seen: new Map() };
+async function setup(page, info, empty = false, initial = example.page.items[0]) {
+  const all = catalogue(info), m = all.contribution, c = all.common, state = { item: structuredClone(initial), empty, reject: 0, failNext: false, requests: [], seen: new Map() };
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', e => { if (/\[intlify\].*(Not found|Fall back)/i.test(e.text())) errors.push(e.text()); });
@@ -24,10 +24,10 @@ async function setup(page, info, empty = false) {
     if (state.reject) return route.fulfill({ status: state.reject, json: { code: 'denied' } });
     if (request.method() === 'POST') {
       const body = request.postDataJSON(), key = request.headers()['idempotency-key'];
-      state.requests.push({ body, key });
+      state.requests.push({ body, key, path: url.pathname });
       if (!state.seen.has(key)) {
         state.empty = false;
-        const desired = { pause: 'paused', resume: 'active', exit: 'exiting', revoke: 'revoked' }[body.action] ?? state.item.desired_state;
+        const desired = { pause: 'paused', resume: 'active', reopen: 'active', exit: 'exiting', revoke: 'revoked' }[body.action] ?? state.item.desired_state;
         state.item = { ...state.item, revision: state.item.revision + 1, state: 'pending', desired_state: desired, conditions: body.conditions ?? state.item.conditions };
         state.seen.set(key, structuredClone(state.item));
       }
@@ -84,7 +84,7 @@ test('lost response retries original mutation, paginates and clears revoked data
   await page.route('**/api/v1/storage-contributions?*', route => route.fulfill({ json: { ...example.page, next_cursor: 'fixture-next' } }), { times: 1 });
   await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
   const next = page.waitForRequest(r => r.method() === 'GET' && new URL(r.url()).searchParams.get('after') === 'fixture-next');
-  await page.getByRole('button', { name: c.loadMore, exact: true }).click(); await next;
+  await page.getByRole('button', { name: c.next, exact: true }).click(); await next;
   await expect(page.locator('article')).toHaveCount(1); expect(errors).toEqual([]);
   if (process.env.CONTRIBUTION_SCREENSHOTS) { fs.mkdirSync(process.env.CONTRIBUTION_SCREENSHOTS, { recursive: true }); await page.screenshot({ path: path.join(process.env.CONTRIBUTION_SCREENSHOTS, `web-${info.project.name}.png`), fullPage: true }); }
   state.reject = 403; await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
@@ -107,4 +107,33 @@ test('login boundary keeps public statistics and recovers to empty contributions
   state.reject = 0; state.empty = true;
   await page.getByRole('button', { name: c.refresh, exact: true }).first().click();
   await expect(page.getByText(m.empty, { exact: true })).toBeVisible();
+});
+
+test('an exited contribution reactivates its original ID with fresh consent and retries the same command', async ({page},info)=>{
+  const original = { ...example.page.items[0], state: 'exited', desired_state: 'exiting' };
+  const {m,c,state}=await setup(page, info, false, original);
+  await page.getByRole('button',{name:m.actions.reopen,exact:true}).click();
+  await expect(page.getByRole('checkbox')).not.toBeChecked();
+  await pickDate(page, '2030-02', 1);
+  await page.getByRole('button',{name:m.review,exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests).toHaveLength(0);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button',{name:m.review,exact:true}).click();
+  state.failNext = true;
+  const dialog=page.getByRole('dialog');
+  await dialog.getByRole('button',{name:c.confirm,exact:true}).click();
+  await dialog.getByRole('button',{name:c.retryOriginal,exact:true}).click();
+  await expect(dialog).toHaveCount(0);
+  expect(state.requests).toHaveLength(2);
+  expect(state.requests[1]).toEqual(state.requests[0]);
+  expect(state.requests[0].path).toContain('/'+original.id+'/');
+  expect(state.requests[0].body).toMatchObject({
+    action:'reopen', revision:original.revision,
+    conditions:{limit_bytes:original.conditions.limit_bytes,personal_reserve:original.conditions.personal_reserve},
+    consent:{accepted:true,version:example.policy.terms.version,digest:example.policy.terms.digest},
+  });
+  expect(state.seen.size).toBe(1);
+  await expect(page.locator('article')).toContainText(m.states.pending);
+  await expect(page.getByRole('button',{name:m.actions.reopen,exact:true})).toHaveCount(0);
 });

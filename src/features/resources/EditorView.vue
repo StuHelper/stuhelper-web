@@ -13,9 +13,10 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useErrorText } from '../../shared/ui/messages'
-import { localName, Upload, useResourcesApi, type Metadata, type Resource } from './api'
+import { readyStates, finishedStates, type MediaVersion, localName, typeLabel, Upload, useResourcesApi, type Metadata, type Resource } from './api'
 import { useCampusId } from '../account/access'
 import CatalogPicker from './CatalogPicker.vue'
+import DirectoryPicker from './DirectoryPicker.vue'
 import FieldInput from './FieldInput.vue'
 
 /**
@@ -36,14 +37,28 @@ const attaching = useMutation()
 const submitting = useMutation()
 const entry = shallowRef<Resource>()
 const tagText = ref('')
+const tags = computed(() => tagText.value.split(/[,，]/u).map(tag => tag.trim()).filter(Boolean))
+const tagsInvalid = computed(() => tags.value.length > 20 || tags.value.some(tag => [...tag].length > 64))
 const consent = ref(false)
 const file = shallowRef<File>()
 const uploadState = ref('')
 const uploadError = ref('')
 const uploadBusy = ref(false)
+const uploadedBytes = ref(0)
+const uploadTotalBytes = ref(0)
+const dragging = ref(false)
+const cancelling = ref(false)
 const reused = ref(false)
 const submitted = ref(false)
 let upload: Upload | undefined
+let uploadAttempt = 0
+
+function initialDirectory() {
+  if (props.id) return undefined
+  const stateDir: unknown = typeof window !== 'undefined' && typeof window.history.state === 'object' && window.history.state !== null ? (window.history.state as Record<string, unknown>).directory_id : undefined
+  const raw = typeof stateDir === 'string' && stateDir ? stateDir : typeof route.query.directory_id === 'string' ? route.query.directory_id : ''
+  return raw && raw.length <= 128 ? raw : undefined
+}
 
 const metadata = ref<Metadata>({
   title: '',
@@ -53,25 +68,34 @@ const metadata = ref<Metadata>({
   category_revision: 1,
   attributes: {},
   associations: { school_id: campus.value, course_id: typeof route.query.course_id === 'string' ? route.query.course_id : '' },
+  directory_id: initialDirectory(),
   access: 'public',
   origin: { kind: 'unknown' },
 })
 
 const setup = useAsync(async (signal) => {
-  const [capabilities, categories] = await Promise.all([api.capabilities(signal), api.categories(signal)])
-  if (props.id) {
-    entry.value = await api.item(props.id, signal)
-    const version = entry.value.proposal ?? entry.value.current
-    if (version) {
-      metadata.value = snapshot(version.metadata)
-      tagText.value = version.metadata.tags.join(', ')
-      consent.value = version.metadata.origin.consent?.accepted ?? false
-    }
+  const [capabilities, listed, item] = await Promise.all([
+    api.capabilities(signal),
+    api.categories(signal).catch(failure => {
+      if (props.id && failure instanceof ApiError && failure.status === 403) return undefined
+      throw failure
+    }),
+    props.id ? api.item(props.id, signal) : undefined,
+  ])
+  const version = item?.proposal ?? item?.current
+  // An owner may read the category stored with their version after directory access expires.
+  const categories = listed ?? (item?.owned && version ? [version.category] : undefined)
+  if (!categories) throw new ApiError('forbidden', false, 403)
+  entry.value = item
+  if (version) {
+    metadata.value = snapshot(version.metadata)
+    tagText.value = version.metadata.tags.join(', ')
+    consent.value = version.metadata.origin.consent?.accepted ?? false
   }
   if (!metadata.value.category_id) metadata.value.category_id = categories[0]?.id ?? ''
   await nextTick()
   baseline.value = fingerprint()
-  return { capabilities, categories }
+  return { capabilities, categories, canBrowse: listed !== undefined }
 })
 
 const capabilities = computed(() => setup.data.value?.capabilities)
@@ -81,14 +105,18 @@ const fingerprint = () => JSON.stringify([metadata.value, tagText.value, consent
 const baseline = ref('')
 const dirty = computed(() => baseline.value !== '' && fingerprint() !== baseline.value)
 const proposal = computed(() => entry.value?.proposal)
-const step = computed(() => (!entry.value || dirty.value ? 1 : !proposal.value?.file ? 2 : 3))
+const step = computed(() => (!proposal.value || dirty.value ? 1 : !proposal.value?.file ? 2 : 3))
 // 一次只显示当前步骤。上传完成后文件状态仍和提交审核一起显示。已完成的步骤可以点回去修改。
 const viewStep = ref(step.value)
 watch(step, (value) => { viewStep.value = value })
-const typeNames: Record<string, string> = { 'application/pdf': 'PDF', 'image/png': 'PNG', 'image/jpeg': 'JPG', 'text/plain': 'TXT', 'application/zip': 'ZIP', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'DOCX', 'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PPTX' }
-const typeLabel = (type: string) => typeNames[type] ?? type.split('/').at(-1)?.toUpperCase() ?? type
+watch(() => metadata.value.associations.course_id, (next, previous) => {
+  if (baseline.value !== '' && next !== previous) metadata.value.directory_id = undefined
+})
+// 课程必选：能浏览目录时，资料必须关联一门课程才能保存。
+const courseMissing = computed(() => !!setup.data.value?.canBrowse && !metadata.value.associations.course_id)
+const fileDisabled = computed(() => !entry.value || dirty.value || anyBusy.value || anyUncertain.value || (!!upload && !attaching.error.value && !!uploadState.value && uploadState.value !== 'attached'))
 const canSubmit = computed(() => !!proposal.value?.file && !dirty.value && !['pending', 'preparing'].includes(proposal.value.state))
-const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value)
+const anyBusy = computed(() => saving.busy.value || attaching.busy.value || submitting.busy.value || uploadBusy.value || cancelling.value)
 const anyUncertain = computed(() => saving.uncertain.value || attaching.uncertain.value || submitting.uncertain.value)
 
 useLeaveGuard(() => (anyUncertain.value ? t('common.leaveUncertain') : dirty.value || anyBusy.value ? t('common.leaveUnsaved') : ''))
@@ -102,10 +130,10 @@ function changeCategory() {
 async function save() {
   const current = category.value
   const terms = capabilities.value?.terms
-  if (!current || !terms) return
+  if (!current || !terms || tagsInvalid.value || courseMissing.value) return
   const body = snapshot(metadata.value)
   body.category_revision = current.revision
-  body.tags = tagText.value.split(',').map((tag) => tag.trim()).filter(Boolean)
+  body.tags = tags.value
   if (body.origin.kind === 'original') body.origin.consent = { accepted: consent.value, version: terms.version, digest: terms.digest }
   else delete body.origin.consent
   const id = entry.value?.id
@@ -124,13 +152,27 @@ function saved(result: Resource) {
   if (!props.id) void router.replace(`/resources/items/${encodeURIComponent(result.id)}/edit`)
 }
 
-function chooseFile(event: Event) {
-  if (!(event.target instanceof HTMLInputElement)) return
-  file.value = event.target.files?.[0]
+function pickFile(chosen: File | undefined) {
+  attaching.dismiss()
+  file.value = chosen
   upload = undefined
   uploadState.value = ''
   uploadError.value = ''
+  uploadedBytes.value = 0
+  uploadTotalBytes.value = 0
   reused.value = false
+}
+
+function chooseFile(event: Event) {
+  if (!(event.target instanceof HTMLInputElement)) return
+  pickFile(event.target.files?.[0])
+}
+
+function dropFile(event: DragEvent) {
+  dragging.value = false
+  if (fileDisabled.value) return
+  const dropped = event.dataTransfer?.files?.[0]
+  if (dropped) pickFile(dropped)
 }
 
 async function sendFile() {
@@ -138,25 +180,41 @@ async function sendFile() {
   const limits = capabilities.value
   const purpose = profile.value?.purpose
   const current = entry.value
-  if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value) return
+  if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value || cancelling.value) return
   uploadError.value = ''
-  if (chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
+  if (!chosen.size || chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
     uploadError.value = 'file_not_allowed'
     return
   }
+  const attempt = ++uploadAttempt
   uploadBusy.value = true
+  uploadedBytes.value = 0
+  uploadTotalBytes.value = chosen.size
   try {
-    upload ??= new Upload(api, chosen, purpose)
-    const version = await upload.run()
-    uploadState.value = version.state
-    reused.value = version.reused === true
-    if (['awaiting_approval', 'approved'].includes(version.state)) await attach(version.id)
+    if (!upload || upload.purpose !== purpose) upload = new Upload(api, chosen, purpose)
+    const version = await upload.run((loaded, total) => {
+      uploadedBytes.value = loaded
+      uploadTotalBytes.value = total
+    })
+    if (attempt === uploadAttempt) await applyUpload(version)
   } catch (failure) {
+    if (attempt !== uploadAttempt || errorCode(failure) === 'cancelled') return
     uploadError.value = errorCode(failure)
     // A lost response keeps the session; the next attempt resumes it.
     if (!isUncertain(failure) && !(failure instanceof ApiError && failure.code === 'reuse_pending')) upload = undefined
   } finally {
     uploadBusy.value = false
+  }
+}
+
+async function applyUpload(version: MediaVersion) {
+  uploadError.value = ''
+  uploadState.value = version.state
+  reused.value = version.reused === true
+  if (readyStates.includes(version.state)) await attach(version.id)
+  else if (finishedStates.includes(version.state)) {
+    file.value = undefined
+    upload = undefined
   }
 }
 
@@ -178,21 +236,31 @@ function attached(result: Resource) {
 }
 
 async function cancelUpload() {
+  if (cancelling.value || attaching.busy.value || attaching.uncertain.value) return
   if (!upload) {
+    uploadState.value = ''
+    uploadError.value = ''
     file.value = undefined
     return
   }
   uploadError.value = ''
+  // A known session now belongs to the cancellation; ignore late content responses.
+  if (upload.version) uploadAttempt++
+  cancelling.value = true
   try {
-    const version = await upload.cancel()
-    uploadState.value = version.state
-    if (version.state === 'cancelled') {
+    await applyUpload(await upload.cancel())
+  } catch (error) {
+    if (error instanceof ApiError && error.code === 'cancelled' && !error.uncertain) {
+      uploadAttempt++
       file.value = undefined
       upload = undefined
+      uploadState.value = ''
+      return
     }
-  } catch {
     // Show "cancelling" until the server confirms; a network error is not a cancellation.
     uploadError.value = 'cancel_pending'
+  } finally {
+    cancelling.value = false
   }
 }
 
@@ -306,6 +374,7 @@ function uploadMessage(state: string) {
                 <span class="field-label">{{ t('resources.category') }}</span>
                 <AppSelect
                   v-model="metadata.category_id"
+                  :disabled="!setup.data.value.canBrowse"
                   class="select"
                   required
                   @change="changeCategory"
@@ -316,6 +385,11 @@ function uploadMessage(state: string) {
                     :value="item.id"
                   >{{ localName(item.names, locale) }}</option>
                 </AppSelect>
+                <span
+                  v-if="!category"
+                  class="field-error"
+                  role="alert"
+                >{{ t('resources.editor.selectCategory') }}</span>
               </label>
               <FieldInput
                 v-for="field in category?.fields"
@@ -329,10 +403,15 @@ function uploadMessage(state: string) {
                   <input
                     v-model="tagText"
                     class="input"
-                    maxlength="1000"
+                    :aria-invalid="tagsInvalid"
                   >
                 </label>
                 <span class="field-hint">{{ t('resources.editor.tagsHint') }}</span>
+                <span
+                  v-if="tagsInvalid"
+                  class="field-error"
+                  role="alert"
+                >{{ t('resources.editor.tagLimits') }}</span>
               </div>
               <label class="field">
                 <span class="field-label">{{ t('resources.detail.access') }}</span>
@@ -346,22 +425,27 @@ function uploadMessage(state: string) {
               </label>
             </div>
 
-            <fieldset class="stack-sm">
+            <fieldset
+              v-if="setup.data.value.canBrowse"
+              class="stack-sm"
+            >
               <legend>{{ t('resources.editor.associations') }}</legend>
               <p class="field-hint">
                 {{ t('resources.editor.associationsHint') }}
               </p>
+
               <div class="form-grid">
                 <CatalogPicker
                   v-model="metadata.associations.course_id"
                   kind="course"
                   :label="t('academic.course')"
+                  :empty-label="t('resources.editor.chooseCourse')"
                   :school="metadata.associations.school_id || undefined"
                 />
                 <CatalogPicker
                   v-model="metadata.associations.term_id"
                   kind="term"
-                  :label="t('academic.editor.term')"
+                  :label="t('resources.editor.term')"
                   :school="metadata.associations.school_id || undefined"
                 />
                 <CatalogPicker
@@ -371,17 +455,12 @@ function uploadMessage(state: string) {
                   :school="metadata.associations.school_id || undefined"
                   :course="metadata.associations.course_id || undefined"
                 />
-                <div class="field">
-                  <label class="field">
-                    <span class="field-label">{{ t('resources.editor.directory') }}</span>
-                    <input
-                      v-model="metadata.directory_id"
-                      class="input"
-                      maxlength="128"
-                    >
-                  </label>
-                  <span class="field-hint">{{ t('resources.editor.directoryHint') }}</span>
-                </div>
+                <DirectoryPicker
+                  v-model="metadata.directory_id"
+                  :school="metadata.associations.school_id || undefined"
+                  :course="metadata.associations.course_id || undefined"
+                  :disabled="saving.busy.value || saving.uncertain.value"
+                />
               </div>
             </fieldset>
 
@@ -470,10 +549,16 @@ function uploadMessage(state: string) {
             </fieldset>
           </fieldset>
           <div class="form-actions">
+            <p
+              v-if="courseMissing"
+              class="field-hint"
+            >
+              {{ t('resources.editor.courseRequired') }}
+            </p>
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="saving.busy.value || saving.uncertain.value || (!dirty && !!entry)"
+              :disabled="tagsInvalid || !category || courseMissing || anyBusy || anyUncertain || (!dirty && !!proposal)"
             >
               {{ t(entry ? 'resources.editor.saveChanges' : 'resources.editor.create') }}
             </button>
@@ -501,18 +586,37 @@ function uploadMessage(state: string) {
             >
               {{ t('resources.editor.currentFile', { name: proposal.file.filename, size: format.bytes(proposal.file.size) }) }}
             </p>
-            <label class="field app-file">
+            <label
+              class="field app-file dropzone"
+              :data-dragging="dragging || undefined"
+              @dragenter.prevent="!fileDisabled && (dragging = true)"
+              @dragover.prevent="!fileDisabled && (dragging = true)"
+              @dragleave.prevent="dragging = false"
+              @drop.prevent="dropFile"
+            >
               <span class="field-label">{{ t('resources.editor.chooseFile') }}</span>
               <input
                 class="app-file-input"
                 :aria-label="t('resources.editor.chooseFile')"
                 type="file"
                 :accept="capabilities.allowed_types.join(',')"
-                :disabled="!entry || dirty || uploadBusy || (!!uploadState && !['cancelled', 'attached'].includes(uploadState))"
+                :disabled="fileDisabled"
                 @change="chooseFile"
               >
-              <span class="app-file-row"><span class="btn btn-sm">{{ t('resources.editor.browseFile') }}</span><span class="subtle truncate">{{ file?.name ?? t('resources.editor.noFile') }}</span></span>
+              <span class="app-file-row"><span class="btn btn-sm">{{ t('resources.editor.browseFile') }}</span><span class="subtle truncate">{{ file?.name ?? t('resources.editor.dropOrBrowse') }}</span></span>
             </label>
+            <div
+              v-if="uploadBusy && uploadTotalBytes > 0"
+              class="stack-sm"
+              role="status"
+            >
+              <progress
+                class="upload-progress"
+                :value="uploadedBytes"
+                :max="uploadTotalBytes"
+              />
+              <span class="subtle">{{ t('resources.editor.uploadProgress', { loaded: format.bytes(uploadedBytes), total: format.bytes(uploadTotalBytes), percent: format.percent(uploadedBytes / uploadTotalBytes) }) }}</span>
+            </div>
             <p
               v-if="dirty || !entry"
               class="field-hint"
@@ -558,6 +662,7 @@ function uploadMessage(state: string) {
                 v-if="file"
                 class="btn"
                 type="button"
+                :disabled="cancelling || attaching.busy.value || attaching.uncertain.value"
                 @click="cancelUpload"
               >
                 {{ t('resources.editor.cancelUpload') }}
@@ -621,6 +726,8 @@ function uploadMessage(state: string) {
 .stepper-item:disabled { opacity: .5; cursor: default; }
 .origin-choice { justify-content: flex-start; gap: .5rem; padding: .375rem .875rem; border-radius: var(--pill); background: var(--fill); }
 .origin-choice > span { order: 0; padding: 0; }
+.dropzone[data-dragging] .app-file-row { outline: 2px dashed var(--accent); background: var(--accent-soft); }
+.upload-progress { width: 100%; height: .5rem; accent-color: var(--accent-fill); }
 .layout-aside > aside { position: sticky; inset-block-start: calc(var(--nav-height) + 1.5rem); }
 @media (max-width: 960px) { .layout-aside > aside { position: static; } }
 </style>

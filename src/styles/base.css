@@ -4,52 +4,52 @@
  * Arabic mirrors without separate rules.
  */
 :root {
-  --c-blue: #2d5bff;
-  --c-orange: #ff9500;
-  --c-green: #34c759;
-  --c-indigo: #5856d6;
-  --c-red: #ff3b30;
-  --c-cyan: #32ade6;
-  --c-purple: #af52de;
-  --c-pink: #ff2d55;
-  --c-flame: #ff6a00;
-  --c-gray: #8e8e93;
   color-scheme: light dark;
-  --bg: #f5f5f7;
-  --surface: #ffffff;
-  --surface-raised: #ffffff;
+  --c-blue: light-dark(#2d5bff, #5b7dff);
+  --c-orange: light-dark(#ff9500, #ff9f0a);
+  --c-green: light-dark(#34c759, #30d158);
+  --c-indigo: light-dark(#5856d6, #6d6ae8);
+  --c-red: light-dark(#ff3b30, #ff453a);
+  --c-cyan: light-dark(#32ade6, #40c8e0);
+  --c-purple: light-dark(#af52de, #bf5af2);
+  --c-pink: light-dark(#ff2d55, #ff375f);
+  --c-flame: light-dark(#ff6a00, #ff7d24);
+  --c-gray: light-dark(#8e8e93, #98989d);
+  --bg: light-dark(#f5f5f7, #000000);
+  --surface: light-dark(#ffffff, #161617);
+  --surface-raised: light-dark(#ffffff, #232326);
   /* Liquid Glass: the material of navigation and controls that float above content. */
-  --glass: rgb(255 255 255 / 62%);
-  --glass-strong: rgb(255 255 255 / 80%);
-  --glass-edge: inset 0 1px 0 rgb(255 255 255 / 80%), inset 0 0 0 .5px rgb(255 255 255 / 60%), inset 0 -.5px 0 rgb(0 0 0 / 6%);
-  --glass-shadow: 0 1px 2px rgb(0 0 0 / 4%), 0 12px 32px -10px rgb(0 0 0 / 16%);
+  --glass: light-dark(rgb(255 255 255 / 62%), rgb(38 38 44 / 58%));
+  --glass-strong: light-dark(rgb(255 255 255 / 80%), rgb(34 34 40 / 82%));
+  --glass-edge: inset 0 1px 0 light-dark(rgb(255 255 255 / 80%), rgb(255 255 255 / 16%)), inset 0 0 0 .5px light-dark(rgb(255 255 255 / 60%), rgb(255 255 255 / 10%)), inset 0 -.5px 0 light-dark(rgb(0 0 0 / 6%), transparent);
+  --glass-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 4%), transparent), 0 12px 34px -10px light-dark(rgb(0 0 0 / 16%), rgb(0 0 0 / 70%));
   --glass-filter: saturate(190%) blur(28px);
-  --control-edge: inset 0 .5px 0 rgb(255 255 255 / 70%);
-  --ambient-a: rgb(45 91 255 / 9%);
-  --ambient-b: rgb(122 77 232 / 8%);
-  --ambient-c: rgb(13 148 103 / 6%);
-  --fill: rgb(120 120 128 / 12%);
-  --fill-strong: rgb(120 120 128 / 20%);
-  --label: #1d1d1f;
-  --label-2: #5f5f64;
-  --label-3: #6e6e73;
-  --separator: rgb(60 60 67 / 16%);
-  --accent: #1f47e0;
-  --accent-fill: #2d5bff;
-  --accent-fill-hover: #4a72ff;
-  --accent-soft: rgb(45 91 255 / 10%);
+  --control-edge: inset 0 .5px 0 light-dark(rgb(255 255 255 / 70%), rgb(255 255 255 / 12%));
+  --ambient-a: light-dark(rgb(45 91 255 / 9%), rgb(79 116 255 / 16%));
+  --ambient-b: light-dark(rgb(122 77 232 / 8%), rgb(138 97 238 / 13%));
+  --ambient-c: light-dark(rgb(13 148 103 / 6%), rgb(16 166 116 / 8%));
+  --fill: light-dark(rgb(120 120 128 / 12%), rgb(120 120 128 / 24%));
+  --fill-strong: light-dark(rgb(120 120 128 / 20%), rgb(120 120 128 / 36%));
+  --label: light-dark(#1d1d1f, #f5f5f7);
+  --label-2: light-dark(#5f5f64, #b4b4b9);
+  --label-3: light-dark(#6e6e73, #a1a1a6);
+  --separator: light-dark(rgb(60 60 67 / 16%), rgb(84 84 88 / 55%));
+  --accent: light-dark(#1f47e0, #9db1ff);
+  --accent-fill: light-dark(#2d5bff, #4f74ff);
+  --accent-fill-hover: light-dark(#4a72ff, #6485ff);
+  --accent-soft: light-dark(rgb(45 91 255 / 10%), rgb(110 140 255 / 18%));
   --on-accent: #ffffff;
-  --success: #1b7f37;
-  --success-soft: rgb(52 199 89 / 14%);
-  --warning: #a84a00;
-  --warning-soft: rgb(255 149 0 / 15%);
-  --danger: #d70015;
-  --danger-soft: rgb(255 59 48 / 11%);
-  --info: #1f47e0;
-  --info-soft: rgb(45 91 255 / 9%);
-  --shadow-card: 0 0 0 .5px rgb(0 0 0 / 4%), 0 1px 2px rgb(0 0 0 / 3%), 0 10px 28px -14px rgb(0 0 0 / 10%);
-  --shadow-lift: 0 2px 6px rgb(0 0 0 / 5%), 0 16px 40px rgb(0 0 0 / 9%);
-  --shadow-float: 0 4px 12px rgb(0 0 0 / 8%), 0 24px 60px rgb(0 0 0 / 18%);
+  --success: light-dark(#1b7f37, #30d158);
+  --success-soft: light-dark(rgb(52 199 89 / 14%), rgb(48 209 88 / 17%));
+  --warning: light-dark(#a84a00, #ffb340);
+  --warning-soft: light-dark(rgb(255 149 0 / 15%), rgb(255 159 10 / 17%));
+  --danger: light-dark(#d70015, #ff6961);
+  --danger-soft: light-dark(rgb(255 59 48 / 11%), rgb(255 69 58 / 18%));
+  --info: light-dark(#1f47e0, #9db1ff);
+  --info-soft: light-dark(rgb(45 91 255 / 9%), rgb(110 140 255 / 15%));
+  --shadow-card: 0 0 0 .5px light-dark(rgb(0 0 0 / 4%), rgb(255 255 255 / 6%)), 0 1px 2px light-dark(rgb(0 0 0 / 3%), transparent), 0 10px 28px -14px light-dark(rgb(0 0 0 / 10%), transparent);
+  --shadow-lift: 0 0 0 .5px light-dark(transparent, rgb(255 255 255 / 8%)), 0 2px 6px light-dark(rgb(0 0 0 / 5%), transparent), 0 16px 40px light-dark(rgb(0 0 0 / 9%), rgb(0 0 0 / 40%));
+  --shadow-float: 0 4px 12px light-dark(rgb(0 0 0 / 8%), transparent), 0 24px 64px light-dark(rgb(0 0 0 / 18%), rgb(0 0 0 / 65%));
   /* Corners follow iOS 26: generous, and an inner corner is its container's radius minus the padding. */
   --radius-xl: 34px;
   --radius-lg: 26px;
@@ -77,113 +77,24 @@
 }
 
 /*
- * Dark appearance. The person's choice is stored as data-theme on the root
- * element; without a choice the page follows the system appearance.
- * Both blocks below carry the same values and must change together.
+ * Explicit appearance override. Without data-theme on the root element,
+ * color-scheme: light dark follows the system appearance automatically.
  */
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --c-blue: #5b7dff;
-  --c-orange: #ff9f0a;
-  --c-green: #30d158;
-  --c-indigo: #6d6ae8;
-  --c-red: #ff453a;
-  --c-cyan: #40c8e0;
-  --c-purple: #bf5af2;
-  --c-pink: #ff375f;
-  --c-flame: #ff7d24;
-  --c-gray: #98989d;
-  --bg: #000000;
-  --surface: #161617;
-  --surface-raised: #232326;
-  --glass: rgb(38 38 44 / 58%);
-  --glass-strong: rgb(34 34 40 / 82%);
-  --glass-edge: inset 0 1px 0 rgb(255 255 255 / 16%), inset 0 0 0 .5px rgb(255 255 255 / 10%);
-  --glass-shadow: 0 12px 36px -10px rgb(0 0 0 / 70%);
-  --control-edge: inset 0 .5px 0 rgb(255 255 255 / 12%);
-  --ambient-a: rgb(79 116 255 / 16%);
-  --ambient-b: rgb(138 97 238 / 13%);
-  --ambient-c: rgb(16 166 116 / 8%);
-  --fill: rgb(120 120 128 / 24%);
-  --fill-strong: rgb(120 120 128 / 36%);
-  --label: #f5f5f7;
-  --label-2: #b4b4b9;
-  --label-3: #a1a1a6;
-  --separator: rgb(84 84 88 / 55%);
-  --accent: #9db1ff;
-  --accent-fill: #4f74ff;
-  --accent-fill-hover: #6485ff;
-  --accent-soft: rgb(110 140 255 / 18%);
-  --success: #30d158;
-  --success-soft: rgb(48 209 88 / 17%);
-  --warning: #ffb340;
-  --warning-soft: rgb(255 159 10 / 17%);
-  --danger: #ff6961;
-  --danger-soft: rgb(255 69 58 / 18%);
-  --info: #9db1ff;
-  --info-soft: rgb(110 140 255 / 15%);
-  --shadow-card: 0 0 0 .5px rgb(255 255 255 / 6%);
-  --shadow-lift: 0 0 0 .5px rgb(255 255 255 / 8%), 0 16px 40px rgb(0 0 0 / 40%);
-  --shadow-float: 0 24px 70px rgb(0 0 0 / 65%);
-  
-}
+:root[data-theme="dark"] { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --c-blue: #5b7dff;
-    --c-orange: #ff9f0a;
-    --c-green: #30d158;
-    --c-indigo: #6d6ae8;
-    --c-red: #ff453a;
-    --c-cyan: #40c8e0;
-    --c-purple: #bf5af2;
-    --c-pink: #ff375f;
-    --c-flame: #ff7d24;
-    --c-gray: #98989d;
-    --bg: #000000;
-    --surface: #161617;
-    --surface-raised: #232326;
-    --glass: rgb(38 38 44 / 58%);
-    --glass-strong: rgb(34 34 40 / 82%);
-    --glass-edge: inset 0 1px 0 rgb(255 255 255 / 16%), inset 0 0 0 .5px rgb(255 255 255 / 10%);
-    --glass-shadow: 0 12px 36px -10px rgb(0 0 0 / 70%);
-    --control-edge: inset 0 .5px 0 rgb(255 255 255 / 12%);
-    --ambient-a: rgb(79 116 255 / 16%);
-    --ambient-b: rgb(138 97 238 / 13%);
-    --ambient-c: rgb(16 166 116 / 8%);
-    --fill: rgb(120 120 128 / 24%);
-    --fill-strong: rgb(120 120 128 / 36%);
-    --label: #f5f5f7;
-    --label-2: #b4b4b9;
-    --label-3: #a1a1a6;
-    --separator: rgb(84 84 88 / 55%);
-    --accent: #9db1ff;
-    --accent-fill: #4f74ff;
-    --accent-fill-hover: #6485ff;
-    --accent-soft: rgb(110 140 255 / 18%);
-    --success: #30d158;
-    --success-soft: rgb(48 209 88 / 17%);
-    --warning: #ffb340;
-    --warning-soft: rgb(255 159 10 / 17%);
-    --danger: #ff6961;
-    --danger-soft: rgb(255 69 58 / 18%);
-    --info: #9db1ff;
-    --info-soft: rgb(110 140 255 / 15%);
-    --shadow-card: 0 0 0 .5px rgb(255 255 255 / 6%);
-    --shadow-lift: 0 0 0 .5px rgb(255 255 255 / 8%), 0 16px 40px rgb(0 0 0 / 40%);
-    --shadow-float: 0 24px 70px rgb(0 0 0 / 65%);
-    
-  }
-}
 
 /* Each product area has its own accent; everything else is shared. */
-[data-product="api"] { --accent: #6335d4; --accent-fill: #7a4de8; --accent-fill-hover: #8a61ee; --accent-soft: rgb(122 77 232 / 11%); }
-[data-product="store"] { --accent: #0a7a55; --accent-fill: #0d9467; --accent-fill-hover: #10a674; --accent-soft: rgb(13 148 103 / 11%); }
-:root[data-theme="dark"] [data-product="api"] { --accent: #c6b0ff; --accent-fill: #8a61ee; --accent-soft: rgb(160 125 255 / 18%); }
-:root[data-theme="dark"] [data-product="store"] { --accent: #84dcb6; --accent-fill: #10a674; --accent-soft: rgb(60 200 150 / 16%); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) [data-product="api"] { --accent: #c6b0ff; --accent-fill: #8a61ee; --accent-soft: rgb(160 125 255 / 18%); }
-  :root:not([data-theme]) [data-product="store"] { --accent: #84dcb6; --accent-fill: #10a674; --accent-soft: rgb(60 200 150 / 16%); }
+[data-product="api"] {
+  --accent: light-dark(#6335d4, #c6b0ff);
+  --accent-fill: light-dark(#7a4de8, #8a61ee);
+  --accent-fill-hover: #8a61ee;
+  --accent-soft: light-dark(rgb(122 77 232 / 11%), rgb(160 125 255 / 18%));
+}
+[data-product="store"] {
+  --accent: light-dark(#0a7a55, #84dcb6);
+  --accent-fill: light-dark(#0d9467, #10a674);
+  --accent-fill-hover: #10a674;
+  --accent-soft: light-dark(rgb(13 148 103 / 11%), rgb(60 200 150 / 16%));
 }
 
 @media (min-width: 761px) {

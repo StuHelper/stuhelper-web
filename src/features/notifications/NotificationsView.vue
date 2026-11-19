@@ -58,26 +58,34 @@ const filed = computed(() => {
   return groups
 })
 const unreadIn = (box: Box) => filed.value[box].filter((item) => !item.read_at).length
-const threads = computed(() => threadBoxes.filter((box) => filed.value[box].length).map((box) => ({ box, latest: filed.value[box][0]!, unread: unreadIn(box) })))
+// The API exposes a global total but only the loaded page of each category.
+const badge = (count: number) => list.next.value ? `≥${format.value.number(count)}` : format.value.number(count)
+const badgeLabel = (count: number) => t(list.next.value ? 'notifications.atLeastUnread' : 'notifications.unreadCount', { count: format.value.number(count) })
+const threads = computed(() => threadBoxes.filter((box) => filed.value[box].length || list.next.value).map((box) => ({ box, latest: filed.value[box][0], unread: unreadIn(box) })))
 // Conversations with people and groups come after the notification threads, newest first.
 const chats = computed(() => [...extras.threads].sort((a, b) => b.at.localeCompare(a.at)))
 const shown = computed(() => (open.value ? filed.value[open.value] : []))
 const busy = ref(false)
+const pendingInteraction = ref<boolean>()
 
+const opening = new Set<string>()
 const title = useNotificationTitle()
 function stamp(at: string) {
   return format.value.dateTime(at)
 }
 async function openItem(item: Notification) {
+  if (opening.has(item.id)) return
   if (!item.read_at) {
+    opening.add(item.id)
     // Marking read is idempotent; a failure keeps the item unread and is retried on the next open.
     try {
       await api.read(item.id)
+      const stillUnread = list.items.value.some(entry => entry.id === item.id && !entry.read_at)
       list.items.value = list.items.value.map((entry) => (entry.id === item.id ? { ...entry, read_at: new Date().toISOString() } : entry))
-      if (typeof unread.data.value === 'number') unread.data.value = Math.max(0, unread.data.value - 1)
+      if (stillUnread && typeof unread.data.value === 'number') unread.data.value = Math.max(0, unread.data.value - 1)
     } catch (failure) {
       toast(errorText(errorCode(failure)))
-    }
+    } finally { opening.delete(item.id) }
   }
   const to = targetRoute(item.target)
   if (item.target_status === 'accessible' && to && linkAvailable(to)) void router.push(to)
@@ -99,13 +107,15 @@ async function readAll() {
 }
 async function toggleInteraction(enabled: boolean) {
   if (busy.value) return
+  pendingInteraction.value = enabled
   busy.value = true
   try {
     preferences.data.value = await api.savePreferences({ interaction_enabled: enabled })
-    toast(t(enabled ? 'notifications.interactionOn' : 'notifications.interactionOff'))
+    toast(t(preferences.data.value.interaction_enabled ? 'notifications.interactionOn' : 'notifications.interactionOff'))
   } catch (failure) {
     toast(errorText(errorCode(failure)))
   } finally {
+    pendingInteraction.value = undefined
     busy.value = false
   }
 }
@@ -204,7 +214,7 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
             <span
               v-if="unreadIn(box)"
               class="badge"
-            ><span aria-hidden="true">{{ format.number(unreadIn(box)) }}</span><span class="visually-hidden">{{ t('notifications.unreadCount', { count: format.number(unreadIn(box)) }) }}</span></span>
+            ><span aria-hidden="true">{{ badge(unreadIn(box)) }}</span><span class="visually-hidden">{{ badgeLabel(unreadIn(box)) }}</span></span>
           </span>
           <span class="box-name">{{ t(`notifications.boxes.${box}`) }}</span>
         </RouterLink>
@@ -250,14 +260,17 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
               <span class="thread-body">
                 <span class="thread-head">
                   <span class="thread-name truncate">{{ t(`notifications.boxes.${thread.box}`) }}</span>
-                  <span class="subtle thread-time">{{ stamp(thread.latest.created_at) }}</span>
+                  <span
+                    v-if="thread.latest"
+                    class="subtle thread-time"
+                  >{{ stamp(thread.latest.created_at) }}</span>
                 </span>
                 <span class="thread-foot">
-                  <span class="thread-preview truncate">{{ title(thread.latest) }}</span>
+                  <span class="thread-preview truncate">{{ thread.latest ? title(thread.latest) : t('common.loadMore') }}</span>
                   <span
                     v-if="thread.unread"
                     class="badge inline"
-                  ><span aria-hidden="true">{{ format.number(thread.unread) }}</span><span class="visually-hidden">{{ t('notifications.unreadCount', { count: format.number(thread.unread) }) }}</span></span>
+                  ><span aria-hidden="true">{{ badge(thread.unread) }}</span><span class="visually-hidden">{{ badgeLabel(thread.unread) }}</span></span>
                 </span>
               </span>
             </RouterLink>
@@ -322,13 +335,18 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
       </section>
 
       <section class="card stack-sm">
+        <ErrorNotice
+          v-if="preferences.status.value === 'error'"
+          :code="preferences.error.value"
+          @retry="preferences.reload"
+        />
         <label
           v-if="preferences.data.value"
           class="check switch"
         >
           <input
             type="checkbox"
-            :checked="preferences.data.value.interaction_enabled"
+            :checked="pendingInteraction ?? preferences.data.value.interaction_enabled"
             :disabled="busy"
             @change="toggleInteraction(($event.target as HTMLInputElement).checked)"
           >

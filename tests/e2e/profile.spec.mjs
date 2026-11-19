@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import fs from 'node:fs';
 import { member } from './demo-fixture.mjs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
@@ -14,7 +15,7 @@ function profiles(page, conflictFirst = false) {
     state.writes.push(body);
     if (state.conflict) {
       state.conflict = false;
-      state.profile = { ...state.profile, revision: state.profile.revision + 1 };
+      state.profile = { ...state.profile, visibility: { ...state.profile.visibility, school: false }, revision: state.profile.revision + 1 };
       return route.fulfill({ status: 409, json: { code: 'conflict' } });
     }
     state.profile = { ...state.profile, ...body, revision: state.profile.revision + 1 };
@@ -22,6 +23,33 @@ function profiles(page, conflictFirst = false) {
   });
   return state;
 }
+
+test('profile writes use the current browser session and origin', async ({ page }, info) => {
+  const sessionId = randomUUID();
+  let csrf = randomUUID();
+  await page.context().addCookies([
+    { url: base, name: 'stuhelper_session', value: sessionId, httpOnly: true },
+    { url: base, name: 'stuhelper_csrf', value: csrf },
+  ]);
+  const writes = [];
+  await page.route('**/api/v1/profiles/me', async route => {
+    if (route.request().method() === 'GET') return route.fulfill({ json: member.profile });
+    const headers = await route.request().allHeaders();
+    writes.push({
+      session: headers.cookie?.split('; ').includes(`stuhelper_session=${sessionId}`),
+      origin: headers.origin,
+      csrf: headers['x-csrf-token'] === csrf,
+    });
+    return route.fulfill({ json: { ...member.profile, ...route.request().postDataJSON(), revision: member.profile.revision + 1 } });
+  });
+  const labels = catalogue(info).profile;
+  await page.goto(`${base}/me/profile?lang=${info.project.metadata.locale}`);
+  await page.getByRole('textbox', { name: labels.nickname, exact: true }).fill('Updated name');
+  csrf = randomUUID();
+  await page.context().addCookies([{ url: base, name: 'stuhelper_csrf', value: csrf }]);
+  await page.getByRole('button', { name: labels.save, exact: true }).click();
+  await expect.poll(() => writes).toEqual([{ session: true, origin: base, csrf: true }]);
+});
 
 test('profile counts code points, saves visibility and keeps input after a conflict', async ({ page }, info) => {
   const all = catalogue(info), p = all.profile, state = profiles(page, true);
@@ -39,7 +67,7 @@ test('profile counts code points, saves visibility and keeps input after a confl
   await expect(nickname).toHaveValue('😀'.repeat(20));
   await page.getByRole('button', { name: p.save, exact: true }).click();
   await expect(page.getByText(p.saved)).toBeVisible();
-  expect(state.writes.at(-1)).toMatchObject({ nickname: '😀'.repeat(20), revision: 2, visibility: { grade: true, school: true } });
+  expect(state.writes.at(-1)).toMatchObject({ nickname: '😀'.repeat(20), revision: 2, visibility: { grade: true, school: false } });
 });
 
 test('group card fields start off and only the allowed ones are saved', async ({ page }, info) => {
@@ -54,4 +82,23 @@ test('group card fields start off and only the allowed ones are saved', async ({
   expect(state.writes.at(-1).group_card_consent).toEqual({ school: false, grade: true, department: false, name: false, student_id: false, gender: false, nickname: true });
   // The public profile switches are separate; the same-named grade switch there is unchanged.
   expect(state.writes.at(-1).visibility.grade).toBe(false);
+});
+
+test('an interrupted profile update retries the original content and key', async ({ page }, info) => {
+  const all = catalogue(info), p = all.profile;
+  const state = profiles(page), writes = [];
+  await page.route('**/api/v1/profiles/me', route => {
+    if (route.request().method() !== 'PUT') return route.fallback();
+    writes.push({ body: route.request().postDataJSON(), key: route.request().headers()['idempotency-key'] });
+    return writes.length === 1 ? route.abort() : route.fallback();
+  });
+  await page.goto(`${base}/me/profile?lang=${info.project.metadata.locale}`);
+  await page.getByRole('textbox', { name: p.nickname, exact: true }).fill('Example name');
+  await page.getByRole('button', { name: p.save, exact: true }).click();
+  await page.getByRole('button', { name: all.common.retryOriginal, exact: true }).click();
+  await expect(page.getByText(p.saved, { exact: true })).toBeVisible();
+  expect(writes).toHaveLength(2);
+  expect(writes[0].key).toBeTruthy();
+  expect(writes[1]).toEqual(writes[0]);
+  expect(state.profile.nickname).toBe('Example name');
 });

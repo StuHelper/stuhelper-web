@@ -5,6 +5,8 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useMutation } from '../../shared/composables/async'
+import { useNow } from '../../shared/composables/clock'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { toast } from '../../shared/ui/toast'
@@ -12,7 +14,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from '../account/MeLayout.vue'
 import { useAcademic } from '../academic/api'
 import { localName, useResourcesApi, type Coverage } from '../resources/api'
-import { minorText, useWalletApi, type PayAccount, type Plan } from './api'
+import { minorText, useWalletApi, type Order, type PayAccount, type Plan } from './api'
 
 // Membership plans and the caller's memberships. A plan only covers the resources its
 // coverage lists; the name alone grants nothing, so every plan shows its actual scope.
@@ -27,42 +29,57 @@ const mine = useAsync((signal) => wallet.memberships(signal))
 const plans = useAsync((signal) => wallet.plans(signal))
 void mine.reload()
 void plans.reload()
-const now = Date.now()
-const active = (until: string) => Date.parse(until) > now
+const now = useNow()
+const active = (until: string) => Date.parse(until) > now.value
 
 // Coverage per plan: undefined while loading, null when not configured, '' on a read failure.
 const coverage = shallowRef(new Map<string, Coverage | null | string>())
 const names = shallowRef(new Map<string, string>())
-watch(() => plans.data.value, async (list) => {
+watch(() => plans.data.value, async (list, _, onCleanup) => {
   if (!list) return
+  const controller = new AbortController()
+  const { signal } = controller
+  onCleanup(() => controller.abort())
   const next = new Map<string, Coverage | null | string>()
-  await Promise.all(list.map(async (plan) => {
-    try {
-      next.set(plan.id, await resources.coverage(plan.id))
-    } catch (failure) {
-      next.set(plan.id, errorCode(failure) === 'not_found' ? null : errorCode(failure))
+  const remaining = list.values()
+  async function readPlans() {
+    for (const plan of remaining) {
+      if (signal.aborted) return
+      try { next.set(plan.id, await resources.coverage(plan.id, signal)) }
+      catch (failure) { next.set(plan.id, errorCode(failure) === 'not_found' ? null : errorCode(failure)) }
     }
-  }))
+  }
+  await Promise.all(Array.from({ length: Math.min(list.length, 4) }, readPlans))
+  if (signal.aborted) return
   coverage.value = next
-  await resolveNames([...next.values()].filter((value): value is Coverage => !!value && typeof value === 'object'))
+  await resolveNames([...next.values()].filter((value): value is Coverage => !!value && typeof value === 'object'), signal)
 })
 // Names make the scope readable; a name that cannot be read falls back to a neutral label.
-async function resolveNames(list: Coverage[]) {
+async function resolveNames(list: Coverage[], signal: AbortSignal) {
   const rules = list.flatMap((item) => item.rules)
   const found = new Map<string, string>()
   try {
-    for (const [id, object] of await academic.lookup(rules.map((rule) => rule.school_id))) found.set(id, object.name)
+    for (const [id, object] of await academic.lookup(rules.map((rule) => rule.school_id), signal)) found.set(id, object.name)
   } catch { /* School names are optional. */ }
   try {
-    for (const category of await resources.categories()) found.set(`category:${category.id}`, localName(category.names ?? {}, locale.value))
+    for (const category of rules.some(rule => rule.category_id) ? await resources.categories(signal) : []) found.set(`category:${category.id}`, localName(category.names ?? {}, locale.value))
   } catch { /* Category names are optional. */ }
   for (const school of new Set(rules.filter((rule) => rule.directory_id).map((rule) => rule.school_id))) {
     try {
-      const page = await resources.directories({ school_id: school, limit: 100 })
-      for (const directory of page.items) found.set(`directory:${directory.id}`, localName(directory.names ?? {}, locale.value))
+      const needed = new Set(rules.filter(rule => rule.school_id === school && rule.directory_id).map(rule => rule.directory_id))
+      const cursors = new Set<string>()
+      let after = ''
+      do {
+        cursors.add(after)
+        const page = await resources.directories({ school_id: school, limit: 100, after }, signal)
+        for (const directory of page.items) {
+          if (needed.delete(directory.id)) found.set(`directory:${directory.id}`, localName(directory.names ?? {}, locale.value))
+        }
+        after = page.next_cursor ?? ''
+      } while (needed.size && after && !cursors.has(after))
     } catch { /* Directory names are optional. */ }
   }
-  names.value = found
+  if (!signal.aborted) names.value = found
 }
 const ruleText = (rule: Coverage['rules'][number]) => [
   names.value.get(rule.school_id) ?? t('membership.school'),
@@ -73,14 +90,23 @@ const ruleText = (rule: Coverage['rules'][number]) => [
 const ivory = (minor: number) => `${minorText(minor)} Ivory`
 const points = (count: number) => t('wallet.pointsAmount', { amount: format.value.number(count) })
 const priceList = (plan: Plan) => [plan.points ? points(plan.points) : '', plan.ivory_minor ? ivory(plan.ivory_minor) : ''].filter(Boolean)
-const days = (seconds: number) => t('membership.days', { count: format.value.number(Math.max(1, Math.round(seconds / 86400))) })
+function days(seconds: number) {
+  const count = Math.max(1, Math.round(seconds / 86400))
+  return t('membership.days', { count: format.value.number(count) }, count)
+}
 
 // Buying: the caller picks one account; the whole price is paid from it.
 const chosen = ref<Plan>()
 const account = ref<PayAccount>('points')
 const write = useMutation()
 const balance = useAsync((signal) => wallet.wallet(signal))
+const locked = computed(() => write.busy.value || write.uncertain.value)
+const orderState = ref<Order['state']>()
+useLeaveGuard(() => locked.value ? t('common.leaveUncertain') : '')
+
 function open(plan: Plan) {
+  if (locked.value) return
+  orderState.value = undefined
   chosen.value = plan
   account.value = plan.points ? 'points' : 'ivory'
   write.dismiss()
@@ -97,16 +123,18 @@ watch(() => write.error.value, (code) => {
 })
 async function buy() {
   const plan = chosen.value
-  if (!plan) return
+  if (!plan || locked.value) return
   const order = await write.run(`membership:${plan.id}:${account.value}`, { plan_id: plan.id, account: account.value }, (body, key) => wallet.buyMembership(body, key))
-  if (order) done()
+  if (order) done(order)
 }
 async function retry() {
-  if (await write.retry()) done()
+  const order = await write.retry()
+  if (order) done(order as Order)
 }
-function done() {
+function done(order: Order) {
   chosen.value = undefined
-  toast(t('membership.bought'))
+  if (order.state === 'succeeded' || order.state === 'fulfilled') toast(t('membership.bought'))
+  else orderState.value = order.state
   void mine.reload()
 }
 const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === plan.id && active(item.valid_until))
@@ -117,6 +145,16 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
     :title="t('membership.title')"
     :description="t('membership.description')"
   >
+    <p
+      v-if="orderState"
+      class="notice"
+      role="status"
+    >
+      {{ t(`wallet.state.${orderState}`) }}
+      <RouterLink to="/me/wallet">
+        {{ t('wallet.title') }}
+      </RouterLink>
+    </p>
     <section
       class="section"
       aria-labelledby="membership-mine"
@@ -248,14 +286,17 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
       :open="!!chosen"
       :title="chosen ? t(owned(chosen) ? 'membership.renewTitle' : 'membership.buyTitle', { name: chosen.name }) : ''"
       :description="chosen && owned(chosen) ? t('membership.renewHint') : ''"
-      @close="chosen = undefined"
+      @close="!locked && (chosen = undefined)"
     >
       <form
         v-if="chosen"
         class="stack"
         @submit.prevent="void buy()"
       >
-        <fieldset class="stack-sm">
+        <fieldset
+          class="stack-sm"
+          :disabled="locked"
+        >
           <legend class="small">
             {{ t('resources.unlock.payWith') }}
           </legend>
@@ -283,7 +324,7 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
           class="notice notice-error"
           role="alert"
         >
-          <span>{{ write.error.value === 'billing_insufficient_funds' && missing ? t('resources.unlock.short', { amount: missing }) : errorText(write.error.value) }}</span>
+          <span>{{ write.error.value === 'billing_insufficient_funds' ? (missing ? t('resources.unlock.short', { amount: missing }) : t('resources.unlock.insufficient', { account: account === 'points' ? t('wallet.points') : 'Ivory' })) : errorText(write.error.value) }}</span>
           <RouterLink
             v-if="write.error.value === 'billing_insufficient_funds'"
             class="btn btn-sm"
@@ -297,14 +338,14 @@ const owned = (plan: Plan) => mine.data.value?.some((item) => item.plan_id === p
             type="button"
             @click="void retry()"
           >
-            {{ t('common.retry') }}
+            {{ t(write.error.value === 'write_response_unrecognized' ? 'common.refresh' : 'common.retry') }}
           </button>
         </p>
         <div class="form-actions">
           <button
             class="btn btn-primary"
             type="submit"
-            :disabled="write.busy.value"
+            :disabled="locked"
           >
             {{ t('membership.confirm', { price: account === 'points' ? points(chosen.points ?? 0) : ivory(chosen.ivory_minor ?? 0) }) }}
           </button>

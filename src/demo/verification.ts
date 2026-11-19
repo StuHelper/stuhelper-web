@@ -23,6 +23,7 @@ const credential = (state: string, values: Row = {}): Row => ({ id: 'cred', scho
 let eligible = false
 const applications: Row[] = []
 const credentials: Row[] = []
+const removalRequests: Row[] = []
 const materials = new Map<string, Row[]>()
 const mails = new Map<string, { sent: number; challenge: Row }>()
 let sequence = 0
@@ -32,6 +33,7 @@ let seeded = ''
 function seed(who: VerificationPersona) {
   if (seeded === who) return
   seeded = who
+  removalRequests.length = 0
   eligible = who === 'verified'
   applications.length = 0
   credentials.length = 0
@@ -80,7 +82,20 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (p === '/verification/schools') return json([school])
   if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8` } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
   if (p === '/verification/credentials') return json(credentials)
-  if (p === '/verification/requests') return json([])
+  if (p === '/verification/requests') return json(removalRequests)
+  if (p === '/verification/suggestions' && method === 'POST') {
+    const { name, website } = read(init)
+    return json({ id: `suggestion-${++sequence}`, name, website, state: 'pending', note: '', revision: 1 })
+  }
+  const removal = /^\/verification\/credentials\/([^/]+)\/requests$/.exec(p)
+  if (removal && method === 'POST') {
+    const credential = credentials.find(item => item.id === decodeURIComponent(removal[1]!))
+    if (!credential) return nope('not_found', 404)
+    const { kind, reason } = read(init)
+    const record = { id: `request-${++sequence}`, school_id: credential.school_id, credential_id: credential.id, kind, reason, state: 'pending', note: '', revision: 1, created_at: now() }
+    removalRequests.push(record)
+    return json(record)
+  }
   if (p === '/verification/applications' && method === 'GET') return json([...applications, ...others])
   if (p === '/verification/applications') {
     const body = read(init)

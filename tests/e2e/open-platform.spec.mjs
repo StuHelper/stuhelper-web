@@ -11,7 +11,11 @@ const app = (values) => ({ id: 'app-1', name: 'Timetable widget', purpose: 'Show
 async function platform(page) {
   const state = {
     apps: [app({})],
-    grants: [{ id: 'grant-1', app_id: 'app-1', app_name: 'Timetable widget', subject: 'me', scopes: ['profile', 'schedule'], state: 'active', expires_at: '2027-01-01T00:00:00Z', revision: 4 }],
+    grants: [{
+      id: 'grant-1', app_id: 'app-1', app_name: 'Timetable widget', subject: 'me',
+      scopes: ['profile', 'schedule'], state: 'active', revision: 4,
+      granted_at: '2026-11-01T00:00:00Z', updated_at: '2026-11-02T00:00:00Z', expires_at: '2027-01-01T00:00:00Z',
+    }],
     notices: [{ id: 'notice-1', app_id: 'app-1', subject: 'user-1', scopes: ['schedule'], reason: 'user_revoked', created_at: '2026-11-01T00:00:00Z', sequence: 1 }],
     writes: [],
     credentialKeys: new Set(),
@@ -30,7 +34,10 @@ async function platform(page) {
     state.writes.push({ path, body, key });
     if (path === '/grants/grant-1/revoke') {
       const scopes = state.grants[0].scopes.filter((scope) => !body.scopes.includes(scope));
-      state.grants = [{ ...state.grants[0], scopes, revision: 5, state: scopes.length ? 'active' : 'revoked' }];
+      state.grants = [{
+        ...state.grants[0], scopes, revision: 5, updated_at: '2026-11-03T00:00:00Z',
+        ...(scopes.length ? { state: 'active' } : { state: 'revoked', termination_reason: 'user_revoked' }),
+      }];
       return route.fulfill({ json: state.grants[0] });
     }
     if (path === '/apps') {
@@ -47,8 +54,17 @@ async function platform(page) {
       state.notices = [{ ...state.notices[0], acknowledgement: body.status, note: body.note, acknowledged_at: '2026-11-08T00:00:00Z' }];
       return route.fulfill({ json: state.notices[0] });
     }
-    if (path === '/consents') return route.fulfill({ json: { id: 'consent-1', application: app({}), requested_scopes: body.scope, redirect_uri: body.redirect_uri, expires_at: '2030-01-01T00:00:00Z', qq_tiers: [] } });
-    if (path === '/consents/consent-1/decision') return route.fulfill({ json: { redirect_uri: `${base}/oauth-landing?${body.decision === 'approve' ? 'code=c1' : 'error=access_denied'}&state=s1` } });
+    if (path === '/consents') {
+      const { id, name, purpose, client_type, policy } = state.apps[0];
+      const activeGrant = state.grants.find((grant) => grant.app_id === id && grant.state === 'active');
+      return route.fulfill({ json: {
+        id: 'consent-1', application: { id, name, purpose, client_type, grant_seconds: policy.grant_seconds },
+        requested_scopes: body.scope, active_granted_scopes: activeGrant?.scopes ?? [],
+        ...(activeGrant ? { active_grant_expires_at: activeGrant.expires_at } : {}),
+        redirect_uri: body.redirect_uri, expires_at: '2030-01-01T00:00:00Z', qq_tiers: [],
+      } });
+    }
+    if (path === '/consents/consent-1/decision') return route.fulfill({ json: { redirect_uri: `https://widget.example.invalid/cb?${body.decision === 'approve' ? 'code=c1' : 'error=access_denied'}&state=s1` } });
     return route.fulfill({ status: 404, json: { code: 'not_found' } });
   });
   return state;
@@ -79,6 +95,8 @@ test('a new application checks redirect addresses and is submitted for review', 
   await dialog.getByLabel(d.purpose, { exact: true }).fill('Exports public reviews to a table.');
   await dialog.getByLabel(d.redirects, { exact: true }).fill('http://export.example.invalid/cb');
   await expect(dialog.getByText(d.redirectProblem.https, { exact: true })).toBeVisible();
+  await dialog.getByLabel(d.redirects, { exact: true }).fill('https://export.example.invalid/cb\nhttps://export.example.invalid/cb');
+  await expect(dialog.getByText(d.redirectProblem.duplicate, { exact: true })).toBeVisible();
   await dialog.getByLabel(d.redirects, { exact: true }).fill('https://export.example.invalid/cb');
   await dialog.getByRole('radio', { name: new RegExp(d.clientTypes.public.title) }).check();
   await dialog.getByRole('checkbox', { name: new RegExp(all.platform.scopes.public_reviews.title) }).check();
@@ -89,13 +107,34 @@ test('a new application checks redirect addresses and is submitted for review', 
   await expect(page.getByText(d.state.pending, { exact: true })).toBeVisible();
 });
 
+test('the pending notice badge includes later pages when the first page has only acknowledgements', async ({ page }, info) => {
+  const d = catalogue(info).platform.developer;
+  const state = await platform(page);
+  await page.route('**/api/v1/open-platform/apps/app-1/notices?**', route => {
+    const after = new URL(route.request().url()).searchParams.get('after');
+    return route.fulfill({ json: after ? { items: state.notices } : {
+      items: [{ ...state.notices[0], id: 'acknowledged', acknowledgement: 'deleted' }], next: 'page-2',
+    } });
+  });
+  await page.goto(`${base}/me/developer?lang=${info.project.metadata.locale}`);
+  const badge = page.getByText(d.notices.pendingBadge, { exact: true });
+  await expect(badge).toBeVisible();
+  await page.getByRole('button', { name: d.notices.open, exact: true }).click();
+  await expect(page.getByRole('dialog').getByText(d.notices.status.deleted, { exact: true })).toBeVisible();
+  await expect(badge).toHaveCount(1);
+});
+
 test('a rotated secret is shown once and a withdrawal notice records the reported result', async ({ page }, info) => {
   const all = catalogue(info), d = all.platform.developer, state = await platform(page);
   await page.goto(`${base}/me/developer?lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(d.notices.pendingBadge, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: d.rotate, exact: true }).click();
   await page.getByRole('alertdialog').or(page.getByRole('dialog')).getByRole('button', { name: d.rotate, exact: true }).click();
   await expect(page.getByText('opsecret_fixture', { exact: true })).toBeVisible();
   expect(state.writes.at(-1)).toMatchObject({ path: '/apps/app-1/credential', body: { revision: 1 } });
+  await page.keyboard.press('Escape');
+  await expect(page.getByText(d.secretCloseConfirm, { exact: true })).toBeVisible();
+  await expect(page.getByText('opsecret_fixture', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: d.secretSaved, exact: true }).click();
   await expect(page.getByText('opsecret_fixture', { exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: d.notices.open, exact: true }).click();
@@ -107,19 +146,20 @@ test('a rotated secret is shown once and a withdrawal notice records the reporte
   await dialog.getByLabel(d.notices.retentionReason, { exact: true }).fill('Tax records kept for five years.');
   await dialog.getByRole('button', { name: d.notices.send, exact: true }).click();
   await expect(dialog.getByText(d.notices.status.retention_exception, { exact: true })).toBeVisible();
+  await expect(page.getByText(d.notices.pendingBadge, { exact: true })).toHaveCount(0);
   expect(state.writes.at(-1)).toMatchObject({ path: '/apps/app-1/notices/notice-1/ack', body: { status: 'retention_exception', note: 'Tax records kept for five years.' } });
 });
 
 test('consent requires an explicit choice and returns to the application with the selected scopes', async ({ page }, info) => {
   const all = catalogue(info), c = all.platform.consent, state = await platform(page);
-  await page.route('**/oauth-landing**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>landing</p>' }));
+  await page.route('https://widget.example.invalid/cb**', (route) => route.fulfill({ contentType: 'text/html', body: '<p>landing</p>' }));
   await page.goto(`${base}/oauth/authorize?response_type=code&client_id=app-1&redirect_uri=${encodeURIComponent('https://widget.example.invalid/cb')}&scope=profile%20schedule&state=s1&code_challenge=${'a'.repeat(43)}&code_challenge_method=S256&lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { name: fill(c.heading, { name: 'Timetable widget' }) })).toBeVisible();
   const approve = page.getByRole('button', { name: new RegExp(c.approve.split('{')[0].trim().replace(/[()（]/g, '')) });
   await expect(approve).toBeDisabled();
   await page.getByRole('checkbox', { name: new RegExp(all.platform.scopes.schedule.title) }).check();
   await approve.click();
-  await expect(page).toHaveURL(/oauth-landing\?code=c1&state=s1/);
+  await expect(page).toHaveURL('https://widget.example.invalid/cb?code=c1&state=s1');
   expect(state.writes[0]).toMatchObject({ path: '/consents', body: { client_id: 'app-1', scope: ['profile', 'schedule'], state: 's1', code_challenge_method: 'S256' } });
   expect(state.writes[1]).toMatchObject({ path: '/consents/consent-1/decision', body: { decision: 'approve', scopes: ['schedule'] } });
 });

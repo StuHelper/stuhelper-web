@@ -31,6 +31,14 @@ const academic = {
 }
 
 const routes: RouteRecordRaw[] = [
+  { path: '/community', redirect: '/campus' },
+  { path: '/community/me', redirect: '/me' },
+  { path: '/verification', redirect: '/me/verification' },
+  { path: '/contributions', redirect: '/me/storage' },
+  { path: '/storage-accounts', redirect: to => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
+  { path: '/me/storage-accounts', redirect: to => ({ path: '/me/storage', query: { ...to.query, tab: 'accounts' } }) },
+  { path: '/resources/me', redirect: '/me/resources' },
+  { path: '/resources/requests', redirect: '/me/requests' },
   { path: '/', component: () => import('../features/portal/PortalView.vue'), meta: { section: 'portal' } },
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
@@ -47,8 +55,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/reviews/:id', component: academic.discussion, props: true, meta: { access: 'verified', title: 'academic.discussion', section: 'courses' } },
   { path: '/resources', component: () => import('../features/resources/BrowseView.vue'), meta: { access: 'verified', title: 'nav.resources', section: 'resources' } },
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },
-  { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { access: 'verified', title: 'resources.detailTitle', section: 'resources' } },
-  { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'verified', title: 'resources.edit', section: 'resources' } },
+  { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { remountOnPath: true, access: 'member', title: 'resources.detailTitle', section: 'resources' } },
+  { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'member', title: 'resources.edit', section: 'resources' } },
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
   { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },
@@ -100,14 +108,15 @@ function restore(top: number) {
  */
 function installPageTransition(router: Router) {
   trackTitleClicks()
-  let finish: (() => void) | undefined
-  router.afterEach(() => { finish?.(); finish = undefined })
+  const completions = new WeakMap<object, () => void>()
+  router.afterEach(to => { completions.get(to)?.(); completions.delete(to) })
+  router.onError((_, to) => { completions.get(to)?.(); completions.delete(to) })
   router.beforeResolve((to, from) => {
     if (to.path === from.path || !from.matched.length || !document.startViewTransition) return
     return new Promise<void>((proceed) => {
+      const navigated = new Promise<void>(resolve => completions.set(to, resolve))
       beginMorph(to.path)
       const transition = document.startViewTransition(async () => {
-        const navigated = new Promise<void>((resolve) => { finish = resolve })
         proceed()
         await navigated
         endMorph()

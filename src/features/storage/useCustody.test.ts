@@ -8,7 +8,7 @@ const body: CustodyRequest = { adapter: 'bhpan', credential: { mode: 'local', us
 const disposals: (() => void)[] = [];
 afterEach(() => { for (const f of disposals.splice(0)) f(); });
 async function settle() { for (let n = 0; n < 10; n++) await Promise.resolve(); await nextTick(); }
-function fixture() { return { list: vi.fn().mockResolvedValue({ items: [item], next_cursor: '' }), policy: vi.fn().mockResolvedValue({ version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid', max_term_seconds: 86400 }), submit: vi.fn().mockResolvedValue(item), resume: vi.fn().mockResolvedValue(item), requestStatus: vi.fn().mockResolvedValue(item) }; }
+function fixture() { return { remove: vi.fn(), list: vi.fn().mockResolvedValue({ items: [item], next_cursor: '' }), policy: vi.fn().mockResolvedValue({ version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid', max_term_seconds: 86400 }), submit: vi.fn().mockResolvedValue(item), resume: vi.fn().mockResolvedValue(item), requestStatus: vi.fn().mockResolvedValue(item) }; }
 function mount(api: ReturnType<typeof fixture>, admin = false) {
   let model: ReturnType<typeof useCustody> | undefined;
   const app = createApp({ setup() { model = useCustody(admin, api); return () => h('div'); } });

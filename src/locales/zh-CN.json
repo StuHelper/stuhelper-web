@@ -9,7 +9,8 @@
     "footer": "课程、评价与学习资料的校园信息平台",
     "themeLight": "切换到浅色外观",
     "themeDark": "切换到深色外观",
-    "contact": "联系与反馈"
+    "contact": "联系与反馈",
+    "themeSystem": "跟随系统外观"
   },
   "nav": {
     "primary": "主导航",
@@ -68,6 +69,9 @@
     "opensInNewTab": "（在新标签页打开）"
   },
   "errors": {
+    "disabled": "群服务未启用。",
+    "cooldown": "当前操作受冷却时间或待处理数量限制，请稍后重试。",
+    "write_response_unrecognized": "服务端已受理请求，但回执无法读取。请刷新页面核对结果。",
     "network": "网络连接失败或超时，已保留仍有效的输入，请重试。",
     "timeout": "服务响应超时，请重试。",
     "cancelled": "请求已取消。",
@@ -114,12 +118,11 @@
     "school_credentials_rejected": "学校账号或密码错误，请重试。",
     "school_account_locked": "学校账号已锁定，请联系学校解锁后重试。",
     "school_account_disabled": "学校账号已停用，请联系学校处理或更换其他认证方式。",
-    "school_account_unavailable": "学校账号当前无法用于认证，请更换其他认证方式。"
+    "school_account_unavailable": "学校账号当前无法用于认证，请更换其他认证方式。",
+    "snapshot_expired": "此热榜已过期，请刷新查看最新排名。"
   },
   "connection": {
     "label": "服务连接状态",
-    "loading": "正在连接服务…",
-    "ready": "服务已连接",
     "retry": "重新连接",
     "errors": {
       "network": "暂时无法连接服务，请稍后重试。",
@@ -175,15 +178,15 @@
     "more": "了解 {name}",
     "visit": "前往 {host}",
     "tiles": {
-      "campus": "课程与教师评价、学习资料、课表",
+      "campus": "课程与教师评价、学习资料与选课对比",
       "api": "多家大模型的统一接口",
       "store": "GPT 订阅与 Codex 点数代充",
       "platform": "统一身份认证与第三方应用接入"
     },
     "campus": {
       "name": "StuHelper 校园",
-      "tag": "课程、教师、资料与课表",
-      "lead": "面向在校学生的课程社区。查看课程和教师的评价，查找往年题和笔记，对比备选课程，管理自己的课表。目前面向北京航空航天大学开放。",
+      "tag": "课程、教师、资料与对比",
+      "lead": "面向在校师生的课程社区。查看课程和教师的评价，查找往年题和笔记，并排对比备选课程。",
       "action": "进入校园",
       "points": {
         "reviews": {
@@ -303,6 +306,7 @@
     "home": "返回首页"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "已退出本站。统一登录会话可能仍然有效。",
     "signIn": "登录",
     "signOut": "退出当前设备",
     "signOutAll": "退出全部设备",
@@ -472,7 +476,8 @@
       "newest": "最新在前",
       "oldest": "最早在前",
       "empty": "暂无课程评价。",
-      "emptyMentor": "暂无导师评论。"
+      "emptyMentor": "暂无导师评论。",
+      "upvotes": "赞同最多"
     },
     "review": {
       "featured": "优质内容",
@@ -501,7 +506,8 @@
       "deleteReplyConfirm": "确认永久删除该回复？讨论中的其他内容会保留。",
       "withdrawConfirm": "撤回后整条讨论暂时隐藏，重新发布保留原发布时间、回复和投票。草稿到期会自动删除。",
       "expand": "展开全文",
-      "collapse": "收起"
+      "collapse": "收起",
+      "editWindowRemaining": "可撤回或删除剩余 {time}"
     },
     "replies": {
       "title": "讨论回复",
@@ -612,7 +618,9 @@
       "campus_eligibility": "去认证",
       "identity_verified": "去实名认证",
       "course_enrollment": "查看我的课程"
-    }
+    },
+    "followUp": "追评",
+    "submitFollowUp": "提交追评"
   },
   "me": {
     "title": "个人中心",
@@ -624,7 +632,6 @@
     "reviewTabs": {
       "entries": "我的评价",
       "drafts": "草稿箱",
-      "votes": "我的投票",
       "requests": "举报与申请"
     },
     "reviewEmpty": {
@@ -653,9 +660,9 @@
     "correct": "更正或提交新版本",
     "requestWithdrawal": "申请下架",
     "requests": "我的申请",
-    "requestsIntro": "资料下架、侵权投诉与异议的持久回执和当前处理状态。",
+    "requestsIntro": "资料下架、侵权投诉与异议的处理进度。",
     "requestsEmpty": "暂无申请记录。",
-    "checkStatus": "查看当前处理状态",
+    "checkStatus": "查看进度",
     "retryRequest": "重新处理",
     "links": {
       "reviews": "已发布和审核中的评价与回复。",
@@ -694,7 +701,13 @@
     "groups": {
       "account": "账号",
       "services": "更多服务"
-    }
+    },
+    "pendingCoursesTitle": "待评价课程",
+    "writePendingReview": "去写评价",
+    "addEvidence": "补充证据",
+    "addEvidenceHint": "新证据将追加到这条待审复核申请。",
+    "evidenceText": "补充证据内容",
+    "evidenceAdded": "证据已追加到原复核申请。"
   },
   "resources": {
     "eyebrow": "资料共享",
@@ -727,7 +740,11 @@
       "filtersFailed": "筛选项暂时无法加载，仍可按关键词查找。",
       "filtersRetry": "重新加载筛选项",
       "reload": "重新加载资料",
-      "currentFolder": "当前目录"
+      "currentFolder": "当前目录",
+      "fileType": "文件格式",
+      "sort": "排序",
+      "sortNewest": "最新上传",
+      "sortDefault": "默认顺序"
     },
     "package": {
       "title": "下载包",
@@ -736,7 +753,9 @@
       "part": "第 {number} 包",
       "size": "{size} · 文件数：{files}",
       "download": "下载此包",
-      "downloaded": "已下载"
+      "downloaded": "已下载",
+      "expiredNotice": "当前下载包已过期，请重新生成后再下载。",
+      "recreate": "重新生成下载包"
     },
     "picker": {
       "search": "在“{label}”中搜索",
@@ -750,15 +769,29 @@
       "download": "下载文件",
       "requestOwner": "申请下架或投诉",
       "complain": "侵权或内容投诉",
+      "complainHidden": "认为这份资料侵犯了你的权利？",
       "accessRequired": "当前账号暂时无法下载该资料。",
       "pendingVersion": "新版本正在处理，当前已发布版本继续提供下载。",
       "noDescription": "未填写简介。",
       "about": "资料信息",
       "file": "资料文件",
       "access": "访问方式",
-      "course": "查看关联课程"
+      "course": "查看关联课程",
+      "preview": "在线预览",
+      "hidePreview": "收起预览",
+      "previewTitle": "文件预览",
+      "fullscreenPreview": "全屏查看",
+      "emptyPreview": "文件内容为空。",
+      "previewTooLarge": "文件超过 {size}，请直接下载查看。",
+      "proposalTitle": "待审核版本信息",
+      "proposalFile": "待审文件",
+      "checksum": "文件校验值"
     },
     "access": {
+      "missing": "缺少的条件：{conditions}",
+      "unavailable": "暂时无法核实：{conditions}",
+      "content_access": "校园内容准入",
+      "resource_entitlement": "资料访问权",
       "allowed": "可以下载。",
       "not_published": "资料尚未发布，暂不能下载。",
       "already_accessible": "你已拥有该资料的访问权。",
@@ -805,6 +838,7 @@
       "accept": "我已阅读并同意当前版本条款"
     },
     "editor": {
+      "selectCategory": "请选择可用的资料分类。",
       "intro": "按顺序完成三步：保存资料信息、上传文件、提交审核。审核期间，已发布的版本继续可用。",
       "step1": "1. 资料信息",
       "step2": "2. 文件",
@@ -817,6 +851,9 @@
       "tagsHint": "多个标签用逗号分隔。",
       "associations": "关联课程信息",
       "associationsHint": "选择资料对应的课程即可。如果资料有时效性，或只适用于某个学期、某位老师的课，可以再标注学期和教师（可选）。",
+      "term": "学期",
+      "chooseCourse": "请选择课程",
+      "courseRequired": "请先选择资料对应的课程。",
       "directory": "建议目录",
       "directoryHint": "可选。目录由管理员整理，你的建议仅供参考。",
       "create": "保存并创建草稿",
@@ -852,9 +889,15 @@
       "proposalState": "当前版本状态：",
       "submit": "提交审核",
       "submitted": "已提交审核，审核结果会显示在“我的资料”中。",
-      "view": "查看资料"
+      "view": "查看资料",
+      "directoryChooseCourse": "先选择关联课程后可指定目录；留空则放在课程根目录。",
+      "selectedDirectory": "已选目录",
+      "dropOrBrowse": "拖拽文件到此处，或点击选择文件",
+      "uploadProgress": "已传输 {loaded} / {total}（{percent}）",
+      "tagLimits": "最多 20 个标签，每个最多 64 个字符。"
     },
     "request": {
+      "resourceId": "资料编号",
       "title": "投诉、下架与异议",
       "appealTitle": "提出异议",
       "kind": "申请类型",
@@ -871,13 +914,13 @@
       "reason": "原因与说明",
       "contact": "联系方式",
       "evidence": "权利、授权或其他证据",
-      "evidenceHint": "每行一项，最多四项；可填写证明说明或证据链接。",
+      "evidenceHint": "每行一项，最多四项，每项最多 2000 个字符。",
       "received": "申请已登记，等待处理。资料状态由处理结果决定。",
       "state": {
         "pending": "等待审核",
         "submitted": "已转交处理",
         "waiting": "等待处理",
-        "decided": "决定已登记，等待执行",
+        "decided": "已作出处理决定，等待执行",
         "applied": "处理已生效",
         "failed": "处理失败，可重试"
       },
@@ -902,7 +945,12 @@
       "granting": "已付款，正在开通访问权，请稍候。也可以稍后在钱包的订单中查看结果。",
       "viewOrder": "查看订单",
       "refunded": "该资料暂时无法交付，费用已退回原支付账户。",
-      "done": "已开通，可以下载了。"
+      "done": "已开通，可以下载了。",
+      "currentBalance": "当前可用：{balance}",
+      "confirmTitle": "确认支付并解锁",
+      "confirmMessage": "将扣除 {price} 用于解锁该资料，确认继续吗？",
+      "confirmMessageWithBalance": "将扣除 {price} 用于解锁该资料（当前可用：{balance}），确认继续吗？",
+      "insufficient": "{account}余额不足。"
     }
   },
   "verification": {
@@ -991,7 +1039,9 @@
       "scan": "用手机扫码拍摄",
       "ticketExpiry": "拍摄链接有效至 {time}",
       "open": "打开拍摄页面",
-      "done": "照片已提交。请回到原设备刷新材料列表并继续申请。"
+      "done": "照片已提交。请回到原设备刷新材料列表并继续申请。",
+      "sync": "刷新已上传照片",
+      "waitingPhone": "手机提交照片后，此页面会自动同步。"
     },
     "methods": {
       "real_name_identity_check": "实名信息校验",
@@ -1031,9 +1081,12 @@
       "failed": "未完成",
       "running": "处理中",
       "manual": "等待人工处理",
-      "done": "已完成"
+      "done": "已完成",
+      "cancelled": "已撤回"
     },
     "materialTypes": {
+      "staff_card": "教职工证",
+      "contract": "聘用合同",
       "student_card": "学生证或校园卡",
       "admission_letter": "录取通知书",
       "enrollment_certificate": "在读证明",
@@ -1197,7 +1250,10 @@
       "student_email_inbound_challenge": "从你的学校邮箱向指定地址发一封邮件",
       "manual_material_review": "拍摄学生证等材料，由管理员审核"
     },
-    "changeSchool": "更换学校"
+    "changeSchool": "更换学校",
+    "copyInboundAddress": "复制收件地址",
+    "inboundAddressCopied": "收件地址已复制。",
+    "inboundCopyFailed": "无法自动复制，请手动选择地址复制。"
   },
   "contribution": {
     "eyebrow": "共享存储",
@@ -1248,7 +1304,8 @@
       "revoke": "撤销授权",
       "configure": "调整共享额度",
       "renew": "续期",
-      "retry": "重试处理"
+      "retry": "重试处理",
+      "reopen": "重新启用"
     },
     "states": {
       "pending": "等待处理",
@@ -1308,17 +1365,19 @@
       "result_unknown": "网盘尚未返回结果，请稍后查看。",
       "conflict": "该账号已接入或状态刚发生变化，请刷新后查看。",
       "attempts_exhausted": "多次尝试仍未成功，管理员会协助处理。",
-      "credentials_required": "请重新输入账号和密码。"
-    }
+      "credentials_required": "请重新输入账号和密码。",
+      "interactive_verification_required": "网盘要求交互验证，请完成验证后重试。"
+    },
+    "maxTermHint": "最长可授权 {days} 天。"
   },
   "gate": {
     "guest": {
       "title": "登录后继续",
-      "text": "课程、教师、评价和资料仅向北航认证学生和教师开放。",
+      "text": "课程、教师、评价和资料仅向通过校园认证的师生开放。",
       "action": "登录"
     },
     "unverified": {
-      "title": "完成北航认证后继续",
+      "title": "完成校园身份认证后继续",
       "text": "认证通过后会回到你刚才要看的页面。",
       "action": "开始认证"
     },
@@ -1364,247 +1423,11 @@
     "textOnly": "这个学期的上课时间只有文字说明，无法排成周课表，下面按课程列出。"
   },
   "demo": {
-    "deptCredits": "{p0} · {p1} 学分",
-    "codeDeptCredits": "{p0} · {p1} · {p2} 学分",
-    "upvotes": "{p0} 人赞同",
-    "creditsDifficulty": "{p0} 学分 · 难度：{p1}",
-    "countOnly": "{p0} 条",
-    "reviewCount": "{p0} 条评价",
-    "moreActionsFor": "{p0} 的更多操作",
-    "groupCourses": "{p0} 门课 · {p1}",
-    "levelAverage": "一般",
-    "prevPage": "上一页",
-    "upload": "上传",
-    "uploadStatusHint": "上传和审核状态",
-    "uploadFirst": "上传第一份",
-    "lastTermDone": "上学期已修完",
-    "lastTermDoneHint": "上学期已修完，你的评价可为后续选课提供参考",
-    "nextClassDay": "下一个上课日",
-    "nextPage": "下一页",
-    "goodAfternoon": "下午好，{name}",
-    "requestsHint": "下架、投诉和异议",
-    "download": "下载",
-    "downloadItem": "下载 {p0}",
-    "levelNotRecommended": "不推荐",
-    "personalCenter": "个人中心",
-    "profile": "个人资料",
-    "fiveDimensions": "五个维度",
-    "featureScheduleText": "查看当天课程和待评价的课程。",
-    "todayClasses": "今天的课",
-    "instructors": "任课教师",
-    "gradingVeryGood": "体验很好",
-    "gradingVeryPoor": "体验很差",
-    "gradingGood": "体验较好",
-    "gradingPoor": "体验较差",
-    "walletHint": "余额 128，有 20 即将到期",
-    "compareEmptyHint": "加入两项后即可并排比较五个维度。",
-    "all": "全部",
-    "allDepartments": "全部学院",
-    "allCourses": "全部课程",
-    "allResources": "全部资料",
-    "allNotifications": "全部通知",
-    "totalFiles": "共 {p0} 份",
-    "totalTeachers": "共 {p0} 位教师",
-    "totalReviews": "共 {p0} 条评价",
-    "totalCourses": "共 {p0} 门课程",
-    "close": "关闭",
-    "closePersona": "关闭演示身份切换",
-    "dimQuality": "内容质量",
-    "personaProcessingHint": "内容页显示等待状态",
-    "personaUnverifiedHint": "内容页显示认证引导",
-    "personaExpiredHint": "内容页显示重新认证",
-    "pickOneMore": "再选一项",
-    "distDimension": "分布维度",
-    "switchPersona": "切换演示身份",
-    "listMode": "列表方式",
-    "developerHint": "创建和管理你的应用",
-    "addToCompare": "加入对比",
-    "beihangVerified": "北京航空航天大学 · 已认证学生",
-    "heroEyebrow": "北航学生的课程与资料社区",
-    "cancelSelection": "取消选择",
-    "personaGuestHint": "仅显示介绍和登录",
-    "personaVerifiedHint": "可浏览全部内容",
-    "trendByTerm": "各学期推荐度",
-    "heroLead": "学生撰写的课程评价、按课程整理的学习资料，以及你的个人课表。",
-    "resourcesDescription": "学生整理的试卷、笔记和讲义，按课程查找。",
-    "studentsWatching": "热门课程",
-    "lateNight": "夜深了，{name}",
-    "storageContribution": "存储贡献",
-    "study": "学习",
-    "resources": "学习资料",
-    "department": "学院",
-    "searchNeedsVerification": "完成北航认证后可搜索课程、教师和资料。",
-    "fullTimetable": "完整课表",
-    "personaCaption": "审阅工具 · 切换演示身份",
-    "compare": "对比",
-    "compareItem": "对比 {p0}",
-    "compareProgress": "对比 {p0}/{p1}",
-    "compareTray": "对比栏",
-    "compareKind": "对比类型",
-    "notVerified": "尚未完成学生认证",
-    "expandAll": "展开全部 {p0} 门",
-    "dimWorkload": "工作量",
-    "inCompare": "已加入对比",
-    "reviewsHint": "已发布、草稿和收藏",
-    "downloadStarted": "已开始下载：{p0}",
-    "packed": "已打包 {p0} 个文件",
-    "appsHint": "已授权 2 个应用",
-    "personaUnverified": "已登录未认证",
-    "personaVerified": "已认证学生",
-    "selectedCount": "已选 {p0} 个",
-    "activeFilters": "已选条件",
-    "shortcuts": "常用入口",
-    "compareDescription": "并排比较，最多 {p0} 项。",
-    "startCompare": "开始对比",
-    "offeringDepartment": "开课学院",
-    "levelStronglyNot": "强烈不推荐",
-    "levelStrongly": "强烈推荐",
-    "verificationValidHint": "当前有效，至 2027 年 7 月",
-    "featureResourcesText": "往年试卷、笔记和讲义，可直接下载。",
-    "levelVeryMuch": "很多",
-    "levelVeryGood": "很好",
-    "levelVeryEasy": "很容易",
-    "levelVeryLittle": "很少",
-    "levelVeryPoor": "很差",
-    "levelVeryHard": "很难",
-    "quickView": "快速查看",
-    "quickViewItem": "快速查看 {p0}",
-    "myStats": "我的数据",
-    "myRequests": "我的申请",
-    "myReviews": "我的评价",
-    "myCourses": "我的课程",
-    "myResources": "我的资料",
-    "resourceCourse": "所属课程",
-    "teacherOverallScore": "所授课程综合评分",
-    "accountHint": "手机号、QQ 和登录设备",
-    "packDownload": "打包下载",
-    "batchDownload": "批量下载",
-    "compareEmptyTitle": "并排比较课程或教师",
-    "byName": "按名称",
-    "byDepartment": "按学院",
-    "featureReviewsText": "按课程、教师和学期查看学生评价。",
-    "browseByCourse": "按课程浏览",
-    "sort": "排序",
-    "levelRecommended": "推荐",
-    "recommendation": "推荐度",
-    "recommendationDist": "推荐度分布",
-    "recommendationTrend": "推荐度趋势。{p0}",
-    "search": "搜索",
-    "searchHotkeyTitle": "搜索 (Ctrl K)",
-    "searchTeachers": "搜索教师",
-    "searchTeacherName": "搜索教师姓名",
-    "searchResults": "搜索结果",
-    "searchCourses": "搜索课程",
-    "searchAllShort": "搜索课程、教师或资料",
-    "searchAllLong": "搜索课程、课程代码、教师或资料",
-    "searchHomeHint": "搜索课程、课程代码或教师",
-    "searchCourseHint": "搜索课程名或课程代码",
-    "searchHomeLabel": "搜索课程或教师",
-    "searchResourcesLabel": "搜索资料",
-    "searchResourcesHint": "搜索资料标题或描述",
-    "searchHotkeyLabel": "搜索，快捷键 Ctrl K",
-    "collapse": "收起",
-    "zoomIn": "放大",
-    "teachers": "教师",
-    "teachersCount": "教师 {p0}",
-    "taughtCourses": "教授过的课程",
-    "newResources": "新上传的资料",
-    "goodMorning": "早上好，{name}",
-    "profileHint": "昵称、头像和公开主页",
-    "goodEvening": "晚上好，{name}",
-    "levelNone": "暂无",
-    "noReviews": "暂无评价",
-    "notEnoughData": "暂无足够数据",
-    "more": "更多",
-    "topReview": "最受认可的评价",
-    "compareLimit": "最多同时对比 {p0} 项，请先移除一项",
-    "mostRecommended": "最推荐",
-    "hottest": "最热门",
-    "recentActivity": "最近动态",
-    "recentlyViewed": "最近浏览",
-    "draftTodo": "有 1 篇草稿待完成",
-    "personaGuest": "未登录访客",
-    "thisPage": "本页",
-    "viewDetails": "查看详情",
-    "noMatchFor": "未找到“{p0}”。",
-    "noMatchTeachers": "未找到匹配的教师。",
-    "noMatchCourses": "未找到匹配的课程。",
-    "noMatchResources": "未找到匹配的资料。",
-    "browseAllTeachers": "浏览全部教师",
-    "browseAllCourses": "浏览全部课程",
-    "addCompareItem": "添加对比项",
-    "clearAll": "清除全部",
-    "clearFilters": "清除筛选",
-    "relatedResources": "相关资料",
-    "removeFromCompare": "移出对比",
-    "removeItemFromCompare": "移出对比 {p0}",
-    "removeItem": "移除 {p0}",
-    "removeFilter": "移除条件 {p0}",
-    "pageOf": "第 {p0} / {p1} 页",
-    "pageNo": "第 {p0} 页",
-    "pagePreview": "第 {p0} 页预览示意",
-    "periods": "第 {p0}-{p1} 节",
-    "todo": "待办事项",
-    "category": "类别",
-    "reviewTodo": "线性代数待评价",
-    "statsCharts": "统计图表",
-    "edit": "编辑",
-    "zoomOut": "缩小",
-    "dimGrading": "考核给分",
-    "personaProcessing": "认证审核中",
-    "personaExpired": "认证已过期",
-    "reviews": "评价",
-    "reviewCountLabel": "评价数",
-    "mostReviews": "评价最多",
-    "scoreDistribution": "评分分布",
-    "courses": "课程",
-    "coursesCount": "课程 {p0}",
-    "courseCategory": "课程类别",
-    "dimDifficulty": "课程难度",
-    "featureScheduleTitle": "课表与待办",
-    "coursesHint": "课表和选课记录",
-    "storageHint": "贡献容量和网盘账号",
-    "accountSection": "账号",
-    "accountSecurity": "账号与安全",
-    "resourcesShort": "资料",
-    "resourceCategory": "资料分类",
-    "featureResourcesTitle": "按课程归档的资料",
-    "levelMuch": "较多",
-    "levelGood": "较好",
-    "levelEasy": "较容易",
-    "levelLittle": "较少",
-    "levelPoor": "较差",
-    "levelHard": "较难",
-    "typeToSearch": "输入关键词开始搜索。",
-    "signOut": "退出登录",
-    "levelModerate": "适中",
-    "selectItem": "选择 {p0}",
-    "heroTitle": "课程评价、学习资料与课表",
-    "featureReviewsTitle": "选课参考",
-    "notifications": "通知",
-    "notificationsUnread": "通知，{p0} 条未读",
-    "item": "项目",
-    "preview": "预览",
-    "previewItem": "预览 {p0}",
-    "compareNote": "高亮表示该维度相对更好。难度和工作量因人而异，不做高亮。",
-    "favorites": "收藏",
-    "categoryCPe": "体育课",
-    "categoryCEn": "英语课",
-    "categoryCPol": "思政课",
-    "categoryCHx": "核心通识课",
-    "categoryCGen": "一般通识课",
-    "categoryCSy": "综合素养课",
-    "categoryCBase": "基础课",
-    "categoryCCore": "专业课",
     "interactions": "互动",
     "points": "积分",
-    "chatDirect": "私信",
-    "chatGroup": "群聊 · {p0} 人",
-    "chatSample": "示例会话，消息只保存在当前页面。",
-    "chatPlaceholder": "输入消息",
-    "chatSend": "发送",
-    "personaRejected": "认证未通过",
-    "personaRejectedHint": "认证页显示未通过原因"
+    "pageOf": "第 {p0} / {p1} 页",
+    "pageNo": "第 {p0} 页",
+    "notifications": "通知"
   },
   "favorites": {
     "title": "收藏",
@@ -1651,7 +1474,8 @@
     "mine": "我的",
     "defaultFolder": "默认收藏",
     "unknown": "暂时无法确认收藏状态",
-    "untitled": "已不可见的内容"
+    "untitled": "已不可见的内容",
+    "deleteFolderConfirm": "确认删除收藏夹“{p0}”？其中的收藏内容将移入“{p1}”。"
   },
   "qq": {
     "title": "QQ 绑定",
@@ -1920,7 +1744,14 @@
       "label": "收款账户或参考号",
       "submitted": "收款信息已提交。"
     },
-    "ivoryBalance": "Ivory 余额"
+    "ivoryBalance": "Ivory 余额",
+    "payee": {
+      "title": "退款收款资料",
+      "method": "收款方式",
+      "name": "收款人姓名",
+      "account": "收款账号",
+      "onFile": "已登记收款资料。填写新资料可替换原记录。"
+    }
   },
   "platform": {
     "scopes": {
@@ -2005,7 +1836,8 @@
       "redirectProblem": {
         "invalid": "回调地址格式不正确。",
         "https": "回调地址必须使用 HTTPS。",
-        "fragment": "回调地址不能包含 # 片段。"
+        "fragment": "回调地址不能包含 # 片段。",
+        "duplicate": "回调地址不能重复。"
       },
       "policy": "授权期限与配额",
       "policyValue": "用户授权 {grant} 天，访问令牌 {token} 分钟，每日 {quota} 次查询",
@@ -2053,8 +1885,10 @@
         "retentionReason": "保留依据（必填）",
         "noteOptional": "补充说明（可选）",
         "send": "提交回报",
-        "recorded": "处理结果已记录。"
-      }
+        "recorded": "处理结果已记录。",
+        "pendingBadge": "有待回报通知"
+      },
+      "secretCloseConfirm": "该密钥仅显示这一次，关闭后无法再次查看。请先复制密钥，或点击“我已保存”确认关闭。"
     },
     "consent": {
       "title": "应用授权",
@@ -2118,7 +1952,8 @@
       "approved": "已通过",
       "rejected": "未通过",
       "expired": "已过期",
-      "deleted": "已删除"
+      "deleted": "已删除",
+      "cancelled": "已撤回"
     },
     "disclosure": {
       "real_name": "真实姓名",
@@ -2128,6 +1963,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "至少 {count} 条未读",
     "title": "消息",
     "link": "消息",
     "description": "互动、处理结果、认证结果和系统通知。",
@@ -2152,33 +1988,33 @@
         "removed": "你的内容 {content_id} 已被下架"
       },
       "resource_removal": {
-        "approved": "资料下架申请 {request_id} 已通过",
-        "rejected": "资料下架申请 {request_id} 未通过"
+        "approved": "资料下架申请已通过",
+        "rejected": "资料下架申请未通过"
       },
       "report": {
-        "approved": "你的举报 {report_id} 已处理并采纳",
-        "rejected": "你的举报 {report_id} 经核实未采纳"
+        "approved": "你的举报已处理并采纳",
+        "rejected": "你的举报经核实未采纳"
       },
       "student_verification": {
-        "approved": "学生认证申请 {application_id} 已通过",
-        "rejected": "学生认证申请 {application_id} 未通过",
-        "revoked": "学生认证 {credential_id} 已被撤销"
+        "approved": "学生认证申请已通过",
+        "rejected": "学生认证申请未通过",
+        "revoked": "学生认证已被撤销"
       },
       "identity_verification": {
-        "approved": "实名核验 {operation_id} 已通过",
-        "rejected": "实名核验 {operation_id} 未通过"
+        "approved": "实名核验已通过",
+        "rejected": "实名核验未通过"
       },
       "verification_revocation": {
-        "approved": "认证撤销申请 {request_id} 已通过",
-        "rejected": "认证撤销申请 {request_id} 未通过"
+        "approved": "认证撤销申请已通过",
+        "rejected": "认证撤销申请未通过"
       },
       "verification_deletion": {
-        "approved": "认证删除申请 {request_id} 已通过",
-        "rejected": "认证删除申请 {request_id} 未通过"
+        "approved": "认证删除申请已通过",
+        "rejected": "认证删除申请未通过"
       },
       "teacher_verification": {
-        "approved": "教师认证申请 {application_id} 已通过",
-        "rejected": "教师认证申请 {application_id} 未通过"
+        "approved": "教师认证申请已通过",
+        "rejected": "教师认证申请未通过"
       },
       "system": {
         "notice": "系统通知，相关编号 {reference_id}",
@@ -2241,7 +2077,9 @@
       "empty": "暂无投票记录。",
       "review": "评价",
       "up": "有用",
-      "down": "没用"
+      "cancel": "取消投票",
+      "down": "没用",
+      "readable": "我投过票且可查看的内容"
     },
     "compare": {
       "title": "对比",
@@ -2250,7 +2088,7 @@
       "teachers": "教师（{count}）",
       "kind": "对比类型",
       "emptyTitle": "尚未选择对比项目",
-      "emptyHint": "在课程或教师页面点击“加入对比”，然后返回此处查看。",
+      "emptyHint": "在上方搜索并添加，或在课程、教师页面点击“加入对比”。",
       "browseCourses": "浏览课程",
       "browseTeachers": "浏览教师",
       "dimension": "评分项",
@@ -2264,7 +2102,12 @@
       "tray": "对比列表",
       "progress": "已选 {count} / {max} 项",
       "start": "开始对比",
-      "pickMore": "再选一项即可对比"
+      "pickMore": "再选一项即可对比",
+      "clear": "清空对比",
+      "addCourse": "搜索并添加对比课程",
+      "addTeacher": "搜索并添加对比教师",
+      "taughtCourses": "所授课程数",
+      "ratedCourses": "计入统计课程数"
     }
   },
   "groups": {
@@ -2302,7 +2145,7 @@
     },
     "fact": {
       "student_eligibility": "学生资格",
-      "student_stage": "学籍阶段"
+      "student_stage": "学习阶段"
     },
     "hint": {
       "submit_password": "请按群公告在群内发送入群口令。",
@@ -2311,7 +2154,9 @@
     "action": {
       "bind_qq": "去绑定 QQ",
       "verify_student": "去学生认证"
-    }
+    },
+    "passwordMode": "入群方式",
+    "passwordRequired": "需验证入群口令"
   },
   "membership": {
     "title": "会员",

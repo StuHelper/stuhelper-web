@@ -9,7 +9,8 @@
     "footer": "授業・評価・学習資料のキャンパス情報",
     "themeLight": "ライト表示に切り替える",
     "themeDark": "ダーク表示に切り替える",
-    "contact": "お問い合わせ・フィードバック"
+    "contact": "お問い合わせ・フィードバック",
+    "themeSystem": "システムの外観に合わせる"
   },
   "nav": {
     "primary": "メインナビゲーション",
@@ -68,6 +69,9 @@
     "opensInNewTab": "（新しいタブで開きます）"
   },
   "errors": {
+    "disabled": "グループサービスは無効です。",
+    "cooldown": "待機時間または保留中の操作数の制限に達しました。しばらくしてから再試行してください。",
+    "write_response_unrecognized": "サーバーはリクエストを受け付けましたが、応答を読み取れませんでした。ページを更新して結果を確認してください。",
     "network": "接続に失敗したかタイムアウトしました。有効な入力は保持されています。再試行してください。",
     "timeout": "サービスの応答がタイムアウトしました。再試行してください。",
     "cancelled": "リクエストはキャンセルされました。",
@@ -114,12 +118,11 @@
     "school_credentials_rejected": "学校アカウントまたはパスワードが正しくありません。再試行してください。",
     "school_account_locked": "学校アカウントがロックされています。学校に解除を依頼してから再試行してください。",
     "school_account_disabled": "学校アカウントが無効になっています。学校に問い合わせるか、別の認証方法を選んでください。",
-    "school_account_unavailable": "学校アカウントは現在認証に利用できません。別の認証方法を選んでください。"
+    "school_account_unavailable": "学校アカウントは現在認証に利用できません。別の認証方法を選んでください。",
+    "snapshot_expired": "ランキングの有効期限が切れました。更新して最新の順位を表示してください。"
   },
   "connection": {
     "label": "サービス接続状況",
-    "loading": "サービスに接続中…",
-    "ready": "サービスに接続しました",
     "retry": "再接続",
     "errors": {
       "network": "接続できません。しばらくしてから再試行してください。",
@@ -175,15 +178,15 @@
     "more": "{name} について",
     "visit": "{host} へ移動",
     "tiles": {
-      "campus": "授業と教員の評価、学習資料、時間割",
+      "campus": "授業と教員の評価、学習資料、授業比較",
       "api": "複数の大規模モデルをひとつのインターフェースで",
       "store": "GPT サブスクリプションと Codex クレジットの代行チャージ",
       "platform": "統合認証とサードパーティアプリの連携"
     },
     "campus": {
       "name": "StuHelper キャンパス",
-      "tag": "授業・教員・資料・時間割",
-      "lead": "在学生のための授業コミュニティです。授業や教員の評価を読み、過去問やノートを探し、候補の授業を比較し、自分の時間割を管理できます。現在は北京航空航天大学で利用できます。",
+      "tag": "授業・教員・資料・比較",
+      "lead": "学内メンバーのための授業コミュニティです。授業や教員の評価を読み、過去問やノートを探し、候補の授業を比較できます。",
       "action": "キャンパスへ",
       "points": {
         "reviews": {
@@ -303,6 +306,7 @@
     "home": "ホームへ戻る"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "このサイトからログアウトしました。シングルサインオンのセッションが有効な場合があります。",
     "signIn": "ログイン",
     "signOut": "この端末からログアウト",
     "signOutAll": "すべての端末からログアウト",
@@ -472,7 +476,8 @@
       "newest": "新しい順",
       "oldest": "古い順",
       "empty": "授業評価はまだありません。",
-      "emptyMentor": "指導教員評価はまだありません。"
+      "emptyMentor": "指導教員評価はまだありません。",
+      "upvotes": "賛同の多い順"
     },
     "review": {
       "featured": "おすすめの投稿",
@@ -501,7 +506,8 @@
       "deleteReplyConfirm": "この返信を完全に削除しますか？他の内容は残ります。",
       "withdrawConfirm": "取り下げるとスレッドを非公開にします。再投稿時も初回投稿日時、返信、投票を保持します。期限切れの下書きは削除されます。",
       "expand": "全文を表示",
-      "collapse": "折りたたむ"
+      "collapse": "折りたたむ",
+      "editWindowRemaining": "直接取り下げ・削除残り {time}"
     },
     "replies": {
       "title": "返信一覧",
@@ -612,7 +618,9 @@
       "campus_eligibility": "認証する",
       "identity_verified": "本人確認",
       "course_enrollment": "マイ授業を見る"
-    }
+    },
+    "followUp": "追記",
+    "submitFollowUp": "追記を送信"
   },
   "me": {
     "title": "マイページ",
@@ -624,7 +632,6 @@
     "reviewTabs": {
       "entries": "自分のレビュー",
       "drafts": "下書き",
-      "votes": "自分の投票",
       "requests": "報告と申請"
     },
     "reviewEmpty": {
@@ -694,7 +701,13 @@
     "groups": {
       "account": "アカウント",
       "services": "その他のサービス"
-    }
+    },
+    "pendingCoursesTitle": "評価待ちの授業",
+    "writePendingReview": "評価を書く",
+    "addEvidence": "証拠を追加",
+    "addEvidenceHint": "審査待ちの異議申立てに新しい証拠を追加します。",
+    "evidenceText": "追加する証拠",
+    "evidenceAdded": "元の異議申立てに証拠を追加しました。"
   },
   "resources": {
     "eyebrow": "資料共有",
@@ -727,7 +740,11 @@
       "filtersFailed": "絞り込みを読み込めません。キーワード検索は利用できます。",
       "filtersRetry": "絞り込みを再読み込み",
       "reload": "資料を再読み込み",
-      "currentFolder": "現在のフォルダー"
+      "currentFolder": "現在のフォルダー",
+      "fileType": "ファイル形式",
+      "sort": "並び順",
+      "sortNewest": "新しい順",
+      "sortDefault": "標準順"
     },
     "package": {
       "title": "ダウンロードパッケージ",
@@ -736,7 +753,9 @@
       "part": "パッケージ {number}",
       "size": "{size} · ファイル数：{files}",
       "download": "このパッケージをダウンロード",
-      "downloaded": "ダウンロード済み"
+      "downloaded": "ダウンロード済み",
+      "expiredNotice": "このダウンロードパッケージは有効期限切れです。再作成してからダウンロードしてください。",
+      "recreate": "パッケージを再作成"
     },
     "picker": {
       "search": "「{label}」を検索",
@@ -750,15 +769,29 @@
       "download": "ファイルをダウンロード",
       "requestOwner": "取り下げ申請・苦情",
       "complain": "権利侵害・内容の苦情",
+      "complainHidden": "この資料があなたの権利を侵害していると思いますか？",
       "accessRequired": "現在のアカウントではこの資料をダウンロードできません。",
       "pendingVersion": "新しい版を処理中です。公開済みの版は引き続き利用できます。",
       "noDescription": "紹介はありません。",
       "about": "資料について",
       "file": "資料ファイル",
       "access": "アクセス",
-      "course": "関連する授業を見る"
+      "course": "関連する授業を見る",
+      "preview": "オンラインプレビュー",
+      "hidePreview": "プレビューを閉じる",
+      "previewTitle": "ファイルプレビュー",
+      "fullscreenPreview": "全画面表示",
+      "emptyPreview": "ファイルの内容は空です。",
+      "previewTooLarge": "{size} を超えるファイルはページ内でプレビューできません。直接ダウンロードしてください。",
+      "proposalTitle": "審査中バージョンの内容",
+      "proposalFile": "提出済みファイル",
+      "checksum": "チェックサム"
     },
     "access": {
+      "missing": "未達の条件：{conditions}",
+      "unavailable": "確認できない条件：{conditions}",
+      "content_access": "キャンパスコンテンツへのアクセス",
+      "resource_entitlement": "資料へのアクセス権",
       "allowed": "ダウンロードできます。",
       "not_published": "資料はまだ公開されていません。",
       "already_accessible": "この資料には既にアクセスできます。",
@@ -805,6 +838,7 @@
       "accept": "現在の規約を読み、同意します"
     },
     "editor": {
+      "selectCategory": "利用できる資料カテゴリを選択してください。",
       "intro": "資料情報の保存、ファイルのアップロード、審査提出の3ステップです。審査中も公開済みの版は利用できます。",
       "step1": "1. 資料情報",
       "step2": "2. ファイル",
@@ -817,6 +851,9 @@
       "tagsHint": "複数のタグはカンマで区切ります。",
       "associations": "授業との関連",
       "associationsHint": "科目を選ぶだけで十分です。資料に時期の制約がある場合や、特定の学期・教員の授業にだけ当てはまる場合は、学期と教員も指定できます（任意）。",
+      "term": "学期",
+      "chooseCourse": "科目を選択",
+      "courseRequired": "資料が対応する科目を選択してください。",
       "directory": "希望のフォルダ",
       "directoryHint": "任意です。フォルダは管理者が整理し、提案は参考にされます。",
       "create": "保存して下書きを作成",
@@ -852,9 +889,15 @@
       "proposalState": "現在の版の状態：",
       "submit": "審査に提出",
       "submitted": "審査に提出しました。結果は「自分の資料」に表示されます。",
-      "view": "資料を見る"
+      "view": "資料を見る",
+      "directoryChooseCourse": "先に科目を選択するとフォルダを指定できます。未指定の場合はルートに配置されます。",
+      "selectedDirectory": "選択中のフォルダ",
+      "dropOrBrowse": "ここにファイルをドロップするか、クリックして選択",
+      "uploadProgress": "転送済み {loaded} / {total}（{percent}）",
+      "tagLimits": "タグは最大20個、各タグは64文字までです。"
     },
     "request": {
+      "resourceId": "資料 ID",
       "title": "通報・取り下げ・異議申立て",
       "appealTitle": "異議を申し立てる",
       "kind": "申請種別",
@@ -871,7 +914,7 @@
       "reason": "理由と説明",
       "contact": "連絡先",
       "evidence": "権利・許諾などの証拠",
-      "evidenceHint": "1行に1件、最大4件。証拠の説明またはリンクを入力してください。",
+      "evidenceHint": "1行に1件、最大4件、各件2,000文字まで入力できます。",
       "received": "申請を受け付けました。資料の状態は審査結果に従います。",
       "state": {
         "pending": "審査待ち",
@@ -902,7 +945,12 @@
       "granting": "支払い済みです。アクセス権を付与しています。しばらくお待ちください。結果は後でウォレットの注文からも確認できます。",
       "viewOrder": "注文を見る",
       "refunded": "この資料は現在提供できないため、代金は支払元のアカウントに返金されました。",
-      "done": "アクセス権が付与されました。ダウンロードできます。"
+      "done": "アクセス権が付与されました。ダウンロードできます。",
+      "currentBalance": "利用可能残高：{balance}",
+      "confirmTitle": "支払いの確認",
+      "confirmMessage": "{price} を支払ってこの資料の閲覧権を取得しますか？",
+      "confirmMessageWithBalance": "{price} を支払ってこの資料の閲覧権を取得しますか？（利用可能残高：{balance}）",
+      "insufficient": "{account}の残高が不足しています。"
     }
   },
   "verification": {
@@ -991,7 +1039,9 @@
       "scan": "スマートフォンで読み取って撮影",
       "ticketExpiry": "撮影リンクの有効期限：{time}",
       "open": "撮影ページを開く",
-      "done": "写真を送信しました。元の端末で資料一覧を更新し、申請を続けてください。"
+      "done": "写真を送信しました。元の端末で資料一覧を更新し、申請を続けてください。",
+      "sync": "送信済み写真を確認",
+      "waitingPhone": "スマートフォンで送信すると、この画面に自動反映されます。"
     },
     "methods": {
       "real_name_identity_check": "学校の本人情報と照合",
@@ -1031,9 +1081,12 @@
       "failed": "未完了",
       "running": "処理中",
       "manual": "管理者の対応待ち",
-      "done": "完了"
+      "done": "完了",
+      "cancelled": "取り下げ済み"
     },
     "materialTypes": {
+      "staff_card": "教職員証",
+      "contract": "雇用契約書",
       "student_card": "学生証・キャンパスカード",
       "admission_letter": "入学許可通知",
       "enrollment_certificate": "在学証明書",
@@ -1197,7 +1250,10 @@
       "student_email_inbound_challenge": "学校メールから指定アドレスにメールを 1 通送ります",
       "manual_material_review": "学生証などを撮影し、管理者が審査します"
     },
-    "changeSchool": "学校を変更"
+    "changeSchool": "学校を変更",
+    "copyInboundAddress": "宛先アドレスをコピー",
+    "inboundAddressCopied": "宛先アドレスをコピーしました。",
+    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
@@ -1248,7 +1304,8 @@
       "revoke": "認可を取り消す",
       "configure": "共有上限を変更",
       "renew": "期間を延長",
-      "retry": "処理を再試行"
+      "retry": "処理を再試行",
+      "reopen": "再有効化"
     },
     "states": {
       "pending": "処理待ち",
@@ -1308,17 +1365,19 @@
       "result_unknown": "まだ結果が返っていません。後で確認してください。",
       "conflict": "このアカウントは接続済みか、変更されたばかりです。更新してください。",
       "attempts_exhausted": "再試行に失敗しました。管理者が対応します。",
-      "credentials_required": "アカウントとパスワードを再入力してください。"
-    }
+      "credentials_required": "アカウントとパスワードを再入力してください。",
+      "interactive_verification_required": "ストレージ側で本人確認を完了してから再試行してください。"
+    },
+    "maxTermHint": "最長認可期間：{days} 日。"
   },
   "gate": {
     "guest": {
       "title": "ログインして続行",
-      "text": "授業、教員、評価、資料は認証済みの北京航空航天大学の学生と教員に公開されています。",
+      "text": "授業、教員、評価、資料はキャンパス認証済みの学生と教員に公開されています。",
       "action": "ログイン"
     },
     "unverified": {
-      "title": "北京航空航天大学の認証を完了して続行",
+      "title": "キャンパス認証を完了して続行",
       "text": "認証後、開こうとしたページに戻ります。",
       "action": "認証を開始"
     },
@@ -1364,247 +1423,11 @@
     "textOnly": "この学期の授業時間は文字による説明のみのため、週間時間割にできません。以下に科目ごとに表示します。"
   },
   "demo": {
-    "deptCredits": "{p0} · {p1} 単位",
-    "codeDeptCredits": "{p0} · {p1} · {p2} 単位",
-    "upvotes": "賛同 {p0} 人",
-    "creditsDifficulty": "{p0} 単位 · 難易度：{p1}",
-    "countOnly": "{p0} 件",
-    "reviewCount": "評価 {p0} 件",
-    "moreActionsFor": "{p0} のその他の操作",
-    "groupCourses": "{p0} 授業 · {p1}",
-    "levelAverage": "普通",
-    "prevPage": "前のページ",
-    "upload": "アップロード",
-    "uploadStatusHint": "アップロードと審査状況",
-    "uploadFirst": "最初の資料をアップロード",
-    "lastTermDone": "前学期に履修済み",
-    "lastTermDoneHint": "前学期に履修済み。感想は後輩の役に立ちます",
-    "nextClassDay": "次の授業日",
-    "nextPage": "次のページ",
-    "goodAfternoon": "こんにちは、{name}",
-    "requestsHint": "取り下げ・苦情・異議",
-    "download": "ダウンロード",
-    "downloadItem": "{p0} をダウンロード",
-    "levelNotRecommended": "おすすめしない",
-    "personalCenter": "マイページ",
-    "profile": "プロフィール",
-    "fiveDimensions": "5 つの観点",
-    "featureScheduleText": "今日の授業と評価すべき授業がひと目でわかります。",
-    "todayClasses": "今日の授業",
-    "instructors": "担当教員",
-    "gradingVeryGood": "とても良い",
-    "gradingVeryPoor": "とても悪い",
-    "gradingGood": "良い",
-    "gradingPoor": "悪い",
-    "walletHint": "残高 128、まもなく 20 が失効",
-    "compareEmptyHint": "2 件追加すると 5 つの観点を並べて比較できます。",
-    "all": "すべて",
-    "allDepartments": "すべての学院",
-    "allCourses": "すべての授業",
-    "allResources": "すべての資料",
-    "allNotifications": "すべての通知",
-    "totalFiles": "全 {p0} 件",
-    "totalTeachers": "教員 {p0} 名",
-    "totalReviews": "評価 全 {p0} 件",
-    "totalCourses": "全 {p0} 授業",
-    "close": "閉じる",
-    "closePersona": "デモ身分の切替を閉じる",
-    "dimQuality": "内容の質",
-    "personaProcessingHint": "コンテンツは審査待ち表示",
-    "personaUnverifiedHint": "コンテンツは認証案内を表示",
-    "personaExpiredHint": "コンテンツは再認証案内を表示",
-    "pickOneMore": "もう 1 件選択",
-    "distDimension": "分布の観点",
-    "switchPersona": "デモ身分を切替",
-    "listMode": "リスト形式",
-    "developerHint": "アプリの作成と管理",
-    "addToCompare": "比較に追加",
-    "beihangVerified": "北京航空航天大学 · 認証済み学生",
-    "heroEyebrow": "北航生のための授業・資料コミュニティ",
-    "cancelSelection": "選択をキャンセル",
-    "personaGuestHint": "紹介とログインのみ表示",
-    "personaVerifiedHint": "すべて閲覧可能",
-    "trendByTerm": "学期別おすすめ度",
-    "heroLead": "学生の評価、授業別の資料、そして自分の時間割。",
-    "resourcesDescription": "学生がまとめた試験・ノート・講義資料を授業別に探せます。",
-    "studentsWatching": "人気の授業",
-    "lateNight": "夜遅くまでお疲れさま、{name}",
-    "storageContribution": "ストレージ提供",
-    "study": "学習",
-    "resources": "学習資料",
-    "department": "学院",
-    "searchNeedsVerification": "北航認証を完了すると授業・教員・資料を検索できます。",
-    "fullTimetable": "時間割全体",
-    "personaCaption": "レビュー用 · デモ身分を切替",
-    "compare": "比較",
-    "compareItem": "{p0} を比較",
-    "compareProgress": "比較 {p0}/{p1}",
-    "compareTray": "比較バー",
-    "compareKind": "比較の種類",
-    "notVerified": "学生認証は未完了です",
-    "expandAll": "すべて表示（{p0}）",
-    "dimWorkload": "課題量",
-    "inCompare": "比較に追加済み",
-    "reviewsHint": "公開済み・下書き・保存",
-    "downloadStarted": "ダウンロードを開始：{p0}",
-    "packed": "{p0} 件をまとめました",
-    "appsHint": "承認済みアプリ 2 件",
-    "personaUnverified": "ログイン済み・未認証",
-    "personaVerified": "認証済み学生",
-    "selectedCount": "{p0} 件選択中",
-    "activeFilters": "選択中の条件",
-    "shortcuts": "よく使う項目",
-    "compareDescription": "最大 {p0} 件を並べて比較できます。",
-    "startCompare": "比較する",
-    "offeringDepartment": "開講学院",
-    "levelStronglyNot": "全くおすすめしない",
-    "levelStrongly": "強くおすすめ",
-    "verificationValidHint": "2027 年 7 月まで有効",
-    "featureResourcesText": "過去問・ノート・講義資料をすぐダウンロードできます。",
-    "levelVeryMuch": "とても多い",
-    "levelVeryGood": "とても良い",
-    "levelVeryEasy": "とても易しい",
-    "levelVeryLittle": "とても少ない",
-    "levelVeryPoor": "とても悪い",
-    "levelVeryHard": "とても難しい",
-    "quickView": "クイックビュー",
-    "quickViewItem": "{p0} のクイックビュー",
-    "myStats": "自分のデータ",
-    "myRequests": "自分の申請",
-    "myReviews": "自分の評価",
-    "myCourses": "自分の授業",
-    "myResources": "自分の資料",
-    "resourceCourse": "対象授業",
-    "teacherOverallScore": "担当授業の総合評価",
-    "accountHint": "電話番号・QQ・端末",
-    "packDownload": "まとめてダウンロード",
-    "batchDownload": "一括ダウンロード",
-    "compareEmptyTitle": "比較したいものを並べて見る",
-    "byName": "名前順",
-    "byDepartment": "学院別",
-    "featureReviewsText": "授業・教員・学期ごとに学生の評価を確認できます。",
-    "browseByCourse": "授業別に見る",
-    "sort": "並べ替え",
-    "levelRecommended": "おすすめ",
-    "recommendation": "おすすめ度",
-    "recommendationDist": "おすすめ度の分布",
-    "recommendationTrend": "おすすめ度の推移。{p0}",
-    "search": "検索",
-    "searchHotkeyTitle": "検索 (Ctrl K)",
-    "searchTeachers": "教員を検索",
-    "searchTeacherName": "教員名で検索",
-    "searchResults": "検索結果",
-    "searchCourses": "授業を検索",
-    "searchAllShort": "授業・教員・資料を検索",
-    "searchAllLong": "授業・授業コード・教員・資料を検索",
-    "searchHomeHint": "授業・授業コード・教員を検索",
-    "searchCourseHint": "授業名またはコードで検索",
-    "searchHomeLabel": "授業または教員を検索",
-    "searchResourcesLabel": "資料を検索",
-    "searchResourcesHint": "タイトルや説明で検索",
-    "searchHotkeyLabel": "検索、ショートカット Ctrl K",
-    "collapse": "閉じる",
-    "zoomIn": "拡大",
-    "teachers": "教員",
-    "teachersCount": "教員 {p0}",
-    "taughtCourses": "担当した授業",
-    "newResources": "新着資料",
-    "goodMorning": "おはようございます、{name}",
-    "profileHint": "ニックネーム・アイコン・公開ページ",
-    "goodEvening": "こんばんは、{name}",
-    "levelNone": "データなし",
-    "noReviews": "評価なし",
-    "notEnoughData": "データ不足",
-    "more": "その他",
-    "topReview": "最も賛同された評価",
-    "compareLimit": "比較は最大 {p0} 件です。先に 1 件外してください",
-    "mostRecommended": "おすすめ順",
-    "hottest": "人気順",
-    "recentActivity": "最近の動き",
-    "recentlyViewed": "最近見た項目",
-    "draftTodo": "未完成の下書きが 1 件あります",
-    "personaGuest": "未ログインの訪問者",
-    "thisPage": "このページ",
-    "viewDetails": "詳細を見る",
-    "noMatchFor": "「{p0}」は見つかりませんでした。",
-    "noMatchTeachers": "該当する教員はいません。",
-    "noMatchCourses": "該当する授業はありません。",
-    "noMatchResources": "該当する資料はありません。",
-    "browseAllTeachers": "すべての教員を見る",
-    "browseAllCourses": "すべての授業を見る",
-    "addCompareItem": "比較項目を追加",
-    "clearAll": "すべて解除",
-    "clearFilters": "絞り込みを解除",
-    "relatedResources": "関連資料",
-    "removeFromCompare": "比較から外す",
-    "removeItemFromCompare": "{p0} を比較から外す",
-    "removeItem": "{p0} を削除",
-    "removeFilter": "条件 {p0} を解除",
-    "pageOf": "{p0} / {p1} ページ",
-    "pageNo": "{p0} ページ",
-    "pagePreview": "{p0} ページのプレビュー",
-    "periods": "{p0}-{p1} 限",
-    "todo": "対応待ち",
-    "category": "区分",
-    "reviewTodo": "線形代数が未評価です",
-    "statsCharts": "統計グラフ",
-    "edit": "編集",
-    "zoomOut": "縮小",
-    "dimGrading": "成績評価",
-    "personaProcessing": "認証審査中",
-    "personaExpired": "認証期限切れ",
-    "reviews": "評価",
-    "reviewCountLabel": "評価数",
-    "mostReviews": "評価数順",
-    "scoreDistribution": "評価の分布",
-    "courses": "授業",
-    "coursesCount": "授業 {p0}",
-    "courseCategory": "授業区分",
-    "dimDifficulty": "授業の難易度",
-    "featureScheduleTitle": "時間割とやることをまとめて",
-    "coursesHint": "時間割と履修記録",
-    "storageHint": "提供容量とクラウド口座",
-    "accountSection": "アカウント",
-    "accountSecurity": "アカウントとセキュリティ",
-    "resourcesShort": "資料",
-    "resourceCategory": "資料の分類",
-    "featureResourcesTitle": "資料は授業別に整理",
-    "levelMuch": "多い",
-    "levelGood": "良い",
-    "levelEasy": "易しい",
-    "levelLittle": "少ない",
-    "levelPoor": "悪い",
-    "levelHard": "難しい",
-    "typeToSearch": "キーワードを入力してください。",
-    "signOut": "ログアウト",
-    "levelModerate": "普通",
-    "selectItem": "{p0} を選択",
-    "heroTitle": "履修選び、復習、交流はここから。",
-    "featureReviewsTitle": "履修前に学生の声をチェック",
-    "notifications": "通知",
-    "notificationsUnread": "通知、未読 {p0} 件",
-    "item": "項目",
-    "preview": "プレビュー",
-    "previewItem": "{p0} をプレビュー",
-    "compareNote": "ハイライトは相対的に良い項目です。難易度と課題量は人により異なるため対象外です。",
-    "favorites": "保存済み",
-    "categoryCPe": "体育",
-    "categoryCEn": "英語",
-    "categoryCPol": "思想政治",
-    "categoryCHx": "コア教養",
-    "categoryCGen": "一般教養",
-    "categoryCSy": "総合素養",
-    "categoryCBase": "基礎",
-    "categoryCCore": "専門",
     "interactions": "交流",
     "points": "ポイント",
-    "chatDirect": "ダイレクトメッセージ",
-    "chatGroup": "グループチャット · {p0} 人",
-    "chatSample": "サンプルの会話です。メッセージはこのページにのみ保存されます。",
-    "chatPlaceholder": "メッセージを入力",
-    "chatSend": "送信",
-    "personaRejected": "認証が不承認",
-    "personaRejectedHint": "認証ページに理由を表示"
+    "pageOf": "{p0} / {p1} ページ",
+    "pageNo": "{p0} ページ",
+    "notifications": "通知"
   },
   "favorites": {
     "title": "保存済み",
@@ -1651,7 +1474,8 @@
     "mine": "マイ",
     "defaultFolder": "デフォルト",
     "unknown": "お気に入りの状態を確認できません",
-    "untitled": "表示できなくなった内容"
+    "untitled": "表示できなくなった内容",
+    "deleteFolderConfirm": "フォルダ「{p0}」を削除しますか？中の保存済み項目は「{p1}」に移動します。"
   },
   "qq": {
     "title": "QQ 連携",
@@ -1920,7 +1744,14 @@
       "label": "受取口座または参照番号",
       "submitted": "受取情報を送信しました。"
     },
-    "ivoryBalance": "Ivory 残高"
+    "ivoryBalance": "Ivory 残高",
+    "payee": {
+      "title": "返金先情報",
+      "method": "受取方法",
+      "name": "受取人名",
+      "account": "受取口座",
+      "onFile": "返金先情報が登録されています。変更するには新しい情報を入力してください。"
+    }
   },
   "platform": {
     "scopes": {
@@ -2005,7 +1836,8 @@
       "redirectProblem": {
         "invalid": "リダイレクト URI の形式が正しくありません。",
         "https": "リダイレクト URI は HTTPS を使用してください。",
-        "fragment": "リダイレクト URI に # フラグメントは使えません。"
+        "fragment": "リダイレクト URI に # フラグメントは使えません。",
+        "duplicate": "リダイレクト URI が重複しています。"
       },
       "policy": "認可期間と上限",
       "policyValue": "ユーザー許可 {grant} 日、アクセストークン {token} 分、1 日 {quota} 回まで",
@@ -2053,8 +1885,10 @@
         "retentionReason": "保持の根拠（必須）",
         "noteOptional": "補足（任意）",
         "send": "報告を送信",
-        "recorded": "対応結果を記録しました。"
-      }
+        "recorded": "対応結果を記録しました。",
+        "pendingBadge": "未報告の撤回通知あり"
+      },
+      "secretCloseConfirm": "このシークレットは一度しか表示されず、閉じた後は再確認できません。先にコピーするか保存済みボタンを押してください。"
     },
     "consent": {
       "title": "アプリの許可",
@@ -2118,7 +1952,8 @@
       "approved": "承認済み",
       "rejected": "不承認",
       "expired": "期限切れ",
-      "deleted": "削除済み"
+      "deleted": "削除済み",
+      "cancelled": "取り下げ済み"
     },
     "disclosure": {
       "real_name": "氏名",
@@ -2128,6 +1963,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "未読 {count} 件以上",
     "title": "メッセージ",
     "link": "メッセージ",
     "description": "反応、審査結果、認証結果、システム通知をまとめています。",
@@ -2152,33 +1988,33 @@
         "removed": "コンテンツ {content_id} が非公開になりました"
       },
       "resource_removal": {
-        "approved": "資料の削除申請 {request_id} が承認されました",
-        "rejected": "資料の削除申請 {request_id} は承認されませんでした"
+        "approved": "資料の削除申請が承認されました",
+        "rejected": "資料の削除申請は承認されませんでした"
       },
       "report": {
-        "approved": "通報 {report_id} は対応されました",
-        "rejected": "通報 {report_id} は確認の結果、対応されませんでした"
+        "approved": "通報は対応されました",
+        "rejected": "通報は確認の結果、対応されませんでした"
       },
       "student_verification": {
-        "approved": "学生認証の申請 {application_id} が承認されました",
-        "rejected": "学生認証の申請 {application_id} は承認されませんでした",
-        "revoked": "学生認証 {credential_id} が取り消されました"
+        "approved": "学生認証の申請が承認されました",
+        "rejected": "学生認証の申請は承認されませんでした",
+        "revoked": "学生認証が取り消されました"
       },
       "identity_verification": {
-        "approved": "本人確認 {operation_id} が完了しました",
-        "rejected": "本人確認 {operation_id} は完了しませんでした"
+        "approved": "本人確認が完了しました",
+        "rejected": "本人確認は完了しませんでした"
       },
       "verification_revocation": {
-        "approved": "認証の取り消し申請 {request_id} が承認されました",
-        "rejected": "認証の取り消し申請 {request_id} は承認されませんでした"
+        "approved": "認証の取り消し申請が承認されました",
+        "rejected": "認証の取り消し申請は承認されませんでした"
       },
       "verification_deletion": {
-        "approved": "認証の削除申請 {request_id} が承認されました",
-        "rejected": "認証の削除申請 {request_id} は承認されませんでした"
+        "approved": "認証の削除申請が承認されました",
+        "rejected": "認証の削除申請は承認されませんでした"
       },
       "teacher_verification": {
-        "approved": "教員認証の申請 {application_id} が承認されました",
-        "rejected": "教員認証の申請 {application_id} は承認されませんでした"
+        "approved": "教員認証の申請が承認されました",
+        "rejected": "教員認証の申請は承認されませんでした"
       },
       "system": {
         "notice": "システムからのお知らせ（関連番号 {reference_id}）",
@@ -2241,7 +2077,9 @@
       "empty": "まだ投票していません。",
       "review": "評価",
       "up": "役に立った",
-      "down": "役に立たなかった"
+      "cancel": "投票を取り消す",
+      "down": "役に立たなかった",
+      "readable": "投票した閲覧可能な投稿"
     },
     "compare": {
       "title": "比較",
@@ -2250,7 +2088,7 @@
       "teachers": "教員（{count}）",
       "kind": "比較の種類",
       "emptyTitle": "比較する項目がありません",
-      "emptyHint": "授業または教員のページで「比較に追加」を選んでから、ここに戻ってください。",
+      "emptyHint": "上の検索から追加するか、科目・教員ページで「比較に追加」を選んでください。",
       "browseCourses": "授業を探す",
       "browseTeachers": "教員を探す",
       "dimension": "評価項目",
@@ -2264,7 +2102,12 @@
       "tray": "比較リスト",
       "progress": "{count} / {max} 件を選択中",
       "start": "比較する",
-      "pickMore": "もう 1 件選ぶと比較できます"
+      "pickMore": "もう 1 件選ぶと比較できます",
+      "clear": "比較をクリア",
+      "addCourse": "比較する授業を検索して追加",
+      "addTeacher": "比較する教員を検索して追加",
+      "taughtCourses": "担当授業数",
+      "ratedCourses": "集計対象授業数"
     }
   },
   "groups": {
@@ -2302,7 +2145,7 @@
     },
     "fact": {
       "student_eligibility": "学生資格",
-      "student_stage": "在籍区分"
+      "student_stage": "学習段階"
     },
     "hint": {
       "submit_password": "グループのお知らせに従い、グループ内で参加パスワードを送信してください。",
@@ -2311,7 +2154,9 @@
     "action": {
       "bind_qq": "QQ を連携",
       "verify_student": "学生認証へ"
-    }
+    },
+    "passwordMode": "参加方式",
+    "passwordRequired": "グループ合言葉が必要"
   },
   "membership": {
     "title": "メンバーシップ",

@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { ConfigProvider } from 'reka-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
 import { localeReady } from './app/i18n'
 import AppLayout from './app/layout/AppLayout.vue'
 import { hasLeaveWarning } from './shared/composables/leave'
+import FavoriteMoveDialog from './features/favorites/FavoriteMoveDialog.vue'
+import { moveTarget } from './features/favorites/state'
 import ConfirmHost from './shared/ui/ConfirmHost.vue'
 import { extras } from './shared/extras'
 import AccessPanel from './features/account/AccessPanel.vue'
@@ -17,6 +20,7 @@ const route = useRoute()
 const { locale } = useI18n()
 const access = useAccess()
 const session = useSession()
+watch(() => session.session.value?.profile.id, () => { moveTarget.value = undefined })
 // Content pages are not mounted until access is confirmed, so they send no
 // business request before that. The server still authorizes every request.
 // Prototype pages read some text once, so they remount to translate. Input at risk wins over fresh text.
@@ -25,9 +29,9 @@ watch(locale, (value) => {
   if (!hasLeaveWarning()) localeKey.value = value
 })
 // A new resource becoming its saved edit page is one continuing form, so its chosen file survives.
-const pathKey = ref('')
-watch(() => route.path, (to, from) => {
-  if (route.meta.continuesFrom !== from) pathKey.value = route.meta.remountOnPath ? to : ''
+const pathKey = ref(0)
+watch(() => route.path, (_, from) => {
+  if (route.meta.remountOnPath && route.meta.continuesFrom !== from) pathKey.value++
 })
 const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', pathKey.value].join('|'))
 const capabilities = useCapabilities()
@@ -40,17 +44,25 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
 </script>
 
 <template>
-  <AppLayout v-if="localeReady">
-    <NotFoundView v-if="missing" />
-    <template v-else-if="waiting" />
-    <AccessPanel
-      v-else-if="blocked"
-      gate
+  <ConfigProvider :dir="locale === 'ar-EG' ? 'rtl' : 'ltr'">
+    <AppLayout v-if="localeReady">
+      <NotFoundView v-if="missing" />
+      <template v-else-if="waiting" />
+      <AccessPanel
+        v-else-if="blocked"
+        gate
+      />
+      <RouterView
+        v-else
+        :key="pageKey"
+      />
+    </AppLayout>
+    <FavoriteMoveDialog
+      v-if="moveTarget && moveTarget.profileId === session.session.value?.profile.id"
+      :key="moveTarget.item.id"
+      :item="moveTarget.item"
+      @close="moveTarget = undefined"
     />
-    <RouterView
-      v-else
-      :key="pageKey"
-    />
-  </AppLayout>
-  <ConfirmHost />
+    <ConfirmHost />
+  </ConfigProvider>
 </template>

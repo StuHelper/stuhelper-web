@@ -1,8 +1,8 @@
 import { onMounted, onScopeDispose, readonly, shallowRef } from 'vue';
-import { useHostFetch } from '../../shared/api/transport';
 import { contributionAPI, ContributionError, type Candidates, type Operation, type Page, type Policy, type Statistics } from '../../api/contribution';
+import { useStorageFetch } from './transport';
 
-export function useContributions(admin = false, api = contributionAPI(useHostFetch())) {
+export function useContributions(admin = false, api = contributionAPI(useStorageFetch())) {
   const data = shallowRef<Page | null>(null);
   const options = shallowRef<Candidates | null>(null);
   const policy = shallowRef<Policy | null>(null);

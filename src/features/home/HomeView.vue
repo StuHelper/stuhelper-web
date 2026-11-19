@@ -50,6 +50,7 @@ const shortcuts = [
   { to: '/courses', title: 'nav.courses', icon: BookOpen, tile: 'var(--c-blue)' },
   ...(teacherDirectoryEnabled ? [{ to: '/teachers', title: 'nav.teachers', icon: GraduationCap, tile: 'var(--c-purple)' }] : []),
   { to: '/resources', title: 'nav.resources', icon: FolderOpen, tile: 'var(--c-orange)' },
+  { to: '/popular', title: 'search.popular.title', icon: Flame, tile: 'var(--c-orange)' },
   { to: '/compare', title: 'search.compare.title', icon: Scale, tile: 'var(--c-indigo)' },
   { to: '/me/favorites', title: 'browse.favorites', icon: Bookmark, tile: 'var(--c-pink)' },
 ] as const
@@ -98,16 +99,6 @@ const classDate = computed(() => {
 // A block that failed can be read again on its own.
 const blocks = { hot, fresh, overview }
 const tints = ['var(--c-blue)', 'var(--c-orange)', 'var(--c-purple)', 'var(--c-green)', 'var(--c-pink)']
-function ago(iso?: string) {
-  if (!iso) return ''
-  const minutes = Math.round((Date.now() - Date.parse(iso)) / 6e4)
-  if (!Number.isFinite(minutes)) return ''
-  if (minutes < 60) return format.value.relative(-Math.max(minutes, 1), 'minute')
-  const hours = Math.round(minutes / 60)
-  if (hours < 24) return format.value.relative(-hours, 'hour')
-  const days = Math.round(hours / 24)
-  return days < 30 ? format.value.relative(-days, 'day') : format.value.relative(-Math.round(days / 30), 'month')
-}
 const hotDetail = (row: NonNullable<typeof hot.data.value>[number]) => {
   const credits = knownCredits(row.object)
   const difficulty = row.dimensions[2]?.level ?? 0
@@ -116,7 +107,8 @@ const hotDetail = (row: NonNullable<typeof hot.data.value>[number]) => {
 const kindLabel = (kind: string) => t(kind === 'course' ? 'nav.courses' : kind === 'teacher' ? 'nav.teachers' : 'browse.resourcesShort')
 function search() {
   const q = query.value.trim()
-  void router.push(q ? withFilters('/courses', { q }) : '/courses')
+  const path = available('/search') ? '/search' : '/courses'
+  void router.push(q ? withFilters(path, { q }) : path)
 }
 </script>
 
@@ -178,8 +170,8 @@ function search() {
       >
         <SearchField
           v-model="query"
-          :aria-label="t('browse.searchHomeLabel')"
-          :placeholder="t('browse.searchHomeHint')"
+          :aria-label="t(available('/search') ? 'browse.searchHomeLabel' : 'nav.courses')"
+          :placeholder="t(available('/search') ? 'browse.searchHomeHint' : 'nav.courses')"
         />
       </form>
     </header>
@@ -343,7 +335,7 @@ function search() {
         <RouterLink
           v-if="pending?.count"
           class="todo"
-          :to="pending.items[0] ? `/courses/${encodeURIComponent(pending.items[0].course_id)}` : '/me/reviews'"
+          to="/me/reviews"
         >
           <span
             class="icon-tile"
@@ -403,7 +395,7 @@ function search() {
 
       <section
         class="stack"
-        :class="recent.length || showClassDay ? 'd-span-5' : 'd-span-12'"
+        :class="showClassDay ? 'd-span-5' : recent.length ? 'd-span-7' : 'd-span-12'"
         style="order: 4"
         aria-labelledby="h-new"
       >
@@ -438,7 +430,7 @@ function search() {
                 :filename="row.current?.file?.filename"
                 :seed="row.current?.category.id"
               />
-              <span class="group-body"><span class="group-title clamp-2">{{ row.current?.metadata.title }}</span><span class="subtle">{{ [localName(row.current?.category.names ?? {}, locale), ago(row.current?.created_at)].filter(Boolean).join(' · ') }}</span></span>
+              <span class="group-body"><span class="group-title clamp-2">{{ row.current?.metadata.title }}</span><span class="subtle">{{ [localName(row.current?.category.names ?? {}, locale), format.ago(row.current?.created_at)].filter(Boolean).join(' · ') }}</span></span>
             </RouterLink>
           </li>
         </ul>
@@ -477,7 +469,7 @@ function search() {
       <section
         v-if="recent.length"
         class="stack"
-        :class="showClassDay ? 'd-span-12' : 'd-span-7'"
+        :class="showClassDay ? 'd-span-12' : 'd-span-5'"
         style="order: 5"
         aria-labelledby="h-recent"
       >

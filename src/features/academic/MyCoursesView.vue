@@ -126,6 +126,7 @@ async function exportCalendar() {
             :tabs="[{ value: 'week' as const, label: t('courses.weekView') }, { value: 'list' as const, label: t('courses.listView') }]"
             :label="t('courses.viewMode')"
             id-prefix="my-courses-mode"
+            panel-id="my-courses-panel"
           />
         </div>
         <div

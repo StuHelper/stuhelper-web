@@ -7,7 +7,8 @@ import type { components as Reviews } from '../../api/reviews.gen'
 import { ApiError } from '../../shared/api/errors'
 import { saveBlob, segment, type Http, type Query } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
-import { useHttp } from '../../shared/session'
+import { inject } from 'vue'
+import { sessionKey, useHttp } from '../../shared/session'
 
 export type CatalogObject = Catalog['schemas']['Object']
 export type ObjectKind = CatalogObject['kind']
@@ -25,6 +26,7 @@ export type Recommendation = Catalog['schemas']['Recommendation']
 export type RecentCourses = Catalog['schemas']['RecentCourses']
 export type NextClassDay = Catalog['schemas']['NextClassDay']
 export type Review = Reviews['schemas']['View']
+export type OwnVote = Reviews['schemas']['OwnVote']
 export type ReviewKind = ReviewInput['kind']
 export type ReviewInput = Reviews['schemas']['Input']
 export type ReviewPage = Reviews['schemas']['Page']
@@ -66,7 +68,7 @@ const parse = {
   recentCleared: schemaOf<Catalog['schemas']['RecentCleared']>(catalog, 'RecentCleared'),
   nextClassDay: schemaOf<NextClassDay>(catalog, 'NextClassDay'),
   review: schemaOf<Review>(reviews, 'View'),
-  reviewList: schemaOf<Review[]>(reviews, 'View', true),
+  ownVotes: schemaOf<OwnVote[]>(reviews, 'OwnVote', true),
   reviewPage: schemaOf<ReviewPage>(reviews, 'Page'),
   statistics: schemaOf<Statistics>(reviews, 'Statistics'),
   draft: schemaOf<Draft>(reviews, 'DraftView'),
@@ -87,14 +89,15 @@ export const dimensions = ['recommendation', 'quality', 'difficulty', 'workload'
 /** Ask for one page more than shown so list endpoints without a cursor can tell whether more rows exist. */
 export const listSize = 20
 
-const presentationRequests = new Map<string, Promise<PresentationView>>()
+type PresentationCache = Map<string, { expires: number; request: Promise<PresentationView> }>
+const presentations = new WeakMap<object, PresentationCache>()
 
 /**
  * Catalog, reviews and moderation requests used by the academic pages. Every
  * response is validated against the provider contract before it is typed.
  */
 export class AcademicApi {
-  constructor(private readonly http: Http) {}
+  constructor(private readonly http: Http, private readonly owner: () => object = () => http) {}
 
   objects(query: Query, signal?: AbortSignal) {
     return this.http.json('/api/v1/catalog/objects', parse.objectPage, { query, signal })
@@ -225,7 +228,7 @@ export class AcademicApi {
   }
 
   review(id: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/reviews/${segment(id)}`, parse.review, { signal })
+    return this.http.json(`/api/v1/reviews/${segment(id)}`, parse.review, { query: { include_appends: true }, signal })
   }
 
   statistics(query: Query, signal?: AbortSignal) {
@@ -249,15 +252,17 @@ export class AcademicApi {
     return this.http.json('/api/v1/reviews/compose', parse.composer, { query, signal })
   }
 
-  /** Rating labels configured for a school. Concurrent requests share one fetch; results are not cached. */
+  /** Keep successful school labels briefly within the account that read them. */
   presentation(school: string): Promise<PresentationView> {
-    const current = presentationRequests.get(school)
-    if (current) return current
+    const owner = this.owner()
+    const cache = presentations.get(owner) ?? new Map<string, { expires: number; request: Promise<PresentationView> }>()
+    presentations.set(owner, cache)
+    const current = cache.get(school)
+    if (current && current.expires > Date.now()) return current.request
+    if (cache.size >= 32) cache.delete(cache.keys().next().value!)
     const request = this.http.json('/api/v1/reviews/presentation', parse.presentation, { query: { school_id: school } })
-    presentationRequests.set(school, request)
-    void request.catch(() => undefined).finally(() => {
-      if (presentationRequests.get(school) === request) presentationRequests.delete(school)
-    })
+    cache.set(school, { expires: Date.now() + 300_000, request })
+    void request.catch(() => { if (cache.get(school)?.request === request) cache.delete(school) })
     return request
   }
 
@@ -266,7 +271,7 @@ export class AcademicApi {
   }
 
   myEntry(id: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/reviews/me/entries/${segment(id)}`, parse.review, { signal })
+    return this.http.json(`/api/v1/reviews/me/entries/${segment(id)}`, parse.review, { query: { include_appends: true }, signal })
   }
 
   myDrafts(query: Query, signal?: AbortSignal) {
@@ -278,7 +283,7 @@ export class AcademicApi {
   }
 
   myVotes(query: Query, signal?: AbortSignal) {
-    return this.http.json('/api/v1/reviews/me/votes', parse.reviewList, { query, signal })
+    return this.http.json('/api/v1/reviews/me/votes', parse.ownVotes, { query, signal })
   }
 
   myTasks(query: Query, signal?: AbortSignal) {
@@ -315,7 +320,9 @@ export class AcademicApi {
 }
 
 export function useAcademic() {
-  return new AcademicApi(useHttp())
+  const http = useHttp()
+  const session = inject(sessionKey, undefined)
+  return new AcademicApi(http, () => session?.session.value ?? http)
 }
 
 /** Cursor for list endpoints that return a bare array: the last id when the page is full. */

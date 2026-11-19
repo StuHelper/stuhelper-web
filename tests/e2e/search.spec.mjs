@@ -61,11 +61,12 @@ memberTest('popular lists switch between courses and teachers', async ({ page },
   expect(seen).toEqual(['/api/v1/search/popular?kind=course&limit=20', '/api/v1/search/popular?kind=teacher&limit=20']);
 });
 
-memberTest('my votes show each choice and lead back to the review', async ({ page }, info) => {
+memberTest('search shows readable voted content and links to each review', async ({ page }, info) => {
+  await academicFixture(page);
   const s = catalogue(info).search;
-  await page.route('**/api/v1/reviews/me/references**', (route) => route.fulfill({ json: { items: [{ id: 'rev-1', kind: 'review', name: 'Great lab course' }], missing_ids: ['rev-2'] } }));
-  await searchServer(page, { '/api/v1/search/my-votes': () => ({ items: [{ target: { source: 'reviews', id: 'rev-1', kind: 'review' }, choice: 'up' }, { target: { source: 'reviews', id: 'rev-2', kind: 'review' }, choice: 'down' }], next_cursor: '' }) });
-  await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
+  await searchServer(page, { '/api/v1/search/my-votes': () => ({ items: [{ target: { source: 'reviews', id: 'rev-1', kind: 'review' }, choice: 'up', title: 'Great lab course' }, { target: { source: 'reviews', id: 'rev-2', kind: 'review' }, choice: 'down' }], next_cursor: '' }) });
+  await page.goto(`${base}/search?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('heading', { name: s.votes.readable, exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: new RegExp(`Great lab course.*${s.votes.up}`) })).toHaveAttribute('href', '/reviews/rev-1');
   await expect(page.getByRole('link', { name: new RegExp(`${s.votes.review}.*${s.votes.down}`) })).toHaveAttribute('href', '/reviews/rev-2');
 });
@@ -92,4 +93,107 @@ memberTest('two teachers added from their pages are compared over one time range
   await page.getByRole('button', { name: fill(c.remove, { name: 'Teacher A' }) }).click();
   await expect(page.getByRole('columnheader', { name: /Teacher A/ })).toHaveCount(0);
   await expect(page.getByRole('tab', { name: fill(c.teachers, { count: number(info, 1) }), exact: true })).toBeVisible();
+});
+
+memberTest('comparison page adds courses from in-page search, shows summary facts without class queries, and clears in one click', async ({ page }, info) => {
+  const all = catalogue(info), c = all.search.compare, seenKinds = [];
+  await academicFixture(page, { course: { credits: 3 } });
+  page.on('request', (request) => {
+    const url = new URL(request.url());
+    if (url.pathname === '/api/v1/catalog/objects') seenKinds.push(url.searchParams.get('kind'));
+  });
+  await page.goto(`${base}/compare?lang=${info.project.metadata.locale}`);
+  const picker = page.getByRole('region', { name: c.addCourse, exact: true });
+  await picker.getByRole('searchbox').fill('Test');
+  await picker.getByRole('button', { name: c.add, exact: true }).click();
+
+  await expect(page.getByRole('columnheader', { name: /Test Course/ })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Test College', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: number(info, 3), exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: /Test Seminar/ })).toBeVisible();
+  await expect(page.getByRole('cell').getByRole('link', { name: 'Teacher A', exact: true })).toBeVisible();
+  expect(seenKinds.filter((k) => ['term_course', 'class', 'schedule', 'assignment'].includes(k ?? ''))).toEqual([]);
+
+  await page.getByRole('button', { name: c.clear, exact: true }).click();
+  await expect(page.getByRole('heading', { name: c.emptyTitle, exact: true })).toBeVisible();
+});
+
+memberTest('a member without campus access withdraws a selected review vote on the personal votes page', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: {
+    campus_eligibility: false, teacher_verified: false, identity_verified: false,
+    evaluated_at: '2026-11-01T00:00:00Z', revision: 1, next_evaluation_at: null,
+  } }));
+  let votes = ['keep', 'withdraw'].map(id => ({ id, root_id: id, school_id: 'school', kind: 'course', target_id: id, term_id: 'term', my_vote: 1 }));
+  const writes = [];
+  await page.route('**/api/v1/reviews/me/votes?**', route => route.fulfill({ json: votes }));
+  await page.route('**/api/v1/reviews/me/references?**', route => route.fulfill({ json: {
+    items: votes.map(({ id }) => ({ id, kind: 'course', name: id })), missing_ids: [],
+  } }));
+  await page.route('**/api/v1/reviews/withdraw/actions', route => {
+    const req = route.request();
+    writes.push({ key: req.headers()['idempotency-key'], body: req.postDataJSON() });
+    if (writes.length === 1) {
+      votes = votes.filter(vote => vote.id !== 'withdraw');
+      return route.abort();
+    }
+    return route.fulfill({ json: { id: 'withdraw', state: 'published', revision: 2 } });
+  });
+  await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
+  const row = page.getByRole('listitem').filter({ has: page.getByRole('link', { name: /withdraw/ }) });
+  await row.getByRole('button', { name: all.search.votes.cancel }).click();
+  await page.getByRole('button', { name: all.common.retryOriginal }).click();
+  await expect(row).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /keep/ })).toBeVisible();
+  expect(votes.map(vote => vote.id)).toEqual(['keep']);
+  expect(writes).toHaveLength(2);
+  expect(writes[1]).toEqual(writes[0]);
+  expect(writes[0]).toMatchObject({ key: expect.any(String), body: { action: 'vote', vote: 0 } });
+});
+
+memberTest('an unavailable comparison target can be removed without losing the other target', async ({ page }, info) => {
+  const c = catalogue(info).search.compare;
+  await academicFixture(page);
+  await page.addInitScript(() => localStorage.setItem('stuhelper.compare', JSON.stringify({ course: [], teacher: ['teacher-a', 'teacher-b'] })));
+  await page.route('**/api/v1/reviews/statistics?**', route => new URL(route.request().url()).searchParams.get('target_id') === 'teacher-b'
+    ? route.fulfill({ status: 404, json: { code: 'not_found' } }) : route.fallback());
+  await page.goto(`${base}/compare?kind=teacher&lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('columnheader', { name: /Teacher A/ })).toBeVisible();
+  await page.getByRole('button', { name: fill(c.remove, { name: 'Teacher B' }) }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('stuhelper.compare')).teacher)).toEqual(['teacher-a']);
+});
+
+memberTest('a course outside the visible catalog can be removed from comparison while the visible course remains', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  await page.addInitScript(() => localStorage.setItem('stuhelper.compare', JSON.stringify({ course: ['archived', 'course'], teacher: [] })));
+  await page.route('**/api/v1/reviews/statistics?**', route => new URL(route.request().url()).searchParams.get('target_id') === 'archived'
+    ? route.fulfill({ status: 404, json: { code: 'not_found' } }) : route.fallback());
+  await page.goto(`${base}/compare?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('columnheader', { name: /Test Course/ })).toBeVisible();
+  const hidden = page.getByRole('columnheader').filter({ hasText: all.errors.not_found });
+  await hidden.getByRole('button', { name: fill(all.search.compare.remove, { name: all.common.unknown }) }).click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('stuhelper.compare')).course)).toEqual(['course']);
+  await expect(page.getByRole('columnheader', { name: /Test Course/ })).toBeVisible();
+});
+
+memberTest('expired popular ranking stays on screen until the reader refreshes', async ({ page }, info) => {
+  const messages = catalogue(info);
+  await academicFixture(page);
+  let starts = 0;
+  await page.route('**/api/v1/search/popular**', route => {
+    if (new URL(route.request().url()).searchParams.has('cursor')) {
+      return route.fulfill({ status: 410, json: { code: 'snapshot_expired' } });
+    }
+    starts++;
+    return route.fulfill({ json: { items: [item('course', 'course', starts === 1 ? 'First ranking' : 'New ranking')], next_cursor: starts === 1 ? 'old' : '', window_days: 7 } });
+  });
+  await page.goto(`${base}/popular?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: messages.common.loadMore }).click();
+  await expect(page.getByRole('alert')).toContainText(messages.errors.snapshot_expired);
+  await expect(page.getByText('First ranking')).toBeVisible();
+  expect(starts).toBe(1);
+  await page.getByRole('button', { name: messages.common.refresh }).click();
+  await expect(page.getByText('New ranking')).toBeVisible();
 });

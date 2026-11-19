@@ -13,7 +13,9 @@ import FavoriteButton from '../favorites/FavoriteButton.vue'
 import { useResourcesApi } from '../resources/api'
 import { compareList, maxCompare, toggleCompare } from '../search/compare'
 import { knownCredits, useAcademic } from './api'
-import { dimensionLabelKeys, dimensionNames, recommendationLevel } from './ratings/levels'
+import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
+import { useRatingText } from './presentation'
+import { dimensionNames } from './ratings/levels'
 import RatingDistribution from './ratings/RatingDistribution.vue'
 import RatingLevel from './ratings/RatingLevel.vue'
 import RatingRadar from './ratings/RatingRadar.vue'
@@ -50,6 +52,7 @@ watch(() => props.id, (id) => {
 }, { immediate: true })
 
 const object = computed(() => summary.data.value?.object)
+const ratingText = useRatingText(() => object.value?.school_id ?? campus.value, 'browse')
 const name = computed(() => object.value?.name ?? props.name ?? '')
 const note = computed(() => {
   const s = summary.data.value
@@ -58,14 +61,14 @@ const note = computed(() => {
   return [s.object.code, s.department?.name, credits === undefined ? '' : t('academic.subject.credits', { credits: format.value.number(credits) })].filter(Boolean).join(' · ')
 })
 const levels = computed(() => ratings.data.value?.dimensions.map((band) => band.level) ?? [0, 0, 0, 0, 0])
-const recommendation = computed(() => recommendationLevel[ratings.data.value?.recommendation ?? 'unrated'])
+const recommendation = computed(() => levels.value[0] ?? 0)
 const distribution = computed(() => ratings.data.value?.distribution?.[0])
 // The trend reads left to right in time, so terms are ordered by term_order_key (oldest
 // first, unknown terms last). Without the key the server's order is kept.
 const terms = computed(() => {
   const list = [...(ratings.data.value?.terms ?? [])]
   if (list.some((term) => typeof term.term_order_key === 'number')) list.sort((a, b) => (a.term_order_key || Number.MAX_SAFE_INTEGER) - (b.term_order_key || Number.MAX_SAFE_INTEGER) || a.term_id.localeCompare(b.term_id))
-  return list.map((term) => ({ name: term.term_name, level: recommendationLevel[term.recommendation], samples: term.review_count }))
+  return list.map((term) => ({ name: term.term_name, level: term.dimensions[0]?.level ?? 0, samples: term.review_count }))
 })
 const comparing = computed(() => !!props.id && compareList[props.kind].includes(props.id))
 function compare() {
@@ -80,6 +83,11 @@ function compare() {
     :note="note"
     @close="$emit('close')"
   >
+    <ErrorNotice
+      v-if="ratings.status.value === 'error'"
+      :code="ratings.error.value"
+      @retry="ratings.reload"
+    />
     <div
       v-if="summary.status.value === 'error'"
       class="notice notice-error"
@@ -120,10 +128,10 @@ function compare() {
       <!-- The verdict in words first; the charts below give the shape and the trend. -->
       <section
         class="card verdict appear"
-        :aria-label="t('browse.recommendation')"
+        :aria-label="ratingText(0, 0)"
       >
         <div class="verdict-main">
-          <span class="subtle">{{ t('browse.recommendation') }}</span>
+          <span class="subtle">{{ ratingText(0, 0) }}</span>
           <RatingLevel
             class="verdict-level"
             :level="recommendation"
@@ -135,7 +143,7 @@ function compare() {
             v-for="(dimension, index) in dimensionNames.slice(1)"
             :key="dimension"
           >
-            <dt>{{ t(dimensionLabelKeys[dimension]) }}</dt>
+            <dt>{{ ratingText(index + 1, 0) }}</dt>
             <dd>
               <RatingLevel
                 :level="levels[index + 1] ?? 0"
@@ -231,7 +239,9 @@ function compare() {
         v-if="id"
         :id="id"
         :kind="kind"
+        inline-move
         text
+        @moving="$emit('close')"
       />
       <button
         class="btn"

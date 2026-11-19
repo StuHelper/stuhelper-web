@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { teacherDirectoryEnabled } from '../../app/features'
+import { ChevronRight } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -19,6 +20,8 @@ const kind = ref<'course' | 'teacher'>('course')
 const tabs = computed(() => [{ value: 'course' as const, label: t('search.popular.courses') }, ...(teacherDirectoryEnabled ? [{ value: 'teacher' as const, label: t('search.popular.teachers') }] : [])])
 const list = usePaged<SearchItem>((cursor, signal) => api.popular(kind.value, cursor, signal))
 watch(kind, () => void list.reload(), { immediate: true })
+// Course rows carry the current code and English name; teacher rows have neither.
+const detail = (item: SearchItem) => [item.code, item.english_name].filter(Boolean).join(' · ')
 </script>
 
 <template>
@@ -41,12 +44,13 @@ watch(kind, () => void list.reload(), { immediate: true })
       <PagedState
         :status="list.status.value"
         :error="list.error.value"
+        :retry-label="list.error.value === 'snapshot_expired' ? t('common.refresh') : ''"
         :count="list.items.value.length"
         :next="list.next.value"
         :appending="list.appending.value"
         :empty-text="t('search.popular.empty')"
         @retry="list.reload"
-        @more="list.loadMore"
+        @more="list.error.value === 'snapshot_expired' ? list.reload() : list.loadMore()"
       >
         <ol class="group">
           <li
@@ -63,7 +67,15 @@ watch(kind, () => void list.reload(), { immediate: true })
               >{{ format.number(index + 1) }}</span>
               <span class="group-body">
                 <span class="group-title">{{ item.title }}</span>
+                <span
+                  v-if="detail(item)"
+                  class="subtle"
+                >{{ detail(item) }}</span>
               </span>
+              <ChevronRight
+                class="chevron flip-rtl"
+                aria-hidden="true"
+              />
             </RouterLink>
           </li>
         </ol>
@@ -73,5 +85,6 @@ watch(kind, () => void list.reload(), { immediate: true })
 </template>
 
 <style scoped>
-.rank { flex: none; inline-size: 2rem; color: var(--label-3); font-variant-numeric: tabular-nums; text-align: center; }
+.rank { flex: none; inline-size: 2rem; color: var(--label-3); font-weight: 650; font-variant-numeric: tabular-nums; text-align: center; }
+li:nth-child(-n + 3) .rank { color: color-mix(in srgb, var(--c-flame) 72%, var(--label)); }
 </style>

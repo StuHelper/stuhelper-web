@@ -227,6 +227,179 @@
         }
       },
       "accepted": false
+    },
+    {
+      "name": "teacher removal request specifies target_type",
+      "kind": "RemovalRequest",
+      "body": {
+        "target_type": "teacher",
+        "id": "removal-teacher-1",
+        "credential_id": "teacher-cred-1",
+        "school_id": "synthetic-school",
+        "kind": "delete",
+        "state": "pending",
+        "reason": "Remove personal teacher data",
+        "note": "",
+        "revision": 1,
+        "created_at": "2026-11-18T00:00:00Z"
+      },
+      "accepted": true
+    },
+    {
+      "name": "email challenge includes resend cooldown and remaining attempts",
+      "kind": "EmailChallenge",
+      "body": {
+        "id": "email-1",
+        "application_id": "app-1",
+        "expires_at": "2026-11-18T00:05:00Z",
+        "resend_available_at": "2026-11-18T00:01:00Z",
+        "remaining_attempts": 5,
+        "state": "queued",
+        "masked_email": "a0**01@buaa.invalid",
+        "target_address": ""
+      },
+      "accepted": true
+    },
+    {
+      "name": "problem includes retry_after_seconds and remaining_attempts",
+      "kind": "Problem",
+      "body": {
+        "code": "rate_limited",
+        "retry_after_seconds": 45,
+        "remaining_attempts": 0
+      },
+      "accepted": true
+    },
+    {
+      "name": "admin overview counts",
+      "kind": "AdminOverview",
+      "body": {
+        "pending_student_applications": 3,
+        "pending_teacher_applications": 1,
+        "pending_removal_requests": 2,
+        "pending_suggestions": 4,
+        "abnormal_jobs": 0
+      },
+      "accepted": true
+    },
+    {
+      "name": "manual application lightweight preview metadata",
+      "kind": "Application",
+      "body": {
+        "id": "synthetic-manual-app",
+        "school_id": "synthetic-school",
+        "method": "manual_material_review",
+        "stage": "bachelor",
+        "kind": "student",
+        "state": "pending_review",
+        "revision": 2,
+        "created_at": "2026-11-18T00:00:00Z",
+        "updated_at": "2026-11-18T00:01:00Z",
+        "expires_at": "2026-11-18T00:30:00Z",
+        "credential_id": "",
+        "result_code": "pending_review",
+        "material_type": "student_card",
+        "material_count": 2,
+        "qualification_expires_at": null
+      },
+      "accepted": true
+    },
+    {
+      "name": "email input accepts controlled locale",
+      "kind": "EmailInput",
+      "body": {
+        "student_id": "x001",
+        "name": "Synthetic Student",
+        "locale": "ar-EG"
+      },
+      "accepted": true
+    },
+    {
+      "name": "email input rejects unsupported locale",
+      "kind": "EmailInput",
+      "body": {
+        "student_id": "x001",
+        "name": "Synthetic Student",
+        "locale": "de-DE"
+      },
+      "accepted": false
+    },
+    {
+      "name": "SSO-only student school with independent teacher materials",
+      "kind": "School",
+      "body": {
+        "id": "synthetic-school",
+        "name": "Synthetic School",
+        "enabled": true,
+        "methods": [
+          "school_sso"
+        ],
+        "notice_version": "v1",
+        "opening_date": "",
+        "newcomer_days": 90,
+        "email_domain": "",
+        "material_types": [],
+        "teacher_enabled": true,
+        "teacher_material_types": [
+          "faculty_card"
+        ],
+        "revision": 1
+      },
+      "accepted": true
+    },
+    {
+      "name": "teacher_enabled must be boolean",
+      "kind": "School",
+      "body": {
+        "id": "synthetic-school",
+        "name": "Synthetic School",
+        "enabled": true,
+        "methods": [
+          "school_sso"
+        ],
+        "notice_version": "v1",
+        "opening_date": "",
+        "newcomer_days": 90,
+        "email_domain": "",
+        "material_types": [],
+        "teacher_enabled": "yes",
+        "revision": 1
+      },
+      "accepted": false
+    },
+    {
+      "name": "cancelled application state accepted",
+      "kind": "Application",
+      "body": {
+        "id": "synthetic-app-cancelled",
+        "school_id": "synthetic-school",
+        "method": "manual_material_review",
+        "stage": "bachelor",
+        "kind": "student",
+        "state": "cancelled",
+        "revision": 3,
+        "created_at": "2026-11-18T00:00:00Z",
+        "updated_at": "2026-11-18T00:02:00Z",
+        "expires_at": "2026-11-18T00:30:00Z",
+        "credential_id": "",
+        "result_code": "cancelled",
+        "qualification_expires_at": null
+      },
+      "accepted": true
+    },
+    {
+      "name": "summary includes next_evaluation_school_id for newcomer expiry",
+      "kind": "Summary",
+      "body": {
+        "campus_eligibility": true,
+        "teacher_verified": false,
+        "identity_verified": false,
+        "evaluated_at": "2026-11-18T00:00:00Z",
+        "revision": 1,
+        "next_evaluation_at": "2026-12-29T16:00:00Z",
+        "next_evaluation_school_id": "4111010006"
+      },
+      "accepted": true
     }
   ]
 }

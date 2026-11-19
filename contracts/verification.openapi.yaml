@@ -8,6 +8,35 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /api/v1/admin/verification/teacher-credentials:
+    get:
+      operationId: searchAdminTeacherCredentials
+      description: School-scoped teacher credential search by school_id, teacher_id, owner, or state. Reads are audited.
+      parameters:
+        - name: school_id
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 64 }
+        - name: teacher_id
+          in: query
+          schema: { type: string, maxLength: 128 }
+        - name: owner
+          in: query
+          schema: { type: string, maxLength: 2740 }
+        - name: state
+          in: query
+          schema: { type: string, enum: [active, revoked, expired] }
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Matching teacher qualifications in the authorized school.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/TeacherCredential' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/admin/verification/teacher-credentials/{id}:
     parameters:
       - $ref: '#/components/parameters/ID'
@@ -89,7 +118,7 @@ paths:
       - $ref: '#/components/parameters/ID'
     post:
       operationId: reviewTeacherApplication
-      description: Review independently from student applications. Approval validates canonical teacher IDs through catalog; self-review is forbidden.
+      description: Review independently from student applications. Approval validates canonical teacher IDs through catalog; if an active qualification already exists in the school for the applicant, approval merges bindings and refreshes expiry, disclosures and encrypted profile in place. Self-review is forbidden.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -105,12 +134,72 @@ paths:
               schema: { $ref: '#/components/schemas/Application' }
         '202': { $ref: '#/components/responses/Processing' }
         default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/teacher-credentials/{id}/requests:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: requestTeacherRemoval
+      description: Request revocation or physical deletion of the caller's teacher qualification. Eligibility is unchanged until approval.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RemovalInput' }
+      responses:
+        '200':
+          description: Pending teacher removal request.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RemovalRequest' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/schools/{id}/teacher-requests:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    get:
+      operationId: listTeacherRemovalQueue
+      description: School-scoped pending teacher removal requests; requires teacher review permission.
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Pending teacher removal requests.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/RemovalRequest' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/teacher-requests/{id}/review:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: reviewTeacherRemoval
+      description: Review a teacher removal request. Approved deletion clears encrypted teacher profile data, materials and active bindings while preserving student qualifications and independent identity.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DecisionInput' }
+      responses:
+        '200':
+          description: Reviewed teacher removal request.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/RemovalRequest' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/admin/verification/schools/{id}/teacher-applications:
     parameters:
       - $ref: '#/components/parameters/ID'
     get:
       operationId: listTeacherReviewQueue
-      description: Pending teacher applications in the authorized school, ordered by ID.
+      description: Pending teacher applications in the authorized school, ordered by creation time ascending (FIFO).
       parameters:
         - $ref: '#/components/parameters/After'
         - $ref: '#/components/parameters/Limit'
@@ -126,7 +215,7 @@ paths:
   /api/v1/verification/teacher-credentials:
     get:
       operationId: listOwnTeacherCredentials
-      description: The caller's teacher qualifications, including revoked and expired history, ordered by ID.
+      description: The caller's teacher qualifications, including revoked and expired history, ordered by verification time descending.
       parameters:
         - $ref: '#/components/parameters/After'
         - $ref: '#/components/parameters/Limit'
@@ -262,7 +351,7 @@ paths:
         - $ref: '#/components/parameters/Limit'
       responses:
         '200':
-          description: The caller's applications, ordered by ID.
+          description: The caller's applications, ordered by creation time descending.
           content:
             application/json:
               schema:
@@ -289,6 +378,18 @@ paths:
       operationId: getApplication
       responses:
         '200': { $ref: '#/components/responses/Application' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/applications/{id}/cancel:
+    parameters:
+      - $ref: '#/components/parameters/ID'
+    post:
+      operationId: cancelApplication
+      description: Cancel the caller's in_progress, pending_review, or supplement_required application and immediately clear its draft materials, capture tickets, email challenges, and encrypted form.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200': { $ref: '#/components/responses/Application' }
+        '202': { $ref: '#/components/responses/Processing' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/applications/{id}/verify:
     parameters:
@@ -385,7 +486,7 @@ paths:
             schema: { type: string, format: binary }
       responses:
         '200':
-          description: Captured material reference. Maximum 1 MiB and 16 million pixels per image, five images per application.
+          description: Captured material reference. A valid ticket admits a bounded upload of at most 1 MiB and 16 million pixels. A saturated instance returns 429 rate_limited. Each application can retain five images.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Material' }
@@ -611,7 +712,7 @@ paths:
         - $ref: '#/components/parameters/Limit'
       responses:
         '200':
-          description: School-scoped review queue, ordered by ID.
+          description: School-scoped review queue, ordered by creation time ascending (FIFO).
           content:
             application/json:
               schema:
@@ -772,6 +873,50 @@ paths:
                 properties:
                   allowed: { type: boolean, enum: [true] }
         default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/overview:
+    get:
+      operationId: getAdminOverview
+      description: Pending review queue and abnormal job counts within the caller's current administrative authorization. When school_id is set, counts are restricted to that school and platform-scoped pending_suggestions is zero.
+      parameters:
+        - name: school_id
+          in: query
+          schema: { type: string, maxLength: 64 }
+      responses:
+        '200':
+          description: Authorized pending counts.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AdminOverview' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/credentials:
+    get:
+      operationId: searchAdminCredentials
+      description: School-scoped student credential lookup by school_id, student_id (via server-computed identity_hash index), owner, or state. Reads are audited.
+      parameters:
+        - name: school_id
+          in: query
+          required: true
+          schema: { type: string, minLength: 1, maxLength: 64 }
+        - name: student_id
+          in: query
+          schema: { type: string, maxLength: 64 }
+        - name: owner
+          in: query
+          schema: { type: string, maxLength: 2740 }
+        - name: state
+          in: query
+          schema: { type: string, enum: [active, revoked, expired] }
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: Matching student qualifications in the authorized school.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/Credential' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/admin/verification/credentials/{id}:
     parameters:
       - $ref: '#/components/parameters/ID'
@@ -811,7 +956,7 @@ paths:
         - $ref: '#/components/parameters/IdempotencyKey'
       responses:
         '200':
-          description: Retry a failed manual-queue job with its original external idempotency identity.
+          description: Retry a manual-queue job using its original delivery key. An expired email challenge is never sent.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/Job' }
@@ -830,6 +975,7 @@ components:
     After:
       name: after
       in: query
+      description: Exclusive pagination cursor; accepts either an item ID or a composite RFC3339Nano|ID token.
       schema: { type: string, maxLength: 128 }
     Limit:
       name: limit
@@ -837,6 +983,7 @@ components:
       schema: { type: integer, minimum: 1, maximum: 100, default: 25 }
     IdempotencyKey:
       name: Idempotency-Key
+      description: Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome.
       in: header
       required: true
       schema: { type: string, minLength: 1, maxLength: 128, pattern: '^[ -~]+$' }
@@ -856,6 +1003,10 @@ components:
           schema: { $ref: '#/components/schemas/Problem' }
     Problem:
       description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      headers:
+        Retry-After:
+          description: Remaining cooldown seconds when rate-limited.
+          schema: { type: string }
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
@@ -978,10 +1129,20 @@ components:
         email_domain: { type: string, maxLength: 253 }
         material_types:
           type: array
-          minItems: 1
+          minItems: 0
           maxItems: 20
           uniqueItems: true
-          items: { type: string, maxLength: 64 }
+          items: { type: string, minLength: 1, maxLength: 64 }
+          description: Allowed material types for student manual verification; may be empty when manual_material_review is not enabled.
+        teacher_enabled:
+          type: boolean
+          description: Independent switch for manual teacher verification. Disabled by default.
+        teacher_material_types:
+          type: array
+          maxItems: 20
+          uniqueItems: true
+          items: { type: string, minLength: 1, maxLength: 64 }
+          description: Allowed materials for teachers. Enabling teacher verification requires at least one teacher material type.
         revision: { type: integer, format: int64, minimum: 0 }
     CreateApplication:
       type: object
@@ -1003,7 +1164,7 @@ components:
         method: { $ref: '#/components/schemas/Method' }
         stage: { $ref: '#/components/schemas/Stage' }
         kind: { type: string, enum: [student, alumni, newcomer, unknown, teacher] }
-        state: { type: string, enum: [in_progress, pending_review, supplement_required, approved, rejected, expired, deleted] }
+        state: { type: string, enum: [in_progress, pending_review, supplement_required, approved, rejected, expired, cancelled, deleted] }
         revision: { type: integer, format: int64 }
         created_at: { type: string, format: date-time }
         updated_at: { type: string, format: date-time }
@@ -1011,6 +1172,8 @@ components:
         credential_id: { type: string }
         result_code: { type: string }
         review_note: { type: string }
+        material_type: { type: string, maxLength: 64, description: 'Non-sensitive material category selected in manual submission.' }
+        material_count: { type: integer, minimum: 0, maximum: 5, description: 'Number of captured images submitted with the manual form.' }
         school_challenge: { $ref: '#/components/schemas/SchoolChallenge' }
         qualification_expires_at: { type: string, format: date-time, nullable: true }
     VerifyInput:
@@ -1050,6 +1213,10 @@ components:
       properties:
         student_id: { type: string, minLength: 1, maxLength: 64 }
         name: { type: string, minLength: 1, maxLength: 100 }
+        locale:
+          type: string
+          enum: [zh-CN, en-US, fr-FR, ru-RU, ja-JP, ko-KR, es-ES, ar-EG]
+          description: 'Preferred message locale; defaults to zh-CN when omitted.'
     EmailChallenge:
       type: object
       required: [id, application_id, expires_at, state, masked_email, target_address]
@@ -1057,6 +1224,8 @@ components:
         id: { type: string }
         application_id: { type: string }
         expires_at: { type: string, format: date-time }
+        resend_available_at: { type: string, format: date-time, description: Earliest UTC timestamp when resending is permitted. }
+        remaining_attempts: { type: integer, minimum: 0, maximum: 5, description: Remaining OTP confirmation attempts for outbound challenges. }
         state: { type: string, enum: [queued, waiting, delivered, used, failed] }
         masked_email: { type: string }
         target_address: { type: string, description: Only inbound challenges expose a random one-use destination. }
@@ -1136,6 +1305,7 @@ components:
         evaluated_at: { type: string, format: date-time }
         revision: { type: integer, format: int64 }
         next_evaluation_at: { type: string, format: date-time, nullable: true }
+        next_evaluation_school_id: { type: string, description: 'School ID of the earliest expiring active qualification, guiding temporary newcomers to formal verification.' }
     RemovalInput:
       type: object
       additionalProperties: false
@@ -1147,6 +1317,7 @@ components:
       type: object
       required: [id, credential_id, school_id, kind, state, reason, note, revision, created_at]
       properties:
+        target_type: { type: string, enum: [student, teacher], description: Qualification category; defaults to student when omitted. }
         id: { type: string }
         credential_id: { type: string }
         school_id: { type: string }
@@ -1170,7 +1341,7 @@ components:
       required: [name, website]
       properties:
         name: { type: string, minLength: 1, maxLength: 100 }
-        website: { type: string, format: uri, maxLength: 500 }
+        website: { type: string, format: uri, maxLength: 500, pattern: '^[Hh][Tt][Tt][Pp][Ss]://[^/@?#]+([/?#]|$)', description: HTTPS school website with a host and no user information. }
     Suggestion:
       type: object
       required: [id, name, website, state, note, revision]
@@ -1189,6 +1360,16 @@ components:
         state: { type: string, enum: [processing, completed, failed] }
         code: { type: string }
         expires_at: { type: string, format: date-time }
+    AdminOverview:
+      type: object
+      additionalProperties: false
+      required: [pending_student_applications, pending_teacher_applications, pending_removal_requests, pending_suggestions, abnormal_jobs]
+      properties:
+        pending_student_applications: { type: integer, minimum: 0 }
+        pending_teacher_applications: { type: integer, minimum: 0 }
+        pending_removal_requests: { type: integer, minimum: 0 }
+        pending_suggestions: { type: integer, minimum: 0 }
+        abnormal_jobs: { type: integer, minimum: 0 }
     Job:
       type: object
       required: [id, school_id, kind, state, attempts, code]
@@ -1205,6 +1386,8 @@ components:
       properties:
         code: { type: string }
         operation_id: { type: string }
+        retry_after_seconds: { type: integer, minimum: 1 }
+        remaining_attempts: { type: integer, minimum: 0 }
     SchoolChallenge:
       type: object
       additionalProperties: false

@@ -23,6 +23,7 @@ const retrying = useMutation()
 const open = ref<Receipt>()
 const openError = ref('')
 const appealing = ref(false)
+const complaining = ref(false)
 const receipts = usePaged(async (after, signal) => {
   const page = await api.requests({ after }, signal)
   return { items: page.items, next: page.next_cursor }
@@ -61,7 +62,21 @@ function tone(state: Receipt['state']) {
     :title="t('me.requests')"
     :description="t('me.requestsIntro')"
   >
+    <template #actions>
+      <button
+        type="button"
+        class="btn"
+        :aria-expanded="complaining"
+        @click="complaining = !complaining"
+      >
+        {{ t('resources.detail.complain') }}
+      </button>
+    </template>
     <div class="stack-lg">
+      <RequestForm
+        v-if="complaining"
+        @saved="receipts.reload"
+      />
       <PagedState
         :status="receipts.status.value"
         :error="receipts.error.value"
@@ -80,6 +95,10 @@ function tone(state: Receipt['state']) {
           >
             <div class="stack-sm">
               <strong>{{ t(`resources.request.kinds.${item.kind ?? 'complaint'}`) }}</strong>
+              <span
+                v-if="item.resource_title"
+                class="small"
+              >{{ item.resource_title }}</span>
               <span class="subtle">{{ format.dateTime(item.created_at) }}</span>
             </div>
             <div class="row">
@@ -116,6 +135,12 @@ function tone(state: Receipt['state']) {
             {{ t(`resources.request.state.${open.state}`) }}
           </StatusTag>
         </div>
+        <p
+          v-if="open.resource_title"
+          class="small"
+        >
+          {{ open.resource_title }}
+        </p>
         <p class="small muted">
           {{ t(`resources.request.stateHint.${open.state}`) }}
         </p>

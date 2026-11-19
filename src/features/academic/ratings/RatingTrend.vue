@@ -3,18 +3,19 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../../app/i18n'
 import { useInView } from '../../../shared/composables/inView'
+import { useRatingText } from '../presentation'
 import RatingIcon from '../RatingIcon.vue'
-import { levelKeys } from './levels'
 // Recommendation per term. Terms without enough reviews (level 0) get no point and are not
 // drawn as a low score.
-const props = defineProps<{ terms: { name: string; level: number; samples: number }[] }>()
+const props = defineProps<{ terms: { name: string; level: number; samples: number }[]; schoolId?: string }>()
 const { t } = useI18n()
 const format = useFormat()
+const ratingText = useRatingText(() => props.schoolId, 'browse')
 const h = 132
 // Drawn at the container's real width so text does not shrink with scaling.
 const w = ref(320)
 const y = (lv: number) => 10 + ((5 - lv) * 76) / 4
-const levelName = (lv: number) => t(levelKeys.recommendation[lv] ?? 'browse.levelNone')
+const levelName = (lv: number) => (lv > 0 ? ratingText(0, lv) : t('browse.levelNone'))
 // The level words differ a lot in length between languages, so the axis column is as wide as
 // the longest one. Without a canvas (unit tests) the width is estimated from the characters.
 function textWidth(text: string) {

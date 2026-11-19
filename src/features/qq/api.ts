@@ -1,3 +1,4 @@
+import { httpsUrl } from '../../shared/urls'
 import { ApiError } from '../../shared/api/errors'
 import qqContract from '../../../contracts/qq-binding.openapi.json'
 import type { components } from '../../api/qq-binding.gen'
@@ -36,8 +37,10 @@ export class QqBindingApi {
   }
 
   /** The QQ Connect authorization address. The browser leaves the site to open it. */
-  startConnect(key: string) {
-    return this.http.json('/api/v1/qq-binding/connect/start', parse.authorization, { method: 'POST', body: {}, key })
+  async startConnect(key: string) {
+    const result = await this.http.json('/api/v1/qq-binding/connect/start', parse.authorization, { method: 'POST', body: {}, key })
+    if (!httpsUrl(result.url)) throw new ApiError('incompatible')
+    return result
   }
 
   /**
@@ -45,11 +48,12 @@ export class QqBindingApi {
    * 202 qq_binding_processing; the identical request (same key) is sent again until the stored
    * result is known. The authorization code itself is never exchanged twice by the server.
    */
-  async confirmConnect(body: { state: string; code: string }, key: string, wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))) {
+  async confirmConnect(body: { state: string; code: string }, key: string, wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms)), signal?: AbortSignal) {
     const processing = Symbol('processing')
     const read = (value: unknown) => (typeof value === 'object' && value !== null && (value as { code?: unknown }).code === 'qq_binding_processing' ? processing : parse.status(value))
     for (let attempt = 0; attempt < 12; attempt++) {
-      const result = await this.http.json('/api/v1/qq-binding/connect/confirm', read, { method: 'POST', body, key })
+      signal?.throwIfAborted()
+      const result = await this.http.json('/api/v1/qq-binding/connect/confirm', read, { method: 'POST', body, key, signal })
       if (result !== processing) return result
       await wait(Math.min(1000 * 2 ** Math.min(attempt, 2), 4000))
     }
@@ -57,8 +61,8 @@ export class QqBindingApi {
     throw new ApiError('processing', true)
   }
 
-  cancelConnect(body: { state: string }, key: string) {
-    return this.http.json('/api/v1/qq-binding/connect/cancel', parse.status, { method: 'POST', body, key })
+  cancelConnect(body: { state: string }, key: string, signal?: AbortSignal) {
+    return this.http.json('/api/v1/qq-binding/connect/cancel', parse.status, { method: 'POST', body, key, signal })
   }
 
   unlink(kind: QqPart, revision: number, key: string) {

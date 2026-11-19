@@ -47,7 +47,7 @@ test('a successful vote retry shows the result the first attempt lost', async ({
   await academicFixture(page);
   let posts = 0;
   const review = { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Review', body: 'Content', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-31T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false };
-  await page.route('**/api/v1/reviews/review', (route) => route.fulfill({ json: review }));
+  await page.route('**/api/v1/reviews/review{,?*}', (route) => route.fulfill({ json: review }));
   await page.route('**/api/v1/reviews/review/actions', (route) => {
     posts += 1;
     Object.assign(review, { upvotes: 1, my_vote: 1, revision: 2 });
@@ -123,4 +123,100 @@ test('switching the review tab asks before discarding an edited draft', async ({
   await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
   await expect(title).toHaveValue('Unsaved title');
   await expect(page).toHaveURL(/tab=drafts/);
+});
+
+test('own vote receipts open their discussion and a withdrawal removes only the selected vote', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
+  let votes = ['up', 'down'].map((id, index) => ({
+    id, root_id: 'discussion', school_id: 'school', kind: 'reply', target_id: 'course', term_id: 'term', my_vote: index ? -1 : 1,
+  }));
+  await page.route('**/api/v1/reviews/me/votes?**', route => route.fulfill({ json: votes }));
+  await page.route('**/api/v1/reviews/me/references?**', route => route.fulfill({ json: {
+    items: [{ id: 'course', kind: 'course', name: 'Referenced course' }], missing_ids: ['term'],
+  } }));
+  await page.route('**/api/v1/reviews/down/actions', route => {
+    expect(route.request().postDataJSON()).toEqual({ action: 'vote', vote: 0 });
+    votes = votes.filter(vote => vote.id !== 'down');
+    return route.fulfill({ json: { id: 'down', state: 'published', revision: 2 } });
+  });
+  await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
+  await expect(page).toHaveURL(/\/me\/votes\?/);
+  const down = page.getByRole('listitem').filter({ hasText: all.search.votes.down });
+  await expect(down.getByRole('link', { name: /Referenced course/ })).toHaveAttribute('href', '/reviews/down');
+  await down.getByRole('button', { name: all.search.votes.cancel }).click();
+  await expect(down).toHaveCount(0);
+  await expect(page.getByText(all.search.votes.up, { exact: true })).toBeVisible();
+  expect(votes.map(vote => vote.id)).toEqual(['up']);
+});
+
+test('an expired member edits draft text without resolving unverified catalog references', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'hidden', term_id: 'term', teacher_id: '', title: 'Draft', body: 'Saved', ratings: [3, 3, 3, 3, 3], signed: false }, withdrawn: false, reference_ids: [], reference_state: 'unverified' };
+  const lookups = [], saves = [];
+  await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
+  await page.route('**/api/v1/reviews/me/references?**', route => {
+    lookups.push(route.request().url());
+    return route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+  await page.route('**/api/v1/reviews/me/drafts**', route => {
+    if (route.request().method() === 'POST') {
+      saves.push(route.request().postDataJSON());
+      return route.fulfill({ json: { id: draft.id, state: 'draft', revision: 2 } });
+    }
+    return route.fulfill({ json: new URL(route.request().url()).pathname.endsWith('/draft') ? draft : [draft] });
+  });
+  await page.goto(`${base}/me/reviews?tab=drafts&lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: all.me.continueEditing, exact: true }).click();
+  await page.getByLabel(all.academic.editor.title, { exact: true }).fill('Edited');
+  await page.getByRole('button', { name: all.academic.editor.saveDraft, exact: true }).click();
+  await expect.poll(() => saves.length).toBe(1);
+  expect(saves[0]).toMatchObject({ id: 'draft', revision: 1, input: { target_id: 'hidden', title: 'Edited', term_id: 'term' } });
+  expect(lookups).toEqual([]);
+});
+
+test('discarding a root reply clears its text and sends no write', async ({ page }, info) => {
+  const all = catalogue(info);
+  await academicFixture(page);
+  const writes = [];
+  page.on('request', req => { if (req.method() === 'POST' && req.url().includes('/reviews/')) writes.push(req.url()); });
+  await page.goto(`${base}/reviews/review?lang=${info.project.metadata.locale}`);
+  const form = page.locator('form.editor');
+  const body = form.getByRole('textbox').last();
+  await body.fill('Draft to discard');
+  await form.getByRole('button', { name: all.common.cancel, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();
+  await expect(body).toHaveValue('');
+  expect(writes).toEqual([]);
+});
+
+test('legacy personal links resolve to the current page and storage tab', async ({ page }, info) => {
+  await demo(page);
+  await page.goto(`${base}/?lang=${info.project.metadata.locale}`);
+  const routes = { '/community': '/campus', '/community/me': '/me', '/verification': '/me/verification', '/contributions': '/me/storage', '/storage-accounts': '/me/storage?tab=accounts', '/me/storage-accounts': '/me/storage?tab=accounts', '/resources/me': '/me/resources', '/resources/requests': '/me/requests' };
+  for (const [old, current] of Object.entries(routes)) {
+    await push(page, old);
+    await expect(page).toHaveURL(base + current);
+  }
+});
+
+test('custom school rating texts apply to browse levels', async ({ page }, info) => {
+  const locale = info.project.metadata.locale;
+  await academicFixture(page);
+  const customBand = ['Custom Rec', 'C1', 'C2', 'C3', 'Solid Pick', 'Must Take'];
+  await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({
+    json: {
+      effective: {
+        school_id: 'school',
+        revision: 1,
+        rating_texts: { [locale]: Array.from({ length: 5 }, () => customBand) },
+      },
+      configured: null,
+      source: 'custom',
+    },
+  }));
+  await page.goto(`${base}/courses?lang=${locale}`);
+  await expect(page.locator('.d-level:visible').first()).toHaveText('Solid Pick');
 });

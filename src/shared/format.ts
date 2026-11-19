@@ -19,7 +19,10 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
   // Validate the selected time zone before rendering any temporal field.
   new Intl.DateTimeFormat(locale, { timeZone }).format(0);
   return {
-    number: (value: number | bigint, options: Intl.NumberFormatOptions = {}) => new Intl.NumberFormat(locale, options).format(value),
+    number(value: number | bigint | string, options: Intl.NumberFormatOptions = {}) {
+      if (typeof value === 'string' && !/^-?\d+(?:\.\d+)?$/.test(value)) throw new RangeError('Expected a decimal value');
+      return (new Intl.NumberFormat(locale, options).format as (value: number | bigint | string) => string)(value);
+    },
     percent: (value: number, options: Intl.NumberFormatOptions = {}) => new Intl.NumberFormat(locale, { ...options, style: 'percent' }).format(value),
     currency(value: string | number | bigint, currency: string, options: Intl.NumberFormatOptions = {}) {
       if (typeof value === 'string' && !/^-?\d+(?:\.\d+)?$/.test(value)) throw new RangeError('Currency requires a canonical decimal value');
@@ -38,6 +41,29 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
       return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', calendar: 'gregory', timeZone: 'UTC' }).format(date);
     },
     relative: (value: number, unit: Intl.RelativeTimeFormatUnit) => new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(value, unit),
+    /** Elapsed time up to `reference` in the largest whole unit, clamping future clock skew to now. */
+    ago(value?: Date | number | string, reference = Date.now()) {
+      if (value === undefined || value === '') return '';
+      let ms: number;
+      try {
+        ms = instant(value).getTime();
+      } catch {
+        return '';
+      }
+      const seconds = Math.min(0, Math.round((ms - reference) / 1000));
+      const units: [Intl.RelativeTimeFormatUnit, number][] = [
+        ['year', 31_536_000],
+        ['month', 2_592_000],
+        ['day', 86_400],
+        ['hour', 3600],
+        ['minute', 60],
+      ];
+      const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
+      for (const [unit, size] of units) {
+        if (Math.abs(seconds) >= size) return rtf.format(Math.trunc(seconds / size), unit);
+      }
+      return rtf.format(0, 'minute');
+    },
     /** Decimal byte units, matching the GB values users type into storage forms. */
     bytes(value: number) {
       if (!Number.isFinite(value) || value < 0) throw new RangeError('Invalid byte count');

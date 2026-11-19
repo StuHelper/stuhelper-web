@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { myCoursesEnabled } from '../../app/features'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, useId, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useNow } from '../../shared/composables/clock'
@@ -20,7 +20,7 @@ import RatingInput from './RatingInput.vue'
  * reports the current eligibility, teacher candidates from the author's own
  * enrollment and the discussion identity; the page only presents them.
  */
-const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, leaveQuery: undefined })
+const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; initialTermId?: string; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, initialTermId: undefined, leaveQuery: undefined })
 const emit = defineEmits<{ submitted: [result: Result]; cancel: [] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -29,11 +29,12 @@ const session = useSession()
 const write = useMutation()
 const now = useNow()
 
+const textOnly = computed(() => !!props.draft && !props.schoolId)
 const original = props.draft?.input
 const withdrawn = props.draft?.withdrawn === true
 const title = ref(original?.title ?? '')
 const body = ref(original?.body ?? (props.kind === 'mentor' ? t('academic.editor.mentorTemplate') : ''))
-const term = ref(original?.term_id ?? '')
+const term = ref(original?.term_id ?? props.initialTermId ?? '')
 const teacher = ref(original?.teacher_id ?? '')
 const signed = ref(original?.signed ?? false)
 const ratings = ref<number[]>(original?.ratings.slice() ?? [0, 0, 0, 0, 0])
@@ -82,7 +83,8 @@ function input(): ReviewInput {
 }
 const baseline = ref(JSON.stringify(input()))
 const dirty = computed(() => JSON.stringify(input()) !== baseline.value)
-const locked = computed(() => write.busy.value || write.uncertain.value)
+const expired = computed(() => withdrawn && !!expires.value && Date.parse(expires.value) <= now.value)
+const locked = computed(() => write.busy.value || write.uncertain.value || expired.value)
 // 条件全部满足时不打扰作者。选择学期属于填写步骤，由下方的学期选项提示。
 const showEligibility = computed(() => {
   if (!composer.value) return context.status.value === 'error'
@@ -90,7 +92,8 @@ const showEligibility = computed(() => {
 })
 // 课程评价发布时五个维度都要评分。草稿可以只填一部分。
 const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.some((level) => !level))
-const canPublish = computed(() => !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && (!teacherRequired.value || !!teacher.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+const missingConsent = computed(() => composer.value?.disclosures?.some(option => option.required && !disclosures.value.includes(option.key)))
+const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && (!teacherRequired.value || !!teacher.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
 // What the author still has to fill in before publishing, named next to the disabled button.
 // Eligibility is decided by the server and explained in its own section above.
 const missing = computed(() => {
@@ -114,42 +117,58 @@ const remaining = computed(() => {
   return t('academic.editor.remaining', { hours: format.value.number(Math.floor(minutes / 60)), minutes: format.value.number(minutes % 60) })
 })
 
+// Server defaults are part of the initial form until the author changes it.
+function applyDefaults(update: () => void) {
+  const pristine = !dirty.value
+  update()
+  if (pristine) baseline.value = JSON.stringify(input())
+}
+
 // With a single allowed teacher there is nothing to choose.
 watch(() => [teacherRequired.value, composer.value?.teacher_ids] as const, ([required, ids]) => {
-  if (required && !teacher.value && ids?.length === 1) teacher.value = ids[0]!
+  if (required && !teacher.value && ids?.length === 1) applyDefaults(() => { teacher.value = ids[0]! })
 })
 watch(term, () => {
   if (!withdrawn && !restoring) teacher.value = ''
-  if (props.kind === 'course') void context.reload()
+  if (!textOnly.value && props.kind === 'course') void context.reload()
 })
 watch(() => props.parentId, () => {
-  if (props.kind === 'reply') void context.reload()
+  if (!textOnly.value && props.kind === 'reply') void context.reload()
 })
 watch(() => composer.value?.identity, (mode) => {
-  if (!withdrawn && mode && mode !== 'choice') signed.value = mode === 'signed'
+  if (!withdrawn && mode && mode !== 'choice') applyDefaults(() => { signed.value = mode === 'signed' })
 })
 // Required disclosures (for example a teacher replying on an own course) are always selected.
 watch(() => composer.value?.disclosures, (options) => {
   if (!options) return
   const offered = new Set(options.map((option) => option.key))
-  disclosures.value = [...new Set([...disclosures.value.filter((key) => offered.has(key)), ...options.filter((option) => option.required).map((option) => option.key)])]
+  applyDefaults(() => {
+    const defaults = composer.value?.teacher_reply ? [] : options.filter(option => option.required).map(option => option.key)
+    disclosures.value = [...new Set([...disclosures.value.filter(key => offered.has(key)), ...defaults])]
+  })
 })
 
 // Steps open in a new tab so the text being written stays here; returning rechecks.
 const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity', ...(myCoursesEnabled ? { course_enrollment: '/me/courses' } : {}) }
 function recheck() {
-  if (document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
+  if (!textOnly.value && document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
 }
 document.addEventListener('visibilitychange', recheck)
 onBeforeUnmount(() => document.removeEventListener('visibilitychange', recheck))
 
 useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || write.busy.value ? t('common.leaveUnsaved') : ''), { query: props.leaveQuery })
-onMounted(() => {
-  void terms.reload()
-  void context.reload()
-})
+watch(textOnly, only => {
+  if (only) {
+    terms.clear()
+    context.clear()
+  } else {
+    void terms.reload()
+    void context.reload()
+  }
+}, { immediate: true })
 
 async function submit(saveDraft: boolean) {
+  if (locked.value || (!saveDraft && missingConsent.value)) return
   success.value = ''
   latest.value = undefined
   const payload = input()
@@ -284,7 +303,7 @@ async function cancel() {
           </p>
           <div class="row">
             <button
-              v-if="composer.state === 'unauthenticated' && session.state.value !== 'member'"
+              v-if="session.state.value !== 'member'"
               class="btn btn-sm btn-primary"
               type="button"
               @click="session.signIn"
@@ -319,7 +338,7 @@ async function cancel() {
       :disabled="locked"
     >
       <div
-        v-if="kind === 'course'"
+        v-if="kind === 'course' && !textOnly"
         class="stack editor-side"
       >
         <p
@@ -457,7 +476,7 @@ async function cancel() {
               v-model="disclosures"
               type="checkbox"
               :value="option.key"
-              :disabled="option.required"
+              :disabled="option.required && !composer.teacher_reply"
             >
             <span>{{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key === 'enrollment'"> · {{ t(`academic.disclosure.enrollment.${option.value}`) }}</template><template v-else-if="option.key !== 'teacher'"> · {{ option.value }}</template></span>
           </label>

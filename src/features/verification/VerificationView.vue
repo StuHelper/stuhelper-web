@@ -2,18 +2,22 @@
 import ActionError from './ActionError.vue'
 import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { CircleCheck, RefreshCw } from 'lucide-vue-next'
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { CircleCheck, Copy, RefreshCw } from 'lucide-vue-next'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useLeaveGuard } from '../../shared/composables/leave'
+import { isolate } from '../../shared/format'
+import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
+import { toast } from '../../shared/ui/toast'
 import { safeNext, useAccess } from '../account/access'
 import MeLayout from '../account/MeLayout.vue'
 import { maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
+import MaterialThumb from './MaterialThumb.vue'
 import MethodPicker from './MethodPicker.vue'
 import SchoolPicker from './SchoolPicker.vue'
 import VerificationRoles from './VerificationRoles.vue'
@@ -27,7 +31,8 @@ const { t, te } = useI18n()
 const format = useFormat()
 const flow = useVerificationFlow()
 const { form, removal } = flow
-onMounted(flow.reload)
+const session = useSession()
+watch(() => session.state.value, state => { if (state === 'member') void flow.reload() }, { immediate: true })
 useLeaveGuard(() => (flow.busy.value || Object.entries(form).some(([field, value]) => field !== 'material_type' && value) || flow.smsCode.value ? t('common.leaveUnsaved') : ''))
 if (props.scope === 'identity') flow.selectMode('identity')
 // 实名认证通过后不再需要表单。实名提交只更新状态，不产生认证申请，所以申请和学习经历只在学生认证页显示。
@@ -58,6 +63,14 @@ const chosen = computed(() => [flow.school.value?.name, flow.asksKind.value && f
 
 // Each step starts at its heading, for the keyboard and for screen readers.
 const stepsCard = ref<HTMLElement>()
+async function copyInbound(address: string) {
+  try {
+    await navigator.clipboard.writeText(address)
+    toast(t('verification.inboundAddressCopied'))
+  } catch {
+    toast(t('verification.inboundCopyFailed'))
+  }
+}
 // Scrolling follows the reduced-motion setting; an explicit smooth scroll would ignore the CSS rule.
 const scrolling = (): ScrollBehavior => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth')
 const stepTitle = ref<HTMLElement>()
@@ -103,15 +116,14 @@ function label(prefix: string, code: string, fallback = '') {
   return te(key) ? t(key) : fallback || t('common.unknown')
 }
 
-function profileValue(value: unknown, field: string) {
-  if (value === null || value === undefined || value === '') return t('common.notProvided')
-  if (field === 'identity_valid_until' && typeof value === 'string' && Number.isFinite(Date.parse(value))) return format.value.dateTime(value)
-  return typeof value === 'string' ? value : JSON.stringify(value)
-}
-// The card lists exactly the fields the server projected, student number, name and college first.
-const leading = ['student_id', 'name', 'college_name', 'department']
-const profileRows = computed(() => Object.entries(flow.profile.value?.fields ?? {}).sort(([a], [b]) => (leading.indexOf(a) + 1 || 99) - (leading.indexOf(b) + 1 || 99)))
-const credentialLine = (credential: { kind: string; stage: string; student_display: string }) => [credential.kind === 'unknown' ? '' : label('verification.kinds', credential.kind), credential.stage === 'unknown' ? '' : label('verification.stages', credential.stage), credential.student_display].filter(Boolean).join(' · ')
+// Older school profiles call the college field department.
+const profileRows = computed(() => {
+  const fields = flow.profile.value?.fields ?? {}
+  const college = fields.college_name ? 'college_name' : 'department'
+  return ['student_id', 'name', college].filter(key => Object.hasOwn(fields, key))
+    .map(key => [key, typeof fields[key] === 'string' && fields[key] ? fields[key] : t('common.notProvided')] as const)
+})
+const credentialLine = (credential: { kind: string; stage: string; student_display: string }) => [credential.kind === 'unknown' ? '' : label('verification.kinds', credential.kind), credential.stage === 'unknown' ? '' : label('verification.stages', credential.stage), credential.student_display ? isolate(credential.student_display) : undefined].filter(Boolean).join(' · ')
 </script>
 
 <template>
@@ -213,11 +225,11 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
         >
           <div>
             <dt>{{ t('verification.identityName') }}</dt>
-            <dd>{{ masked.name }}</dd>
+            <dd><bdi>{{ masked.name }}</bdi></dd>
           </div>
           <div>
             <dt>{{ t('verification.identityNumber') }}</dt>
-            <dd>{{ masked.number }}</dd>
+            <dd><bdi dir="ltr">{{ masked.number }}</bdi></dd>
           </div>
         </dl>
       </section>
@@ -494,6 +506,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <CameraCapture
               :key="flow.active.value.id"
               :application-id="flow.active.value.id"
+              :existing-ids="flow.materials.value.map((item) => item.id)"
               @captured="flow.captured"
             />
             <p class="small">
@@ -505,6 +518,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
                 :key="material.id"
                 class="row"
               >
+                <MaterialThumb
+                  :material="material"
+                  :alt="t('verification.photo', { index: format.number(index + 1) })"
+                />
                 <span>{{ t('verification.photo', { index: format.number(index + 1) }) }}</span>
                 <button
                   class="btn btn-sm btn-ghost"
@@ -577,7 +594,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
               @submit.prevent="flow.continueSchool('submit_sms')"
             >
               <p class="small">
-                {{ t('verification.schoolSmsHelp', { phone: flow.active.value.school_challenge.masked_phone }) }}
+                {{ t('verification.schoolSmsHelp', { phone: isolate(flow.active.value.school_challenge.masked_phone) }) }}
               </p>
               <div class="row">
                 <label class="field">
@@ -651,14 +668,23 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             v-if="flow.email.value && flow.writable.value && flow.selectedMethod.value === 'student_email_inbound_challenge'"
             class="notice notice-info stack"
           >
-            <p>{{ flow.email.value.masked_email }} · {{ label('verification.states', flow.email.value.state) }}</p>
+            <p><bdi dir="ltr">{{ flow.email.value.masked_email }}</bdi> · {{ label('verification.states', flow.email.value.state) }}</p>
             <p class="subtle">
               {{ t('verification.expiresAt', { time: format.dateTime(flow.email.value.expires_at) }) }}
             </p>
             <p class="small">
               {{ t('verification.inboundHelp') }}
             </p>
-            <code class="mono">{{ flow.email.value.target_address }}</code>
+            <div class="row">
+              <code class="mono">{{ flow.email.value.target_address }}</code>
+              <button
+                class="btn btn-sm"
+                type="button"
+                @click="copyInbound(flow.email.value.target_address)"
+              >
+                <Copy aria-hidden="true" />{{ t('verification.copyInboundAddress') }}
+              </button>
+            </div>
           </section>
         </div>
       </section>
@@ -901,7 +927,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
                   <dt>
                     {{ label('verification.profileFields', field) }}
                   </dt>
-                  <dd>{{ profileValue(value, field) }}</dd>
+                  <dd>{{ value }}</dd>
                 </div>
               </dl>
               <p class="subtle">

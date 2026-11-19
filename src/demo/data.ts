@@ -152,7 +152,7 @@ export const capabilities = { terms: { version: 'v1', digest: 'a'.repeat(64), ur
 
 const GB = 1e9
 export const contribution = {
-  policy: { terms: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, adapters: ['bhpan'], min_bytes: GB, max_bytes: 1000 * GB, min_term_seconds: 86400, max_term_seconds: 31536000, exit_target_seconds: 86400, max_per_owner: 5, observation_max_age_seconds: 3600 },
+  policy: { terms: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, adapters: ['bhpan'], min_bytes: GB, max_bytes: 1000 * GB, min_term_seconds: 86400, max_term_seconds: 31536000, exit_target_seconds: 86400, max_per_owner: 5, observation_max_age_seconds: 3600, renewal_notice_seconds: 86_400 },
   statistics: { declared_bytes: 4200 * GB, available_bytes: 2900 * GB, used_bytes: 1300 * GB, reserved_bytes: 40 * GB, contributions: 86, fresh_observations: 83, status: 'current', generated_at: ago(0, 1) },
   item: { id: 'ct1', adapter: 'bhpan', revision: 3, applied_revision: 3, desired_state: 'active', state: 'active', reason: '', conditions: { limit_bytes: 50 * GB, personal_reserve: 10 * GB, until: '2027-06-30T00:00:00Z' }, consent: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, accepted_at: ago(60), created_at: ago(60), updated_at: ago(3), observation: { observed_at: ago(0, 1), authorization_expires_at: '2027-06-30T00:00:00Z', quota_expires_at: '2027-06-30T00:00:00Z', authorized: true, used_bytes: 18 * GB, reserved_bytes: 2 * GB, available_bytes: 30 * GB, remaining_replicas: 3 } },
   options: { items: [{ id: 'cu1', adapter: 'bhpan', available_bytes: 80 * GB, authorization_expires_at: '2027-06-30T00:00:00Z' }], next_cursor: '' },

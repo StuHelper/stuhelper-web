@@ -69,7 +69,7 @@ function summary(id: string) {
   if (!entry) return nope('not_found', 404)
   const isCourse = entry.kind === 'course'
   const taught = d.teachesIn.filter(([c, p]) => (isCourse ? c === id : p === id))
-  return json({ object: entry, school: d.school, department: d.departments.find((x) => x.id === entry.department_id) ?? null, categories: isCourse ? d.categories.filter((x) => x.id === entry.category_id) : [], natures: isCourse ? d.natures.filter((x) => x.id === entry.nature_id) : [], course_count: isCourse ? 1 : taught.length, teacher_count: isCourse ? taught.length : 1 })
+  return json({ object: entry, school: d.school, department: d.departments.find((x) => x.id === entry.department_id) ?? null, categories: isCourse ? d.categories.filter((x) => x.id === entry.category_id) : [], natures: isCourse ? d.natures.filter((x) => x.id === entry.nature_id) : [], courses: [], teachers: [], course_count: isCourse ? 1 : taught.length, teacher_count: isCourse ? taught.length : 1 })
 }
 
 function reviewList(u: URL) {
@@ -121,7 +121,7 @@ function directory(u: URL) {
     next: start + limit < listed.length ? String(start + limit) : '',
     total: listed.length,
     facet_total: withDept.length,
-    category_facets: kind === 'course' ? facet(withDept, 'cat') : [],
+    nature_facets: [], category_facets: kind === 'course' ? facet(withDept, 'cat') : [],
     department_facets: facet(listed, 'dept'),
     generated_at: new Date().toISOString(),
   })
@@ -161,10 +161,10 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const p = u.pathname.replace('/api/v1', '')
   const who = persona()
   if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, content_school_id: d.SCHOOL, profile: demoProfile, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' })
-  if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return new Response(null, { status: 204 }) }
+  if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return json({ signed_out: true, upstream_ended: true }) }
   if (p === '/profiles/me' && method === 'PUT') {
     const b = await body(init)
-    if (b.revision !== demoProfile.revision) return nope('conflict', 409)
+    if (b.revision !== demoProfile.revision) return json({ code: 'conflict', current: demoProfile }, 409)
     Object.assign(demoProfile, { nickname: b.nickname, bio: b.bio ?? demoProfile.bio, visibility: b.visibility ?? demoProfile.visibility, group_card_consent: b.group_card_consent ?? demoProfile.group_card_consent, revision: demoProfile.revision + 1 })
     return json(demoProfile)
   }
@@ -257,7 +257,14 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   }
   if (p === '/reviews/me/entries') return json({ items: reviews.filter((r) => r.mine), next: '' })
   if (p.startsWith('/reviews/me/entries/')) { const r = reviews.find((x) => x.id === p.split('/').at(-1)); return r ? json(r) : nope('not_found', 404) }
-  if (p === '/reviews/me/votes') return json(reviews.filter((r) => r.my_vote))
+  if (p === '/reviews/me/votes') {
+    const after = u.searchParams.get('after') ?? ''
+    const limit = Number(u.searchParams.get('limit') || 20)
+    const votes = [...reviews, ...replies].filter(row => row.my_vote && row.id > after)
+      .sort((a, b) => a.id < b.id ? -1 : 1).slice(0, limit)
+    return json(votes.map(({ id, root_id, school_id, kind, target_id, term_id, my_vote }) =>
+      ({ id, root_id, school_id, kind, target_id, term_id: term_id ?? '', my_vote })))
+  }
   if (p === '/reviews/me/drafts' && method === 'GET') return json(drafts)
   if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false, reference_ids: [b.input.target_id, b.input.term_id, b.input.teacher_id].filter(Boolean), reference_state: 'verified' }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
   if (p.startsWith('/reviews/me/drafts/')) {

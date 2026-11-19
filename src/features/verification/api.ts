@@ -1,5 +1,5 @@
 import type { components } from '../../api/verification.gen'
-import { ApiError, isUncertain } from '../../shared/api/errors'
+import { ApiError, isUncertain, normalizeCode } from '../../shared/api/errors'
 import { readLimited, segment, type Http } from '../../shared/api/http'
 import { useHttp } from '../../shared/session'
 
@@ -31,7 +31,7 @@ export type TeacherCredential = Schemas['TeacherCredential']
 export type TeacherDisclosure = Schemas['TeacherDisclosures'][number]
 export const teacherDisclosures: TeacherDisclosure[] = ['real_name', 'teacher', 'gender', 'organization']
 
-type Entity = 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential'
+type Entity = 'EmailInput' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential'
 
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
 export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
@@ -63,12 +63,13 @@ const strings = (v: unknown): v is string[] => Array.isArray(v) && v.every(text)
 const methodDescriptions = (v: unknown) => v === undefined || (object(v) && Object.keys(v).length <= 5 && Object.entries(v).every(([method, key]) => oneOf(method, methods) && text(key) && key.length <= 128 && /^verification\.methodDescriptions\.[a-z_]+$/.test(key)))
 const methodCapabilities = (v: unknown) => v === undefined || (object(v) && Object.entries(v).every(([method, capability]) => oneOf(method, methods) && object(capability) && typeof capability.study_stage_required === 'boolean' && (capability.allowed_kinds === undefined || (Array.isArray(capability.allowed_kinds) && capability.allowed_kinds.every((kind) => oneOf(kind, kinds))))))
 const disclosures = (v: unknown) => Array.isArray(v) && v.length <= 4 && new Set(v).size === v.length && v.every((item) => oneOf(item, ['real_name', 'teacher', 'gender', 'organization']))
+const materialTypes = (v: unknown) => Array.isArray(v) && v.length <= 20 && v.every((item: unknown) => sized(item, 1, 64)) && new Set(v).size === v.length
 const challenge = (v: unknown) => object(v) && text(v.id) && oneOf(v.state, ['processing', 'waiting_sms', 'authenticated', 'failed', 'cancelled', 'expired']) && text(v.code) && text(v.masked_phone) && instant(v.expires_at)
 
 const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   StudentProfile: (v) => text(v.school_id) && oneOf(v.data_status, ['complete', 'partial', 'reference_only', 'unavailable']) && text(v.schema) && count(v.revision) && optionalInstant(v.collected_at) && text(v.source_revision) && object(v.fields) && Object.keys(v.fields).length <= 64 && object(v.field_sources) && Object.values(v.field_sources).every(text) && (v.raw_data === undefined || text(v.raw_data)),
-  School: (v) => text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every((m) => oneOf(m, methods)) && text(v.notice_version) && text(v.opening_date) && count(v.newcomer_days) && text(v.email_domain) && strings(v.material_types) && count(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)) && methodCapabilities(v.method_capabilities) && methodDescriptions(v.method_description_keys),
-  Application: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'expired', 'deleted']) && count(v.revision) && instant(v.created_at) && instant(v.updated_at) && instant(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || optionalInstant(v.qualification_expires_at)) && (v.school_challenge === undefined || challenge(v.school_challenge)),
+  School: (v) => text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every((m) => oneOf(m, methods)) && text(v.notice_version) && text(v.opening_date) && count(v.newcomer_days) && text(v.email_domain) && materialTypes(v.material_types) && (v.teacher_enabled === undefined || typeof v.teacher_enabled === 'boolean') && (v.teacher_material_types === undefined || materialTypes(v.teacher_material_types)) && count(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)) && methodCapabilities(v.method_capabilities) && methodDescriptions(v.method_description_keys),
+  Application: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'cancelled', 'expired', 'deleted']) && count(v.revision) && instant(v.created_at) && instant(v.updated_at) && instant(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || optionalInstant(v.qualification_expires_at)) && (v.school_challenge === undefined || challenge(v.school_challenge)),
   Credential: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['active', 'revoked', 'expired', 'deleted']) && text(v.student_display) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at),
   Summary: (v) => typeof v.campus_eligibility === 'boolean' && typeof v.teacher_verified === 'boolean' && typeof v.identity_verified === 'boolean' && (v.identity_masked === undefined ? true : v.identity_verified === true && masked(v.identity_masked)) && instant(v.evaluated_at) && count(v.revision) && optionalInstant(v.next_evaluation_at),
   IdentityMasked: masked,
@@ -76,9 +77,12 @@ const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   // Real-name matching sends name and document number; school SSO sends only a password.
   VerifyInput: (v) => sized(v.student_id, 1, 64) && sized(v.name, 0, 100) && sized(v.document_number, 0, 32) && sized(v.password, 0, 256)
     && ((points(v.name as string) >= 2 && points(v.document_number as string) >= 3 && v.password === '') || (v.name === '' && v.document_number === '' && points(v.password as string) >= 1)),
-  RemovalRequest: (v) => text(v.id) && text(v.credential_id) && text(v.school_id) && oneOf(v.kind, ['revoke', 'delete']) && oneOf(v.state, ['pending', 'approved', 'rejected']) && text(v.reason) && text(v.note) && count(v.revision) && instant(v.created_at),
+  RemovalRequest: (v) => (v.target_type === undefined || oneOf(v.target_type, ['student', 'teacher'])) && text(v.id) && text(v.credential_id) && text(v.school_id) && oneOf(v.kind, ['revoke', 'delete']) && oneOf(v.state, ['pending', 'approved', 'rejected']) && text(v.reason) && text(v.note) && count(v.revision) && instant(v.created_at),
   Suggestion: (v) => text(v.id) && text(v.name) && text(v.website) && oneOf(v.state, ['pending', 'approved', 'rejected']) && text(v.note) && count(v.revision),
-  EmailChallenge: (v) => text(v.id) && text(v.application_id) && instant(v.expires_at) && oneOf(v.state, ['queued', 'waiting', 'delivered', 'used', 'failed']) && text(v.masked_email) && text(v.target_address),
+  EmailInput: (v) => sized(v.student_id, 1, 64) && sized(v.name, 0, 100) && (v.locale === undefined || oneOf(v.locale, ['zh-CN', 'en-US', 'fr-FR', 'ru-RU', 'ja-JP', 'ko-KR', 'es-ES', 'ar-EG'])),
+  AdminOverview: (v) => ['pending_student_applications', 'pending_teacher_applications', 'pending_removal_requests', 'pending_suggestions', 'abnormal_jobs'].every(key => count(v[key])),
+  Problem: (v) => text(v.code) && (v.operation_id === undefined || text(v.operation_id)) && (v.remaining_attempts === undefined || count(v.remaining_attempts)) && (v.retry_after_seconds === undefined || count(v.retry_after_seconds)),
+  EmailChallenge: (v) => (v.resend_available_at === undefined || instant(v.resend_available_at)) && (v.remaining_attempts === undefined || count(v.remaining_attempts)) && text(v.id) && text(v.application_id) && instant(v.expires_at) && oneOf(v.state, ['queued', 'waiting', 'delivered', 'used', 'failed']) && text(v.masked_email) && text(v.target_address),
   CaptureSession: (v) => text(v.token) && /^[A-Za-z0-9_-]{43}$/.test(v.token) && instant(v.expires_at),
   Material: (v) => text(v.id) && text(v.application_id) && oneOf(v.content_type, ['image/jpeg', 'image/png', 'application/pdf']) && count(v.size) && instant(v.created_at),
   Operation: (v) => text(v.id) && oneOf(v.state, ['processing', 'completed', 'failed']) && text(v.code) && instant(v.expires_at),
@@ -144,7 +148,8 @@ export class VerificationApi {
       this.keys.set(print, key)
     }
     try {
-      for (let attempt = 0; attempt < 12; attempt++) {
+      const deadline = Date.now() + 60_000
+      while (Date.now() < deadline) {
         const response = await this.http.send(path, { method, body: input, key, signal, timeout: 25_000 })
         const value = await this.body(response)
         if (response.status !== 202) {
@@ -154,9 +159,9 @@ export class VerificationApi {
         }
         // 202: the provider is still working; ask for the operation and send the same request again.
         if (!object(value) || !text(value.operation_id) || !operationId.test(value.operation_id)) throw new ApiError('incompatible', true)
-        await new Promise((resolve) => setTimeout(resolve, 250))
+        await new Promise((resolve) => setTimeout(resolve, 500))
         const operation = await this.get('Operation', `/api/v1/verification/operations/${value.operation_id}`, signal)
-        if (operation.state === 'failed') throw new ApiError(operation.code || 'unavailable')
+        if (operation.state === 'failed') throw new ApiError(normalizeCode(operation.code || 'unavailable'))
         if (signal?.aborted) throw new ApiError('cancelled', true)
       }
       throw new ApiError('processing', true)
@@ -168,7 +173,7 @@ export class VerificationApi {
 
   /** Upload a captured image with a single-use capture token. */
   async upload(token: string, image: Blob): Promise<Material> {
-    return this.http.json('/api/v1/verification/capture', (value) => parseEntity('Material', value), { method: 'POST', bytes: image, headers: { 'X-Capture-Token': token }, timeout: 60_000 })
+    return this.http.json('/api/v1/verification/capture', (value) => parseEntity('Material', value), { method: 'POST', bytes: image, headers: { 'X-Capture-Token': token }, timeout: 90_000 })
   }
 
   async material(id: string, signal?: AbortSignal): Promise<Blob> {
@@ -176,6 +181,21 @@ export class VerificationApi {
     if (!['image/jpeg', 'image/png', 'application/pdf'].includes(blob.type)) throw new ApiError('incompatible')
     return blob
   }
+}
+
+// These lists are sorted by identifier; an open application can follow older completed rows.
+export async function verificationPages<T>(load: (after: string) => Promise<{ items: T[]; next: string }>) {
+  const items: T[] = []
+  const seen = new Set<string>()
+  let after = ''
+  do {
+    const page = await load(after)
+    items.push(...page.items)
+    after = page.next
+    if (after && seen.has(after)) throw new ApiError('incompatible')
+    seen.add(after)
+  } while (after)
+  return { items, next: '' }
 }
 
 export function useVerification() {

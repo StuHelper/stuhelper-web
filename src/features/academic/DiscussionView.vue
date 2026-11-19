@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, ref, shallowRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { useAsync, usePaged } from '../../shared/composables/async'
@@ -21,12 +21,14 @@ const replyTo = shallowRef<Review>()
 const editorVersion = ref(0)
 const editor = ref<HTMLElement>()
 const notice = ref('')
+const linkedReply = shallowRef<Review>()
 const names = shallowRef(new Map<string, CatalogObject>())
 
 const root = useAsync(async (signal) => {
   const entry = await api.review(props.id, signal)
   if (entry.root_id !== entry.id) {
     // A reply link opens its discussion at the reply.
+    linkedReply.value = entry
     await router.replace({ path: `/reviews/${encodeURIComponent(entry.root_id)}`, query: route.query, hash: `#review-${entry.id}` })
   }
   return { entry, names: await api.lookup([entry.target_id, entry.term_id, entry.teacher_id], signal) }
@@ -38,12 +40,25 @@ const replies = usePaged(async (after, signal) => {
   return page
 })
 
-watch(() => props.id, () => {
+watch(() => props.id, async () => {
+  const id = props.id
+  if (linkedReply.value?.root_id !== id) linkedReply.value = undefined
+  replies.clear()
   replyTo.value = undefined
   notice.value = ''
-  void root.reload()
-  void replies.reload()
+  await root.reload()
+  if (props.id === id && root.data.value?.entry.id === id) await replies.reload()
 }, { immediate: true })
+
+const visibleReplies = computed(() => {
+  const linked = linkedReply.value
+  return linked && !replies.items.value.some(row => row.id === linked.id) ? [linked, ...replies.items.value] : replies.items.value
+})
+watch([() => replies.status.value, () => route.hash], async () => {
+  if (replies.status.value !== 'ready' || !route.hash.startsWith('#review-')) return
+  await nextTick()
+  document.getElementById(route.hash.slice(1))?.scrollIntoView({ block: 'center' })
+})
 
 async function reply(review: Review) {
   replyTo.value = review.id === props.id ? undefined : review
@@ -63,9 +78,11 @@ function updateRoot(review: Review) {
   if (root.data.value) root.data.value = { ...root.data.value, entry: review }
 }
 function updateReply(review: Review) {
+  if (linkedReply.value?.id === review.id) linkedReply.value = review
   replies.items.value = replies.items.value.map((row) => (row.id === review.id ? review : row))
 }
 function removeReply(id: string) {
+  if (linkedReply.value?.id === id) linkedReply.value = undefined
   replies.items.value = replies.items.value.filter((row) => row.id !== id)
 }
 async function removeRoot() {
@@ -100,7 +117,7 @@ async function removeRoot() {
           <PagedState
             :status="replies.status.value"
             :error="replies.error.value"
-            :count="replies.items.value.length"
+            :count="visibleReplies.length"
             :next="replies.next.value"
             :appending="replies.appending.value"
             :empty-text="t('academic.replies.empty')"
@@ -109,7 +126,7 @@ async function removeRoot() {
           >
             <ul class="list">
               <li
-                v-for="review in replies.items.value"
+                v-for="review in visibleReplies"
                 :key="review.id"
               >
                 <ReviewCard
@@ -160,7 +177,7 @@ async function removeRoot() {
             :school-id="root.data.value.entry.school_id"
             :parent-id="replyTo?.id ?? id"
             @submitted="submitted"
-            @cancel="replyTo = undefined"
+            @cancel="replyTo = undefined; editorVersion++"
           />
         </section>
       </div>

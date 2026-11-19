@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { RefreshCw } from 'lucide-vue-next'
 import AppDateTime from '../../shared/ui/AppDateTime.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch, type DeepReadonly } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import type { Command, Contribution } from '../../api/contribution'
+import type { Command, Contribution as ContributionData } from '../../api/contribution'
+import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -17,6 +19,8 @@ import { conditions, gbInput, localDateInput } from './conditions'
 import CustodyPanel from './CustodyPanel.vue'
 import { useContributions } from './useContributions'
 
+type Contribution = DeepReadonly<ContributionData>
+
 // Public transparency figures, the user's contributions and the storage accounts
 // behind them. Declared capacity and actually writable capacity are always shown apart.
 const { t, te } = useI18n()
@@ -28,12 +32,13 @@ const bytes = (value: number) => format.value.bytes(value)
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
 const desired: Record<Contribution['desired_state'], string> = { active: 'resume', paused: 'pause', exiting: 'exit', revoked: 'revoke' }
 const locked = computed(() => loading.value || sending.value || !!pending.value)
+useLeaveGuard(() => pending.value ? t('common.leaveUncertain') : sending.value ? t('common.leaveUnsaved') : '')
 const instance = ref('')
 const limit = ref('')
 const reserve = ref('0')
 const until = ref('')
 const accepted = ref(false)
-const editing = ref<{ item: Contribution; mode: 'configure' | 'renew' } | null>(null)
+const editing = ref<{ item: Contribution; mode: 'configure' | 'renew' | 'reopen' } | null>(null)
 const invalid = ref(false)
 const formTitle = ref<HTMLElement>()
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -47,7 +52,13 @@ const tabs = computed(() => [{ value: 'contributions' as const, label: t('contri
 const creating = ref(false)
 const custody = ref<InstanceType<typeof CustodyPanel>>()
 const custodyOpened = ref(tab.value === 'accounts')
-watch(tab, (value) => { if (value === 'accounts') custodyOpened.value = true })
+watch(tab, (value) => {
+  if (value === 'accounts') custodyOpened.value = true
+  else {
+    custody.value?.clearSecrets()
+    void reload()
+  }
+})
 function refresh() {
   void reload()
   if (tab.value === 'accounts') custody.value?.refresh()
@@ -72,11 +83,11 @@ function reset() {
   accepted.value = false
   invalid.value = false
 }
-function edit(item: Contribution, mode: 'configure' | 'renew') {
+function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
   editing.value = { item, mode }
   limit.value = gbInput(item.conditions.limit_bytes)
   reserve.value = gbInput(item.conditions.personal_reserve)
-  until.value = localDateInput(Date.parse(item.conditions.until))
+  until.value = mode === 'reopen' ? '' : localDateInput(Date.parse(item.conditions.until))
   accepted.value = false
   invalid.value = false
   void nextTick(() => formTitle.value?.focus())
@@ -92,7 +103,7 @@ function review() {
     return
   }
   invalid.value = false
-  if (change) prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: change.mode, conditions: result, ...(change.mode === 'renew' ? { consent: consent() } : {}) } })
+  if (change) prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: change.mode, conditions: result, ...(needsConsent ? { consent: consent() } : {}) } })
   else prepare({ kind: 'create', key: crypto.randomUUID(), body: { instance_id: instance.value, conditions: result, consent: consent() } })
 }
 function command(item: Contribution, value: Command['action']) {
@@ -120,12 +131,12 @@ watch(completed, (value) => {
   >
     <template #actions>
       <button
-        class="btn"
+        class="btn btn-sm btn-ghost"
         type="button"
         :disabled="locked"
         @click="refresh"
       >
-        {{ t('common.refresh') }}
+        <RefreshCw aria-hidden="true" />{{ t('common.refresh') }}
       </button>
     </template>
 
@@ -185,6 +196,7 @@ watch(completed, (value) => {
       v-if="custodyOpened && !needsSignIn"
       v-show="tab === 'accounts'"
       ref="custody"
+      @updated="reload()"
     />
     <div
       v-if="(tab === 'contributions' || needsSignIn) && ((completed && !error) || needsSignIn || (error && !pending))"
@@ -305,6 +317,7 @@ watch(completed, (value) => {
                 <span class="field-label">{{ t('contribution.untilInput', { zone }) }}</span>
                 <AppDateTime
                   v-model="until"
+                  :aria-label="t('contribution.untilInput', { zone })"
                   required
                 />
               </label>
@@ -484,6 +497,15 @@ watch(completed, (value) => {
                 >
                   {{ t('contribution.actions.resume') }}
                 </button>
+                <button
+                  v-if="item.state === 'exited'"
+                  class="btn btn-sm"
+                  type="button"
+                  :disabled="locked || !policy"
+                  @click="edit(item, 'reopen')"
+                >
+                  {{ t('contribution.actions.reopen') }}
+                </button>
                 <template v-if="mutable(item)">
                   <button
                     class="btn btn-sm"
@@ -539,7 +561,7 @@ watch(completed, (value) => {
           :disabled="locked"
           @click="goNext"
         >
-          {{ t('common.loadMore') }}
+          {{ t('common.next') }}
         </button>
       </section>
     </template>

@@ -9,7 +9,8 @@
     "footer": "Informations du campus sur les cours, les avis et les ressources",
     "themeLight": "Passer à l’apparence claire",
     "themeDark": "Passer à l’apparence sombre",
-    "contact": "Contact et retours"
+    "contact": "Contact et retours",
+    "themeSystem": "Suivre l’apparence du système"
   },
   "nav": {
     "primary": "Navigation principale",
@@ -68,6 +69,9 @@
     "opensInNewTab": "(s’ouvre dans un nouvel onglet)"
   },
   "errors": {
+    "disabled": "Le service des groupes est désactivé.",
+    "cooldown": "Un délai ou une limite de demandes en attente s’applique. Réessayez plus tard.",
+    "write_response_unrecognized": "Le serveur a accepté la demande, mais son reçu est illisible. Actualisez la page pour vérifier le résultat.",
     "network": "La connexion a échoué ou expiré. Les saisies valides sont conservées ; réessayez.",
     "timeout": "Le service a mis trop de temps à répondre. Réessayez.",
     "cancelled": "La demande a été annulée.",
@@ -114,12 +118,11 @@
     "school_credentials_rejected": "Le compte universitaire ou le mot de passe est incorrect. Réessayez.",
     "school_account_locked": "Votre compte universitaire est verrouillé. Contactez votre établissement pour le déverrouiller puis réessayez.",
     "school_account_disabled": "Votre compte universitaire est désactivé. Contactez votre établissement ou choisissez une autre méthode.",
-    "school_account_unavailable": "Votre compte universitaire ne permet pas la vérification actuellement. Choisissez une autre méthode."
+    "school_account_unavailable": "Votre compte universitaire ne permet pas la vérification actuellement. Choisissez une autre méthode.",
+    "snapshot_expired": "Ce classement a expiré. Actualisez pour afficher le nouveau classement."
   },
   "connection": {
     "label": "État de la connexion au service",
-    "loading": "Connexion au service…",
-    "ready": "Service connecté",
     "retry": "Reconnecter",
     "errors": {
       "network": "Connexion impossible. Réessayez ultérieurement.",
@@ -175,15 +178,15 @@
     "more": "Découvrir {name}",
     "visit": "Aller sur {host}",
     "tiles": {
-      "campus": "Avis sur les cours et les enseignants, ressources et emplois du temps",
+      "campus": "Avis sur les cours et les enseignants, ressources et comparaison",
       "api": "Une interface unique pour plusieurs grands modèles",
       "store": "Abonnements GPT et crédits Codex rechargés pour vous",
       "platform": "Authentification unique et intégration d’applications tierces"
     },
     "campus": {
       "name": "Campus StuHelper",
-      "tag": "Cours, enseignants, ressources et emplois du temps",
-      "lead": "Une communauté de cours pour les étudiants inscrits. Lisez les avis sur les cours et les enseignants, trouvez des annales et des notes, comparez les cours envisagés et gérez votre emploi du temps. Actuellement ouvert à l’université Beihang.",
+      "tag": "Cours, enseignants, ressources et comparaison",
+      "lead": "Une communauté de cours pour les membres du campus. Lisez les avis sur les cours et les enseignants, trouvez des annales et des notes et comparez les cours envisagés.",
       "action": "Entrer dans Campus",
       "points": {
         "reviews": {
@@ -303,6 +306,7 @@
     "home": "Retour à l’accueil"
   },
   "account": {
+    "upstreamLogoutUnconfirmed": "Vous êtes déconnecté de ce site. Votre session d’authentification unique est peut-être encore active.",
     "signIn": "Se connecter",
     "signOut": "Déconnecter cet appareil",
     "signOutAll": "Déconnecter tous les appareils",
@@ -472,7 +476,8 @@
       "newest": "Plus récents d’abord",
       "oldest": "Plus anciens d’abord",
       "empty": "Aucun avis sur ce cours pour le moment.",
-      "emptyMentor": "Aucun avis sur l’encadrement pour le moment."
+      "emptyMentor": "Aucun avis sur l’encadrement pour le moment.",
+      "upvotes": "Plus approuvés"
     },
     "review": {
       "featured": "Contenu de qualité",
@@ -501,7 +506,8 @@
       "deleteReplyConfirm": "Supprimer définitivement cette réponse ? Le reste de la discussion est conservé.",
       "withdrawConfirm": "Le retrait masque la discussion. La republication conserve la date initiale, les réponses et les votes. Les brouillons expirés sont supprimés.",
       "expand": "Afficher plus",
-      "collapse": "Afficher moins"
+      "collapse": "Afficher moins",
+      "editWindowRemaining": "Retrait ou suppression directe : {time} restantes"
     },
     "replies": {
       "title": "Réponses",
@@ -612,7 +618,9 @@
       "campus_eligibility": "Vérifier",
       "identity_verified": "Vérifier l’identité",
       "course_enrollment": "Voir mes cours"
-    }
+    },
+    "followUp": "Complément",
+    "submitFollowUp": "Envoyer le complément"
   },
   "me": {
     "title": "Espace personnel",
@@ -624,7 +632,6 @@
     "reviewTabs": {
       "entries": "Mes avis",
       "drafts": "Brouillons",
-      "votes": "Mes votes",
       "requests": "Signalements et demandes"
     },
     "reviewEmpty": {
@@ -694,7 +701,13 @@
     "groups": {
       "account": "Compte",
       "services": "Autres services"
-    }
+    },
+    "pendingCoursesTitle": "Cours en attente de votre avis",
+    "writePendingReview": "Rédiger un avis",
+    "addEvidence": "Ajouter des éléments",
+    "addEvidenceHint": "Ajoutez des éléments à ce recours en attente.",
+    "evidenceText": "Éléments supplémentaires",
+    "evidenceAdded": "Les éléments ont été ajoutés au recours initial."
   },
   "resources": {
     "eyebrow": "Partage de ressources",
@@ -723,20 +736,26 @@
       "placeholder": "Titre, description ou étiquette",
       "activeFilters": "Filtres actifs",
       "removeFilter": "Retirer le filtre : {name}",
-      "fieldCount": "{count} autres critères",
+      "fieldCount": "{count} autre critère | {count} autres critères | {count} autres critères",
       "filtersFailed": "Les filtres n’ont pas pu se charger. La recherche par mot-clé reste possible.",
       "filtersRetry": "Recharger les filtres",
       "reload": "Recharger les ressources",
-      "currentFolder": "Dossier actuel"
+      "currentFolder": "Dossier actuel",
+      "fileType": "Format de fichier",
+      "sort": "Trier par",
+      "sortNewest": "Plus récents",
+      "sortDefault": "Ordre par défaut"
     },
     "package": {
       "title": "Archives à télécharger",
-      "instructions": "Cette sélection contient {count} archives. Téléchargez-les toutes pour obtenir tous les fichiers listés. Chaque archive peut être réessayée séparément.",
+      "instructions": "Cette sélection contient {count} archive. Téléchargez-la pour obtenir les fichiers. | Cette sélection contient {count} archives. Téléchargez-les toutes pour obtenir les fichiers. Chaque archive peut être téléchargée à nouveau. | Cette sélection contient {count} archives. Téléchargez-les toutes pour obtenir les fichiers. Chaque archive peut être téléchargée à nouveau.",
       "expires": "Lots disponibles jusqu’au {time}",
       "part": "Lot {number}",
       "size": "{size} · fichiers : {files}",
       "download": "Télécharger ce lot",
-      "downloaded": "Téléchargé"
+      "downloaded": "Téléchargé",
+      "expiredNotice": "Ce paquet de téléchargement a expiré. Générez-en un nouveau pour télécharger.",
+      "recreate": "Regénérer le paquet"
     },
     "picker": {
       "search": "Rechercher dans « {label} »",
@@ -750,15 +769,29 @@
       "download": "Télécharger le fichier",
       "requestOwner": "Demander le retrait ou se plaindre",
       "complain": "Signaler une atteinte ou un contenu",
+      "complainHidden": "Ce document porte atteinte à vos droits ?",
       "accessRequired": "Votre compte ne peut pas télécharger cette ressource pour le moment.",
       "pendingVersion": "Une nouvelle version est en cours de traitement. La version publiée reste disponible.",
       "noDescription": "Pas de description.",
       "about": "À propos",
       "file": "Fichier de la ressource",
       "access": "Accès",
-      "course": "Voir le cours associé"
+      "course": "Voir le cours associé",
+      "preview": "Aperçu en ligne",
+      "hidePreview": "Masquer l’aperçu",
+      "previewTitle": "Aperçu du fichier",
+      "fullscreenPreview": "Plein écran",
+      "emptyPreview": "Ce fichier est vide.",
+      "previewTooLarge": "Les fichiers de plus de {size} ne peuvent pas être prévisualisés en ligne ; téléchargez-les directement.",
+      "proposalTitle": "Détails de la version en attente",
+      "proposalFile": "Fichier soumis",
+      "checksum": "Empreinte du fichier"
     },
     "access": {
+      "missing": "Conditions manquantes : {conditions}",
+      "unavailable": "Vérification indisponible : {conditions}",
+      "content_access": "Accès aux contenus du campus",
+      "resource_entitlement": "Droit d’accès à la ressource",
       "allowed": "Téléchargement possible.",
       "not_published": "La ressource n’est pas encore publiée.",
       "already_accessible": "Vous avez déjà accès à cette ressource.",
@@ -805,6 +838,7 @@
       "accept": "J’ai lu et j’accepte les conditions actuelles"
     },
     "editor": {
+      "selectCategory": "Choisissez une catégorie de ressources disponible.",
       "intro": "Trois étapes : enregistrer les informations, déposer le fichier, soumettre. La version publiée reste disponible pendant la validation.",
       "step1": "1. Informations",
       "step2": "2. Fichier",
@@ -817,6 +851,9 @@
       "tagsHint": "Séparez les étiquettes par des virgules.",
       "associations": "Liens avec les cours",
       "associationsHint": "Choisir le cours suffit. Si le document est daté ou ne vaut que pour un semestre ou un enseignant précis, vous pouvez aussi indiquer le semestre et l’enseignant (facultatif).",
+      "term": "Semestre",
+      "chooseCourse": "Choisir un cours",
+      "courseRequired": "Choisissez le cours auquel ce document se rapporte.",
       "directory": "Dossier suggéré",
       "directoryHint": "Facultatif. Les modérateurs organisent les dossiers ; votre suggestion est indicative.",
       "create": "Enregistrer et créer le brouillon",
@@ -852,9 +889,15 @@
       "proposalState": "État de la version :",
       "submit": "Soumettre à l’examen",
       "submitted": "Soumis. Le résultat apparaîtra dans Mes ressources.",
-      "view": "Voir la ressource"
+      "view": "Voir la ressource",
+      "directoryChooseCourse": "Choisissez d’abord un cours pour sélectionner un dossier, ou laissez vide pour la racine.",
+      "selectedDirectory": "Dossier sélectionné",
+      "dropOrBrowse": "Déposez un fichier ici ou cliquez pour parcourir",
+      "uploadProgress": "Transféré : {loaded} / {total} ({percent})",
+      "tagLimits": "20 étiquettes maximum, de 64 caractères chacune."
     },
     "request": {
+      "resourceId": "Identifiant de la ressource",
       "title": "Signalements et demandes",
       "appealTitle": "Contester",
       "kind": "Type de demande",
@@ -871,7 +914,7 @@
       "reason": "Motif et précisions",
       "contact": "Coordonnées",
       "evidence": "Preuves de droits, d’autorisation ou autres",
-      "evidenceHint": "Un élément par ligne, quatre au maximum. Indiquez des descriptions ou des liens.",
+      "evidenceHint": "Quatre éléments au maximum, un par ligne et 2 000 caractères par élément.",
       "received": "Demande enregistrée, en attente de traitement. Le statut dépendra de la décision.",
       "state": {
         "pending": "En attente d’examen",
@@ -902,7 +945,12 @@
       "granting": "Paiement reçu. Ouverture de l’accès en cours, veuillez patienter. Vous pourrez aussi voir le résultat plus tard dans les commandes de votre portefeuille.",
       "viewOrder": "Voir la commande",
       "refunded": "Cette ressource ne peut pas être fournie pour le moment. Le paiement a été rendu au compte utilisé.",
-      "done": "Accès accordé. Vous pouvez la télécharger."
+      "done": "Accès accordé. Vous pouvez la télécharger.",
+      "currentBalance": "Solde disponible : {balance}",
+      "confirmTitle": "Confirmer le paiement",
+      "confirmMessage": "Payer {price} pour débloquer l’accès à ce document ?",
+      "confirmMessageWithBalance": "Payer {price} pour débloquer l’accès à ce document ? Solde disponible : {balance}.",
+      "insufficient": "Solde insuffisant pour {account}."
     }
   },
   "verification": {
@@ -991,7 +1039,9 @@
       "scan": "Scannez avec le téléphone pour photographier",
       "ticketExpiry": "Lien de capture valable jusqu’au {time}",
       "open": "Ouvrir la page de capture",
-      "done": "Photo envoyée. Revenez à l’appareil initial, actualisez les pièces et poursuivez la demande."
+      "done": "Photo envoyée. Revenez à l’appareil initial, actualisez les pièces et poursuivez la demande.",
+      "sync": "Vérifier les photos envoyées",
+      "waitingPhone": "Une fois envoyées depuis le téléphone, les photos se synchronisent automatiquement ici."
     },
     "methods": {
       "real_name_identity_check": "Contrôle du dossier d’identité universitaire",
@@ -1031,9 +1081,12 @@
       "failed": "Non terminé",
       "running": "Traitement en cours",
       "manual": "Action administrative requise",
-      "done": "Terminé"
+      "done": "Terminé",
+      "cancelled": "Retirée"
     },
     "materialTypes": {
+      "staff_card": "Carte professionnelle",
+      "contract": "Contrat de travail",
       "student_card": "Carte étudiante ou universitaire",
       "admission_letter": "Lettre d’admission",
       "enrollment_certificate": "Certificat de scolarité",
@@ -1197,7 +1250,10 @@
       "student_email_inbound_challenge": "Envoyez un message depuis votre adresse de l'école vers une adresse indiquée",
       "manual_material_review": "Photographiez votre carte d'étudiant ou un autre justificatif pour examen"
     },
-    "changeSchool": "Changer d'école"
+    "changeSchool": "Changer d'école",
+    "copyInboundAddress": "Copier l’adresse destinataire",
+    "inboundAddressCopied": "Adresse destinataire copiée.",
+    "inboundCopyFailed": "Copie automatique impossible. Sélectionnez et copiez l’adresse manuellement."
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",
@@ -1248,7 +1304,8 @@
       "revoke": "Révoquer l’autorisation",
       "configure": "Modifier le quota",
       "renew": "Renouveler",
-      "retry": "Relancer le traitement"
+      "retry": "Relancer le traitement",
+      "reopen": "Réactiver"
     },
     "states": {
       "pending": "En attente",
@@ -1308,17 +1365,19 @@
       "result_unknown": "Le service n’a pas encore répondu. Revenez plus tard.",
       "conflict": "Ce compte est déjà connecté ou vient de changer. Veuillez actualiser.",
       "attempts_exhausted": "Les tentatives ont échoué. Un administrateur vous aidera.",
-      "credentials_required": "Saisissez à nouveau le compte et le mot de passe."
-    }
+      "credentials_required": "Saisissez à nouveau le compte et le mot de passe.",
+      "interactive_verification_required": "Terminez la vérification interactive du service de stockage, puis réessayez."
+    },
+    "maxTermHint": "Durée maximale d’autorisation : {days} jours."
   },
   "gate": {
     "guest": {
       "title": "Connectez-vous pour continuer",
-      "text": "Les cours, enseignants, avis et ressources sont réservés aux étudiants et enseignants vérifiés de Beihang.",
+      "text": "Les cours, enseignants, avis et ressources sont réservés aux étudiants et enseignants vérifiés du campus.",
       "action": "Se connecter"
     },
     "unverified": {
-      "title": "Vérifiez votre statut Beihang pour continuer",
+      "title": "Effectuez la vérification du campus pour continuer",
       "text": "Après la vérification, vous revenez à la page demandée.",
       "action": "Commencer la vérification"
     },
@@ -1364,247 +1423,11 @@
     "textOnly": "Les horaires de ce semestre ne sont disponibles qu'en texte et ne peuvent pas être présentés par semaine. Les cours sont listés ci-dessous."
   },
   "demo": {
-    "deptCredits": "{p0} · Crédits : {p1}",
-    "codeDeptCredits": "{p0} · {p1} · Crédits : {p2}",
-    "upvotes": "Approbations : {p0}",
-    "creditsDifficulty": "Crédits : {p0} · Difficulté : {p1}",
-    "countOnly": "{p0} avis",
-    "reviewCount": "Avis : {p0}",
-    "moreActionsFor": "Plus d’actions pour {p0}",
-    "groupCourses": "Cours : {p0} · {p1}",
-    "levelAverage": "Moyen",
-    "prevPage": "Page précédente",
-    "upload": "Importer",
-    "uploadStatusHint": "Importations et état de validation",
-    "uploadFirst": "Importer la première",
-    "lastTermDone": "Terminé au dernier semestre",
-    "lastTermDoneHint": "Terminé au dernier semestre. Votre avis peut aider d’autres étudiants.",
-    "nextClassDay": "Prochain jour de cours",
-    "nextPage": "Page suivante",
-    "goodAfternoon": "Bon après-midi, {name}",
-    "requestsHint": "Retraits, plaintes et contestations",
-    "download": "Télécharger",
-    "downloadItem": "Télécharger {p0}",
-    "levelNotRecommended": "Déconseillé",
-    "personalCenter": "Mon compte",
-    "profile": "Profil",
-    "fiveDimensions": "Cinq critères",
-    "featureScheduleText": "Voyez d’un coup d’œil les cours du jour et ceux à évaluer.",
-    "todayClasses": "Cours du jour",
-    "instructors": "Enseignants",
-    "gradingVeryGood": "Très bonne expérience",
-    "gradingVeryPoor": "Très mauvaise expérience",
-    "gradingGood": "Bonne expérience",
-    "gradingPoor": "Mauvaise expérience",
-    "walletHint": "Solde 128, 20 expirent bientôt",
-    "compareEmptyHint": "Ajoutez deux éléments pour comparer les cinq critères.",
-    "all": "Tout",
-    "allDepartments": "Toutes les écoles",
-    "allCourses": "Tous les cours",
-    "allResources": "Toutes les ressources",
-    "allNotifications": "Toutes les notifications",
-    "totalFiles": "Total : {p0}",
-    "totalTeachers": "Enseignants : {p0}",
-    "totalReviews": "Total des avis : {p0}",
-    "totalCourses": "Cours : {p0}",
-    "close": "Fermer",
-    "closePersona": "Fermer le sélecteur d’identité",
-    "dimQuality": "Qualité du contenu",
-    "personaProcessingHint": "Les pages affichent l’attente",
-    "personaUnverifiedHint": "Les pages invitent à vérifier",
-    "personaExpiredHint": "Les pages invitent à revérifier",
-    "pickOneMore": "Choisissez-en un autre",
-    "distDimension": "Critère de répartition",
-    "switchPersona": "Changer d’identité de démo",
-    "listMode": "Affichage de la liste",
-    "developerHint": "Créez et gérez vos applications",
-    "addToCompare": "Ajouter à la comparaison",
-    "beihangVerified": "Université Beihang · Étudiant vérifié",
-    "heroEyebrow": "Communauté de cours et de ressources pour les étudiants de Beihang",
-    "cancelSelection": "Annuler la sélection",
-    "personaGuestHint": "Voit seulement l’intro et la connexion",
-    "personaVerifiedHint": "Peut parcourir tout le contenu",
-    "trendByTerm": "Recommandation par semestre",
-    "heroLead": "Des avis d’étudiants, des ressources classées par cours et votre emploi du temps.",
-    "resourcesDescription": "Examens, notes et supports partagés par les étudiants, classés par cours.",
-    "studentsWatching": "Populaires auprès des étudiants",
-    "lateNight": "Il est tard, {name}",
-    "storageContribution": "Contribution de stockage",
-    "study": "Études",
-    "resources": "Ressources",
-    "department": "École",
-    "searchNeedsVerification": "Terminez la vérification Beihang pour rechercher cours, enseignants et ressources.",
-    "fullTimetable": "Emploi du temps complet",
-    "personaCaption": "Outil de revue · Changer d’identité",
-    "compare": "Comparer",
-    "compareItem": "Comparer {p0}",
-    "compareProgress": "Comparer {p0}/{p1}",
-    "compareTray": "Barre de comparaison",
-    "compareKind": "Type de comparaison",
-    "notVerified": "Vérification étudiante non terminée",
-    "expandAll": "Tout afficher ({p0})",
-    "dimWorkload": "Charge de travail",
-    "inCompare": "Dans la comparaison",
-    "reviewsHint": "Publiés, brouillons et enregistrés",
-    "downloadStarted": "Téléchargement lancé : {p0}",
-    "packed": "Fichiers regroupés : {p0}",
-    "appsHint": "Applications autorisées : 2",
-    "personaUnverified": "Connecté, non vérifié",
-    "personaVerified": "Étudiant vérifié",
-    "selectedCount": "Sélectionnés : {p0}",
-    "activeFilters": "Filtres actifs",
-    "shortcuts": "Raccourcis",
-    "compareDescription": "Comparez jusqu’à {p0} éléments.",
-    "startCompare": "Comparer",
-    "offeringDepartment": "École",
-    "levelStronglyNot": "Fortement déconseillé",
-    "levelStrongly": "Fortement recommandé",
-    "verificationValidHint": "Valide jusqu’en juillet 2027",
-    "featureResourcesText": "Annales, notes et supports prêts à télécharger.",
-    "levelVeryMuch": "Très élevée",
-    "levelVeryGood": "Très bonne",
-    "levelVeryEasy": "Très facile",
-    "levelVeryLittle": "Très faible",
-    "levelVeryPoor": "Très mauvaise",
-    "levelVeryHard": "Très difficile",
-    "quickView": "Aperçu rapide",
-    "quickViewItem": "Aperçu rapide de {p0}",
-    "myStats": "Mes données",
-    "myRequests": "Mes demandes",
-    "myReviews": "Mes avis",
-    "myCourses": "Mes cours",
-    "myResources": "Mes ressources",
-    "resourceCourse": "Cours",
-    "teacherOverallScore": "Note globale des cours enseignés",
-    "accountHint": "Téléphone, QQ et appareils",
-    "packDownload": "Télécharger l’archive",
-    "batchDownload": "Téléchargement groupé",
-    "compareEmptyTitle": "Réunissez ce que vous voulez comparer",
-    "byName": "Par nom",
-    "byDepartment": "Par école",
-    "featureReviewsText": "Lisez les avis par cours, enseignant et semestre.",
-    "browseByCourse": "Parcourir par cours",
-    "sort": "Trier",
-    "levelRecommended": "Recommandé",
-    "recommendation": "Recommandation",
-    "recommendationDist": "Répartition des recommandations",
-    "recommendationTrend": "Tendance des recommandations. {p0}",
-    "search": "Rechercher",
-    "searchHotkeyTitle": "Rechercher (Ctrl K)",
-    "searchTeachers": "Rechercher des enseignants",
-    "searchTeacherName": "Rechercher par nom d’enseignant",
-    "searchResults": "Résultats de recherche",
-    "searchCourses": "Rechercher des cours",
-    "searchAllShort": "Cours, enseignants, ressources",
-    "searchAllLong": "Recherchez cours, codes, enseignants ou ressources",
-    "searchHomeHint": "Recherchez cours, codes ou enseignants",
-    "searchCourseHint": "Nom ou code du cours",
-    "searchHomeLabel": "Rechercher cours ou enseignants",
-    "searchResourcesLabel": "Rechercher des ressources",
-    "searchResourcesHint": "Titre ou description",
-    "searchHotkeyLabel": "Rechercher, raccourci Ctrl K",
-    "collapse": "Réduire",
-    "zoomIn": "Agrandir",
-    "teachers": "Enseignants",
-    "teachersCount": "Enseignants {p0}",
-    "taughtCourses": "Cours enseignés",
-    "newResources": "Ressources récentes",
-    "goodMorning": "Bonjour, {name}",
-    "profileHint": "Pseudo, avatar et profil public",
-    "goodEvening": "Bonsoir, {name}",
-    "levelNone": "Aucune donnée",
-    "noReviews": "Aucun avis",
-    "notEnoughData": "Données insuffisantes",
-    "more": "Plus",
-    "topReview": "Avis le plus approuvé",
-    "compareLimit": "Comparaison limitée à {p0}. Retirez-en un d’abord.",
-    "mostRecommended": "Les plus recommandés",
-    "hottest": "Les plus populaires",
-    "recentActivity": "Activité récente",
-    "recentlyViewed": "Consultés récemment",
-    "draftTodo": "Vous avez 1 brouillon à terminer",
-    "personaGuest": "Visiteur non connecté",
-    "thisPage": "Cette page",
-    "viewDetails": "Voir les détails",
-    "noMatchFor": "Aucun résultat pour « {p0} ».",
-    "noMatchTeachers": "Aucun enseignant correspondant.",
-    "noMatchCourses": "Aucun cours correspondant.",
-    "noMatchResources": "Aucune ressource correspondante.",
-    "browseAllTeachers": "Voir tous les enseignants",
-    "browseAllCourses": "Voir tous les cours",
-    "addCompareItem": "Ajouter un élément",
-    "clearAll": "Tout effacer",
-    "clearFilters": "Effacer les filtres",
-    "relatedResources": "Ressources associées",
-    "removeFromCompare": "Retirer de la comparaison",
-    "removeItemFromCompare": "Retirer {p0} de la comparaison",
-    "removeItem": "Retirer {p0}",
-    "removeFilter": "Retirer le filtre {p0}",
-    "pageOf": "Page {p0} / {p1}",
-    "pageNo": "Page {p0}",
-    "pagePreview": "Aperçu de la page {p0}",
-    "periods": "Créneaux {p0}-{p1}",
-    "todo": "À traiter",
-    "category": "Catégorie",
-    "reviewTodo": "Algèbre linéaire reste à évaluer",
-    "statsCharts": "Graphiques",
-    "edit": "Modifier",
-    "zoomOut": "Réduire",
-    "dimGrading": "Notation",
-    "personaProcessing": "Vérification en cours",
-    "personaExpired": "Vérification expirée",
-    "reviews": "Avis",
-    "reviewCountLabel": "Nombre d’avis",
-    "mostReviews": "Les plus évalués",
-    "scoreDistribution": "Répartition des notes",
-    "courses": "Cours",
-    "coursesCount": "Cours {p0}",
-    "courseCategory": "Catégorie de cours",
-    "dimDifficulty": "Difficulté du cours",
-    "featureScheduleTitle": "Emploi du temps et tâches réunis",
-    "coursesHint": "Emploi du temps et inscriptions",
-    "storageHint": "Espace partagé et comptes de stockage",
-    "accountSection": "Compte",
-    "accountSecurity": "Compte et sécurité",
-    "resourcesShort": "Ressources",
-    "resourceCategory": "Catégorie de ressource",
-    "featureResourcesTitle": "Ressources classées par cours",
-    "levelMuch": "Élevée",
-    "levelGood": "Bonne",
-    "levelEasy": "Facile",
-    "levelLittle": "Faible",
-    "levelPoor": "Mauvaise",
-    "levelHard": "Difficile",
-    "typeToSearch": "Saisissez un mot-clé.",
-    "signOut": "Se déconnecter",
-    "levelModerate": "Modérée",
-    "selectItem": "Sélectionner {p0}",
-    "heroTitle": "Choisir, réviser, échanger : tout commence ici.",
-    "featureReviewsTitle": "Lisez les avis avant de vous inscrire",
-    "notifications": "Notifications",
-    "notificationsUnread": "Notifications, non lues : {p0}",
-    "item": "Élément",
-    "preview": "Aperçu",
-    "previewItem": "Aperçu de {p0}",
-    "compareNote": "La mise en avant indique la meilleure option. Difficulté et charge varient selon chacun et ne sont pas mises en avant.",
-    "favorites": "Favoris",
-    "categoryCPe": "Éducation physique",
-    "categoryCEn": "Anglais",
-    "categoryCPol": "Théorie politique",
-    "categoryCHx": "Culture générale fondamentale",
-    "categoryCGen": "Culture générale",
-    "categoryCSy": "Développement global",
-    "categoryCBase": "Fondamentaux",
-    "categoryCCore": "Spécialité",
     "interactions": "Interactions",
     "points": "Points",
-    "chatDirect": "Message privé",
-    "chatGroup": "Discussion de groupe · {p0} membres",
-    "chatSample": "Conversation d’exemple. Les messages restent sur cette page.",
-    "chatPlaceholder": "Écrire un message",
-    "chatSend": "Envoyer",
-    "personaRejected": "Vérification refusée",
-    "personaRejectedHint": "La page de vérification affiche le motif"
+    "pageOf": "Page {p0} / {p1}",
+    "pageNo": "Page {p0}",
+    "notifications": "Notifications"
   },
   "favorites": {
     "title": "Favoris",
@@ -1651,7 +1474,8 @@
     "mine": "Moi",
     "defaultFolder": "Par défaut",
     "unknown": "Impossible de vérifier le favori pour le moment",
-    "untitled": "Contenu indisponible"
+    "untitled": "Contenu indisponible",
+    "deleteFolderConfirm": "Supprimer le dossier « {p0} » ? Ses éléments enregistrés seront déplacés vers « {p1} »."
   },
   "qq": {
     "title": "Liaison QQ",
@@ -1920,7 +1744,14 @@
       "label": "Compte de réception ou référence",
       "submitted": "Coordonnées envoyées."
     },
-    "ivoryBalance": "Solde Ivory"
+    "ivoryBalance": "Solde Ivory",
+    "payee": {
+      "title": "Coordonnées de remboursement",
+      "method": "Mode de versement",
+      "name": "Nom du bénéficiaire",
+      "account": "Compte bénéficiaire",
+      "onFile": "Des coordonnées sont enregistrées. Saisissez les nouvelles pour les remplacer."
+    }
   },
   "platform": {
     "scopes": {
@@ -2005,7 +1836,8 @@
       "redirectProblem": {
         "invalid": "Une URI de redirection n’est pas une adresse valide.",
         "https": "Les URI de redirection doivent utiliser HTTPS.",
-        "fragment": "Les URI de redirection ne peuvent pas contenir de fragment #."
+        "fragment": "Les URI de redirection ne peuvent pas contenir de fragment #.",
+        "duplicate": "Les adresses de redirection ne doivent pas être dupliquées."
       },
       "policy": "Durées et quota",
       "policyValue": "Autorisation {grant} jours, jeton d’accès {token} minutes, {quota} requêtes par jour",
@@ -2053,8 +1885,10 @@
         "retentionReason": "Base légale de la conservation (obligatoire)",
         "noteOptional": "Précision (facultatif)",
         "send": "Envoyer",
-        "recorded": "Résultat enregistré."
-      }
+        "recorded": "Résultat enregistré.",
+        "pendingBadge": "Signalement de retrait en attente"
+      },
+      "secretCloseConfirm": "Ce secret n’est affiché qu’une seule fois et ne pourra plus être consulté après fermeture. Copiez-le d’abord ou confirmez l’avoir enregistré."
     },
     "consent": {
       "title": "Autorisation d’application",
@@ -2118,7 +1952,8 @@
       "approved": "Approuvée",
       "rejected": "Refusée",
       "expired": "Expirée",
-      "deleted": "Supprimée"
+      "deleted": "Supprimée",
+      "cancelled": "Retirée"
     },
     "disclosure": {
       "real_name": "Nom réel",
@@ -2128,6 +1963,7 @@
     }
   },
   "notifications": {
+    "atLeastUnread": "Au moins {count} non lues",
     "title": "Messagerie",
     "link": "Messagerie",
     "description": "Interactions, résultats de modération, résultats de vérification et notifications système.",
@@ -2152,33 +1988,33 @@
         "removed": "Votre contenu {content_id} a été retiré"
       },
       "resource_removal": {
-        "approved": "La demande de retrait {request_id} a été acceptée",
-        "rejected": "La demande de retrait {request_id} a été refusée"
+        "approved": "La demande de retrait a été acceptée",
+        "rejected": "La demande de retrait a été refusée"
       },
       "report": {
-        "approved": "Votre signalement {report_id} a été retenu",
-        "rejected": "Votre signalement {report_id} n’a pas été retenu après examen"
+        "approved": "Votre signalement a été retenu",
+        "rejected": "Votre signalement n’a pas été retenu après examen"
       },
       "student_verification": {
-        "approved": "La vérification étudiante {application_id} a été approuvée",
-        "rejected": "La vérification étudiante {application_id} n’a pas été approuvée",
-        "revoked": "La vérification étudiante {credential_id} a été révoquée"
+        "approved": "La vérification étudiante a été approuvée",
+        "rejected": "La vérification étudiante n’a pas été approuvée",
+        "revoked": "La vérification étudiante a été révoquée"
       },
       "identity_verification": {
-        "approved": "La vérification d’identité {operation_id} a réussi",
-        "rejected": "La vérification d’identité {operation_id} a échoué"
+        "approved": "La vérification d’identité a réussi",
+        "rejected": "La vérification d’identité a échoué"
       },
       "verification_revocation": {
-        "approved": "La demande de révocation {request_id} a été acceptée",
-        "rejected": "La demande de révocation {request_id} a été refusée"
+        "approved": "La demande de révocation a été acceptée",
+        "rejected": "La demande de révocation a été refusée"
       },
       "verification_deletion": {
-        "approved": "La demande de suppression {request_id} a été acceptée",
-        "rejected": "La demande de suppression {request_id} a été refusée"
+        "approved": "La demande de suppression a été acceptée",
+        "rejected": "La demande de suppression a été refusée"
       },
       "teacher_verification": {
-        "approved": "La vérification enseignant {application_id} a été approuvée",
-        "rejected": "La vérification enseignant {application_id} n’a pas été approuvée"
+        "approved": "La vérification enseignant a été approuvée",
+        "rejected": "La vérification enseignant n’a pas été approuvée"
       },
       "system": {
         "notice": "Avis du système, référence {reference_id}",
@@ -2241,7 +2077,9 @@
       "empty": "Vous n’avez pas encore voté.",
       "review": "Avis",
       "up": "Utile",
-      "down": "Pas utile"
+      "cancel": "Retirer mon vote",
+      "down": "Pas utile",
+      "readable": "Contenus accessibles pour lesquels j’ai voté"
     },
     "compare": {
       "title": "Comparer",
@@ -2250,7 +2088,7 @@
       "teachers": "Enseignants ({count})",
       "kind": "Type de comparaison",
       "emptyTitle": "Rien à comparer pour l’instant",
-      "emptyHint": "Choisissez « Ajouter à la comparaison » sur une page de cours ou d’enseignant, puis revenez ici.",
+      "emptyHint": "Recherchez ci-dessus pour ajouter, ou choisissez « Ajouter à la comparaison » sur une page de cours ou d’enseignant.",
       "browseCourses": "Parcourir les cours",
       "browseTeachers": "Parcourir les enseignants",
       "dimension": "Critère",
@@ -2264,7 +2102,12 @@
       "tray": "Liste de comparaison",
       "progress": "{count} sur {max} sélectionnés",
       "start": "Comparer",
-      "pickMore": "Choisissez-en un de plus"
+      "pickMore": "Choisissez-en un de plus",
+      "clear": "Vider la comparaison",
+      "addCourse": "Rechercher et ajouter un cours à comparer",
+      "addTeacher": "Rechercher et ajouter un enseignant à comparer",
+      "taughtCourses": "Cours enseignés",
+      "ratedCourses": "Cours pris en compte"
     }
   },
   "groups": {
@@ -2302,7 +2145,7 @@
     },
     "fact": {
       "student_eligibility": "Statut étudiant",
-      "student_stage": "Situation d’inscription"
+      "student_stage": "Cycle d’études"
     },
     "hint": {
       "submit_password": "Envoyez le mot de passe d’entrée dans le groupe, comme l’indique l’annonce du groupe.",
@@ -2311,7 +2154,9 @@
     "action": {
       "bind_qq": "Associer QQ",
       "verify_student": "Vérifier mon statut étudiant"
-    }
+    },
+    "passwordMode": "Mode d’adhésion",
+    "passwordRequired": "Mot de passe du groupe requis"
   },
   "membership": {
     "title": "Abonnement",
@@ -2325,7 +2170,7 @@
     "expired": "Terminé",
     "plans": "Formules en vente",
     "noPlans": "Aucune formule n’est en vente pour le moment.",
-    "days": "{count} jours",
+    "days": "{count} jour | {count} jours | {count} jours",
     "alternative": ", ou ",
     "covers": "Ressources couvertes :",
     "noCoverage": "Cette formule n’a pas encore de périmètre et ne peut pas être achetée.",

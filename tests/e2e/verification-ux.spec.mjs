@@ -65,6 +65,19 @@ test('verification dropdowns have zero layout displacement when opened and close
     // Center the target before measuring so Playwright's click auto-scroll is outside the observation.
     await control.evaluate(node => node.scrollIntoView({ block: 'center', behavior: 'instant' }));
     const measure = () => page.evaluate(() => [...document.querySelectorAll('h1, form:first-of-type, .app-select')].map(node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height }; }));
+    // The final centering scroll can also start the step entrance animation. Take the baseline
+    // after both scrolling and the form geometry are stationary, retaining exact rectangle checks.
+    await page.waitForFunction(() => new Promise(resolve => {
+      let previous = '', stable = 0;
+      function frame() {
+        const next = JSON.stringify([scrollY, ...[...document.querySelectorAll('h1, form:first-of-type, .app-select')].map(node => node.getBoundingClientRect().toJSON())]);
+        stable = next === previous ? stable + 1 : 0;
+        previous = next;
+        if (stable >= 5) resolve(true);
+        else requestAnimationFrame(frame);
+      }
+      frame();
+    }));
     const before = await measure();
     if (info.project.name.startsWith('mobile')) await control.tap();
     else await control.click();
@@ -117,6 +130,7 @@ test('verification failure stays beside submit with focus and retained input', a
 test('profile shows plain field labels and binds authentication time to the selected credential', async ({ page }, info) => {
   const state = await fixture(page); await open(page, info);
   const m = messages(info), v = m.verification;
+  state.profile.fields.identity_valid_until = '2028-09-01';
   // The status card opens the profile of the active credential, under that credential.
   await page.getByRole('region', { name: v.statusTitle, exact: true }).getByRole('button', { name: v.viewProfile }).click();
   const card = profileCard(page, info);
@@ -125,13 +139,13 @@ test('profile shows plain field labels and binds authentication time to the sele
   await expect(card).not.toContainText(m.common.unknown);
   // Field labels stand alone; no data-source annotation is shown.
   await expect(card).not.toContainText(v.profileSources.academic_profile);
-  for (const field of ['student_id', 'department']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toHaveText(v.profileFields[field]);
+  for (const field of ['student_id', 'college_name']) await expect(card.locator('dt').filter({ hasText: v.profileFields[field] })).toHaveText(v.profileFields[field]);
   await expect(card.locator('dt').filter({ hasText: v.profileFields.name })).toHaveText(v.profileFields.name);
-  await expect(card.locator('dt').filter({ hasText: v.profileFields.contact_email })).toHaveText(v.profileFields.contact_email);
+  expect(await card.locator('[data-profile-field]').evaluateAll(nodes => nodes.map(node => node.dataset.profileField))).toEqual(['student_id', 'name', 'college_name']);
+  await expect(card).not.toContainText(state.profile.fields.contact_email);
   await expect(card).not.toContainText(v.profileStatus.partial);
   await expect(card.locator('time')).toHaveAttribute('datetime', credential.verified_at);
-  await expect(card).toContainText(v.profileFields.major_name);
-  await expect(card).toContainText(m.common.notProvided);
+  await expect(card).not.toContainText(v.profileFields.major_name);
   await shot(page, info, 'profile', card);
   state.profile.fields.major_name = 'Test Major';
   await experiences(page, info).getByRole('button', { name: v.viewProfile }).nth(1).click();
@@ -406,8 +420,9 @@ test('a failed school profile is reported once, under the credential that asked 
   await expect(experiences(page, info).getByRole('alert')).toHaveCount(0);
 });
 
-test('an inbound email challenge moves to the last step and shows its one-time address', async ({ page }, info) => {
+test('an inbound email challenge moves to the last step and shows its one-time address', async ({ page, context }, info) => {
   const v = messages(info).verification;
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await fixture(page, { school: { ...school, methods: ['student_email_inbound_challenge'] } });
   const challenge = { id: 'mail', application_id: 'application', expires_at: '2030-01-01T00:05:00Z', state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-7f3a@example.edu' };
   await page.route('**/api/v1/verification/applications/application/email', route => route.request().method() === 'POST' ? route.fulfill({ json: challenge }) : route.fulfill({ status: 404, json: { code: 'not_found' } }));
@@ -420,6 +435,9 @@ test('an inbound email challenge moves to the last step and shows its one-time a
   await expect(page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]')).toHaveText(new RegExp(v.steps.finish));
   await expect(page.getByText(challenge.target_address, { exact: true })).toBeVisible();
   await expect(page.getByText(v.inboundHelp, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: v.copyInboundAddress, exact: true }).click();
+  await expect(page.getByText(v.inboundAddressCopied, { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(challenge.target_address);
 });
 
 test('a failed school login returns the open application to the form for another try', async ({ page }, info) => {

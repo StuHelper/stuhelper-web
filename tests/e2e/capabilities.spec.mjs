@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
+import { fixture as academicFixture } from './academic-fixture.mjs';
 import { member } from './demo-fixture.mjs';
 
 const base = 'http://127.0.0.1:18787';
@@ -65,4 +66,20 @@ test('disabled groups preserve card consent and disabled QQ never mounts binding
   await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
   await expect(page.locator('[aria-labelledby="security-identity"]')).toBeVisible();
   expect(requests).toEqual([]);
+});
+
+
+test('disabled favorites and search send no list lookups or personal vote requests', async ({ page }, info) => {
+  await academicFixture(page);
+  await discovery(page, []);
+  const sent = [];
+  page.on('request', req => {
+    if (/\/api\/v1\/(favorites\/items|search\/my-votes)/.test(req.url())) sent.push(req.url());
+  });
+  await page.goto(`${base}/courses?lang=${info.project.metadata.locale}`);
+  await expect(page.getByRole('link', { name: 'Test Course', exact: true }).first()).toBeVisible();
+  await page.route('**/api/v1/reviews/me/votes?**', route => route.fulfill({ json: [] }));
+  await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
+  await expect(page.locator('main h1')).toBeVisible();
+  expect(sent).toEqual([]);
 });
