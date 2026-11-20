@@ -266,7 +266,7 @@
     ],
     "QQB-02": [
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
-      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and a failed return is explained"
+      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained"
     ]
   }
 }

@@ -1545,22 +1545,20 @@
       "redirect_uri_mismatch": "L’adresse de rappel QQ Connect est mal configurée ; la liaison est impossible pour l’instant. Contactez un administrateur.",
       "casdoor_conflict": "Ce QQ sert déjà à se connecter à un autre compte. Retirez d’abord la connexion QQ sur ce compte, ou contactez un administrateur.",
       "connect_disabled": "La liaison QQ Connect n’est pas encore ouverte.",
-      "connect_unconfigured": "La liaison QQ Connect n’est pas encore entièrement configurée. Réessayez plus tard."
+      "connect_unconfigured": "La liaison QQ Connect n’est pas encore entièrement configurée. Réessayez plus tard.",
+      "invalid_input": "Le rappel est invalide ou a expiré. Revenez à la page du compte et recommencez."
     },
     "callback": {
       "title": "Autorisation QQ Connect",
       "back": "Retour à compte et sécurité",
       "working": "Confirmation de l’autorisation QQ…",
       "bound": "QQ Connect est lié.",
-      "declined": "Vous avez annulé sur la page QQ. QQ Connect n’a pas été lié."
+      "declined": "Vous avez annulé sur la page QQ. QQ Connect n’a pas été lié.",
+      "loginPending": "QQ Connect est lié, mais l’association de la connexion QQ n’est pas terminée. Consultez la page du compte."
     },
     "notOpen": "Pas encore ouvert",
     "notOpenHint": "La liaison QQ comprend votre numéro QQ, le bot QQ officiel et QQ Connect. Une fois ouverte, vous pourrez lier chaque élément ici.",
     "reauthorize": "Autoriser à nouveau",
-    "linkResult": {
-      "linked": "QQ Connect est lié et la connexion QQ est associée à ce compte.",
-      "denied": "Vous avez annulé sur la page QQ ; QQ Connect n’a pas été lié."
-    },
     "login": {
       "reauthorize": "Vous pouvez déjà vous connecter avec QQ, mais l’identité QQ Connect manque. Choisissez Autoriser une fois de plus pour la compléter.",
       "out_of_sync": "Le QQ associé à la connexion diffère de celui lié via QQ Connect. Autorisez à nouveau avec le QQ lié auparavant."

@@ -1545,22 +1545,20 @@
       "redirect_uri_mismatch": "QQ Connect 콜백 주소 설정이 잘못되어 지금은 연동할 수 없습니다. 관리자에게 문의하세요.",
       "casdoor_conflict": "이 QQ는 이미 다른 계정의 로그인에 사용되고 있습니다. 그 계정에서 QQ 로그인을 먼저 해제하거나 관리자에게 문의하세요.",
       "connect_disabled": "QQ Connect 연동은 아직 열리지 않았습니다.",
-      "connect_unconfigured": "QQ Connect 연동 설정이 아직 끝나지 않았습니다. 잠시 후 다시 시도하세요."
+      "connect_unconfigured": "QQ Connect 연동 설정이 아직 끝나지 않았습니다. 잠시 후 다시 시도하세요.",
+      "invalid_input": "콜백이 잘못되었거나 만료되었습니다. 계정 페이지에서 다시 시작하세요."
     },
     "callback": {
       "title": "QQ Connect 승인",
       "back": "계정 및 보안으로 돌아가기",
       "working": "QQ 승인을 확인하는 중…",
       "bound": "QQ Connect가 연동되었습니다.",
-      "declined": "QQ 페이지에서 취소하여 QQ Connect가 연동되지 않았습니다."
+      "declined": "QQ 페이지에서 취소하여 QQ Connect가 연동되지 않았습니다.",
+      "loginPending": "QQ Connect는 연동되었지만 QQ 로그인 연결은 아직 끝나지 않았습니다. 계정 페이지에서 확인하세요."
     },
     "notOpen": "아직 열리지 않음",
     "notOpenHint": "QQ 연동은 QQ 번호, QQ 공식 봇, QQ Connect 세 항목입니다. 열리면 여기에서 항목별로 연동할 수 있습니다.",
     "reauthorize": "다시 승인",
-    "linkResult": {
-      "linked": "QQ Connect가 연동되었고 QQ 로그인도 이 계정에 연결되었습니다.",
-      "denied": "QQ 페이지에서 승인을 취소해 QQ Connect가 연동되지 않았습니다."
-    },
     "login": {
       "reauthorize": "QQ로 로그인할 수 있지만 QQ Connect 정보가 없습니다. \"승인하기\"로 한 번 더 승인하면 완료됩니다.",
       "out_of_sync": "QQ 로그인에 연결된 QQ와 QQ Connect로 연동된 QQ가 다릅니다. 이전에 연동한 QQ로 다시 승인하세요."

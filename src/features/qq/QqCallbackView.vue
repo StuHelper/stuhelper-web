@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { CircleCheck, CircleX } from 'lucide-vue-next'
-import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useLeaveGuard } from '../../shared/composables/leave'
@@ -19,20 +19,33 @@ const phase = ref<'working' | 'bound' | 'declined' | 'failed'>('working')
 const failure = ref('')
 const result = ref<QqStatus>()
 
-const single = (value: unknown) => (typeof value === 'string' ? value : '')
+// QQ sends exactly one state and either one code or one error. Anything else (missing,
+// repeated or both) is an invalid callback and is never sent to the server.
+const one = (value: unknown) => (typeof value === 'string' ? value : '')
+const repeated = (value: unknown) => Array.isArray(value)
+const query = route.query
+const malformed = repeated(query.state) || repeated(query.code) || repeated(query.error) || !one(query.state) || (!one(query.code) === !one(query.error))
 
 const lifetime = new AbortController()
 onBeforeUnmount(() => lifetime.abort())
 const key = crypto.randomUUID()
-const state = single(route.query.state)
-const code = single(route.query.code)
-const providerError = single(route.query.error)
+const state = one(query.state)
+const code = one(query.code)
+const providerError = one(query.error)
 const retryable = ref(false)
 useLeaveGuard(() => phase.value === 'working' || retryable.value ? t('common.leaveUncertain') : '')
+
+// What QQ's own error means once the attempt has been closed on the server.
+function qqOutcome(error: string): { phase: 'declined' | 'failed'; failure: string } {
+  if (error === 'access_denied') return { phase: 'declined', failure: '' }
+  if (error === '100010' || error === 'redirect_uri_mismatch') return { phase: 'failed', failure: 'redirect_uri_mismatch' }
+  if (error === '100048') return { phase: 'failed', failure: 'unionid_permission_required' }
+  return { phase: 'failed', failure: 'reauthorization_required' }
+}
 async function confirm() {
   retryable.value = false
   phase.value = 'working'
-  if (!state) {
+  if (malformed) {
     phase.value = 'failed'
     failure.value = 'invalid_state'
     return
@@ -42,9 +55,11 @@ async function confirm() {
       result.value = await api.confirmConnect({ state, code }, key, undefined, lifetime.signal)
       phase.value = 'bound'
     } else {
-      // Declining at QQ still ends this attempt so the state cannot be used later.
+      // Declining or failing at QQ still ends this attempt so the state cannot be used later.
       result.value = await api.cancelConnect({ state }, key, lifetime.signal)
-      phase.value = providerError === 'access_denied' ? 'declined' : 'failed'
+      const outcome = qqOutcome(providerError)
+      phase.value = outcome.phase
+      failure.value = outcome.failure
     }
   } catch (error) {
     phase.value = 'failed'
@@ -53,11 +68,14 @@ async function confirm() {
   }
 }
 onMounted(() => {
+  // The code and state leave the address at once, so reloading or sharing cannot reuse them.
   void router.replace({ path: route.path, query: {} })
   void confirm()
 })
 
-const known = ['invalid_state', 'reauthorization_required', 'processing', 'unionid_missing', 'already_bound', 'ownership_conflict', 'rate_limited', 'account_closed', 'unavailable']
+const known = ['invalid_state', 'invalid_input', 'reauthorization_required', 'processing', 'unionid_missing', 'unionid_permission_required', 'redirect_uri_mismatch', 'already_bound', 'ownership_conflict', 'casdoor_conflict', 'revision_conflict', 'rate_limited', 'account_closed', 'forbidden', 'unauthenticated', 'connect_disabled', 'connect_unconfigured', 'unavailable']
+// Bound here, but the QQ sign-in is not linked to the same QQ yet: the account page explains.
+const loginPending = computed(() => phase.value === 'bound' && result.value?.connect_login !== undefined && result.value.connect_login !== 'linked')
 </script>
 
 <template>
@@ -85,6 +103,12 @@ const known = ['invalid_state', 'reauthorization_required', 'processing', 'union
         <p>{{ t('qq.callback.bound') }}</p>
         <p class="muted small">
           {{ result?.complete ? t('qq.complete') : t('qq.requirement') }}
+        </p>
+        <p
+          v-if="loginPending"
+          class="muted small"
+        >
+          {{ t('qq.callback.loginPending') }}
         </p>
       </template>
       <template v-else-if="phase === 'declined'">

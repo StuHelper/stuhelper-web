@@ -1545,22 +1545,20 @@
       "redirect_uri_mismatch": "عنوان العودة في QQ Connect مُعدّ بشكل خاطئ، لذا لا يمكن الربط الآن. تواصل مع المسؤول.",
       "casdoor_conflict": "حساب QQ هذا مستخدم لتسجيل الدخول إلى حساب آخر. أزل تسجيل الدخول عبر QQ هناك أولًا أو تواصل مع المسؤول.",
       "connect_disabled": "ربط QQ Connect غير متاح بعد.",
-      "connect_unconfigured": "لم يكتمل إعداد ربط QQ Connect بعد. حاول لاحقًا."
+      "connect_unconfigured": "لم يكتمل إعداد ربط QQ Connect بعد. حاول لاحقًا.",
+      "invalid_input": "رد الاتصال غير صالح أو منتهي. ارجع إلى صفحة الحساب وابدأ من جديد."
     },
     "callback": {
       "title": "تفويض QQ Connect",
       "back": "العودة إلى الحساب والأمان",
       "working": "جارٍ تأكيد تفويض QQ…",
       "bound": "تم ربط QQ Connect.",
-      "declined": "ألغيت التفويض في صفحة QQ، ولم يتم ربط QQ Connect."
+      "declined": "ألغيت التفويض في صفحة QQ، ولم يتم ربط QQ Connect.",
+      "loginPending": "تم ربط QQ Connect، لكن ربط تسجيل الدخول عبر QQ لم يكتمل بعد. راجع صفحة الحساب."
     },
     "notOpen": "غير متاح بعد",
     "notOpenHint": "يشمل ربط QQ رقم QQ وروبوت QQ الرسمي وQQ Connect. عند إتاحته يمكنك ربط كل عنصر هنا.",
     "reauthorize": "التفويض مجددًا",
-    "linkResult": {
-      "linked": "تم ربط QQ Connect وربط تسجيل الدخول عبر QQ بهذا الحساب.",
-      "denied": "ألغيت التفويض في صفحة QQ، لذلك لم يُربط QQ Connect."
-    },
     "login": {
       "reauthorize": "يمكنك تسجيل الدخول عبر QQ، لكن هوية QQ Connect غير مكتملة. اختر التفويض مرة أخرى لإكمالها.",
       "out_of_sync": "حساب QQ المرتبط بتسجيل الدخول يختلف عن المرتبط عبر QQ Connect. فوّض مجددًا باستخدام حساب QQ الذي ربطته سابقًا."
