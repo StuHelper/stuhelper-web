@@ -1333,7 +1333,10 @@
       "exit_overdue": "終了目標日時を過ぎていますが、移行は処理中です。"
     },
     "displayLabel": "メモ名（任意）",
-    "displayLabelHint": "例：メインのドライブ"
+    "displayLabelHint": "例：メインのドライブ",
+    "displayLabelTooLong": "メモ名は 32 文字までです。",
+    "reviewLabel": "メモ名：",
+    "reviewLabelCleared": "メモ名を削除します。"
   },
   "custody": {
     "disabled": "ストレージアカウントの管理機能は有効になっていません。",

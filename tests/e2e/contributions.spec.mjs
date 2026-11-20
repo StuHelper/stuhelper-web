@@ -28,6 +28,8 @@ async function setup(page, info, empty = false, initial = example.page.items[0])
     if (request.method() === 'POST') {
       const body = request.postDataJSON(), key = request.headers()['idempotency-key'];
       state.requests.push({ body, key, path: url.pathname });
+      // The provider rejects a nickname on renew and reopen; only create and configure carry one.
+      if (body.display_label !== undefined && (body.action === 'renew' || body.action === 'reopen')) return route.fulfill({ status: 400, json: { code: 'invalid' } });
       if (!state.seen.has(key)) {
         state.empty = false;
         const desired = { pause: 'paused', resume: 'active', reopen: 'active', exit: 'exiting', revoke: 'revoked' }[body.action] ?? state.item.desired_state;
@@ -150,6 +152,8 @@ test('records stay distinguishable by masked account and an optional nickname', 
   await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[0].body.display_label).toBe('主力网盘');
+  // Renaming alone keeps the saved conditions, so none are sent or re-checked.
+  expect(state.requests[0].body.conditions).toBeUndefined();
   await expect(card.getByRole('heading', { level: 3 })).toHaveText('主力网盘');
   await expect(card).toContainText('BHpan · 21****89');
   await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
@@ -165,5 +169,28 @@ test('records stay distinguishable by masked account and an optional nickname', 
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[2].body.display_label).toBe('');
   await expect(card.getByRole('heading', { level: 3 })).toHaveText('BHpan · 21****89');
+  expect(errors).toEqual([]);
+});
+
+test('a nickname never rides along on renewal, and accounts with the same mask stay apart', async ({ page }, info) => {
+  const labelled = { ...example.page.items[0], adapter: 'bhpan', account_hint: '21****89', display_label: '主力网盘' };
+  const { m, c, state, errors } = await setup(page, info, false, labelled);
+  await page.getByRole('button', { name: m.actions.renew, exact: true }).click();
+  await expect(page.getByLabel(m.displayLabel, { exact: true })).toHaveCount(0);
+  await pickDate(page, '2030-02', 1); await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests[0].body.action).toBe('renew');
+  expect(state.requests[0].body.display_label).toBeUndefined();
+  // Two accounts whose masks collide each get their record tail.
+  const second = { ...labelled, id: `${labelled.id.slice(0, -4)}beef`, display_label: undefined };
+  await page.route('**/api/v1/storage-contributions?**', (route) => route.fulfill({ json: { ...example.page, items: [{ ...state.item, display_label: undefined }, second] } }));
+  await page.reload();
+  const headings = page.locator('article h3');
+  await expect(headings).toHaveCount(2);
+  const [a, b] = await headings.allTextContents();
+  expect(a).not.toBe(b);
+  expect(b).toContain('#beef');
   expect(errors).toEqual([]);
 });
