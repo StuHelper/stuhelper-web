@@ -66,7 +66,9 @@
     "undo": "Annuler",
     "clearSearch": "Effacer la recherche",
     "shownOf": "{shown} sur {total} affichés",
-    "opensInNewTab": "(s’ouvre dans un nouvel onglet)"
+    "opensInNewTab": "(s’ouvre dans un nouvel onglet)",
+    "scrollBack": "Défiler en arrière",
+    "scrollForward": "Défiler en avant"
   },
   "errors": {
     "disabled": "Le service des groupes est désactivé.",
@@ -1329,7 +1331,12 @@
       "storage_writes_disabled": "Le stockage n’accepte pas de nouveaux fichiers.",
       "capacity_unknown": "Capacité illisible pour le moment.",
       "exit_overdue": "Objectif de retrait dépassé ; migration en cours."
-    }
+    },
+    "displayLabel": "Surnom (facultatif)",
+    "displayLabelHint": "Par exemple : disque principal",
+    "displayLabelTooLong": "Un surnom compte au plus 32 caractères.",
+    "reviewLabel": "Surnom : ",
+    "reviewLabelCleared": "Le surnom sera supprimé."
   },
   "custody": {
     "disabled": "La gestion des comptes de stockage n’est pas activée.",
@@ -1531,15 +1538,32 @@
       "invalid_state": "L’autorisation a expiré ou appartient à une autre connexion. Recommencez depuis la page du compte.",
       "unionid_missing": "QQ n’a pas renvoyé d’identité complète ; QQ Connect ne peut pas être lié pour le moment.",
       "reauthorization_required": "L’autorisation QQ n’a pas abouti. Relancez la connexion QQ depuis la page du compte.",
-      "processing": "QQ confirme encore l’autorisation. Vérifiez la liaison sur la page du compte dans un instant."
+      "processing": "QQ confirme encore l’autorisation. Vérifiez la liaison sur la page du compte dans un instant.",
+      "unauthenticated": "Votre session a expiré. Reconnectez-vous, puis liez.",
+      "forbidden": "Ce compte ne peut pas lier QQ.",
+      "unionid_permission_required": "L’application QQ Connect n’a pas encore l’accès UnionID ; la liaison est impossible pour l’instant. Réessayez plus tard.",
+      "redirect_uri_mismatch": "L’adresse de rappel QQ Connect est mal configurée ; la liaison est impossible pour l’instant. Contactez un administrateur.",
+      "casdoor_conflict": "Ce QQ sert déjà à se connecter à un autre compte. Retirez d’abord la connexion QQ sur ce compte, ou contactez un administrateur.",
+      "connect_disabled": "La liaison QQ Connect n’est pas encore ouverte.",
+      "connect_unconfigured": "La liaison QQ Connect n’est pas encore entièrement configurée. Réessayez plus tard.",
+      "invalid_input": "Le rappel est invalide ou a expiré. Revenez à la page du compte et recommencez."
     },
     "callback": {
       "title": "Autorisation QQ Connect",
       "back": "Retour à compte et sécurité",
       "working": "Confirmation de l’autorisation QQ…",
       "bound": "QQ Connect est lié.",
-      "declined": "Vous avez annulé sur la page QQ. QQ Connect n’a pas été lié."
-    }
+      "declined": "Vous avez annulé sur la page QQ. QQ Connect n’a pas été lié.",
+      "loginPending": "QQ Connect est lié, mais l’association de la connexion QQ n’est pas terminée. Consultez la page du compte."
+    },
+    "notOpen": "Pas encore ouvert",
+    "notOpenHint": "La liaison QQ comprend votre numéro QQ, le bot QQ officiel et QQ Connect. Une fois ouverte, vous pourrez lier chaque élément ici.",
+    "reauthorize": "Autoriser à nouveau",
+    "login": {
+      "reauthorize": "Vous pouvez déjà vous connecter avec QQ, mais l’identité QQ Connect manque. Choisissez Autoriser une fois de plus pour la compléter.",
+      "out_of_sync": "Le QQ associé à la connexion diffère de celui lié via QQ Connect. Autorisez à nouveau avec le QQ lié auparavant."
+    },
+    "sendTo": "À envoyer à : {bots}"
   },
   "security": {
     "title": "Compte et sécurité",
@@ -2326,7 +2350,8 @@
     "upvotes": "Approbations : {p0}",
     "verifiedStudent": "Étudiant vérifié",
     "viewDetails": "Voir les détails",
-    "unassignedCourses": "La vue en liste affiche tous les résultats, y compris les cours sans département.",
-    "showInList": "Voir dans la liste"
+    "groupDisplay": "Affichage par école",
+    "expandAllGroups": "Tout déplier",
+    "collapseAllGroups": "Tout replier"
   }
 }

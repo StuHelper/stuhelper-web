@@ -129,7 +129,7 @@
       "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
       "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
       "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
-      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding",
+      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ lists its three parts as not open without requests",
       "tests/e2e/capabilities.spec.mjs#disabled favorites and search send no list lookups or personal vote requests"
     ],
     "SESSION-AVAILABILITY-01": [
@@ -178,7 +178,8 @@
       "tests/e2e/academic.spec.mjs#the course directory shows category tabs, grouping and a quick view with rating charts"
     ],
     "BROWSE-RESOURCES-01": [
-      "tests/e2e/resources.spec.mjs#the side list shows recently visited courses, filters by one and can be cleared"
+      "tests/e2e/resources.spec.mjs#the side list shows recently visited courses, filters by one and can be cleared",
+      "tests/e2e/resources.spec.mjs#the filter sheet does not follow the reader to another page and is closed on return"
     ],
     "MC-SWITCH-01": [
       "src/app/features.test.ts#keeps my courses off outside the review prototype",
@@ -187,11 +188,14 @@
     ],
     "BROWSE-DIRECTORY-02": [
       "tests/e2e/academic.spec.mjs#course rows show the recommendation in words and the next page arrives without a button",
-      "tests/e2e/academic.spec.mjs#each department in the grouped view reads its own rows and shows all of them on request"
+      "tests/e2e/academic.spec.mjs#each department in the grouped view reads its own rows and shows all of them on request",
+      "tests/e2e/academic.spec.mjs#expanding every department reads at most two pages at once and stops when collapsed",
+      "src/shared/limit.test.ts#runs no more than the limit at once and starts waiting tasks in order"
     ],
     "BROWSE-DIRECTORY-03": [
       "tests/e2e/academic.spec.mjs#a new search keeps the previous rows until the result arrives and clears them when it fails",
-      "src/shared/composables/async.test.ts#keeps the previous rows while a reload is in flight and clears them when it fails"
+      "src/shared/composables/async.test.ts#keeps the previous rows while a reload is in flight and clears them when it fails",
+      "tests/e2e/academic.spec.mjs#directory filters stay out of the address, survive reload and come back from a detail page without reloading"
     ],
     "BROWSE-QUICKVIEW-01": [
       "tests/e2e/academic.spec.mjs#the quick view names the course at once, gives a verdict in words and retries a failed overview"
@@ -256,7 +260,13 @@
     ],
     "ST-03": [
       "src/features/account/lifecycle-actions.test.ts#requires new consent and a future end date to reopen the exited binding",
-      "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command"
+      "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command",
+      "tests/e2e/contributions.spec.mjs#records stay distinguishable by masked account and an optional nickname",
+      "tests/e2e/contributions.spec.mjs#a nickname never rides along on renewal, and accounts with the same mask stay apart"
+    ],
+    "QQB-02": [
+      "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
+      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained"
     ]
   }
 }

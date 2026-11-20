@@ -66,7 +66,9 @@
     "undo": "Undo",
     "clearSearch": "Clear search",
     "shownOf": "Showing {shown} of {total}",
-    "opensInNewTab": "(opens in a new tab)"
+    "opensInNewTab": "(opens in a new tab)",
+    "scrollBack": "Scroll back",
+    "scrollForward": "Scroll forward"
   },
   "errors": {
     "disabled": "Group services are disabled.",
@@ -1329,7 +1331,12 @@
       "storage_writes_disabled": "Storage is not accepting new files.",
       "capacity_unknown": "Capacity cannot be read right now.",
       "exit_overdue": "Exit target passed; migration is still pending."
-    }
+    },
+    "displayLabel": "Nickname (optional)",
+    "displayLabelHint": "For example: main drive",
+    "displayLabelTooLong": "A nickname can have at most 32 characters.",
+    "reviewLabel": "Nickname: ",
+    "reviewLabelCleared": "The nickname will be removed."
   },
   "custody": {
     "disabled": "Storage account custody is not enabled.",
@@ -1531,15 +1538,32 @@
       "invalid_state": "The authorization expired or belongs to another sign-in. Start again from the account page.",
       "unionid_missing": "QQ did not return a complete identity, so QQ Connect cannot be bound right now.",
       "reauthorization_required": "The QQ authorization did not finish. Start QQ Connect again from the account page.",
-      "processing": "QQ is still confirming the authorization. Check the binding on the account page in a moment."
+      "processing": "QQ is still confirming the authorization. Check the binding on the account page in a moment.",
+      "unauthenticated": "Your sign-in has expired. Sign in again, then bind.",
+      "forbidden": "This account cannot bind QQ.",
+      "unionid_permission_required": "The QQ Connect app does not have UnionID access yet, so binding is not possible right now. Try again later.",
+      "redirect_uri_mismatch": "The QQ Connect callback address is misconfigured, so binding is not possible right now. Contact an administrator.",
+      "casdoor_conflict": "This QQ is already used to sign in to another account. Remove QQ sign-in there first, or contact an administrator.",
+      "connect_disabled": "QQ Connect binding is not open yet.",
+      "connect_unconfigured": "QQ Connect binding is not fully set up yet. Try again later.",
+      "invalid_input": "The callback is invalid or has expired. Go back to the account page and start again."
     },
     "callback": {
       "title": "QQ Connect authorization",
       "back": "Back to account and security",
       "working": "Confirming QQ authorization…",
       "bound": "QQ Connect is bound.",
-      "declined": "You cancelled on the QQ page. QQ Connect was not bound."
-    }
+      "declined": "You cancelled on the QQ page. QQ Connect was not bound.",
+      "loginPending": "QQ Connect is bound, but linking QQ sign-in is not finished yet. See the account page."
+    },
+    "notOpen": "Not open yet",
+    "notOpenHint": "QQ binding covers your QQ number, the official QQ bot and QQ Connect. Once it opens you can bind each one here.",
+    "reauthorize": "Authorize again",
+    "login": {
+      "reauthorize": "You can already sign in with QQ, but the QQ Connect identity is missing. Choose Authorize once more to complete it.",
+      "out_of_sync": "The QQ linked for sign-in differs from the one bound through QQ Connect. Authorize again with the QQ you bound before."
+    },
+    "sendTo": "Send it to: {bots}"
   },
   "security": {
     "title": "Account and security",
@@ -2326,7 +2350,8 @@
     "upvotes": "Upvotes: {p0}",
     "verifiedStudent": "Verified student",
     "viewDetails": "View details",
-    "unassignedCourses": "List view shows every result, including courses without a department.",
-    "showInList": "Show in list"
+    "groupDisplay": "School groups",
+    "expandAllGroups": "Expand all",
+    "collapseAllGroups": "Collapse all"
   }
 }

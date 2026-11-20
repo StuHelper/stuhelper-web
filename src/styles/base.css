@@ -39,7 +39,11 @@
   --accent-fill-hover: light-dark(#4a72ff, #6485ff);
   --accent-soft: light-dark(rgb(45 91 255 / 10%), rgb(110 140 255 / 18%));
   --on-accent: #ffffff;
-  --success: light-dark(#1b7f37, #30d158);
+  /* A pressed filter chip: white text stays at 5:1 or more in both appearances and on hover. */
+  --chip-on: light-dark(#2448d8, #3352d6);
+  --chip-on-hover: light-dark(#1f47e0, #2e4bc8);
+  /* Dark enough in light mode for 13px verdict words on hovered rows (4.5:1). */
+  --success: light-dark(#176b2f, #30d158);
   --success-soft: light-dark(rgb(52 199 89 / 14%), rgb(48 209 88 / 17%));
   --warning: light-dark(#a84a00, #ffb340);
   --warning-soft: light-dark(rgb(255 149 0 / 15%), rgb(255 159 10 / 17%));

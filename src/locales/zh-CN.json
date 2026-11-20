@@ -66,7 +66,9 @@
     "undo": "撤销",
     "clearSearch": "清除搜索",
     "shownOf": "已显示 {shown} / {total}",
-    "opensInNewTab": "（在新标签页打开）"
+    "opensInNewTab": "（在新标签页打开）",
+    "scrollBack": "向前滚动",
+    "scrollForward": "向后滚动"
   },
   "errors": {
     "disabled": "群服务未启用。",
@@ -1329,7 +1331,12 @@
       "storage_writes_disabled": "存储暂不接受新文件。",
       "capacity_unknown": "暂时读取不到容量。",
       "exit_overdue": "已超过退出目标时间，迁移仍在处理。"
-    }
+    },
+    "displayLabel": "备注名（选填）",
+    "displayLabelHint": "例如：主力网盘",
+    "displayLabelTooLong": "备注名最多 32 个字符。",
+    "reviewLabel": "备注名：",
+    "reviewLabelCleared": "将清除备注名。"
   },
   "custody": {
     "disabled": "存储账号托管尚未启用。",
@@ -1531,15 +1538,32 @@
       "invalid_state": "授权已失效或不属于当前登录，请回到账号页重新发起。",
       "unionid_missing": "QQ 没有返回完整的身份信息，暂时无法完成 QQ 互联绑定。",
       "reauthorization_required": "QQ 授权没有完成，请回到账号页重新发起 QQ 互联绑定。",
-      "processing": "QQ 仍在确认授权结果，请稍后回到账号页查看绑定状态。"
+      "processing": "QQ 仍在确认授权结果，请稍后回到账号页查看绑定状态。",
+      "unauthenticated": "登录已过期，请重新登录后再绑定。",
+      "forbidden": "当前账号不能绑定 QQ。",
+      "unionid_permission_required": "QQ 互联应用尚未开通 UnionID 权限，暂时无法绑定，请稍后再试。",
+      "redirect_uri_mismatch": "QQ 互联回调地址配置有误，暂时无法绑定，请联系管理员。",
+      "casdoor_conflict": "这个 QQ 已用于登录另一个账号。请先在那个账号解除 QQ 登录，或联系管理员。",
+      "connect_disabled": "QQ 互联绑定暂未开放。",
+      "connect_unconfigured": "QQ 互联绑定尚未配置完成，请稍后再试。",
+      "invalid_input": "回调参数无效或已过期，请回到账号页重新发起。"
     },
     "callback": {
       "title": "QQ 互联授权",
       "back": "返回账号与安全",
       "working": "正在确认 QQ 授权…",
       "bound": "QQ 互联已绑定。",
-      "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
-    }
+      "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。",
+      "loginPending": "QQ 互联已绑定，QQ 登录的关联还没有完成，回到账号页可查看。"
+    },
+    "notOpen": "暂未开放",
+    "notOpenHint": "QQ 绑定包括 QQ 号、QQ 官方机器人和 QQ 互联三项，开放后可在这里逐项绑定。",
+    "reauthorize": "重新授权",
+    "login": {
+      "reauthorize": "你已经可以用 QQ 登录，但还缺 QQ 互联身份。点“去授权”再授权一次即可补全。",
+      "out_of_sync": "QQ 登录关联的 QQ 与 QQ 互联绑定的不一致。请用原来绑定的 QQ 重新授权。"
+    },
+    "sendTo": "发送给：{bots}"
   },
   "security": {
     "title": "账号与安全",
@@ -2326,7 +2350,8 @@
     "upvotes": "{p0} 人赞同",
     "verifiedStudent": "已认证学生",
     "viewDetails": "查看详情",
-    "unassignedCourses": "列表模式显示全部结果，包括未归属学院的课程。",
-    "showInList": "在列表中查看"
+    "groupDisplay": "学院分组显示",
+    "expandAllGroups": "全部展开",
+    "collapseAllGroups": "全部收起"
   }
 }

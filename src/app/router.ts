@@ -21,6 +21,8 @@ declare module 'vue-router' {
     continuesFrom?: string
     /** Capability of an optional module; without it the page shows as unavailable. */
     capability?: string
+    /** List page kept alive while a detail page is open, so back returns without reloading. */
+    keepAlive?: boolean
   }
 }
 
@@ -43,9 +45,9 @@ const routes: RouteRecordRaw[] = [
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
   { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },
-  { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { remountOnPath: true, access: 'verified', title: 'nav.courses', section: 'courses' } },
+  { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.courses', section: 'courses' } },
   teacherDirectoryEnabled
-    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { remountOnPath: true, access: 'verified', title: 'nav.teachers', section: 'teachers' } }
+    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.teachers', section: 'teachers' } }
     : { path: '/teachers', redirect: '/courses' },
   { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.course', section: 'courses' } },
   { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teacher', section: 'teachers' } },
@@ -53,7 +55,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/offerings/:id', redirect: '/courses' },
   { path: '/classes/:id', redirect: '/courses' },
   { path: '/reviews/:id', component: academic.discussion, props: true, meta: { access: 'verified', title: 'academic.discussion', section: 'courses' } },
-  { path: '/resources', component: () => import('../features/resources/BrowseView.vue'), meta: { access: 'verified', title: 'nav.resources', section: 'resources' } },
+  { path: '/resources', component: () => import('../features/resources/BrowseView.vue'), meta: { keepAlive: true, access: 'verified', title: 'nav.resources', section: 'resources' } },
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { remountOnPath: true, access: 'member', title: 'resources.detailTitle', section: 'resources' } },
   { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'member', title: 'resources.edit', section: 'resources' } },
@@ -65,14 +67,15 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/apps', component: () => import('../features/open-platform/GrantsView.vue'), meta: { capability: feature.openPlatform, access: 'member', title: 'platform.grants.title', section: 'me' } },
   { path: '/me/developer', component: () => import('../features/open-platform/DeveloperView.vue'), meta: { capability: feature.openPlatform, access: 'member', title: 'platform.developer.title', section: 'me' } },
   { path: '/oauth/authorize', component: () => import('../features/open-platform/ConsentView.vue'), meta: { capability: feature.openPlatform, access: 'member', title: 'platform.consent.title' } },
-  { path: '/search', component: () => import('../features/search/SearchView.vue'), meta: { capability: feature.search, access: 'verified', title: 'search.title' } },
-  { path: '/popular', component: () => import('../features/search/PopularView.vue'), meta: { capability: feature.search, access: 'verified', title: 'search.popular.title', section: 'courses' } },
+  { path: '/search', component: () => import('../features/search/SearchView.vue'), meta: { keepAlive: true, capability: feature.search, access: 'verified', title: 'search.title' } },
+  { path: '/popular', component: () => import('../features/search/PopularView.vue'), meta: { keepAlive: true, capability: feature.search, access: 'verified', title: 'search.popular.title', section: 'courses' } },
   { path: '/compare', component: () => import('../features/search/CompareView.vue'), meta: { access: 'verified', title: 'search.compare.title', section: 'courses' } },
   { path: '/me/votes', component: () => import('../features/search/MyVotesView.vue'), meta: { access: 'member', title: 'search.votes.title', section: 'me' } },
   { path: '/notifications', component: () => import('../features/notifications/NotificationsView.vue'), meta: { capability: feature.notifications, access: 'member', title: 'notifications.title', section: 'me' } },
   { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { capability: feature.favorites, access: 'member', title: 'favorites.title', section: 'me' } },
   { path: '/me/groups', component: () => import('../features/groups/MyGroupsView.vue'), meta: { capability: feature.groups, access: 'member', title: 'groups.title', section: 'me' } },
-  { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { capability: feature.qq, access: 'member', title: 'qq.callback.title', section: 'me' } },
+  // The QQ callback renders even after the session expired, so the page can say so and link back.
+  { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { capability: feature.qq, title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
   myCoursesEnabled
     ? { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } }

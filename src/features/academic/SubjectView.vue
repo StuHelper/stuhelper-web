@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { hue } from '../../shared/hue'
 import { teacherDirectoryEnabled } from '../../app/features'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import CompareButton from '../search/CompareButton.vue'
@@ -297,7 +298,8 @@ function submitted(result: Result) {
                   <RouterLink
                     v-for="category in entry.data.value.categories"
                     :key="category.id"
-                    class="tag tag-info"
+                    class="tag tag-hue"
+                    :style="{ '--hue': hue(category.id) }"
                     :to="withFilters('/courses', { category: category.id })"
                   >
                     {{ category.name }}

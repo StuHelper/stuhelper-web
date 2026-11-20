@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { Eye, Scale } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { ChevronsDownUp, ChevronsUpDown, Eye, Scale } from 'lucide-vue-next'
+import { computed, onBeforeUnmount, onDeactivated, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync, usePaged } from '../../shared/composables/async'
+import { createLimiter } from '../../shared/limit'
+import { hue } from '../../shared/hue'
 import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
+import ChipScroller from '../../shared/ui/ChipScroller.vue'
 import FilterBar from '../../shared/ui/FilterBar.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -95,10 +98,21 @@ watch(() => `${props.kind} ${campus.value} ${pageSize.value} ${JSON.stringify(ap
 let typing: ReturnType<typeof setTimeout> | undefined
 // A pending search must not write into another page's state after this one is left.
 onBeforeUnmount(() => clearTimeout(typing))
+// The page stays alive behind a detail page (App.vue). Leaving drops the unsent search and the
+// quick view, which must not float over the next page; filters, rows and position stay.
+onDeactivated(() => {
+  clearTimeout(typing)
+  text.value = applied.value.q
+  quick.value = undefined
+})
 watch(text, (value) => {
   clearTimeout(typing)
   if (value.trim() === applied.value.q) return
-  typing = setTimeout(() => page.replace({ q: value.trim() || undefined }), 300)
+  // The search belongs to the history entry it was typed in, not to a newer one of the same page.
+  const entry: unknown = (window.history.state as { position?: unknown } | null)?.position
+  typing = setTimeout(() => {
+    if ((window.history.state as { position?: unknown } | null)?.position === entry) page.replace({ q: value.trim() || undefined })
+  }, 300)
 })
 const set = (changes: Partial<Record<'q' | 'category' | 'nature' | 'department' | 'teacher' | 'sort', string | undefined>>) => page.replace(changes)
 const clear = () => { text.value = ''; set({ q: undefined, category: undefined, nature: undefined, department: undefined, teacher: undefined }) }
@@ -114,6 +128,12 @@ const activeFilters = computed(() => [
 // The grouped view lists every department of the current result. Each department reads its own
 // rows, so the header counts and "show all" always cover the whole department.
 const PREVIEW = 5
+// One switch for every department card. Each card applies it when it reaches the screen, so
+// expanding everything only reads the departments the reader actually scrolls to.
+const bulk = ref<{ expanded: boolean; turn: number }>({ expanded: false, turn: 0 })
+const setAll = (expanded: boolean) => { bulk.value = { expanded, turn: bulk.value.turn + 1 } }
+// At most two department pages are read at once, however many departments are expanded.
+const fullReads = createLimiter(2)
 const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
 // Department facets can overlap. Keep a route to every result without inferring an
 // unassigned count from those non-exclusive totals.
@@ -129,9 +149,8 @@ const sub = (row: DirectoryItem) => {
 const listKey = computed(() => `${arrival.value}|${grouped.value}`)
 const level = (row: DirectoryItem) => recommendationLevel[row.recommendation]
 const open = (row: DirectoryItem) => { quick.value = { id: row.object.id, name: row.object.name, note: props.kind === 'course' ? [sub(row), row.departments[0]?.name].filter(Boolean).join(' · ') : row.departments[0]?.name ?? '' } }
-const palette = ['var(--c-blue)', 'var(--c-purple)', 'var(--c-orange)', 'var(--c-green)', 'var(--c-pink)', 'var(--c-indigo)', 'var(--c-cyan)']
 // White initials need a darkened background for contrast.
-const tint = (id: string) => `color-mix(in srgb, ${palette[[...id].reduce((sum, c) => sum + c.charCodeAt(0), 0) % palette.length]} 72%, black)`
+const tint = (id: string) => `color-mix(in srgb, ${hue(id)} 72%, black)`
 function compare(id: string) {
   if (!toggleCompare(props.kind, id)) toast(t('browse.compareLimit', { p0: format.value.number(maxCompare) }))
 }
@@ -145,11 +164,10 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
       :description="results.status.value === 'ready' || results.items.value.length ? t(kind === 'course' ? 'browse.totalCourses' : 'browse.totalTeachers', { p0: format.number(count) }) : ''"
     />
     <div class="stack-sm toolbar">
-      <div
+      <ChipScroller
         v-if="kind === 'course' && categories.length"
-        class="d-chips"
-        role="group"
-        :aria-label="t('browse.courseCategory')"
+        :label="t('browse.courseCategory')"
+        :active="applied.category"
       >
         <button
           class="d-chip"
@@ -167,9 +185,13 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           :aria-pressed="applied.category === tab.id"
           @click="set({ category: tab.id })"
         >
-          {{ tab.name }} <span class="num">{{ format.number(tab.count) }}</span>
+          <span
+            class="d-chip-dot"
+            :style="{ '--hue': hue(tab.id) }"
+            aria-hidden="true"
+          />{{ tab.name }} <span class="num">{{ format.number(tab.count) }}</span>
         </button>
-      </div>
+      </ChipScroller>
       <div class="row filters">
         <SearchField
           v-model="text"
@@ -246,6 +268,27 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
         :items="activeFilters"
         @clear-all="clear"
       />
+      <div
+        v-if="kind === 'course' && grouped && groups.length"
+        class="bulk"
+        role="group"
+        :aria-label="t('browse.groupDisplay')"
+      >
+        <button
+          class="btn btn-sm"
+          type="button"
+          @click="setAll(true)"
+        >
+          <ChevronsUpDown aria-hidden="true" />{{ t('browse.expandAllGroups') }}
+        </button>
+        <button
+          class="btn btn-sm"
+          type="button"
+          @click="setAll(false)"
+        >
+          <ChevronsDownUp aria-hidden="true" />{{ t('browse.collapseAllGroups') }}
+        </button>
+      </div>
       <span
         class="visually-hidden"
         aria-live="polite"
@@ -333,9 +376,12 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           :key="group.id"
           v-slot="{ rows }"
           :name="group.name"
+          :hue="hue(group.id)"
           :count="group.count"
           :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
           :preview="PREVIEW"
+          :bulk="bulk"
+          :queue="fullReads"
           :load="(after, limit, signal) => loadDepartment(group.id, after, limit, signal)"
         >
           <DirectoryCourseRows
@@ -345,18 +391,6 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
             @compare="compare"
           />
         </DirectoryGroup>
-        <p
-          class="card unassigned"
-        >
-          <span class="subtle">{{ t('browse.unassignedCourses') }}</span>
-          <button
-            class="btn btn-sm"
-            type="button"
-            @click="grouped = false"
-          >
-            {{ t('browse.showInList') }}
-          </button>
-        </p>
       </div>
       <div
         v-else
@@ -406,7 +440,12 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
 /* Rows of the previous result stay while the next one loads, dimmed so they read as not current. */
 .stale { opacity: .5; pointer-events: none; transition: opacity .2s .15s; }
 .sections { display: grid; gap: .875rem; }
-.unassigned { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.bulk { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .375rem; }
+/* On phones the toolbar scrolls away, so the switch floats above the list instead. */
+@media (max-width: 760px) {
+  .bulk { position: fixed; inset-block-end: calc(var(--tab-height, 0px) + var(--safe-bottom) + .75rem); inset-inline: 0; z-index: 30; justify-content: center; pointer-events: none; }
+  .bulk .btn { pointer-events: auto; background: var(--glass-strong); box-shadow: var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
+}
 .sections.split { grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); align-items: start; }
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
 </style>

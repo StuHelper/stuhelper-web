@@ -9,6 +9,10 @@ import RatingIcon from './RatingIcon.vue'
 const props = withDefaults(defineProps<{ bands: Band[]; schoolId?: string; samples?: boolean; compact?: boolean; inline?: boolean; showCourses?: boolean }>(), { schoolId: undefined, samples: true, compact: false, showCourses: false })
 const { t, n } = useI18n()
 const text = useRatingText(toRef(props, 'schoolId'))
+// The meter takes the colour of the verdict. Difficulty and workload are not good or bad,
+// so they share one neutral tone, as their icons do.
+const meterTones = ['var(--danger)', 'var(--warning)', 'var(--c-gray)', 'var(--success)', 'var(--success)']
+const meter = (index: number) => (['difficulty', 'workload'].includes(dimensions[index] ?? '') ? 'var(--c-indigo)' : meterTones[(props.bands[index]?.level ?? 1) - 1])
 </script>
 
 <template>
@@ -33,6 +37,7 @@ const text = useRatingText(toRef(props, 'schoolId'))
           </span>
           <span
             class="band-meter"
+            :style="{ '--meter': meter(index) }"
             aria-hidden="true"
           >
             <i
@@ -65,7 +70,7 @@ const text = useRatingText(toRef(props, 'schoolId'))
 .band-value { display: flex; align-items: center; gap: .375rem; }
 .band-meter { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
 .band-meter i { height: 4px; border-radius: var(--pill); background: var(--fill-strong); transition: background-color .3s; }
-.band-meter i.on { background: var(--accent-fill); }
+.band-meter i.on { background: var(--meter, var(--accent-fill)); }
 /* Lit segments fill one after another when the ratings appear. */
 .band-meter i.on { transform-origin: left; animation: band-fill .5s var(--ease-out) both; }
 [dir="rtl"] .band-meter i.on { transform-origin: right; }

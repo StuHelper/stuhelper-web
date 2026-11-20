@@ -110,7 +110,7 @@ test('publish conditions only appear when the author does not meet them', async 
   expect(errors).toEqual([]);
 });
 
-test('directory filters stay out of the address and survive reload and back', async ({ page }, info) => {
+test('directory filters stay out of the address, survive reload and come back from a detail page without reloading', async ({ page }, info) => {
   await academicFixture(page);
   const listCalls = [];
   page.on('request', (request) => {
@@ -127,11 +127,21 @@ test('directory filters stay out of the address and survive reload and back', as
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
   await page.reload();
   await expect.poll(() => listCalls.at(-1)).toBe('dept');
-  await page.getByRole('link', { name: /Test Course/ }).first().click();
-  await expect(page).toHaveURL(/\/courses\/course/);
+  await expect(page.getByRole('link', { name: /Test Course/ }).first()).toBeVisible();
+  // The list stays alive behind the detail page: back shows the same rows at the same place.
+  // The one-row fixture is short, so the document is made tall enough to have a position to restore.
+  await page.evaluate(() => { document.body.style.minHeight = '3000px'; document.querySelector('.list-page').dataset.kept = 'yes'; window.scrollTo(0, 120); });
+  const before = await page.evaluate(() => scrollY);
+  expect(before).toBeGreaterThan(0);
   listCalls.length = 0;
+  // A script click keeps the scroll position; Playwright would scroll the link into view first.
+  await page.getByRole('link', { name: /Test Course/ }).first().evaluate((link) => link.click());
+  await expect(page).toHaveURL(/\/courses\/course/);
   await page.goBack();
-  await expect.poll(() => listCalls.at(-1)).toBe('dept');
+  await expect(page.getByRole('link', { name: /Test Course/ }).first()).toBeVisible();
+  await expect(page.locator('.list-page')).toHaveAttribute('data-kept', 'yes');
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
+  expect(listCalls).toEqual([]);
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
 });
 
@@ -180,9 +190,11 @@ test('course and teacher directories keep filters independent across navigation'
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: null, department: null });
   await search.fill('Fresh course');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Fresh course', department: null });
+  // The teacher list was kept alive with its own search, so back needs no new request.
+  const sent = calls.length;
   await page.goBack();
   await expect(search).toHaveValue('Teacher retained');
-  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher retained', department: null });
+  expect(calls.length).toBe(sent);
   await page.goBack();
   await expect(search).toHaveValue('Course');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Course', department: 'dept' });
@@ -294,11 +306,53 @@ test('each department in the grouped view reads its own rows and shows all of th
   expect(seen.some((q) => q.department_id === 'dept' && q.limit === '100')).toBe(true);
   await first.getByRole('button', { name: b.collapse, exact: true }).click();
   await expect(first.locator('li.line')).toHaveCount(5);
-  await expect(page.getByText(b.unassignedCourses, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: b.showInList, exact: true }).click();
+  // One switch expands or collapses every department, overriding each card's own choice.
+  const bulk = page.getByRole('group', { name: b.groupDisplay });
+  await bulk.getByRole('button', { name: b.expandAllGroups, exact: true }).click();
+  await expect(first.locator('li.line')).toHaveCount(7);
+  await expect(first.getByRole('button', { name: b.collapse, exact: true })).toBeVisible();
+  await bulk.getByRole('button', { name: b.collapseAllGroups, exact: true }).click();
+  await expect(first.locator('li.line')).toHaveCount(5);
+  await expect(bulk).toBeInViewport();
+  await page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.all, exact: true }).click();
   await expect(page.getByText('No department course', { exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Test College' })).toHaveCount(0);
-  await expect(page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.byDepartment })).toHaveAttribute('aria-pressed', 'false');
+  await expect(bulk).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
+
+test('expanding every department reads at most two pages at once and stops when collapsed', async ({ page }, info) => {
+  const b = catalogue(info).browse, errors = watch(page);
+  const departments = Array.from({ length: 4 }, (_, i) => ({ id: `d${i}`, name: `College ${i}`, count: 250, review_count: 0 }));
+  let inFlight = 0, peak = 0, fullPages = 0;
+  const held = [];
+  await page.addInitScript(() => localStorage.setItem('stuhelper.directory.grouped', '1'));
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', async (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    const department = query.get('department_id'), limit = Number(query.get('limit')), after = Number(query.get('after') || 0);
+    const rows = Array.from({ length: Math.min(limit, 250 - after) }, (_, i) => directoryRow(`${department}-${after + i}`, `${department} course ${after + i}`, 'recommended'));
+    const body = { ...directoryPage(rows, after + limit < 250 ? String(after + limit) : '', 1000), department_facets: departments };
+    if (limit !== 100) return route.fulfill({ json: body });
+    fullPages += 1; inFlight += 1; peak = Math.max(peak, inFlight);
+    await new Promise((resolve) => held.push(resolve));
+    inFlight -= 1;
+    return route.fulfill({ json: body }).catch(() => undefined);
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  for (const d of departments) await expect(page.getByRole('region', { name: d.name }).locator('li.line')).toHaveCount(5);
+  const bulk = page.getByRole('group', { name: b.groupDisplay });
+  await bulk.getByRole('button', { name: b.expandAllGroups, exact: true }).click();
+  await expect.poll(() => fullPages).toBe(2);
+  // Release one page at a time: the queue never lets more than two run together.
+  for (let i = 0; i < 4; i++) { held.shift()?.(); await page.waitForTimeout(50); }
+  expect(peak).toBeLessThanOrEqual(2);
+  await bulk.getByRole('button', { name: b.collapseAllGroups, exact: true }).click();
+  const sent = fullPages;
+  while (held.length) held.shift()();
+  await page.waitForTimeout(300);
+  expect(fullPages).toBe(sent);
+  for (const d of departments) await expect(page.getByRole('region', { name: d.name }).locator('li.line')).toHaveCount(5);
   expect(errors).toEqual([]);
 });
 

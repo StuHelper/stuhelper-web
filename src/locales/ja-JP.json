@@ -66,7 +66,9 @@
     "undo": "元に戻す",
     "clearSearch": "検索を解除",
     "shownOf": "{total} 件中 {shown} 件を表示",
-    "opensInNewTab": "（新しいタブで開きます）"
+    "opensInNewTab": "（新しいタブで開きます）",
+    "scrollBack": "前へスクロール",
+    "scrollForward": "次へスクロール"
   },
   "errors": {
     "disabled": "グループサービスは無効です。",
@@ -1329,7 +1331,12 @@
       "storage_writes_disabled": "新規ファイルの受け入れを停止しています。",
       "capacity_unknown": "容量を読み取れません。",
       "exit_overdue": "終了目標日時を過ぎていますが、移行は処理中です。"
-    }
+    },
+    "displayLabel": "メモ名（任意）",
+    "displayLabelHint": "例：メインのドライブ",
+    "displayLabelTooLong": "メモ名は 32 文字までです。",
+    "reviewLabel": "メモ名：",
+    "reviewLabelCleared": "メモ名を削除します。"
   },
   "custody": {
     "disabled": "ストレージアカウントの管理機能は有効になっていません。",
@@ -1531,15 +1538,32 @@
       "invalid_state": "認可の有効期限が切れたか、別のログインのものです。アカウント画面からやり直してください。",
       "unionid_missing": "QQ から完全な ID が返されなかったため、QQ Connect を連携できません。",
       "reauthorization_required": "QQ の認可が完了しませんでした。アカウントページから QQ ログイン連携をやり直してください。",
-      "processing": "QQ が認可結果を確認中です。しばらくしてからアカウントページで連携状態を確認してください。"
+      "processing": "QQ が認可結果を確認中です。しばらくしてからアカウントページで連携状態を確認してください。",
+      "unauthenticated": "ログインの有効期限が切れました。もう一度ログインしてから連携してください。",
+      "forbidden": "このアカウントでは QQ を連携できません。",
+      "unionid_permission_required": "QQ Connect アプリで UnionID の権限がまだ有効になっていないため、現在は連携できません。しばらくしてからお試しください。",
+      "redirect_uri_mismatch": "QQ Connect のコールバック先の設定に誤りがあるため、現在は連携できません。管理者にお問い合わせください。",
+      "casdoor_conflict": "この QQ は別のアカウントのログインに使われています。先にそちらで QQ ログインを解除するか、管理者にお問い合わせください。",
+      "connect_disabled": "QQ Connect の連携はまだ公開されていません。",
+      "connect_unconfigured": "QQ Connect の連携設定がまだ完了していません。しばらくしてからお試しください。",
+      "invalid_input": "コールバックが無効か期限切れです。アカウントページからやり直してください。"
     },
     "callback": {
       "title": "QQ Connect の認可",
       "back": "アカウントとセキュリティに戻る",
       "working": "QQ の認可を確認しています…",
       "bound": "QQ Connect を連携しました。",
-      "declined": "QQ の画面でキャンセルしたため、QQ Connect は連携されていません。"
-    }
+      "declined": "QQ の画面でキャンセルしたため、QQ Connect は連携されていません。",
+      "loginPending": "QQ Connect は連携しましたが、QQ ログインの関連付けはまだ完了していません。アカウントページで確認してください。"
+    },
+    "notOpen": "未公開",
+    "notOpenHint": "QQ 連携は QQ 番号、QQ 公式ボット、QQ Connect の 3 項目です。公開後にここで項目ごとに連携できます。",
+    "reauthorize": "再認可",
+    "login": {
+      "reauthorize": "QQ でログインできますが、QQ Connect の情報が不足しています。「認可へ」からもう一度認可すると完了します。",
+      "out_of_sync": "QQ ログインに関連付けた QQ と QQ Connect で連携した QQ が一致しません。以前連携した QQ で再認可してください。"
+    },
+    "sendTo": "送信先：{bots}"
   },
   "security": {
     "title": "アカウントとセキュリティ",
@@ -2326,7 +2350,8 @@
     "upvotes": "賛同 {p0} 人",
     "verifiedStudent": "認証済みの学生",
     "viewDetails": "詳細を見る",
-    "unassignedCourses": "リスト表示では、学院未設定の科目を含むすべての検索結果を確認できます。",
-    "showInList": "一覧で表示"
+    "groupDisplay": "学院ごとの表示",
+    "expandAllGroups": "すべて展開",
+    "collapseAllGroups": "すべて折りたたむ"
   }
 }

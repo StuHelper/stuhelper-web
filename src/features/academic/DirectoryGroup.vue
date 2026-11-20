@@ -1,9 +1,10 @@
 <script setup lang="ts" generic="T">
 import { ChevronDown } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onDeactivated, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { ApiError, errorCode } from '../../shared/api/errors'
+import type { Limiter } from '../../shared/limit'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 
 // One department in the grouped course directory. The section reads its own first rows when
@@ -11,9 +12,15 @@ import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 // loads on its own, so no shared "load more" mixes departments.
 const props = defineProps<{
   name: string
+  /** Colour of the department, shared with its other appearances. */
+  hue?: string
   count: number
   summary: string
   preview: number
+  /** Page-wide expand or collapse; a new turn overrides this card's own choice. */
+  bulk?: { expanded: boolean; turn: number }
+  /** Page-wide limit on "show all" reads, so expanding every department stays bounded. */
+  queue?: Limiter
   load: (after: string, limit: number, signal: AbortSignal) => Promise<{ items: T[]; next: string }>
 }>()
 defineSlots<{ default(props: { rows: T[] }): unknown }>()
@@ -47,7 +54,8 @@ async function read(all: boolean, retryConflict = true) {
       const loaded: T[] = []
       const cursors = new Set<string>()
       do {
-        const page = await props.load(after, pageLimit, current.signal)
+        const from = after
+        const page = props.queue ? await props.queue(current.signal, () => props.load(from, pageLimit, current.signal)) : await props.load(from, pageLimit, current.signal)
         if (controller !== current) return
         loaded.push(...page.items)
         rows.value = [...loaded]
@@ -75,16 +83,35 @@ watch(section, (element) => {
   observer = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return
     observer?.disconnect()
-    void read(false)
+    void read(expanded.value)
   }, { rootMargin: '800px 0px' })
   observer.observe(element)
 })
 onBeforeUnmount(() => { observer?.disconnect(); controller?.abort() })
 
+watch(() => props.bulk?.turn, () => {
+  if (!props.bulk) return
+  expanded.value = props.bulk.expanded
+  if (!expanded.value) stop()
+  // Cards not reached yet read everything when they first come near the screen.
+  if (expanded.value && status.value !== 'idle' && !complete.value) void read(true)
+})
+// Collapsing or leaving the page stops a "show all" read in progress, including pages still
+// waiting for their turn. Rows already shown stay; expanding again reads from the start.
+function stop() {
+  if (status.value !== 'loading') return
+  controller?.abort()
+  controller = undefined
+  status.value = rows.value.length ? 'ready' : 'idle'
+}
+let resume = false
+onDeactivated(() => { resume = expanded.value && status.value === 'loading'; stop() })
+onActivated(() => { if (resume) void read(true); resume = false })
 const shown = computed(() => (expanded.value ? rows.value : rows.value.slice(0, props.preview)))
 function toggle() {
   expanded.value = !expanded.value
   if (expanded.value && !complete.value) void read(true)
+  else if (!expanded.value) stop()
 }
 const retry = () => void read(expanded.value)
 </script>
@@ -93,6 +120,7 @@ const retry = () => void read(expanded.value)
   <section
     ref="section"
     class="card flush"
+    :style="hue ? { '--hue': hue } : undefined"
     :aria-label="name"
     :aria-busy="status === 'loading' || undefined"
   >
@@ -141,7 +169,8 @@ const retry = () => void read(expanded.value)
 
 <style scoped>
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
-.group-head { display: grid; gap: .0625rem; padding: .75rem 1rem; border-block-end: .5px solid var(--separator); background: var(--fill); }
+/* The header carries the department colour: a strip at the start edge over a faint wash. */
+.group-head { display: grid; gap: .0625rem; padding: .75rem 1rem; border-block-end: .5px solid var(--separator); border-inline-start: 4px solid var(--hue, var(--fill-strong)); background: color-mix(in srgb, var(--hue, var(--label-3)) 9%, var(--surface)); }
 .placeholder { display: grid; gap: .5rem; padding: .75rem 1rem; }
 .skeleton-line { height: 1.5rem; border-radius: .375rem; background: var(--fill); }
 .group-error { margin: .75rem 1rem; }
