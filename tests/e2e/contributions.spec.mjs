@@ -28,7 +28,7 @@ async function setup(page, info, empty = false, initial = example.page.items[0])
       if (!state.seen.has(key)) {
         state.empty = false;
         const desired = { pause: 'paused', resume: 'active', reopen: 'active', exit: 'exiting', revoke: 'revoked' }[body.action] ?? state.item.desired_state;
-        state.item = { ...state.item, revision: state.item.revision + 1, state: 'pending', desired_state: desired, conditions: body.conditions ?? state.item.conditions };
+        state.item = { ...state.item, revision: state.item.revision + 1, state: 'pending', desired_state: desired, conditions: body.conditions ?? state.item.conditions, ...(body.display_label === undefined ? {} : body.display_label ? { display_label: body.display_label } : { display_label: undefined }) };
         state.seen.set(key, structuredClone(state.item));
       }
       if (state.failNext) { state.failNext = false; return route.abort(); }
@@ -136,4 +136,31 @@ test('an exited contribution reactivates its original ID with fresh consent and 
   expect(state.seen.size).toBe(1);
   await expect(page.locator('article')).toContainText(m.states.pending);
   await expect(page.getByRole('button',{name:m.actions.reopen,exact:true})).toHaveCount(0);
+});
+test('records stay distinguishable by masked account and an optional nickname', async ({ page }, info) => {
+  const { m, c, state, errors } = await setup(page, info, false, { ...example.page.items[0], adapter: 'bhpan', account_hint: '21****89' });
+  const card = page.locator('article').first();
+  await expect(card.getByRole('heading', { level: 3 })).toHaveText('BHpan · 21****89');
+  await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
+  await page.getByLabel(m.displayLabel, { exact: true }).fill('  主力网盘  ');
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests[0].body.display_label).toBe('主力网盘');
+  await expect(card.getByRole('heading', { level: 3 })).toHaveText('主力网盘');
+  await expect(card).toContainText('BHpan · 21****89');
+  await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
+  await page.getByLabel(m.limit, { exact: true }).fill('12');
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests[1].body.display_label).toBeUndefined();
+  await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
+  await page.getByLabel(m.displayLabel, { exact: true }).fill('');
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests[2].body.display_label).toBe('');
+  await expect(card.getByRole('heading', { level: 3 })).toHaveText('BHpan · 21****89');
+  expect(errors).toEqual([]);
 });

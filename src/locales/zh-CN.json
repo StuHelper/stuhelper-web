@@ -1331,7 +1331,9 @@
       "storage_writes_disabled": "存储暂不接受新文件。",
       "capacity_unknown": "暂时读取不到容量。",
       "exit_overdue": "已超过退出目标时间，迁移仍在处理。"
-    }
+    },
+    "displayLabel": "备注名（选填）",
+    "displayLabelHint": "例如：主力网盘"
   },
   "custody": {
     "disabled": "存储账号托管尚未启用。",

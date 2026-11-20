@@ -1331,7 +1331,9 @@
       "storage_writes_disabled": "새 파일을 받지 않는 저장소입니다.",
       "capacity_unknown": "용량을 읽을 수 없습니다.",
       "exit_overdue": "종료 목표 시각을 지났으며 이전 처리가 계속되고 있습니다."
-    }
+    },
+    "displayLabel": "메모 이름(선택)",
+    "displayLabelHint": "예: 주 드라이브"
   },
   "custody": {
     "disabled": "스토리지 계정 위탁 기능은 활성화되지 않았습니다.",

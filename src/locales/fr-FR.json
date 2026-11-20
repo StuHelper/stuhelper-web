@@ -1331,7 +1331,9 @@
       "storage_writes_disabled": "Le stockage n’accepte pas de nouveaux fichiers.",
       "capacity_unknown": "Capacité illisible pour le moment.",
       "exit_overdue": "Objectif de retrait dépassé ; migration en cours."
-    }
+    },
+    "displayLabel": "Surnom (facultatif)",
+    "displayLabelHint": "Par exemple : disque principal"
   },
   "custody": {
     "disabled": "La gestion des comptes de stockage n’est pas activée.",

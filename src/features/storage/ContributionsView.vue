@@ -41,6 +41,7 @@ const limit = ref('')
 const reserve = ref('0')
 const until = ref('')
 const accepted = ref(false)
+const displayLabel = ref('')
 const editing = ref<{ item: Contribution; mode: 'configure' | 'renew' | 'reopen' } | null>(null)
 const invalid = ref(false)
 const formTitle = ref<HTMLElement>()
@@ -84,6 +85,7 @@ function reset() {
   reserve.value = '0'
   until.value = ''
   accepted.value = false
+  displayLabel.value = ''
   invalid.value = false
 }
 function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
@@ -91,6 +93,7 @@ function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
   limit.value = gbInput(item.conditions.limit_bytes)
   reserve.value = gbInput(item.conditions.personal_reserve)
   until.value = mode === 'reopen' ? '' : localDateInput(Date.parse(item.conditions.until))
+  displayLabel.value = item.display_label ?? ''
   accepted.value = false
   invalid.value = false
   void nextTick(() => formTitle.value?.focus())
@@ -106,8 +109,11 @@ function review() {
     return
   }
   invalid.value = false
-  if (change) prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: change.mode, conditions: result, ...(needsConsent ? { consent: consent() } : {}) } })
-  else prepare({ kind: 'create', key: crypto.randomUUID(), body: { instance_id: instance.value, conditions: result, consent: consent() } })
+  // The server trims and clears on ""; only send the note when it actually changes.
+  const note = displayLabel.value.trim()
+  const noteChange = change?.mode === 'configure' ? (note !== (change.item.display_label ?? '') ? { display_label: note } : {}) : note ? { display_label: note } : {}
+  if (change) prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: change.mode, conditions: result, ...noteChange, ...(needsConsent ? { consent: consent() } : {}) } })
+  else prepare({ kind: 'create', key: crypto.randomUUID(), body: { instance_id: instance.value, conditions: result, consent: consent(), ...noteChange } })
 }
 function command(item: Contribution, value: Command['action']) {
   prepare({ kind: 'command', id: item.id, key: crypto.randomUUID(), body: { revision: item.revision, action: value } })
@@ -116,6 +122,9 @@ function command(item: Contribution, value: Command['action']) {
 const settled = (item: Contribution) => item.state === item.desired_state
 const leaving = (item: Contribution) => item.desired_state === 'exiting' || item.desired_state === 'revoked'
 const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
+// Two accounts of the same provider must stay distinguishable: the owner's note wins,
+// otherwise the masked provider login, otherwise the record's own identifier tail.
+const account = (item: { adapter: string; account_hint?: string; id: string }) => `${adapterName(item.adapter)} · ${item.account_hint ?? item.id.slice(-8)}`
 const mutable = (item: Contribution) => item.desired_state === 'active' || item.desired_state === 'paused'
 
 watch(error, (value) => {
@@ -296,8 +305,21 @@ watch(completed, (value) => {
                   v-for="option in options.items"
                   :key="option.id"
                   :value="option.id"
-                >{{ t('contribution.option', { adapter: adapterName(option.adapter), id: option.id.slice(-8), capacity: bytes(option.available_bytes) }) }}</option>
+                >{{ t('contribution.option', { adapter: adapterName(option.adapter), id: option.account_hint ?? option.id.slice(-8), capacity: bytes(option.available_bytes) }) }}</option>
               </AppSelect>
+            </label>
+            <label
+              v-if="editing?.mode !== 'renew'"
+              class="field"
+            >
+              <span class="field-label">{{ t('contribution.displayLabel') }}</span>
+              <input
+                v-model="displayLabel"
+                class="input"
+                maxlength="32"
+                autocomplete="off"
+                :placeholder="t('contribution.displayLabelHint')"
+              >
             </label>
             <div class="form-grid">
               <label class="field">
@@ -428,7 +450,15 @@ watch(completed, (value) => {
           >
             <article class="card stack">
               <div class="row-between">
-                <h3><bdi>{{ adapterName(item.adapter) }}</bdi></h3>
+                <div class="card-heading">
+                  <h3><bdi>{{ item.display_label || account(item) }}</bdi></h3>
+                  <p
+                    v-if="item.display_label"
+                    class="subtle"
+                  >
+                    <bdi>{{ account(item) }}</bdi>
+                  </p>
+                </div>
                 <StatusTag :tone="item.state === 'active' ? 'success' : item.state === 'blocked' ? 'danger' : 'warning'">
                   {{ label('contribution.states', item.state) }}
                 </StatusTag>
@@ -633,6 +663,7 @@ watch(completed, (value) => {
 </template>
 
 <style scoped>
+.card-heading { min-width: 0; overflow-wrap: anywhere; }
 article .facts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics { gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics dd { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem); font-weight: 700; line-height: 1.1; letter-spacing: var(--tracking-title); }

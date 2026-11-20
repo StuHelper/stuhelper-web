@@ -1,9 +1,9 @@
 {
   "repository": "StuHelper/stuhelper-storage-contribution",
-  "revision": "8775d9d1040b317b398de179abf75a42f0922444",
-  "version": "0.1.0",
-  "sha256": "e443d3fedbb8f45a3dcc420682ebe241af176c5f6d9b694e786a6671eb9f0d7c",
-  "browser_sha256": "f49b8a9ff357af09fbb922ea2dc01f33e69a1c8dec71b67d2a448e683d2c6b14",
+  "revision": "f5ae216018df476105a008ed162aec97ac8afdae",
+  "version": "0.1.1",
+  "sha256": "f0d0240ba7b55ef05734bd68aefb712c1110dd2b191fc6cbbf2f9427209852fa",
+  "browser_sha256": "3641dab9979525dd4c9c4e499a8a4b0177a84f490a21a048afa7cc961376c6c5",
   "files": {
     "contracts/contribution.openapi.json": "contracts/contribution.openapi.json",
     "sdk/contribution.gen.ts": "src/api/contribution.gen.ts",

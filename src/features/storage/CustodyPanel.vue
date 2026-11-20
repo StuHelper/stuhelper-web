@@ -265,7 +265,7 @@ watch(error, (value) => {
         >
           <article class="card stack-sm">
             <div class="row-between">
-              <h3><bdi>{{ adapterName(item.adapter) }}</bdi></h3>
+              <h3><bdi>{{ item.account_hint ? `${adapterName(item.adapter)} · ${item.account_hint}` : adapterName(item.adapter) }}</bdi></h3>
               <StatusTag :tone="item.state === 'ready' ? 'success' : item.state === 'pending' ? 'warning' : 'danger'">
                 {{ label('custody.states', item.state) }}
               </StatusTag>
