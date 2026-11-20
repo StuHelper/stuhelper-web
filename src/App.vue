@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ConfigProvider } from 'reka-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
 import { localeReady } from './app/i18n'
@@ -13,7 +13,7 @@ import { extras } from './shared/extras'
 import AccessPanel from './features/account/AccessPanel.vue'
 import NotFoundView from './features/home/NotFoundView.vue'
 import { useCapabilities } from './shared/capabilities'
-import { useAccess } from './features/account/access'
+import { useAccess, useCampusId } from './features/account/access'
 import { useSession } from './shared/session'
 
 const route = useRoute()
@@ -34,6 +34,23 @@ watch(() => route.path, (_, from) => {
   if (route.meta.remountOnPath && route.meta.continuesFrom !== from) pathKey.value++
 })
 const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', pathKey.value].join('|'))
+// List pages stay alive behind their detail pages: going back shows the same rows, filters,
+// expanded sections and scroll position without reading them again. Only these components are
+// cached, so forms holding passwords or unsent input are never kept in memory.
+// A kept page is identified by its path alone; the path counter would remount it on return.
+const localePart = computed(() => (extras.remountOnLocale ? localeKey.value : ''))
+// Kept pages hold the viewer's own data (votes, recent courses, downloads). When the person,
+// school or access level changes, every kept page is dropped. Emptying `include` prunes the cache
+// without remounting the page on screen (a callback page must not run twice).
+const campus = useCampusId()
+const cacheScope = computed(() => [session.session.value?.profile.id ?? '', campus.value ?? '', access.state.value].join('|'))
+const keptPages = ['DirectoryView', 'BrowseView', 'SearchView', 'PopularView']
+const kept = ref(keptPages)
+watch(cacheScope, async () => {
+  kept.value = []
+  await nextTick()
+  kept.value = keptPages
+})
 const capabilities = useCapabilities()
 // An optional module that this deployment does not run shows as unavailable;
 // the page waits until the module list is known so it sends no request first.
@@ -57,8 +74,18 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
       />
       <RouterView
         v-else
-        :key="pageKey"
-      />
+        v-slot="{ Component, route: current }"
+      >
+        <KeepAlive
+          :include="kept"
+          :max="4"
+        >
+          <component
+            :is="Component"
+            :key="current.meta.keepAlive ? `${localePart}|${current.path}` : pageKey"
+          />
+        </KeepAlive>
+      </RouterView>
     </AppLayout>
     <FavoriteMoveDialog
       v-if="moveTarget && moveTarget.profileId === session.session.value?.profile.id"

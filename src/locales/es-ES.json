@@ -66,7 +66,9 @@
     "undo": "Deshacer",
     "clearSearch": "Borrar búsqueda",
     "shownOf": "Mostrando {shown} de {total}",
-    "opensInNewTab": "(se abre en una pestaña nueva)"
+    "opensInNewTab": "(se abre en una pestaña nueva)",
+    "scrollBack": "Desplazar atrás",
+    "scrollForward": "Desplazar adelante"
   },
   "errors": {
     "disabled": "El servicio de grupos está desactivado.",
@@ -2345,7 +2347,8 @@
     "upvotes": "Votos a favor: {p0}",
     "verifiedStudent": "Estudiante verificado",
     "viewDetails": "Ver detalles",
-    "unassignedCourses": "La vista de lista muestra todos los resultados, incluidos los cursos sin facultad.",
-    "showInList": "Ver en la lista"
+    "groupDisplay": "Vista por escuela",
+    "expandAllGroups": "Expandir todo",
+    "collapseAllGroups": "Contraer todo"
   }
 }

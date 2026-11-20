@@ -351,3 +351,23 @@ test('course suggestions load on opening the picker and closing discards a pendi
   await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
   expect(searches).not.toContain('discarded');
 });
+
+test('the filter sheet does not follow the reader to another page and is closed on return', async ({ page }, info) => {
+  const { all, errors } = await setup(page, info);
+  await expect(page.getByRole('link', { name: 'Fixture notes', exact: true })).toBeVisible();
+  // Visit another page and come back so the list is the kept instance, then leave it with the sheet open.
+  await page.locator('a[href="/courses"]:visible').first().click();
+  await expect(page).toHaveURL(/\/courses/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/resources/);
+  await page.getByRole('button', { name: all.common.filters, exact: true }).click();
+  await expect(page.getByRole('dialog')).toBeVisible();
+  await page.goForward();
+  await expect(page).toHaveURL(/\/courses/);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(await page.evaluate(() => getComputedStyle(document.body).pointerEvents)).not.toBe('none');
+  await page.goBack();
+  await expect(page.getByRole('link', { name: 'Fixture notes', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

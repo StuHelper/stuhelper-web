@@ -66,7 +66,9 @@
     "undo": "Annuler",
     "clearSearch": "Effacer la recherche",
     "shownOf": "{shown} sur {total} affichés",
-    "opensInNewTab": "(s’ouvre dans un nouvel onglet)"
+    "opensInNewTab": "(s’ouvre dans un nouvel onglet)",
+    "scrollBack": "Défiler en arrière",
+    "scrollForward": "Défiler en avant"
   },
   "errors": {
     "disabled": "Le service des groupes est désactivé.",
@@ -2345,7 +2347,8 @@
     "upvotes": "Approbations : {p0}",
     "verifiedStudent": "Étudiant vérifié",
     "viewDetails": "Voir les détails",
-    "unassignedCourses": "La vue en liste affiche tous les résultats, y compris les cours sans département.",
-    "showInList": "Voir dans la liste"
+    "groupDisplay": "Affichage par école",
+    "expandAllGroups": "Tout déplier",
+    "collapseAllGroups": "Tout replier"
   }
 }

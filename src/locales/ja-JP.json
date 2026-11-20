@@ -66,7 +66,9 @@
     "undo": "元に戻す",
     "clearSearch": "検索を解除",
     "shownOf": "{total} 件中 {shown} 件を表示",
-    "opensInNewTab": "（新しいタブで開きます）"
+    "opensInNewTab": "（新しいタブで開きます）",
+    "scrollBack": "前へスクロール",
+    "scrollForward": "次へスクロール"
   },
   "errors": {
     "disabled": "グループサービスは無効です。",
@@ -2345,7 +2347,8 @@
     "upvotes": "賛同 {p0} 人",
     "verifiedStudent": "認証済みの学生",
     "viewDetails": "詳細を見る",
-    "unassignedCourses": "リスト表示では、学院未設定の科目を含むすべての検索結果を確認できます。",
-    "showInList": "一覧で表示"
+    "groupDisplay": "学院ごとの表示",
+    "expandAllGroups": "すべて展開",
+    "collapseAllGroups": "すべて折りたたむ"
   }
 }
