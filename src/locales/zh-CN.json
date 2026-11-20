@@ -2017,9 +2017,14 @@
         "rejected": "教师认证申请未通过"
       },
       "system": {
-        "notice": "系统通知，相关编号 {reference_id}",
-        "security": "安全提醒，相关编号 {reference_id}",
-        "account": "账号通知，相关编号 {reference_id}"
+        "notice": "系统通知：{reference_id}",
+        "security": "安全提醒：{reference_id}",
+        "account": "账号通知：{reference_id}"
+      },
+      "systemPlain": {
+        "notice": "系统通知",
+        "security": "安全提醒",
+        "account": "账号通知"
       }
     },
     "status": {

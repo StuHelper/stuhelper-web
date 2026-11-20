@@ -2017,9 +2017,14 @@
         "rejected": "教員認証の申請は承認されませんでした"
       },
       "system": {
-        "notice": "システムからのお知らせ（関連番号 {reference_id}）",
-        "security": "セキュリティのお知らせ（関連番号 {reference_id}）",
-        "account": "アカウントのお知らせ（関連番号 {reference_id}）"
+        "notice": "システムからのお知らせ：{reference_id}",
+        "security": "セキュリティのお知らせ：{reference_id}",
+        "account": "アカウントのお知らせ：{reference_id}"
+      },
+      "systemPlain": {
+        "notice": "システムからのお知らせ",
+        "security": "セキュリティのお知らせ",
+        "account": "アカウントのお知らせ"
       }
     },
     "status": {

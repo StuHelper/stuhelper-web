@@ -2017,9 +2017,14 @@
         "rejected": "Teacher verification was not approved"
       },
       "system": {
-        "notice": "System notice, reference {reference_id}",
-        "security": "Security alert, reference {reference_id}",
-        "account": "Account notice, reference {reference_id}"
+        "notice": "System notice: {reference_id}",
+        "security": "Security alert: {reference_id}",
+        "account": "Account notice: {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "System notice",
+        "security": "Security alert",
+        "account": "Account notice"
       }
     },
     "status": {
