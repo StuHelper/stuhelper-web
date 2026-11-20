@@ -300,6 +300,7 @@
     }
   },
   "notFound": {
+    "disabled": "Esta función no está habilitada",
     "code": "404",
     "title": "Esta página no está disponible",
     "description": "La dirección puede ser incorrecta o la función aún no está disponible.",
@@ -838,6 +839,7 @@
       "accept": "He leído y acepto las condiciones actuales"
     },
     "editor": {
+      "noCategories": "No se pueden subir recursos porque no hay categorías habilitadas.",
       "selectCategory": "Elige una categoría de recursos disponible.",
       "intro": "Tres pasos: guardar los datos, subir el archivo y enviar a revisión. La versión publicada sigue disponible durante la revisión.",
       "step1": "1. Datos",
@@ -1258,7 +1260,7 @@
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
     "description": "Comparte el espacio libre de tu nube para guardar materiales de estudio.",
-    "summary": "Almacenamiento de la plataforma",
+    "summary": "Almacenamiento aportado por la comunidad",
     "declared": "Capacidad ofrecida",
     "available": "Disponible realmente",
     "used": "Usado",
@@ -1330,6 +1332,7 @@
     }
   },
   "custody": {
+    "disabled": "La custodia de cuentas de almacenamiento no está habilitada.",
     "title": "Cuentas de almacenamiento",
     "description": "Conecta una cuenta para elegir cuánto compartir y durante cuánto tiempo.",
     "sending": "Verificando la cuenta…",
@@ -2017,9 +2020,14 @@
         "rejected": "La verificación docente no fue aprobada"
       },
       "system": {
-        "notice": "Aviso del sistema, referencia {reference_id}",
-        "security": "Alerta de seguridad, referencia {reference_id}",
-        "account": "Aviso de la cuenta, referencia {reference_id}"
+        "notice": "Aviso del sistema: {reference_id}",
+        "security": "Alerta de seguridad: {reference_id}",
+        "account": "Aviso de la cuenta: {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "Aviso del sistema",
+        "security": "Alerta de seguridad",
+        "account": "Aviso de la cuenta"
       }
     },
     "status": {

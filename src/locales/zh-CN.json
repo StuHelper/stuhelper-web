@@ -300,6 +300,7 @@
     }
   },
   "notFound": {
+    "disabled": "此功能尚未启用",
     "code": "404",
     "title": "该页面暂不可用",
     "description": "地址可能有误，或对应功能尚未开放。",
@@ -838,6 +839,7 @@
       "accept": "我已阅读并同意当前版本条款"
     },
     "editor": {
+      "noCategories": "暂时无法上传资料，因为管理员尚未启用任何资料分类。",
       "selectCategory": "请选择可用的资料分类。",
       "intro": "按顺序完成三步：保存资料信息、上传文件、提交审核。审核期间，已发布的版本继续可用。",
       "step1": "1. 资料信息",
@@ -1258,7 +1260,7 @@
   "contribution": {
     "eyebrow": "共享存储",
     "description": "自愿贡献闲置的网盘容量，用于保存学习资料。",
-    "summary": "平台存储概况",
+    "summary": "社区贡献存储概况",
     "declared": "用户申报的容量",
     "available": "实际可用",
     "used": "已用容量",
@@ -1330,6 +1332,7 @@
     }
   },
   "custody": {
+    "disabled": "存储账号托管尚未启用。",
     "title": "存储账号",
     "description": "接入网盘账号后，可选择贡献的容量和期限。",
     "sending": "正在验证账号，请稍候…",
@@ -2017,9 +2020,14 @@
         "rejected": "教师认证申请未通过"
       },
       "system": {
-        "notice": "系统通知，相关编号 {reference_id}",
-        "security": "安全提醒，相关编号 {reference_id}",
-        "account": "账号通知，相关编号 {reference_id}"
+        "notice": "系统通知：{reference_id}",
+        "security": "安全提醒：{reference_id}",
+        "account": "账号通知：{reference_id}"
+      },
+      "systemPlain": {
+        "notice": "系统通知",
+        "security": "安全提醒",
+        "account": "账号通知"
       }
     },
     "status": {

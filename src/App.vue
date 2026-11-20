@@ -46,7 +46,10 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
 <template>
   <ConfigProvider :dir="locale === 'ar-EG' ? 'rtl' : 'ltr'">
     <AppLayout v-if="localeReady">
-      <NotFoundView v-if="missing" />
+      <NotFoundView
+        v-if="missing"
+        disabled
+      />
       <template v-else-if="waiting" />
       <AccessPanel
         v-else-if="blocked"

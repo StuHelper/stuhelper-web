@@ -300,6 +300,7 @@
     }
   },
   "notFound": {
+    "disabled": "Cette fonctionnalité n’est pas activée",
     "code": "404",
     "title": "Cette page est indisponible",
     "description": "L’adresse est peut-être incorrecte ou la fonctionnalité n’est pas encore disponible.",
@@ -838,6 +839,7 @@
       "accept": "J’ai lu et j’accepte les conditions actuelles"
     },
     "editor": {
+      "noCategories": "Le dépôt de ressources est indisponible, car aucune catégorie n’est activée.",
       "selectCategory": "Choisissez une catégorie de ressources disponible.",
       "intro": "Trois étapes : enregistrer les informations, déposer le fichier, soumettre. La version publiée reste disponible pendant la validation.",
       "step1": "1. Informations",
@@ -1258,7 +1260,7 @@
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",
     "description": "Partagez votre espace cloud libre pour conserver les supports de cours.",
-    "summary": "Stockage de la plateforme",
+    "summary": "Stockage fourni par la communauté",
     "declared": "Capacité proposée",
     "available": "Réellement disponible",
     "used": "Utilisé",
@@ -1330,6 +1332,7 @@
     }
   },
   "custody": {
+    "disabled": "La gestion des comptes de stockage n’est pas activée.",
     "title": "Comptes de stockage",
     "description": "Connectez un compte pour choisir la capacité et la durée du partage.",
     "sending": "Vérification du compte…",
@@ -2017,9 +2020,14 @@
         "rejected": "La vérification enseignant n’a pas été approuvée"
       },
       "system": {
-        "notice": "Avis du système, référence {reference_id}",
-        "security": "Alerte de sécurité, référence {reference_id}",
-        "account": "Avis concernant le compte, référence {reference_id}"
+        "notice": "Avis du système : {reference_id}",
+        "security": "Alerte de sécurité : {reference_id}",
+        "account": "Avis concernant le compte : {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "Avis du système",
+        "security": "Alerte de sécurité",
+        "account": "Avis concernant le compte"
       }
     },
     "status": {

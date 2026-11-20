@@ -8,6 +8,7 @@ import { useRoute, useRouter } from 'vue-router'
 import type { Command, Contribution as ContributionData } from '../../api/contribution'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
+import { feature, useCapabilities } from '../../shared/capabilities'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
@@ -27,6 +28,8 @@ const { t, te } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
 const session = useSession()
+const capabilities = useCapabilities()
+const custodyEnabled = computed(() => capabilities.has(feature.custody))
 const { data, options, policy, statistics, loading, sending, error, publicError, pending, uncertain, completed, reload, prepare, cancel, submit, next, nextOptions, first } = useContributions()
 const bytes = (value: number) => format.value.bytes(value)
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
@@ -193,11 +196,18 @@ watch(completed, (value) => {
       id-prefix="storage"
     />
     <CustodyPanel
-      v-if="custodyOpened && !needsSignIn"
+      v-if="custodyOpened && custodyEnabled && session.state.value === 'member' && !needsSignIn"
       v-show="tab === 'accounts'"
       ref="custody"
       @updated="reload()"
     />
+    <p
+      v-if="tab === 'accounts' && session.state.value === 'member' && !needsSignIn && !custodyEnabled"
+      class="notice"
+      role="status"
+    >
+      {{ t(capabilities.status.value === 'ready' ? 'custody.disabled' : 'common.loading') }}
+    </p>
     <div
       v-if="(tab === 'contributions' || needsSignIn) && ((completed && !error) || needsSignIn || (error && !pending))"
       class="stack"

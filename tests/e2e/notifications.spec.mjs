@@ -100,11 +100,11 @@ test('system notices form a conversation with a preview and an unread count', as
   await page.goto(`${base}/notifications?lang=${lang}`);
   const thread = page.getByRole('region', { name: n.threads, exact: true }).getByRole('link', { name: n.boxes.system });
   // The newest notice is the preview, and both unread notices are counted.
-  await expect(thread).toContainText(fill(n.titles.system.security, { reference_id: isolate('op-2') }));
+  await expect(thread).toContainText(n.titles.systemPlain.security);
   await expect(thread).toContainText(fill(n.unreadCount, { count: number(info, 2) }));
   await thread.click();
   await expect(page).toHaveURL(/box=system/);
-  await expect(page.getByRole('button', { name: fill(n.titles.system.notice, { reference_id: isolate('op-1') }) })).toBeVisible();
+  await expect(page.getByRole('button', { name: n.titles.systemPlain.notice })).toBeVisible();
   // A verification result belongs to its own box.
   await expect(page.getByRole('button', { name: fill(n.titles.student_verification.approved, { application_id: isolate('app-1') }) })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
