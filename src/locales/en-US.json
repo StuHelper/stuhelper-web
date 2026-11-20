@@ -1331,7 +1331,12 @@
       "storage_writes_disabled": "Storage is not accepting new files.",
       "capacity_unknown": "Capacity cannot be read right now.",
       "exit_overdue": "Exit target passed; migration is still pending."
-    }
+    },
+    "displayLabel": "Nickname (optional)",
+    "displayLabelHint": "For example: main drive",
+    "displayLabelTooLong": "A nickname can have at most 32 characters.",
+    "reviewLabel": "Nickname: ",
+    "reviewLabelCleared": "The nickname will be removed."
   },
   "custody": {
     "disabled": "Storage account custody is not enabled.",

@@ -154,12 +154,12 @@ const GB = 1e9
 export const contribution = {
   policy: { terms: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, adapters: ['bhpan'], min_bytes: GB, max_bytes: 1000 * GB, min_term_seconds: 86400, max_term_seconds: 31536000, exit_target_seconds: 86400, max_per_owner: 5, observation_max_age_seconds: 3600, renewal_notice_seconds: 86_400 },
   statistics: { declared_bytes: 4200 * GB, available_bytes: 2900 * GB, used_bytes: 1300 * GB, reserved_bytes: 40 * GB, contributions: 86, fresh_observations: 83, status: 'current', generated_at: ago(0, 1) },
-  item: { id: 'ct1', adapter: 'bhpan', revision: 3, applied_revision: 3, desired_state: 'active', state: 'active', reason: '', conditions: { limit_bytes: 50 * GB, personal_reserve: 10 * GB, until: '2027-06-30T00:00:00Z' }, consent: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, accepted_at: ago(60), created_at: ago(60), updated_at: ago(3), observation: { observed_at: ago(0, 1), authorization_expires_at: '2027-06-30T00:00:00Z', quota_expires_at: '2027-06-30T00:00:00Z', authorized: true, used_bytes: 18 * GB, reserved_bytes: 2 * GB, available_bytes: 30 * GB, remaining_replicas: 3 } },
-  options: { items: [{ id: 'cu1', adapter: 'bhpan', available_bytes: 80 * GB, authorization_expires_at: '2027-06-30T00:00:00Z' }], next_cursor: '' },
+  item: { id: 'ct1', adapter: 'bhpan', account_hint: '21****89', revision: 3, applied_revision: 3, desired_state: 'active', state: 'active', reason: '', conditions: { limit_bytes: 50 * GB, personal_reserve: 10 * GB, until: '2027-06-30T00:00:00Z' }, consent: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, accepted_at: ago(60), created_at: ago(60), updated_at: ago(3), observation: { observed_at: ago(0, 1), authorization_expires_at: '2027-06-30T00:00:00Z', quota_expires_at: '2027-06-30T00:00:00Z', authorized: true, used_bytes: 18 * GB, reserved_bytes: 2 * GB, available_bytes: 30 * GB, remaining_replicas: 3 } },
+  options: { items: [{ id: 'cu1', adapter: 'bhpan', account_hint: '21****89', available_bytes: 80 * GB, authorization_expires_at: '2027-06-30T00:00:00Z' }], next_cursor: '' },
 }
 export const custody = {
   policy: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/custody', max_term_seconds: 31536000 },
-  items: [{ id: '00000000-0000-4000-8000-000000000001', adapter: 'bhpan', revision: 1, state: 'ready', authorization_expires_at: '2027-06-30T00:00:00Z', request_id: '00000000-0000-4000-8000-000000000001', last_error: '' }],
+  items: [{ id: '00000000-0000-4000-8000-000000000001', adapter: 'bhpan', account_hint: '21****89', revision: 1, state: 'ready', authorization_expires_at: '2027-06-30T00:00:00Z', request_id: '00000000-0000-4000-8000-000000000001', last_error: '' }],
 }
 export const verification = {
   // 北航：四种方式都不选择学习阶段；学校账号核验只给在读学生，临时新生只能走人工审核。

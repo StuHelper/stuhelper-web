@@ -85,6 +85,13 @@ function goFirst() {
   void reload('')
 }
 const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
+// Each account must stay distinguishable: the masked login, with the record's identifier tail
+// when it is missing or two accounts share the same mask.
+const accountTitle = (item: { adapter: string; account_hint?: string; id: string }) => {
+  const shared = item.account_hint ? (data.value?.items.filter((other) => other.account_hint === item.account_hint).length ?? 0) > 1 : false
+  const tag = item.account_hint ? (shared ? `${item.account_hint} #${item.id.slice(-4)}` : item.account_hint) : item.id.slice(-8)
+  return `${adapterName(item.adapter)} · ${tag}`
+}
 defineExpose({ clearSecrets, refresh: () => { paged.value = false; return reload('') } })
 watch(error, (value) => {
   if (value === 'forbidden' || value === 'unauthenticated') reset()
@@ -265,7 +272,7 @@ watch(error, (value) => {
         >
           <article class="card stack-sm">
             <div class="row-between">
-              <h3><bdi>{{ adapterName(item.adapter) }}</bdi></h3>
+              <h3><bdi>{{ accountTitle(item) }}</bdi></h3>
               <StatusTag :tone="item.state === 'ready' ? 'success' : item.state === 'pending' ? 'warning' : 'danger'">
                 {{ label('custody.states', item.state) }}
               </StatusTag>
