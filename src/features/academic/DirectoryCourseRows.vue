@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { hue } from '../../shared/hue'
 import { Eye, Scale } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -57,7 +58,8 @@ const dash = '\u2014'
         <span class="cell small truncate dept">{{ r.departments[0]?.name ?? '' }}</span>
         <span class="cell"><span
           v-if="r.categories[0]"
-          class="tag"
+          class="tag tag-hue"
+          :style="{ '--hue': hue(r.categories[0].id) }"
         >{{ r.categories[0].name }}</span></span>
       </template>
       <span
@@ -104,7 +106,7 @@ const dash = '\u2014'
 .line { position: relative; display: grid; align-items: center; gap: .75rem; min-height: 44px; padding: .25rem 1rem; grid-template-columns: minmax(0, 1fr) 12rem 6.5rem 7.5rem 3.5rem 7.25rem; }
 .line.compact { grid-template-columns: minmax(0, 1fr) auto 7.25rem; }
 li.line + li.line { border-block-start: .5px solid var(--separator); }
-li.line:hover { background: var(--fill); }
+li.line:hover { background: var(--accent-soft); }
 .head { min-height: 34px; padding-block: .25rem; border-block-end: .5px solid var(--separator); color: var(--label-3); font-size: .8125rem; }
 .main { display: grid; min-width: 0; line-height: 1.3; }
 .name { color: var(--label); font-size: .9375rem; font-weight: 550; }
