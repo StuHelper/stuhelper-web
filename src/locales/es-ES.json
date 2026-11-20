@@ -1331,7 +1331,12 @@
       "storage_writes_disabled": "El almacenamiento no acepta archivos nuevos.",
       "capacity_unknown": "No se puede leer la capacidad por ahora.",
       "exit_overdue": "Plazo de salida superado; la migración sigue pendiente."
-    }
+    },
+    "displayLabel": "Apodo (opcional)",
+    "displayLabelHint": "Por ejemplo: disco principal",
+    "displayLabelTooLong": "El apodo puede tener como máximo 32 caracteres.",
+    "reviewLabel": "Apodo: ",
+    "reviewLabelCleared": "Se quitará el apodo."
   },
   "custody": {
     "disabled": "La custodia de cuentas de almacenamiento no está habilitada.",

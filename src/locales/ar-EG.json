@@ -1331,7 +1331,12 @@
       "storage_writes_disabled": "التخزين لا يقبل ملفات جديدة.",
       "capacity_unknown": "تعذرت قراءة السعة حاليًا.",
       "exit_overdue": "تجاوز موعد الانسحاب المستهدف وما زال النقل قيد المعالجة."
-    }
+    },
+    "displayLabel": "اسم مميز (اختياري)",
+    "displayLabelHint": "مثال: القرص الرئيسي",
+    "displayLabelTooLong": "يمكن أن يحتوي الاسم المميز على 32 حرفًا كحد أقصى.",
+    "reviewLabel": "الاسم المميز: ",
+    "reviewLabelCleared": "ستتم إزالة الاسم المميز."
   },
   "custody": {
     "disabled": "إدارة حسابات التخزين غير مفعّلة.",

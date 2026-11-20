@@ -9,7 +9,10 @@ const { t } = useI18n()
 const ratingText = useRatingText(() => props.schoolId, 'browse')
 </script>
 <template>
-  <span class="d-level"><RatingIcon
+  <span
+    class="d-level"
+    :class="level && !['difficulty', 'workload'].includes(props.dim) ? `tone-${level}` : ''"
+  ><RatingIcon
     v-if="level"
     :dimension="dimensionNames.indexOf(props.dim)"
     :level="level"

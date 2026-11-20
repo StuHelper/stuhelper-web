@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ChipScroller from '../../shared/ui/ChipScroller.vue'
+import { hue } from '../../shared/hue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Download, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
 import { computed, onActivated, onBeforeUnmount, onDeactivated, reactive, ref, shallowRef, watch } from 'vue'
@@ -378,7 +379,11 @@ async function download(item: Resource) {
             :aria-pressed="applied.category === c.id"
             @click="navigate({ category: c.id, attrs: undefined })"
           >
-            {{ localName(c.names, locale) }}
+            <span
+              class="d-chip-dot"
+              :style="{ '--hue': hue(c.id) }"
+              aria-hidden="true"
+            />{{ localName(c.names, locale) }}
           </button>
         </ChipScroller>
         <button
