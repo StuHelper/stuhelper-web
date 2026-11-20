@@ -6,6 +6,7 @@ import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync, usePaged } from '../../shared/composables/async'
 import { createLimiter } from '../../shared/limit'
+import { hue } from '../../shared/hue'
 import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import ChipScroller from '../../shared/ui/ChipScroller.vue'
@@ -148,9 +149,8 @@ const sub = (row: DirectoryItem) => {
 const listKey = computed(() => `${arrival.value}|${grouped.value}`)
 const level = (row: DirectoryItem) => recommendationLevel[row.recommendation]
 const open = (row: DirectoryItem) => { quick.value = { id: row.object.id, name: row.object.name, note: props.kind === 'course' ? [sub(row), row.departments[0]?.name].filter(Boolean).join(' · ') : row.departments[0]?.name ?? '' } }
-const palette = ['var(--c-blue)', 'var(--c-purple)', 'var(--c-orange)', 'var(--c-green)', 'var(--c-pink)', 'var(--c-indigo)', 'var(--c-cyan)']
 // White initials need a darkened background for contrast.
-const tint = (id: string) => `color-mix(in srgb, ${palette[[...id].reduce((sum, c) => sum + c.charCodeAt(0), 0) % palette.length]} 72%, black)`
+const tint = (id: string) => `color-mix(in srgb, ${hue(id)} 72%, black)`
 function compare(id: string) {
   if (!toggleCompare(props.kind, id)) toast(t('browse.compareLimit', { p0: format.value.number(maxCompare) }))
 }
@@ -185,7 +185,11 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           :aria-pressed="applied.category === tab.id"
           @click="set({ category: tab.id })"
         >
-          {{ tab.name }} <span class="num">{{ format.number(tab.count) }}</span>
+          <span
+            class="d-chip-dot"
+            :style="{ '--hue': hue(tab.id) }"
+            aria-hidden="true"
+          />{{ tab.name }} <span class="num">{{ format.number(tab.count) }}</span>
         </button>
       </ChipScroller>
       <div class="row filters">
@@ -372,6 +376,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           :key="group.id"
           v-slot="{ rows }"
           :name="group.name"
+          :hue="hue(group.id)"
           :count="group.count"
           :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
           :preview="PREVIEW"

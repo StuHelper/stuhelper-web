@@ -223,6 +223,8 @@ a.tag:hover { text-decoration: none; background: var(--fill-strong); }
 .tag-warning { background: var(--warning-soft); color: var(--warning); }
 .tag-danger { background: var(--danger-soft); color: var(--danger); }
 .tag-info { background: var(--info-soft); color: var(--info); }
+/* A tag in the colour of what it names (see shared/hue.ts); the text leans toward the label colour to stay readable. */
+.tag-hue { background: color-mix(in srgb, var(--hue) 14%, transparent); color: color-mix(in srgb, var(--hue) 72%, var(--label)); }
 
 /* Inline notices appear with a soft reveal so state changes are noticed. */
 .notice { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; padding: .75rem 1rem; border-radius: var(--radius); background: var(--fill); font-size: .9375rem; line-height: 1.45; animation: reveal .4s var(--ease-out); }

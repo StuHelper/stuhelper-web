@@ -12,6 +12,8 @@ import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 // loads on its own, so no shared "load more" mixes departments.
 const props = defineProps<{
   name: string
+  /** Colour of the department, shared with its other appearances. */
+  hue?: string
   count: number
   summary: string
   preview: number
@@ -118,6 +120,7 @@ const retry = () => void read(expanded.value)
   <section
     ref="section"
     class="card flush"
+    :style="hue ? { '--hue': hue } : undefined"
     :aria-label="name"
     :aria-busy="status === 'loading' || undefined"
   >
@@ -166,7 +169,8 @@ const retry = () => void read(expanded.value)
 
 <style scoped>
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
-.group-head { display: grid; gap: .0625rem; padding: .75rem 1rem; border-block-end: .5px solid var(--separator); background: var(--fill); }
+/* The header carries the department colour: a strip at the start edge over a faint wash. */
+.group-head { display: grid; gap: .0625rem; padding: .75rem 1rem; border-block-end: .5px solid var(--separator); border-inline-start: 4px solid var(--hue, var(--fill-strong)); background: color-mix(in srgb, var(--hue, var(--label-3)) 9%, var(--surface)); }
 .placeholder { display: grid; gap: .5rem; padding: .75rem 1rem; }
 .skeleton-line { height: 1.5rem; border-radius: .375rem; background: var(--fill); }
 .group-error { margin: .75rem 1rem; }

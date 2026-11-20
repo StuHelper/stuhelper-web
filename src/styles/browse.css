@@ -8,9 +8,18 @@
 .d-chip { flex: none; min-height: 34px; padding: .25rem .875rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label); font: inherit; font-size: .875rem; cursor: pointer; transition: background-color .2s, color .2s, transform .3s var(--spring); }
 .d-chip:hover { background: var(--fill-strong); }
 .d-chip:active { transform: scale(.95); }
-.d-chip[aria-pressed="true"] { background: var(--label); color: var(--bg); font-weight: 550; }
+.d-chip[aria-pressed="true"] { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
+.d-chip[aria-pressed="true"]:hover { background: var(--accent-fill-hover); }
+/* A coloured dot ties a category chip to the same colour in rows and tags. */
+.d-chip-dot { display: inline-block; width: .5rem; height: .5rem; margin-inline-end: .375rem; border-radius: 50%; background: var(--hue); vertical-align: .0625rem; }
+.d-chip[aria-pressed="true"] .d-chip-dot { box-shadow: 0 0 0 1.5px var(--on-accent); }
 .d-stat { font-size: clamp(1.625rem, 1.3rem + 1.2vw, 2.25rem); font-weight: 680; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .d-level { display: inline-flex; align-items: center; gap: .3125rem; font-size: .8125rem; font-weight: 550; color: var(--label); white-space: nowrap; }
+/* The verdict word takes the colour of its face, so a column of ratings can be scanned by colour. */
+.d-level.tone-1 { color: var(--danger); }
+.d-level.tone-2 { color: var(--warning); }
+.d-level.tone-3 { color: var(--label-2); }
+.d-level.tone-4, .d-level.tone-5 { color: var(--success); }
 .d-dots { display: inline-flex; gap: 2px; }
 .d-dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--fill-strong); }
 .d-dots i.on { background: var(--dot, var(--accent-fill)); }
@@ -30,7 +39,7 @@
 @keyframes d-slide-rtl { from { transform: translateX(-100%); } }
 .d-seg { display: inline-flex; gap: 2px; padding: 2px; border-radius: var(--pill); background: var(--fill); }
 .d-seg .btn { min-height: 30px; width: 34px; background: transparent; }
-.d-seg .btn[aria-pressed="true"] { background: var(--surface); color: var(--label); box-shadow: var(--shadow-card); }
+.d-seg .btn[aria-pressed="true"] { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-card); }
 
 .d-active { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; animation: d-list-in .18s var(--ease-out); }
 .d-active-item { display: inline-flex; align-items: center; gap: .25rem; min-height: 28px; padding: .125rem .5rem .125rem .75rem; border: 0; border-radius: var(--pill); background: var(--accent-soft); color: var(--accent); font: inherit; font-size: .8125rem; cursor: pointer; }
