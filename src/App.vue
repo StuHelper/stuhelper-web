@@ -34,6 +34,12 @@ watch(() => route.path, (_, from) => {
   if (route.meta.remountOnPath && route.meta.continuesFrom !== from) pathKey.value++
 })
 const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', pathKey.value].join('|'))
+// List pages stay alive behind their detail pages: going back shows the same rows, filters,
+// expanded sections and scroll position without reading them again. Only these components are
+// cached, so forms holding passwords or unsent input are never kept in memory.
+// A kept page is identified by its path alone; the path counter would remount it on return.
+const localePart = computed(() => (extras.remountOnLocale ? localeKey.value : ''))
+const kept = ['DirectoryView', 'BrowseView', 'SearchView', 'PopularView']
 const capabilities = useCapabilities()
 // An optional module that this deployment does not run shows as unavailable;
 // the page waits until the module list is known so it sends no request first.
@@ -57,8 +63,18 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
       />
       <RouterView
         v-else
-        :key="pageKey"
-      />
+        v-slot="{ Component, route: current }"
+      >
+        <KeepAlive
+          :include="kept"
+          :max="4"
+        >
+          <component
+            :is="Component"
+            :key="current.meta.keepAlive ? `${localePart}|${current.path}` : pageKey"
+          />
+        </KeepAlive>
+      </RouterView>
     </AppLayout>
     <FavoriteMoveDialog
       v-if="moveTarget && moveTarget.profileId === session.session.value?.profile.id"

@@ -110,7 +110,7 @@ test('publish conditions only appear when the author does not meet them', async 
   expect(errors).toEqual([]);
 });
 
-test('directory filters stay out of the address and survive reload and back', async ({ page }, info) => {
+test('directory filters stay out of the address, survive reload and come back from a detail page without reloading', async ({ page }, info) => {
   await academicFixture(page);
   const listCalls = [];
   page.on('request', (request) => {
@@ -127,11 +127,19 @@ test('directory filters stay out of the address and survive reload and back', as
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
   await page.reload();
   await expect.poll(() => listCalls.at(-1)).toBe('dept');
-  await page.getByRole('link', { name: /Test Course/ }).first().click();
+  await expect(page.getByRole('link', { name: /Test Course/ }).first()).toBeVisible();
+  // The list stays alive behind the detail page: back shows the same rows at the same place.
+  await page.evaluate(() => { document.querySelector('.list-page').dataset.kept = 'yes'; window.scrollTo(0, 120); });
+  const before = await page.evaluate(() => scrollY);
+  // A script click keeps the scroll position; Playwright would scroll the link into view first.
+  await page.getByRole('link', { name: /Test Course/ }).first().evaluate((link) => link.click());
   await expect(page).toHaveURL(/\/courses\/course/);
   listCalls.length = 0;
   await page.goBack();
-  await expect.poll(() => listCalls.at(-1)).toBe('dept');
+  await expect(page.getByRole('link', { name: /Test Course/ }).first()).toBeVisible();
+  await expect(page.locator('.list-page')).toHaveAttribute('data-kept', 'yes');
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
+  expect(listCalls).toEqual([]);
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
 });
 
@@ -180,9 +188,11 @@ test('course and teacher directories keep filters independent across navigation'
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: null, department: null });
   await search.fill('Fresh course');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Fresh course', department: null });
+  // The teacher list was kept alive with its own search, so back needs no new request.
+  const sent = calls.length;
   await page.goBack();
   await expect(search).toHaveValue('Teacher retained');
-  await expect.poll(() => calls.at(-1)).toEqual({ kind: 'teacher', q: 'Teacher retained', department: null });
+  expect(calls.length).toBe(sent);
   await page.goBack();
   await expect(search).toHaveValue('Course');
   await expect.poll(() => calls.at(-1)).toEqual({ kind: 'course', q: 'Course', department: 'dept' });
@@ -294,11 +304,18 @@ test('each department in the grouped view reads its own rows and shows all of th
   expect(seen.some((q) => q.department_id === 'dept' && q.limit === '100')).toBe(true);
   await first.getByRole('button', { name: b.collapse, exact: true }).click();
   await expect(first.locator('li.line')).toHaveCount(5);
-  await expect(page.getByText(b.unassignedCourses, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: b.showInList, exact: true }).click();
+  // One switch expands or collapses every department, overriding each card's own choice.
+  const bulk = page.getByRole('group', { name: b.groupDisplay });
+  await bulk.getByRole('button', { name: b.expandAllGroups, exact: true }).click();
+  await expect(first.locator('li.line')).toHaveCount(7);
+  await expect(first.getByRole('button', { name: b.collapse, exact: true })).toBeVisible();
+  await bulk.getByRole('button', { name: b.collapseAllGroups, exact: true }).click();
+  await expect(first.locator('li.line')).toHaveCount(5);
+  await expect(bulk).toBeInViewport();
+  await page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.all, exact: true }).click();
   await expect(page.getByText('No department course', { exact: true })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Test College' })).toHaveCount(0);
-  await expect(page.getByRole('group', { name: b.listMode }).getByRole('button', { name: b.byDepartment })).toHaveAttribute('aria-pressed', 'false');
+  await expect(bulk).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

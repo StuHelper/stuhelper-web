@@ -66,7 +66,9 @@
     "undo": "Отменить",
     "clearSearch": "Очистить поиск",
     "shownOf": "Показано {shown} из {total}",
-    "opensInNewTab": "(откроется в новой вкладке)"
+    "opensInNewTab": "(откроется в новой вкладке)",
+    "scrollBack": "Прокрутить назад",
+    "scrollForward": "Прокрутить вперёд"
   },
   "errors": {
     "disabled": "Сервис групп отключён.",
@@ -2345,7 +2347,8 @@
     "upvotes": "Согласны: {p0}",
     "verifiedStudent": "Подтверждённый студент",
     "viewDetails": "Подробнее",
-    "unassignedCourses": "В списке показаны все результаты, включая курсы без факультета.",
-    "showInList": "Показать списком"
+    "groupDisplay": "Группы по институтам",
+    "expandAllGroups": "Развернуть все",
+    "collapseAllGroups": "Свернуть все"
   }
 }

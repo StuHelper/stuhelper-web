@@ -14,6 +14,8 @@ const props = defineProps<{
   count: number
   summary: string
   preview: number
+  /** Page-wide expand or collapse; a new turn overrides this card's own choice. */
+  bulk?: { expanded: boolean; turn: number }
   load: (after: string, limit: number, signal: AbortSignal) => Promise<{ items: T[]; next: string }>
 }>()
 defineSlots<{ default(props: { rows: T[] }): unknown }>()
@@ -75,12 +77,18 @@ watch(section, (element) => {
   observer = new IntersectionObserver((entries) => {
     if (!entries.some((entry) => entry.isIntersecting)) return
     observer?.disconnect()
-    void read(false)
+    void read(expanded.value)
   }, { rootMargin: '800px 0px' })
   observer.observe(element)
 })
 onBeforeUnmount(() => { observer?.disconnect(); controller?.abort() })
 
+watch(() => props.bulk?.turn, () => {
+  if (!props.bulk) return
+  expanded.value = props.bulk.expanded
+  // Cards not reached yet read everything when they first come near the screen.
+  if (expanded.value && status.value !== 'idle' && !complete.value) void read(true)
+})
 const shown = computed(() => (expanded.value ? rows.value : rows.value.slice(0, props.preview)))
 function toggle() {
   expanded.value = !expanded.value

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ChipScroller from '../../shared/ui/ChipScroller.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Download, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
@@ -341,10 +342,9 @@ async function download(item: Resource) {
         </button>
       </div>
       <div class="row-between">
-        <div
-          class="d-chips"
-          role="group"
-          :aria-label="t('browse.resourceCategory')"
+        <ChipScroller
+          :label="t('browse.resourceCategory')"
+          :active="applied.category"
         >
           <button
             class="d-chip"
@@ -364,7 +364,7 @@ async function download(item: Resource) {
           >
             {{ localName(c.names, locale) }}
           </button>
-        </div>
+        </ChipScroller>
         <button
           class="btn btn-sm"
           type="button"

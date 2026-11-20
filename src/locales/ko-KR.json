@@ -66,7 +66,9 @@
     "undo": "실행 취소",
     "clearSearch": "검색 지우기",
     "shownOf": "{total}개 중 {shown}개 표시",
-    "opensInNewTab": "(새 탭에서 열림)"
+    "opensInNewTab": "(새 탭에서 열림)",
+    "scrollBack": "이전으로 스크롤",
+    "scrollForward": "다음으로 스크롤"
   },
   "errors": {
     "disabled": "그룹 서비스가 비활성화되어 있습니다.",
@@ -2345,7 +2347,8 @@
     "upvotes": "공감 {p0}명",
     "verifiedStudent": "인증된 학생",
     "viewDetails": "자세히 보기",
-    "unassignedCourses": "목록 보기에는 소속 단과대학이 없는 과목을 포함한 모든 결과가 표시됩니다.",
-    "showInList": "목록으로 보기"
+    "groupDisplay": "단과대학별 보기",
+    "expandAllGroups": "모두 펼치기",
+    "collapseAllGroups": "모두 접기"
   }
 }

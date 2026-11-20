@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { Eye, Scale } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import { ChevronsDownUp, ChevronsUpDown, Eye, Scale } from 'lucide-vue-next'
+import { computed, onBeforeUnmount, onDeactivated, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync, usePaged } from '../../shared/composables/async'
 import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
+import ChipScroller from '../../shared/ui/ChipScroller.vue'
 import FilterBar from '../../shared/ui/FilterBar.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
@@ -48,6 +49,8 @@ const applied = computed(() => {
 const text = ref(applied.value.q)
 // The row already knows the name, so the quick view shows its heading before anything loads.
 const quick = ref<{ id: string; name: string; note: string }>()
+// The page stays alive behind a detail page; its quick view must not float over that page.
+onDeactivated(() => { quick.value = undefined })
 
 // The grouped view is a per-browser display choice, not a filter.
 const groupedKey = 'stuhelper.directory.grouped'
@@ -114,6 +117,10 @@ const activeFilters = computed(() => [
 // The grouped view lists every department of the current result. Each department reads its own
 // rows, so the header counts and "show all" always cover the whole department.
 const PREVIEW = 5
+// One switch for every department card. Each card applies it when it reaches the screen, so
+// expanding everything only reads the departments the reader actually scrolls to.
+const bulk = ref<{ expanded: boolean; turn: number }>({ expanded: false, turn: 0 })
+const setAll = (expanded: boolean) => { bulk.value = { expanded, turn: bulk.value.turn + 1 } }
 const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
 // Department facets can overlap. Keep a route to every result without inferring an
 // unassigned count from those non-exclusive totals.
@@ -145,11 +152,10 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
       :description="results.status.value === 'ready' || results.items.value.length ? t(kind === 'course' ? 'browse.totalCourses' : 'browse.totalTeachers', { p0: format.number(count) }) : ''"
     />
     <div class="stack-sm toolbar">
-      <div
+      <ChipScroller
         v-if="kind === 'course' && categories.length"
-        class="d-chips"
-        role="group"
-        :aria-label="t('browse.courseCategory')"
+        :label="t('browse.courseCategory')"
+        :active="applied.category"
       >
         <button
           class="d-chip"
@@ -169,7 +175,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
         >
           {{ tab.name }} <span class="num">{{ format.number(tab.count) }}</span>
         </button>
-      </div>
+      </ChipScroller>
       <div class="row filters">
         <SearchField
           v-model="text"
@@ -246,6 +252,27 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
         :items="activeFilters"
         @clear-all="clear"
       />
+      <div
+        v-if="kind === 'course' && grouped && groups.length"
+        class="bulk"
+        role="group"
+        :aria-label="t('browse.groupDisplay')"
+      >
+        <button
+          class="btn btn-sm"
+          type="button"
+          @click="setAll(true)"
+        >
+          <ChevronsUpDown aria-hidden="true" />{{ t('browse.expandAllGroups') }}
+        </button>
+        <button
+          class="btn btn-sm"
+          type="button"
+          @click="setAll(false)"
+        >
+          <ChevronsDownUp aria-hidden="true" />{{ t('browse.collapseAllGroups') }}
+        </button>
+      </div>
       <span
         class="visually-hidden"
         aria-live="polite"
@@ -336,6 +363,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           :count="group.count"
           :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
           :preview="PREVIEW"
+          :bulk="bulk"
           :load="(after, limit, signal) => loadDepartment(group.id, after, limit, signal)"
         >
           <DirectoryCourseRows
@@ -345,18 +373,6 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
             @compare="compare"
           />
         </DirectoryGroup>
-        <p
-          class="card unassigned"
-        >
-          <span class="subtle">{{ t('browse.unassignedCourses') }}</span>
-          <button
-            class="btn btn-sm"
-            type="button"
-            @click="grouped = false"
-          >
-            {{ t('browse.showInList') }}
-          </button>
-        </p>
       </div>
       <div
         v-else
@@ -406,7 +422,12 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
 /* Rows of the previous result stay while the next one loads, dimmed so they read as not current. */
 .stale { opacity: .5; pointer-events: none; transition: opacity .2s .15s; }
 .sections { display: grid; gap: .875rem; }
-.unassigned { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.bulk { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .375rem; }
+/* On phones the toolbar scrolls away, so the switch floats above the list instead. */
+@media (max-width: 760px) {
+  .bulk { position: fixed; inset-block-end: calc(var(--tab-height, 0px) + var(--safe-bottom) + .75rem); inset-inline: 0; z-index: 30; justify-content: center; pointer-events: none; }
+  .bulk .btn { pointer-events: auto; background: var(--glass-strong); box-shadow: var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
+}
 .sections.split { grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); align-items: start; }
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
 </style>
