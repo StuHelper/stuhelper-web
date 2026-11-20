@@ -1531,7 +1531,14 @@
       "invalid_state": "The authorization expired or belongs to another sign-in. Start again from the account page.",
       "unionid_missing": "QQ did not return a complete identity, so QQ Connect cannot be bound right now.",
       "reauthorization_required": "The QQ authorization did not finish. Start QQ Connect again from the account page.",
-      "processing": "QQ is still confirming the authorization. Check the binding on the account page in a moment."
+      "processing": "QQ is still confirming the authorization. Check the binding on the account page in a moment.",
+      "unauthenticated": "Your sign-in has expired. Sign in again, then bind.",
+      "forbidden": "This account cannot bind QQ.",
+      "unionid_permission_required": "The QQ Connect app does not have UnionID access yet, so binding is not possible right now. Try again later.",
+      "redirect_uri_mismatch": "The QQ Connect callback address is misconfigured, so binding is not possible right now. Contact an administrator.",
+      "casdoor_conflict": "This QQ is already used to sign in to another account. Remove QQ sign-in there first, or contact an administrator.",
+      "connect_disabled": "QQ Connect binding is not open yet.",
+      "connect_unconfigured": "QQ Connect binding is not fully set up yet. Try again later."
     },
     "callback": {
       "title": "QQ Connect authorization",
@@ -1541,7 +1548,17 @@
       "declined": "You cancelled on the QQ page. QQ Connect was not bound."
     },
     "notOpen": "Not open yet",
-    "notOpenHint": "QQ binding covers your QQ number, the official QQ bot and QQ Connect. Once it opens you can bind each one here."
+    "notOpenHint": "QQ binding covers your QQ number, the official QQ bot and QQ Connect. Once it opens you can bind each one here.",
+    "reauthorize": "Authorize again",
+    "linkResult": {
+      "linked": "QQ Connect is bound and QQ sign-in is linked to this account.",
+      "denied": "You cancelled on the QQ page, so QQ Connect was not bound."
+    },
+    "login": {
+      "reauthorize": "You can already sign in with QQ, but the QQ Connect identity is missing. Choose Authorize once more to complete it.",
+      "out_of_sync": "The QQ linked for sign-in differs from the one bound through QQ Connect. Authorize again with the QQ you bound before."
+    },
+    "sendTo": "Send it to: {bots}"
   },
   "security": {
     "title": "Account and security",

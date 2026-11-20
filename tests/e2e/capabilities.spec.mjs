@@ -57,7 +57,7 @@ test('disabled custody tab explains its status without calling custody routes', 
   expect(requests).toEqual([]);
 });
 
-test('disabled groups preserve card consent and disabled QQ never mounts binding', async ({ page }, info) => {
+test('disabled groups preserve card consent and disabled QQ lists its three parts as not open without requests', async ({ page }, info) => {
   await discovery(page, []);
   const profile = structuredClone(member.profile);
   profile.group_card_consent.nickname = true;
@@ -83,7 +83,11 @@ test('disabled groups preserve card consent and disabled QQ never mounts binding
   const qq = page.locator('[aria-labelledby="qq-title"]');
   await expect(qq.getByRole('heading', { name: messages.qq.title })).toBeVisible();
   await expect(qq.locator('.group-row')).toHaveCount(3);
-  await expect(qq.getByText(messages.qq.notOpen, { exact: true })).toHaveCount(4);
+  for (const kind of ['onebot', 'official', 'connect']) {
+    const row = qq.locator('.group-row').filter({ hasText: messages.qq.parts[kind].title });
+    await expect(row).toHaveCount(1);
+    await expect(row.getByText(messages.qq.notOpen, { exact: true })).toBeVisible();
+  }
   await expect(qq.getByRole('button')).toHaveCount(0);
   expect(requests).toEqual([]);
 });

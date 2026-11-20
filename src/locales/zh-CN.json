@@ -1531,7 +1531,14 @@
       "invalid_state": "授权已失效或不属于当前登录，请回到账号页重新发起。",
       "unionid_missing": "QQ 没有返回完整的身份信息，暂时无法完成 QQ 互联绑定。",
       "reauthorization_required": "QQ 授权没有完成，请回到账号页重新发起 QQ 互联绑定。",
-      "processing": "QQ 仍在确认授权结果，请稍后回到账号页查看绑定状态。"
+      "processing": "QQ 仍在确认授权结果，请稍后回到账号页查看绑定状态。",
+      "unauthenticated": "登录已过期，请重新登录后再绑定。",
+      "forbidden": "当前账号不能绑定 QQ。",
+      "unionid_permission_required": "QQ 互联应用尚未开通 UnionID 权限，暂时无法绑定，请稍后再试。",
+      "redirect_uri_mismatch": "QQ 互联回调地址配置有误，暂时无法绑定，请联系管理员。",
+      "casdoor_conflict": "这个 QQ 已用于登录另一个账号。请先在那个账号解除 QQ 登录，或联系管理员。",
+      "connect_disabled": "QQ 互联绑定暂未开放。",
+      "connect_unconfigured": "QQ 互联绑定尚未配置完成，请稍后再试。"
     },
     "callback": {
       "title": "QQ 互联授权",
@@ -1541,7 +1548,17 @@
       "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
     },
     "notOpen": "暂未开放",
-    "notOpenHint": "QQ 绑定包括 QQ 号、QQ 官方机器人和 QQ 互联三项，开放后可在这里逐项绑定。"
+    "notOpenHint": "QQ 绑定包括 QQ 号、QQ 官方机器人和 QQ 互联三项，开放后可在这里逐项绑定。",
+    "reauthorize": "重新授权",
+    "linkResult": {
+      "linked": "QQ 互联已绑定，QQ 登录也已关联到这个账号。",
+      "denied": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
+    },
+    "login": {
+      "reauthorize": "你已经可以用 QQ 登录，但还缺 QQ 互联身份。点“去授权”再授权一次即可补全。",
+      "out_of_sync": "QQ 登录关联的 QQ 与 QQ 互联绑定的不一致。请用原来绑定的 QQ 重新授权。"
+    },
+    "sendTo": "发送给：{bots}"
   },
   "security": {
     "title": "账号与安全",

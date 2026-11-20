@@ -6,9 +6,9 @@ const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.proje
 const fill = (text, values) => Object.entries(values).reduce((out, [key, value]) => out.replace(`{${key}}`, value), text);
 
 // QQ binding server following the qq-binding contract.
-function qq(page, initial = {}) {
-  const state = { parts: { onebot: { bound: true, revision: 1 }, official: { bound: false, revision: 0 }, connect: { bound: false, revision: 0 }, ...initial }, writes: [], codeRequests: 0 };
-  const status = () => ({ complete: Object.values(state.parts).every((part) => part.bound), ...structuredClone(state.parts), qq_number: state.parts.onebot.bound ? '2840137956' : '' });
+function qq(page, initial = {}, login = 'unbound') {
+  const state = { parts: { onebot: { bound: true, revision: 1 }, official: { bound: false, revision: 0 }, connect: { bound: false, revision: 0 }, ...initial }, writes: [], codeRequests: 0, login };
+  const status = () => ({ complete: Object.values(state.parts).every((part) => part.bound), ...structuredClone(state.parts), qq_number: state.parts.onebot.bound ? '2840137956' : '', connect_login: state.login });
   page.route('**/api/v1/qq-binding/**', async (route) => {
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/api/v1/qq-binding', '');
@@ -19,7 +19,7 @@ function qq(page, initial = {}) {
     }
     const body = request.postDataJSON();
     state.writes.push({ path, body, key: request.headers()['idempotency-key'] });
-    if (path === '/codes') { state.codeRequests++; return route.fulfill({ json: { code: 'ABCDEFGHIJKLMNOP', expires_at: new Date(Date.now() + 300_000).toISOString(), notice_key: 'qq_binding.only_own_code' } }); }
+    if (path === '/codes') { state.codeRequests++; return route.fulfill({ json: { code: 'ABCDEFGHIJKLMNOP', copy_text: 'StuHelper/QQ-ABCDEFGHIJKLMNOP', bots: [{ platform: 'official', bot_id: '3889001', display_name: 'StuHelper' }], expires_at: new Date(Date.now() + 300_000).toISOString(), notice_key: 'qq_binding.only_own_code' } }); }
     if (path === '/connect/start') return route.fulfill({ json: { url: 'https://qq.example.invalid/authorize', expires_at: new Date(Date.now() + 300_000).toISOString() } });
     if (path === '/connect/confirm') { state.parts.connect = { bound: true, revision: 1 }; return route.fulfill({ json: status() }); }
     if (path === '/connect/cancel') return route.fulfill({ json: status() });
@@ -49,18 +49,20 @@ test('QQ binding shows three parts and completes after the bot code and QQ Conne
   await expect(page.getByText(fill(q.progress, { done: '1', total: '3' }))).toBeVisible();
   await expect(page.getByText(q.requirement)).toBeVisible();
   await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.official.title }) }).click();
-  await expect(page.getByLabel(q.codeLabel)).toHaveText('ABCDEFGHIJKLMNOP');
+  await expect(page.getByLabel(q.codeLabel)).toHaveText('StuHelper/QQ-ABCDEFGHIJKLMNOP');
+  await expect(page.getByText(fill(q.sendTo, { bots: 'StuHelper' }))).toBeVisible();
   await expect(page.getByText(q.ownCodeOnly)).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0, { timeout: 10_000 });
   expect(state.writes[0]).toMatchObject({ path: '/codes', body: { kind: 'official' } });
-  await page.route('https://qq.example.invalid/authorize', route => route.fulfill({
-    status: 302, headers: { location: `${base}/me/qq/callback?state=s1&code=c1` },
-  }));
+  // QQ returns to the server, which binds and sends the browser back to the account page.
+  await page.route('https://qq.example.invalid/authorize', route => {
+    state.parts.connect = { bound: true, revision: 1 }; state.login = 'linked';
+    return route.fulfill({ status: 302, headers: { location: `${base}/me/account?qq_link=linked&lang=${info.project.metadata.locale}` } });
+  });
   await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }) }).click();
-  await expect(page.getByText(q.callback.bound)).toBeVisible();
-  await expect(page).not.toHaveURL(/code=/);
-  expect(state.writes.at(-1)).toMatchObject({ path: '/connect/confirm', body: { state: 's1', code: 'c1' } });
-  await page.getByRole('link', { name: q.callback.back }).last().click();
+  await expect(page.getByRole('status').filter({ hasText: q.linkResult.linked })).toBeVisible();
+  await expect(page).not.toHaveURL(/qq_link=/);
+  expect(state.writes.at(-1)).toMatchObject({ path: '/connect/start', body: {} });
   await expect(page.getByText(q.complete, { exact: true }).first()).toBeVisible();
 });
 
@@ -118,4 +120,24 @@ test('a lost QQ confirmation retries the original callback without returning its
   expect(calls).toHaveLength(2);
   expect(calls[0]).toMatchObject({ key: expect.any(String), body: { state: 'fixture-state', code: 'fixture-code' } });
   expect(calls[1]).toEqual(calls[0]);
+});
+
+test('only the QQ Connect part opens when it alone is switched on, and a failed return is explained', async ({ page }, info) => {
+  const q = catalogue(info).qq, state = qq(page, { onebot: { bound: false, revision: 0 } }, 'reauthorize');
+  await closure(page);
+  await page.route('**/api/v1/system/capabilities', route => route.fulfill({ json: { api_version: 1, capabilities: ['qq-binding.manage', 'qq-binding.connect'] } }));
+  await page.goto(`${base}/me/account?qq_link=qq_binding_unionid_permission_required&lang=${info.project.metadata.locale}`);
+  const section = page.locator('[aria-labelledby="qq-title"]');
+  await expect(section.getByRole('status').filter({ hasText: q.errors.unionid_permission_required })).toBeVisible();
+  await expect(page).not.toHaveURL(/qq_link=/);
+  // Someone who already signs in with QQ is told that one more authorization completes the binding.
+  await expect(section.getByText(q.login.reauthorize)).toBeVisible();
+  for (const kind of ['onebot', 'official']) {
+    const row = section.locator('.group-row').filter({ hasText: q.parts[kind].title });
+    await expect(row.getByText(q.notOpen, { exact: true })).toBeVisible();
+    await expect(row.getByRole('button')).toHaveCount(0);
+  }
+  const connect = section.locator('.group-row').filter({ hasText: q.parts.connect.title });
+  await expect(connect.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }) })).toBeVisible();
+  expect(state.writes).toEqual([]);
 });

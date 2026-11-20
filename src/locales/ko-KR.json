@@ -1531,7 +1531,14 @@
       "invalid_state": "승인이 만료되었거나 다른 로그인의 것입니다. 계정 페이지에서 다시 시작하세요.",
       "unionid_missing": "QQ가 완전한 신원 정보를 보내지 않아 QQ Connect를 연동할 수 없습니다.",
       "reauthorization_required": "QQ 인증이 완료되지 않았습니다. 계정 페이지에서 QQ 로그인 연동을 다시 시작하세요.",
-      "processing": "QQ가 아직 인증 결과를 확인하고 있습니다. 잠시 후 계정 페이지에서 연결 상태를 확인하세요."
+      "processing": "QQ가 아직 인증 결과를 확인하고 있습니다. 잠시 후 계정 페이지에서 연결 상태를 확인하세요.",
+      "unauthenticated": "로그인이 만료되었습니다. 다시 로그인한 뒤 연동하세요.",
+      "forbidden": "이 계정은 QQ를 연동할 수 없습니다.",
+      "unionid_permission_required": "QQ Connect 앱에 UnionID 권한이 아직 없어 지금은 연동할 수 없습니다. 잠시 후 다시 시도하세요.",
+      "redirect_uri_mismatch": "QQ Connect 콜백 주소 설정이 잘못되어 지금은 연동할 수 없습니다. 관리자에게 문의하세요.",
+      "casdoor_conflict": "이 QQ는 이미 다른 계정의 로그인에 사용되고 있습니다. 그 계정에서 QQ 로그인을 먼저 해제하거나 관리자에게 문의하세요.",
+      "connect_disabled": "QQ Connect 연동은 아직 열리지 않았습니다.",
+      "connect_unconfigured": "QQ Connect 연동 설정이 아직 끝나지 않았습니다. 잠시 후 다시 시도하세요."
     },
     "callback": {
       "title": "QQ Connect 승인",
@@ -1541,7 +1548,17 @@
       "declined": "QQ 페이지에서 취소하여 QQ Connect가 연동되지 않았습니다."
     },
     "notOpen": "아직 열리지 않음",
-    "notOpenHint": "QQ 연동은 QQ 번호, QQ 공식 봇, QQ Connect 세 항목입니다. 열리면 여기에서 항목별로 연동할 수 있습니다."
+    "notOpenHint": "QQ 연동은 QQ 번호, QQ 공식 봇, QQ Connect 세 항목입니다. 열리면 여기에서 항목별로 연동할 수 있습니다.",
+    "reauthorize": "다시 승인",
+    "linkResult": {
+      "linked": "QQ Connect가 연동되었고 QQ 로그인도 이 계정에 연결되었습니다.",
+      "denied": "QQ 페이지에서 승인을 취소해 QQ Connect가 연동되지 않았습니다."
+    },
+    "login": {
+      "reauthorize": "QQ로 로그인할 수 있지만 QQ Connect 정보가 없습니다. \"승인하기\"로 한 번 더 승인하면 완료됩니다.",
+      "out_of_sync": "QQ 로그인에 연결된 QQ와 QQ Connect로 연동된 QQ가 다릅니다. 이전에 연동한 QQ로 다시 승인하세요."
+    },
+    "sendTo": "보낼 곳: {bots}"
   },
   "security": {
     "title": "계정 및 보안",

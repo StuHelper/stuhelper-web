@@ -1531,7 +1531,14 @@
       "invalid_state": "L’autorisation a expiré ou appartient à une autre connexion. Recommencez depuis la page du compte.",
       "unionid_missing": "QQ n’a pas renvoyé d’identité complète ; QQ Connect ne peut pas être lié pour le moment.",
       "reauthorization_required": "L’autorisation QQ n’a pas abouti. Relancez la connexion QQ depuis la page du compte.",
-      "processing": "QQ confirme encore l’autorisation. Vérifiez la liaison sur la page du compte dans un instant."
+      "processing": "QQ confirme encore l’autorisation. Vérifiez la liaison sur la page du compte dans un instant.",
+      "unauthenticated": "Votre session a expiré. Reconnectez-vous, puis liez.",
+      "forbidden": "Ce compte ne peut pas lier QQ.",
+      "unionid_permission_required": "L’application QQ Connect n’a pas encore l’accès UnionID ; la liaison est impossible pour l’instant. Réessayez plus tard.",
+      "redirect_uri_mismatch": "L’adresse de rappel QQ Connect est mal configurée ; la liaison est impossible pour l’instant. Contactez un administrateur.",
+      "casdoor_conflict": "Ce QQ sert déjà à se connecter à un autre compte. Retirez d’abord la connexion QQ sur ce compte, ou contactez un administrateur.",
+      "connect_disabled": "La liaison QQ Connect n’est pas encore ouverte.",
+      "connect_unconfigured": "La liaison QQ Connect n’est pas encore entièrement configurée. Réessayez plus tard."
     },
     "callback": {
       "title": "Autorisation QQ Connect",
@@ -1541,7 +1548,17 @@
       "declined": "Vous avez annulé sur la page QQ. QQ Connect n’a pas été lié."
     },
     "notOpen": "Pas encore ouvert",
-    "notOpenHint": "La liaison QQ comprend votre numéro QQ, le bot QQ officiel et QQ Connect. Une fois ouverte, vous pourrez lier chaque élément ici."
+    "notOpenHint": "La liaison QQ comprend votre numéro QQ, le bot QQ officiel et QQ Connect. Une fois ouverte, vous pourrez lier chaque élément ici.",
+    "reauthorize": "Autoriser à nouveau",
+    "linkResult": {
+      "linked": "QQ Connect est lié et la connexion QQ est associée à ce compte.",
+      "denied": "Vous avez annulé sur la page QQ ; QQ Connect n’a pas été lié."
+    },
+    "login": {
+      "reauthorize": "Vous pouvez déjà vous connecter avec QQ, mais l’identité QQ Connect manque. Choisissez Autoriser une fois de plus pour la compléter.",
+      "out_of_sync": "Le QQ associé à la connexion diffère de celui lié via QQ Connect. Autorisez à nouveau avec le QQ lié auparavant."
+    },
+    "sendTo": "À envoyer à : {bots}"
   },
   "security": {
     "title": "Compte et sécurité",

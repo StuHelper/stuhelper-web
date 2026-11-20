@@ -11,6 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** @description 返回当前账号三项已保存的绑定状态。能力由 /api/v1/system/capabilities 分别公布为 qq-binding.connect、qq-binding.onebot、qq-binding.official。关闭一项会隐藏该项操作，仍返回该项已保存的绑定事实。 */
         get: operations["getBindings"];
         put?: never;
         post?: never;
@@ -29,7 +30,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description 生成 5 分钟有效的一次性码。使用新幂等键生成时，同一项之前未用的验证码立即失效，其他项不受影响。本项已绑定返回 qq_binding_already_bound。 */
+        /** @description 生成 5 分钟有效的一次性码，返回裸验证码、带平台前缀的可复制口令及对应平台可用机器人展示信息。使用新幂等键生成时，同一项之前未用的验证码立即失效，其他项不受影响。本项已绑定返回 qq_binding_already_bound。 */
         post: operations["createCode"];
         delete?: never;
         options?: never;
@@ -46,7 +47,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description redirect_uri 为私有配置给出的 Web /me/qq/callback 完整 HTTPS 地址。页面读取 state、code 或错误参数，调用 confirm 或 cancel。新请求使该项之前未用的 state 失效；相同幂等键重试返回原授权地址。本项已绑定返回 qq_binding_already_bound。 */
+        /** @description 已登录且通过 CSRF 校验后返回 QQ 授权 URL。浏览器同标签页导航到该地址。生产回调为 /api/v1/auth/qq-link/callback。新请求使上一未用 state 失效，相同幂等键返回原授权地址。Casdoor 已绑定但缺少 UnionID 时可重新授权。 */
         post: operations["startConnect"];
         delete?: never;
         options?: never;
@@ -95,6 +96,23 @@ export interface paths {
         };
         /** @description 按账号返回三项状态与修订，QQ 号码脱敏显示，不返回 openid 或 unionid；成功读取记录审计。 */
         get: operations["inspectBindings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/qq-binding/admin/conflicts/{conflict_ref}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description 按归属冲突核查单号查询发起人、当前占用账号及对应槽位修订号，不返回 openid、unionid 或明文 QQ 号；校验管理范围并记录查看审计。 */
+        get: operations["inspectConflict"];
         put?: never;
         post?: never;
         delete?: never;
@@ -153,6 +171,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/qq-link/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description QQ 浏览器回调。state 一次有效并绑定当前 StuHelper 会话。完成或拒绝后 303 返回本站 /me/account?qq_link=<ConnectCallbackResult>。回跳不携带 QQ 标识、上游错误原文或授权码。 */
+        get: operations["finishConnectInBrowser"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -160,21 +195,46 @@ export interface components {
         Error: {
             /** @description qq_binding_already_bound 表示本项已绑定；qq_binding_ownership_conflict 仅表示身份属于其他账号。 */
             code: string;
+            /** @description 当 code 为 qq_binding_ownership_conflict 时返回的归属冲突核查单号，不含占用方信息。 */
+            conflict_ref?: string;
         };
         Part: {
             bound: boolean;
             /** Format: int64 */
             revision: number;
+            /**
+             * Format: date-time
+             * @description 当前槽位已绑定时的 UTC 绑定时间，未绑定时省略。
+             */
+            bound_at?: string;
+            /** @description 本槽位未过期且仍被其他账号占用的冲突核查单号，无冲突或已绑定时省略。 */
+            conflict_ref?: string;
         };
         Status: {
             complete: boolean;
             onebot: components["schemas"]["Part"];
             connect: components["schemas"]["Part"];
             official: components["schemas"]["Part"];
+            /** @description 已绑定 OneBot 时服务端脱敏后的 QQ 号码（保留末两位），未绑定时为空字符串。 */
             qq_number: string;
+            /**
+             * @description 本人状态查询中的 Casdoor QQ 登录状态。reauthorize 表示 Casdoor 已关联 OpenID、StuHelper 尚缺 QQ 互联身份。out_of_sync 表示已有互联身份但 Casdoor 未关联同一 OpenID。
+             * @enum {string}
+             */
+            connect_login?: "unbound" | "reauthorize" | "linked" | "out_of_sync" | "unavailable";
+        };
+        BotTarget: {
+            /** @enum {string} */
+            platform: "onebot" | "official";
+            bot_id: string;
+            display_name?: string;
         };
         Code: {
             code: string;
+            /** @description 带平台前缀的可一键复制私聊口令。 */
+            copy_text: string;
+            /** @description 当前验证码对应平台可用的目标机器人展示列表。 */
+            bots: components["schemas"]["BotTarget"][];
             /** Format: date-time */
             expires_at: string;
             notice_key: string;
@@ -189,6 +249,28 @@ export interface components {
             bound: boolean;
             notice_key: string;
         };
+        ConflictInspection: {
+            conflict_ref: string;
+            /** @enum {string} */
+            kind: "onebot" | "connect" | "official";
+            requester_owner: string;
+            holder_owner: string;
+            holder_bound: boolean;
+            /**
+             * Format: int64
+             * @description 冲突发生时的占用槽位修订。holder_bound 为 true 时可用于释放；旧核查单缺少修订时为 0。
+             */
+            holder_revision: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        /**
+         * @description 回调重定向中的 qq_link 参数。账户页按固定值显示本地化状态，并刷新本人绑定状态。
+         * @enum {string}
+         */
+        ConnectCallbackResult: "linked" | "denied" | "qq_binding_unauthenticated" | "qq_binding_forbidden" | "qq_binding_account_closed" | "qq_binding_invalid_state" | "qq_binding_unionid_missing" | "qq_binding_unionid_permission_required" | "qq_binding_redirect_uri_mismatch" | "qq_binding_ownership_conflict" | "qq_binding_casdoor_conflict" | "qq_binding_connect_disabled" | "qq_binding_connect_unconfigured" | "qq_binding_reauthorization_required" | "qq_binding_revision_conflict" | "qq_binding_processing" | "qq_binding_unavailable";
     };
     responses: never;
     parameters: never;
@@ -362,7 +444,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 业务拒绝或暂不可用 */
+            /** @description 该平台机器人未启用（qq_binding_bot_disabled），或依赖暂不可用。 */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -451,7 +533,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 业务拒绝或暂不可用 */
+            /** @description QQ 互联能力关闭（qq_binding_connect_disabled）、配置缺失（qq_binding_connect_unconfigured）或依赖暂不可用。 */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -736,6 +818,91 @@ export interface operations {
             };
         };
     };
+    inspectConflict: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conflict_ref: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConflictInspection"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description 业务拒绝或暂不可用 */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     releaseConflict: {
         parameters: {
             query?: never;
@@ -872,7 +1039,7 @@ export interface operations {
                     };
                 };
             };
-            /** @description 无效 state 或 qq_binding_reauthorization_required（需要重新授权）；交换失败结果稳定保存。 */
+            /** @description 无效 state、需重新授权、缺少 UnionID、QQ 互联未开通 UnionID 权限（qq_binding_unionid_permission_required）或回调地址未登记（qq_binding_redirect_uri_mismatch）。 */
             400: {
                 headers: {
                     [name: string]: unknown;
@@ -908,7 +1075,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 业务拒绝或暂不可用 */
+            /** @description 修订冲突、已绑定，或 OpenID/UnionID 已由其他账号使用。Casdoor QQ 登录冲突使用 qq_binding_casdoor_conflict。 */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -1025,6 +1192,29 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Error"];
                 };
+            };
+        };
+    };
+    finishConnectInBrowser: {
+        parameters: {
+            query: {
+                state: string;
+                code?: string;
+                error?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 返回账号与安全页 */
+            303: {
+                headers: {
+                    Location: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

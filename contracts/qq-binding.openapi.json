@@ -2,12 +2,13 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper QQ Binding",
-    "version": "0.2.0"
+    "version": "0.2.1"
   },
   "paths": {
     "/api/v1/qq-binding/me": {
       "get": {
         "operationId": "getBindings",
+        "description": "返回当前账号三项已保存的绑定状态。能力由 /api/v1/system/capabilities 分别公布为 qq-binding.connect、qq-binding.onebot、qq-binding.official。关闭一项会隐藏该项操作，仍返回该项已保存的绑定事实。",
         "security": [
           {
             "sessionCookie": []
@@ -114,7 +115,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -190,7 +192,7 @@
             }
           },
           "503": {
-            "description": "业务拒绝或暂不可用",
+            "description": "该平台机器人未启用（qq_binding_bot_disabled），或依赖暂不可用。",
             "content": {
               "application/json": {
                 "schema": {
@@ -223,7 +225,7 @@
             }
           }
         },
-        "description": "生成 5 分钟有效的一次性码。使用新幂等键生成时，同一项之前未用的验证码立即失效，其他项不受影响。本项已绑定返回 qq_binding_already_bound。"
+        "description": "生成 5 分钟有效的一次性码，返回裸验证码、带平台前缀的可复制口令及对应平台可用机器人展示信息。使用新幂等键生成时，同一项之前未用的验证码立即失效，其他项不受影响。本项已绑定返回 qq_binding_already_bound。"
       }
     },
     "/api/v1/qq-binding/connect/start": {
@@ -242,7 +244,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -318,7 +321,7 @@
             }
           },
           "503": {
-            "description": "业务拒绝或暂不可用",
+            "description": "QQ 互联能力关闭（qq_binding_connect_disabled）、配置缺失（qq_binding_connect_unconfigured）或依赖暂不可用。",
             "content": {
               "application/json": {
                 "schema": {
@@ -341,7 +344,7 @@
             }
           }
         },
-        "description": "redirect_uri 为私有配置给出的 Web /me/qq/callback 完整 HTTPS 地址。页面读取 state、code 或错误参数，调用 confirm 或 cancel。新请求使该项之前未用的 state 失效；相同幂等键重试返回原授权地址。本项已绑定返回 qq_binding_already_bound。"
+        "description": "已登录且通过 CSRF 校验后返回 QQ 授权 URL。浏览器同标签页导航到该地址。生产回调为 /api/v1/auth/qq-link/callback。新请求使上一未用 state 失效，相同幂等键返回原授权地址。Casdoor 已绑定但缺少 UnionID 时可重新授权。"
       }
     },
     "/api/v1/qq-binding/bindings/{kind}/unlink": {
@@ -373,7 +376,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -469,7 +473,8 @@
                 "properties": {
                   "revision": {
                     "type": "integer",
-                    "format": "int64"
+                    "format": "int64",
+                    "minimum": 1
                   }
                 },
                 "required": [
@@ -497,7 +502,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -599,13 +605,22 @@
                     ]
                   },
                   "bot_id": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
                   },
                   "user_id": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
                   },
                   "code": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 16,
+                    "maxLength": 16,
+                    "pattern": "^[A-Z2-7]{16}$"
                   }
                 },
                 "required": [
@@ -634,7 +649,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
             }
           }
         ],
@@ -723,6 +741,110 @@
         "description": "按账号返回三项状态与修订，QQ 号码脱敏显示，不返回 openid 或 unionid；成功读取记录审计。"
       }
     },
+    "/api/v1/qq-binding/admin/conflicts/{conflict_ref}": {
+      "get": {
+        "operationId": "inspectConflict",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "conflict_ref",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^QQC-[A-Z2-7]{16}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictInspection"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "业务拒绝或暂不可用",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "按归属冲突核查单号查询发起人、当前占用账号及对应槽位修订号，不返回 openid、unionid 或明文 QQ 号；校验管理范围并记录查看审计。"
+      }
+    },
     "/api/v1/qq-binding/admin/accounts/{owner}/release": {
       "post": {
         "operationId": "releaseConflict",
@@ -737,7 +859,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048,
+              "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
             }
           },
           {
@@ -747,7 +872,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -851,10 +977,14 @@
                   },
                   "revision": {
                     "type": "integer",
-                    "format": "int64"
+                    "format": "int64",
+                    "minimum": 1
                   },
                   "reason": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 500,
+                    "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
                   }
                 },
                 "required": [
@@ -884,7 +1014,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -900,7 +1031,7 @@
             }
           },
           "400": {
-            "description": "无效 state 或 qq_binding_reauthorization_required（需要重新授权）；交换失败结果稳定保存。",
+            "description": "无效 state、需重新授权、缺少 UnionID、QQ 互联未开通 UnionID 权限（qq_binding_unionid_permission_required）或回调地址未登记（qq_binding_redirect_uri_mismatch）。",
             "content": {
               "application/json": {
                 "schema": {
@@ -940,7 +1071,7 @@
             }
           },
           "409": {
-            "description": "业务拒绝或暂不可用",
+            "description": "修订冲突、已绑定，或 OpenID/UnionID 已由其他账号使用。Casdoor QQ 登录冲突使用 qq_binding_casdoor_conflict。",
             "content": {
               "application/json": {
                 "schema": {
@@ -1006,12 +1137,14 @@
                   "state": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 128
+                    "maxLength": 128,
+                    "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
                   },
                   "code": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 2048
+                    "maxLength": 2048,
+                    "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
                   }
                 }
               }
@@ -1037,7 +1170,8 @@
             "schema": {
               "type": "string",
               "minLength": 8,
-              "maxLength": 128
+              "maxLength": 128,
+              "pattern": "^[ -~]*[!-~][ -~]*$"
             }
           }
         ],
@@ -1137,7 +1271,8 @@
                   "state": {
                     "type": "string",
                     "minLength": 1,
-                    "maxLength": 128
+                    "maxLength": 128,
+                    "pattern": "^[^\\u0000-\\u001F\\u007F-\\u009F]*[^\\s\\u0000-\\u001F\\u007F-\\u009F][^\\u0000-\\u001F\\u007F-\\u009F]*$"
                   }
                 }
               }
@@ -1145,6 +1280,60 @@
           }
         },
         "description": "需要当前登录会话和 Idempotency-Key。state 必须属于当前会话且未过期。相同键及请求返回原结果，不同内容返回 409。用户拒绝授权时使 state 失效，不调用 QQ 服务，返回当前绑定状态。"
+      }
+    },
+    "/api/v1/auth/qq-link/callback": {
+      "get": {
+        "operationId": "finishConnectInBrowser",
+        "description": "QQ 浏览器回调。state 一次有效并绑定当前 StuHelper 会话。完成或拒绝后 303 返回本站 /me/account?qq_link=<ConnectCallbackResult>。回跳不携带 QQ 标识、上游错误原文或授权码。",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "state",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 128
+            }
+          },
+          {
+            "in": "query",
+            "name": "code",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 2048
+            }
+          },
+          {
+            "in": "query",
+            "name": "error",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 64
+            }
+          }
+        ],
+        "responses": {
+          "303": {
+            "description": "返回账号与安全页",
+            "headers": {
+              "Location": {
+                "required": true,
+                "schema": {
+                  "type": "string",
+                  "pattern": "^/me/account\\?qq_link="
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -1157,6 +1346,11 @@
           "code": {
             "type": "string",
             "description": "qq_binding_already_bound 表示本项已绑定；qq_binding_ownership_conflict 仅表示身份属于其他账号。"
+          },
+          "conflict_ref": {
+            "type": "string",
+            "pattern": "^QQC-[A-Z2-7]{16}$",
+            "description": "当 code 为 qq_binding_ownership_conflict 时返回的归属冲突核查单号，不含占用方信息。"
           }
         },
         "required": [
@@ -1172,7 +1366,18 @@
           },
           "revision": {
             "type": "integer",
-            "format": "int64"
+            "format": "int64",
+            "minimum": 0
+          },
+          "bound_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "当前槽位已绑定时的 UTC 绑定时间，未绑定时省略。"
+          },
+          "conflict_ref": {
+            "type": "string",
+            "pattern": "^QQC-[A-Z2-7]{16}$",
+            "description": "本槽位未过期且仍被其他账号占用的冲突核查单号，无冲突或已绑定时省略。"
           }
         },
         "required": [
@@ -1197,7 +1402,19 @@
             "$ref": "#/components/schemas/Part"
           },
           "qq_number": {
-            "type": "string"
+            "type": "string",
+            "description": "已绑定 OneBot 时服务端脱敏后的 QQ 号码（保留末两位），未绑定时为空字符串。"
+          },
+          "connect_login": {
+            "type": "string",
+            "enum": [
+              "unbound",
+              "reauthorize",
+              "linked",
+              "out_of_sync",
+              "unavailable"
+            ],
+            "description": "本人状态查询中的 Casdoor QQ 登录状态。reauthorize 表示 Casdoor 已关联 OpenID、StuHelper 尚缺 QQ 互联身份。out_of_sync 表示已有互联身份但 Casdoor 未关联同一 OpenID。"
           }
         },
         "required": [
@@ -1208,12 +1425,53 @@
           "qq_number"
         ]
       },
+      "BotTarget": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "onebot",
+              "official"
+            ]
+          },
+          "bot_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "display_name": {
+            "type": "string",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "platform",
+          "bot_id"
+        ]
+      },
       "Code": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
           "code": {
-            "type": "string"
+            "type": "string",
+            "minLength": 16,
+            "maxLength": 16,
+            "pattern": "^[A-Z2-7]{16}$"
+          },
+          "copy_text": {
+            "type": "string",
+            "pattern": "^StuHelper/(OB|QQ)-[A-Z2-7]{16}$",
+            "description": "带平台前缀的可一键复制私聊口令。"
+          },
+          "bots": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotTarget"
+            },
+            "description": "当前验证码对应平台可用的目标机器人展示列表。"
           },
           "expires_at": {
             "type": "string",
@@ -1225,6 +1483,8 @@
         },
         "required": [
           "code",
+          "copy_text",
+          "bots",
           "expires_at",
           "notice_key"
         ]
@@ -1262,6 +1522,79 @@
             "type": "string"
           }
         }
+      },
+      "ConflictInspection": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "conflict_ref": {
+            "type": "string",
+            "pattern": "^QQC-[A-Z2-7]{16}$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "onebot",
+              "connect",
+              "official"
+            ]
+          },
+          "requester_owner": {
+            "type": "string"
+          },
+          "holder_owner": {
+            "type": "string"
+          },
+          "holder_bound": {
+            "type": "boolean"
+          },
+          "holder_revision": {
+            "type": "integer",
+            "format": "int64",
+            "description": "冲突发生时的占用槽位修订。holder_bound 为 true 时可用于释放；旧核查单缺少修订时为 0。"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "conflict_ref",
+          "kind",
+          "requester_owner",
+          "holder_owner",
+          "holder_bound",
+          "holder_revision",
+          "created_at",
+          "expires_at"
+        ]
+      },
+      "ConnectCallbackResult": {
+        "type": "string",
+        "enum": [
+          "linked",
+          "denied",
+          "qq_binding_unauthenticated",
+          "qq_binding_forbidden",
+          "qq_binding_account_closed",
+          "qq_binding_invalid_state",
+          "qq_binding_unionid_missing",
+          "qq_binding_unionid_permission_required",
+          "qq_binding_redirect_uri_mismatch",
+          "qq_binding_ownership_conflict",
+          "qq_binding_casdoor_conflict",
+          "qq_binding_connect_disabled",
+          "qq_binding_connect_unconfigured",
+          "qq_binding_reauthorization_required",
+          "qq_binding_revision_conflict",
+          "qq_binding_processing",
+          "qq_binding_unavailable"
+        ],
+        "description": "回调重定向中的 qq_link 参数。账户页按固定值显示本地化状态，并刷新本人绑定状态。"
       }
     },
     "securitySchemes": {
