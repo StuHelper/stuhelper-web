@@ -8,8 +8,9 @@
 .d-chip { flex: none; min-height: 34px; padding: .25rem .875rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label); font: inherit; font-size: .875rem; cursor: pointer; transition: background-color .2s, color .2s, transform .3s var(--spring); }
 .d-chip:hover { background: var(--fill-strong); }
 .d-chip:active { transform: scale(.95); }
-.d-chip[aria-pressed="true"] { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
-.d-chip[aria-pressed="true"]:hover { background: var(--accent-fill-hover); }
+.d-chip[aria-pressed="true"] { background: var(--chip-on); color: var(--on-accent); font-weight: 550; }
+.d-chip[aria-pressed="true"]:hover { background: var(--chip-on-hover); }
+.d-chip[aria-pressed="true"] .num { opacity: 1; }
 /* A coloured dot ties a category chip to the same colour in rows and tags. */
 .d-chip-dot { display: inline-block; width: .5rem; height: .5rem; margin-inline-end: .375rem; border-radius: 50%; background: var(--hue); vertical-align: .0625rem; }
 .d-chip[aria-pressed="true"] .d-chip-dot { box-shadow: 0 0 0 1.5px var(--on-accent); }
