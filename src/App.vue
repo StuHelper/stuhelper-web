@@ -13,7 +13,7 @@ import { extras } from './shared/extras'
 import AccessPanel from './features/account/AccessPanel.vue'
 import NotFoundView from './features/home/NotFoundView.vue'
 import { useCapabilities } from './shared/capabilities'
-import { useAccess } from './features/account/access'
+import { useAccess, useCampusId } from './features/account/access'
 import { useSession } from './shared/session'
 
 const route = useRoute()
@@ -39,6 +39,10 @@ const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', p
 // cached, so forms holding passwords or unsent input are never kept in memory.
 // A kept page is identified by its path alone; the path counter would remount it on return.
 const localePart = computed(() => (extras.remountOnLocale ? localeKey.value : ''))
+// Kept pages hold the viewer's own data (votes, recent courses, downloads). A different person,
+// school or access level replaces the whole cache, so nothing survives a session change.
+const campus = useCampusId()
+const cacheScope = computed(() => [session.session.value?.profile.id ?? '', campus.value ?? '', access.state.value, session.state.value].join('|'))
 const kept = ['DirectoryView', 'BrowseView', 'SearchView', 'PopularView']
 const capabilities = useCapabilities()
 // An optional module that this deployment does not run shows as unavailable;
@@ -66,6 +70,7 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
         v-slot="{ Component, route: current }"
       >
         <KeepAlive
+          :key="cacheScope"
           :include="kept"
           :max="4"
         >

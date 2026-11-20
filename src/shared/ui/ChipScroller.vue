@@ -49,16 +49,29 @@ function reveal() {
   el.scrollBy({ left: chip.left - row.left - (row.width - chip.width) / 2, behavior: 'smooth' })
 }
 
-let observer: ResizeObserver | undefined
+// A fixed-width row does not resize when chips arrive later (categories load after the page),
+// so added or changed chips are measured too.
+let resized: ResizeObserver | undefined
+let changed: MutationObserver | undefined
 onMounted(() => {
   measure()
   reveal()
-  if (typeof ResizeObserver !== 'undefined' && track.value) {
-    observer = new ResizeObserver(measure)
-    observer.observe(track.value)
+  const el = track.value
+  if (!el) return
+  if (typeof ResizeObserver !== 'undefined') {
+    resized = new ResizeObserver(measure)
+    resized.observe(el)
+  }
+  if (typeof MutationObserver !== 'undefined') {
+    changed = new MutationObserver((records) => {
+      measure()
+      // New chips may push the pressed one out of view; count updates alone do not move the row.
+      if (records.some((record) => record.type === 'childList' && record.target === el)) reveal()
+    })
+    changed.observe(el, { childList: true, subtree: true, characterData: true })
   }
 })
-onBeforeUnmount(() => observer?.disconnect())
+onBeforeUnmount(() => { resized?.disconnect(); changed?.disconnect() })
 watch(() => props.active, () => void nextTick(reveal))
 </script>
 
@@ -71,7 +84,6 @@ watch(() => props.active, () => void nextTick(reveal))
       v-show="start"
       class="chip-arrow chip-arrow-start"
       type="button"
-      tabindex="-1"
       :aria-label="t('common.scrollBack')"
       @click="page(-1)"
     >
@@ -91,7 +103,6 @@ watch(() => props.active, () => void nextTick(reveal))
       v-show="end"
       class="chip-arrow chip-arrow-end"
       type="button"
-      tabindex="-1"
       :aria-label="t('common.scrollForward')"
       @click="page(1)"
     >

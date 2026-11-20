@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync, usePaged } from '../../shared/composables/async'
+import { createLimiter } from '../../shared/limit'
 import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import ChipScroller from '../../shared/ui/ChipScroller.vue'
@@ -49,8 +50,6 @@ const applied = computed(() => {
 const text = ref(applied.value.q)
 // The row already knows the name, so the quick view shows its heading before anything loads.
 const quick = ref<{ id: string; name: string; note: string }>()
-// The page stays alive behind a detail page; its quick view must not float over that page.
-onDeactivated(() => { quick.value = undefined })
 
 // The grouped view is a per-browser display choice, not a filter.
 const groupedKey = 'stuhelper.directory.grouped'
@@ -98,10 +97,21 @@ watch(() => `${props.kind} ${campus.value} ${pageSize.value} ${JSON.stringify(ap
 let typing: ReturnType<typeof setTimeout> | undefined
 // A pending search must not write into another page's state after this one is left.
 onBeforeUnmount(() => clearTimeout(typing))
+// The page stays alive behind a detail page (App.vue). Leaving drops the unsent search and the
+// quick view, which must not float over the next page; filters, rows and position stay.
+onDeactivated(() => {
+  clearTimeout(typing)
+  text.value = applied.value.q
+  quick.value = undefined
+})
 watch(text, (value) => {
   clearTimeout(typing)
   if (value.trim() === applied.value.q) return
-  typing = setTimeout(() => page.replace({ q: value.trim() || undefined }), 300)
+  // The search belongs to the history entry it was typed in, not to a newer one of the same page.
+  const entry: unknown = (window.history.state as { position?: unknown } | null)?.position
+  typing = setTimeout(() => {
+    if ((window.history.state as { position?: unknown } | null)?.position === entry) page.replace({ q: value.trim() || undefined })
+  }, 300)
 })
 const set = (changes: Partial<Record<'q' | 'category' | 'nature' | 'department' | 'teacher' | 'sort', string | undefined>>) => page.replace(changes)
 const clear = () => { text.value = ''; set({ q: undefined, category: undefined, nature: undefined, department: undefined, teacher: undefined }) }
@@ -121,6 +131,8 @@ const PREVIEW = 5
 // expanding everything only reads the departments the reader actually scrolls to.
 const bulk = ref<{ expanded: boolean; turn: number }>({ expanded: false, turn: 0 })
 const setAll = (expanded: boolean) => { bulk.value = { expanded, turn: bulk.value.turn + 1 } }
+// At most two department pages are read at once, however many departments are expanded.
+const fullReads = createLimiter(2)
 const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
 // Department facets can overlap. Keep a route to every result without inferring an
 // unassigned count from those non-exclusive totals.
@@ -364,6 +376,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
           :preview="PREVIEW"
           :bulk="bulk"
+          :queue="fullReads"
           :load="(after, limit, signal) => loadDepartment(group.id, after, limit, signal)"
         >
           <DirectoryCourseRows

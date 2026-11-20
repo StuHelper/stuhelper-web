@@ -2,7 +2,7 @@
 import ChipScroller from '../../shared/ui/ChipScroller.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Download, Folder, Lock, SlidersHorizontal, Upload } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onDeactivated, reactive, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
@@ -129,9 +129,13 @@ const chips = computed(() => {
   return list
 })
 
+// The page stays alive behind other pages (App.vue). While it is hidden it must not navigate,
+// so late results from work started here are kept but never move the reader.
+const active = ref(true)
+onActivated(() => { active.value = true })
 // Each change adds a history entry, so back leaves a folder or undoes a filter.
 function navigate(changes: Record<string, string | undefined>) {
-  page.push(changes)
+  if (active.value) page.push(changes)
 }
 function search() {
   navigate({ q: text.value.trim() || undefined })
@@ -200,7 +204,7 @@ async function clearRecent() {
   try {
     await catalog.clearRecentCourses()
     if (applied.value.course && recent.data.value?.items.some((row) => row.course.id === applied.value.course)) navigate({ course_id: undefined, dir: undefined })
-    await recent.reload()
+    if (active.value) await recent.reload()
   } catch {
     // The list stays as it was; a failed clear is shown by the unchanged list.
   } finally {
@@ -215,10 +219,22 @@ const courseLabel = computed(() => recentRows.value.find((row) => row.course.id 
 let typing: ReturnType<typeof setTimeout> | undefined
 // A pending search must not write into another page's state after this one is left.
 onBeforeUnmount(() => clearTimeout(typing))
+// Leaving drops what was only being prepared: an unsent search, the open filter sheet and its
+// draft. Applied filters, rows and the scroll position stay for the way back.
+onDeactivated(() => {
+  active.value = false
+  clearTimeout(typing)
+  text.value = applied.value.q
+  filtering.value = false
+})
 watch(text, (value) => {
   clearTimeout(typing)
   if (value.trim() === applied.value.q) return
-  typing = setTimeout(() => page.replace({ q: value.trim() || undefined }), 300)
+  // The search belongs to the history entry it was typed in, not to a newer one of the same page.
+  const entry: unknown = (window.history.state as { position?: unknown } | null)?.position
+  typing = setTimeout(() => {
+    if ((window.history.state as { position?: unknown } | null)?.position === entry) page.replace({ q: value.trim() || undefined })
+  }, 300)
 })
 
 // Batch download starts with an explicit selection mode, as in the list design.
