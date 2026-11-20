@@ -45,6 +45,15 @@ test('configured category field filters and grouping follow server configuration
   await layout(page, errors, locale);
 });
 
+test('new resource explains why uploads are unavailable when there are no enabled categories', async ({ page }, info) => {
+  const target = '/resources/new?school_id=school&course_id=course';
+  const { m } = await setup(page, info, target);
+  await page.route('**/api/v1/resources/categories*', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
+  await page.reload();
+  await expect(page.getByText(m.editor.noCategories, { exact: true })).toBeVisible();
+  await expect(page.getByLabel(m.editor.title, { exact: true })).toHaveCount(0);
+});
+
 test('upload uses current terms and retries the original metadata request', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
   await describe(page, m, 'Uploaded lecture');

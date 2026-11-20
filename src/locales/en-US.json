@@ -300,6 +300,7 @@
     }
   },
   "notFound": {
+    "disabled": "This feature is not enabled",
     "code": "404",
     "title": "This page is unavailable",
     "description": "The address may be incorrect, or the feature is not available yet.",
@@ -838,6 +839,7 @@
       "accept": "I have read and accept the current terms"
     },
     "editor": {
+      "noCategories": "Uploads are unavailable because no resource categories have been enabled.",
       "selectCategory": "Choose an available resource category.",
       "intro": "Complete three steps: save the details, upload the file, submit for review. Any published version stays available during review.",
       "step1": "1. Details",
@@ -1258,7 +1260,7 @@
   "contribution": {
     "eyebrow": "SHARED STORAGE",
     "description": "Share spare cloud storage to help classmates keep study materials.",
-    "summary": "Platform storage",
+    "summary": "Community storage contributions",
     "declared": "Capacity offered",
     "available": "Actually available",
     "used": "Used",
@@ -1330,6 +1332,7 @@
     }
   },
   "custody": {
+    "disabled": "Storage account custody is not enabled.",
     "title": "Storage accounts",
     "description": "Connect a cloud account before choosing how much to share and for how long.",
     "sending": "Verifying the account…",
