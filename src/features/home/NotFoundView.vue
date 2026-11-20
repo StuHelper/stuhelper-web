@@ -5,17 +5,27 @@ import { RouterLink } from 'vue-router'
 import { accessKey } from '../account/access'
 
 const { t } = useI18n()
+defineProps<{ disabled?: boolean }>()
 const access = inject(accessKey, undefined)
 const homePath = computed(() => (access?.state.value === 'verified' ? '/campus' : '/'))
 </script>
 
 <template>
-  <section class="not-found">
-    <p class="not-found-code">
+  <section
+    class="not-found"
+    :role="disabled ? 'status' : undefined"
+  >
+    <p
+      v-if="!disabled"
+      class="not-found-code"
+    >
       {{ t('notFound.code') }}
     </p>
-    <h1>{{ t('notFound.title') }}</h1>
-    <p class="muted">
+    <h1>{{ t(disabled ? 'notFound.disabled' : 'notFound.title') }}</h1>
+    <p
+      v-if="!disabled"
+      class="muted"
+    >
       {{ t('notFound.description') }}
     </p>
     <RouterLink

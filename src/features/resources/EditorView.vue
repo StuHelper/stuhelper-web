@@ -309,8 +309,15 @@ function uploadMessage(state: string) {
       :error="setup.error.value"
       @retry="setup.reload"
     >
+      <p
+        v-if="!entry && setup.data.value?.categories.length === 0"
+        class="notice"
+        role="status"
+      >
+        {{ t('resources.editor.noCategories') }}
+      </p>
       <div
-        v-if="setup.data.value && capabilities"
+        v-else-if="setup.data.value && capabilities"
         class="stack"
       >
         <ol class="stepper">

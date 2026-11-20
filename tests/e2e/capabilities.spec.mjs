@@ -7,6 +7,7 @@ const base = 'http://127.0.0.1:18787';
 const entries = ['/me/wallet', '/me/membership', '/me/groups', '/me/apps', '/me/developer'];
 const optional = ['billing.wallet', 'billing.membership', 'groups.read', 'open-platform.data', 'qq-binding.manage'];
 const discovery = (page, capabilities) => page.route('**/api/v1/system/capabilities', route => route.fulfill({ json: { api_version: 1, capabilities } }));
+const messages = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 
 test('disabled modules hide personal entries and direct wallet sends no billing request', async ({ page }, info) => {
   await discovery(page, []);
@@ -16,7 +17,8 @@ test('disabled modules hide personal entries and direct wallet sends no billing 
   await expect(page.locator('a[href="/me/profile"]').first()).toBeAttached();
   for (const path of entries) await expect(page.locator(`a[href="${path}"]`)).toHaveCount(0);
   await page.goto(`${base}/me/wallet?lang=${info.project.metadata.locale}`);
-  await expect(page.locator('.not-found-code')).toHaveText('404');
+  await expect(page.getByRole('heading', { name: messages(info).notFound.disabled })).toBeVisible();
+  await expect(page.locator('.not-found-code')).toHaveCount(0);
   expect(requests).toEqual([]);
 });
 
@@ -39,7 +41,19 @@ test('loading capabilities blocks wallet requests until discovery finishes', asy
   await expect(page.locator('.not-found-code')).toHaveCount(0);
   expect(requests).toEqual([]);
   release();
-  await expect(page.locator('.not-found-code')).toHaveText('404');
+  await expect(page.getByRole('heading', { name: messages(info).notFound.disabled })).toBeVisible();
+  expect(requests).toEqual([]);
+});
+
+test('disabled custody tab explains its status without calling custody routes', async ({ page }, info) => {
+  await discovery(page, ['contributions.manage']);
+  const requests = [];
+  page.on('request', request => {
+    if (request.url().includes('/api/v1/storage/custody')) requests.push(request.url());
+  });
+  await page.goto(`${base}/me/storage?tab=accounts&lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(messages(info).custody.disabled, { exact: true })).toBeVisible();
+  await expect(page.locator('input[type=password]')).toHaveCount(0);
   expect(requests).toEqual([]);
 });
 
