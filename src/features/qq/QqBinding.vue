@@ -15,11 +15,14 @@ import { maskQq, useQqBindingApi, type BotPart, type QqCode, type QqPart, type Q
 
 // The three QQ binding parts. Each is verified on its own, and binding is complete only
 // when all three are bound. The server reports completion; the page never derives it.
+// Without the module the three parts are still listed so people know what binding will
+// involve; nothing is requested and every part reads as not open yet.
+const props = withDefaults(defineProps<{ available?: boolean }>(), { available: true })
 const { t, te } = useI18n()
 const api = useQqBindingApi()
 const now = useNow(1000)
 const status = useAsync((signal) => api.status(signal))
-void status.reload()
+if (props.available) void status.reload()
 
 const parts = [
   { kind: 'onebot', icon: MessageSquare, tile: 'var(--c-cyan)' },
@@ -147,16 +150,20 @@ function detail(value: QqStatus, kind: QqPart) {
         {{ t('qq.title') }}
       </h2>
       <span
-        v-if="status.data.value"
+        v-if="!available"
+        class="tag"
+      >{{ t('qq.notOpen') }}</span>
+      <span
+        v-else-if="status.data.value"
         class="tag"
         :class="status.data.value.complete ? 'tag-success' : ''"
       >{{ status.data.value.complete ? t('qq.complete') : t('qq.progress', { done: count, total: parts.length }) }}</span>
     </div>
     <p
-      v-if="status.data.value && !status.data.value.complete"
+      v-if="!available || (status.data.value && !status.data.value.complete)"
       class="muted small"
     >
-      {{ t('qq.requirement') }}
+      {{ t(available ? 'qq.requirement' : 'qq.notOpenHint') }}
     </p>
     <ErrorNotice
       v-if="status.status.value === 'error'"
@@ -166,7 +173,7 @@ function detail(value: QqStatus, kind: QqPart) {
     <ul
       v-else
       class="group"
-      :aria-busy="status.status.value === 'loading'"
+      :aria-busy="(available && status.status.value === 'loading') || undefined"
     >
       <li
         v-for="part in parts"
@@ -183,7 +190,11 @@ function detail(value: QqStatus, kind: QqPart) {
         <span class="group-body">
           <span class="group-title">{{ t(`qq.parts.${part.kind}.title`) }}</span>
           <span
-            v-if="!status.data.value"
+            v-if="!available"
+            class="group-detail"
+          >{{ t(`qq.parts.${part.kind}.hint`) }}</span>
+          <span
+            v-else-if="!status.data.value"
             class="skeleton-tag"
             aria-hidden="true"
           />
@@ -192,7 +203,11 @@ function detail(value: QqStatus, kind: QqPart) {
             class="group-detail"
           >{{ detail(status.data.value, part.kind) }}</span>
         </span>
-        <template v-if="status.data.value">
+        <span
+          v-if="!available"
+          class="tag"
+        >{{ t('qq.notOpen') }}</span>
+        <template v-else-if="status.data.value">
           <button
             v-if="bound(status.data.value, part.kind)"
             class="btn btn-sm"

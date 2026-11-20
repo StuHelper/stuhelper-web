@@ -1539,7 +1539,9 @@
       "working": "QQ の認可を確認しています…",
       "bound": "QQ Connect を連携しました。",
       "declined": "QQ の画面でキャンセルしたため、QQ Connect は連携されていません。"
-    }
+    },
+    "notOpen": "未公開",
+    "notOpenHint": "QQ 連携は QQ 番号、QQ 公式ボット、QQ Connect の 3 項目です。公開後にここで項目ごとに連携できます。"
   },
   "security": {
     "title": "アカウントとセキュリティ",

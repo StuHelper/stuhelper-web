@@ -1539,7 +1539,9 @@
       "working": "جارٍ تأكيد تفويض QQ…",
       "bound": "تم ربط QQ Connect.",
       "declined": "ألغيت التفويض في صفحة QQ، ولم يتم ربط QQ Connect."
-    }
+    },
+    "notOpen": "غير متاح بعد",
+    "notOpenHint": "يشمل ربط QQ رقم QQ وروبوت QQ الرسمي وQQ Connect. عند إتاحته يمكنك ربط كل عنصر هنا."
   },
   "security": {
     "title": "الحساب والأمان",

@@ -79,6 +79,12 @@ test('disabled groups preserve card consent and disabled QQ never mounts binding
   page.on('request', request => { if (request.url().includes('/api/v1/qq-binding/')) requests.push(request.url()); });
   await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
   await expect(page.locator('[aria-labelledby="security-identity"]')).toBeVisible();
+  // The three QQ parts stay listed as not open yet, with no action and no module request.
+  const qq = page.locator('[aria-labelledby="qq-title"]');
+  await expect(qq.getByRole('heading', { name: messages.qq.title })).toBeVisible();
+  await expect(qq.locator('.group-row')).toHaveCount(3);
+  await expect(qq.getByText(messages.qq.notOpen, { exact: true })).toHaveCount(4);
+  await expect(qq.getByRole('button')).toHaveCount(0);
   expect(requests).toEqual([]);
 });
 

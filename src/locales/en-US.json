@@ -1539,7 +1539,9 @@
       "working": "Confirming QQ authorization…",
       "bound": "QQ Connect is bound.",
       "declined": "You cancelled on the QQ page. QQ Connect was not bound."
-    }
+    },
+    "notOpen": "Not open yet",
+    "notOpenHint": "QQ binding covers your QQ number, the official QQ bot and QQ Connect. Once it opens you can bind each one here."
   },
   "security": {
     "title": "Account and security",

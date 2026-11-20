@@ -1539,7 +1539,9 @@
       "working": "Confirmation de l’autorisation QQ…",
       "bound": "QQ Connect est lié.",
       "declined": "Vous avez annulé sur la page QQ. QQ Connect n’a pas été lié."
-    }
+    },
+    "notOpen": "Pas encore ouvert",
+    "notOpenHint": "La liaison QQ comprend votre numéro QQ, le bot QQ officiel et QQ Connect. Une fois ouverte, vous pourrez lier chaque élément ici."
   },
   "security": {
     "title": "Compte et sécurité",

@@ -1539,7 +1539,9 @@
       "working": "QQ 승인을 확인하는 중…",
       "bound": "QQ Connect가 연동되었습니다.",
       "declined": "QQ 페이지에서 취소하여 QQ Connect가 연동되지 않았습니다."
-    }
+    },
+    "notOpen": "아직 열리지 않음",
+    "notOpenHint": "QQ 연동은 QQ 번호, QQ 공식 봇, QQ Connect 세 항목입니다. 열리면 여기에서 항목별로 연동할 수 있습니다."
   },
   "security": {
     "title": "계정 및 보안",

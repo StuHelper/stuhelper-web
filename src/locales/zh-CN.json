@@ -1539,7 +1539,9 @@
       "working": "正在确认 QQ 授权…",
       "bound": "QQ 互联已绑定。",
       "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
-    }
+    },
+    "notOpen": "暂未开放",
+    "notOpenHint": "QQ 绑定包括 QQ 号、QQ 官方机器人和 QQ 互联三项，开放后可在这里逐项绑定。"
   },
   "security": {
     "title": "账号与安全",
