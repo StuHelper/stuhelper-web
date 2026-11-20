@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ConfigProvider } from 'reka-ui'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView, useRoute } from 'vue-router'
 import { localeReady } from './app/i18n'
@@ -39,11 +39,18 @@ const pageKey = computed(() => [extras.remountOnLocale ? localeKey.value : '', p
 // cached, so forms holding passwords or unsent input are never kept in memory.
 // A kept page is identified by its path alone; the path counter would remount it on return.
 const localePart = computed(() => (extras.remountOnLocale ? localeKey.value : ''))
-// Kept pages hold the viewer's own data (votes, recent courses, downloads). A different person,
-// school or access level replaces the whole cache, so nothing survives a session change.
+// Kept pages hold the viewer's own data (votes, recent courses, downloads). When the person,
+// school or access level changes, every kept page is dropped. Emptying `include` prunes the cache
+// without remounting the page on screen (a callback page must not run twice).
 const campus = useCampusId()
-const cacheScope = computed(() => [session.session.value?.profile.id ?? '', campus.value ?? '', access.state.value, session.state.value].join('|'))
-const kept = ['DirectoryView', 'BrowseView', 'SearchView', 'PopularView']
+const cacheScope = computed(() => [session.session.value?.profile.id ?? '', campus.value ?? '', access.state.value].join('|'))
+const keptPages = ['DirectoryView', 'BrowseView', 'SearchView', 'PopularView']
+const kept = ref(keptPages)
+watch(cacheScope, async () => {
+  kept.value = []
+  await nextTick()
+  kept.value = keptPages
+})
 const capabilities = useCapabilities()
 // An optional module that this deployment does not run shows as unavailable;
 // the page waits until the module list is known so it sends no request first.
@@ -70,7 +77,6 @@ const blocked = computed(() => (route.meta.access === 'verified' && access.state
         v-slot="{ Component, route: current }"
       >
         <KeepAlive
-          :key="cacheScope"
           :include="kept"
           :max="4"
         >
