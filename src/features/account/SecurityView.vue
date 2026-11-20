@@ -151,7 +151,12 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
       </ul>
     </section>
 
-    <QqBinding v-if="capabilities.has(feature.qq)" />
+    <!-- Shown once the module list is known, so the section does not flip from "not open" to live. -->
+    <QqBinding
+      v-if="capabilities.status.value !== 'idle' && capabilities.status.value !== 'loading'"
+      :available="capabilities.has(feature.qq)"
+      :open="{ connect: capabilities.has(feature.qqConnect), onebot: capabilities.has(feature.qqOnebot), official: capabilities.has(feature.qqOfficial) }"
+    />
 
     <!-- QQ sign-in is linked in the shared account centre, separate from the QQ binding module above. -->
     <section

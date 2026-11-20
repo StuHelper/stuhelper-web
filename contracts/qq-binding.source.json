@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-qq-binding",
-  "revision": "20f61b5550a21ad5735eeeb192b4e91d31069f4a",
-  "version": "0.2.0",
+  "revision": "c495ec8bd61c222178a27f43ef24b3eb7f1bafad",
+  "version": "0.2.1",
   "files": {
     "contracts/qq-binding.openapi.json": "contracts/qq-binding.openapi.json",
     "sdk/qq-binding.gen.ts": "src/api/qq-binding.gen.ts"
   },
   "sha256": {
-    "contracts/qq-binding.openapi.json": "cae25f72d004ac5ecc2047cb0e2d9ab76adeda732489cc6e707f00932aa3ad44",
-    "src/api/qq-binding.gen.ts": "40eb9588c4d1e6e719252c40a77ee8f9eaa3c598be5f2a797aacde961587b684"
+    "contracts/qq-binding.openapi.json": "969f46fff0cb4e4bce4df2bdea989ae8eb723977d7ba71f62136ce30ef14d0cd",
+    "src/api/qq-binding.gen.ts": "bf0d7bd466c5c7cf19844165382c066376fa28f9daa9d08a94bd48b49866a79a"
   }
 }

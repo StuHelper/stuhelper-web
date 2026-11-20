@@ -1531,7 +1531,14 @@
       "invalid_state": "認可の有効期限が切れたか、別のログインのものです。アカウント画面からやり直してください。",
       "unionid_missing": "QQ から完全な ID が返されなかったため、QQ Connect を連携できません。",
       "reauthorization_required": "QQ の認可が完了しませんでした。アカウントページから QQ ログイン連携をやり直してください。",
-      "processing": "QQ が認可結果を確認中です。しばらくしてからアカウントページで連携状態を確認してください。"
+      "processing": "QQ が認可結果を確認中です。しばらくしてからアカウントページで連携状態を確認してください。",
+      "unauthenticated": "ログインの有効期限が切れました。もう一度ログインしてから連携してください。",
+      "forbidden": "このアカウントでは QQ を連携できません。",
+      "unionid_permission_required": "QQ Connect アプリで UnionID の権限がまだ有効になっていないため、現在は連携できません。しばらくしてからお試しください。",
+      "redirect_uri_mismatch": "QQ Connect のコールバック先の設定に誤りがあるため、現在は連携できません。管理者にお問い合わせください。",
+      "casdoor_conflict": "この QQ は別のアカウントのログインに使われています。先にそちらで QQ ログインを解除するか、管理者にお問い合わせください。",
+      "connect_disabled": "QQ Connect の連携はまだ公開されていません。",
+      "connect_unconfigured": "QQ Connect の連携設定がまだ完了していません。しばらくしてからお試しください。"
     },
     "callback": {
       "title": "QQ Connect の認可",
@@ -1539,7 +1546,19 @@
       "working": "QQ の認可を確認しています…",
       "bound": "QQ Connect を連携しました。",
       "declined": "QQ の画面でキャンセルしたため、QQ Connect は連携されていません。"
-    }
+    },
+    "notOpen": "未公開",
+    "notOpenHint": "QQ 連携は QQ 番号、QQ 公式ボット、QQ Connect の 3 項目です。公開後にここで項目ごとに連携できます。",
+    "reauthorize": "再認可",
+    "linkResult": {
+      "linked": "QQ Connect を連携し、QQ ログインもこのアカウントに関連付けました。",
+      "denied": "QQ のページで認可を取り消したため、QQ Connect は連携されていません。"
+    },
+    "login": {
+      "reauthorize": "QQ でログインできますが、QQ Connect の情報が不足しています。「認可へ」からもう一度認可すると完了します。",
+      "out_of_sync": "QQ ログインに関連付けた QQ と QQ Connect で連携した QQ が一致しません。以前連携した QQ で再認可してください。"
+    },
+    "sendTo": "送信先：{bots}"
   },
   "security": {
     "title": "アカウントとセキュリティ",

@@ -1531,7 +1531,14 @@
       "invalid_state": "La autorización caducó o pertenece a otro inicio de sesión. Empieza de nuevo desde la página de la cuenta.",
       "unionid_missing": "QQ no devolvió una identidad completa, así que no se puede vincular QQ Connect ahora.",
       "reauthorization_required": "La autorización de QQ no terminó. Vuelve a iniciar la conexión con QQ desde la página de la cuenta.",
-      "processing": "QQ todavía está confirmando la autorización. Revisa la vinculación en la página de la cuenta dentro de un momento."
+      "processing": "QQ todavía está confirmando la autorización. Revisa la vinculación en la página de la cuenta dentro de un momento.",
+      "unauthenticated": "Tu sesión ha caducado. Inicia sesión de nuevo y luego vincula.",
+      "forbidden": "Esta cuenta no puede vincular QQ.",
+      "unionid_permission_required": "La aplicación de QQ Connect aún no tiene acceso a UnionID, así que por ahora no se puede vincular. Inténtalo más tarde.",
+      "redirect_uri_mismatch": "La dirección de retorno de QQ Connect está mal configurada, así que por ahora no se puede vincular. Contacta con un administrador.",
+      "casdoor_conflict": "Este QQ ya se usa para iniciar sesión en otra cuenta. Quita primero allí el inicio de sesión con QQ o contacta con un administrador.",
+      "connect_disabled": "La vinculación con QQ Connect aún no está disponible.",
+      "connect_unconfigured": "La vinculación con QQ Connect aún no está configurada del todo. Inténtalo más tarde."
     },
     "callback": {
       "title": "Autorización de QQ Connect",
@@ -1539,7 +1546,19 @@
       "working": "Confirmando la autorización de QQ…",
       "bound": "QQ Connect está vinculado.",
       "declined": "Cancelaste en la página de QQ. QQ Connect no se vinculó."
-    }
+    },
+    "notOpen": "Aún no disponible",
+    "notOpenHint": "La vinculación de QQ incluye tu número de QQ, el bot oficial de QQ y QQ Connect. Cuando se abra podrás vincular cada uno aquí.",
+    "reauthorize": "Autorizar de nuevo",
+    "linkResult": {
+      "linked": "QQ Connect está vinculado y el inicio de sesión con QQ quedó asociado a esta cuenta.",
+      "denied": "Cancelaste en la página de QQ, así que QQ Connect no se vinculó."
+    },
+    "login": {
+      "reauthorize": "Ya puedes iniciar sesión con QQ, pero falta la identidad de QQ Connect. Elige Autorizar una vez más para completarla.",
+      "out_of_sync": "El QQ asociado al inicio de sesión no coincide con el vinculado por QQ Connect. Autoriza de nuevo con el QQ que vinculaste antes."
+    },
+    "sendTo": "Envíalo a: {bots}"
   },
   "security": {
     "title": "Cuenta y seguridad",

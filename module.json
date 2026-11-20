@@ -129,7 +129,7 @@
       "tests/e2e/capabilities.spec.mjs#disabled modules hide personal entries and direct wallet sends no billing request",
       "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
       "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
-      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ never mounts binding",
+      "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ lists its three parts as not open without requests",
       "tests/e2e/capabilities.spec.mjs#disabled favorites and search send no list lookups or personal vote requests"
     ],
     "SESSION-AVAILABILITY-01": [
@@ -257,6 +257,10 @@
     "ST-03": [
       "src/features/account/lifecycle-actions.test.ts#requires new consent and a future end date to reopen the exited binding",
       "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command"
+    ],
+    "QQB-02": [
+      "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
+      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and a failed return is explained"
     ]
   }
 }
