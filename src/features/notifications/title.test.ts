@@ -8,7 +8,7 @@ import { useNotificationTitle } from './title'
 const messages = {
   en: {
     notifications: {
-      titles: { interaction: { reply: 'Your content {content_id} received a reply' }, system: { notice: 'Notice about {reference_id}' } },
+      titles: { interaction: { reply: 'Your content {content_id} received a reply' }, system: { notice: 'Notice about {reference_id}' }, systemPlain: { notice: 'System notice' } },
       namedContent: '“{name}”',
       contentUnavailable: '(content unavailable)',
       contentNameUnavailable: '(name unavailable right now)',
@@ -48,6 +48,6 @@ describe('notification titles', () => {
   it('names the item of a system notice that refers to content', () => {
     expect(titleOf({ reference_id: 'x7', content_name: 'Exam notes', content_name_state: 'available' }, 'notifications.system.notice')).toBe('Notice about “Exam notes”')
     expect(titleOf({ reference_id: 'x7', content_name: '', content_name_state: 'inaccessible' }, 'notifications.system.notice')).toBe('Notice about (content unavailable)')
-    expect(titleOf({ reference_id: 'sec-1' }, 'notifications.system.notice')).toBe('Notice about sec-1')
+    expect(titleOf({ reference_id: 'sec-1' }, 'notifications.system.notice')).toBe('System notice')
   })
 })

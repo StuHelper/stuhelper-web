@@ -2017,9 +2017,14 @@
         "rejected": "لم تتم الموافقة على توثيق المعلّم"
       },
       "system": {
-        "notice": "إشعار النظام، الرقم المرتبط {reference_id}",
-        "security": "تنبيه أمني، الرقم المرتبط {reference_id}",
-        "account": "إشعار الحساب، الرقم المرتبط {reference_id}"
+        "notice": "إشعار النظام: {reference_id}",
+        "security": "تنبيه أمني: {reference_id}",
+        "account": "إشعار الحساب: {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "إشعار النظام",
+        "security": "تنبيه أمني",
+        "account": "إشعار الحساب"
       }
     },
     "status": {

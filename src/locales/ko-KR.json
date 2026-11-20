@@ -2017,9 +2017,14 @@
         "rejected": "교원 인증 신청이 승인되지 않았습니다"
       },
       "system": {
-        "notice": "시스템 알림, 관련 번호 {reference_id}",
-        "security": "보안 알림, 관련 번호 {reference_id}",
-        "account": "계정 알림, 관련 번호 {reference_id}"
+        "notice": "시스템 알림: {reference_id}",
+        "security": "보안 알림: {reference_id}",
+        "account": "계정 알림: {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "시스템 알림",
+        "security": "보안 알림",
+        "account": "계정 알림"
       }
     },
     "status": {

@@ -2017,9 +2017,14 @@
         "rejected": "La verificación docente no fue aprobada"
       },
       "system": {
-        "notice": "Aviso del sistema, referencia {reference_id}",
-        "security": "Alerta de seguridad, referencia {reference_id}",
-        "account": "Aviso de la cuenta, referencia {reference_id}"
+        "notice": "Aviso del sistema: {reference_id}",
+        "security": "Alerta de seguridad: {reference_id}",
+        "account": "Aviso de la cuenta: {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "Aviso del sistema",
+        "security": "Alerta de seguridad",
+        "account": "Aviso de la cuenta"
       }
     },
     "status": {

@@ -2017,9 +2017,14 @@
         "rejected": "La vérification enseignant n’a pas été approuvée"
       },
       "system": {
-        "notice": "Avis du système, référence {reference_id}",
-        "security": "Alerte de sécurité, référence {reference_id}",
-        "account": "Avis concernant le compte, référence {reference_id}"
+        "notice": "Avis du système : {reference_id}",
+        "security": "Alerte de sécurité : {reference_id}",
+        "account": "Avis concernant le compte : {reference_id}"
+      },
+      "systemPlain": {
+        "notice": "Avis du système",
+        "security": "Alerte de sécurité",
+        "account": "Avis concernant le compte"
       }
     },
     "status": {

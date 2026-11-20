@@ -18,6 +18,11 @@ export function useNotificationTitle() {
       if (typeof value === 'string' && key !== 'content_name' && key !== 'content_name_state') params[key] = isolate(value)
     }
     const state = raw.content_name_state
+    // A system notice without a content target carries only an internal reference,
+    // which means nothing to the reader, so its title is shown without it.
+    if (item.title_key.startsWith('notifications.system.') && !state) {
+      return t(`notifications.titles.systemPlain.${item.title_key.slice('notifications.system.'.length)}`)
+    }
     // Content notifications name the item in content_id; system notifications about a
     // review, comment or resource use reference_id. Both are replaced the same way.
     const slot = 'content_id' in params ? 'content_id' : 'reference_id' in params ? 'reference_id' : ''
