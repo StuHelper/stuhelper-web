@@ -41,6 +41,7 @@ const limit = ref('')
 const reserve = ref('0')
 const until = ref('')
 const accepted = ref(false)
+const displayLabel = ref('')
 const editing = ref<{ item: Contribution; mode: 'configure' | 'renew' | 'reopen' } | null>(null)
 const invalid = ref(false)
 const formTitle = ref<HTMLElement>()
@@ -84,6 +85,7 @@ function reset() {
   reserve.value = '0'
   until.value = ''
   accepted.value = false
+  displayLabel.value = ''
   invalid.value = false
 }
 function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
@@ -91,14 +93,28 @@ function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
   limit.value = gbInput(item.conditions.limit_bytes)
   reserve.value = gbInput(item.conditions.personal_reserve)
   until.value = mode === 'reopen' ? '' : localDateInput(Date.parse(item.conditions.until))
+  // Only "configure" may change the nickname; renewal and reopening never send it.
+  displayLabel.value = mode === 'configure' ? item.display_label ?? '' : ''
   accepted.value = false
   invalid.value = false
   void nextTick(() => formTitle.value?.focus())
 }
+// The API limits a nickname to 32 characters (code points), not UTF-16 units.
+const noteTooLong = computed(() => [...displayLabel.value.trim()].length > 32)
 function review() {
   const current = policy.value
   if (!current) return
   const change = editing.value
+  if (noteTooLong.value) { invalid.value = true; return }
+  const note = displayLabel.value.trim()
+  // Renaming alone keeps the saved quota, reserve and end date as they are, even when they no
+  // longer fit the current policy, so it is sent without conditions and is not re-checked.
+  if (change?.mode === 'configure' && limit.value === gbInput(change.item.conditions.limit_bytes) && reserve.value === gbInput(change.item.conditions.personal_reserve)) {
+    invalid.value = false
+    if (note === (change.item.display_label ?? '')) { reset(); return }
+    prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: 'configure', display_label: note } })
+    return
+  }
   const result = conditions(limit.value, reserve.value, until.value, current, Date.now(), change?.mode === 'configure' ? change.item.conditions.until : undefined)
   const needsConsent = change?.mode !== 'configure'
   if (!result || (needsConsent && !accepted.value) || (!change && !options.value?.items.some((item) => item.id === instance.value)) || (change?.mode === 'renew' && Date.parse(result.until) <= Date.parse(change.item.conditions.until))) {
@@ -106,8 +122,11 @@ function review() {
     return
   }
   invalid.value = false
-  if (change) prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: change.mode, conditions: result, ...(needsConsent ? { consent: consent() } : {}) } })
-  else prepare({ kind: 'create', key: crypto.randomUUID(), body: { instance_id: instance.value, conditions: result, consent: consent() } })
+  // The server trims and clears on "". Creation sends a nickname if given; configure only when
+  // it changed; renew and reopen never carry one.
+  const noteChange = change?.mode === 'configure' ? (note !== (change.item.display_label ?? '') ? { display_label: note } : {}) : !change && note ? { display_label: note } : {}
+  if (change) prepare({ kind: 'command', id: change.item.id, key: crypto.randomUUID(), body: { revision: change.item.revision, action: change.mode, conditions: result, ...noteChange, ...(needsConsent ? { consent: consent() } : {}) } })
+  else prepare({ kind: 'create', key: crypto.randomUUID(), body: { instance_id: instance.value, conditions: result, consent: consent(), ...noteChange } })
 }
 function command(item: Contribution, value: Command['action']) {
   prepare({ kind: 'command', id: item.id, key: crypto.randomUUID(), body: { revision: item.revision, action: value } })
@@ -116,6 +135,17 @@ function command(item: Contribution, value: Command['action']) {
 const settled = (item: Contribution) => item.state === item.desired_state
 const leaving = (item: Contribution) => item.desired_state === 'exiting' || item.desired_state === 'revoked'
 const adapterName = (id: string) => (id === 'bhpan' ? 'BHpan' : id)
+// Two accounts of the same provider must stay distinguishable: the owner's note wins,
+// otherwise the masked provider login, otherwise the record's own identifier tail.
+// Masks can collide (same first and last characters), so a hint shared by two of the reader's
+// accounts also gets the record's identifier tail.
+const hintCounts = computed(() => {
+  const counts = new Map<string, number>()
+  for (const item of [...(data.value?.items ?? []), ...(options.value?.items ?? [])]) if (item.account_hint) counts.set(item.account_hint, (counts.get(item.account_hint) ?? 0) + 1)
+  return counts
+})
+const accountTag = (item: { account_hint?: string; id: string }) => (item.account_hint ? ((hintCounts.value.get(item.account_hint) ?? 0) > 1 ? `${item.account_hint} #${item.id.slice(-4)}` : item.account_hint) : item.id.slice(-8))
+const account = (item: { adapter: string; account_hint?: string; id: string }) => `${adapterName(item.adapter)} · ${accountTag(item)}`
 const mutable = (item: Contribution) => item.desired_state === 'active' || item.desired_state === 'paused'
 
 watch(error, (value) => {
@@ -296,8 +326,29 @@ watch(completed, (value) => {
                   v-for="option in options.items"
                   :key="option.id"
                   :value="option.id"
-                >{{ t('contribution.option', { adapter: adapterName(option.adapter), id: option.id.slice(-8), capacity: bytes(option.available_bytes) }) }}</option>
+                >{{ t('contribution.option', { adapter: adapterName(option.adapter), id: accountTag(option), capacity: bytes(option.available_bytes) }) }}</option>
               </AppSelect>
+            </label>
+            <label
+              v-if="!editing || editing.mode === 'configure'"
+              class="field"
+            >
+              <span class="field-label">{{ t('contribution.displayLabel') }}</span>
+              <input
+                v-model="displayLabel"
+                class="input"
+                maxlength="64"
+                autocomplete="off"
+                :aria-invalid="noteTooLong || undefined"
+                :aria-describedby="noteTooLong ? 'contribution-label-error' : undefined"
+                :placeholder="t('contribution.displayLabelHint')"
+              >
+              <span
+                v-if="noteTooLong"
+                id="contribution-label-error"
+                class="field-error"
+                role="alert"
+              >{{ t('contribution.displayLabelTooLong') }}</span>
             </label>
             <div class="form-grid">
               <label class="field">
@@ -428,7 +479,15 @@ watch(completed, (value) => {
           >
             <article class="card stack">
               <div class="row-between">
-                <h3><bdi>{{ adapterName(item.adapter) }}</bdi></h3>
+                <div class="card-heading">
+                  <h3><bdi>{{ item.display_label || account(item) }}</bdi></h3>
+                  <p
+                    v-if="item.display_label"
+                    class="subtle"
+                  >
+                    <bdi>{{ account(item) }}</bdi>
+                  </p>
+                </div>
                 <StatusTag :tone="item.state === 'active' ? 'success' : item.state === 'blocked' ? 'danger' : 'warning'">
                   {{ label('contribution.states', item.state) }}
                 </StatusTag>
@@ -595,6 +654,17 @@ watch(completed, (value) => {
           {{ t('contribution.reviewConditions', { limit: bytes(pending.body.conditions.limit_bytes), reserve: bytes(pending.body.conditions.personal_reserve), until: format.dateTime(pending.body.conditions.until) }) }}
         </p>
         <p
+          v-if="pending.kind !== 'retry' && pending.body.display_label !== undefined"
+          class="small"
+        >
+          <template v-if="pending.body.display_label">
+            {{ t('contribution.reviewLabel') }}<bdi>{{ pending.body.display_label }}</bdi>
+          </template>
+          <template v-else>
+            {{ t('contribution.reviewLabelCleared') }}
+          </template>
+        </p>
+        <p
           v-if="error"
           class="notice notice-error"
           role="alert"
@@ -633,6 +703,7 @@ watch(completed, (value) => {
 </template>
 
 <style scoped>
+.card-heading { min-width: 0; overflow-wrap: anywhere; }
 article .facts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics { gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics dd { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem); font-weight: 700; line-height: 1.1; letter-spacing: var(--tracking-title); }

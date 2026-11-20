@@ -260,7 +260,9 @@
     ],
     "ST-03": [
       "src/features/account/lifecycle-actions.test.ts#requires new consent and a future end date to reopen the exited binding",
-      "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command"
+      "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command",
+      "tests/e2e/contributions.spec.mjs#records stay distinguishable by masked account and an optional nickname",
+      "tests/e2e/contributions.spec.mjs#a nickname never rides along on renewal, and accounts with the same mask stay apart"
     ],
     "QQB-02": [
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
