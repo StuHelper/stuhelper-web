@@ -1540,22 +1540,20 @@
       "redirect_uri_mismatch": "La dirección de retorno de QQ Connect está mal configurada, así que por ahora no se puede vincular. Contacta con un administrador.",
       "casdoor_conflict": "Este QQ ya se usa para iniciar sesión en otra cuenta. Quita primero allí el inicio de sesión con QQ o contacta con un administrador.",
       "connect_disabled": "La vinculación con QQ Connect aún no está disponible.",
-      "connect_unconfigured": "La vinculación con QQ Connect aún no está configurada del todo. Inténtalo más tarde."
+      "connect_unconfigured": "La vinculación con QQ Connect aún no está configurada del todo. Inténtalo más tarde.",
+      "invalid_input": "El retorno no es válido o ha caducado. Vuelve a la página de la cuenta y empieza de nuevo."
     },
     "callback": {
       "title": "Autorización de QQ Connect",
       "back": "Volver a cuenta y seguridad",
       "working": "Confirmando la autorización de QQ…",
       "bound": "QQ Connect está vinculado.",
-      "declined": "Cancelaste en la página de QQ. QQ Connect no se vinculó."
+      "declined": "Cancelaste en la página de QQ. QQ Connect no se vinculó.",
+      "loginPending": "QQ Connect está vinculado, pero la asociación del inicio de sesión con QQ aún no ha terminado. Revisa la página de la cuenta."
     },
     "notOpen": "Aún no disponible",
     "notOpenHint": "La vinculación de QQ incluye tu número de QQ, el bot oficial de QQ y QQ Connect. Cuando se abra podrás vincular cada uno aquí.",
     "reauthorize": "Autorizar de nuevo",
-    "linkResult": {
-      "linked": "QQ Connect está vinculado y el inicio de sesión con QQ quedó asociado a esta cuenta.",
-      "denied": "Cancelaste en la página de QQ, así que QQ Connect no se vinculó."
-    },
     "login": {
       "reauthorize": "Ya puedes iniciar sesión con QQ, pero falta la identidad de QQ Connect. Elige Autorizar una vez más para completarla.",
       "out_of_sync": "El QQ asociado al inicio de sesión no coincide con el vinculado por QQ Connect. Autoriza de nuevo con el QQ que vinculaste antes."

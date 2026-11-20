@@ -21,7 +21,7 @@ function qq(page, initial = {}, login = 'unbound') {
     state.writes.push({ path, body, key: request.headers()['idempotency-key'] });
     if (path === '/codes') { state.codeRequests++; return route.fulfill({ json: { code: 'ABCDEFGHIJKLMNOP', copy_text: 'StuHelper/QQ-ABCDEFGHIJKLMNOP', bots: [{ platform: 'official', bot_id: '3889001', display_name: 'StuHelper' }], expires_at: new Date(Date.now() + 300_000).toISOString(), notice_key: 'qq_binding.only_own_code' } }); }
     if (path === '/connect/start') return route.fulfill({ json: { url: 'https://qq.example.invalid/authorize', expires_at: new Date(Date.now() + 300_000).toISOString() } });
-    if (path === '/connect/confirm') { state.parts.connect = { bound: true, revision: 1 }; return route.fulfill({ json: status() }); }
+    if (path === '/connect/confirm') { state.parts.connect = { bound: true, revision: 1 }; state.login = 'linked'; return route.fulfill({ json: status() }); }
     if (path === '/connect/cancel') return route.fulfill({ json: status() });
     const unlink = /^\/bindings\/(\w+)\/unlink$/.exec(path);
     if (unlink) { state.parts[unlink[1]] = { bound: false, revision: state.parts[unlink[1]].revision + 1 }; return route.fulfill({ json: status() }); }
@@ -54,15 +54,16 @@ test('QQ binding shows three parts and completes after the bot code and QQ Conne
   await expect(page.getByText(q.ownCodeOnly)).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0, { timeout: 10_000 });
   expect(state.writes[0]).toMatchObject({ path: '/codes', body: { kind: 'official' } });
-  // QQ returns to the server, which binds and sends the browser back to the account page.
-  await page.route('https://qq.example.invalid/authorize', route => {
-    state.parts.connect = { bound: true, revision: 1 }; state.login = 'linked';
-    return route.fulfill({ status: 302, headers: { location: `${base}/me/account?qq_link=linked&lang=${info.project.metadata.locale}` } });
-  });
+  // QQ returns to the registered /me/qq/callback page, which confirms the binding once.
+  await page.route('https://qq.example.invalid/authorize', route => route.fulfill({
+    status: 302, headers: { location: `${base}/me/qq/callback?state=s1&code=c1` },
+  }));
   await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }) }).click();
-  await expect(page.getByRole('status').filter({ hasText: q.linkResult.linked })).toBeVisible();
-  await expect(page).not.toHaveURL(/qq_link=/);
-  expect(state.writes.at(-1)).toMatchObject({ path: '/connect/start', body: {} });
+  await expect(page.getByText(q.callback.bound)).toBeVisible();
+  await expect(page).not.toHaveURL(/code=/);
+  expect(state.writes.at(-2)).toMatchObject({ path: '/connect/start', body: {} });
+  expect(state.writes.at(-1)).toMatchObject({ path: '/connect/confirm', body: { state: 's1', code: 'c1' } });
+  await page.getByRole('link', { name: q.callback.back }).last().click();
   await expect(page.getByText(q.complete, { exact: true }).first()).toBeVisible();
 });
 
@@ -122,14 +123,22 @@ test('a lost QQ confirmation retries the original callback without returning its
   expect(calls[1]).toEqual(calls[0]);
 });
 
-test('only the QQ Connect part opens when it alone is switched on, and a failed return is explained', async ({ page }, info) => {
+test('only the QQ Connect part opens when it alone is switched on, and QQ errors are explained', async ({ page }, info) => {
   const q = catalogue(info).qq, state = qq(page, { onebot: { bound: false, revision: 0 } }, 'reauthorize');
   await closure(page);
   await page.route('**/api/v1/system/capabilities', route => route.fulfill({ json: { api_version: 1, capabilities: ['qq-binding.manage', 'qq-binding.connect'] } }));
-  await page.goto(`${base}/me/account?qq_link=qq_binding_unionid_permission_required&lang=${info.project.metadata.locale}`);
+  // QQ reports 100048 when the app lacks UnionID access: the attempt is closed and named.
+  await page.goto(`${base}/me/qq/callback?state=s3&error=100048&lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(q.errors.unionid_permission_required)).toBeVisible();
+  expect(state.writes.at(-1)).toMatchObject({ path: '/connect/cancel', body: { state: 's3' } });
+  // A repeated state is an invalid callback and is never sent.
+  const sent = state.writes.length;
+  await page.goto(`${base}/me/qq/callback?state=a&state=b&code=c&lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(q.errors.invalid_state)).toBeVisible();
+  expect(state.writes.length).toBe(sent);
+  state.writes.length = 0;
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
   const section = page.locator('[aria-labelledby="qq-title"]');
-  await expect(section.getByRole('status').filter({ hasText: q.errors.unionid_permission_required })).toBeVisible();
-  await expect(page).not.toHaveURL(/qq_link=/);
   // Someone who already signs in with QQ is told that one more authorization completes the binding.
   await expect(section.getByText(q.login.reauthorize)).toBeVisible();
   for (const kind of ['onebot', 'official']) {

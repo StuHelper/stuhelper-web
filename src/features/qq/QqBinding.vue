@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Bot, Copy, Link2, MessageSquare } from 'lucide-vue-next'
 import { computed, onScopeDispose, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useLeaveGuard } from '../../shared/composables/leave'
@@ -108,22 +107,8 @@ async function copy() {
   }
 }
 
-// QQ Connect leaves the site for the QQ authorization page. QQ returns to the server, which
-// finishes the binding and sends the browser back here with ?qq_link=<result>. The result is
-// shown once and removed from the address; the status is read again either way.
-const route = useRoute()
-const router = useRouter()
-const linkResult = ref<{ ok: boolean; text: string }>()
-const returned = typeof route.query.qq_link === 'string' ? route.query.qq_link : ''
-if (returned) {
-  const code = returned.replace(/^qq_binding_/, '')
-  linkResult.value = returned === 'linked'
-    ? { ok: true, text: t('qq.linkResult.linked') }
-    : { ok: false, text: returned === 'denied' ? t('qq.linkResult.denied') : te(`qq.errors.${code}`) ? t(`qq.errors.${code}`) : t('qq.errors.unavailable') }
-  const rest = { ...route.query }
-  delete rest.qq_link
-  void router.replace({ query: rest, hash: route.hash })
-}
+// QQ Connect leaves the site for the QQ authorization page and returns to /me/qq/callback,
+// which confirms the binding (QqCallbackView).
 // The QQ login (Casdoor) and the QQ Connect binding are separate records of the same QQ.
 const loginHint = computed(() => {
   const login = status.data.value?.connect_login
@@ -188,14 +173,6 @@ function detail(value: QqStatus, kind: QqPart) {
       class="muted small"
     >
       {{ t(available ? 'qq.requirement' : 'qq.notOpenHint') }}
-    </p>
-    <p
-      v-if="linkResult"
-      class="notice small"
-      :class="linkResult.ok ? 'notice-success' : 'notice-error'"
-      role="status"
-    >
-      {{ linkResult.text }}
     </p>
     <ErrorNotice
       v-if="status.status.value === 'error'"

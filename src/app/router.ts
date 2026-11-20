@@ -74,7 +74,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/notifications', component: () => import('../features/notifications/NotificationsView.vue'), meta: { capability: feature.notifications, access: 'member', title: 'notifications.title', section: 'me' } },
   { path: '/me/favorites', component: () => import('../features/favorites/FavoritesView.vue'), meta: { capability: feature.favorites, access: 'member', title: 'favorites.title', section: 'me' } },
   { path: '/me/groups', component: () => import('../features/groups/MyGroupsView.vue'), meta: { capability: feature.groups, access: 'member', title: 'groups.title', section: 'me' } },
-  { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { capability: feature.qq, access: 'member', title: 'qq.callback.title', section: 'me' } },
+  // The QQ callback renders even after the session expired, so the page can say so and link back.
+  { path: '/me/qq/callback', component: () => import('../features/qq/QqCallbackView.vue'), meta: { capability: feature.qq, title: 'qq.callback.title', section: 'me' } },
   { path: '/me/resources', component: () => import('../features/resources/MyResourcesView.vue'), meta: { access: 'member', title: 'me.resources', section: 'me' } },
   myCoursesEnabled
     ? { path: '/me/courses', component: () => import('../features/academic/MyCoursesView.vue'), meta: { access: 'member', title: 'courses.title', section: 'me' } }

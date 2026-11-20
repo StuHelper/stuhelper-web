@@ -1540,22 +1540,20 @@
       "redirect_uri_mismatch": "QQ 互联回调地址配置有误，暂时无法绑定，请联系管理员。",
       "casdoor_conflict": "这个 QQ 已用于登录另一个账号。请先在那个账号解除 QQ 登录，或联系管理员。",
       "connect_disabled": "QQ 互联绑定暂未开放。",
-      "connect_unconfigured": "QQ 互联绑定尚未配置完成，请稍后再试。"
+      "connect_unconfigured": "QQ 互联绑定尚未配置完成，请稍后再试。",
+      "invalid_input": "回调参数无效或已过期，请回到账号页重新发起。"
     },
     "callback": {
       "title": "QQ 互联授权",
       "back": "返回账号与安全",
       "working": "正在确认 QQ 授权…",
       "bound": "QQ 互联已绑定。",
-      "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
+      "declined": "你在 QQ 页面取消了授权，QQ 互联未绑定。",
+      "loginPending": "QQ 互联已绑定，QQ 登录的关联还没有完成，回到账号页可查看。"
     },
     "notOpen": "暂未开放",
     "notOpenHint": "QQ 绑定包括 QQ 号、QQ 官方机器人和 QQ 互联三项，开放后可在这里逐项绑定。",
     "reauthorize": "重新授权",
-    "linkResult": {
-      "linked": "QQ 互联已绑定，QQ 登录也已关联到这个账号。",
-      "denied": "你在 QQ 页面取消了授权，QQ 互联未绑定。"
-    },
     "login": {
       "reauthorize": "你已经可以用 QQ 登录，但还缺 QQ 互联身份。点“去授权”再授权一次即可补全。",
       "out_of_sync": "QQ 登录关联的 QQ 与 QQ 互联绑定的不一致。请用原来绑定的 QQ 重新授权。"

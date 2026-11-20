@@ -1540,22 +1540,20 @@
       "redirect_uri_mismatch": "The QQ Connect callback address is misconfigured, so binding is not possible right now. Contact an administrator.",
       "casdoor_conflict": "This QQ is already used to sign in to another account. Remove QQ sign-in there first, or contact an administrator.",
       "connect_disabled": "QQ Connect binding is not open yet.",
-      "connect_unconfigured": "QQ Connect binding is not fully set up yet. Try again later."
+      "connect_unconfigured": "QQ Connect binding is not fully set up yet. Try again later.",
+      "invalid_input": "The callback is invalid or has expired. Go back to the account page and start again."
     },
     "callback": {
       "title": "QQ Connect authorization",
       "back": "Back to account and security",
       "working": "Confirming QQ authorization…",
       "bound": "QQ Connect is bound.",
-      "declined": "You cancelled on the QQ page. QQ Connect was not bound."
+      "declined": "You cancelled on the QQ page. QQ Connect was not bound.",
+      "loginPending": "QQ Connect is bound, but linking QQ sign-in is not finished yet. See the account page."
     },
     "notOpen": "Not open yet",
     "notOpenHint": "QQ binding covers your QQ number, the official QQ bot and QQ Connect. Once it opens you can bind each one here.",
     "reauthorize": "Authorize again",
-    "linkResult": {
-      "linked": "QQ Connect is bound and QQ sign-in is linked to this account.",
-      "denied": "You cancelled on the QQ page, so QQ Connect was not bound."
-    },
     "login": {
       "reauthorize": "You can already sign in with QQ, but the QQ Connect identity is missing. Choose Authorize once more to complete it.",
       "out_of_sync": "The QQ linked for sign-in differs from the one bound through QQ Connect. Authorize again with the QQ you bound before."
