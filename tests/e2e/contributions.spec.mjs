@@ -2,13 +2,16 @@ import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { expect, memberTest as test } from '../session-fixture.mjs';
+// The popover can open partly outside a short viewport (long Russian labels push the trigger
+// down). Navigation buttons are dispatched directly so the helper exercises month logic,
+// not Playwright's scroll-into-view heuristics against a repositioning popover.
 async function pickDate(page, month, day) {
   await page.locator('.app-datetime-trigger').click();
   const head = page.locator('.app-calendar-head');
-  while ((await head.getAttribute('data-month')).slice(0, 4) < month.slice(0, 4)) await head.locator('button').nth(3).click();
-  while (await head.getAttribute('data-month') !== month) await head.locator('button').nth((await head.getAttribute('data-month')) < month ? 2 : 1).click();
-  await page.locator('.app-calendar-day').nth(day - 1).click();
-  await page.locator('.app-calendar-time .btn-primary').click();
+  while ((await head.getAttribute('data-month')).slice(0, 4) < month.slice(0, 4)) await head.locator('button').nth(3).dispatchEvent('click');
+  while (await head.getAttribute('data-month') !== month) await head.locator('button').nth((await head.getAttribute('data-month')) < month ? 2 : 1).dispatchEvent('click');
+  await page.locator('.app-calendar-day').nth(day - 1).dispatchEvent('click');
+  await page.locator('.app-calendar-time .btn-primary').dispatchEvent('click');
 }
 const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
