@@ -68,7 +68,9 @@
     "shownOf": "Mostrando {shown} de {total}",
     "opensInNewTab": "(se abre en una pestaña nueva)",
     "scrollBack": "Desplazar atrás",
-    "scrollForward": "Desplazar adelante"
+    "scrollForward": "Desplazar adelante",
+    "searchOptions": "Buscar opciones",
+    "noOptionMatch": "No hay opciones que coincidan"
   },
   "errors": {
     "disabled": "El servicio de grupos está desactivado.",
@@ -770,7 +772,8 @@
       "placeholder": "Escribe un nombre",
       "unavailable": "No se cargaron las opciones de {label}.",
       "noMatch": "Sin coincidencias",
-      "retry": "Recargar opciones"
+      "retry": "Recargar opciones",
+      "searchHint": "Escribe un nombre o código para buscar"
     },
     "detail": {
       "back": "Volver a materiales",

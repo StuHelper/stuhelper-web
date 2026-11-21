@@ -68,7 +68,9 @@
     "shownOf": "{total}개 중 {shown}개 표시",
     "opensInNewTab": "(새 탭에서 열림)",
     "scrollBack": "이전으로 스크롤",
-    "scrollForward": "다음으로 스크롤"
+    "scrollForward": "다음으로 스크롤",
+    "searchOptions": "옵션 검색",
+    "noOptionMatch": "일치하는 옵션이 없습니다"
   },
   "errors": {
     "disabled": "그룹 서비스가 비활성화되어 있습니다.",
@@ -770,7 +772,8 @@
       "placeholder": "이름으로 검색",
       "unavailable": "{label} 옵션을 불러오지 못했습니다.",
       "noMatch": "일치 항목 없음",
-      "retry": "옵션 다시 불러오기"
+      "retry": "옵션 다시 불러오기",
+      "searchHint": "이름이나 코드로 검색"
     },
     "detail": {
       "back": "자료 목록으로",

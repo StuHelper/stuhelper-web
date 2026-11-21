@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { Check } from 'lucide-vue-next'
-import { SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectPortal, SelectRoot, SelectTrigger, SelectViewport } from 'reka-ui'
-import { computed, Fragment, ref, useAttrs, type VNode } from 'vue'
+import { Check, Search } from 'lucide-vue-next'
+import { ListboxContent, ListboxFilter, ListboxItem, ListboxItemIndicator, ListboxRoot, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger, SelectContent, SelectItem, SelectItemIndicator, SelectItemText, SelectPortal, SelectRoot, SelectTrigger, SelectViewport } from 'reka-ui'
+import { computed, Fragment, ref, useAttrs, useId, watch, type VNode } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 /**
  * 替代原生下拉框。选项写法和原生一样，在默认插槽里写 <option>。
@@ -35,6 +36,25 @@ function collect(nodes: VNode[] = []): Option[] {
 const options = () => collect(slots.default?.())
 const shown = () => options().find((item) => item.value === text.value)?.label ?? ''
 
+// Long lists (more than ten choices) open with a search field so a choice can be typed
+// instead of scrolled to. Matching ignores case and spaces inside the label.
+const searchLimit = 10
+const { t } = useI18n()
+const listId = useId()
+const open = ref(false)
+const query = ref('')
+watch(open, (value) => { if (!value) query.value = '' })
+const normal = (value: string) => value.toLocaleLowerCase().replace(/\s+/gu, '')
+const matching = () => {
+  const needle = normal(query.value)
+  return needle ? options().filter((item) => normal(item.label).includes(needle)) : options()
+}
+function pick(value: unknown) {
+  if (typeof value !== 'string') return
+  open.value = false
+  choose(value)
+}
+
 function choose(value: unknown) {
   const next = value === EMPTY ? '' : String(value)
   emit('update:modelValue', next)
@@ -51,7 +71,71 @@ function choose(value: unknown) {
     v-bind="rootAttrs"
     :data-disabled="disabled ? '' : undefined"
   >
+    <PopoverRoot
+      v-if="options().length > searchLimit + 1"
+      v-model:open="open"
+    >
+      <PopoverTrigger
+        class="app-select-trigger"
+        role="combobox"
+        :aria-expanded="open"
+        :aria-controls="open ? listId : undefined"
+        :disabled="disabled"
+        :data-state="open ? 'open' : 'closed'"
+        v-bind="triggerAttrs"
+      >
+        <span class="truncate">{{ shown() }}</span>
+      </PopoverTrigger>
+      <PopoverPortal>
+        <PopoverContent
+          class="app-popup app-select-content app-search-content"
+          align="start"
+          :side-offset="6"
+          :collision-padding="8"
+        >
+          <ListboxRoot
+            :model-value="text || EMPTY"
+            highlight-on-hover
+            @update:model-value="pick"
+          >
+            <label class="app-search-field">
+              <Search aria-hidden="true" />
+              <ListboxFilter
+                v-model="query"
+                class="app-search-input"
+                auto-focus
+                :placeholder="t('common.searchOptions')"
+                :aria-label="t('common.searchOptions')"
+              />
+            </label>
+            <ListboxContent
+              :id="listId"
+              class="app-search-list"
+            >
+              <ListboxItem
+                v-for="item in matching()"
+                :key="item.value"
+                class="app-select-item"
+                :value="item.value || EMPTY"
+                :disabled="item.disabled"
+                :lang="item.lang"
+              >
+                <span class="truncate">{{ item.label }}</span>
+                <ListboxItemIndicator class="app-select-check"><Check aria-hidden="true" /></ListboxItemIndicator>
+              </ListboxItem>
+              <p
+                v-if="!matching().length"
+                class="app-search-empty"
+              >
+                {{ t('common.noOptionMatch') }}
+              </p>
+            </ListboxContent>
+          </ListboxRoot>
+        </PopoverContent>
+      </PopoverPortal>
+    </PopoverRoot>
     <SelectRoot
+      v-else
       :model-value="text || EMPTY"
       :disabled="disabled"
       @update:model-value="choose"

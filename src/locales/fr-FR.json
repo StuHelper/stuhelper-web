@@ -68,7 +68,9 @@
     "shownOf": "{shown} sur {total} affichés",
     "opensInNewTab": "(s’ouvre dans un nouvel onglet)",
     "scrollBack": "Défiler en arrière",
-    "scrollForward": "Défiler en avant"
+    "scrollForward": "Défiler en avant",
+    "searchOptions": "Rechercher une option",
+    "noOptionMatch": "Aucune option correspondante"
   },
   "errors": {
     "disabled": "Le service des groupes est désactivé.",
@@ -770,7 +772,8 @@
       "placeholder": "Saisissez un nom",
       "unavailable": "Les options « {label} » n’ont pas pu se charger.",
       "noMatch": "Aucun résultat",
-      "retry": "Recharger les options"
+      "retry": "Recharger les options",
+      "searchHint": "Saisissez un nom ou un code"
     },
     "detail": {
       "back": "Retour aux ressources",

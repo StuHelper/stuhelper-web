@@ -68,7 +68,9 @@
     "shownOf": "المعروض {shown} من {total}",
     "opensInNewTab": "(يفتح في علامة تبويب جديدة)",
     "scrollBack": "التمرير للخلف",
-    "scrollForward": "التمرير للأمام"
+    "scrollForward": "التمرير للأمام",
+    "searchOptions": "ابحث في الخيارات",
+    "noOptionMatch": "لا توجد خيارات مطابقة"
   },
   "errors": {
     "disabled": "خدمة المجموعات غير مفعّلة.",
@@ -770,7 +772,8 @@
       "placeholder": "اكتب اسمًا للبحث",
       "unavailable": "تعذر تحميل خيارات {label}.",
       "noMatch": "لا توجد نتائج",
-      "retry": "إعادة تحميل الخيارات"
+      "retry": "إعادة تحميل الخيارات",
+      "searchHint": "اكتب اسمًا أو رمزًا للبحث"
     },
     "detail": {
       "back": "العودة إلى المواد",
