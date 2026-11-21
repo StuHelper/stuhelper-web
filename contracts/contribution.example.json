@@ -49,6 +49,13 @@
           "reserved_bytes": 0,
           "available_bytes": 9000000000,
           "remaining_replicas": 3
+        },
+        "provider_capacity": {
+          "total_bytes": 200000000000,
+          "used_bytes": 30000000000,
+          "remaining_bytes": 170000000000,
+          "observed_at": "2029-12-25T20:00:00Z",
+          "status": "available"
         }
       }
     ],
@@ -60,7 +67,16 @@
         "id": "fixture-storage",
         "adapter": "fixture",
         "available_bytes": 100000000000,
-        "authorization_expires_at": "2030-01-01T00:00:00Z"
+        "authorization_expires_at": "2030-01-01T00:00:00Z",
+        "provider_capacity": {
+          "total_bytes": 200000000000,
+          "used_bytes": 30000000000,
+          "remaining_bytes": 170000000000,
+          "observed_at": "2029-12-25T20:00:00Z",
+          "status": "available"
+        },
+        "safety_margin_bytes": 0,
+        "max_contributable_bytes": 170000000000
       }
     ],
     "next_cursor": "fixture-option-next"

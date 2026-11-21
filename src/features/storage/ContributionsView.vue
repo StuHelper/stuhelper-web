@@ -5,7 +5,7 @@ import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, nextTick, ref, watch, type DeepReadonly } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
-import type { Command, Contribution as ContributionData } from '../../api/contribution'
+import type { Command, Contribution as ContributionData, ProviderCapacity } from '../../api/contribution'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { useFormat } from '../../app/i18n'
 import { feature, useCapabilities } from '../../shared/capabilities'
@@ -16,7 +16,7 @@ import StatusTag from '../../shared/ui/StatusTag.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from '../account/MeLayout.vue'
-import { conditions, gbInput, localDateInput } from './conditions'
+import { conditions, gbInput, localDateInput, parseGB } from './conditions'
 import CustodyPanel from './CustodyPanel.vue'
 import { useContributions } from './useContributions'
 
@@ -30,7 +30,7 @@ const errorText = useErrorText()
 const session = useSession()
 const capabilities = useCapabilities()
 const custodyEnabled = computed(() => capabilities.has(feature.custody))
-const { data, options, policy, statistics, loading, sending, error, publicError, pending, uncertain, completed, reload, prepare, cancel, submit, next, nextOptions, first } = useContributions()
+const { data, options, policy, statistics, loading, sending, error, errorDetail, publicError, pending, uncertain, completed, reload, prepare, cancel, submit, next, nextOptions, first } = useContributions()
 const bytes = (value: number) => format.value.bytes(value)
 const label = (prefix: string, value: string) => (te(`${prefix}.${value}`) ? t(`${prefix}.${value}`) : t('contribution.unknown'))
 const desired: Record<Contribution['desired_state'], string> = { active: 'resume', paused: 'pause', exiting: 'exit', revoked: 'revoke' }
@@ -72,6 +72,8 @@ const showForm = computed(() => !!editing.value || creating.value)
 function goNext() { paged.value = true; void next() }
 function goFirst() { paged.value = false; void first() }
 const action = computed(() => (pending.value?.kind === 'command' ? pending.value.body.action : pending.value?.kind === 'retry' ? 'retry' : 'create'))
+// The server refused the quota because of the drive's own space; reloading reads it again.
+const capacityRejection = computed(() => (errorDetail.value === 'limit_exceeds_provider_capacity' || errorDetail.value === 'provider_capacity_unavailable' ? errorDetail.value : null))
 const needsSignIn = computed(() => error.value === 'unauthenticated' || session.state.value === 'guest')
 
 function consent() {
@@ -99,13 +101,33 @@ function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
   invalid.value = false
   void nextTick(() => formTitle.value?.focus())
 }
+// The provider's own quota for the whole storage account, shown next to the platform ledger so
+// the owner can see how much is left to contribute. Only the owner's views carry it.
+const capacityOf = (item: Contribution | DeepReadonly<{ provider_capacity?: ProviderCapacity }>) => ('provider_capacity' in item ? item.provider_capacity : undefined)
+// "Updated" means the last successful provider quota read, not when the page was loaded.
+const observedAt = (item: Contribution) => { const capacity = capacityOf(item); return capacity ? capacity.observed_at : item.observation?.observed_at ?? null }
+const selectedOption = computed(() => options.value?.items.find((item) => item.id === instance.value))
+const formCapacity = computed(() => (editing.value ? capacityOf(editing.value.item) : selectedOption.value?.provider_capacity))
+// New contributions: the server's limit already leaves the safety margin; the personal reserve
+// typed here comes off it as well, and the policy's own maximum still applies.
+const maxContribution = computed(() => {
+  const base = selectedOption.value?.max_contributable_bytes
+  if (editing.value || base === undefined) return undefined
+  if (base === null) return null
+  const reserveBytes = parseGB(reserve.value) ?? 0
+  return Math.min(policy.value?.max_bytes ?? base, Math.max(0, base - reserveBytes))
+})
+const overCapacity = computed(() => {
+  const requested = parseGB(limit.value)
+  return typeof maxContribution.value === 'number' && requested !== null && requested > maxContribution.value
+})
 // The API limits a nickname to 32 characters (code points), not UTF-16 units.
 const noteTooLong = computed(() => [...displayLabel.value.trim()].length > 32)
 function review() {
   const current = policy.value
   if (!current) return
   const change = editing.value
-  if (noteTooLong.value) { invalid.value = true; return }
+  if (noteTooLong.value || (!change && (maxContribution.value === null || overCapacity.value))) { invalid.value = true; return }
   const note = displayLabel.value.trim()
   // Renaming alone keeps the saved quota, reserve and end date as they are, even when they no
   // longer fit the current policy, so it is sent without conditions and is not re-checked.
@@ -269,10 +291,24 @@ watch(completed, (value) => {
         </div>
       </section>
       <ErrorNotice
-        v-else-if="error && !pending"
+        v-else-if="error && !pending && !capacityRejection"
         :code="error"
         @retry="reload()"
       />
+      <div
+        v-else-if="error && !pending"
+        class="notice notice-error"
+        role="alert"
+      >
+        <span>{{ t(`contribution.provider.errors.${capacityRejection}`) }}</span>
+        <button
+          class="btn btn-sm"
+          type="button"
+          @click="reload()"
+        >
+          {{ t('common.retry') }}
+        </button>
+      </div>
     </div>
 
     <template v-if="data && tab === 'contributions'">
@@ -329,6 +365,37 @@ watch(completed, (value) => {
                 >{{ t('contribution.option', { adapter: adapterName(option.adapter), id: accountTag(option), capacity: bytes(option.available_bytes) }) }}</option>
               </AppSelect>
             </label>
+            <div
+              v-if="formCapacity"
+              class="provider-capacity"
+              role="group"
+              :aria-label="t('contribution.provider.title')"
+            >
+              <span class="field-label">{{ t('contribution.provider.title') }}</span>
+              <dl
+                v-if="formCapacity.status === 'available'"
+                class="facts"
+              >
+                <div>
+                  <dt>{{ t('contribution.provider.total') }}</dt>
+                  <dd>{{ bytes(formCapacity.total_bytes ?? 0) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ t('contribution.provider.used') }}</dt>
+                  <dd>{{ bytes(formCapacity.used_bytes ?? 0) }}</dd>
+                </div>
+                <div>
+                  <dt>{{ t('contribution.provider.remaining') }}</dt>
+                  <dd>{{ bytes(formCapacity.remaining_bytes ?? 0) }}</dd>
+                </div>
+              </dl>
+              <p
+                v-else
+                class="notice notice-warning small"
+              >
+                {{ t(`contribution.provider.status.${formCapacity.status}`) }}
+              </p>
+            </div>
             <label
               v-if="!editing || editing.mode === 'configure'"
               class="field"
@@ -383,6 +450,14 @@ watch(completed, (value) => {
                 />
               </label>
             </div>
+            <p
+              v-if="typeof maxContribution === 'number'"
+              class="field-hint"
+              :class="{ 'field-error': overCapacity }"
+              :role="overCapacity ? 'alert' : undefined"
+            >
+              {{ t(overCapacity ? 'contribution.provider.over' : 'contribution.provider.max', { max: bytes(maxContribution) }) }}
+            </p>
             <p class="field-hint">
               {{ t('contribution.range', { min: bytes(policy.min_bytes), max: bytes(policy.max_bytes) }) }}
             </p>
@@ -412,7 +487,7 @@ watch(completed, (value) => {
               class="notice notice-error"
               role="alert"
             >
-              {{ t('contribution.invalidForm') }}
+              {{ t(maxContribution === null ? 'contribution.provider.unavailable' : overCapacity ? 'contribution.provider.over' : 'contribution.invalidForm', { max: bytes(typeof maxContribution === 'number' ? maxContribution : 0) }) }}
             </p>
             <div class="form-actions">
               <button
@@ -516,6 +591,32 @@ watch(completed, (value) => {
               >
                 {{ label('contribution.reasons', item.reason) }}
               </p>
+              <template v-if="capacityOf(item)">
+                <dl
+                  v-if="capacityOf(item)?.status === 'available'"
+                  class="facts"
+                  :aria-label="t('contribution.provider.title')"
+                >
+                  <div>
+                    <dt>{{ t('contribution.provider.total') }}</dt>
+                    <dd>{{ bytes(capacityOf(item)?.total_bytes ?? 0) }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ t('contribution.provider.used') }}</dt>
+                    <dd>{{ bytes(capacityOf(item)?.used_bytes ?? 0) }}</dd>
+                  </div>
+                  <div>
+                    <dt>{{ t('contribution.provider.remaining') }}</dt>
+                    <dd>{{ bytes(capacityOf(item)?.remaining_bytes ?? 0) }}</dd>
+                  </div>
+                </dl>
+                <p
+                  v-else-if="!item.reason"
+                  class="notice notice-warning small"
+                >
+                  {{ t(`contribution.provider.status.${capacityOf(item)?.status}`) }}
+                </p>
+              </template>
               <template v-if="item.observation">
                 <dl class="facts">
                   <div>
@@ -538,7 +639,7 @@ watch(completed, (value) => {
                   {{ t('contribution.remaining', { count: format.number(item.observation.remaining_replicas) }) }}
                 </p>
                 <p class="subtle">
-                  {{ t('contribution.observed', { time: format.dateTime(item.observation.observed_at) }) }}
+                  {{ observedAt(item) ? t('contribution.observed', { time: format.dateTime(observedAt(item) ?? '') }) : t('contribution.neverObserved') }}
                 </p>
               </template>
               <p
@@ -669,7 +770,7 @@ watch(completed, (value) => {
           class="notice notice-error"
           role="alert"
         >
-          {{ errorText(error) }}
+          {{ capacityRejection ? t(`contribution.provider.errors.${capacityRejection}`) : errorText(error) }}
         </p>
         <p
           v-if="uncertain"
@@ -704,6 +805,8 @@ watch(completed, (value) => {
 
 <style scoped>
 .card-heading { min-width: 0; overflow-wrap: anywhere; }
+.provider-capacity { display: grid; gap: .5rem; }
+.provider-capacity .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 article .facts { grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics { gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); }
 .metrics dd { font-size: clamp(1.625rem, 1.3rem + 1.4vw, 2.25rem); font-weight: 700; line-height: 1.1; letter-spacing: var(--tracking-title); }
