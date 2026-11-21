@@ -246,7 +246,10 @@
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
     ],
     "ST-01": [
-      "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte"
+      "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte",
+      "tests/e2e/contributions.spec.mjs#the owner sees the drive total, used and remaining space, and an unreadable drive says why",
+      "tests/e2e/contributions.spec.mjs#the contribution form shows the drive space and stops a quota above what is left",
+      "tests/e2e/contributions.spec.mjs#a quota the server finds above the drive space names that reason and can be read again"
     ],
     "DS-01": [
       "tests/e2e/search.spec.mjs#expired popular ranking stays on screen until the reader refreshes"
@@ -266,7 +269,8 @@
     ],
     "QQB-02": [
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
-      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained"
+      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
+      "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
     ]
   }
 }
