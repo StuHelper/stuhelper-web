@@ -1,8 +1,8 @@
 {
   "repository": "StuHelper/stuhelper-backend",
-  "revision": "d3d8011a5e82b79423d770d0ce49ec82b4789f64",
-  "version": "0.6.0",
-  "sha256": "3e88e09eb1664a54b3defcbbee67a4a3aaf345c30326c1ddf6a7cefc61b8f276",
+  "revision": "d6bd53dbfbeff61c2bf86c38f6c71a9711a19c77",
+  "version": "0.7.0",
+  "sha256": "2d3b4804b1abe1caca4d163c25b7668ffdcff18f4ca7544db8e65e408c3ecc67",
   "files": {
     "contracts/session.openapi.json": "contracts/session.openapi.json"
   },

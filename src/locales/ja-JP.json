@@ -1622,7 +1622,8 @@
         "authorizations_unavailable": "現在、アプリの認可を取り消せません。サービスの回復後に処理を続けます。",
         "content_unavailable": "現在、個人のコンテンツを処理できません。サービスの回復後に処理を続けます。"
       }
-    }
+    },
+    "phoneBoundMasked": "連携済み {phone}"
   },
   "profile": {
     "title": "プロフィール",

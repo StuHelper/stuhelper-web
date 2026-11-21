@@ -20,6 +20,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/phone": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read the current Casdoor phone binding for the authenticated account by issuer and subject. Returns a masked value and never accepts an account identifier. */
+        get: operations["getOwnPhone"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/sessions": {
         parameters: {
             query?: never;
@@ -291,6 +308,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        OwnPhone: {
+            bound: boolean;
+            /** @description Null when unbound. Only a masked suffix is shown when bound. */
+            masked_phone: string | null;
+        };
         Profile: {
             /** @description Unicode code points; empty only while nickname_required is true. */
             nickname: string;
@@ -530,6 +552,53 @@ export interface operations {
                 };
             };
             /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getOwnPhone: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current masked phone binding */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OwnPhone"];
+                };
+            };
+            /** @description Unauthenticated or Casdoor account no longer active */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Current binding could not be verified */
             503: {
                 headers: {
                     [name: string]: unknown;

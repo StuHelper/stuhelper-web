@@ -1622,7 +1622,8 @@
         "authorizations_unavailable": "지금은 앱 승인을 철회할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다.",
         "content_unavailable": "지금은 개인 콘텐츠를 처리할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다."
       }
-    }
+    },
+    "phoneBoundMasked": "연결됨 {phone}"
   },
   "profile": {
     "title": "프로필",
