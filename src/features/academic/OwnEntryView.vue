@@ -40,6 +40,7 @@ function updated(review: Review) {
           v-if="entry.data.value"
           :review="entry.data.value.review"
           :names="entry.data.value.names"
+          appendable
           @updated="updated"
           @removed="router.replace('/me/reviews')"
         />

@@ -134,7 +134,8 @@
     "phone_binding_changed": "The number was just changed elsewhere. The page shows the current state; try again.",
     "phone_change_in_progress": "The previous change is still being processed. Retry the original request shortly.",
     "phone_write_unconfirmed": "The result of the change could not be confirmed. Retry the original request to check.",
-    "phone_rate_limited": "Codes are being requested too often. Try again later."
+    "phone_rate_limited": "Codes are being requested too often. Try again later.",
+    "append_window_not_open": "Follow-ups open 5 minutes after first publishing. Try again shortly."
   },
   "connection": {
     "label": "Service connection status",
@@ -641,7 +642,8 @@
       "course_enrollment": "View my courses"
     },
     "followUp": "Follow-up",
-    "submitFollowUp": "Submit follow-up"
+    "submitFollowUp": "Submit follow-up",
+    "followUpOpensAt": "Follow-ups open 5 minutes after first publishing. Try again after {time}."
   },
   "me": {
     "title": "Personal center",
@@ -2424,5 +2426,109 @@
     "unbound": "Phone number removed",
     "unbindTitle": "Remove phone number",
     "unbindWarning": "After removal, this number can no longer be used to sign in or recover your password."
+  },
+  "violation": {
+    "label": "Violation type",
+    "search": "Search violation types",
+    "required": "Choose a violation type.",
+    "categories": {
+      "illegal_content": {
+        "name": "Illegal content",
+        "hint": "Content that endangers national security, incites subversion, or promotes terrorism, extremism or other illegal acts"
+      },
+      "pornography": {
+        "name": "Pornographic or vulgar",
+        "hint": "Pornographic, sexually suggestive or vulgar content"
+      },
+      "gambling_drugs": {
+        "name": "Gambling, drugs or prohibited goods",
+        "hint": "Gambling, drugs, controlled items or trade in prohibited goods"
+      },
+      "fraud": {
+        "name": "Fraud or phishing",
+        "hint": "Scams, phishing links, fake part-time jobs, or attempts to obtain accounts or money"
+      },
+      "violence_threat": {
+        "name": "Violence or threats",
+        "hint": "Promoting violence, threatening someone's safety, or encouraging self-harm or suicide"
+      },
+      "minors_harm": {
+        "name": "Harmful to minors",
+        "hint": "Content harmful to the physical or mental health of minors"
+      },
+      "personal_attack": {
+        "name": "Abuse or personal attacks",
+        "hint": "Insults, personal attacks or provocation"
+      },
+      "harassment_discrimination": {
+        "name": "Harassment or discrimination",
+        "hint": "Harassment, or discrimination by region, gender, ethnicity, religion and so on"
+      },
+      "defamation_rumor": {
+        "name": "Defamation or rumors",
+        "hint": "Made-up facts, defamation or spreading rumors"
+      },
+      "privacy_leak": {
+        "name": "Privacy leak",
+        "hint": "Revealing someone's name, contact details, ID, address or other personal information"
+      },
+      "impersonation": {
+        "name": "Impersonation",
+        "hint": "Pretending to be another person, a teacher, a school or an organization"
+      },
+      "copyright": {
+        "name": "Copyright infringement",
+        "hint": "Unauthorized textbook scans, slides, papers and so on"
+      },
+      "other_ip": {
+        "name": "Other rights infringement",
+        "hint": "Infringing trademarks, portrait rights, reputation or other lawful rights"
+      },
+      "academic_integrity": {
+        "name": "Academic misconduct",
+        "hint": "Ghostwriting, exam proxies, cheating tools or plagiarism"
+      },
+      "leaked_exam": {
+        "name": "Leaked exam",
+        "hint": "Unreleased exam questions, answers or exam arrangements"
+      },
+      "fake_review": {
+        "name": "Untruthful review",
+        "hint": "Not based on first-hand experience, fake or malicious reviews, or reviews with a conflict of interest"
+      },
+      "wrong_teacher": {
+        "name": "Wrong teacher or course",
+        "hint": "The review or material is linked to the wrong teacher or course"
+      },
+      "wrong_info": {
+        "name": "Incorrect information",
+        "hint": "Title, category, tags, term or other details do not match the content"
+      },
+      "spam": {
+        "name": "Spam or ads",
+        "hint": "Advertising, traffic diversion, unrelated promotion or flooding"
+      },
+      "malware": {
+        "name": "Malicious file or link",
+        "hint": "Viruses, trojans, malicious scripts or dangerous links"
+      },
+      "duplicate": {
+        "name": "Duplicate",
+        "hint": "Repeats existing content"
+      },
+      "low_quality": {
+        "name": "Low quality",
+        "hint": "Meaningless, filler, cannot be opened, or incomplete"
+      },
+      "author_update": {
+        "name": "Author update request",
+        "hint": "The author asks to correct or withdraw it"
+      },
+      "other": {
+        "name": "Other",
+        "hint": "None of the above; describe the situation in the details"
+      }
+    },
+    "receipt": "Violation type: {name}"
   }
 }

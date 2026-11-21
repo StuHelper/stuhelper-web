@@ -134,7 +134,8 @@
     "phone_binding_changed": "Le numéro vient d’être modifié ailleurs. La page affiche l’état actuel ; réessayez.",
     "phone_change_in_progress": "La modification précédente est en cours. Relancez la demande d’origine dans un instant.",
     "phone_write_unconfirmed": "Le résultat de la modification n’a pas pu être confirmé. Relancez la demande d’origine pour vérifier.",
-    "phone_rate_limited": "Trop de demandes de code. Réessayez plus tard."
+    "phone_rate_limited": "Trop de demandes de code. Réessayez plus tard.",
+    "append_window_not_open": "Les compléments sont possibles 5 minutes après la première publication. Réessayez dans un instant."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -641,7 +642,8 @@
       "course_enrollment": "Voir mes cours"
     },
     "followUp": "Complément",
-    "submitFollowUp": "Envoyer le complément"
+    "submitFollowUp": "Envoyer le complément",
+    "followUpOpensAt": "Les compléments sont possibles 5 minutes après la première publication. Réessayez après {time}."
   },
   "me": {
     "title": "Espace personnel",
@@ -2424,5 +2426,109 @@
     "unbound": "Numéro de téléphone retiré",
     "unbindTitle": "Retirer le numéro de téléphone",
     "unbindWarning": "Après le retrait, ce numéro ne servira plus à se connecter ni à récupérer le mot de passe."
+  },
+  "violation": {
+    "label": "Type d’infraction",
+    "search": "Rechercher un type d’infraction",
+    "required": "Choisissez un type d’infraction.",
+    "categories": {
+      "illegal_content": {
+        "name": "Contenu illégal",
+        "hint": "Contenu portant atteinte à la sécurité nationale, incitant à la subversion, au terrorisme, à l’extrémisme ou à d’autres actes illégaux"
+      },
+      "pornography": {
+        "name": "Pornographique ou vulgaire",
+        "hint": "Contenu pornographique, sexuellement suggestif ou vulgaire"
+      },
+      "gambling_drugs": {
+        "name": "Jeux d’argent, drogues ou produits interdits",
+        "hint": "Jeux d’argent, drogues, produits contrôlés ou commerce de produits interdits"
+      },
+      "fraud": {
+        "name": "Fraude ou hameçonnage",
+        "hint": "Arnaques, liens d’hameçonnage, faux emplois, tentatives d’obtenir des comptes ou de l’argent"
+      },
+      "violence_threat": {
+        "name": "Violence ou menaces",
+        "hint": "Apologie de la violence, menaces contre la sécurité d’autrui, incitation à l’automutilation ou au suicide"
+      },
+      "minors_harm": {
+        "name": "Nuisible aux mineurs",
+        "hint": "Contenu nuisible à la santé physique ou mentale des mineurs"
+      },
+      "personal_attack": {
+        "name": "Insultes ou attaques personnelles",
+        "hint": "Insultes, attaques personnelles ou provocations"
+      },
+      "harassment_discrimination": {
+        "name": "Harcèlement ou discrimination",
+        "hint": "Harcèlement ou discrimination liée à la région, au sexe, à l’ethnie, à la religion, etc."
+      },
+      "defamation_rumor": {
+        "name": "Diffamation ou rumeurs",
+        "hint": "Faits inventés, diffamation ou diffusion de rumeurs"
+      },
+      "privacy_leak": {
+        "name": "Atteinte à la vie privée",
+        "hint": "Divulgation du nom, des coordonnées, d’une pièce d’identité, de l’adresse ou d’autres données personnelles d’autrui"
+      },
+      "impersonation": {
+        "name": "Usurpation d’identité",
+        "hint": "Se faire passer pour une autre personne, un enseignant, une école ou une organisation"
+      },
+      "copyright": {
+        "name": "Atteinte au droit d’auteur",
+        "hint": "Scans de manuels, supports de cours, articles, etc. sans autorisation"
+      },
+      "other_ip": {
+        "name": "Atteinte à d’autres droits",
+        "hint": "Atteinte aux marques, au droit à l’image, à la réputation ou à d’autres droits légitimes"
+      },
+      "academic_integrity": {
+        "name": "Fraude académique",
+        "hint": "Rédaction pour autrui, examen passé par un tiers, outils de triche ou plagiat"
+      },
+      "leaked_exam": {
+        "name": "Fuite d’examen",
+        "hint": "Sujets, corrigés ou modalités d’examen non publiés"
+      },
+      "fake_review": {
+        "name": "Avis mensonger",
+        "hint": "Avis non fondé sur une expérience personnelle, faux avis, avis malveillant ou en conflit d’intérêts"
+      },
+      "wrong_teacher": {
+        "name": "Mauvais enseignant ou cours",
+        "hint": "L’avis ou le document est lié au mauvais enseignant ou cours"
+      },
+      "wrong_info": {
+        "name": "Informations erronées",
+        "hint": "Titre, catégorie, étiquettes, semestre, etc. ne correspondent pas au contenu"
+      },
+      "spam": {
+        "name": "Spam ou publicité",
+        "hint": "Publicité, redirection de trafic, promotion sans rapport ou envoi massif"
+      },
+      "malware": {
+        "name": "Fichier ou lien malveillant",
+        "hint": "Virus, chevaux de Troie, scripts malveillants ou liens dangereux"
+      },
+      "duplicate": {
+        "name": "Doublon",
+        "hint": "Reprend un contenu existant"
+      },
+      "low_quality": {
+        "name": "Faible qualité",
+        "hint": "Sans intérêt, remplissage, impossible à ouvrir ou incomplet"
+      },
+      "author_update": {
+        "name": "Demande de mise à jour de l’auteur",
+        "hint": "L’auteur demande une correction ou un retrait"
+      },
+      "other": {
+        "name": "Autre",
+        "hint": "Aucune des catégories ci-dessus ; décrivez la situation dans les détails"
+      }
+    },
+    "receipt": "Type d’infraction : {name}"
   }
 }

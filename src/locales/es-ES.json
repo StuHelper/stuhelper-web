@@ -134,7 +134,8 @@
     "phone_binding_changed": "El número se acaba de cambiar en otro sitio. La página muestra el estado actual; inténtalo de nuevo.",
     "phone_change_in_progress": "El cambio anterior aún se está procesando. Reintenta la solicitud original en breve.",
     "phone_write_unconfirmed": "No se pudo confirmar el resultado del cambio. Reintenta la solicitud original para comprobarlo.",
-    "phone_rate_limited": "Se están pidiendo códigos con demasiada frecuencia. Inténtalo más tarde."
+    "phone_rate_limited": "Se están pidiendo códigos con demasiada frecuencia. Inténtalo más tarde.",
+    "append_window_not_open": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo en un momento."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -641,7 +642,8 @@
       "course_enrollment": "Ver mis cursos"
     },
     "followUp": "Comentario adicional",
-    "submitFollowUp": "Enviar comentario adicional"
+    "submitFollowUp": "Enviar comentario adicional",
+    "followUpOpensAt": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo después de las {time}."
   },
   "me": {
     "title": "Área personal",
@@ -2424,5 +2426,109 @@
     "unbound": "Número de teléfono quitado",
     "unbindTitle": "Quitar número de teléfono",
     "unbindWarning": "Después ya no podrás usar este número para iniciar sesión ni recuperar la contraseña."
+  },
+  "violation": {
+    "label": "Tipo de infracción",
+    "search": "Buscar tipo de infracción",
+    "required": "Elige un tipo de infracción.",
+    "categories": {
+      "illegal_content": {
+        "name": "Contenido ilegal",
+        "hint": "Contenido que pone en peligro la seguridad nacional, incita a la subversión, al terrorismo, al extremismo u otros actos ilegales"
+      },
+      "pornography": {
+        "name": "Pornográfico o vulgar",
+        "hint": "Contenido pornográfico, sexualmente sugerente o vulgar"
+      },
+      "gambling_drugs": {
+        "name": "Apuestas, drogas o artículos prohibidos",
+        "hint": "Apuestas, drogas, artículos controlados o comercio de artículos prohibidos"
+      },
+      "fraud": {
+        "name": "Fraude o phishing",
+        "hint": "Estafas, enlaces de phishing, falsos trabajos o intentos de obtener cuentas o dinero"
+      },
+      "violence_threat": {
+        "name": "Violencia o amenazas",
+        "hint": "Apología de la violencia, amenazas a la seguridad de alguien o incitación a autolesiones o suicidio"
+      },
+      "minors_harm": {
+        "name": "Perjudicial para menores",
+        "hint": "Contenido perjudicial para la salud física o mental de los menores"
+      },
+      "personal_attack": {
+        "name": "Insultos o ataques personales",
+        "hint": "Insultos, ataques personales o provocaciones"
+      },
+      "harassment_discrimination": {
+        "name": "Acoso o discriminación",
+        "hint": "Acoso o discriminación por región, género, etnia, religión, etc."
+      },
+      "defamation_rumor": {
+        "name": "Difamación o bulos",
+        "hint": "Hechos inventados, difamación o difusión de bulos"
+      },
+      "privacy_leak": {
+        "name": "Filtración de privacidad",
+        "hint": "Revelar el nombre, contacto, documento, dirección u otros datos personales de alguien"
+      },
+      "impersonation": {
+        "name": "Suplantación",
+        "hint": "Hacerse pasar por otra persona, un profesor, una escuela o una organización"
+      },
+      "copyright": {
+        "name": "Infracción de derechos de autor",
+        "hint": "Escaneos de libros, diapositivas, artículos, etc. sin autorización"
+      },
+      "other_ip": {
+        "name": "Infracción de otros derechos",
+        "hint": "Infracción de marcas, derechos de imagen, reputación u otros derechos legítimos"
+      },
+      "academic_integrity": {
+        "name": "Fraude académico",
+        "hint": "Redacción por encargo, suplantación en exámenes, herramientas de trampa o plagio"
+      },
+      "leaked_exam": {
+        "name": "Filtración de examen",
+        "hint": "Preguntas, respuestas o calendarios de examen no publicados"
+      },
+      "fake_review": {
+        "name": "Reseña falsa",
+        "hint": "No basada en experiencia propia, reseñas falsas, malintencionadas o con conflicto de intereses"
+      },
+      "wrong_teacher": {
+        "name": "Profesor o asignatura incorrectos",
+        "hint": "La reseña o el material está vinculado al profesor o asignatura equivocados"
+      },
+      "wrong_info": {
+        "name": "Información incorrecta",
+        "hint": "Título, categoría, etiquetas, periodo, etc. no coinciden con el contenido"
+      },
+      "spam": {
+        "name": "Spam o publicidad",
+        "hint": "Publicidad, captación de tráfico, promoción ajena o mensajes masivos"
+      },
+      "malware": {
+        "name": "Archivo o enlace malicioso",
+        "hint": "Virus, troyanos, scripts maliciosos o enlaces peligrosos"
+      },
+      "duplicate": {
+        "name": "Duplicado",
+        "hint": "Repite contenido existente"
+      },
+      "low_quality": {
+        "name": "Baja calidad",
+        "hint": "Sin sentido, relleno, no se puede abrir o incompleto"
+      },
+      "author_update": {
+        "name": "Solicitud de actualización del autor",
+        "hint": "El autor pide corregirlo o retirarlo"
+      },
+      "other": {
+        "name": "Otro",
+        "hint": "Ninguna de las anteriores; describe la situación en los detalles"
+      }
+    },
+    "receipt": "Tipo de infracción: {name}"
   }
 }

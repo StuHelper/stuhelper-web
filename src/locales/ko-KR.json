@@ -134,7 +134,8 @@
     "phone_binding_changed": "번호가 방금 다른 곳에서 변경되었습니다. 최신 상태를 표시했으니 다시 시도하세요.",
     "phone_change_in_progress": "이전 변경을 처리하는 중입니다. 잠시 후 원래 요청을 다시 시도하세요.",
     "phone_write_unconfirmed": "변경 결과를 확인하지 못했습니다. 원래 요청을 다시 시도해 확인하세요.",
-    "phone_rate_limited": "코드 요청이 너무 잦습니다. 잠시 후 다시 시도하세요."
+    "phone_rate_limited": "코드 요청이 너무 잦습니다. 잠시 후 다시 시도하세요.",
+    "append_window_not_open": "추가 평가는 처음 게시 후 5분이 지나야 할 수 있습니다. 잠시 후 다시 시도하세요."
   },
   "connection": {
     "label": "서비스 연결 상태",
@@ -641,7 +642,8 @@
       "course_enrollment": "내 강의 보기"
     },
     "followUp": "추가 후기",
-    "submitFollowUp": "추가 후기 제출"
+    "submitFollowUp": "추가 후기 제출",
+    "followUpOpensAt": "추가 평가는 처음 게시 후 5분이 지나야 할 수 있습니다. {time} 이후에 다시 시도하세요."
   },
   "me": {
     "title": "마이페이지",
@@ -2424,5 +2426,109 @@
     "unbound": "전화번호 연결을 해제했습니다",
     "unbindTitle": "전화번호 연결 해제",
     "unbindWarning": "해제하면 이 번호로 로그인하거나 비밀번호를 찾을 수 없습니다."
+  },
+  "violation": {
+    "label": "위반 유형",
+    "search": "위반 유형 검색",
+    "required": "위반 유형을 선택하세요.",
+    "categories": {
+      "illegal_content": {
+        "name": "불법 콘텐츠",
+        "hint": "국가 안보 위협, 체제 전복 선동, 테러, 극단주의 등 불법 정보"
+      },
+      "pornography": {
+        "name": "음란·저속",
+        "hint": "음란물, 성적 암시, 저속한 콘텐츠"
+      },
+      "gambling_drugs": {
+        "name": "도박·마약·금지 물품",
+        "hint": "도박, 마약, 규제 물품 또는 금지 물품 거래"
+      },
+      "fraud": {
+        "name": "사기·피싱",
+        "hint": "사기, 피싱 링크, 허위 아르바이트, 계정이나 금전 갈취"
+      },
+      "violence_threat": {
+        "name": "폭력·위협",
+        "hint": "폭력 조장, 신변 위협, 자해나 자살 유도"
+      },
+      "minors_harm": {
+        "name": "미성년자 유해",
+        "hint": "미성년자의 심신 건강에 해로운 콘텐츠"
+      },
+      "personal_attack": {
+        "name": "욕설·인신공격",
+        "hint": "욕설, 인신공격, 도발"
+      },
+      "harassment_discrimination": {
+        "name": "괴롭힘·차별",
+        "hint": "괴롭힘, 지역·성별·민족·종교 등에 따른 차별"
+      },
+      "defamation_rumor": {
+        "name": "명예훼손·유언비어",
+        "hint": "사실 날조, 타인 명예훼손, 유언비어 유포"
+      },
+      "privacy_leak": {
+        "name": "개인정보 유출",
+        "hint": "타인의 이름, 연락처, 신분증, 주소 등 개인정보 유출"
+      },
+      "impersonation": {
+        "name": "사칭",
+        "hint": "타인, 교원, 학교 또는 기관 사칭"
+      },
+      "copyright": {
+        "name": "저작권 침해",
+        "hint": "무단 교재 스캔, 강의 자료, 논문 등"
+      },
+      "other_ip": {
+        "name": "기타 권리 침해",
+        "hint": "상표, 초상, 명예 등 기타 정당한 권리 침해"
+      },
+      "academic_integrity": {
+        "name": "학업 부정",
+        "hint": "대필, 대리 시험, 부정행위 도구, 표절"
+      },
+      "leaked_exam": {
+        "name": "시험 문제 유출",
+        "hint": "공개되지 않은 시험 문제, 정답 또는 시험 일정"
+      },
+      "fake_review": {
+        "name": "사실과 다른 평가",
+        "hint": "직접 경험이 아닌 평가, 조작, 악의적 혹평, 이해관계가 있는 평가"
+      },
+      "wrong_teacher": {
+        "name": "교원 또는 과목 오류",
+        "hint": "평가나 자료가 잘못된 교원이나 과목에 연결됨"
+      },
+      "wrong_info": {
+        "name": "정보 오류",
+        "hint": "제목, 분류, 태그, 학기 등이 내용과 맞지 않음"
+      },
+      "spam": {
+        "name": "광고·스팸",
+        "hint": "광고, 유입 유도, 무관한 홍보, 도배"
+      },
+      "malware": {
+        "name": "악성 파일 또는 링크",
+        "hint": "바이러스, 트로이 목마, 악성 스크립트 또는 위험한 링크"
+      },
+      "duplicate": {
+        "name": "중복 콘텐츠",
+        "hint": "기존 콘텐츠와 중복됨"
+      },
+      "low_quality": {
+        "name": "낮은 품질",
+        "hint": "무의미, 도배, 열 수 없음 또는 내용 누락"
+      },
+      "author_update": {
+        "name": "작성자 수정 요청",
+        "hint": "작성자 본인이 수정 또는 철회를 요청함"
+      },
+      "other": {
+        "name": "기타",
+        "hint": "위에 해당하지 않으면 설명에 구체적인 상황을 적어 주세요"
+      }
+    },
+    "receipt": "위반 유형: {name}"
   }
 }
