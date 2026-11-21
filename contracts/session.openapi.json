@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper application sessions",
-    "version": "0.8.0"
+    "version": "0.9.0"
   },
   "paths": {
     "/api/v1/auth/session": {
@@ -2347,8 +2347,8 @@
           "masked_phone": {
             "type": "string",
             "nullable": true,
-            "pattern": "^\\*{4}([0-9]{4})?$",
-            "description": "Null when unbound. Only a masked suffix is shown when bound."
+            "pattern": "^(1[3-9][0-9]\\*{4}[0-9]{4}|\\*{4})$",
+            "description": "Null when unbound. A mainland China mobile number (11 digits, optionally prefixed with +86) shows its first three and last four digits separated by ****. Other formats or a conflicting country code show only ****."
           }
         }
       },
