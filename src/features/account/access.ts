@@ -6,7 +6,7 @@ import { AcademicApi, type CatalogObject } from '../academic/api'
 import { VerificationApi, verificationPages, type Application, type Credential, type Summary } from '../verification/api'
 
 /** Whether the current account may enter content pages. Specific actions keep their own rules. */
-export type AccessState = 'loading' | 'guest' | 'unverified' | 'processing' | 'verified' | 'expired' | 'unavailable'
+export type AccessState = 'loading' | 'guest' | 'consent' | 'unverified' | 'processing' | 'verified' | 'expired' | 'unavailable'
 
 const open = new Set<Application['state']>(['in_progress', 'pending_review', 'supplement_required'])
 
@@ -72,6 +72,8 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
   const state: ComputedRef<AccessState> = computed(() => {
     if (session.state.value === 'loading') return 'loading'
     if (session.state.value === 'guest') return 'guest'
+    // Signed in, but the current terms are not accepted yet: no business data is read.
+    if (session.state.value === 'consent') return 'consent'
     if (session.state.value === 'error') return 'unavailable'
     return result.value
   })
