@@ -1,24 +1,24 @@
 # 工程约定
 
-- 本仓库是 StuHelper 按业务模块拆分的一部分。架构与业务边界以 [StuHelper](https://github.com/StuHelper/stuhelper) 为准。
-- 普通变更从最新 origin/develop 创建专用短期分支和独立 worktree，通过 PR squash 到 develop。发布走 develop 到 main 的 merge commit；tag、镜像发行与生产晋级需要 owner 明确授权。
-- 普通检查使用 ubuntu-26.04。Docker/OCI 构建和 BJ1 Registry 操作使用 stuhelper-arc-release 发行组，公开 PR 不在自建环境执行。不修改其他仓库、生产数据或运行配置来完成普通开发任务。
-- GitHub Actions 与部署镜像使用明确版本 tag。摘要与源码提交用于核验和追溯。独立检查不使用 GitHub Actions cache 或 artifacts。新增共享缓存时遵循架构仓库的 CI 规格。
-- 接口先定义 OpenAPI，生成文件不得手改。模块只访问自己的数据，通过明确接口与其他模块协作。私有实现、凭据和身份原始数据不得进入公共仓库。
-- 业务后端遵循 Handler → Service → Repository，SQL 仅位于 Repository。客户端使用生成接口类型，不实现服务端权限规则。
-- 记录实际检查范围；框架测试通过不表示业务、真实登录、生产部署或迁移通过。发现失败先修复并重跑原检查。
-- Docker 测试只使用任务专属资源，完成或失败后清理本任务创建的容器、无用镜像及缓存，不做全局清理。
-- 保留其他任务的未提交修改。已授权实现存储贡献、课程评价、学生认证和统一应用业务。独立 community 模块与原生端继续延期。
+<!-- updated: 2026-11-21 -->
 
-任务工作树统一放在 `workspace/worktrees/<任务>/<仓库名>`。文档直接维护当前状态，术语和国际化遵循架构仓库的统一规格。
+- 本仓库是 StuHelper 按业务模块拆分的一部分。架构与业务边界以 [StuHelper](https://github.com/StuHelper/stuhelper) 为准。
+- 普通变更从最新 `origin/develop` 创建专用短期分支和独立工作树，通过 PR squash 到 develop。发布由 develop 到 main 执行 merge commit。tag、镜像发行与生产晋级需要负责人明确授权。
+- Web 常规检查和公开 GHCR 镜像工作流使用 GitHub 托管的 `ubuntu-26.04`。BJ1 Registry 的发行任务使用自建 runner。GitHub Actions 与部署镜像使用明确的版本 tag，以源码提交和摘要核验产物。
+- 共享前端检查可恢复 GitHub 托管 Linux 的 Vite 与增量 TypeScript 缓存。PR 只读恢复，写入限 `develop` 或 `main` 的分支 push 或手动运行。缓存路径和键由固定版本的工程工具维护。
+- 接口先定义 OpenAPI，再同步生成文件。客户端以服务端返回的事实和授权为准，通过公开接口协作。私有实现、凭据与原始身份数据留在获准的私有环境。
+- Docker 测试使用任务专属资源，完成或失败后清理本任务创建的容器、无用镜像与缓存。保留其他任务的资源与未提交改动。
+
+任务工作树统一放在 `workspace/worktrees/<任务>/<仓库名>`。公共测试、工具链升级、文档编号、许可证和 PR 约定遵循根仓规则。见[工程约定](https://github.com/StuHelper/stuhelper/blob/develop/AGENTS.md)。
+
+## 界面与验证
+
+- 界面文案和可访问名称使用翻译键，补齐八种语言。复数、日期、数字、金额和容量使用共享格式化接口。改动布局时核对移动视口、键盘操作和阿拉伯语 RTL。
+- 使用 `make check` 运行仓库检查，使用 `pnpm run check:docs` 校验文档。正式构建的浏览器用例使用 `pnpm run browser`，审阅原型使用 `pnpm run browser:demo`。完整前提见 [README](README.md#契约与检查)。
+- 关键场景在 `module.json` 的 `scenario_tests` 中登记已有规格编号、测试文件和用例标题。修复前复现缺陷，修复后重跑原检查及受影响的阶段。真实账号验收、发行和部署分别记录。
 
 ## 沟通与回复
 
-- 文档直接描述当前行为、当前实现和剩余工作。代码或规则变化时，同步替换相应文档中的旧内容，合并重复段落。历史细节由 Git、PR 和 CI 保存。
-- 使用现有主题承载长期规则与实施状态。验证结果随对应主题更新，日常修复保持文档简洁。
-- 使用自然、具体的现代汉语，说明对象、动作和结果。直接写出当前规则，必要的技术对比说明具体条件和边界。
-- 保留准确的专业术语，并解释影响理解的概念。段落围绕一个主题，使用连接词说明因果和条件。
-- 回复先给结果，再给必要证据与剩余事项。检查通过、真实账号验收、发行和部署分别报告。失败先修复并重跑原检查，再验证受影响阶段。
-- 长期文档使用相关写作技能。已明确的授权直接沿用，待确认的产品选择保持 InReview。工具明确进入 Goal Mode 时减少进度沟通，其余情况按正常协作执行。
-
-公共测试、工具链升级、文档编号、许可证和 PR 约定遵循[架构仓库工程约定](https://github.com/StuHelper/stuhelper/blob/develop/AGENTS.md)。本仓库使用固定版本的共享工程工具执行检查。
+- 代码或规则变化时同步更新现有文档，替换过时内容和重复说明。分别记录当前规则、实施状态和验证结果。尚待确认的产品选择保留 InReview。
+- 使用自然、具体的现代汉语，写明对象、动作和结果。每段围绕一个主题，最多 200 个可见字符。长期文档使用相关写作技能。
+- 回复先给结果，再给必要证据和剩余事项。已明确的授权直接沿用。Goal Mode 下减少进度沟通。
