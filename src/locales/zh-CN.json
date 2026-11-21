@@ -174,7 +174,7 @@
       },
       "contributions": {
         "title": "我的存储贡献",
-        "text": "自愿贡献网盘容量，用于保存学习资料。"
+        "text": "自愿贡献云盘容量，用于保存学习资料。"
       },
       "me": {
         "title": "个人中心",
@@ -690,7 +690,7 @@
       "drafts": "继续编辑未发布的草稿。",
       "resources": "上传结果、审核状态与更正。",
       "requests": "下架、投诉和异议的处理结果。",
-      "storage": "贡献容量和网盘账号。",
+      "storage": "贡献容量和云盘账号。",
       "courses": "按学期查看课程、教师和上课安排。"
     },
     "profile": {
@@ -1284,7 +1284,7 @@
   },
   "contribution": {
     "eyebrow": "共享存储",
-    "description": "自愿贡献闲置的网盘容量，用于保存学习资料。",
+    "description": "自愿贡献闲置的云盘容量，用于保存学习资料。",
     "summary": "社区贡献存储概况",
     "declared": "用户申报的容量",
     "available": "实际可用",
@@ -1295,7 +1295,7 @@
     "accepted": "已提交，生效后此处会更新。",
     "signInHint": "登录后可以查看和管理你的贡献。",
     "create": "新增存储贡献",
-    "noOptions": "暂无可用的存储，请先接入一个网盘账号。",
+    "noOptions": "暂无可用的存储，请先接入一个云盘账号。",
     "storage": "选择已授权存储",
     "option": "{adapter} · {id} · 可用 {capacity}",
     "limit": "共享额度（GB）",
@@ -1346,25 +1346,46 @@
     "reasons": {
       "observation_stale": "容量数据尚未更新。",
       "consent_expired": "贡献期限已到，等待退出处理。",
-      "storage_unavailable": "网盘暂时不可用。",
-      "authorization_required": "网盘授权已失效，请重新授权。",
-      "storage_conflict": "网盘状态有变化，请刷新后查看。",
-      "binding_unavailable": "该网盘账号暂时不可用，管理员会协助处理。",
+      "storage_unavailable": "云盘暂时不可用。",
+      "authorization_required": "云盘授权已失效，请重新授权。",
+      "storage_conflict": "云盘状态有变化，请刷新后查看。",
+      "binding_unavailable": "该云盘账号暂时不可用，管理员会协助处理。",
       "cleanup_unconfirmed": "仍有文件尚未迁出。",
       "storage_writes_disabled": "存储暂不接受新文件。",
-      "capacity_unknown": "暂时读取不到容量。",
-      "exit_overdue": "已超过退出目标时间，迁移仍在处理。"
+      "capacity_unknown": "尚未读取到云盘容量。",
+      "exit_overdue": "已超过退出目标时间，迁移仍在处理。",
+      "capacity_read_failed": "读取云盘容量失败，平台会自动重试。",
+      "capacity_expired": "云盘容量数据已过期，平台会自动刷新。"
     },
     "displayLabel": "备注名（选填）",
-    "displayLabelHint": "例如：主力网盘",
+    "displayLabelHint": "例如：主力云盘",
     "displayLabelTooLong": "备注名最多 32 个字符。",
     "reviewLabel": "备注名：",
-    "reviewLabelCleared": "将清除备注名。"
+    "reviewLabelCleared": "将清除备注名。",
+    "provider": {
+      "title": "云盘空间",
+      "total": "云盘总空间",
+      "used": "云盘已用",
+      "remaining": "云盘剩余",
+      "max": "最多可贡献 {max}",
+      "over": "超出可贡献上限，最多 {max}",
+      "unavailable": "暂时读取不到云盘容量，暂不能提交。",
+      "status": {
+        "not_read": "尚未读取到云盘容量。",
+        "read_failed": "读取云盘容量失败，平台会自动重试。",
+        "expired": "云盘容量数据已过期，平台会自动刷新。"
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "共享额度超过了云盘剩余空间，请调低后重试。",
+        "provider_capacity_unavailable": "暂时无法核实云盘容量，请稍后再试。"
+      }
+    },
+    "neverObserved": "尚未读取到容量"
   },
   "custody": {
     "disabled": "存储账号托管尚未启用。",
     "title": "存储账号",
-    "description": "接入网盘账号后，可选择贡献的容量和期限。",
+    "description": "接入云盘账号后，可选择贡献的容量和期限。",
     "sending": "正在验证账号，请稍候…",
     "uncertain": "提交结果尚未确认。密码已清除，请先查询结果，不要重复提交。",
     "recover": "查询结果",
@@ -1393,13 +1414,13 @@
       "credentials_required": "需要重新输入密码"
     },
     "reasons": {
-      "authorization_rejected": "网盘拒绝了登录，请检查账号和密码。",
-      "dependency_unavailable": "网盘暂时不可用，请稍后重试。",
-      "result_unknown": "网盘尚未返回结果，请稍后查看。",
+      "authorization_rejected": "云盘拒绝了登录，请检查账号和密码。",
+      "dependency_unavailable": "云盘暂时不可用，请稍后重试。",
+      "result_unknown": "云盘尚未返回结果，请稍后查看。",
       "conflict": "该账号已接入或状态刚发生变化，请刷新后查看。",
       "attempts_exhausted": "多次尝试仍未成功，管理员会协助处理。",
       "credentials_required": "请重新输入账号和密码。",
-      "interactive_verification_required": "网盘要求交互验证，请完成验证后重试。"
+      "interactive_verification_required": "云盘要求交互验证，请完成验证后重试。"
     },
     "maxTermHint": "最长可授权 {days} 天。"
   },

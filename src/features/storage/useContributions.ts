@@ -10,6 +10,8 @@ export function useContributions(admin = false, api = contributionAPI(useStorage
   const loading = shallowRef(false), sending = shallowRef(false), completed = shallowRef(false), uncertain = shallowRef(false);
   const error = shallowRef<ContributionError['code'] | null>(null);
   const publicError = shallowRef<ContributionError['code'] | null>(null);
+  // The server's specific reason for a rejected write, e.g. a limit above the provider's free space.
+  const errorDetail = shallowRef<ContributionError['detailCode'] | null>(null);
   const pending = shallowRef<Operation | null>(null);
   let current: AbortController | undefined, command: AbortController | undefined;
   let disposed = false, cursor = '', optionCursor = '';
@@ -46,7 +48,7 @@ export function useContributions(admin = false, api = contributionAPI(useStorage
     if (!pending.value || sending.value || disposed) return;
     const operation = pending.value, controller = new AbortController(); command = controller;
     const timeout = setTimeout(() => controller.abort(), 10_000);
-    sending.value = true; error.value = null;
+    sending.value = true; error.value = null; errorDetail.value = null;
     let refresh = false;
     try {
       await api.execute(operation, controller.signal);
@@ -56,7 +58,7 @@ export function useContributions(admin = false, api = contributionAPI(useStorage
     } catch (e) {
       if (disposed) return;
       const failure = e instanceof ContributionError ? e : new ContributionError('network', true);
-      error.value = failure.code; uncertain.value = failure.uncertain;
+      error.value = failure.code; errorDetail.value = failure.detailCode ?? null; uncertain.value = failure.uncertain;
       if (!failure.uncertain) pending.value = null;
       if (failure.code === 'unauthenticated' || failure.code === 'forbidden') { current?.abort(); current = undefined; data.value = null; options.value = null; }
     } finally { clearTimeout(timeout); sending.value = false; command = undefined; }
@@ -64,6 +66,6 @@ export function useContributions(admin = false, api = contributionAPI(useStorage
   }
   onMounted(() => reload());
   onScopeDispose(() => { disposed = true; current?.abort(); command?.abort(); data.value = null; options.value = null; pending.value = null; });
-  return { data: readonly(data), options: readonly(options), policy: readonly(policy), statistics: readonly(statistics), loading: readonly(loading), sending: readonly(sending), error: readonly(error), publicError: readonly(publicError), pending: readonly(pending), uncertain: readonly(uncertain), completed: readonly(completed), reload, prepare, cancel, submit,
+  return { data: readonly(data), options: readonly(options), policy: readonly(policy), statistics: readonly(statistics), loading: readonly(loading), sending: readonly(sending), error: readonly(error), errorDetail: readonly(errorDetail), publicError: readonly(publicError), pending: readonly(pending), uncertain: readonly(uncertain), completed: readonly(completed), reload, prepare, cancel, submit,
     next: () => reload(data.value?.next_cursor), nextOptions: () => reload(cursor, options.value?.next_cursor), first: () => reload('', '') };
 }

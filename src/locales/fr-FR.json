@@ -1352,14 +1352,35 @@
       "binding_unavailable": "Ce compte est indisponible. Un administrateur vous aidera.",
       "cleanup_unconfirmed": "Certains fichiers n’ont pas encore été déplacés.",
       "storage_writes_disabled": "Le stockage n’accepte pas de nouveaux fichiers.",
-      "capacity_unknown": "Capacité illisible pour le moment.",
-      "exit_overdue": "Objectif de retrait dépassé ; migration en cours."
+      "capacity_unknown": "La capacité du disque n’a pas encore été lue.",
+      "exit_overdue": "Objectif de retrait dépassé ; migration en cours.",
+      "capacity_read_failed": "La lecture de la capacité du disque a échoué. StuHelper réessaiera automatiquement.",
+      "capacity_expired": "La lecture de la capacité du disque a expiré. StuHelper la mettra à jour automatiquement."
     },
     "displayLabel": "Surnom (facultatif)",
     "displayLabelHint": "Par exemple : disque principal",
     "displayLabelTooLong": "Un surnom compte au plus 32 caractères.",
     "reviewLabel": "Surnom : ",
-    "reviewLabelCleared": "Le surnom sera supprimé."
+    "reviewLabelCleared": "Le surnom sera supprimé.",
+    "provider": {
+      "title": "Espace du disque",
+      "total": "Disque : total",
+      "used": "Disque : utilisé",
+      "remaining": "Disque : restant",
+      "max": "Contribution possible jusqu’à {max}",
+      "over": "Au-delà de la limite : {max} au maximum",
+      "unavailable": "La capacité du disque est illisible pour le moment ; l’envoi n’est pas encore possible.",
+      "status": {
+        "not_read": "La capacité du disque n’a pas encore été lue.",
+        "read_failed": "La lecture de la capacité du disque a échoué. StuHelper réessaiera automatiquement.",
+        "expired": "La lecture de la capacité du disque a expiré. StuHelper la mettra à jour automatiquement."
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "Le quota partagé dépasse l’espace restant sur le disque. Réduisez-le puis réessayez.",
+        "provider_capacity_unavailable": "La capacité du disque ne peut pas être vérifiée pour le moment. Réessayez plus tard."
+      }
+    },
+    "neverObserved": "Capacité pas encore lue"
   },
   "custody": {
     "disabled": "La gestion des comptes de stockage n’est pas activée.",
