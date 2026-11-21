@@ -309,7 +309,6 @@
     "home": "返回首页"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "已退出本站。统一登录会话可能仍然有效。",
     "signIn": "登录",
     "signOut": "退出当前设备",
     "signOutAll": "退出全部设备",
@@ -330,7 +329,13 @@
       "processing": "认证审核中",
       "expired": "认证已过期"
     },
-    "signInWithQq": "QQ 登录"
+    "signInWithQq": "QQ 登录",
+    "signingOut": "正在退出…",
+    "signedOut": {
+      "device": "已退出当前设备。",
+      "all": "已退出全部已登录设备。"
+    },
+    "upstreamStillActive": "统一登录会话可能仍然有效。"
   },
   "academic": {
     "course": "课程",
@@ -1499,6 +1504,7 @@
     "bindPart": "绑定{part}",
     "unlinkPart": "解绑{part}",
     "unlinkWarning": "解绑后 QQ 绑定会变为未完成，入群认证等依赖 QQ 绑定的功能会按未绑定处理，直到重新绑定这一项。",
+    "unlinkConnectWarning": "解绑后，这个 QQ 不能再登录本账号，QQ 互联记录也会删除。需要时可以重新绑定。",
     "unlinked": "已解绑{part}",
     "partBound": "{part}已绑定",
     "completeToast": "QQ 绑定已完成",
@@ -1546,7 +1552,8 @@
       "casdoor_conflict": "这个 QQ 已用于登录另一个账号。请先在那个账号解除 QQ 登录，或联系管理员。",
       "connect_disabled": "QQ 互联绑定暂未开放。",
       "connect_unconfigured": "QQ 互联绑定尚未配置完成，请稍后再试。",
-      "invalid_input": "回调参数无效或已过期，请回到账号页重新发起。"
+      "invalid_input": "回调参数无效或已过期，请回到账号页重新发起。",
+      "last_sign_in_method": "QQ 是这个账号目前唯一的登录方式。请先在统一登录账号中设置密码，再解绑 QQ。"
     },
     "callback": {
       "title": "QQ 互联授权",
@@ -1611,11 +1618,6 @@
         "authorizations_unavailable": "暂时无法撤回应用授权，处理会在恢复后继续。",
         "content_unavailable": "暂时无法处理个人内容，处理会在恢复后继续。"
       }
-    },
-    "qqLogin": {
-      "title": "QQ 登录",
-      "hint": "QQ 登录是可选的。已绑定 QQ 的账号可以在登录页直接用 QQ 登录；绑定或解绑请到账号中心的第三方登录区操作。",
-      "manage": "管理 QQ 登录绑定"
     }
   },
   "profile": {

@@ -9,6 +9,7 @@ import { RouterLink } from 'vue-router'
 import { myCoursesEnabled } from '../../app/features'
 import { products } from '../../app/products'
 import { useLinkAvailable } from '../../shared/capabilities'
+import { takeSignOutNotice } from '../../shared/session'
 import { vSpotlight, vTilt } from '../../shared/ui/pointer'
 import { vReveal } from '../../shared/ui/reveal'
 import ProductShowcase from './ProductShowcase.vue'
@@ -17,14 +18,7 @@ import '../../styles/landing.css'
 // The portal of the whole brand. The largest element is the logo and the name;
 // each product then gets its name, a short phrase and an explanation.
 const { t } = useI18n()
-function takeLogoutNotice() {
-  try {
-    const show = sessionStorage.getItem('stuhelper.upstreamLogoutUnconfirmed') === '1'
-    sessionStorage.removeItem('stuhelper.upstreamLogoutUnconfirmed')
-    return show
-  } catch { return false }
-}
-const showLogoutNotice = takeLogoutNotice()
+const signedOut = takeSignOutNotice()
 const available = useLinkAvailable()
 // The open platform section and tile describe a module that may be switched off.
 const platformOn = computed(() => available('/me/developer'))
@@ -64,11 +58,15 @@ const platform = [
 <template>
   <div class="lp">
     <p
-      v-if="showLogoutNotice"
-      class="notice notice-warning"
+      v-if="signedOut"
+      class="notice"
+      :class="signedOut.upstreamEnded ? 'notice-success' : 'notice-warning'"
       role="status"
     >
-      {{ t('account.upstreamLogoutUnconfirmed') }}
+      {{ t(signedOut.scope === 'all' ? 'account.signedOut.all' : 'account.signedOut.device') }}
+      <template v-if="!signedOut.upstreamEnded">
+        {{ t('account.upstreamStillActive') }}
+      </template>
     </p>
     <section class="lp-hero">
       <div class="lp-wordmark">

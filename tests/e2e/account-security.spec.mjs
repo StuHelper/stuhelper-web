@@ -24,7 +24,12 @@ function qq(page, initial = {}, login = 'unbound') {
     if (path === '/connect/confirm') { state.parts.connect = { bound: true, revision: 1 }; state.login = 'linked'; return route.fulfill({ json: status() }); }
     if (path === '/connect/cancel') return route.fulfill({ json: status() });
     const unlink = /^\/bindings\/(\w+)\/unlink$/.exec(path);
-    if (unlink) { state.parts[unlink[1]] = { bound: false, revision: state.parts[unlink[1]].revision + 1 }; return route.fulfill({ json: status() }); }
+    if (unlink) {
+      if (unlink[1] === 'connect' && state.onlySignIn) return route.fulfill({ status: 409, json: { code: 'qq_binding_last_sign_in_method' } });
+      state.parts[unlink[1]] = { bound: false, revision: state.parts[unlink[1]].revision + 1 };
+      if (unlink[1] === 'connect') state.login = 'unbound';
+      return route.fulfill({ json: status() });
+    }
     return route.fulfill({ status: 404, json: { code: 'qq_binding_not_found' } });
   });
   return state;
@@ -58,7 +63,7 @@ test('QQ binding shows three parts and completes after the bot code and QQ Conne
   await page.route('https://qq.example.invalid/authorize', route => route.fulfill({
     status: 302, headers: { location: `${base}/me/qq/callback?state=s1&code=c1` },
   }));
-  await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }) }).click();
+  await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }), exact: true }).click();
   await expect(page.getByText(q.callback.bound)).toBeVisible();
   await expect(page).not.toHaveURL(/code=/);
   expect(state.writes.at(-2)).toMatchObject({ path: '/connect/start', body: {} });
@@ -147,6 +152,29 @@ test('only the QQ Connect part opens when it alone is switched on, and QQ errors
     await expect(row.getByRole('button')).toHaveCount(0);
   }
   const connect = section.locator('.group-row').filter({ hasText: q.parts.connect.title });
-  await expect(connect.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }) })).toBeVisible();
+  await expect(connect.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }), exact: true })).toBeVisible();
   expect(state.writes).toEqual([]);
+});
+
+test('an account with only the older QQ login can remove it here, unless QQ is its last way to sign in', async ({ page }, info) => {
+  const q = catalogue(info).qq, state = qq(page, {}, 'reauthorize');
+  state.onlySignIn = true;
+  await closure(page);
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  const connect = page.locator('[aria-labelledby="qq-title"] .group-row').filter({ hasText: q.parts.connect.title });
+  const unlink = connect.getByRole('button', { name: fill(q.unlinkPart, { part: q.parts.connect.title }), exact: true });
+  await expect(connect.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }), exact: true })).toBeVisible();
+  await unlink.click();
+  const dialog = page.getByRole('alertdialog').or(page.getByRole('dialog'));
+  await expect(dialog).toContainText(q.unlinkConnectWarning);
+  await dialog.getByRole('button', { name: q.unlink, exact: true }).click();
+  await expect(page.getByText(q.errors.last_sign_in_method)).toBeVisible();
+  expect(state.login).toBe('reauthorize');
+  state.onlySignIn = false;
+  await dialog.getByRole('button', { name: q.unlink, exact: true }).click();
+  await expect(dialog).toBeHidden();
+  await expect(unlink).toHaveCount(0);
+  await expect(connect.getByRole('button', { name: fill(q.bindPart, { part: q.parts.connect.title }), exact: true })).toBeVisible();
+  const writes = state.writes.filter((write) => write.path === '/bindings/connect/unlink');
+  expect(writes.map((write) => write.body)).toEqual([{ revision: 0 }, { revision: 0 }]);
 });

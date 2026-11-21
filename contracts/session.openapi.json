@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper application sessions",
-    "version": "0.5.0"
+    "version": "0.6.0"
   },
   "paths": {
     "/api/v1/auth/session": {
@@ -245,6 +245,7 @@
     "/api/v1/auth/logout": {
       "post": {
         "operationId": "logout",
+        "description": "撤销当前 StuHelper 会话。Casdoor 槽位忙时跳过上游注销。若在短时限内收到 Casdoor 成功确认，upstream_ended 为 true。 已撤销会话再次请求返回 401。",
         "responses": {
           "200": {
             "description": "Success",
@@ -253,7 +254,8 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "signed_out"
+                    "signed_out",
+                    "upstream_ended"
                   ],
                   "properties": {
                     "signed_out": {
@@ -261,7 +263,7 @@
                     },
                     "upstream_ended": {
                       "type": "boolean",
-                      "description": "Local session is removed even if the official upstream logout is unavailable."
+                      "description": "True only if Casdoor confirms the single end-session request within its deadline."
                     }
                   }
                 }
@@ -357,6 +359,7 @@
     "/api/v1/auth/logout-all": {
       "post": {
         "operationId": "logout_all",
+        "description": "撤销该账号的全部 StuHelper 会话。最多使用当前会话的 ID token hint 调用一次 Casdoor。upstream_ended 只表示这次上游请求已确认。 已撤销会话再次请求返回 401。",
         "responses": {
           "200": {
             "description": "Success",
@@ -365,7 +368,8 @@
                 "schema": {
                   "type": "object",
                   "required": [
-                    "signed_out"
+                    "signed_out",
+                    "upstream_ended"
                   ],
                   "properties": {
                     "signed_out": {
@@ -373,7 +377,7 @@
                     },
                     "upstream_ended": {
                       "type": "boolean",
-                      "description": "Local session is removed even if the official upstream logout is unavailable."
+                      "description": "True only if Casdoor confirms the single end-session request within its deadline."
                     }
                   }
                 }
@@ -2401,7 +2405,8 @@
             "type": "boolean"
           },
           "upstream_ended": {
-            "type": "boolean"
+            "type": "boolean",
+            "description": "Present for the current session. True only if Casdoor confirms the end-session request within its deadline."
           }
         }
       },

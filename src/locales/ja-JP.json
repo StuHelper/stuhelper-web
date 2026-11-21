@@ -309,7 +309,6 @@
     "home": "ホームへ戻る"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "このサイトからログアウトしました。シングルサインオンのセッションが有効な場合があります。",
     "signIn": "ログイン",
     "signOut": "この端末からログアウト",
     "signOutAll": "すべての端末からログアウト",
@@ -330,7 +329,13 @@
       "processing": "認証審査中",
       "expired": "認証期限切れ"
     },
-    "signInWithQq": "QQ でログイン"
+    "signInWithQq": "QQ でログイン",
+    "signingOut": "ログアウトしています…",
+    "signedOut": {
+      "device": "この端末からログアウトしました。",
+      "all": "ログイン中のすべての端末からログアウトしました。"
+    },
+    "upstreamStillActive": "シングルサインオンのセッションが有効な場合があります。"
   },
   "academic": {
     "course": "授業",
@@ -1499,6 +1504,7 @@
     "bindPart": "{part}を連携",
     "unlinkPart": "{part}の連携を解除",
     "unlinkWarning": "解除すると QQ 連携は未完了になります。グループ参加認証など QQ 連携を使う機能は、この項目を再び連携するまで未連携として扱います。",
+    "unlinkConnectWarning": "連携を解除すると、この QQ ではこのアカウントにログインできなくなり、QQ Connect の記録も削除されます。必要なときは再度連携できます。",
     "unlinked": "{part}の連携を解除しました",
     "partBound": "{part}を連携しました",
     "completeToast": "QQ 連携が完了しました",
@@ -1546,7 +1552,8 @@
       "casdoor_conflict": "この QQ は別のアカウントのログインに使われています。先にそちらで QQ ログインを解除するか、管理者にお問い合わせください。",
       "connect_disabled": "QQ Connect の連携はまだ公開されていません。",
       "connect_unconfigured": "QQ Connect の連携設定がまだ完了していません。しばらくしてからお試しください。",
-      "invalid_input": "コールバックが無効か期限切れです。アカウントページからやり直してください。"
+      "invalid_input": "コールバックが無効か期限切れです。アカウントページからやり直してください。",
+      "last_sign_in_method": "現在、このアカウントにログインできる方法は QQ だけです。先にシングルサインオンのアカウントでパスワードを設定してから、QQ の連携を解除してください。"
     },
     "callback": {
       "title": "QQ Connect の認可",
@@ -1611,11 +1618,6 @@
         "authorizations_unavailable": "現在、アプリの認可を取り消せません。サービスの回復後に処理を続けます。",
         "content_unavailable": "現在、個人のコンテンツを処理できません。サービスの回復後に処理を続けます。"
       }
-    },
-    "qqLogin": {
-      "title": "QQ ログイン",
-      "hint": "QQ ログインは任意です。QQ を連携したアカウントはログイン画面で QQ を使ってログインできます。連携と解除はアカウントセンターの外部ログイン欄で行います。",
-      "manage": "QQ ログイン連携を管理"
     }
   },
   "profile": {
