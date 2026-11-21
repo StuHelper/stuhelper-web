@@ -131,6 +131,18 @@ memberTest('identity page waits for the real state and only shows masked identit
   await expect(page.getByRole('heading', { name: v.start })).toHaveCount(0);
 });
 
+memberTest('the account page shows the masked phone number and offers a retry when it cannot be read', async ({ page }, info) => {
+  const all = catalogue(info);
+  let fail = true;
+  await page.route('**/api/v1/auth/phone', (route) => (fail ? route.fulfill({ status: 503, json: { code: 'unavailable' } }) : route.fulfill({ json: { bound: true, masked_phone: '****1234' } })));
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  const row = page.locator('.group-row').filter({ hasText: all.security.phone });
+  await expect(row.getByRole('button', { name: all.common.retry })).toBeVisible();
+  fail = false;
+  await row.getByRole('button', { name: all.common.retry }).click();
+  await expect(row.getByText(all.security.phoneBoundMasked.replace('{phone}', '****1234'))).toBeVisible();
+});
+
 memberTest('the account page only says the identity is verified; the masked details open with View', async ({ page }, info) => {
   const all = catalogue(info);
   await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: [] }));

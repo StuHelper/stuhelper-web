@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper application sessions",
-    "version": "0.6.0"
+    "version": "0.7.0"
   },
   "paths": {
     "/api/v1/auth/session": {
@@ -71,6 +71,59 @@
           },
           "503": {
             "description": "Dependency unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ]
+      }
+    },
+    "/api/v1/auth/phone": {
+      "get": {
+        "operationId": "getOwnPhone",
+        "description": "Read the current Casdoor phone binding for the authenticated account by issuer and subject. Returns a masked value and never accepts an account identifier.",
+        "responses": {
+          "200": {
+            "description": "Current masked phone binding",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnPhone"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthenticated or Casdoor account no longer active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Current binding could not be verified",
             "content": {
               "application/json": {
                 "schema": {
@@ -1854,6 +1907,25 @@
   },
   "components": {
     "schemas": {
+      "OwnPhone": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "bound",
+          "masked_phone"
+        ],
+        "properties": {
+          "bound": {
+            "type": "boolean"
+          },
+          "masked_phone": {
+            "type": "string",
+            "nullable": true,
+            "pattern": "^\\*{4}([0-9]{4})?$",
+            "description": "Null when unbound. Only a masked suffix is shown when bound."
+          }
+        }
+      },
       "Profile": {
         "type": "object",
         "additionalProperties": false,

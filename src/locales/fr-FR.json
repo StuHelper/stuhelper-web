@@ -1625,7 +1625,8 @@
         "authorizations_unavailable": "Les autorisations d’applications ne peuvent pas être retirées pour le moment. Le traitement reprendra quand le service sera rétabli.",
         "content_unavailable": "Le contenu personnel ne peut pas être traité pour le moment. Le traitement reprendra quand le service sera rétabli."
       }
-    }
+    },
+    "phoneBoundMasked": "Associé {phone}"
   },
   "profile": {
     "title": "Profil",

@@ -1625,7 +1625,8 @@
         "authorizations_unavailable": "Application authorizations cannot be revoked right now. Processing continues once the service recovers.",
         "content_unavailable": "Personal content cannot be processed right now. Processing continues once the service recovers."
       }
-    }
+    },
+    "phoneBoundMasked": "Linked {phone}"
   },
   "profile": {
     "title": "Profile",

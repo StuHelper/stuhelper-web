@@ -1625,7 +1625,8 @@
         "authorizations_unavailable": "Ahora no se pueden revocar las autorizaciones de aplicaciones. El proceso seguirá cuando el servicio se recupere.",
         "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere."
       }
-    }
+    },
+    "phoneBoundMasked": "Vinculado {phone}"
   },
   "profile": {
     "title": "Perfil",

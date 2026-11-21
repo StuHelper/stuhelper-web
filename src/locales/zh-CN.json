@@ -1625,7 +1625,8 @@
         "authorizations_unavailable": "暂时无法撤回应用授权，处理会在恢复后继续。",
         "content_unavailable": "暂时无法处理个人内容，处理会在恢复后继续。"
       }
-    }
+    },
+    "phoneBoundMasked": "已绑定 {phone}"
   },
   "profile": {
     "title": "个人资料",

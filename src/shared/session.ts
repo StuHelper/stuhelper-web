@@ -25,6 +25,8 @@ export type SessionState = 'loading' | 'guest' | 'member' | 'error'
 const schemas = contract.components.schemas
 const parseSession = schemaOf<Session>(schemas, 'Session')
 export const parseProfile = schemaOf<Profile>(schemas, 'Profile')
+export type OwnPhone = components['schemas']['OwnPhone']
+const parseOwnPhone = schemaOf<OwnPhone>(schemas, 'OwnPhone')
 
 /**
  * The signed-in application session. Business pages read login state from here
@@ -139,6 +141,11 @@ export function createSessionStore(fetcher: typeof fetch) {
     window.location.assign('/')
   }
 
+  /** The signed-in account's phone binding, read live from the identity provider; masked. */
+  async function ownPhone(signal?: AbortSignal) {
+    return http.json('/api/v1/auth/phone', parseOwnPhone, { signal })
+  }
+
   async function currentProfile(signal?: AbortSignal) {
     return http.json('/api/v1/profiles/me', parseProfile, { signal })
   }
@@ -149,7 +156,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     return saved
   }
 
-  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, currentProfile, saveProfile }
+  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, ownPhone, currentProfile, saveProfile }
 }
 
 export type SessionStore = ReturnType<typeof createSessionStore>
