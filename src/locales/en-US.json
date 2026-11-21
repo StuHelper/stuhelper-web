@@ -68,7 +68,9 @@
     "shownOf": "Showing {shown} of {total}",
     "opensInNewTab": "(opens in a new tab)",
     "scrollBack": "Scroll back",
-    "scrollForward": "Scroll forward"
+    "scrollForward": "Scroll forward",
+    "searchOptions": "Search options",
+    "noOptionMatch": "No matching options"
   },
   "errors": {
     "disabled": "Group services are disabled.",
@@ -770,7 +772,8 @@
       "placeholder": "Type a name to search",
       "unavailable": "{label} options could not load.",
       "noMatch": "No matches",
-      "retry": "Reload options"
+      "retry": "Reload options",
+      "searchHint": "Type a name or code to search"
     },
     "detail": {
       "back": "Back to resources",

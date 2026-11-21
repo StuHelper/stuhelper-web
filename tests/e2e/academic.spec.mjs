@@ -396,6 +396,33 @@ test('departments fill the shortest column, and expanding one moves only the car
   expect(errors).toEqual([]);
 });
 
+test('a long department list opens with a search field, filters as you type and applies the choice', async ({ page }, info) => {
+  const all = catalogue(info), errors = watch(page);
+  const departments = Array.from({ length: 14 }, (_, i) => ({ id: `d${i}`, name: i === 9 ? 'Aerospace School' : `College ${i}`, count: 1, review_count: 0 }));
+  const asked = [];
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', async (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    asked.push(query.get('department_id'));
+    return route.fulfill({ json: { ...directoryPage([directoryRow('a', 'Course A', 'recommended')], '', 1), department_facets: departments } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  await page.getByRole('combobox', { name: all.browse.offeringDepartment }).click();
+  const search = page.getByRole('textbox', { name: all.common.searchOptions });
+  await expect(search).toBeFocused();
+  await search.fill('aero space');
+  const options = page.getByRole('option');
+  await expect(options).toHaveText(['Aerospace School']);
+  await search.fill('nothing like this');
+  await expect(page.getByText(all.common.noOptionMatch)).toBeVisible();
+  await search.fill('aero');
+  await search.press('ArrowDown');
+  await search.press('Enter');
+  await expect(page.getByRole('combobox', { name: all.browse.offeringDepartment })).toHaveText('Aerospace School');
+  await expect.poll(() => asked.includes('d9')).toBe(true);
+  expect(errors).toEqual([]);
+});
+
 test('a new search keeps the previous rows until the result arrives and clears them when it fails', async ({ page }, info) => {
   const all = catalogue(info), errors = watch(page);
   let release, outcome = 'ok';
