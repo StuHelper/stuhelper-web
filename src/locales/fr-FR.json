@@ -2142,7 +2142,8 @@
       "courses": "Cours populaires",
       "teachers": "Enseignants populaires",
       "kind": "Classement",
-      "empty": "Pas encore assez d’activité pour établir un classement."
+      "empty": "Pas encore assez d’activité pour établir un classement.",
+      "descriptionDays": "Classement selon les consultations, avis, favoris et interactions des {days} derniers jours (heure de Pékin, aujourd’hui inclus). Il reflète l’attention ; les notes sont affichées à part."
     },
     "votes": {
       "title": "Mes votes",
@@ -2393,7 +2394,8 @@
     "viewDetails": "Voir les détails",
     "groupDisplay": "Affichage par école",
     "expandAllGroups": "Tout déplier",
-    "collapseAllGroups": "Tout replier"
+    "collapseAllGroups": "Tout replier",
+    "hottestDays": "Les plus populaires ({days} derniers jours)"
   },
   "tags": {
     "placeholder": "Saisissez un mot-clé puis Entrée",

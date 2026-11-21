@@ -82,6 +82,9 @@ describe('HTTP boundary', () => {
   it('omits empty query values', () => {
     expect(queryString({ a: '1', b: '', c: undefined, d: null, e: 0, f: false })).toBe('?a=1&e=0&f=false')
     expect(queryString({})).toBe('')
+    // List items keep their own commas encoded; the separator stays a literal comma.
+    expect(queryString({ ids: ['a', 'b,c', 'd e'], kind: 'course' })).toBe('?ids=a,b%2Cc,d%20e&kind=course')
+    expect(queryString({ ids: [] })).toBe('')
   })
 })
 

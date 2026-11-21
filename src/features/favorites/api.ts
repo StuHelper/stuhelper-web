@@ -68,7 +68,7 @@ export class FavoritesApi {
       let after = ''
       // One target has at most one favorite, so a page of 100 covers the batch; follow the cursor anyway.
       for (let page = 0; page < 5; page++) {
-        const result = await this.http.json('/api/v1/favorites/items', parse.items, { query: { kind, target_ids: ids.join(','), limit: favoritePageSize, after }, signal })
+        const result = await this.http.json('/api/v1/favorites/items', parse.items, { query: { kind, target_ids: ids, limit: favoritePageSize, after }, signal })
         for (const item of result.items) found.set(item.target_id, item)
         if (!result.next || result.next === after) break
         after = result.next

@@ -51,7 +51,7 @@ export class SearchApi {
 
   async popular(kind: 'course' | 'teacher', cursor: string, signal?: AbortSignal) {
     const page = await this.http.json('/api/v1/search/popular', parse.page, { query: { kind, cursor: cursor || undefined, limit: pageSize }, signal })
-    return { items: page.items, next: page.next_cursor }
+    return { items: page.items, next: page.next_cursor, windowDays: page.window_days }
   }
 
   async myVotes(cursor: string, signal?: AbortSignal) {
