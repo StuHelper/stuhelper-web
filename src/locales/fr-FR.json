@@ -309,7 +309,6 @@
     "home": "Retour à l’accueil"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "Vous êtes déconnecté de ce site. Votre session d’authentification unique est peut-être encore active.",
     "signIn": "Se connecter",
     "signOut": "Déconnecter cet appareil",
     "signOutAll": "Déconnecter tous les appareils",
@@ -330,7 +329,13 @@
       "processing": "Vérification en cours",
       "expired": "Vérification expirée"
     },
-    "signInWithQq": "Se connecter avec QQ"
+    "signInWithQq": "Se connecter avec QQ",
+    "signingOut": "Déconnexion…",
+    "signedOut": {
+      "device": "Vous êtes déconnecté sur cet appareil.",
+      "all": "Vous êtes déconnecté sur tous les appareils connectés."
+    },
+    "upstreamStillActive": "Votre session d’authentification unique est peut-être encore active."
   },
   "academic": {
     "course": "Cours",
@@ -1499,6 +1504,7 @@
     "bindPart": "Lier {part}",
     "unlinkPart": "Délier {part}",
     "unlinkWarning": "Après la suppression du lien, la liaison QQ devient incomplète. Les fonctions qui en dépendent, comme l’admission dans les groupes, vous considèrent comme non lié jusqu’à ce que vous liiez à nouveau cet élément.",
+    "unlinkConnectWarning": "Après la dissociation, ce QQ ne pourra plus se connecter à ce compte et l’enregistrement QQ Connect sera supprimé. Vous pourrez le lier de nouveau plus tard.",
     "unlinked": "{part} délié",
     "partBound": "{part} lié",
     "completeToast": "Liaison QQ terminée",
@@ -1546,7 +1552,8 @@
       "casdoor_conflict": "Ce QQ sert déjà à se connecter à un autre compte. Retirez d’abord la connexion QQ sur ce compte, ou contactez un administrateur.",
       "connect_disabled": "La liaison QQ Connect n’est pas encore ouverte.",
       "connect_unconfigured": "La liaison QQ Connect n’est pas encore entièrement configurée. Réessayez plus tard.",
-      "invalid_input": "Le rappel est invalide ou a expiré. Revenez à la page du compte et recommencez."
+      "invalid_input": "Le rappel est invalide ou a expiré. Revenez à la page du compte et recommencez.",
+      "last_sign_in_method": "QQ est actuellement le seul moyen de se connecter à ce compte. Définissez d’abord un mot de passe dans votre compte d’authentification unique, puis dissociez QQ."
     },
     "callback": {
       "title": "Autorisation QQ Connect",
@@ -1573,7 +1580,6 @@
     "phoneBound": "Lié",
     "phoneMissing": "Non lié",
     "realName": "Vérification d’identité",
-    "realNameMasked": "Vérifiée · {name} · {number}",
     "realNameDone": "Vérifiée",
     "realNamePending": "Non vérifiée. Certaines actions exigent de confirmer votre identité",
     "view": "Voir",
@@ -1611,11 +1617,6 @@
         "authorizations_unavailable": "Les autorisations d’applications ne peuvent pas être retirées pour le moment. Le traitement reprendra quand le service sera rétabli.",
         "content_unavailable": "Le contenu personnel ne peut pas être traité pour le moment. Le traitement reprendra quand le service sera rétabli."
       }
-    },
-    "qqLogin": {
-      "title": "Connexion QQ",
-      "hint": "La connexion QQ est facultative. Les comptes liés à QQ peuvent se connecter avec QQ sur la page de connexion. Liez ou déliez QQ dans la section des connexions tierces du centre de compte.",
-      "manage": "Gérer la connexion QQ"
     }
   },
   "profile": {

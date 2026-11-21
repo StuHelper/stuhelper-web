@@ -309,7 +309,6 @@
     "home": "Volver al inicio"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "Has salido de este sitio. Tu sesión de inicio de sesión único puede seguir activa.",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión en este dispositivo",
     "signOutAll": "Cerrar sesión en todos los dispositivos",
@@ -330,7 +329,13 @@
       "processing": "Verificación en revisión",
       "expired": "Verificación caducada"
     },
-    "signInWithQq": "Iniciar sesión con QQ"
+    "signInWithQq": "Iniciar sesión con QQ",
+    "signingOut": "Cerrando sesión…",
+    "signedOut": {
+      "device": "Has cerrado sesión en este dispositivo.",
+      "all": "Has cerrado sesión en todos los dispositivos conectados."
+    },
+    "upstreamStillActive": "Tu sesión de inicio de sesión único puede seguir activa."
   },
   "academic": {
     "course": "Curso",
@@ -1499,6 +1504,7 @@
     "bindPart": "Vincular {part}",
     "unlinkPart": "Desvincular {part}",
     "unlinkWarning": "Al desvincular, la vinculación de QQ queda incompleta. Las funciones que dependen de ella, como la admisión a grupos, te tratarán como no vinculado hasta que vuelvas a vincular esta parte.",
+    "unlinkConnectWarning": "Tras desvincularlo, este QQ ya no podrá iniciar sesión en esta cuenta y se eliminará el registro de QQ Connect. Puedes volver a vincularlo más tarde.",
     "unlinked": "{part} desvinculado",
     "partBound": "{part} vinculado",
     "completeToast": "Vinculación de QQ completada",
@@ -1546,7 +1552,8 @@
       "casdoor_conflict": "Este QQ ya se usa para iniciar sesión en otra cuenta. Quita primero allí el inicio de sesión con QQ o contacta con un administrador.",
       "connect_disabled": "La vinculación con QQ Connect aún no está disponible.",
       "connect_unconfigured": "La vinculación con QQ Connect aún no está configurada del todo. Inténtalo más tarde.",
-      "invalid_input": "El retorno no es válido o ha caducado. Vuelve a la página de la cuenta y empieza de nuevo."
+      "invalid_input": "El retorno no es válido o ha caducado. Vuelve a la página de la cuenta y empieza de nuevo.",
+      "last_sign_in_method": "QQ es ahora la única forma de iniciar sesión en esta cuenta. Primero crea una contraseña en tu cuenta de inicio de sesión único y después desvincula QQ."
     },
     "callback": {
       "title": "Autorización de QQ Connect",
@@ -1573,7 +1580,6 @@
     "phoneBound": "Vinculado",
     "phoneMissing": "Sin vincular",
     "realName": "Verificación de identidad",
-    "realNameMasked": "Verificada · {name} · {number}",
     "realNameDone": "Verificada",
     "realNamePending": "Sin verificar. Algunas acciones requieren confirmar tu identidad",
     "view": "Ver",
@@ -1611,11 +1617,6 @@
         "authorizations_unavailable": "Ahora no se pueden revocar las autorizaciones de aplicaciones. El proceso seguirá cuando el servicio se recupere.",
         "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere."
       }
-    },
-    "qqLogin": {
-      "title": "Inicio de sesión con QQ",
-      "hint": "El inicio de sesión con QQ es opcional. Las cuentas vinculadas a QQ pueden entrar con QQ en la página de inicio de sesión. Vincula o desvincula QQ en la sección de inicios de sesión externos del centro de cuentas.",
-      "manage": "Gestionar el inicio de sesión con QQ"
     }
   },
   "profile": {

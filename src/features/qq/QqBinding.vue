@@ -33,11 +33,16 @@ const parts = [
   { kind: 'connect', icon: Link2, tile: 'var(--c-indigo)' },
 ] as const
 const bound = (value: QqStatus, kind: QqPart) => value[kind].bound
+// An account that has only the older QQ login (no UnionID yet) can still remove that login here.
+const unlinkable = (value: QqStatus, kind: QqPart) => bound(value, kind) || (kind === 'connect' && value.connect_login === 'reauthorize')
 const count = computed(() => (status.data.value ? parts.filter((part) => bound(status.data.value!, part.kind)).length : 0))
 
 /** Error codes from the QQ binding module, mapped to messages with a generic fallback. */
 function message(failure: unknown) {
-  const code = errorCode(failure).replace(/^qq_binding_/, '')
+  return messageFor(errorCode(failure))
+}
+function messageFor(raw: string) {
+  const code = raw.replace(/^qq_binding_/, '')
   const key = `qq.errors.${code}`
   if (te(key)) return t(key)
   return t(te(`errors.${code}`) ? `errors.${code}` : 'qq.errors.unavailable')
@@ -135,7 +140,13 @@ async function unlink() {
   const value = status.data.value
   if (!kind || !value || busy.value) return
   const saved = unlinkWrite.uncertain.value ? await unlinkWrite.retry() : await unlinkWrite.run(`unlink:${kind}`, { kind, revision: value[kind].revision }, (body, key) => api.unlink(body.kind, body.revision, key))
-  if (!saved) { toast(te(`errors.${unlinkWrite.error.value}`) ? t(`errors.${unlinkWrite.error.value}`) : t('qq.errors.unavailable')); return }
+  if (!saved) {
+    const failure = unlinkWrite.error.value ?? ''
+    toast(messageFor(failure))
+    // The stored state moved on elsewhere: show the current one instead of the stale revision.
+    if (/revision_conflict|casdoor_conflict/.test(failure)) { unlinking.value = undefined; void status.reload() }
+    return
+  }
   status.data.value = saved as QqStatus
   unlinking.value = undefined
   toast(t('qq.unlinked', { part: t(`qq.parts.${kind}.title`) }))
@@ -227,7 +238,7 @@ function detail(value: QqStatus, kind: QqPart) {
             {{ t('qq.reauthorize') }}
           </button>
           <button
-            v-if="bound(status.data.value, part.kind)"
+            v-if="unlinkable(status.data.value, part.kind)"
             class="btn btn-sm"
             type="button"
             :aria-label="t('qq.unlinkPart', { part: t(`qq.parts.${part.kind}.title`) })"
@@ -236,7 +247,7 @@ function detail(value: QqStatus, kind: QqPart) {
             {{ t('qq.unlink') }}
           </button>
           <button
-            v-else-if="part.kind === 'connect'"
+            v-if="!bound(status.data.value, part.kind) && part.kind === 'connect' && status.data.value.connect_login !== 'out_of_sync'"
             class="btn btn-sm btn-primary"
             type="button"
             :disabled="leaving"
@@ -246,7 +257,7 @@ function detail(value: QqStatus, kind: QqPart) {
             {{ t('qq.authorize') }}
           </button>
           <button
-            v-else
+            v-else-if="part.kind !== 'connect' && !bound(status.data.value, part.kind)"
             class="btn btn-sm btn-primary"
             type="button"
             :aria-label="t('qq.bindPart', { part: t(`qq.parts.${part.kind}.title`) })"
@@ -336,7 +347,7 @@ function detail(value: QqStatus, kind: QqPart) {
     <ConfirmDialog
       :open="!!unlinking"
       :title="unlinking ? t('qq.unlinkPart', { part: t(`qq.parts.${unlinking}.title`) }) : ''"
-      :message="t('qq.unlinkWarning')"
+      :message="t(unlinking === 'connect' ? 'qq.unlinkConnectWarning' : 'qq.unlinkWarning')"
       :confirm-label="t('qq.unlink')"
       :busy="busy"
       danger

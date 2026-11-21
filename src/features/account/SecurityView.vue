@@ -4,7 +4,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
-import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { useAsync, useMutation } from '../../shared/composables/async'
@@ -15,7 +14,7 @@ import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import QqBinding from '../qq/QqBinding.vue'
-import { maskedIdentity, useVerification } from '../verification/api'
+import { useVerification } from '../verification/api'
 import { useClosureApi, type Closure } from './closure'
 import MeLayout from './MeLayout.vue'
 import { feature, useCapabilities } from '../../shared/capabilities'
@@ -26,7 +25,6 @@ const capabilities = useCapabilities()
 // the StuHelper account. Each section loads and fails on its own.
 const { t } = useI18n()
 // The shared account centre where third-party sign-in such as QQ is linked or unlinked.
-const accountCentre = 'https://sso.stuhelper.com/account'
 const format = useFormat()
 const errorText = useErrorText()
 const session = useSession()
@@ -35,7 +33,6 @@ const closures = useClosureApi()
 
 const identity = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
 void identity.reload()
-const masked = computed(() => maskedIdentity(identity.data.value))
 
 const signingOut = ref(false)
 const signOutOpen = ref(false)
@@ -129,7 +126,7 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
             <span
               v-else
               class="group-detail"
-            >{{ identity.data.value?.identity_verified ? (masked ? t('security.realNameMasked', { name: isolate(masked.name), number: isolate(masked.number) }) : t('security.realNameDone')) : t('security.realNamePending') }}</span>
+            >{{ identity.data.value?.identity_verified ? t('security.realNameDone') : t('security.realNamePending') }}</span>
           </span>
           <RouterLink
             v-if="identity.status.value === 'ready'"
@@ -157,32 +154,6 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
       :available="capabilities.has(feature.qq)"
       :open="{ connect: capabilities.has(feature.qqConnect), onebot: capabilities.has(feature.qqOnebot), official: capabilities.has(feature.qqOfficial) }"
     />
-
-    <!-- QQ sign-in is linked in the shared account centre, separate from the QQ binding module above. -->
-    <section
-      class="section"
-      aria-labelledby="security-qq-login"
-    >
-      <h2
-        id="security-qq-login"
-        class="d-title"
-      >
-        {{ t('security.qqLogin.title') }}
-      </h2>
-      <div class="card row-between">
-        <p class="muted small grow">
-          {{ t('security.qqLogin.hint') }}
-        </p>
-        <a
-          class="btn btn-sm"
-          :href="accountCentre"
-          target="_blank"
-          rel="noopener"
-        >
-          {{ t('security.qqLogin.manage') }}<span class="visually-hidden"> {{ t('common.opensInNewTab') }}</span>
-        </a>
-      </div>
-    </section>
 
     <section
       class="section"
