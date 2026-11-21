@@ -19,8 +19,8 @@
   --surface: light-dark(#ffffff, #161617);
   --surface-raised: light-dark(#ffffff, #232326);
   /* Liquid Glass: the material of navigation and controls that float above content. */
-  --glass: light-dark(rgb(255 255 255 / 62%), rgb(38 38 44 / 58%));
-  --glass-strong: light-dark(rgb(255 255 255 / 80%), rgb(34 34 40 / 82%));
+  --glass: light-dark(rgb(255 255 255 / 80%), rgb(38 38 44 / 78%));
+  --glass-strong: light-dark(rgb(255 255 255 / 90%), rgb(34 34 40 / 90%));
   --glass-edge: inset 0 1px 0 light-dark(rgb(255 255 255 / 80%), rgb(255 255 255 / 16%)), inset 0 0 0 .5px light-dark(rgb(255 255 255 / 60%), rgb(255 255 255 / 10%)), inset 0 -.5px 0 light-dark(rgb(0 0 0 / 6%), transparent);
   --glass-shadow: 0 1px 2px light-dark(rgb(0 0 0 / 4%), transparent), 0 12px 34px -10px light-dark(rgb(0 0 0 / 16%), rgb(0 0 0 / 70%));
   --glass-filter: saturate(190%) blur(28px);
