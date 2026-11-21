@@ -68,7 +68,9 @@
     "shownOf": "{total} 件中 {shown} 件を表示",
     "opensInNewTab": "（新しいタブで開きます）",
     "scrollBack": "前へスクロール",
-    "scrollForward": "次へスクロール"
+    "scrollForward": "次へスクロール",
+    "searchOptions": "選択肢を検索",
+    "noOptionMatch": "一致する選択肢がありません"
   },
   "errors": {
     "disabled": "グループサービスは無効です。",
@@ -770,7 +772,8 @@
       "placeholder": "名前で検索",
       "unavailable": "{label} の選択肢を読み込めません。",
       "noMatch": "一致する項目なし",
-      "retry": "選択肢を再読み込み"
+      "retry": "選択肢を再読み込み",
+      "searchHint": "名前またはコードで検索"
     },
     "detail": {
       "back": "資料一覧に戻る",

@@ -68,7 +68,9 @@
     "shownOf": "已显示 {shown} / {total}",
     "opensInNewTab": "（在新标签页打开）",
     "scrollBack": "向前滚动",
-    "scrollForward": "向后滚动"
+    "scrollForward": "向后滚动",
+    "searchOptions": "搜索选项",
+    "noOptionMatch": "没有匹配的选项"
   },
   "errors": {
     "disabled": "群服务未启用。",
@@ -770,7 +772,8 @@
       "placeholder": "输入名称搜索",
       "unavailable": "{label}选项暂时无法加载。",
       "noMatch": "无匹配的选项",
-      "retry": "重新加载选项"
+      "retry": "重新加载选项",
+      "searchHint": "输入名称或代码搜索"
     },
     "detail": {
       "back": "返回资料列表",

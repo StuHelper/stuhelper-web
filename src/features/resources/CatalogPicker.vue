@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Check, ChevronDown } from 'lucide-vue-next'
+import { Check, ChevronDown, Search } from 'lucide-vue-next'
 import { ComboboxAnchor, ComboboxContent, ComboboxInput, ComboboxItem, ComboboxPortal, ComboboxRoot, ComboboxTrigger, ComboboxViewport } from 'reka-ui'
 import { computed, onBeforeUnmount, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -121,12 +121,16 @@ onBeforeUnmount(() => {
       class="picker"
     >
       <ComboboxAnchor class="picker-anchor">
+        <Search
+          class="picker-search"
+          aria-hidden="true"
+        />
         <ComboboxInput
           :id="id"
           class="input picker-input"
           autocomplete="off"
           :display-value="() => (model ? selectedName : '')"
-          :placeholder="none"
+          :placeholder="open ? t('resources.picker.searchHint') : none"
           @update:model-value="typed"
         />
         <ComboboxTrigger
@@ -200,7 +204,8 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .picker-anchor { position: relative; display: flex; align-items: center; }
-.picker-input { padding-inline-end: 2.5rem; }
+.picker-input { padding-inline: 2.375rem 2.5rem; }
+.picker-search { position: absolute; inset-inline-start: .875rem; width: 1rem; height: 1rem; color: var(--label-3); pointer-events: none; }
 .picker-trigger { position: absolute; inset-inline-end: 0; display: grid; place-items: center; width: 2.5rem; height: 100%; border: 0; background: transparent; color: var(--label-3); cursor: pointer; }
 .picker-trigger svg { width: 1rem; height: 1rem; }
 </style>
