@@ -356,6 +356,46 @@ test('expanding every department reads at most two pages at once and stops when 
   expect(errors).toEqual([]);
 });
 
+test('departments fill the shortest column, and expanding one moves only the cards below it', async ({ page }, info) => {
+  const errors = watch(page);
+  const counts = [12, 1, 1, 1, 1, 1];
+  const departments = counts.map((count, i) => ({ id: `d${i}`, name: `College ${i}`, count, review_count: 0 }));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.addInitScript(() => localStorage.setItem('stuhelper.directory.grouped', '1'));
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', async (route) => {
+    const query = new URL(route.request().url()).searchParams;
+    const department = query.get('department_id'), limit = Number(query.get('limit')), after = Number(query.get('after') || 0);
+    const total = department ? counts[Number(department.slice(1))] : 18;
+    const rows = Array.from({ length: Math.min(limit, total - after) }, (_, i) => directoryRow(`${department}-${after + i}`, `${department} course ${after + i}`, 'recommended'));
+    return route.fulfill({ json: { ...directoryPage(rows, after + limit < total ? String(after + limit) : '', total), department_facets: departments } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const columns = page.locator('main .masonry-column');
+  await expect(columns).toHaveCount(3);
+  // The tall first department fills its column, so the short ones go to the other two columns.
+  await expect(columns.nth(0).getByRole('region')).toHaveCount(1);
+  await expect(columns.nth(1).getByRole('region')).toHaveCount(3);
+  for (const d of departments) await expect(page.getByRole('region', { name: d.name }).locator('li.line')).toHaveCount(Math.min(d.count, 5));
+  const below = columns.nth(1).getByRole('region').last();
+  const across = columns.nth(2).getByRole('region').first();
+  // Positions inside the masonry, so scrolling or the toolbar above does not count as movement.
+  const top = (locator) => locator.evaluate((element) => Math.round(element.getBoundingClientRect().top - element.closest('.masonry').getBoundingClientRect().top));
+  // Row details such as saved state arrive after the rows; measure once the page has settled.
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(400);
+  const [belowBefore, acrossBefore] = [await top(below), await top(across)];
+  await page.getByRole('region', { name: 'College 0' }).locator('button.more').click();
+  await expect(page.getByRole('region', { name: 'College 0' }).locator('li.line')).toHaveCount(12);
+  await page.waitForTimeout(400);
+  // The expanded card is alone in its column; cards in the other columns keep their places.
+  expect(await top(across)).toBe(acrossBefore);
+  expect(await top(below)).toBe(belowBefore);
+  // A card under the expanded one in the same column would move down; here the tall card is alone.
+  await expect(columns.nth(0).getByRole('region')).toHaveCount(1);
+  expect(errors).toEqual([]);
+});
+
 test('a new search keeps the previous rows until the result arrives and clears them when it fails', async ({ page }, info) => {
   const all = catalogue(info), errors = watch(page);
   let release, outcome = 'ok';

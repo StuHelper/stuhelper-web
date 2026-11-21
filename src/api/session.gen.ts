@@ -63,6 +63,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description 撤销当前 StuHelper 会话。Casdoor 槽位忙时跳过上游注销。若在短时限内收到 Casdoor 成功确认，upstream_ended 为 true。 已撤销会话再次请求返回 401。 */
         post: operations["logout"];
         delete?: never;
         options?: never;
@@ -79,6 +80,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description 撤销该账号的全部 StuHelper 会话。最多使用当前会话的 ID token hint 调用一次 Casdoor。upstream_ended 只表示这次上游请求已确认。 已撤销会话再次请求返回 401。 */
         post: operations["logout_all"];
         delete?: never;
         options?: never;
@@ -441,6 +443,7 @@ export interface components {
         RevokeSessionResult: {
             signed_out: boolean;
             current_session: boolean;
+            /** @description Present for the current session. True only if Casdoor confirms the end-session request within its deadline. */
             upstream_ended?: boolean;
         };
         /** @description Casdoor 4.24.0 record payload. Target is object.id or object.owner/name; user is the actor and is never the target. Extra official record fields are ignored. */
@@ -674,8 +677,8 @@ export interface operations {
                 content: {
                     "application/json": {
                         signed_out: boolean;
-                        /** @description Local session is removed even if the official upstream logout is unavailable. */
-                        upstream_ended?: boolean;
+                        /** @description True only if Casdoor confirms the single end-session request within its deadline. */
+                        upstream_ended: boolean;
                     };
                 };
             };
@@ -755,8 +758,8 @@ export interface operations {
                 content: {
                     "application/json": {
                         signed_out: boolean;
-                        /** @description Local session is removed even if the official upstream logout is unavailable. */
-                        upstream_ended?: boolean;
+                        /** @description True only if Casdoor confirms the single end-session request within its deadline. */
+                        upstream_ended: boolean;
                     };
                 };
             };

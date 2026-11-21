@@ -64,6 +64,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description 解除本人指定绑定。connect 同时清除 Casdoor QQ 登录绑定并读回，成功返回 connect_login=unbound。Casdoor 失败时本地事务回滚，使用原幂等键和请求体重试。同键同请求返回原结果。 */
         post: operations["unlinkBinding"];
         delete?: never;
         options?: never;
@@ -537,7 +538,10 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    /** Format: int64 */
+                    /**
+                     * Format: int64
+                     * @description 本人状态返回的修订。只有 Casdoor QQ 登录绑定时仍可用当前 connect.revision，初次可为 0。
+                     */
                     revision: number;
                 };
             };
@@ -588,7 +592,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description 业务拒绝或暂不可用 */
+            /** @description 修订或幂等冲突、Casdoor QQ 绑定冲突，或 QQ 是最后一种可用登录方式（qq_binding_last_sign_in_method） */
             409: {
                 headers: {
                     [name: string]: unknown;

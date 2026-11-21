@@ -135,10 +135,7 @@ export function createSessionStore(fetcher: typeof fetch) {
       }
     }
     invalidate()
-    try {
-      if (!upstreamEnded) sessionStorage.setItem('stuhelper.upstreamLogoutUnconfirmed', '1')
-      else sessionStorage.removeItem('stuhelper.upstreamLogoutUnconfirmed')
-    } catch { /* Storage is optional. */ }
+    rememberSignOut(all ? 'all' : 'device', upstreamEnded)
     window.location.assign('/')
   }
 
@@ -175,4 +172,24 @@ export function useHttp() {
     if(status===401) session?.invalidate(); else session?.revalidate()
     recheck?.()
   } })
+}
+
+/** What the last sign-out ended, shown once on the page the browser lands on afterwards. */
+export interface SignOutNotice { scope: 'device' | 'all'; upstreamEnded: boolean }
+const signOutKey = 'stuhelper.signedOut'
+function rememberSignOut(scope: SignOutNotice['scope'], upstreamEnded: boolean) {
+  try { sessionStorage.setItem(signOutKey, JSON.stringify({ scope, upstreamEnded })) } catch { /* Storage is optional. */ }
+}
+/** Reads and forgets the notice, so it appears only once. Anything unexpected is ignored. */
+export function takeSignOutNotice(): SignOutNotice | undefined {
+  try {
+    const raw = sessionStorage.getItem(signOutKey)
+    sessionStorage.removeItem(signOutKey)
+    const value: unknown = raw ? JSON.parse(raw) : undefined
+    if (!value || typeof value !== 'object') return undefined
+    const scope = 'scope' in value ? value.scope : undefined
+    const upstreamEnded = 'upstreamEnded' in value ? value.upstreamEnded : undefined
+    if ((scope !== 'device' && scope !== 'all') || typeof upstreamEnded !== 'boolean') return undefined
+    return { scope, upstreamEnded }
+  } catch { return undefined }
 }

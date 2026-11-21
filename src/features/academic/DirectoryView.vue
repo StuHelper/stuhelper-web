@@ -135,6 +135,34 @@ const setAll = (expanded: boolean) => { bulk.value = { expanded, turn: bulk.valu
 // At most two department pages are read at once, however many departments are expanded.
 const fullReads = createLimiter(2)
 const groups = computed(() => facets.value.departments.filter((f) => f.count > 0).map((f) => ({ id: f.id, name: f.name, count: f.count, reviews: f.review_count })))
+
+// Departments are laid out as a masonry: as many columns as fit, each card placed in the
+// column that is shortest so far by its expected collapsed height. Columns stay fixed after
+// placement, so expanding a card only moves the cards below it in the same column.
+const masonry = ref<HTMLElement>()
+const columnCount = ref(1)
+const columnWidth = 26 * 16
+let widths: ResizeObserver | undefined
+watch(masonry, (element) => {
+  widths?.disconnect()
+  if (!element || typeof ResizeObserver === 'undefined') return
+  const measure = () => { columnCount.value = Math.max(1, Math.floor((element.clientWidth + 14) / (columnWidth + 14))) }
+  measure()
+  widths = new ResizeObserver(measure)
+  widths.observe(element)
+})
+onBeforeUnmount(() => widths?.disconnect())
+const columns = computed(() => {
+  const out = Array.from({ length: columnCount.value }, () => ({ height: 0, items: [] as typeof groups.value }))
+  for (const group of groups.value) {
+    const rows = Math.min(group.count, PREVIEW)
+    const height = 3 + rows * 3.5 + (group.count > PREVIEW ? 2.5 : 0)
+    const target = out.reduce((low, column) => (column.height < low.height ? column : low))
+    target.items.push(group)
+    target.height += height
+  }
+  return out.map((column) => column.items)
+})
 // Department facets can overlap. Keep a route to every result without inferring an
 // unassigned count from those non-exclusive totals.
 async function loadDepartment(id: string, after: string, limit: number, signal: AbortSignal) {
@@ -367,30 +395,37 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
       <div
         v-else-if="grouped"
         :key="listKey"
-        class="sections split d-list-in"
+        ref="masonry"
+        class="masonry d-list-in"
         :class="{ stale: results.refreshing.value }"
         :aria-busy="results.refreshing.value || undefined"
       >
-        <DirectoryGroup
-          v-for="group in groups"
-          :key="group.id"
-          v-slot="{ rows }"
-          :name="group.name"
-          :hue="hue(group.id)"
-          :count="group.count"
-          :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
-          :preview="PREVIEW"
-          :bulk="bulk"
-          :queue="fullReads"
-          :load="(after, limit, signal) => loadDepartment(group.id, after, limit, signal)"
+        <div
+          v-for="(column, index) in columns"
+          :key="index"
+          class="masonry-column"
         >
-          <DirectoryCourseRows
-            :rows="rows"
-            compact
-            @open="open"
-            @compare="compare"
-          />
-        </DirectoryGroup>
+          <DirectoryGroup
+            v-for="group in column"
+            :key="group.id"
+            v-slot="{ rows }"
+            :name="group.name"
+            :hue="hue(group.id)"
+            :count="group.count"
+            :summary="t('browse.groupCourses', { p0: format.number(group.count), p1: reviewText(group.reviews) })"
+            :preview="PREVIEW"
+            :bulk="bulk"
+            :queue="fullReads"
+            :load="(after, limit, signal) => loadDepartment(group.id, after, limit, signal)"
+          >
+            <DirectoryCourseRows
+              :rows="rows"
+              compact
+              @open="open"
+              @compare="compare"
+            />
+          </DirectoryGroup>
+        </div>
       </div>
       <div
         v-else
@@ -446,6 +481,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
   .bulk { position: fixed; inset-block-end: calc(var(--tab-height, 0px) + var(--safe-bottom) + .75rem); inset-inline: 0; z-index: 30; justify-content: center; pointer-events: none; }
   .bulk .btn { pointer-events: auto; background: var(--glass-strong); box-shadow: var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
 }
-.sections.split { grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); align-items: start; }
+.masonry { display: flex; align-items: flex-start; gap: .875rem; }
+.masonry-column { display: grid; flex: 1 1 0; gap: .875rem; min-width: 0; }
 .flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
 </style>
