@@ -90,7 +90,10 @@ const setup = useAsync(async (signal) => {
   if (version) {
     metadata.value = snapshot(version.metadata)
     tags.value = [...version.metadata.tags]
-    consent.value = version.metadata.origin.consent?.accepted ?? false
+    // A consent given to an older version of the terms does not carry over: the author
+    // has to read and accept the current terms again before this version is submitted.
+    const given = version.metadata.origin.consent
+    consent.value = !!given?.accepted && given.version === capabilities.terms.version && given.digest === capabilities.terms.digest
   }
   if (!metadata.value.category_id) metadata.value.category_id = categories[0]?.id ?? ''
   await nextTick()

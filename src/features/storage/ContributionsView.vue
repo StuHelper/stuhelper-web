@@ -395,6 +395,12 @@ watch(completed, (value) => {
               >
                 {{ t(`contribution.provider.status.${formCapacity.status}`) }}
               </p>
+              <p
+                v-if="formCapacity.observed_at"
+                class="subtle"
+              >
+                {{ t('contribution.observed', { time: format.dateTime(formCapacity.observed_at) }) }}
+              </p>
             </div>
             <label
               v-if="!editing || editing.mode === 'configure'"

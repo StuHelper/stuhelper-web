@@ -217,6 +217,8 @@ test('the contribution form shows the drive space and stops a quota above what i
   await page.getByRole('combobox', { name: m.storage, exact: true }).click();
   await page.getByRole('option').last().click();
   await expect(page.getByRole('group', { name: m.provider.title })).toBeVisible();
+  // The time shown is the last successful read of the drive, so the owner can judge how fresh it is.
+  await expect(page.getByRole('group', { name: m.provider.title })).toContainText(before(m.observed));
   const hint = page.getByText(before(m.provider.max));
   await expect(hint).toBeVisible();
   const full = await hint.textContent();
