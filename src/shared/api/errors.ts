@@ -52,8 +52,12 @@ export function normalizeCode(code: string) {
   return aliases[bare] ?? bare
 }
 
+// Sub-codes that carry their own user-facing message instead of the generic code.
+const specificSubcodes = new Set(['append_window_not_open'])
+
 /** Accept only short snake_case codes so server text never reaches the page. */
 export function serverCode(body: unknown, status: number) {
+  if (typeof body === 'object' && body !== null && 'subcode' in body && typeof body.subcode === 'string' && specificSubcodes.has(body.subcode)) return body.subcode
   if (typeof body === 'object' && body !== null && 'code' in body) {
     const code = body.code
     if (typeof code === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(code)) return normalizeCode(code)

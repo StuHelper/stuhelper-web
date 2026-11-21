@@ -721,3 +721,36 @@ test('a nature filter in navigation state reaches the directory without changing
   expect(new URL(page.url()).searchParams.has('nature')).toBe(false);
   expect(new URL(page.url()).hash).toBe('');
 });
+
+test('reporting a review needs a violation type and sends it with the report', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, posts = [];
+  await academicFixture(page);
+  await page.route('**/api/v1/moderation/tasks', (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push(route.request().postDataJSON());
+    return route.fulfill({ json: { id: 'task', object_id: 'review', kind: 'report', state: 'waiting', can_appeal: false, created_at: '2026-11-22T00:00:00Z', revision: 1 } });
+  });
+  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
+  await page.getByRole('button', { name: a.review.report, exact: true }).first().click();
+  await page.getByLabel(a.review.reason, { exact: true }).fill('Contains a phone number');
+  await expect(page.getByRole('button', { name: all.common.submit, exact: true })).toBeDisabled();
+  await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
+  // An author's own update request is not offered to readers.
+  await expect(page.getByRole('option', { name: all.violation.categories.author_update.name, exact: true })).toHaveCount(0);
+  await page.getByRole('option', { name: all.violation.categories.privacy_leak.name, exact: true }).click();
+  await page.getByRole('button', { name: all.common.submit, exact: true }).click();
+  await expect.poll(() => posts.length).toBe(1);
+  expect(posts[0]).toMatchObject({ object_id: 'review', kind: 'report', category: 'privacy_leak', reason: 'Contains a phone number' });
+});
+
+test('a follow-up attempted inside the five-minute window explains when it opens', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info);
+  await academicFixture(page);
+  await page.route('**/api/v1/reviews/review/actions', (route) => route.fulfill({ status: 409, json: { code: 'conflict', subcode: 'append_window_not_open', field: 'action', retry_at: '2030-01-01T00:00:00Z' } }));
+  await page.route('**/api/v1/reviews/me/entries/review**', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.route(/\/api\/v1\/reviews\/review(\?.*)?$/, (route) => route.fulfill({ json: { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Mine', body: 'Body', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'author' }, revision: 1, published_at: '2026-10-27T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: true, state: 'published', can_edit: false } }));
+  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
+  await page.getByLabel(all.academic.followUp).fill('More notes');
+  await page.getByRole('button', { name: all.academic.submitFollowUp, exact: true }).click();
+  await expect(page.getByText(all.errors.append_window_not_open, { exact: true })).toBeVisible();
+});

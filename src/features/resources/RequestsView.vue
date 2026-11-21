@@ -94,7 +94,7 @@ function tone(state: Receipt['state']) {
             class="card row-between"
           >
             <div class="stack-sm">
-              <strong>{{ t(`resources.request.kinds.${item.kind ?? 'complaint'}`) }}</strong>
+              <strong>{{ t(`resources.request.kinds.${item.kind ?? 'complaint'}`) }}<template v-if="item.category"> · {{ t(`violation.categories.${item.category}.name`) }}</template></strong>
               <span
                 v-if="item.resource_title"
                 class="small"
@@ -140,6 +140,12 @@ function tone(state: Receipt['state']) {
           class="small"
         >
           {{ open.resource_title }}
+        </p>
+        <p
+          v-if="open.category"
+          class="small"
+        >
+          {{ t('violation.receipt', { name: t(`violation.categories.${open.category}.name`) }) }}
         </p>
         <p class="small muted">
           {{ t(`resources.request.stateHint.${open.state}`) }}

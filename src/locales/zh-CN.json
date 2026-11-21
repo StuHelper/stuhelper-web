@@ -134,7 +134,8 @@
     "phone_binding_changed": "手机号刚在别处被修改，已刷新为最新状态，请重新操作。",
     "phone_change_in_progress": "上一次修改还在处理中，请稍后用原请求重试。",
     "phone_write_unconfirmed": "暂时无法确认修改结果，请用原请求重试核对。",
-    "phone_rate_limited": "验证码发送太频繁，请稍后再试。"
+    "phone_rate_limited": "验证码发送太频繁，请稍后再试。",
+    "append_window_not_open": "首次发布 5 分钟后才能追评，请稍后再试。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -641,7 +642,8 @@
       "course_enrollment": "查看我的课程"
     },
     "followUp": "追评",
-    "submitFollowUp": "提交追评"
+    "submitFollowUp": "提交追评",
+    "followUpOpensAt": "首次发布 5 分钟后才能追评，请在 {time} 之后再试。"
   },
   "me": {
     "title": "个人中心",
@@ -2422,5 +2424,109 @@
     "unbound": "手机号已解绑",
     "unbindTitle": "解绑手机号",
     "unbindWarning": "解绑后不能再用这个号码登录或找回密码。"
+  },
+  "violation": {
+    "label": "违规类型",
+    "search": "搜索违规类型",
+    "required": "请选择违规类型。",
+    "categories": {
+      "illegal_content": {
+        "name": "违法违规",
+        "hint": "危害国家安全、煽动颠覆、恐怖主义、极端主义等违法信息"
+      },
+      "pornography": {
+        "name": "色情低俗",
+        "hint": "色情、性暗示或低俗内容"
+      },
+      "gambling_drugs": {
+        "name": "赌博毒品违禁品",
+        "hint": "赌博、毒品、管制物品或违禁品交易"
+      },
+      "fraud": {
+        "name": "诈骗钓鱼",
+        "hint": "诈骗、钓鱼链接、虚假兼职、套取账号或钱财"
+      },
+      "violence_threat": {
+        "name": "暴力威胁",
+        "hint": "宣扬暴力、威胁他人人身安全、引导自残自杀"
+      },
+      "minors_harm": {
+        "name": "危害未成年人",
+        "hint": "不利于未成年人身心健康的内容"
+      },
+      "personal_attack": {
+        "name": "辱骂攻击",
+        "hint": "辱骂、人身攻击、挑衅"
+      },
+      "harassment_discrimination": {
+        "name": "骚扰歧视",
+        "hint": "骚扰，或地域、性别、民族、宗教等歧视"
+      },
+      "defamation_rumor": {
+        "name": "诽谤谣言",
+        "hint": "虚构事实、诽谤他人、传播谣言"
+      },
+      "privacy_leak": {
+        "name": "泄露隐私",
+        "hint": "泄露他人姓名、联系方式、证件、住址等个人信息"
+      },
+      "impersonation": {
+        "name": "冒充他人",
+        "hint": "冒充他人、教师、学校或机构"
+      },
+      "copyright": {
+        "name": "侵犯著作权",
+        "hint": "未经许可的教材扫描、课件、论文等"
+      },
+      "other_ip": {
+        "name": "侵犯其他权益",
+        "hint": "侵犯商标、肖像、名誉等其他合法权益"
+      },
+      "academic_integrity": {
+        "name": "学术不端",
+        "hint": "代写、代考、作弊工具、抄袭"
+      },
+      "leaked_exam": {
+        "name": "泄露试题",
+        "hint": "未公开的试题、答案或考试安排"
+      },
+      "fake_review": {
+        "name": "不实评价",
+        "hint": "非亲身经历、刷评、恶意差评或利益相关的评价"
+      },
+      "wrong_teacher": {
+        "name": "教师或课程对应错误",
+        "hint": "评价或资料关联到了错误的教师或课程"
+      },
+      "wrong_info": {
+        "name": "信息错误",
+        "hint": "标题、分类、标签、学期等描述与内容不符"
+      },
+      "spam": {
+        "name": "广告垃圾",
+        "hint": "广告、引流、无关推广、刷屏"
+      },
+      "malware": {
+        "name": "恶意文件或链接",
+        "hint": "病毒、木马、恶意脚本或危险链接"
+      },
+      "duplicate": {
+        "name": "重复内容",
+        "hint": "与已有内容重复"
+      },
+      "low_quality": {
+        "name": "内容质量低",
+        "hint": "无意义、灌水、无法打开或内容残缺"
+      },
+      "author_update": {
+        "name": "作者要求更新",
+        "hint": "作者本人要求更正或撤回"
+      },
+      "other": {
+        "name": "其他",
+        "hint": "以上都不符合，请在说明中写清具体情况"
+      }
+    },
+    "receipt": "违规类型：{name}"
   }
 }

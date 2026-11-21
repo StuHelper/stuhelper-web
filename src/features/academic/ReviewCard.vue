@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import ViolationSelect from '../moderation/ViolationSelect.vue'
+import type { ViolationCategory } from '../moderation/categories'
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -13,7 +15,7 @@ import { reviewLink, safeAvatar, stateTone, useAuthorName } from './presentation
 import RatingBands from './RatingBands.vue'
 import ReplyPreview from './ReplyPreview.vue'
 
-const props = withDefaults(defineProps<{ review: Review; names?: ReadonlyMap<string, NamedObject>; standalone?: boolean; replyEnabled?: boolean; hideTarget?: boolean; compact?: boolean }>(), { names: () => new Map(), standalone: false, replyEnabled: false, hideTarget: false, compact: false })
+const props = withDefaults(defineProps<{ review: Review; names?: ReadonlyMap<string, NamedObject>; standalone?: boolean; appendable?: boolean; replyEnabled?: boolean; hideTarget?: boolean; compact?: boolean }>(), { names: () => new Map(), standalone: false, appendable: false, replyEnabled: false, hideTarget: false, compact: false })
 const emit = defineEmits<{ updated: [review: Review]; removed: [id: string]; reply: [review: Review] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -26,6 +28,7 @@ type Panel = '' | 'report' | 'edit_request' | 'delete_request'
 const panel = ref<Panel>('')
 const confirming = ref<'' | 'withdraw' | 'delete'>('')
 const reason = ref('')
+const category = ref<ViolationCategory | ''>('')
 const proposed = ref('')
 const appendBody = ref('')
 const success = ref('')
@@ -134,6 +137,7 @@ async function confirm() {
 function openPanel(next: Panel) {
   panel.value = panel.value === next ? '' : next
   reason.value = ''
+  category.value = ''
   proposed.value = next === 'edit_request' ? props.review.body : ''
   success.value = ''
 }
@@ -141,7 +145,8 @@ function openPanel(next: Panel) {
 async function submitTask() {
   const kind = panel.value
   if (!kind) return
-  const submission: Submission = { object_id: props.review.id, kind, reason: reason.value.trim(), evidence: [], ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
+  if (kind === 'report' && !category.value) return
+  const submission: Submission = { object_id: props.review.id, kind, reason: reason.value.trim(), evidence: [], ...(kind === 'report' && category.value ? { category: category.value } : {}), ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
   finish = () => submitted(kind)
   const task = await write.run(`task:${props.review.id}:${kind}`, submission, (body, key) => api.submitTask(body, key))
   if (task) submitted(kind)
@@ -259,10 +264,16 @@ async function retry() {
       <small v-else-if="review.mine && item.state === 'rejected'">{{ t('verification.states.rejected') }}</small>
     </section>
     <form
-      v-if="standalone && review.mine && isRoot && published"
+      v-if="(standalone || appendable) && review.mine && isRoot && published"
       class="stack-sm"
       @submit.prevent="act({ action: 'append', revision: review.revision, body: appendBody.trim() })"
     >
+      <p
+        v-if="remainingSeconds && review.published_at"
+        class="small muted"
+      >
+        {{ t('academic.followUpOpensAt', { time: format.dateTime(Date.parse(review.published_at) + editWindowMs) }) }}
+      </p>
       <label>{{ t('academic.followUp') }}
         <textarea
           v-model="appendBody"
@@ -274,7 +285,7 @@ async function retry() {
       <button
         type="submit"
         class="btn btn-sm"
-        :disabled="locked || !appendBody.trim()"
+        :disabled="locked || !appendBody.trim() || remainingSeconds > 0"
       >
         {{ t('academic.submitFollowUp') }}
       </button>
@@ -425,6 +436,12 @@ async function retry() {
       <p class="small muted">
         {{ t(`academic.review.panelHint.${panel}`) }}
       </p>
+      <ViolationSelect
+        v-if="panel === 'report'"
+        v-model="category"
+        :exclude="['author_update']"
+        :disabled="locked"
+      />
       <label class="field">
         <span class="field-label">{{ t('academic.review.reason') }}</span>
         <textarea
@@ -454,7 +471,7 @@ async function retry() {
         <button
           class="btn btn-primary btn-sm"
           type="submit"
-          :disabled="locked || !reason.trim()"
+          :disabled="locked || !reason.trim() || (panel === 'report' && !category)"
         >
           {{ t('common.submit') }}
         </button>

@@ -334,9 +334,15 @@ test('a signed-in rights holder can file a complaint when resource details are d
   await page.getByLabel(all.resources.request.reason, { exact: true }).fill('Fixture rights claim');
   await page.getByLabel(all.resources.request.contact, { exact: true }).fill('fixture@example.invalid');
   await page.getByLabel(all.resources.request.evidence, { exact: true }).fill('Fixture ownership evidence');
+  // A complaint needs a violation type; the long list is searchable.
+  await expect(page.getByRole('button', { name: all.common.submit, exact: true })).toBeDisabled();
+  await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
+  await page.getByRole('textbox', { name: all.common.searchOptions }).fill(all.violation.categories.copyright.name);
+  await page.getByRole('option', { name: all.violation.categories.copyright.name, exact: true }).click();
+  await expect(page.getByText(all.violation.categories.copyright.hint, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: all.common.submit, exact: true }).click();
   await expect(page.getByText(all.resources.request.received)).toBeVisible();
-  expect(state.calls.filter(c => c.path === '/items/resource/requests' && c.method === 'POST').map(c => c.body.kind)).toEqual(['complaint']);
+  expect(state.calls.filter(c => c.path === '/items/resource/requests' && c.method === 'POST').map(c => [c.body.kind, c.body.category])).toEqual([['complaint', 'copyright']]);
 });
 
 test('an uploader can correct owned metadata using its saved category when category browsing is denied', async ({ page }, info) => {

@@ -4,6 +4,8 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useMutation } from '../../shared/composables/async'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
+import ViolationSelect from '../moderation/ViolationSelect.vue'
+import type { ViolationCategory } from '../moderation/categories'
 import { useResourcesApi, type Receipt, type RequestInput } from './api'
 
 // Withdrawal requests (owner), infringement complaints (anyone) and appeals of
@@ -17,6 +19,7 @@ const kind = ref<RequestInput['kind']>(props.previousTaskId ? 'appeal' : props.o
 const enteredId = ref('')
 const resource = computed(() => props.resourceId ?? enteredId.value.trim())
 const reason = ref('')
+const category = ref<ViolationCategory | ''>('')
 const contact = ref('')
 const evidence = ref('')
 const lines = computed(() => evidence.value.split('\n').map(line => line.trim()).filter(Boolean))
@@ -28,10 +31,11 @@ const locked = computed(() => write.busy.value || write.uncertain.value || !!rec
 async function submit() {
   const id = resource.value
   if (!id) return
-  if (evidenceInvalid.value) return
+  if (evidenceInvalid.value || (complaint.value && !category.value)) return
   const body: RequestInput = {
     kind: kind.value,
     reason: reason.value.trim(),
+    ...(complaint.value && category.value ? { category: category.value } : {}),
     ...(contact.value.trim() ? { contact: contact.value.trim() } : {}),
     evidence: lines.value,
     ...(props.previousTaskId ? { previous_task_id: props.previousTaskId } : {}),
@@ -93,6 +97,12 @@ async function retry() {
       <p class="small muted">
         {{ t(`resources.request.hints.${kind}`) }}
       </p>
+      <ViolationSelect
+        v-if="complaint"
+        v-model="category"
+        :exclude="['author_update']"
+        :disabled="locked"
+      />
       <label class="field">
         <span class="field-label">{{ t('resources.request.reason') }}</span>
         <textarea
@@ -139,7 +149,7 @@ async function retry() {
       <button
         class="btn btn-primary"
         type="submit"
-        :disabled="locked || !reason.trim() || evidenceInvalid"
+        :disabled="locked || !reason.trim() || evidenceInvalid || (complaint && !category)"
       >
         {{ t('common.submit') }}
       </button>
