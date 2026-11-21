@@ -1184,7 +1184,7 @@
     "identityTitle": "实名认证",
     "identityDescription": "实名认证独立于学生认证，用于需要确认本人身份的操作。",
     "identityName": "姓名",
-    "identityNumber": "身份证号",
+    "identityNumber": "证件号",
     "schoolSearch": "搜索学校代码、名称或别名",
     "unified": {
       "title": "校园认证",
@@ -1580,7 +1580,6 @@
     "phoneBound": "已绑定",
     "phoneMissing": "未绑定",
     "realName": "实名认证",
-    "realNameMasked": "已实名 · {name} · {number}",
     "realNameDone": "已实名",
     "realNamePending": "未完成，部分操作需要确认本人身份",
     "view": "查看",

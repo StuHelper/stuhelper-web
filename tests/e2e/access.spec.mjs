@@ -130,3 +130,18 @@ memberTest('identity page waits for the real state and only shows masked identit
   await expect(page.getByText('1****************8', { exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: v.start })).toHaveCount(0);
 });
+
+memberTest('the account page only says the identity is verified; the masked details open with View', async ({ page }, info) => {
+  const all = catalogue(info);
+  await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: [] }));
+  await verification(page, true);
+  await page.route('**/api/v1/verification/summary', (route) => route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8' } } }));
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  const row = page.locator('.group-row').filter({ hasText: all.security.realName });
+  await expect(row.getByText(all.security.realNameDone, { exact: true })).toBeVisible();
+  await expect(page.getByText('*航')).toHaveCount(0);
+  await expect(page.getByText('1****************8')).toHaveCount(0);
+  await row.getByRole('link', { name: all.security.view }).click();
+  await expect(page.getByText('*航', { exact: true })).toBeVisible();
+  await expect(page.getByText(all.verification.identityNumber, { exact: true })).toBeVisible();
+});

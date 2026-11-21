@@ -1580,7 +1580,6 @@
     "phoneBound": "Lié",
     "phoneMissing": "Non lié",
     "realName": "Vérification d’identité",
-    "realNameMasked": "Vérifiée · {name} · {number}",
     "realNameDone": "Vérifiée",
     "realNamePending": "Non vérifiée. Certaines actions exigent de confirmer votre identité",
     "view": "Voir",

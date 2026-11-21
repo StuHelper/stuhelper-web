@@ -1184,7 +1184,7 @@
     "identityTitle": "التحقق من الهوية",
     "identityDescription": "التحقق من الهوية منفصل عن التحقق من صفة الطالب، ويُستخدم في الإجراءات التي تتطلب تأكيد هويتك.",
     "identityName": "الاسم",
-    "identityNumber": "رقم الهوية",
+    "identityNumber": "رقم الوثيقة",
     "schoolSearch": "ابحث برمز الجامعة أو اسمها أو اسم بديل",
     "unified": {
       "title": "التحقق الجامعي",
@@ -1580,7 +1580,6 @@
     "phoneBound": "مربوط",
     "phoneMissing": "غير مربوط",
     "realName": "التحقق من الهوية",
-    "realNameMasked": "تم التحقق · {name} · {number}",
     "realNameDone": "تم التحقق",
     "realNamePending": "لم يكتمل. بعض الإجراءات تتطلب تأكيد هويتك",
     "view": "عرض",

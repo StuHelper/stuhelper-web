@@ -4,7 +4,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
-import { isolate } from '../../shared/format'
 import { errorCode } from '../../shared/api/errors'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { useAsync, useMutation } from '../../shared/composables/async'
@@ -15,7 +14,7 @@ import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import QqBinding from '../qq/QqBinding.vue'
-import { maskedIdentity, useVerification } from '../verification/api'
+import { useVerification } from '../verification/api'
 import { useClosureApi, type Closure } from './closure'
 import MeLayout from './MeLayout.vue'
 import { feature, useCapabilities } from '../../shared/capabilities'
@@ -34,7 +33,6 @@ const closures = useClosureApi()
 
 const identity = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
 void identity.reload()
-const masked = computed(() => maskedIdentity(identity.data.value))
 
 const signingOut = ref(false)
 const signOutOpen = ref(false)
@@ -128,7 +126,7 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
             <span
               v-else
               class="group-detail"
-            >{{ identity.data.value?.identity_verified ? (masked ? t('security.realNameMasked', { name: isolate(masked.name), number: isolate(masked.number) }) : t('security.realNameDone')) : t('security.realNamePending') }}</span>
+            >{{ identity.data.value?.identity_verified ? t('security.realNameDone') : t('security.realNamePending') }}</span>
           </span>
           <RouterLink
             v-if="identity.status.value === 'ready'"
