@@ -2,9 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { useSession } from '../../shared/session'
 
-// Signs in through QQ for accounts that already linked QQ. `compact` shows only the icon,
-// for the narrow header; the accessible name always says what the button does.
-withDefaults(defineProps<{ compact?: boolean }>(), { compact: false })
+// Signs in through QQ for accounts that already linked QQ.
 const { t } = useI18n()
 const session = useSession()
 </script>
@@ -12,10 +10,7 @@ const session = useSession()
 <template>
   <button
     class="btn qq"
-    :class="{ 'btn-sm': compact, 'btn-icon': compact }"
     type="button"
-    :aria-label="t('account.signInWithQq')"
-    :title="compact ? t('account.signInWithQq') : undefined"
     @click="session.signInWithQq"
   >
     <svg
@@ -72,7 +67,7 @@ const session = useSession()
         fill="#f5b300"
       />
     </svg>
-    <span v-if="!compact">{{ t('account.signInWithQq') }}</span>
+    <span>{{ t('account.signInWithQq') }}</span>
   </button>
 </template>
 

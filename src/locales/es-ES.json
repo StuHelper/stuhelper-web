@@ -309,7 +309,6 @@
     "home": "Volver al inicio"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "Has salido de este sitio. Tu sesión de inicio de sesión único puede seguir activa.",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión en este dispositivo",
     "signOutAll": "Cerrar sesión en todos los dispositivos",
@@ -330,7 +329,13 @@
       "processing": "Verificación en revisión",
       "expired": "Verificación caducada"
     },
-    "signInWithQq": "Iniciar sesión con QQ"
+    "signInWithQq": "Iniciar sesión con QQ",
+    "signingOut": "Cerrando sesión…",
+    "signedOut": {
+      "device": "Has cerrado sesión en este dispositivo.",
+      "all": "Has cerrado sesión en todos los dispositivos conectados."
+    },
+    "upstreamStillActive": "Tu sesión de inicio de sesión único puede seguir activa."
   },
   "academic": {
     "course": "Curso",
@@ -1611,11 +1616,6 @@
         "authorizations_unavailable": "Ahora no se pueden revocar las autorizaciones de aplicaciones. El proceso seguirá cuando el servicio se recupere.",
         "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere."
       }
-    },
-    "qqLogin": {
-      "title": "Inicio de sesión con QQ",
-      "hint": "El inicio de sesión con QQ es opcional. Las cuentas vinculadas a QQ pueden entrar con QQ en la página de inicio de sesión. Vincula o desvincula QQ en la sección de inicios de sesión externos del centro de cuentas.",
-      "manage": "Gestionar el inicio de sesión con QQ"
     }
   },
   "profile": {

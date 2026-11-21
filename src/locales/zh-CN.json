@@ -309,7 +309,6 @@
     "home": "返回首页"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "已退出本站。统一登录会话可能仍然有效。",
     "signIn": "登录",
     "signOut": "退出当前设备",
     "signOutAll": "退出全部设备",
@@ -330,7 +329,13 @@
       "processing": "认证审核中",
       "expired": "认证已过期"
     },
-    "signInWithQq": "QQ 登录"
+    "signInWithQq": "QQ 登录",
+    "signingOut": "正在退出…",
+    "signedOut": {
+      "device": "已退出当前设备。",
+      "all": "已退出全部已登录设备。"
+    },
+    "upstreamStillActive": "统一登录会话可能仍然有效。"
   },
   "academic": {
     "course": "课程",
@@ -1611,11 +1616,6 @@
         "authorizations_unavailable": "暂时无法撤回应用授权，处理会在恢复后继续。",
         "content_unavailable": "暂时无法处理个人内容，处理会在恢复后继续。"
       }
-    },
-    "qqLogin": {
-      "title": "QQ 登录",
-      "hint": "QQ 登录是可选的。已绑定 QQ 的账号可以在登录页直接用 QQ 登录；绑定或解绑请到账号中心的第三方登录区操作。",
-      "manage": "管理 QQ 登录绑定"
     }
   },
   "profile": {

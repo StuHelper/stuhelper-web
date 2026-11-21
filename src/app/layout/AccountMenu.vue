@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { myCoursesEnabled } from '../features'
-import { Bookmark, CalendarDays, CircleAlert, FileText, FolderOpen, LogOut, Settings, ShieldCheck } from 'lucide-vue-next'
+import { Bookmark, CalendarDays, CircleAlert, FileText, FolderOpen, LoaderCircle, LogOut, Settings, ShieldCheck } from 'lucide-vue-next'
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuSeparator, DropdownMenuTrigger } from 'reka-ui'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { useAccess } from '../../features/account/access'
-import QqSignInButton from '../../features/account/QqSignInButton.vue'
 import SessionNotice from '../../shared/ui/SessionNotice.vue'
 import { useSession } from '../../shared/session'
 import { useLinkAvailable } from '../../shared/capabilities'
@@ -27,10 +26,16 @@ const content = computed(() => [
   { to: '/me/resources', label: 'me.resources', icon: FolderOpen },
 ])
 
+// Signing out waits for the server, which can take a moment. The avatar turns into a
+// busy indicator at once so the click is visibly taken and cannot be sent twice.
+const leaving = ref(false)
 async function signOut() {
+  if (leaving.value) return
+  leaving.value = true
   try {
     await session.signOut(false)
   } catch {
+    leaving.value = false
     // The personal center shows sign-out failures and offers another try.
     void router.push('/me')
   }
@@ -39,8 +44,15 @@ async function signOut() {
 
 <template>
   <SessionNotice />
+  <span
+    v-if="leaving"
+    class="avatar avatar-busy"
+    role="status"
+    :aria-label="t('account.signingOut')"
+    :title="t('account.signingOut')"
+  ><LoaderCircle aria-hidden="true" /></span>
   <DropdownMenuRoot
-    v-if="session.state.value === 'member' && session.session.value"
+    v-else-if="session.state.value === 'member' && session.session.value"
     :modal="false"
     :dir="locale === 'ar-EG' ? 'rtl' : 'ltr'"
   >
@@ -113,19 +125,14 @@ async function signOut() {
       </DropdownMenuContent>
     </DropdownMenuPortal>
   </DropdownMenuRoot>
-  <span
+  <button
     v-else-if="session.state.value === 'guest'"
-    class="guest-actions"
+    class="btn btn-sm btn-primary"
+    type="button"
+    @click="session.signIn"
   >
-    <QqSignInButton compact />
-    <button
-      class="btn btn-sm btn-primary"
-      type="button"
-      @click="session.signIn"
-    >
-      {{ t('account.signIn') }}
-    </button>
-  </span>
+    {{ t('account.signIn') }}
+  </button>
   <button
     v-else-if="session.state.value === 'error'"
     class="btn btn-sm account-error"
@@ -140,9 +147,11 @@ async function signOut() {
 </template>
 
 <style scoped>
-.guest-actions { display: inline-flex; align-items: center; gap: .375rem; }
 .avatar { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: linear-gradient(145deg, #6f8dff, #2d5bff); color: #fff; font: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; transition: transform .3s var(--spring); }
 .avatar:active { transform: scale(.92); }
+.avatar-busy { cursor: progress; }
+.avatar-busy svg { width: 18px; height: 18px; animation: spin .7s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .avatar-busy svg { animation: none; } }
 .account-error svg { color: var(--warning); }
 @media (max-width: 480px) { .account-error-text { display: none; } }
 </style>

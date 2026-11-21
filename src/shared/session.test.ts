@@ -9,7 +9,7 @@ import { sessionFetch } from './api/transport'
 import { createApp, h, nextTick, ref } from 'vue';
 import { createI18n } from 'vue-i18n';
 import SessionNotice from './ui/SessionNotice.vue';
-import { createSessionStore, sessionKey } from './session'
+import { createSessionStore, sessionKey, takeSignOutNotice } from './session'
 import { createAccessStore } from '../features/account/access'
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers() })
@@ -60,6 +60,18 @@ describe('application session', () => {
     expect(removed.filter(key => key === 'stuhelper.recent')).toHaveLength(2)
   })
 
+  it('remembers which sign-out ran for one page only and ignores anything malformed', async () => {
+    vi.stubGlobal('window', { location: { assign: () => {} } })
+    const store = createSessionStore(async () => Response.json({ signed_out: true, upstream_ended: true }))
+    await store.signOut(true)
+    expect(takeSignOutNotice()).toEqual({ scope: 'all', upstreamEnded: true })
+    expect(takeSignOutNotice()).toBeUndefined()
+    for (const raw of ['{', '{"scope":"other","upstreamEnded":true}', '{"scope":"all"}', 'null']) {
+      sessionStorage.setItem('stuhelper.signedOut', raw)
+      expect(takeSignOutNotice()).toBeUndefined()
+    }
+  })
+
   it('forgets saved return filters and unread counts when the current session ends', () => {
     const store = createSessionStore(vi.fn<typeof fetch>())
     sessionStorage.setItem('stuhelper.returnFilters', JSON.stringify({ path: '/courses', filters: { q: 'previous search' } }))
@@ -82,7 +94,7 @@ describe('application session', () => {
     if (status === 403) await expect(store.signOut(false)).rejects.toMatchObject({ status: 403 })
     else {
       await store.signOut(false)
-      expect(sessionStorage.getItem('stuhelper.upstreamLogoutUnconfirmed')).toBe('1')
+      expect(takeSignOutNotice()).toEqual({ scope: 'device', upstreamEnded: false })
     }
     await nextTick()
     expect(store.state.value).toBe('guest')

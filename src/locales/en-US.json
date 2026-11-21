@@ -309,7 +309,6 @@
     "home": "Return home"
   },
   "account": {
-    "upstreamLogoutUnconfirmed": "You are signed out of this site. Your single sign-on session may still be active.",
     "signIn": "Sign in",
     "signOut": "Sign out this device",
     "signOutAll": "Sign out all devices",
@@ -330,7 +329,13 @@
       "processing": "Verification in review",
       "expired": "Verification expired"
     },
-    "signInWithQq": "Sign in with QQ"
+    "signInWithQq": "Sign in with QQ",
+    "signingOut": "Signing out…",
+    "signedOut": {
+      "device": "You are signed out on this device.",
+      "all": "You are signed out on all signed-in devices."
+    },
+    "upstreamStillActive": "Your single sign-on session may still be active."
   },
   "academic": {
     "course": "Course",
@@ -1611,11 +1616,6 @@
         "authorizations_unavailable": "Application authorizations cannot be revoked right now. Processing continues once the service recovers.",
         "content_unavailable": "Personal content cannot be processed right now. Processing continues once the service recovers."
       }
-    },
-    "qqLogin": {
-      "title": "QQ sign-in",
-      "hint": "QQ sign-in is optional. Accounts linked to QQ can sign in with QQ on the sign-in page. Link or unlink QQ in the third-party sign-in section of the account centre.",
-      "manage": "Manage QQ sign-in"
     }
   },
   "profile": {
