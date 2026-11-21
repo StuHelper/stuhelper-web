@@ -1262,7 +1262,13 @@
     "changeSchool": "Changer d'école",
     "copyInboundAddress": "Copier l’adresse destinataire",
     "inboundAddressCopied": "Adresse destinataire copiée.",
-    "inboundCopyFailed": "Copie automatique impossible. Sélectionnez et copiez l’adresse manuellement."
+    "inboundCopyFailed": "Copie automatique impossible. Sélectionnez et copiez l’adresse manuellement.",
+    "checking": "Vérification de vos informations…",
+    "cooldown": "Trop de tentatives. Réessayez dans {time}.",
+    "documentType": "Type de pièce",
+    "documentTypes": {
+      "cn_resident_id_card": "Carte d’identité de résident (Chine)"
+    }
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",

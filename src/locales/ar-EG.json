@@ -1262,7 +1262,13 @@
     "changeSchool": "تغيير الجامعة",
     "copyInboundAddress": "نسخ عنوان المستلم",
     "inboundAddressCopied": "تم نسخ عنوان المستلم.",
-    "inboundCopyFailed": "تعذّر النسخ التلقائي. يُرجى تحديد العنوان ونسخه يدويًا."
+    "inboundCopyFailed": "تعذّر النسخ التلقائي. يُرجى تحديد العنوان ونسخه يدويًا.",
+    "checking": "جارٍ التحقق من بياناتك…",
+    "cooldown": "محاولات كثيرة جدًا. حاول مجددًا بعد {time}.",
+    "documentType": "نوع الوثيقة",
+    "documentTypes": {
+      "cn_resident_id_card": "بطاقة الهوية الصينية للمقيم"
+    }
   },
   "contribution": {
     "eyebrow": "تخزين مشترك",

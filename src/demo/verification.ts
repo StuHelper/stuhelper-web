@@ -80,7 +80,7 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (!p.startsWith('/verification')) return undefined
   seed(who)
   if (p === '/verification/schools') return json([school])
-  if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8` } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
+  if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
   if (p === '/verification/credentials') return json(credentials)
   if (p === '/verification/requests') return json(removalRequests)
   if (p === '/verification/suggestions' && method === 'POST') {

@@ -1262,7 +1262,13 @@
     "changeSchool": "학교 변경",
     "copyInboundAddress": "수신 주소 복사",
     "inboundAddressCopied": "수신 주소가 복사되었습니다.",
-    "inboundCopyFailed": "자동으로 복사할 수 없습니다. 주소를 직접 선택해 복사해 주세요."
+    "inboundCopyFailed": "자동으로 복사할 수 없습니다. 주소를 직접 선택해 복사해 주세요.",
+    "checking": "정보를 확인하는 중…",
+    "cooldown": "시도 횟수가 너무 많습니다. {time} 후에 다시 시도하세요.",
+    "documentType": "신분증 종류",
+    "documentTypes": {
+      "cn_resident_id_card": "중국 주민신분증"
+    }
   },
   "contribution": {
     "eyebrow": "공유 저장소",

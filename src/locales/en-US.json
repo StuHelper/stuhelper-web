@@ -1262,7 +1262,13 @@
     "changeSchool": "Change school",
     "copyInboundAddress": "Copy recipient address",
     "inboundAddressCopied": "Recipient address copied.",
-    "inboundCopyFailed": "Could not copy automatically. Please select and copy the address."
+    "inboundCopyFailed": "Could not copy automatically. Please select and copy the address.",
+    "checking": "Checking your details…",
+    "cooldown": "Too many attempts. Try again in {time}.",
+    "documentType": "Document type",
+    "documentTypes": {
+      "cn_resident_id_card": "Resident Identity Card (China)"
+    }
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",

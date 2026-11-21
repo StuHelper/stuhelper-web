@@ -118,7 +118,7 @@ memberTest('identity page waits for the real state and only shows masked identit
   await verification(page, true);
   await page.route('**/api/v1/verification/summary', async (route) => {
     await held;
-    return route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8' } } });
+    return route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8', document_type: 'cn_resident_id_card' } } });
   });
   await page.goto(`${base}/me/account/identity?lang=${info.project.metadata.locale}`);
   await expect(page.getByRole('heading', { level: 1, name: v.identityTitle })).toBeVisible();
@@ -135,7 +135,7 @@ memberTest('the account page only says the identity is verified; the masked deta
   const all = catalogue(info);
   await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: [] }));
   await verification(page, true);
-  await page.route('**/api/v1/verification/summary', (route) => route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8' } } }));
+  await page.route('**/api/v1/verification/summary', (route) => route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8', document_type: 'cn_resident_id_card' } } }));
   await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
   const row = page.locator('.group-row').filter({ hasText: all.security.realName });
   await expect(row.getByText(all.security.realNameDone, { exact: true })).toBeVisible();

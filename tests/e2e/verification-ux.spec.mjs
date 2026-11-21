@@ -127,6 +127,34 @@ test('verification failure stays beside submit with focus and retained input', a
   await shot(page, info, 'inline-error');
 });
 
+test('a check shows its wait, and repeated failures show a countdown that keeps submit closed', async ({ page }, info) => {
+  await fixture(page); await open(page, info, { steps: true });
+  const m = messages(info), v = m.verification;
+  let release, checks = 0;
+  await page.route('**/api/v1/verification/applications/*/verify', async (route) => {
+    checks += 1;
+    await new Promise((resolve) => { release = resolve; });
+    return route.fulfill({ status: 429, headers: { 'Retry-After': '65' }, json: { code: 'rate_limited', retry_after_seconds: 65 } });
+  });
+  await page.getByLabel(v.consent).check();
+  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
+  await page.getByLabel(v.document, { exact: true }).fill('TEST0001');
+  const submit = page.getByRole('button', { name: v.submit, exact: true });
+  await submit.click();
+  await expect(page.getByRole('status').filter({ hasText: v.checking })).toBeVisible();
+  await expect.poll(() => typeof release).toBe('function');
+  release();
+  const countdown = page.getByRole('status').filter({ hasText: v.cooldown.split('{time}')[0].trim() });
+  await expect(countdown).toContainText(/01:0[0-5]/);
+  // The countdown replaces the generic message, and the form stays filled but closed.
+  await expect(page.getByText(m.errors.rate_limited)).toHaveCount(0);
+  await expect(submit).toBeDisabled();
+  await expect(page.getByLabel(v.studentId, { exact: true })).toHaveValue('20260001');
+  expect(checks).toBe(1);
+});
+
 test('profile shows plain field labels and binds authentication time to the selected credential', async ({ page }, info) => {
   const state = await fixture(page); await open(page, info);
   const m = messages(info), v = m.verification;

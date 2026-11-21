@@ -1262,7 +1262,13 @@
     "changeSchool": "更换学校",
     "copyInboundAddress": "复制收件地址",
     "inboundAddressCopied": "收件地址已复制。",
-    "inboundCopyFailed": "无法自动复制，请手动选择地址复制。"
+    "inboundCopyFailed": "无法自动复制，请手动选择地址复制。",
+    "checking": "正在核对信息，请稍候…",
+    "cooldown": "尝试次数过多，请在 {time} 后再试。",
+    "documentType": "证件类型",
+    "documentTypes": {
+      "cn_resident_id_card": "居民身份证"
+    }
   },
   "contribution": {
     "eyebrow": "共享存储",

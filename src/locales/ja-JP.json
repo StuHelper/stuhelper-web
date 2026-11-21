@@ -1262,7 +1262,13 @@
     "changeSchool": "学校を変更",
     "copyInboundAddress": "宛先アドレスをコピー",
     "inboundAddressCopied": "宛先アドレスをコピーしました。",
-    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。"
+    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。",
+    "checking": "情報を確認しています…",
+    "cooldown": "試行回数が多すぎます。{time} 後にもう一度お試しください。",
+    "documentType": "証明書の種類",
+    "documentTypes": {
+      "cn_resident_id_card": "中国居民身分証"
+    }
   },
   "contribution": {
     "eyebrow": "共有ストレージ",

@@ -1262,7 +1262,13 @@
     "changeSchool": "Cambiar de universidad",
     "copyInboundAddress": "Copiar dirección de destino",
     "inboundAddressCopied": "Dirección de destino copiada.",
-    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección."
+    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección.",
+    "checking": "Comprobando tus datos…",
+    "cooldown": "Demasiados intentos. Vuelve a intentarlo en {time}.",
+    "documentType": "Tipo de documento",
+    "documentTypes": {
+      "cn_resident_id_card": "Documento de identidad de residente (China)"
+    }
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
