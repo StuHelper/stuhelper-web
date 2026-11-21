@@ -114,6 +114,28 @@ function toggle() {
   else if (!expanded.value) stop()
 }
 const retry = () => void read(expanded.value)
+
+// When rows appear or the card collapses, the card's height glides to the new size so the
+// cards below it in the same column move smoothly instead of jumping. The inner body keeps
+// its natural height; only the outer card is animated.
+const body = ref<HTMLElement>()
+let sizes: ResizeObserver | undefined
+let last = 0
+watch(body, (element) => {
+  sizes?.disconnect()
+  if (!element || typeof ResizeObserver === 'undefined') return
+  last = element.offsetHeight
+  sizes = new ResizeObserver(() => {
+    const next = element.offsetHeight
+    const from = last
+    last = next
+    const card = section.value
+    if (!card || Math.abs(next - from) < 4 || matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    card.animate([{ height: `${from}px` }, { height: `${next}px` }], { duration: 280, easing: 'cubic-bezier(.2, .8, .2, 1)' })
+  })
+  sizes.observe(element)
+})
+onBeforeUnmount(() => sizes?.disconnect())
 </script>
 
 <template>
@@ -124,53 +146,60 @@ const retry = () => void read(expanded.value)
     :aria-label="name"
     :aria-busy="status === 'loading' || undefined"
   >
-    <header class="group-head">
-      <h2 class="card-title">
-        {{ name }}
-      </h2>
-      <span class="subtle">{{ summary }}</span>
-    </header>
-    <ul
-      v-if="status === 'idle' || (status === 'loading' && rows.length === 0)"
-      class="placeholder"
-      aria-hidden="true"
+    <div
+      ref="body"
+      class="group-body"
     >
-      <li
-        v-for="i in Math.min(preview, count)"
-        :key="i"
-        class="skeleton-line"
-      />
-    </ul>
-    <slot
-      v-else
-      :rows="shown"
-    />
-    <ErrorNotice
-      v-if="status === 'error'"
-      class="group-error"
-      :code="error"
-      @retry="retry"
-    />
-    <button
-      v-else-if="count > preview"
-      class="more"
-      type="button"
-      :aria-expanded="expanded"
-      :aria-busy="(expanded && status === 'loading') || undefined"
-      @click="toggle"
-    >
-      <ChevronDown
-        :class="{ flip: expanded }"
+      <header class="group-head">
+        <h2 class="card-title truncate">
+          {{ name }}
+        </h2>
+        <span class="subtle group-summary">{{ summary }}</span>
+      </header>
+      <ul
+        v-if="status === 'idle' || (status === 'loading' && rows.length === 0)"
+        class="placeholder"
         aria-hidden="true"
-      />{{ expanded ? (status === 'loading' ? t('common.loading') : t('browse.collapse')) : t('browse.expandAll', { p0: format.number(count) }) }}
-    </button>
+      >
+        <li
+          v-for="i in Math.min(preview, count)"
+          :key="i"
+          class="skeleton-line"
+        />
+      </ul>
+      <slot
+        v-else
+        :rows="shown"
+      />
+      <ErrorNotice
+        v-if="status === 'error'"
+        class="group-error"
+        :code="error"
+        @retry="retry"
+      />
+      <button
+        v-else-if="count > preview"
+        class="more"
+        type="button"
+        :aria-expanded="expanded"
+        :aria-busy="(expanded && status === 'loading') || undefined"
+        @click="toggle"
+      >
+        <ChevronDown
+          :class="{ flip: expanded }"
+          aria-hidden="true"
+        />{{ expanded ? (status === 'loading' ? t('common.loading') : t('browse.collapse')) : t('browse.expandAll', { p0: format.number(count) }) }}
+      </button>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.flush { min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
-/* The header carries the department colour: a strip at the start edge over a faint wash. */
-.group-head { display: grid; gap: .0625rem; padding: .75rem 1rem; border-block-end: .5px solid var(--separator); border-inline-start: 4px solid var(--hue, var(--fill-strong)); background: color-mix(in srgb, var(--hue, var(--label-3)) 9%, var(--surface)); }
+.flush { border-radius: var(--radius-lg); min-width: 0; padding: 0; overflow: hidden; container-type: inline-size; }
+/* The header carries the department colour: a rounded frame on its top and sides over a faint wash. */
+.group-head { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; min-width: 0; padding: .625rem .875rem; border: 2px solid var(--hue, var(--fill-strong)); border-block-end: .5px solid var(--separator); border-start-start-radius: var(--radius-lg); border-start-end-radius: var(--radius-lg); background: color-mix(in srgb, var(--hue, var(--label-3)) 9%, var(--surface)); }
+.group-head .card-title { min-width: 0; }
+.group-summary { flex: none; font-size: .8125rem; white-space: nowrap; }
 .placeholder { display: grid; gap: .5rem; padding: .75rem 1rem; }
 .skeleton-line { height: 1.5rem; border-radius: .375rem; background: var(--fill); }
 .group-error { margin: .75rem 1rem; }
