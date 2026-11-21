@@ -3,12 +3,18 @@ import { toast } from '../../shared/ui/toast'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { Globe } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 import { isLocale, localeOptions, setLocale } from '../i18n'
 
 const { t, locale } = useI18n()
+const route = useRoute()
+const router = useRouter()
 async function change(value: string) {
   if (!isLocale(value)) return
-  try { await setLocale(value) } catch { toast(t('errors.network')) }
+  try { await setLocale(value) } catch { toast(t('errors.network')); return }
+  // A `lang` parameter outranks the saved preference on reload, so it must follow the
+  // new choice or the page would come back in the old language.
+  if (route.query.lang !== undefined && route.query.lang !== value) void router.replace({ query: { ...route.query, lang: value } })
 }
 </script>
 
