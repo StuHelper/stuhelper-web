@@ -364,7 +364,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Current visible course/teacher directory, stable sort with ID tie-break and filter-bound cursor. Categories count distinct courses after all filters except category_id. Department groups respect all current filters. Classification filters apply to the same offering/class. Teacher rows and counts require T2 persisted marking; absent marker enforcement returns 503. Scores are read in bounded batches from owning modules, without per-row queries. Catalog membership is cached with transactional revision invalidation; ratings and heat are always current. 目录成员和分面来自同一持久投影版本，实时评分与热度按 ID 关联。游标绑定投影版本，重建后使用旧游标返回 409，应从第一页重新读取。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
+        /** @description Current visible course/teacher directory, stable sort with ID tie-break and filter-bound cursor. Categories count distinct courses after all filters except category_id. Department groups respect all current filters. Classification filters apply to the same offering/class. Teacher rows and counts require T2 persisted marking; absent marker enforcement returns 503. Scores are read in bounded batches from owning modules, without per-row queries. Catalog membership is cached with transactional revision invalidation; ratings and heat are always current. 目录成员和分面来自同一持久投影版本，实时评分与热度按 ID 关联。游标绑定投影版本，目录重建或热门等含热度排序的窗口换日后，旧游标返回 409，应从第一页重新读取。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 */
         get: operations["listDirectory"];
         put?: never;
         post?: never;
@@ -453,7 +453,7 @@ export interface paths {
         /** @description Requires catalog.teacher-sites.read and current school management scope. Every view is audited. Latest run includes safe failure code and observed request/site counts; unknown measurements are null. Counts reflect current visible teacher marks. */
         get: operations["getTeacherRefreshStatus"];
         put?: never;
-        /** @description Requires catalog.teacher-sites.refresh and current school management scope. Audited durable enqueue. Only one queued/running refresh globally; a competing request returns 409. Replay with the same actor, school, key and mode returns the original run; a different mode conflicts. The deadline includes queue time: 45 minutes for incremental and 4 hours for manual full refresh. The monthly scheduler only enqueues incremental work. A timeout preserves the published snapshot. */
+        /** @description Requires catalog.teacher-sites.refresh and current school management scope. Audited durable enqueue. Only one queued/running refresh globally; a competing request returns 409. Replay with the same actor, school, key and mode returns the original run; a different mode conflicts. Use the returned deadline_at as the expiry of the specific run, including queue time. The monthly scheduler only enqueues incremental work. A timeout preserves the published snapshot. */
         post: operations["startTeacherRefresh"];
         delete?: never;
         options?: never;
@@ -878,6 +878,8 @@ export interface components {
             nature_facets: components["schemas"]["DirectoryFacet"][];
             /** Format: date-time */
             generated_at: string;
+            /** @description Number of Beijing calendar dates in the heat window (Asia/Shanghai, UTC+8), including today up to the time of the request. The default is 30. */
+            window_days?: number;
             /** @description Distinct objects after all filters except category_id / category_ids, for the All category badge. */
             facet_total: number;
         };
@@ -973,7 +975,10 @@ export interface components {
             started_at: string | null;
             /** Format: date-time */
             finished_at: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Server-assigned expiry of this run, including time spent in the queue. Idempotent replays return the recorded deadline.
+             */
             deadline_at: string;
             /** Format: int64 */
             duration_ms: number;
@@ -1000,7 +1005,10 @@ export interface components {
             started_at: string | null;
             /** Format: date-time */
             finished_at: string | null;
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Server-assigned expiry of this run, including time spent in the queue. Idempotent replays return the recorded deadline.
+             */
             deadline_at: string;
             /** Format: int64 */
             duration_ms: number;
@@ -3313,7 +3321,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Revision or idempotency conflict */
+            /** @description The published directory version or the heat window changed. Restart from the first page. */
             409: {
                 headers: {
                     [name: string]: unknown;

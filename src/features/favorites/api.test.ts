@@ -13,7 +13,7 @@ it('loads every folder page before calculating the personal favorite total', asy
   const api = new FavoritesApi(new Http(async (input) => {
     const cursor = new URL(String(input), 'http://localhost').searchParams.get('after') ?? ''
     cursors.push(cursor)
-    const folder = (id: string, count: number) => ({ id, name: id, is_default: false, revision: 1, item_count: count })
+    const folder = (id: string, count: number) => ({ id, name: id, is_default: false, revision: 1, item_count: count, kind_counts: { course: count, teacher: 0, resource: 0 } })
     return Response.json(cursor ? { items: [folder('last', 7)], next: '' } : {
       items: Array.from({ length: 100 }, (_, index) => folder(`folder-${index}`, 2)), next: 'second',
     })
@@ -39,6 +39,17 @@ it('looks up favorites of many targets with one request per 100 targets', async 
   expect(urls[1]!.searchParams.get('target_ids')!.split(',')).toHaveLength(50)
   expect(found.size).toBe(15)
   expect(found.get('c10')?.id).toBe('fv-c10')
+})
+
+it('sends target ids separated by literal commas, each id percent-encoded', async () => {
+  const raw: string[] = []
+  const api = new FavoritesApi(new Http(async (input) => {
+    raw.push(new URL(String(input), 'http://localhost').search)
+    return Response.json({ items: [], next: '' })
+  }))
+  await api.lookup('course', ['a', 'b,c'])
+  // The provider splits on unencoded commas only, so "b,c" stays one id.
+  expect(raw[0]).toContain('target_ids=a,b%2Cc')
 })
 
 it('buttons rendered together share one lookup per kind', async () => {
