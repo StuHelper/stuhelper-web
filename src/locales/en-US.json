@@ -1504,6 +1504,7 @@
     "bindPart": "Bind {part}",
     "unlinkPart": "Unbind {part}",
     "unlinkWarning": "After unbinding, QQ binding becomes incomplete. Features that depend on it, such as group admission, treat you as unbound until you bind this part again.",
+    "unlinkConnectWarning": "After unlinking, this QQ can no longer sign in to this account and the QQ Connect record is removed. You can link it again later.",
     "unlinked": "{part} unbound",
     "partBound": "{part} bound",
     "completeToast": "QQ binding complete",
@@ -1551,7 +1552,8 @@
       "casdoor_conflict": "This QQ is already used to sign in to another account. Remove QQ sign-in there first, or contact an administrator.",
       "connect_disabled": "QQ Connect binding is not open yet.",
       "connect_unconfigured": "QQ Connect binding is not fully set up yet. Try again later.",
-      "invalid_input": "The callback is invalid or has expired. Go back to the account page and start again."
+      "invalid_input": "The callback is invalid or has expired. Go back to the account page and start again.",
+      "last_sign_in_method": "QQ is currently the only way to sign in to this account. Set a password in your single sign-on account first, then unlink QQ."
     },
     "callback": {
       "title": "QQ Connect authorization",

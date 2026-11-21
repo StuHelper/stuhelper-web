@@ -1504,6 +1504,7 @@
     "bindPart": "{part} 연동",
     "unlinkPart": "{part} 연동 해제",
     "unlinkWarning": "해제하면 QQ 연동이 미완료로 바뀝니다. 그룹 가입 인증 등 QQ 연동을 사용하는 기능은 이 항목을 다시 연동할 때까지 미연동으로 처리됩니다.",
+    "unlinkConnectWarning": "연결을 해제하면 이 QQ로 더 이상 이 계정에 로그인할 수 없고 QQ Connect 기록도 삭제됩니다. 필요하면 나중에 다시 연결할 수 있습니다.",
     "unlinked": "{part} 연동을 해제했습니다",
     "partBound": "{part} 연동됨",
     "completeToast": "QQ 연동이 완료되었습니다",
@@ -1551,7 +1552,8 @@
       "casdoor_conflict": "이 QQ는 이미 다른 계정의 로그인에 사용되고 있습니다. 그 계정에서 QQ 로그인을 먼저 해제하거나 관리자에게 문의하세요.",
       "connect_disabled": "QQ Connect 연동은 아직 열리지 않았습니다.",
       "connect_unconfigured": "QQ Connect 연동 설정이 아직 끝나지 않았습니다. 잠시 후 다시 시도하세요.",
-      "invalid_input": "콜백이 잘못되었거나 만료되었습니다. 계정 페이지에서 다시 시작하세요."
+      "invalid_input": "콜백이 잘못되었거나 만료되었습니다. 계정 페이지에서 다시 시작하세요.",
+      "last_sign_in_method": "현재 이 계정에 로그인할 수 있는 방법은 QQ뿐입니다. 통합 로그인 계정에서 먼저 비밀번호를 설정한 뒤 QQ 연결을 해제하세요."
     },
     "callback": {
       "title": "QQ Connect 승인",

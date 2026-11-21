@@ -1504,6 +1504,7 @@
     "bindPart": "绑定{part}",
     "unlinkPart": "解绑{part}",
     "unlinkWarning": "解绑后 QQ 绑定会变为未完成，入群认证等依赖 QQ 绑定的功能会按未绑定处理，直到重新绑定这一项。",
+    "unlinkConnectWarning": "解绑后，这个 QQ 不能再登录本账号，QQ 互联记录也会删除。需要时可以重新绑定。",
     "unlinked": "已解绑{part}",
     "partBound": "{part}已绑定",
     "completeToast": "QQ 绑定已完成",
@@ -1551,7 +1552,8 @@
       "casdoor_conflict": "这个 QQ 已用于登录另一个账号。请先在那个账号解除 QQ 登录，或联系管理员。",
       "connect_disabled": "QQ 互联绑定暂未开放。",
       "connect_unconfigured": "QQ 互联绑定尚未配置完成，请稍后再试。",
-      "invalid_input": "回调参数无效或已过期，请回到账号页重新发起。"
+      "invalid_input": "回调参数无效或已过期，请回到账号页重新发起。",
+      "last_sign_in_method": "QQ 是这个账号目前唯一的登录方式。请先在统一登录账号中设置密码，再解绑 QQ。"
     },
     "callback": {
       "title": "QQ 互联授权",

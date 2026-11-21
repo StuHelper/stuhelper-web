@@ -1504,6 +1504,7 @@
     "bindPart": "Lier {part}",
     "unlinkPart": "Délier {part}",
     "unlinkWarning": "Après la suppression du lien, la liaison QQ devient incomplète. Les fonctions qui en dépendent, comme l’admission dans les groupes, vous considèrent comme non lié jusqu’à ce que vous liiez à nouveau cet élément.",
+    "unlinkConnectWarning": "Après la dissociation, ce QQ ne pourra plus se connecter à ce compte et l’enregistrement QQ Connect sera supprimé. Vous pourrez le lier de nouveau plus tard.",
     "unlinked": "{part} délié",
     "partBound": "{part} lié",
     "completeToast": "Liaison QQ terminée",
@@ -1551,7 +1552,8 @@
       "casdoor_conflict": "Ce QQ sert déjà à se connecter à un autre compte. Retirez d’abord la connexion QQ sur ce compte, ou contactez un administrateur.",
       "connect_disabled": "La liaison QQ Connect n’est pas encore ouverte.",
       "connect_unconfigured": "La liaison QQ Connect n’est pas encore entièrement configurée. Réessayez plus tard.",
-      "invalid_input": "Le rappel est invalide ou a expiré. Revenez à la page du compte et recommencez."
+      "invalid_input": "Le rappel est invalide ou a expiré. Revenez à la page du compte et recommencez.",
+      "last_sign_in_method": "QQ est actuellement le seul moyen de se connecter à ce compte. Définissez d’abord un mot de passe dans votre compte d’authentification unique, puis dissociez QQ."
     },
     "callback": {
       "title": "Autorisation QQ Connect",
