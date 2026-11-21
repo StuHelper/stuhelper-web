@@ -857,7 +857,6 @@
       "title": "Titre",
       "description": "Description",
       "tags": "Étiquettes",
-      "tagsHint": "Séparez les étiquettes par des virgules.",
       "associations": "Liens avec les cours",
       "associationsHint": "Choisir le cours suffit. Si le document est daté ou ne vaut que pour un semestre ou un enseignant précis, vous pouvez aussi indiquer le semestre et l’enseignant (facultatif).",
       "term": "Semestre",
@@ -2360,5 +2359,13 @@
     "groupDisplay": "Affichage par école",
     "expandAllGroups": "Tout déplier",
     "collapseAllGroups": "Tout replier"
+  },
+  "tags": {
+    "placeholder": "Saisissez un mot-clé puis Entrée",
+    "more": "Ajouter un autre",
+    "hint": "Appuyez sur Entrée ou cliquez ailleurs pour l’ajouter. Jusqu’à {max} mots-clés.",
+    "remove": "Retirer le mot-clé {tag}",
+    "tooLong": "Chaque mot-clé compte au plus {max} caractères.",
+    "tooMany": "Jusqu’à {max} mots-clés."
   }
 }

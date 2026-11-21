@@ -18,6 +18,7 @@ import { useCampusId } from '../account/access'
 import CatalogPicker from './CatalogPicker.vue'
 import DirectoryPicker from './DirectoryPicker.vue'
 import FieldInput from './FieldInput.vue'
+import TagInput from '../../shared/ui/TagInput.vue'
 
 /**
  * Create or correct a resource in three steps: save the description, transfer
@@ -36,8 +37,7 @@ const saving = useMutation()
 const attaching = useMutation()
 const submitting = useMutation()
 const entry = shallowRef<Resource>()
-const tagText = ref('')
-const tags = computed(() => tagText.value.split(/[,，]/u).map(tag => tag.trim()).filter(Boolean))
+const tags = ref<string[]>([])
 const tagsInvalid = computed(() => tags.value.length > 20 || tags.value.some(tag => [...tag].length > 64))
 const consent = ref(false)
 const file = shallowRef<File>()
@@ -89,7 +89,7 @@ const setup = useAsync(async (signal) => {
   entry.value = item
   if (version) {
     metadata.value = snapshot(version.metadata)
-    tagText.value = version.metadata.tags.join(', ')
+    tags.value = [...version.metadata.tags]
     consent.value = version.metadata.origin.consent?.accepted ?? false
   }
   if (!metadata.value.category_id) metadata.value.category_id = categories[0]?.id ?? ''
@@ -101,7 +101,7 @@ const setup = useAsync(async (signal) => {
 const capabilities = computed(() => setup.data.value?.capabilities)
 const category = computed(() => setup.data.value?.categories.find((item) => item.id === metadata.value.category_id))
 const profile = computed(() => capabilities.value?.upload_profiles.find((item) => item.school_id === metadata.value.associations.school_id && item.access === metadata.value.access))
-const fingerprint = () => JSON.stringify([metadata.value, tagText.value, consent.value])
+const fingerprint = () => JSON.stringify([metadata.value, tags.value, consent.value])
 const baseline = ref('')
 const dirty = computed(() => baseline.value !== '' && fingerprint() !== baseline.value)
 const proposal = computed(() => entry.value?.proposal)
@@ -133,7 +133,7 @@ async function save() {
   if (!current || !terms || tagsInvalid.value || courseMissing.value) return
   const body = snapshot(metadata.value)
   body.category_revision = current.revision
-  body.tags = tags.value
+  body.tags = [...tags.value]
   if (body.origin.kind === 'original') body.origin.consent = { accepted: consent.value, version: terms.version, digest: terms.digest }
   else delete body.origin.consent
   const id = entry.value?.id
@@ -404,22 +404,10 @@ function uploadMessage(state: string) {
                 v-model="metadata.attributes[field.key]"
                 :field="field"
               />
-              <div class="field">
-                <label class="field">
-                  <span class="field-label">{{ t('resources.editor.tags') }}</span>
-                  <input
-                    v-model="tagText"
-                    class="input"
-                    :aria-invalid="tagsInvalid"
-                  >
-                </label>
-                <span class="field-hint">{{ t('resources.editor.tagsHint') }}</span>
-                <span
-                  v-if="tagsInvalid"
-                  class="field-error"
-                  role="alert"
-                >{{ t('resources.editor.tagLimits') }}</span>
-              </div>
+              <TagInput
+                v-model="tags"
+                :label="t('resources.editor.tags')"
+              />
               <label class="field">
                 <span class="field-label">{{ t('resources.detail.access') }}</span>
                 <AppSelect
