@@ -7,7 +7,7 @@ const challengeId = 'c'.repeat(43);
 
 // Phone endpoints following the session contract. `answers` lets a test script failures.
 async function phoneServer(page, answers = {}) {
-  const state = { bound: true, masked: '****1234', calls: [] };
+  const state = { bound: true, masked: '138****1234', calls: [] };
   await page.route('**/api/v1/auth/phone**', async (route) => {
     const request = route.request(), url = new URL(request.url());
     const call = { method: request.method(), path: url.pathname, body: request.postDataJSON?.() ?? null, key: request.headers()['idempotency-key'], url: request.url() };
@@ -16,7 +16,7 @@ async function phoneServer(page, answers = {}) {
     if (scripted) return route.fulfill(scripted);
     if (call.method === 'GET') return route.fulfill({ json: { bound: state.bound, masked_phone: state.bound ? state.masked : null } });
     if (call.path.endsWith('/code')) return route.fulfill({ json: { challenge_id: challengeId, expires_at: new Date(Date.now() + 300_000).toISOString() } });
-    if (call.path.endsWith('/change')) { state.bound = true; state.masked = `****${call.body.phone.slice(-4)}`; return route.fulfill({ json: { bound: true, masked_phone: state.masked } }); }
+    if (call.path.endsWith('/change')) { state.bound = true; state.masked = `${call.body.phone.replace(/^\+86/, '').slice(0, 3)}****${call.body.phone.slice(-4)}`; return route.fulfill({ json: { bound: true, masked_phone: state.masked } }); }
     if (call.method === 'DELETE') { state.bound = false; return route.fulfill({ json: { bound: false, masked_phone: null } }); }
     return route.fulfill({ status: 404, json: { code: 'not_found' } });
   });
@@ -28,7 +28,7 @@ test('changing the number sends a code to the new number, keeps the number after
   const state = await phoneServer(page, { 'POST /api/v1/auth/phone/change': [{ status: 422, json: { code: 'phone_code_invalid' } }] });
   await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
   const row = page.locator('.group-row').filter({ hasText: c.security.phone });
-  await expect(row.getByText(c.security.phoneBoundMasked.replace('{phone}', '****1234'))).toBeVisible();
+  await expect(row.getByText(c.security.phoneBoundMasked.replace('{phone}', '138****1234'))).toBeVisible();
   await row.getByRole('button', { name: p.change, exact: true }).click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel(p.newNumber).fill('13800138000');
@@ -42,7 +42,7 @@ test('changing the number sends a code to the new number, keeps the number after
   await dialog.getByLabel(p.code).fill('222222');
   await dialog.getByRole('button', { name: p.confirm }).click();
   await expect(dialog).toBeHidden();
-  await expect(row.getByText(c.security.phoneBoundMasked.replace('{phone}', '****8000'))).toBeVisible();
+  await expect(row.getByText(c.security.phoneBoundMasked.replace('{phone}', '138****8000'))).toBeVisible();
   const changes = state.calls.filter((call) => call.path.endsWith('/change'));
   expect(changes.map((call) => call.body)).toEqual([{ phone: '13800138000', challenge_id: challengeId, code: '111111' }, { phone: '13800138000', challenge_id: challengeId, code: '222222' }]);
   // A corrected code is a new submission with its own key; codes never appear in an address.
@@ -84,4 +84,14 @@ test('removing the number explains why it is refused and removes it once allowed
   await expect(row.getByText(c.security.phoneMissing)).toBeVisible();
   await expect(row.getByRole('button', { name: p.bind, exact: true })).toBeVisible();
   expect(state.calls.filter((call) => call.method === 'DELETE')).toHaveLength(2);
+});
+
+test('a bound number the server cannot recognise shows no digits', async ({ page }, info) => {
+  const c = catalogue(info);
+  const state = await phoneServer(page);
+  state.masked = '****';
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  const row = page.locator('.group-row').filter({ hasText: c.security.phone });
+  await expect(row.getByText(c.security.phoneBoundMasked.replace('{phone}', '****'), { exact: true })).toBeVisible();
+  await expect(row).not.toContainText(/\d{3}\*{4}/);
 });

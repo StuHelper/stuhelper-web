@@ -362,7 +362,7 @@ export interface components {
     schemas: {
         OwnPhone: {
             bound: boolean;
-            /** @description Null when unbound. Only a masked suffix is shown when bound. */
+            /** @description Null when unbound. A mainland China mobile number (11 digits, optionally prefixed with +86) shows its first three and last four digits separated by ****. Other formats or a conflicting country code show only ****. */
             masked_phone: string | null;
         };
         Profile: {

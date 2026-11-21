@@ -14,7 +14,7 @@ export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expi
 const KEY = 'stuhelper-demo-persona'
 // Account closure request of the prototype session.
 let closure: Record<string, any> | undefined
-let demoPhone: string | null = '****8888'
+let demoPhone: string | null = '139****8888'
 const demoProfile = { id: '00000000-0000-4000-8000-000000000001', nickname: '小航同学', nickname_required: false, bio: '计算机学院 2023 级，喜欢写代码和拍飞机。', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, group_card_consent: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false }, revision: 1 }
 
 export function persona(): Persona {
@@ -165,7 +165,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/auth/phone' && method === 'DELETE') { demoPhone = null; return json({ bound: false, masked_phone: null }) }
   if (p === '/auth/phone') return json({ bound: demoPhone !== null, masked_phone: demoPhone })
   if (p === '/auth/phone/code') return json({ challenge_id: 'd'.repeat(43), expires_at: new Date(Date.now() + 300_000).toISOString() })
-  if (p === '/auth/phone/change') { demoPhone = `****${String((await body(init)).phone ?? '').slice(-4)}`; return json({ bound: true, masked_phone: demoPhone }) }
+  if (p === '/auth/phone/change') { demoPhone = ((n: string) => `${n.slice(0, 3)}****${n.slice(-4)}`)(String((await body(init)).phone ?? '').replace(/^\+86/, '')); return json({ bound: true, masked_phone: demoPhone }) }
   if (p === '/auth/logout' || p === '/auth/logout-all') { setPersona('guest'); return json({ signed_out: true, upstream_ended: true }) }
   if (p === '/profiles/me' && method === 'PUT') {
     const b = await body(init)
