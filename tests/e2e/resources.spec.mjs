@@ -404,3 +404,19 @@ test('the filter sheet does not follow the reader to another page and is closed 
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(errors).toEqual([]);
 });
+
+test('editing an original resource asks again when its consent was given to older terms', async ({ page }, info) => {
+  const locale = info.project.metadata.locale;
+  const m = JSON.parse(fs.readFileSync(`src/locales/${locale}.json`, 'utf8')).resources;
+  const state = fixture();
+  await routes(page, state);
+  const open = async (consent) => {
+    state.metadata.origin = { kind: 'original', consent };
+    await page.goto(`http://127.0.0.1:18787/resources/items/resource/edit?lang=${locale}`);
+    await page.locator('.stepper').getByRole('button', { name: m.editor.step1 }).click();
+    return page.getByLabel(m.origin.accept, { exact: true });
+  };
+  // The fixture serves terms v1; a consent to v0 must not stay ticked.
+  await expect(await open({ accepted: true, version: 'v0', digest: 'b'.repeat(64) })).not.toBeChecked();
+  await expect(await open({ accepted: true, version: 'v1', digest: 'a'.repeat(64) })).toBeChecked();
+});
