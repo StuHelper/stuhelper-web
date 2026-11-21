@@ -98,12 +98,15 @@ for (const sample of sharedCases.cases) {
 describe('maskedIdentity', () => {
   const base = { campus_eligibility: true, teacher_verified: false, identity_verified: true, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null }
   it('shows the server mask, whose star count follows the hidden code points', () => {
-    const summary = parseEntity('Summary', { ...base, identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}X` } })
-    expect(maskedIdentity(summary)).toEqual({ name: '**航', number: `1${'*'.repeat(16)}X` })
+    const summary = parseEntity('Summary', { ...base, identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}X`, document_type: 'cn_resident_id_card' } })
+    expect(maskedIdentity(summary)).toEqual({ name: '**航', number: `1${'*'.repeat(16)}X`, type: 'cn_resident_id_card' })
   })
   it('rejects unmasked values and masks on an unverified summary', () => {
     expect(() => parseEntity('Summary', { ...base, identity_masked: { name: '小航', document_number: '1108' } })).toThrow('incompatible')
     expect(() => parseEntity('Summary', { ...base, identity_verified: false, identity_masked: { name: '*航', document_number: '1**8' } })).toThrow('incompatible')
+    // The document type is required and must be one the page can name; it is never assumed.
+    expect(() => parseEntity('Summary', { ...base, identity_masked: { name: '*航', document_number: '1**8' } })).toThrow('incompatible')
+    expect(() => parseEntity('Summary', { ...base, identity_masked: { name: '*航', document_number: '1**8', document_type: 'passport' } })).toThrow('incompatible')
     expect(maskedIdentity(parseEntity('Summary', base))).toBeUndefined()
   })
 })

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ActionError from './ActionError.vue'
+import CheckGate from './CheckGate.vue'
 import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { CircleCheck, Copy, RefreshCw } from 'lucide-vue-next'
@@ -7,6 +8,7 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
+import { useNow } from '../../shared/composables/clock'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { isolate } from '../../shared/format'
 import { useSession } from '../../shared/session'
@@ -30,6 +32,11 @@ const props = withDefaults(defineProps<{ scope?: 'student' | 'identity' }>(), { 
 const { t, te } = useI18n()
 const format = useFormat()
 const flow = useVerificationFlow()
+// Seconds left of a cooldown the server set after repeated failed checks.
+const now = useNow(1000, () => flow.cooldownUntil.value > now.value)
+const cooldownSeconds = computed(() => Math.max(0, Math.ceil((flow.cooldownUntil.value - now.value) / 1000)))
+// During a cooldown the countdown replaces the generic "too many attempts" message.
+const shownError = computed(() => (cooldownSeconds.value > 0 && flow.error.value === 'rate_limited' ? '' : flow.error.value))
 const { form, removal } = flow
 const session = useSession()
 watch(() => session.state.value, state => { if (state === 'member') void flow.reload() }, { immediate: true })
@@ -228,6 +235,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <dd><bdi>{{ masked.name }}</bdi></dd>
           </div>
           <div>
+            <dt>{{ t('verification.documentType') }}</dt>
+            <dd>{{ t(`verification.documentTypes.${masked.type}`) }}</dd>
+          </div>
+          <div>
             <dt>{{ t('verification.identityNumber') }}</dt>
             <dd><bdi dir="ltr">{{ masked.number }}</bdi></dd>
           </div>
@@ -357,7 +368,11 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
               <span>{{ t('verification.consent') }}</span>
             </label>
           </div>
-          <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
+          <CheckGate
+            :checking="flow.checking.value"
+            :remaining="cooldownSeconds"
+          />
+          <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
           <div class="form-actions">
             <button
               class="btn btn-primary"
@@ -535,12 +550,16 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             </ul>
           </div>
 
-          <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
+          <CheckGate
+            :checking="flow.checking.value"
+            :remaining="cooldownSeconds"
+          />
+          <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
           <div class="form-actions">
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="flow.busy.value || (flow.manual.value && !flow.materials.value.length)"
+              :disabled="flow.busy.value || cooldownSeconds > 0 || (flow.manual.value && !flow.materials.value.length)"
               :aria-busy="flow.busy.value || undefined"
             >
               {{ t(flow.emailMethod.value ? 'verification.createChallenge' : 'verification.submit') }}
@@ -567,7 +586,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             :challenge="flow.email.value"
             :sent-at="flow.emailSentAt.value"
             :busy="flow.busy.value"
-            :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? flow.error.value : ''"
+            :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? shownError : ''"
             @confirm="flow.confirmEmail"
             @resend="flow.resendEmail"
             @back="flow.backToMethod"
@@ -643,7 +662,11 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
                 class="subtle"
               >{{ t('verification.expiresAt', { time: format.dateTime(flow.active.value.qualification_expires_at) }) }}</span>
             </div>
-            <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
+            <CheckGate
+              :checking="flow.checking.value"
+              :remaining="cooldownSeconds"
+            />
+            <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
             <div class="form-actions">
               <button
                 class="btn"
@@ -779,12 +802,16 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
               >
             </label>
           </div>
-          <ActionError :code="flow.errorTarget.value === 'form' ? flow.error.value : ''" />
+          <CheckGate
+            :checking="flow.checking.value"
+            :remaining="cooldownSeconds"
+          />
+          <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
           <div class="form-actions">
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="flow.busy.value || !flow.school.value || !flow.consent.value || !flow.availableMethods.value.includes('real_name_identity_check')"
+              :disabled="flow.busy.value || cooldownSeconds > 0 || !flow.school.value || !flow.consent.value || !flow.availableMethods.value.includes('real_name_identity_check')"
               :aria-busy="flow.busy.value || undefined"
             >
               {{ t('verification.submit') }}
