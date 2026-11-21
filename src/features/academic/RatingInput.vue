@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { toRef } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { dimensions } from './api'
 import { useRatingText } from './presentation'
 import RatingIcon from './RatingIcon.vue'
@@ -8,6 +9,7 @@ import RatingIcon from './RatingIcon.vue'
 const props = defineProps<{ schoolId: string; disabled?: boolean }>()
 const ratings = defineModel<number[]>({ required: true })
 const text = useRatingText(toRef(props, 'schoolId'))
+const { t } = useI18n()
 
 function choose(index: number, level: number) {
   const next = ratings.value.slice()
@@ -24,7 +26,9 @@ function choose(index: number, level: number) {
       class="rating-group"
       :disabled="disabled"
     >
-      <legend>{{ text(index, 0) }}</legend>
+      <!-- The group is named after the dimension. A school's level-0 text is the "not enough
+           data" wording for summaries, so it cannot serve as the group title. -->
+      <legend>{{ t(`academic.ratings.${name}.label`) }}</legend>
       <div class="rating-options">
         <label
           v-for="level in [1, 2, 3, 4, 5]"
