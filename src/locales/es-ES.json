@@ -860,7 +860,6 @@
       "title": "Título",
       "description": "Descripción",
       "tags": "Etiquetas",
-      "tagsHint": "Separa las etiquetas con comas.",
       "associations": "Relación con cursos",
       "associationsHint": "Basta con elegir el curso. Si el material caduca o solo sirve para un periodo o docente concreto, también puedes indicar el periodo y el docente (opcional).",
       "term": "Semestre",
@@ -2363,5 +2362,13 @@
     "groupDisplay": "Vista por escuela",
     "expandAllGroups": "Expandir todo",
     "collapseAllGroups": "Contraer todo"
+  },
+  "tags": {
+    "placeholder": "Escribe una etiqueta y pulsa Intro",
+    "more": "Añadir otra",
+    "hint": "Pulsa Intro o haz clic fuera para añadirla. Hasta {max} etiquetas.",
+    "remove": "Quitar etiqueta {tag}",
+    "tooLong": "Cada etiqueta admite hasta {max} caracteres.",
+    "tooMany": "Hasta {max} etiquetas."
   }
 }

@@ -860,7 +860,6 @@
       "title": "标题",
       "description": "简介",
       "tags": "标签",
-      "tagsHint": "多个标签用逗号分隔。",
       "associations": "关联课程信息",
       "associationsHint": "选择资料对应的课程即可。如果资料有时效性，或只适用于某个学期、某位老师的课，可以再标注学期和教师（可选）。",
       "term": "学期",
@@ -2363,5 +2362,13 @@
     "groupDisplay": "学院分组显示",
     "expandAllGroups": "全部展开",
     "collapseAllGroups": "全部收起"
+  },
+  "tags": {
+    "placeholder": "输入标签，按回车添加",
+    "more": "继续添加",
+    "hint": "输入后按回车或点其他地方即可添加，最多 {max} 个。",
+    "remove": "移除标签 {tag}",
+    "tooLong": "每个标签最多 {max} 个字。",
+    "tooMany": "最多 {max} 个标签。"
   }
 }

@@ -860,7 +860,6 @@
       "title": "タイトル",
       "description": "説明",
       "tags": "タグ",
-      "tagsHint": "複数のタグはカンマで区切ります。",
       "associations": "授業との関連",
       "associationsHint": "科目を選ぶだけで十分です。資料に時期の制約がある場合や、特定の学期・教員の授業にだけ当てはまる場合は、学期と教員も指定できます（任意）。",
       "term": "学期",
@@ -2363,5 +2362,13 @@
     "groupDisplay": "学院ごとの表示",
     "expandAllGroups": "すべて展開",
     "collapseAllGroups": "すべて折りたたむ"
+  },
+  "tags": {
+    "placeholder": "タグを入力して Enter",
+    "more": "さらに追加",
+    "hint": "Enter を押すか、ほかの場所をクリックすると追加されます。最大 {max} 個。",
+    "remove": "タグ {tag} を削除",
+    "tooLong": "タグは 1 つにつき {max} 文字までです。",
+    "tooMany": "タグは最大 {max} 個です。"
   }
 }

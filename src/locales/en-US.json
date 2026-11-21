@@ -860,7 +860,6 @@
       "title": "Title",
       "description": "Description",
       "tags": "Tags",
-      "tagsHint": "Separate tags with commas.",
       "associations": "Course associations",
       "associationsHint": "Choosing the course is enough. If the material is time-sensitive or only fits a certain term or teacher, you can also add the term and teacher (optional).",
       "term": "Term",
@@ -2363,5 +2362,13 @@
     "groupDisplay": "School groups",
     "expandAllGroups": "Expand all",
     "collapseAllGroups": "Collapse all"
+  },
+  "tags": {
+    "placeholder": "Type a tag and press Enter",
+    "more": "Add another",
+    "hint": "Press Enter or click elsewhere to add it. Up to {max} tags.",
+    "remove": "Remove tag {tag}",
+    "tooLong": "Each tag can have up to {max} characters.",
+    "tooMany": "Up to {max} tags."
   }
 }
