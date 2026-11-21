@@ -2144,7 +2144,8 @@
       "courses": "热门课程",
       "teachers": "热门教师",
       "kind": "榜单类型",
-      "empty": "数据不足，暂时无法生成榜单。"
+      "empty": "数据不足，暂时无法生成榜单。",
+      "descriptionDays": "按近 {days} 天（北京时间，含今天）的浏览、评价、收藏和互动排序。榜单反映关注度，评价情况以各自的评分为准。"
     },
     "votes": {
       "title": "我的投票",
@@ -2395,7 +2396,8 @@
     "viewDetails": "查看详情",
     "groupDisplay": "学院分组显示",
     "expandAllGroups": "全部展开",
-    "collapseAllGroups": "全部收起"
+    "collapseAllGroups": "全部收起",
+    "hottestDays": "最热门（近 {days} 天）"
   },
   "tags": {
     "placeholder": "输入标签，按回车添加",

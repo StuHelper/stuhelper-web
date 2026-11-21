@@ -219,7 +219,7 @@ test('lapsed campus eligibility keeps personal center pages accessible while gat
     if (new URL(route.request().url()).pathname.endsWith('/summary')) return route.fallback();
     return route.fulfill({ json: { items: [], next_cursor: '' } });
   });
-  await page.route('**/api/v1/favorites/folders**', (route) => route.fulfill({ json: { items: [{ id: 'default', name: '', is_default: true, item_count: 0, revision: 1 }], next: '' } }));
+  await page.route('**/api/v1/favorites/folders**', (route) => route.fulfill({ json: { items: [{ id: 'default', name: '', is_default: true, item_count: 0, kind_counts: { course: 0, teacher: 0, resource: 0 }, revision: 1 }], next: '' } }));
   await page.route('**/api/v1/favorites/items**', (route) => route.fulfill({ json: { items: [], next: '' } }));
   await page.route('**/api/v1/search/my-votes**', (route) => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/billing/wallet', (route) => route.fulfill({ json: { points: 0, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } }));

@@ -2144,7 +2144,8 @@
       "courses": "人気の授業",
       "teachers": "人気の教員",
       "kind": "ランキングの種類",
-      "empty": "ランキングを作るためのデータがまだ足りません。"
+      "empty": "ランキングを作るためのデータがまだ足りません。",
+      "descriptionDays": "直近 {days} 日（北京時間、今日を含む）の閲覧、評価、お気に入り、交流で並べています。注目度を示すもので、評価はそれぞれの評点をご覧ください。"
     },
     "votes": {
       "title": "自分の投票",
@@ -2395,7 +2396,8 @@
     "viewDetails": "詳細を見る",
     "groupDisplay": "学院ごとの表示",
     "expandAllGroups": "すべて展開",
-    "collapseAllGroups": "すべて折りたたむ"
+    "collapseAllGroups": "すべて折りたたむ",
+    "hottestDays": "人気順（直近 {days} 日）"
   },
   "tags": {
     "placeholder": "タグを入力して Enter",

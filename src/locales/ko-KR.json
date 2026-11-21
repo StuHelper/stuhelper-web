@@ -2144,7 +2144,8 @@
       "courses": "인기 강의",
       "teachers": "인기 교원",
       "kind": "순위 유형",
-      "empty": "순위를 만들 데이터가 아직 부족합니다."
+      "empty": "순위를 만들 데이터가 아직 부족합니다.",
+      "descriptionDays": "최근 {days}일(베이징 시간, 오늘 포함)의 조회, 평가, 즐겨찾기, 상호작용 순입니다. 관심도를 나타내며 평가는 각 평점을 참고하세요."
     },
     "votes": {
       "title": "내 투표",
@@ -2395,7 +2396,8 @@
     "viewDetails": "자세히 보기",
     "groupDisplay": "단과대학별 보기",
     "expandAllGroups": "모두 펼치기",
-    "collapseAllGroups": "모두 접기"
+    "collapseAllGroups": "모두 접기",
+    "hottestDays": "인기순(최근 {days}일)"
   },
   "tags": {
     "placeholder": "태그를 입력하고 Enter",

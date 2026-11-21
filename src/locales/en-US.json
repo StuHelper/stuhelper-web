@@ -2144,7 +2144,8 @@
       "courses": "Popular courses",
       "teachers": "Popular teachers",
       "kind": "Ranking",
-      "empty": "Not enough activity yet to build a ranking."
+      "empty": "Not enough activity yet to build a ranking.",
+      "descriptionDays": "Ranked by views, reviews, favorites and interactions over the last {days} days (Beijing time, including today). The ranking shows attention; ratings are shown separately."
     },
     "votes": {
       "title": "My votes",
@@ -2395,7 +2396,8 @@
     "viewDetails": "View details",
     "groupDisplay": "School groups",
     "expandAllGroups": "Expand all",
-    "collapseAllGroups": "Collapse all"
+    "collapseAllGroups": "Collapse all",
+    "hottestDays": "Hottest (last {days} days)"
   },
   "tags": {
     "placeholder": "Type a tag and press Enter",

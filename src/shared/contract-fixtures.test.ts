@@ -94,7 +94,7 @@ describe('contract-checked test fixtures', () => {
       updated_at: '2026-11-02T00:00:00Z',
     })).not.toThrow()
 
-    expect(() => parseFolder({ id: 'default', name: '', is_default: true, item_count: 1, revision: 1 })).not.toThrow()
+    expect(() => parseFolder({ id: 'default', name: '', is_default: true, item_count: 1, kind_counts: { course: 1, teacher: 0, resource: 0 }, revision: 1 })).not.toThrow()
     expect(() => parseOrder({
       id: 'ord-1',
       kind: 'membership',

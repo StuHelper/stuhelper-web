@@ -754,3 +754,21 @@ test('a follow-up attempted inside the five-minute window explains when it opens
   await page.getByRole('button', { name: all.academic.submitFollowUp, exact: true }).click();
   await expect(page.getByText(all.errors.append_window_not_open, { exact: true })).toBeVisible();
 });
+
+test('rating groups keep their dimension names when the school customises the level wording', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic;
+  await academicFixture(page);
+  // A school's level 0 text is the "not enough data" wording used in summaries.
+  const band = ['Not enough data', 'L1', 'L2', 'Fair', 'L4', 'L5'];
+  await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({ json: { effective: { school_id: 'school', revision: 1, rating_texts: { [locale]: Array.from({ length: 5 }, () => band) } }, configured: null, source: 'custom' } }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await pick(editor, 'spring');
+  for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) {
+    const group = editor.getByRole('group', { name: a.ratings[name].label, exact: true });
+    await expect(group).toHaveCount(1);
+    await expect(group.getByText('Fair', { exact: true })).toBeVisible();
+  }
+  await expect(editor.getByRole('group', { name: 'Not enough data', exact: true })).toHaveCount(0);
+});
