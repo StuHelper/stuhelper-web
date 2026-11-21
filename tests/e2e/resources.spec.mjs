@@ -77,6 +77,39 @@ test('upload uses current terms and retries the original metadata request', asyn
   await layout(page, errors, locale);
 });
 
+test('tags are added one at a time with Enter, a comma or leaving the field, and can be removed', async ({ page }, info) => {
+  const { all, m, s, errors, locale } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
+  const tg = all.tags;
+  await describe(page, m, 'Tagged notes');
+  const field = page.getByRole('textbox', { name: m.editor.tags, exact: true });
+  await field.fill('期末');
+  await field.press('Enter');
+  await field.fill('真题');
+  await field.press(',');
+  await field.fill('Week 3');
+  // Leaving the field also keeps what was typed; a duplicate is not added twice.
+  await page.getByLabel(m.editor.title, { exact: true }).click();
+  await field.fill('期末');
+  await field.press('Enter');
+  const chips = page.getByRole('list', { name: m.editor.tags });
+  await expect(chips.getByRole('listitem')).toHaveText(['期末', '真题', 'Week 3']);
+  await expect(field).toHaveValue('');
+  await chips.getByRole('button', { name: tg.remove.replace('{tag}', '真题') }).click();
+  // Backspace in an empty field takes the last tag back for editing.
+  await field.press('Backspace');
+  await expect(field).toHaveValue('Week 3');
+  await field.press('Enter');
+  await field.fill('x'.repeat(65));
+  await field.press('Enter');
+  await expect(page.getByText(tg.tooLong.replace('{max}', '64'))).toBeVisible();
+  await expect(field).toHaveValue('x'.repeat(65));
+  await field.fill('');
+  await page.getByRole('button', { name: m.editor.create, exact: true }).click();
+  await expect(page.getByText(m.editor.saved, { exact: true })).toBeVisible();
+  expect(s.calls.find((x) => x.path === '' && x.method === 'POST').body.metadata.tags).toEqual(['期末', 'Week 3']);
+  await layout(page, errors, locale);
+});
+
 test('current denial clears resource data and request receipts survive navigation', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info, '/resources/items/resource');
   await expect(page.getByRole('heading', { name: 'Fixture notes', exact: true })).toBeVisible();
