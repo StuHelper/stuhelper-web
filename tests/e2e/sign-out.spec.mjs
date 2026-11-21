@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { expect, memberTest } from '../session-fixture.mjs';
+import { recordDialogUntilClosed } from './dialog-helpers.mjs';
 
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
@@ -50,17 +51,7 @@ memberTest('cancelling sign out everywhere keeps the dialog on that choice while
   await page.getByRole('button', { name: c.account.signOutAll, exact: true }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toContainText(c.me.sessions.allConfirm);
-  // Record the dialog text on every frame until it is removed, so a brief switch during the closing animation is caught.
-  const seen = page.evaluate(() => new Promise((resolve) => {
-    const texts = [];
-    const sample = () => {
-      const node = document.querySelector('[role="dialog"]');
-      if (!node) { resolve(texts); return; }
-      texts.push(node.textContent ?? '');
-      requestAnimationFrame(sample);
-    };
-    sample();
-  }));
+  const seen = recordDialogUntilClosed(page);
   await dialog.getByRole('button', { name: c.common.cancel, exact: true }).click();
   const texts = await seen;
   expect(texts.length).toBeGreaterThan(0);
