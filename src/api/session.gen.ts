@@ -31,7 +31,8 @@ export interface paths {
         get: operations["getOwnPhone"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** @description Clear the current account phone and country code. Requires another usable sign-in method and SMS MFA disabled. */
+        delete: operations["unbindOwnPhone"];
         options?: never;
         head?: never;
         patch?: never;
@@ -179,6 +180,57 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["receiveCasdoorEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/phone/code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Send a Casdoor reset code to the new number after recent authentication. A successful send returns a challenge scoped to this session and number. */
+        post: operations["sendOwnPhoneCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/phone/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Confirm the challenge and write the verified new number in Casdoor, then read it back. Retrying the same key never repeats an uncertain upstream write. */
+        post: operations["changeOwnPhone"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/phone/reauthenticate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Start a Casdoor interactive sign-in bound to the current account and session. On success the existing session gains a short-lived verification for phone changes. */
+        get: operations["reauthenticateOwnPhone"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -479,6 +531,32 @@ export interface components {
             object: string;
             response: string;
         };
+        PhoneCodeRequest: {
+            /** @description Mainland China mobile number, with optional +86 prefix. */
+            phone: string;
+        };
+        PhoneCodeChallenge: {
+            challenge_id: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        PhoneChangeRequest: {
+            /** @description Mainland China mobile number, with optional +86 prefix. */
+            phone: string;
+            challenge_id: string;
+            code: string;
+        };
+        PhoneReauthenticationRequired: {
+            /** @enum {string} */
+            code: "recent_authentication_required";
+            /** @enum {string} */
+            reauthentication_path: "/api/v1/auth/phone/reauthenticate";
+        };
+        PhoneRateLimited: {
+            /** @enum {string} */
+            code: "phone_rate_limited";
+            retry_after_seconds: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -599,6 +677,84 @@ export interface operations {
                 };
             };
             /** @description Current binding could not be verified */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    unbindOwnPhone: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                /** @description Use a new random key for each distinct submission. Retain the key and original input for a retry. Results are retained for at least 24 hours. An uncertain write is reconciled by readback without resending it. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current unbound state */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OwnPhone"];
+                };
+            };
+            /** @description invalid_input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description forbidden or business_account_closed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description phone_last_sign_in_method, phone_sms_mfa_enabled, phone_binding_changed, phone_change_in_progress or idempotency_conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Recent Casdoor login required. Navigate to reauthentication_path with return_to set to the current frontend page. */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneReauthenticationRequired"];
+                };
+            };
+            /** @description dependency_unavailable or phone_write_unconfirmed */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -950,7 +1106,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Validated one-use response sets an HttpOnly application session and returns to the original frontend URL; HTML browser requests on callback failures redirect to the primary configured frontend origin with ?auth_error=<code> */
+            /** @description Validated one-use response sets an HttpOnly application session and returns to the original frontend URL; HTML browser requests on callback failures redirect to the primary configured frontend origin with ?auth_error=<code>. A phone reauthentication callback validates the signed auth_time and the original issuer, subject and session. It returns to the requested frontend page without replacing that session. */
             303: {
                 headers: {
                     [name: string]: unknown;
@@ -966,7 +1122,7 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Invalid token, issuer, audience or nonce */
+            /** @description Invalid token, issuer, audience or nonce, or phone_reauthentication_failed */
             401: {
                 headers: {
                     [name: string]: unknown;
@@ -1284,6 +1440,252 @@ export interface operations {
                 };
             };
             /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    sendOwnPhoneCode: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhoneCodeRequest"];
+            };
+        };
+        responses: {
+            /** @description Code sent */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneCodeChallenge"];
+                };
+            };
+            /** @description invalid_input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description forbidden or business_account_closed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description phone_taken or phone_already_bound */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Recent Casdoor login required. Navigate to reauthentication_path with return_to set to the current frontend page. */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneReauthenticationRequired"];
+                };
+            };
+            /** @description Account, number or application SMS limit reached. */
+            429: {
+                headers: {
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneRateLimited"];
+                };
+            };
+            /** @description dependency_unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    changeOwnPhone: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+                /** @description Use a new random key for each distinct submission. Retain the key and original input for a retry. Results are retained for at least 24 hours. An uncertain write is reconciled by readback without resending it. */
+                "Idempotency-Key": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PhoneChangeRequest"];
+            };
+        };
+        responses: {
+            /** @description Confirmed masked phone binding */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OwnPhone"];
+                };
+            };
+            /** @description invalid_input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description forbidden or business_account_closed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description phone_taken, phone_binding_changed, phone_change_in_progress or idempotency_conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description phone_code_invalid, phone_code_expired or phone_code_attempts_exceeded */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Recent Casdoor login required. Navigate to reauthentication_path with return_to set to the current frontend page. */
+            428: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PhoneReauthenticationRequired"];
+                };
+            };
+            /** @description dependency_unavailable or phone_write_unconfirmed */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    reauthenticateOwnPhone: {
+        parameters: {
+            query: {
+                return_to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redirect to Casdoor with prompt=login and max_age=0 */
+            302: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description invalid_return_url */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description forbidden or business_account_closed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description capacity_exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description dependency_unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;
