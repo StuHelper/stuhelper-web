@@ -123,7 +123,18 @@
     "school_account_locked": "Tu cuenta universitaria está bloqueada. Pide a tu universidad que la desbloquee e inténtalo de nuevo.",
     "school_account_disabled": "Tu cuenta universitaria está desactivada. Contacta con tu universidad o elige otro método.",
     "school_account_unavailable": "Tu cuenta universitaria no puede usarse para la verificación en este momento. Elige otro método.",
-    "snapshot_expired": "Esta clasificación ha caducado. Actualiza para ver la más reciente."
+    "snapshot_expired": "Esta clasificación ha caducado. Actualiza para ver la más reciente.",
+    "phone_taken": "Este número lo usa otra cuenta. Usa otro número.",
+    "phone_already_bound": "Este número ya está en tu cuenta.",
+    "phone_code_invalid": "El código no es correcto. Revísalo y vuelve a escribirlo.",
+    "phone_code_expired": "El código ha caducado. Pide uno nuevo.",
+    "phone_code_attempts_exceeded": "Demasiados códigos incorrectos. Pide uno nuevo.",
+    "phone_last_sign_in_method": "El teléfono es la única forma de iniciar sesión en esta cuenta. Crea primero una contraseña y luego quita el número.",
+    "phone_sms_mfa_enabled": "La verificación en dos pasos por SMS está activada. Desactívala antes de quitar el número.",
+    "phone_binding_changed": "El número se acaba de cambiar en otro sitio. La página muestra el estado actual; inténtalo de nuevo.",
+    "phone_change_in_progress": "El cambio anterior aún se está procesando. Reintenta la solicitud original en breve.",
+    "phone_write_unconfirmed": "No se pudo confirmar el resultado del cambio. Reintenta la solicitud original para comprobarlo.",
+    "phone_rate_limited": "Se están pidiendo códigos con demasiada frecuencia. Inténtalo más tarde."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -2371,5 +2382,27 @@
     "remove": "Quitar etiqueta {tag}",
     "tooLong": "Cada etiqueta admite hasta {max} caracteres.",
     "tooMany": "Hasta {max} etiquetas."
+  },
+  "phone": {
+    "bind": "Añadir",
+    "change": "Cambiar",
+    "unbind": "Quitar",
+    "unbindLabel": "Quitar número de teléfono",
+    "bindTitle": "Añadir número de teléfono",
+    "changeTitle": "Cambiar número de teléfono",
+    "hint": "El código se envía al número nuevo. Después, el inicio de sesión y la recuperación de contraseña usarán el número nuevo.",
+    "newNumber": "Número nuevo",
+    "numberPlaceholder": "Número de China continental de 11 dígitos",
+    "numberFormat": "Introduce un móvil de China continental de 11 dígitos, con +86 opcional.",
+    "sendCode": "Enviar código",
+    "resend": "Reenviar",
+    "resendIn": "Reenviar en {seconds} s",
+    "sent": "Código enviado. Es válido durante 5 minutos.",
+    "code": "Código de verificación",
+    "confirm": "Confirmar",
+    "changed": "Número de teléfono actualizado",
+    "unbound": "Número de teléfono quitado",
+    "unbindTitle": "Quitar número de teléfono",
+    "unbindWarning": "Después ya no podrás usar este número para iniciar sesión ni recuperar la contraseña."
   }
 }

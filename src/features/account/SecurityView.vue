@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Fingerprint, LogOut, Phone } from 'lucide-vue-next'
+import { Fingerprint, LogOut } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -15,6 +15,7 @@ import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import QqBinding from '../qq/QqBinding.vue'
 import { useVerification } from '../verification/api'
+import PhoneManage from './PhoneManage.vue'
 import { useClosureApi, type Closure } from './closure'
 import MeLayout from './MeLayout.vue'
 import { feature, useCapabilities } from '../../shared/capabilities'
@@ -31,8 +32,6 @@ const session = useSession()
 const verification = useVerification()
 const closures = useClosureApi()
 
-const phone = useAsync((signal) => session.ownPhone(signal))
-void phone.reload()
 const identity = useAsync((signal) => verification.get('Summary', '/api/v1/verification/summary', signal))
 void identity.reload()
 
@@ -99,40 +98,7 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
         {{ t('security.identity') }}
       </h2>
       <ul class="group">
-        <li class="group-row has-icon">
-          <span
-            class="icon-tile"
-            style="--tile:var(--c-green)"
-          ><Phone aria-hidden="true" /></span>
-          <span class="group-body">
-            <span class="group-title">{{ t('security.phone') }}</span>
-            <span
-              v-if="phone.status.value === 'loading' || phone.status.value === 'idle'"
-              class="skeleton-tag"
-              aria-hidden="true"
-            />
-            <span
-              v-else-if="phone.status.value === 'error'"
-              class="group-detail"
-            >{{ errorText(phone.error.value) }}</span>
-            <span
-              v-else-if="phone.data.value?.bound"
-              class="group-detail"
-            >{{ t('security.phoneBoundMasked', { phone: phone.data.value.masked_phone ?? '' }) }}</span>
-            <span
-              v-else
-              class="group-detail"
-            >{{ t('security.phoneMissing') }}</span>
-          </span>
-          <button
-            v-if="phone.status.value === 'error'"
-            class="btn btn-sm"
-            type="button"
-            @click="phone.reload()"
-          >
-            {{ t('common.retry') }}
-          </button>
-        </li>
+        <PhoneManage />
         <li class="group-row has-icon">
           <span
             class="icon-tile"

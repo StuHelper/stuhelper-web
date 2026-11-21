@@ -123,7 +123,18 @@
     "school_account_locked": "学校账号已锁定，请联系学校解锁后重试。",
     "school_account_disabled": "学校账号已停用，请联系学校处理或更换其他认证方式。",
     "school_account_unavailable": "学校账号当前无法用于认证，请更换其他认证方式。",
-    "snapshot_expired": "此热榜已过期，请刷新查看最新排名。"
+    "snapshot_expired": "此热榜已过期，请刷新查看最新排名。",
+    "phone_taken": "这个号码已被其他账号使用，请换一个号码。",
+    "phone_already_bound": "这个号码已经绑定在你的账号上。",
+    "phone_code_invalid": "验证码不正确，请核对后重新输入。",
+    "phone_code_expired": "验证码已过期，请重新获取。",
+    "phone_code_attempts_exceeded": "验证码错误次数过多，请重新获取。",
+    "phone_last_sign_in_method": "手机号是这个账号唯一的登录方式。请先设置密码，再解绑手机号。",
+    "phone_sms_mfa_enabled": "账号开启了短信二次验证，请先关闭后再解绑手机号。",
+    "phone_binding_changed": "手机号刚在别处被修改，已刷新为最新状态，请重新操作。",
+    "phone_change_in_progress": "上一次修改还在处理中，请稍后用原请求重试。",
+    "phone_write_unconfirmed": "暂时无法确认修改结果，请用原请求重试核对。",
+    "phone_rate_limited": "验证码发送太频繁，请稍后再试。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -2371,5 +2382,27 @@
     "remove": "移除标签 {tag}",
     "tooLong": "每个标签最多 {max} 个字。",
     "tooMany": "最多 {max} 个标签。"
+  },
+  "phone": {
+    "bind": "绑定",
+    "change": "更换",
+    "unbind": "解绑",
+    "unbindLabel": "解绑手机号",
+    "bindTitle": "绑定手机号",
+    "changeTitle": "更换手机号",
+    "hint": "验证码会发到新号码。更换后，登录和找回密码都使用新号码。",
+    "newNumber": "新手机号",
+    "numberPlaceholder": "11 位中国大陆手机号",
+    "numberFormat": "请输入 11 位中国大陆手机号，可带 +86。",
+    "sendCode": "获取验证码",
+    "resend": "重新发送",
+    "resendIn": "{seconds} 秒后可重发",
+    "sent": "验证码已发送，5 分钟内有效。",
+    "code": "验证码",
+    "confirm": "确认",
+    "changed": "手机号已更新",
+    "unbound": "手机号已解绑",
+    "unbindTitle": "解绑手机号",
+    "unbindWarning": "解绑后不能再用这个号码登录或找回密码。"
   }
 }
