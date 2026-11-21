@@ -136,7 +136,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
 <template>
   <MeLayout
     :title="t(scope === 'identity' ? 'verification.identityTitle' : 'verification.unified.title')"
-    :description="t(scope === 'identity' ? 'verification.identityDescription' : 'verification.description')"
+    :description="scope === 'identity' ? undefined : t('verification.description')"
     :back="scope === 'identity' ? '/me/account' : undefined"
     :back-label="scope === 'identity' ? t('me.security') : undefined"
   >
