@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.4.2
+  version: 0.5.0
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
@@ -396,6 +396,7 @@ paths:
       - $ref: '#/components/parameters/ID'
     post:
       operationId: verifyApplication
+      description: Check campus roster identity or school account credentials. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and credential rejection. Consecutive evidence failures are tracked per account and per school/student across methods. Cooldown, hourly quotas and concurrent admission can return 429 immediately without calling the school.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -406,6 +407,7 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/Application' }
         '202': { $ref: '#/components/responses/Processing' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/applications/{id}/email:
     parameters:
@@ -421,6 +423,7 @@ paths:
         default: { $ref: '#/components/responses/Problem' }
     post:
       operationId: createEmailChallenge
+      description: Check roster evidence before requesting school email proof. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -435,12 +438,14 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/EmailChallenge' }
         '202': { $ref: '#/components/responses/Processing' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/applications/{id}/email/confirm:
     parameters:
       - $ref: '#/components/parameters/ID'
     post:
       operationId: confirmEmail
+      description: Check the email code. Admitted requests take at least the configured minimum (2.5 seconds by default), including incorrect codes and successful verification. Incorrect codes count toward the account and school/student cooldown in addition to the challenge attempt limit. Admission may return 429 immediately without checking the code or calling the school.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -456,6 +461,7 @@ paths:
       responses:
         '200': { $ref: '#/components/responses/Application' }
         '202': { $ref: '#/components/responses/Processing' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/applications/{id}/capture:
     parameters:
@@ -593,6 +599,7 @@ paths:
   /api/v1/verification/identity:
     post:
       operationId: verifyIdentity
+      description: Check campus roster identity independently of student qualification. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -607,6 +614,7 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Summary' }
         '202': { $ref: '#/components/responses/Processing' }
+        '429': { $ref: '#/components/responses/RateLimited' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/credentials/{id}/requests:
     parameters:
@@ -1001,6 +1009,16 @@ components:
       content:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: Admission capacity, cooldown, or quota exhausted, or an email challenge has no attempts left. A cooldown starts after the fourth consecutive evidence failure. A completed verification clears the counters. Use the retry time before a new attempt. Reuse the original idempotency key for retries of the same operation.
+      headers:
+        Retry-After:
+          required: true
+          description: Same positive number of seconds as retry_after_seconds.
+          schema: { type: string }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/RateLimitedProblem' }
     Problem:
       description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
       headers:
@@ -1284,13 +1302,18 @@ components:
         revision: { type: integer, format: int64 }
         verified_at: { type: string, format: date-time }
         expires_at: { type: string, format: date-time, nullable: true }
+    DocumentType:
+      type: string
+      enum: [cn_resident_id_card]
+      description: Document type confirmed by the real-name verification source.
     IdentityMasked:
       type: object
       additionalProperties: false
-      required: [name, document_number]
+      required: [name, document_type, document_number]
       description: Server-generated mask from successful real-name verification. Star counts follow original Unicode code-point lengths. Never contains full identity values.
       properties:
         name: { type: string, minLength: 2, maxLength: 100, description: All characters except the last are replaced with stars. }
+        document_type: { $ref: '#/components/schemas/DocumentType' }
         document_number: { type: string, minLength: 3, maxLength: 32, description: All characters except the first and last are replaced with stars. }
     Summary:
       type: object
@@ -1388,6 +1411,11 @@ components:
         operation_id: { type: string }
         retry_after_seconds: { type: integer, minimum: 1 }
         remaining_attempts: { type: integer, minimum: 0 }
+    RateLimitedProblem:
+      allOf:
+        - $ref: '#/components/schemas/Problem'
+        - type: object
+          required: [retry_after_seconds]
     SchoolChallenge:
       type: object
       additionalProperties: false

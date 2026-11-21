@@ -68,7 +68,9 @@
     "shownOf": "{total}개 중 {shown}개 표시",
     "opensInNewTab": "(새 탭에서 열림)",
     "scrollBack": "이전으로 스크롤",
-    "scrollForward": "다음으로 스크롤"
+    "scrollForward": "다음으로 스크롤",
+    "searchOptions": "옵션 검색",
+    "noOptionMatch": "일치하는 옵션이 없습니다"
   },
   "errors": {
     "disabled": "그룹 서비스가 비활성화되어 있습니다.",
@@ -114,14 +116,25 @@
     "billing_already_accessible": "이미 이 자료에 접근할 수 있어 다시 결제할 필요가 없습니다.",
     "method_identity_not_allowed": "이 인증 방법은 재학생만 이용할 수 있습니다. 졸업생은 실명 정보 확인 또는 서류 수동 심사를 이용해 주세요.",
     "real_name_mismatch": "실명 정보 확인에 실패했습니다. 입력한 정보를 확인하고 다시 시도하거나 다른 인증 방법을 선택하세요.",
-    "real_name_no_record": "이 학번으로는 실명 정보 확인을 이용할 수 없습니다. 다른 인증 방법을 선택하세요.",
-    "email_identity_mismatch": "학번과 이름이 일치하지 않습니다. 확인 후 다시 시도하거나 다른 인증 방법을 선택하세요.",
-    "email_identity_no_record": "이 학번으로는 학교 이메일 인증을 이용할 수 없습니다. 다른 인증 방법을 선택하세요.",
+    "real_name_no_record": "인증할 수 없습니다. 다른 인증 방법을 선택하세요.",
+    "email_identity_mismatch": "정보를 확인할 수 없습니다. 확인 후 다시 시도하거나 다른 인증 방법을 선택하세요.",
+    "email_identity_no_record": "인증할 수 없습니다. 다른 인증 방법을 선택하세요.",
     "school_credentials_rejected": "학교 계정 또는 비밀번호가 올바르지 않습니다. 다시 시도하세요.",
     "school_account_locked": "학교 계정이 잠겨 있습니다. 학교에 잠금 해제를 요청한 후 다시 시도하세요.",
     "school_account_disabled": "학교 계정이 비활성화되었습니다. 학교에 문의하거나 다른 인증 방법을 선택하세요.",
     "school_account_unavailable": "현재 학교 계정으로 인증할 수 없습니다. 다른 인증 방법을 선택하세요.",
-    "snapshot_expired": "순위가 만료되었습니다. 새로고침하여 최신 순위를 확인하세요."
+    "snapshot_expired": "순위가 만료되었습니다. 새로고침하여 최신 순위를 확인하세요.",
+    "phone_taken": "이 번호는 다른 계정에서 사용 중입니다. 다른 번호를 사용하세요.",
+    "phone_already_bound": "이 번호는 이미 내 계정에 등록되어 있습니다.",
+    "phone_code_invalid": "코드가 올바르지 않습니다. 확인 후 다시 입력하세요.",
+    "phone_code_expired": "코드가 만료되었습니다. 새 코드를 받으세요.",
+    "phone_code_attempts_exceeded": "잘못된 코드 입력이 너무 많습니다. 새 코드를 받으세요.",
+    "phone_last_sign_in_method": "전화번호가 이 계정의 유일한 로그인 방법입니다. 먼저 비밀번호를 설정한 뒤 해제하세요.",
+    "phone_sms_mfa_enabled": "SMS 2단계 인증이 켜져 있습니다. 해제하기 전에 꺼 주세요.",
+    "phone_binding_changed": "번호가 방금 다른 곳에서 변경되었습니다. 최신 상태를 표시했으니 다시 시도하세요.",
+    "phone_change_in_progress": "이전 변경을 처리하는 중입니다. 잠시 후 원래 요청을 다시 시도하세요.",
+    "phone_write_unconfirmed": "변경 결과를 확인하지 못했습니다. 원래 요청을 다시 시도해 확인하세요.",
+    "phone_rate_limited": "코드 요청이 너무 잦습니다. 잠시 후 다시 시도하세요."
   },
   "connection": {
     "label": "서비스 연결 상태",
@@ -770,7 +783,8 @@
       "placeholder": "이름으로 검색",
       "unavailable": "{label} 옵션을 불러오지 못했습니다.",
       "noMatch": "일치 항목 없음",
-      "retry": "옵션 다시 불러오기"
+      "retry": "옵션 다시 불러오기",
+      "searchHint": "이름이나 코드로 검색"
     },
     "detail": {
       "back": "자료 목록으로",
@@ -857,7 +871,6 @@
       "title": "제목",
       "description": "설명",
       "tags": "태그",
-      "tagsHint": "여러 태그는 쉼표로 구분합니다.",
       "associations": "강의 연관 정보",
       "associationsHint": "과목만 선택하면 됩니다. 자료가 시기에 따라 달라지거나 특정 학기·교원의 수업에만 해당하면 학기와 교원도 지정할 수 있습니다(선택).",
       "term": "학기",
@@ -1262,7 +1275,13 @@
     "changeSchool": "학교 변경",
     "copyInboundAddress": "수신 주소 복사",
     "inboundAddressCopied": "수신 주소가 복사되었습니다.",
-    "inboundCopyFailed": "자동으로 복사할 수 없습니다. 주소를 직접 선택해 복사해 주세요."
+    "inboundCopyFailed": "자동으로 복사할 수 없습니다. 주소를 직접 선택해 복사해 주세요.",
+    "checking": "정보를 확인하는 중…",
+    "cooldown": "시도 횟수가 너무 많습니다. {time} 후에 다시 시도하세요.",
+    "documentType": "신분증 종류",
+    "documentTypes": {
+      "cn_resident_id_card": "중국 주민신분증"
+    }
   },
   "contribution": {
     "eyebrow": "공유 저장소",
@@ -1617,7 +1636,8 @@
         "authorizations_unavailable": "지금은 앱 승인을 철회할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다.",
         "content_unavailable": "지금은 개인 콘텐츠를 처리할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다."
       }
-    }
+    },
+    "phoneBoundMasked": "연결됨 {phone}"
   },
   "profile": {
     "title": "프로필",
@@ -2354,5 +2374,35 @@
     "groupDisplay": "단과대학별 보기",
     "expandAllGroups": "모두 펼치기",
     "collapseAllGroups": "모두 접기"
+  },
+  "tags": {
+    "placeholder": "태그를 입력하고 Enter",
+    "more": "더 추가",
+    "hint": "Enter를 누르거나 다른 곳을 누르면 추가됩니다. 최대 {max}개.",
+    "remove": "{tag} 태그 삭제",
+    "tooLong": "태그는 하나당 최대 {max}자입니다.",
+    "tooMany": "태그는 최대 {max}개입니다."
+  },
+  "phone": {
+    "bind": "등록",
+    "change": "변경",
+    "unbind": "해제",
+    "unbindLabel": "전화번호 연결 해제",
+    "bindTitle": "전화번호 등록",
+    "changeTitle": "전화번호 변경",
+    "hint": "인증 코드는 새 번호로 전송됩니다. 변경 후에는 로그인과 비밀번호 찾기에 새 번호를 사용합니다.",
+    "newNumber": "새 전화번호",
+    "numberPlaceholder": "11자리 중국 본토 휴대폰 번호",
+    "numberFormat": "11자리 중국 본토 휴대폰 번호를 입력하세요. +86은 생략할 수 있습니다.",
+    "sendCode": "코드 받기",
+    "resend": "다시 보내기",
+    "resendIn": "{seconds}초 후 다시 보내기",
+    "sent": "코드를 보냈습니다. 5분 동안 유효합니다.",
+    "code": "인증 코드",
+    "confirm": "확인",
+    "changed": "전화번호를 변경했습니다",
+    "unbound": "전화번호 연결을 해제했습니다",
+    "unbindTitle": "전화번호 연결 해제",
+    "unbindWarning": "해제하면 이 번호로 로그인하거나 비밀번호를 찾을 수 없습니다."
   }
 }

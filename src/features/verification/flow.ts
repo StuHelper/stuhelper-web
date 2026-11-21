@@ -19,6 +19,10 @@ export function useVerificationFlow() {
   const lifetime = new AbortController()
   const loading = ref(false)
   const busy = ref(false)
+  // The server holds every identity check for a fixed minimum time; the page shows that wait.
+  const checking = ref(false)
+  // After repeated failures the server refuses new checks for a while (HTTP 429 with a wait).
+  const cooldownUntil = ref(0)
   const error = ref('')
   const loadError = ref('')
   const errorTarget = ref<ErrorTarget>('form')
@@ -105,6 +109,13 @@ export function useVerificationFlow() {
   function fail(failure: unknown, target: ErrorTarget = 'form') {
     errorTarget.value = target
     error.value = errorCode(failure)
+    if (failure instanceof ApiError && failure.status === 429 && failure.retryAfter) cooldownUntil.value = Date.now() + failure.retryAfter * 1000
+  }
+  /** Runs an identity check: shows the checking state and stays closed while a cooldown runs. */
+  async function check(work: () => Promise<void>) {
+    if (cooldownUntil.value > Date.now()) throw new ApiError('rate_limited', false, 429, undefined, Math.ceil((cooldownUntil.value - Date.now()) / 1000))
+    checking.value = true
+    try { await work() } finally { checking.value = false }
   }
 
   function merge<T extends { id: string }>(current: T[], rows: T[]) {
@@ -314,7 +325,7 @@ export function useVerificationFlow() {
     if (mode.value === 'identity') {
       if (!school.value || !consent.value) throw new ApiError('invalid_input')
       const body: Schemas['IdentityInput'] = { student_id: form.student_id, name: form.name, document_number: form.document_number, password: '', school_id: school.value.id, notice_version: school.value.notice_version, consent: true }
-      summary.value = await api.write('Summary', '/api/v1/verification/identity', body)
+      await check(async () => { summary.value = await api.write('Summary', '/api/v1/verification/identity', body) })
       form.document_number = ''
       await reload()
       notice.value = 'identityDone'
@@ -328,11 +339,11 @@ export function useVerificationFlow() {
       notice.value = 'submitted'
     } else if (emailMethod.value) {
       const body: Schemas['EmailInput'] = { student_id: form.student_id, name: form.name }
-      email.value = await api.write('EmailChallenge', `${path}/email`, body)
+      await check(async () => { email.value = await api.write('EmailChallenge', `${path}/email`, body) })
       emailSentAt.value = Date.now()
     } else {
       const body: Schemas['VerifyInput'] = { student_id: form.student_id, name: selectedMethod.value === 'school_sso' ? '' : form.name, document_number: form.document_number, password: form.password }
-      active.value = await api.write('Application', `${path}/verify`, body)
+      await check(async () => { active.value = await api.write('Application', `${path}/verify`, body) })
       form.document_number = ''
       notice.value = active.value.state === 'approved' ? 'verified' : 'schoolProgress'
     }
@@ -359,7 +370,8 @@ export function useVerificationFlow() {
 
   const confirmEmail = () => action(async () => {
     if (!active.value) return
-    active.value = await api.write('Application', `/api/v1/verification/applications/${encodeURIComponent(active.value.id)}/email/confirm`, { code: form.code })
+    const id = active.value.id
+    await check(async () => { active.value = await api.write('Application', `/api/v1/verification/applications/${encodeURIComponent(id)}/email/confirm`, { code: form.code }) })
     form.code = ''
     await reload()
     // A finished application leaves nothing to edit; start over with the outcome shown.
@@ -531,7 +543,7 @@ export function useVerificationFlow() {
   })
 
   return {
-    loading, busy, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
+    loading, busy, checking, cooldownUntil, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable, step, profileRequestId,
     asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,

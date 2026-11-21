@@ -144,7 +144,7 @@ export class Http {
     if (response.status === 503) this.options.onUnavailable?.();
     if (response.status === 401 || response.status === 403) this.options.onDenied?.(response.status)
     // A gateway or server failure without a recorded operation leaves a write's outcome unknown.
-    throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation)
+    throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation, response.status === 429 ? retryAfter(problem, response.headers.get('Retry-After')) : undefined)
   }
 
   /** Send a request and validate the JSON response against the contract. */
@@ -317,4 +317,12 @@ export function saveBlob(blob: Blob, filename: string) {
   link.rel = 'noopener'
   link.click()
   setTimeout(() => URL.revokeObjectURL(url), 30_000)
+}
+
+/** The wait a 429 asks for: the body's retry_after_seconds, else a whole-second Retry-After header. */
+function retryAfter(problem: unknown, header: string | null) {
+  const body = typeof problem === 'object' && problem !== null && 'retry_after_seconds' in problem ? problem.retry_after_seconds : undefined
+  if (typeof body === 'number' && Number.isInteger(body) && body > 0 && body <= 86400) return body
+  const seconds = header && /^\d{1,5}$/.test(header) ? Number(header) : NaN
+  return seconds > 0 && seconds <= 86400 ? seconds : undefined
 }

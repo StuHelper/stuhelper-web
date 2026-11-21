@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Fingerprint, LogOut, Phone } from 'lucide-vue-next'
+import { Fingerprint, LogOut } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -15,6 +15,7 @@ import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import QqBinding from '../qq/QqBinding.vue'
 import { useVerification } from '../verification/api'
+import PhoneManage from './PhoneManage.vue'
 import { useClosureApi, type Closure } from './closure'
 import MeLayout from './MeLayout.vue'
 import { feature, useCapabilities } from '../../shared/capabilities'
@@ -97,16 +98,7 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
         {{ t('security.identity') }}
       </h2>
       <ul class="group">
-        <li class="group-row has-icon">
-          <span
-            class="icon-tile"
-            style="--tile:var(--c-green)"
-          ><Phone aria-hidden="true" /></span>
-          <span class="group-body">
-            <span class="group-title">{{ t('security.phone') }}</span>
-            <span class="group-detail">{{ session.session.value?.phone_bound ? t('security.phoneBound') : t('security.phoneMissing') }}</span>
-          </span>
-        </li>
+        <PhoneManage />
         <li class="group-row has-icon">
           <span
             class="icon-tile"

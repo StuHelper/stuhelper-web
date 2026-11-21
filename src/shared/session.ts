@@ -25,6 +25,12 @@ export type SessionState = 'loading' | 'guest' | 'member' | 'error'
 const schemas = contract.components.schemas
 const parseSession = schemaOf<Session>(schemas, 'Session')
 export const parseProfile = schemaOf<Profile>(schemas, 'Profile')
+export type OwnPhone = components['schemas']['OwnPhone']
+const parseOwnPhone = schemaOf<OwnPhone>(schemas, 'OwnPhone')
+export type PhoneCodeChallenge = components['schemas']['PhoneCodeChallenge']
+const parsePhoneChallenge = schemaOf<PhoneCodeChallenge>(schemas, 'PhoneCodeChallenge')
+/** Where the server sends the browser to sign in again before a phone change (fixed by the contract). */
+export const phoneReauthenticationPath = '/api/v1/auth/phone/reauthenticate'
 
 /**
  * The signed-in application session. Business pages read login state from here
@@ -139,6 +145,22 @@ export function createSessionStore(fetcher: typeof fetch) {
     window.location.assign('/')
   }
 
+  /** The signed-in account's phone binding, read live from the identity provider; masked. */
+  async function ownPhone(signal?: AbortSignal) {
+    return http.json('/api/v1/auth/phone', parseOwnPhone, { signal })
+  }
+
+  /** Send a one-time code to the new number; the code itself never leaves the form. */
+  async function sendPhoneCode(phone: string) {
+    return http.json('/api/v1/auth/phone/code', parsePhoneChallenge, { method: 'POST', body: { phone }, timeout: 15_000 })
+  }
+  async function changePhone(body: components['schemas']['PhoneChangeRequest'], key: string) {
+    return http.json('/api/v1/auth/phone/change', parseOwnPhone, { method: 'POST', body, key, timeout: 20_000 })
+  }
+  async function unbindPhone(key: string) {
+    return http.json('/api/v1/auth/phone', parseOwnPhone, { method: 'DELETE', key, timeout: 20_000 })
+  }
+
   async function currentProfile(signal?: AbortSignal) {
     return http.json('/api/v1/profiles/me', parseProfile, { signal })
   }
@@ -149,7 +171,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     return saved
   }
 
-  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, currentProfile, saveProfile }
+  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, ownPhone, sendPhoneCode, changePhone, unbindPhone, currentProfile, saveProfile }
 }
 
 export type SessionStore = ReturnType<typeof createSessionStore>

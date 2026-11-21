@@ -68,7 +68,9 @@
     "shownOf": "Showing {shown} of {total}",
     "opensInNewTab": "(opens in a new tab)",
     "scrollBack": "Scroll back",
-    "scrollForward": "Scroll forward"
+    "scrollForward": "Scroll forward",
+    "searchOptions": "Search options",
+    "noOptionMatch": "No matching options"
   },
   "errors": {
     "disabled": "Group services are disabled.",
@@ -114,14 +116,25 @@
     "billing_already_accessible": "You already have access to this resource. No payment is needed.",
     "method_identity_not_allowed": "This method is available only to current students. Alumni should use real-name information verification or manual document review.",
     "real_name_mismatch": "Real-name verification failed. Check your information and try again, or choose another verification method.",
-    "real_name_no_record": "Real-name verification is unavailable for this student ID. Choose another verification method.",
-    "email_identity_mismatch": "The student ID and name do not match. Check them and try again, or choose another verification method.",
-    "email_identity_no_record": "School email verification is unavailable for this student ID. Choose another verification method.",
+    "real_name_no_record": "Verification is not possible. Choose another verification method.",
+    "email_identity_mismatch": "The information could not be verified. Check it and try again, or choose another verification method.",
+    "email_identity_no_record": "Verification is not possible. Choose another verification method.",
     "school_credentials_rejected": "The school account or password is incorrect. Try again.",
     "school_account_locked": "Your school account is locked. Contact your school to unlock it and try again.",
     "school_account_disabled": "Your school account is disabled. Contact your school or choose another verification method.",
     "school_account_unavailable": "Your school account cannot be used for verification right now. Choose another verification method.",
-    "snapshot_expired": "This ranking has expired. Refresh to see the latest ranking."
+    "snapshot_expired": "This ranking has expired. Refresh to see the latest ranking.",
+    "phone_taken": "This number is used by another account. Use a different number.",
+    "phone_already_bound": "This number is already on your account.",
+    "phone_code_invalid": "The code is incorrect. Check it and enter it again.",
+    "phone_code_expired": "The code has expired. Request a new one.",
+    "phone_code_attempts_exceeded": "Too many incorrect codes. Request a new one.",
+    "phone_last_sign_in_method": "The phone number is the only way to sign in to this account. Set a password first, then remove the number.",
+    "phone_sms_mfa_enabled": "SMS two-step verification is on. Turn it off before removing the number.",
+    "phone_binding_changed": "The number was just changed elsewhere. The page shows the current state; try again.",
+    "phone_change_in_progress": "The previous change is still being processed. Retry the original request shortly.",
+    "phone_write_unconfirmed": "The result of the change could not be confirmed. Retry the original request to check.",
+    "phone_rate_limited": "Codes are being requested too often. Try again later."
   },
   "connection": {
     "label": "Service connection status",
@@ -770,7 +783,8 @@
       "placeholder": "Type a name to search",
       "unavailable": "{label} options could not load.",
       "noMatch": "No matches",
-      "retry": "Reload options"
+      "retry": "Reload options",
+      "searchHint": "Type a name or code to search"
     },
     "detail": {
       "back": "Back to resources",
@@ -857,7 +871,6 @@
       "title": "Title",
       "description": "Description",
       "tags": "Tags",
-      "tagsHint": "Separate tags with commas.",
       "associations": "Course associations",
       "associationsHint": "Choosing the course is enough. If the material is time-sensitive or only fits a certain term or teacher, you can also add the term and teacher (optional).",
       "term": "Term",
@@ -1262,7 +1275,13 @@
     "changeSchool": "Change school",
     "copyInboundAddress": "Copy recipient address",
     "inboundAddressCopied": "Recipient address copied.",
-    "inboundCopyFailed": "Could not copy automatically. Please select and copy the address."
+    "inboundCopyFailed": "Could not copy automatically. Please select and copy the address.",
+    "checking": "Checking your details…",
+    "cooldown": "Too many attempts. Try again in {time}.",
+    "documentType": "Document type",
+    "documentTypes": {
+      "cn_resident_id_card": "Resident Identity Card (China)"
+    }
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",
@@ -1617,7 +1636,8 @@
         "authorizations_unavailable": "Application authorizations cannot be revoked right now. Processing continues once the service recovers.",
         "content_unavailable": "Personal content cannot be processed right now. Processing continues once the service recovers."
       }
-    }
+    },
+    "phoneBoundMasked": "Linked {phone}"
   },
   "profile": {
     "title": "Profile",
@@ -2354,5 +2374,35 @@
     "groupDisplay": "School groups",
     "expandAllGroups": "Expand all",
     "collapseAllGroups": "Collapse all"
+  },
+  "tags": {
+    "placeholder": "Type a tag and press Enter",
+    "more": "Add another",
+    "hint": "Press Enter or click elsewhere to add it. Up to {max} tags.",
+    "remove": "Remove tag {tag}",
+    "tooLong": "Each tag can have up to {max} characters.",
+    "tooMany": "Up to {max} tags."
+  },
+  "phone": {
+    "bind": "Add",
+    "change": "Change",
+    "unbind": "Remove",
+    "unbindLabel": "Remove phone number",
+    "bindTitle": "Add phone number",
+    "changeTitle": "Change phone number",
+    "hint": "The code is sent to the new number. Afterwards, sign-in and password recovery use the new number.",
+    "newNumber": "New phone number",
+    "numberPlaceholder": "11-digit mainland China number",
+    "numberFormat": "Enter an 11-digit mainland China mobile number, optionally with +86.",
+    "sendCode": "Send code",
+    "resend": "Send again",
+    "resendIn": "Resend in {seconds}s",
+    "sent": "Code sent. It is valid for 5 minutes.",
+    "code": "Verification code",
+    "confirm": "Confirm",
+    "changed": "Phone number updated",
+    "unbound": "Phone number removed",
+    "unbindTitle": "Remove phone number",
+    "unbindWarning": "After removal, this number can no longer be used to sign in or recover your password."
   }
 }

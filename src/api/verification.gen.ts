@@ -384,6 +384,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Check campus roster identity or school account credentials. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and credential rejection. Consecutive evidence failures are tracked per account and per school/student across methods. Cooldown, hourly quotas and concurrent admission can return 429 immediately without calling the school. */
         post: operations["verifyApplication"];
         delete?: never;
         options?: never;
@@ -402,6 +403,7 @@ export interface paths {
         };
         get: operations["getEmailChallenge"];
         put?: never;
+        /** @description Check roster evidence before requesting school email proof. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately. */
         post: operations["createEmailChallenge"];
         delete?: never;
         options?: never;
@@ -420,6 +422,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Check the email code. Admitted requests take at least the configured minimum (2.5 seconds by default), including incorrect codes and successful verification. Incorrect codes count toward the account and school/student cooldown in addition to the challenge attempt limit. Admission may return 429 immediately without checking the code or calling the school. */
         post: operations["confirmEmail"];
         delete?: never;
         options?: never;
@@ -574,6 +577,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
+        /** @description Check campus roster identity independently of student qualification. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school. */
         post: operations["verifyIdentity"];
         delete?: never;
         options?: never;
@@ -1179,10 +1183,16 @@ export interface components {
             /** Format: date-time */
             expires_at: string | null;
         };
+        /**
+         * @description Document type confirmed by the real-name verification source.
+         * @enum {string}
+         */
+        DocumentType: "cn_resident_id_card";
         /** @description Server-generated mask from successful real-name verification. Star counts follow original Unicode code-point lengths. Never contains full identity values. */
         IdentityMasked: {
             /** @description All characters except the last are replaced with stars. */
             name: string;
+            document_type: components["schemas"]["DocumentType"];
             /** @description All characters except the first and last are replaced with stars. */
             document_number: string;
         };
@@ -1282,6 +1292,7 @@ export interface components {
             retry_after_seconds?: number;
             remaining_attempts?: number;
         };
+        RateLimitedProblem: components["schemas"]["Problem"] & Record<string, never>;
         SchoolChallenge: {
             id: string;
             /** @enum {string} */
@@ -1339,6 +1350,17 @@ export interface components {
             };
             content: {
                 "application/json": components["schemas"]["Problem"];
+            };
+        };
+        /** @description Admission capacity, cooldown, or quota exhausted, or an email challenge has no attempts left. A cooldown starts after the fourth consecutive evidence failure. A completed verification clears the counters. Use the retry time before a new attempt. Reuse the original idempotency key for retries of the same operation. */
+        RateLimited: {
+            headers: {
+                /** @description Same positive number of seconds as retry_after_seconds. */
+                "Retry-After": string;
+                [name: string]: unknown;
+            };
+            content: {
+                "application/json": components["schemas"]["RateLimitedProblem"];
             };
         };
         /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
@@ -1959,6 +1981,7 @@ export interface operations {
         responses: {
             200: components["responses"]["Application"];
             202: components["responses"]["Processing"];
+            429: components["responses"]["RateLimited"];
             default: components["responses"]["Problem"];
         };
     };
@@ -2013,6 +2036,7 @@ export interface operations {
                 };
             };
             202: components["responses"]["Processing"];
+            429: components["responses"]["RateLimited"];
             default: components["responses"]["Problem"];
         };
     };
@@ -2038,6 +2062,7 @@ export interface operations {
         responses: {
             200: components["responses"]["Application"];
             202: components["responses"]["Processing"];
+            429: components["responses"]["RateLimited"];
             default: components["responses"]["Problem"];
         };
     };
@@ -2289,6 +2314,7 @@ export interface operations {
                 };
             };
             202: components["responses"]["Processing"];
+            429: components["responses"]["RateLimited"];
             default: components["responses"]["Problem"];
         };
     };

@@ -68,7 +68,9 @@
     "shownOf": "{total} 件中 {shown} 件を表示",
     "opensInNewTab": "（新しいタブで開きます）",
     "scrollBack": "前へスクロール",
-    "scrollForward": "次へスクロール"
+    "scrollForward": "次へスクロール",
+    "searchOptions": "選択肢を検索",
+    "noOptionMatch": "一致する選択肢がありません"
   },
   "errors": {
     "disabled": "グループサービスは無効です。",
@@ -114,14 +116,25 @@
     "billing_already_accessible": "この資料には既にアクセスできます。再度支払う必要はありません。",
     "method_identity_not_allowed": "この認証方法は在学生のみ利用できます。卒業生は実名情報の照合または書類の手動審査をご利用ください。",
     "real_name_mismatch": "本人情報の照合に失敗しました。入力内容を確認して再試行するか、別の認証方法を選んでください。",
-    "real_name_no_record": "この学籍番号では本人情報の照合を利用できません。別の認証方法を選んでください。",
-    "email_identity_mismatch": "学籍番号と氏名が一致しません。確認して再試行するか、別の認証方法を選んでください。",
-    "email_identity_no_record": "この学籍番号では学校メールによる認証を利用できません。別の認証方法を選んでください。",
+    "real_name_no_record": "認証できません。別の認証方法を選んでください。",
+    "email_identity_mismatch": "情報の照合に失敗しました。確認して再試行するか、別の認証方法を選んでください。",
+    "email_identity_no_record": "認証できません。別の認証方法を選んでください。",
     "school_credentials_rejected": "学校アカウントまたはパスワードが正しくありません。再試行してください。",
     "school_account_locked": "学校アカウントがロックされています。学校に解除を依頼してから再試行してください。",
     "school_account_disabled": "学校アカウントが無効になっています。学校に問い合わせるか、別の認証方法を選んでください。",
     "school_account_unavailable": "学校アカウントは現在認証に利用できません。別の認証方法を選んでください。",
-    "snapshot_expired": "ランキングの有効期限が切れました。更新して最新の順位を表示してください。"
+    "snapshot_expired": "ランキングの有効期限が切れました。更新して最新の順位を表示してください。",
+    "phone_taken": "この番号は別のアカウントで使われています。別の番号を使ってください。",
+    "phone_already_bound": "この番号はすでにあなたのアカウントに登録されています。",
+    "phone_code_invalid": "コードが正しくありません。確認して入力し直してください。",
+    "phone_code_expired": "コードの有効期限が切れました。新しいコードを取得してください。",
+    "phone_code_attempts_exceeded": "誤ったコードの入力が多すぎます。新しいコードを取得してください。",
+    "phone_last_sign_in_method": "電話番号がこのアカウントの唯一のログイン方法です。先にパスワードを設定してから解除してください。",
+    "phone_sms_mfa_enabled": "SMS による二段階認証が有効です。解除する前にオフにしてください。",
+    "phone_binding_changed": "番号がほかの場所で変更されました。最新の状態を表示しています。もう一度操作してください。",
+    "phone_change_in_progress": "前回の変更を処理中です。少し待ってから元のリクエストを再試行してください。",
+    "phone_write_unconfirmed": "変更結果を確認できませんでした。元のリクエストを再試行して確認してください。",
+    "phone_rate_limited": "コードの送信回数が多すぎます。しばらくしてから再試行してください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -770,7 +783,8 @@
       "placeholder": "名前で検索",
       "unavailable": "{label} の選択肢を読み込めません。",
       "noMatch": "一致する項目なし",
-      "retry": "選択肢を再読み込み"
+      "retry": "選択肢を再読み込み",
+      "searchHint": "名前またはコードで検索"
     },
     "detail": {
       "back": "資料一覧に戻る",
@@ -857,7 +871,6 @@
       "title": "タイトル",
       "description": "説明",
       "tags": "タグ",
-      "tagsHint": "複数のタグはカンマで区切ります。",
       "associations": "授業との関連",
       "associationsHint": "科目を選ぶだけで十分です。資料に時期の制約がある場合や、特定の学期・教員の授業にだけ当てはまる場合は、学期と教員も指定できます（任意）。",
       "term": "学期",
@@ -1262,7 +1275,13 @@
     "changeSchool": "学校を変更",
     "copyInboundAddress": "宛先アドレスをコピー",
     "inboundAddressCopied": "宛先アドレスをコピーしました。",
-    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。"
+    "inboundCopyFailed": "自動コピーできませんでした。アドレスを選択してコピーしてください。",
+    "checking": "情報を確認しています…",
+    "cooldown": "試行回数が多すぎます。{time} 後にもう一度お試しください。",
+    "documentType": "証明書の種類",
+    "documentTypes": {
+      "cn_resident_id_card": "中国居民身分証"
+    }
   },
   "contribution": {
     "eyebrow": "共有ストレージ",
@@ -1617,7 +1636,8 @@
         "authorizations_unavailable": "現在、アプリの認可を取り消せません。サービスの回復後に処理を続けます。",
         "content_unavailable": "現在、個人のコンテンツを処理できません。サービスの回復後に処理を続けます。"
       }
-    }
+    },
+    "phoneBoundMasked": "連携済み {phone}"
   },
   "profile": {
     "title": "プロフィール",
@@ -2354,5 +2374,35 @@
     "groupDisplay": "学院ごとの表示",
     "expandAllGroups": "すべて展開",
     "collapseAllGroups": "すべて折りたたむ"
+  },
+  "tags": {
+    "placeholder": "タグを入力して Enter",
+    "more": "さらに追加",
+    "hint": "Enter を押すか、ほかの場所をクリックすると追加されます。最大 {max} 個。",
+    "remove": "タグ {tag} を削除",
+    "tooLong": "タグは 1 つにつき {max} 文字までです。",
+    "tooMany": "タグは最大 {max} 個です。"
+  },
+  "phone": {
+    "bind": "登録",
+    "change": "変更",
+    "unbind": "解除",
+    "unbindLabel": "電話番号の連携を解除",
+    "bindTitle": "電話番号を登録",
+    "changeTitle": "電話番号を変更",
+    "hint": "確認コードは新しい番号に送信されます。変更後は、ログインとパスワード再設定に新しい番号を使います。",
+    "newNumber": "新しい電話番号",
+    "numberPlaceholder": "11 桁の中国本土の携帯番号",
+    "numberFormat": "11 桁の中国本土の携帯番号を入力してください（+86 は省略可）。",
+    "sendCode": "コードを送信",
+    "resend": "再送信",
+    "resendIn": "{seconds} 秒後に再送信できます",
+    "sent": "コードを送信しました。5 分間有効です。",
+    "code": "確認コード",
+    "confirm": "確定",
+    "changed": "電話番号を更新しました",
+    "unbound": "電話番号の連携を解除しました",
+    "unbindTitle": "電話番号の連携を解除",
+    "unbindWarning": "解除後は、この番号でログインやパスワード再設定ができなくなります。"
   }
 }

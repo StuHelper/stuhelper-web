@@ -68,7 +68,9 @@
     "shownOf": "Mostrando {shown} de {total}",
     "opensInNewTab": "(se abre en una pestaña nueva)",
     "scrollBack": "Desplazar atrás",
-    "scrollForward": "Desplazar adelante"
+    "scrollForward": "Desplazar adelante",
+    "searchOptions": "Buscar opciones",
+    "noOptionMatch": "No hay opciones que coincidan"
   },
   "errors": {
     "disabled": "El servicio de grupos está desactivado.",
@@ -114,14 +116,25 @@
     "billing_already_accessible": "Ya tienes acceso a este recurso; no hace falta pagar de nuevo.",
     "method_identity_not_allowed": "Este método solo está disponible para estudiantes actuales. Los antiguos alumnos deben usar la verificación de identidad o la revisión manual de documentos.",
     "real_name_mismatch": "La verificación de identidad ha fallado. Revisa los datos e inténtalo de nuevo o elige otro método.",
-    "real_name_no_record": "La verificación de identidad no está disponible para este número de estudiante. Elige otro método.",
-    "email_identity_mismatch": "El número de estudiante y el nombre no coinciden. Revísalos e inténtalo de nuevo o elige otro método.",
-    "email_identity_no_record": "La verificación por correo universitario no está disponible para este número de estudiante. Elige otro método.",
+    "real_name_no_record": "No es posible verificar. Elige otro método.",
+    "email_identity_mismatch": "No se han podido verificar los datos. Revísalos e inténtalo de nuevo o elige otro método.",
+    "email_identity_no_record": "No es posible verificar. Elige otro método.",
     "school_credentials_rejected": "La cuenta universitaria o la contraseña es incorrecta. Inténtalo de nuevo.",
     "school_account_locked": "Tu cuenta universitaria está bloqueada. Pide a tu universidad que la desbloquee e inténtalo de nuevo.",
     "school_account_disabled": "Tu cuenta universitaria está desactivada. Contacta con tu universidad o elige otro método.",
     "school_account_unavailable": "Tu cuenta universitaria no puede usarse para la verificación en este momento. Elige otro método.",
-    "snapshot_expired": "Esta clasificación ha caducado. Actualiza para ver la más reciente."
+    "snapshot_expired": "Esta clasificación ha caducado. Actualiza para ver la más reciente.",
+    "phone_taken": "Este número lo usa otra cuenta. Usa otro número.",
+    "phone_already_bound": "Este número ya está en tu cuenta.",
+    "phone_code_invalid": "El código no es correcto. Revísalo y vuelve a escribirlo.",
+    "phone_code_expired": "El código ha caducado. Pide uno nuevo.",
+    "phone_code_attempts_exceeded": "Demasiados códigos incorrectos. Pide uno nuevo.",
+    "phone_last_sign_in_method": "El teléfono es la única forma de iniciar sesión en esta cuenta. Crea primero una contraseña y luego quita el número.",
+    "phone_sms_mfa_enabled": "La verificación en dos pasos por SMS está activada. Desactívala antes de quitar el número.",
+    "phone_binding_changed": "El número se acaba de cambiar en otro sitio. La página muestra el estado actual; inténtalo de nuevo.",
+    "phone_change_in_progress": "El cambio anterior aún se está procesando. Reintenta la solicitud original en breve.",
+    "phone_write_unconfirmed": "No se pudo confirmar el resultado del cambio. Reintenta la solicitud original para comprobarlo.",
+    "phone_rate_limited": "Se están pidiendo códigos con demasiada frecuencia. Inténtalo más tarde."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -770,7 +783,8 @@
       "placeholder": "Escribe un nombre",
       "unavailable": "No se cargaron las opciones de {label}.",
       "noMatch": "Sin coincidencias",
-      "retry": "Recargar opciones"
+      "retry": "Recargar opciones",
+      "searchHint": "Escribe un nombre o código para buscar"
     },
     "detail": {
       "back": "Volver a materiales",
@@ -857,7 +871,6 @@
       "title": "Título",
       "description": "Descripción",
       "tags": "Etiquetas",
-      "tagsHint": "Separa las etiquetas con comas.",
       "associations": "Relación con cursos",
       "associationsHint": "Basta con elegir el curso. Si el material caduca o solo sirve para un periodo o docente concreto, también puedes indicar el periodo y el docente (opcional).",
       "term": "Semestre",
@@ -1262,7 +1275,13 @@
     "changeSchool": "Cambiar de universidad",
     "copyInboundAddress": "Copiar dirección de destino",
     "inboundAddressCopied": "Dirección de destino copiada.",
-    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección."
+    "inboundCopyFailed": "No se pudo copiar automáticamente. Selecciona y copia la dirección.",
+    "checking": "Comprobando tus datos…",
+    "cooldown": "Demasiados intentos. Vuelve a intentarlo en {time}.",
+    "documentType": "Tipo de documento",
+    "documentTypes": {
+      "cn_resident_id_card": "Documento de identidad de residente (China)"
+    }
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",
@@ -1617,7 +1636,8 @@
         "authorizations_unavailable": "Ahora no se pueden revocar las autorizaciones de aplicaciones. El proceso seguirá cuando el servicio se recupere.",
         "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere."
       }
-    }
+    },
+    "phoneBoundMasked": "Vinculado {phone}"
   },
   "profile": {
     "title": "Perfil",
@@ -2354,5 +2374,35 @@
     "groupDisplay": "Vista por escuela",
     "expandAllGroups": "Expandir todo",
     "collapseAllGroups": "Contraer todo"
+  },
+  "tags": {
+    "placeholder": "Escribe una etiqueta y pulsa Intro",
+    "more": "Añadir otra",
+    "hint": "Pulsa Intro o haz clic fuera para añadirla. Hasta {max} etiquetas.",
+    "remove": "Quitar etiqueta {tag}",
+    "tooLong": "Cada etiqueta admite hasta {max} caracteres.",
+    "tooMany": "Hasta {max} etiquetas."
+  },
+  "phone": {
+    "bind": "Añadir",
+    "change": "Cambiar",
+    "unbind": "Quitar",
+    "unbindLabel": "Quitar número de teléfono",
+    "bindTitle": "Añadir número de teléfono",
+    "changeTitle": "Cambiar número de teléfono",
+    "hint": "El código se envía al número nuevo. Después, el inicio de sesión y la recuperación de contraseña usarán el número nuevo.",
+    "newNumber": "Número nuevo",
+    "numberPlaceholder": "Número de China continental de 11 dígitos",
+    "numberFormat": "Introduce un móvil de China continental de 11 dígitos, con +86 opcional.",
+    "sendCode": "Enviar código",
+    "resend": "Reenviar",
+    "resendIn": "Reenviar en {seconds} s",
+    "sent": "Código enviado. Es válido durante 5 minutos.",
+    "code": "Código de verificación",
+    "confirm": "Confirmar",
+    "changed": "Número de teléfono actualizado",
+    "unbound": "Número de teléfono quitado",
+    "unbindTitle": "Quitar número de teléfono",
+    "unbindWarning": "Después ya no podrás usar este número para iniciar sesión ni recuperar la contraseña."
   }
 }

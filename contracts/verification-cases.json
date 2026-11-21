@@ -13,7 +13,8 @@
         "teacher_verified": false,
         "identity_masked": {
           "name": "**明",
-          "document_number": "1****************X"
+          "document_number": "1****************X",
+          "document_type": "cn_resident_id_card"
         }
       },
       "accepted": true
@@ -131,9 +132,29 @@
       "kind": "IdentityMasked",
       "body": {
         "name": "**明",
-        "document_number": "1****************X"
+        "document_number": "1****************X",
+        "document_type": "cn_resident_id_card"
       },
       "accepted": true
+    },
+    {
+      "name": "identity mask requires document type",
+      "kind": "IdentityMasked",
+      "body": {
+        "name": "**明",
+        "document_number": "1****************X"
+      },
+      "accepted": false
+    },
+    {
+      "name": "unknown document type rejected",
+      "kind": "IdentityMasked",
+      "body": {
+        "name": "**明",
+        "document_number": "1****************X",
+        "document_type": "unknown"
+      },
+      "accepted": false
     },
     {
       "name": "identity mask requires both values",

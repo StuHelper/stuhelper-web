@@ -29,6 +29,8 @@ export class ApiError extends Error {
     readonly uncertain = false,
     readonly status?: number,
     readonly operationId?: string,
+    /** Seconds the server asks to wait before a new attempt (HTTP 429). */
+    readonly retryAfter?: number,
   ) {
     super(code)
     this.name = 'ApiError'
