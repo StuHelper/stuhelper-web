@@ -1352,14 +1352,35 @@
       "binding_unavailable": "Esta cuenta no está disponible. Un administrador te ayudará.",
       "cleanup_unconfirmed": "Aún quedan archivos por mover.",
       "storage_writes_disabled": "El almacenamiento no acepta archivos nuevos.",
-      "capacity_unknown": "No se puede leer la capacidad por ahora.",
-      "exit_overdue": "Plazo de salida superado; la migración sigue pendiente."
+      "capacity_unknown": "Todavía no se ha leído la capacidad del disco.",
+      "exit_overdue": "Plazo de salida superado; la migración sigue pendiente.",
+      "capacity_read_failed": "No se pudo leer la capacidad del disco. StuHelper lo reintentará automáticamente.",
+      "capacity_expired": "La lectura de la capacidad del disco ha caducado. StuHelper la actualizará automáticamente."
     },
     "displayLabel": "Apodo (opcional)",
     "displayLabelHint": "Por ejemplo: disco principal",
     "displayLabelTooLong": "El apodo puede tener como máximo 32 caracteres.",
     "reviewLabel": "Apodo: ",
-    "reviewLabelCleared": "Se quitará el apodo."
+    "reviewLabelCleared": "Se quitará el apodo.",
+    "provider": {
+      "title": "Espacio del disco",
+      "total": "Disco: total",
+      "used": "Disco: usado",
+      "remaining": "Disco: restante",
+      "max": "Se puede aportar hasta {max}",
+      "over": "Supera el límite: hasta {max}",
+      "unavailable": "Ahora no se puede leer la capacidad del disco, así que todavía no se puede enviar.",
+      "status": {
+        "not_read": "Todavía no se ha leído la capacidad del disco.",
+        "read_failed": "No se pudo leer la capacidad del disco. StuHelper lo reintentará automáticamente.",
+        "expired": "La lectura de la capacidad del disco ha caducado. StuHelper la actualizará automáticamente."
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "La cuota compartida supera el espacio libre del disco. Redúcela e inténtalo de nuevo.",
+        "provider_capacity_unavailable": "Ahora no se puede confirmar la capacidad del disco. Inténtalo más tarde."
+      }
+    },
+    "neverObserved": "Capacidad aún no leída"
   },
   "custody": {
     "disabled": "La custodia de cuentas de almacenamiento no está habilitada.",

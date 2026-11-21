@@ -1352,14 +1352,35 @@
       "binding_unavailable": "This account is unavailable. An administrator will help.",
       "cleanup_unconfirmed": "Some files have not moved yet.",
       "storage_writes_disabled": "Storage is not accepting new files.",
-      "capacity_unknown": "Capacity cannot be read right now.",
-      "exit_overdue": "Exit target passed; migration is still pending."
+      "capacity_unknown": "The drive capacity has not been read yet.",
+      "exit_overdue": "Exit target passed; migration is still pending.",
+      "capacity_read_failed": "Reading the drive capacity failed. StuHelper will retry automatically.",
+      "capacity_expired": "The drive capacity reading has expired. StuHelper will refresh it automatically."
     },
     "displayLabel": "Nickname (optional)",
     "displayLabelHint": "For example: main drive",
     "displayLabelTooLong": "A nickname can have at most 32 characters.",
     "reviewLabel": "Nickname: ",
-    "reviewLabelCleared": "The nickname will be removed."
+    "reviewLabelCleared": "The nickname will be removed.",
+    "provider": {
+      "title": "Drive space",
+      "total": "Drive total",
+      "used": "Drive used",
+      "remaining": "Drive remaining",
+      "max": "Up to {max} can be contributed",
+      "over": "Above the limit: up to {max}",
+      "unavailable": "The drive capacity cannot be read right now, so this cannot be submitted yet.",
+      "status": {
+        "not_read": "The drive capacity has not been read yet.",
+        "read_failed": "Reading the drive capacity failed. StuHelper will retry automatically.",
+        "expired": "The drive capacity reading has expired. StuHelper will refresh it automatically."
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "The shared quota is more than the space left on the drive. Lower it and try again.",
+        "provider_capacity_unavailable": "The drive capacity cannot be confirmed right now. Try again later."
+      }
+    },
+    "neverObserved": "Capacity not read yet"
   },
   "custody": {
     "disabled": "Storage account custody is not enabled.",
