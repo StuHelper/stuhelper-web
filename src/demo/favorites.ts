@@ -27,7 +27,11 @@ const items: Item[] = seeds.map(([kind, target, folder, days], index) => ({ id: 
 const receipts = new Map<string, unknown>()
 let sequence = 0
 
-const view = (folder: Folder) => ({ ...folder, item_count: items.filter((item) => item.folder_id === folder.id).length })
+const view = (folder: Folder) => {
+  const rows = items.filter((item) => item.folder_id === folder.id)
+  const count = (kind: string) => rows.filter((item) => item.kind === kind).length
+  return { ...folder, item_count: rows.length, kind_counts: { course: count('course'), teacher: count('teacher'), resource: count('resource') } }
+}
 const nameOf = (folder: Folder) => folder.name || '默认收藏'
 const taken = (name: string, except?: string) => folders.some((f) => nameOf(f) === name && f.id !== except)
 

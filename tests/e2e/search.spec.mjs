@@ -190,6 +190,8 @@ memberTest('expired popular ranking stays on screen until the reader refreshes',
     return route.fulfill({ json: { items: [item('course', 'course', starts === 1 ? 'First ranking' : 'New ranking')], next_cursor: starts === 1 ? 'old' : '', window_days: 7 } });
   });
   await page.goto(`${base}/popular?lang=${info.project.metadata.locale}`);
+  // The description names the window the server actually used (Beijing dates, including today).
+  await expect(page.getByText(fill(messages.search.popular.descriptionDays, { days: number(info, 7) }))).toBeVisible();
   await page.getByRole('button', { name: messages.common.loadMore }).click();
   await expect(page.getByRole('alert')).toContainText(messages.errors.snapshot_expired);
   await expect(page.getByText('First ranking')).toBeVisible();
