@@ -1580,7 +1580,6 @@
     "phoneBound": "연동됨",
     "phoneMissing": "연동 안 됨",
     "realName": "실명 인증",
-    "realNameMasked": "인증됨 · {name} · {number}",
     "realNameDone": "인증됨",
     "realNamePending": "미완료. 일부 작업은 본인 확인이 필요합니다",
     "view": "보기",

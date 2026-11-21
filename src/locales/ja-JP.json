@@ -1184,7 +1184,7 @@
     "identityTitle": "本人確認",
     "identityDescription": "本人確認は学生認証とは別のもので、本人であることの確認が必要な操作に使います。",
     "identityName": "氏名",
-    "identityNumber": "身分証番号",
+    "identityNumber": "証明書番号",
     "schoolSearch": "学校コード、名称、別名で検索",
     "unified": {
       "title": "キャンパス認証",
@@ -1580,7 +1580,6 @@
     "phoneBound": "連携済み",
     "phoneMissing": "未連携",
     "realName": "本人確認",
-    "realNameMasked": "確認済み · {name} · {number}",
     "realNameDone": "確認済み",
     "realNamePending": "未完了。一部の操作には本人確認が必要です",
     "view": "表示",
