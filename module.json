@@ -308,6 +308,8 @@
       "tests/e2e/teacher-homepage.spec.mjs#a non-owner can report a homepage with a category and up to 2000 code points"
     ],
     "CAT-TEACHER-11": [
+      "src/features/notifications/api.test.ts#opens the teacher homepage receipt with the encoded target ID",
+      "tests/e2e/notifications.spec.mjs#an approved teacher homepage notification opens the teacher’s own request receipt",
       "tests/e2e/teacher-homepage-requests.spec.mjs#request history opens pending, approved and rejected receipts and handles an expired receipt"
     ]
   }
