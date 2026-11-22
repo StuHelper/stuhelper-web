@@ -2035,14 +2035,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "At least {count} unread",
     "title": "Messages",
     "link": "Messages",
     "description": "Interactions, review results, verification results and system notices.",
     "unread": "Unread notifications: {count}",
-    "interaction": "Receive interaction notifications (replies, likes)",
-    "interactionOn": "Interaction notifications are on.",
-    "interactionOff": "Interaction notifications are off.",
     "always": "Handling results, security and account notifications are always delivered.",
     "readAll": "Mark all as read",
     "allRead": "All notifications are marked as read.",
@@ -2057,7 +2053,8 @@
       "content": {
         "approved": "Your content {content_id} was approved",
         "rejected": "Your content {content_id} was not approved",
-        "removed": "Your content {content_id} was taken down"
+        "removed": "Your content {content_id} was taken down",
+        "draft_expiring": "Your draft {content_id} expires soon"
       },
       "resource_removal": {
         "approved": "Takedown request was accepted",
@@ -2070,7 +2067,8 @@
       "student_verification": {
         "approved": "Student verification was approved",
         "rejected": "Student verification was not approved",
-        "revoked": "Student verification was revoked"
+        "revoked": "Student verification was revoked",
+        "supplement_required": "Your student verification needs more material"
       },
       "identity_verification": {
         "approved": "Identity check passed",
@@ -2086,7 +2084,8 @@
       },
       "teacher_verification": {
         "approved": "Teacher verification was approved",
-        "rejected": "Teacher verification was not approved"
+        "rejected": "Teacher verification was not approved",
+        "supplement_required": "Your teacher verification needs more material"
       },
       "system": {
         "notice": "System notice: {reference_id}",
@@ -2097,6 +2096,25 @@
         "notice": "System notice",
         "security": "Security alert",
         "account": "Account notice"
+      },
+      "appeal": {
+        "approved": "Your appeal was accepted",
+        "rejected": "Your appeal was not accepted"
+      },
+      "group_membership": {
+        "grace_expiring": "The grace period of your group membership ends soon"
+      },
+      "storage_contribution": {
+        "exit_completed": "Your cloud drive contribution has been withdrawn"
+      },
+      "billing": {
+        "topup_review_required": "A top-up order needs a manual check",
+        "refund_completed": "Your refund is complete",
+        "refund_rejected": "Your refund request was not accepted"
+      },
+      "teacher_homepage_request": {
+        "approved": "Your teacher homepage request was approved",
+        "rejected": "Your teacher homepage request was not approved"
       }
     },
     "status": {
@@ -2115,7 +2133,38 @@
     },
     "namedContent": "“{name}”",
     "contentUnavailable": "(content unavailable)",
-    "contentNameUnavailable": "(name unavailable right now)"
+    "contentNameUnavailable": "(name unavailable right now)",
+    "reason": "Reason: {reason}",
+    "reasons": {
+      "duplicate_material": "Duplicates existing material",
+      "copyright_claim": "Copyright complaint",
+      "community_guidelines": "Breaks the community guidelines",
+      "off_topic": "Off topic",
+      "privacy_exposure": "Exposes someone’s private information",
+      "low_quality": "Quality is too low",
+      "author_request": "Requested by the author",
+      "insufficient_evidence": "Not enough evidence",
+      "expired_document": "The document has expired",
+      "unclear_material": "The material is not clear",
+      "identity_mismatch": "Identity details do not match",
+      "ineligible_status": "Your current status is not eligible",
+      "eligibility_revoked": "Eligibility was revoked",
+      "duplicate_binding": "Already linked to another account",
+      "policy_violation": "Breaks the platform rules",
+      "payment_channel_rejected": "The payment channel declined it"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "Receive reply notifications",
+        "on": "Reply notifications are on.",
+        "off": "Reply notifications are off."
+      },
+      "like_enabled": {
+        "label": "Receive like notifications",
+        "on": "Like notifications are on.",
+        "off": "Like notifications are off."
+      }
+    }
   },
   "search": {
     "title": "Search",
