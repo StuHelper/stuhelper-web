@@ -2051,7 +2051,8 @@
       "content": {
         "approved": "Tu contenido {content_id} fue aprobado",
         "rejected": "Tu contenido {content_id} no fue aprobado",
-        "removed": "Tu contenido {content_id} fue retirado"
+        "removed": "Tu contenido {content_id} fue retirado",
+        "draft_expiring": "Tu borrador {content_id} caduca pronto"
       },
       "resource_removal": {
         "approved": "La solicitud de retirada fue aceptada",
@@ -2064,7 +2065,8 @@
       "student_verification": {
         "approved": "La verificación de estudiante fue aprobada",
         "rejected": "La verificación de estudiante no fue aprobada",
-        "revoked": "La verificación de estudiante fue revocada"
+        "revoked": "La verificación de estudiante fue revocada",
+        "supplement_required": "Se necesitan más documentos para verificar tu condición de estudiante"
       },
       "identity_verification": {
         "approved": "La comprobación de identidad se superó",
@@ -2080,7 +2082,8 @@
       },
       "teacher_verification": {
         "approved": "La verificación docente fue aprobada",
-        "rejected": "La verificación docente no fue aprobada"
+        "rejected": "La verificación docente no fue aprobada",
+        "supplement_required": "Se necesitan más documentos para verificar tu condición de docente"
       },
       "system": {
         "notice": "Aviso del sistema: {reference_id}",
@@ -2091,6 +2094,25 @@
         "notice": "Aviso del sistema",
         "security": "Alerta de seguridad",
         "account": "Aviso de la cuenta"
+      },
+      "appeal": {
+        "approved": "Se ha aceptado tu apelación",
+        "rejected": "Se ha rechazado tu apelación"
+      },
+      "group_membership": {
+        "grace_expiring": "El periodo de gracia de tu pertenencia al grupo termina pronto"
+      },
+      "storage_contribution": {
+        "exit_completed": "Se ha completado la retirada de tu aportación de espacio en la nube"
+      },
+      "billing": {
+        "topup_review_required": "Un pedido de recarga requiere una revisión manual",
+        "refund_completed": "Se ha completado tu reembolso",
+        "refund_rejected": "Se ha rechazado tu solicitud de reembolso"
+      },
+      "teacher_homepage_request": {
+        "approved": "Se ha aprobado tu solicitud para modificar tu página docente",
+        "rejected": "Se ha rechazado tu solicitud para modificar tu página docente"
       }
     },
     "status": {
@@ -2109,7 +2131,38 @@
     },
     "namedContent": "«{name}»",
     "contentUnavailable": "(contenido no disponible)",
-    "contentNameUnavailable": "(nombre no disponible por ahora)"
+    "contentNameUnavailable": "(nombre no disponible por ahora)",
+    "reason": "Motivo: {reason}",
+    "reasons": {
+      "duplicate_material": "Duplica material existente",
+      "copyright_claim": "Reclamación de derechos de autor",
+      "community_guidelines": "Incumple las normas de la comunidad",
+      "off_topic": "Fuera de tema",
+      "privacy_exposure": "Expone información privada de otra persona",
+      "low_quality": "Calidad insuficiente",
+      "author_request": "A petición del autor",
+      "insufficient_evidence": "Pruebas insuficientes",
+      "expired_document": "El documento ha caducado",
+      "unclear_material": "La documentación no es clara",
+      "identity_mismatch": "Los datos de identidad no coinciden",
+      "ineligible_status": "Tu situación actual no cumple los requisitos",
+      "eligibility_revoked": "Se ha revocado tu condición habilitante",
+      "duplicate_binding": "Ya está vinculado a otra cuenta",
+      "policy_violation": "Incumple las normas de la plataforma",
+      "payment_channel_rejected": "El proveedor de pagos ha rechazado la operación"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "Recibir notificaciones de respuestas",
+        "on": "Las notificaciones de respuestas están activadas.",
+        "off": "Las notificaciones de respuestas están desactivadas."
+      },
+      "like_enabled": {
+        "label": "Recibir notificaciones de «me gusta»",
+        "on": "Las notificaciones de «me gusta» están activadas.",
+        "off": "Las notificaciones de «me gusta» están desactivadas."
+      }
+    }
   },
   "search": {
     "title": "Búsqueda",

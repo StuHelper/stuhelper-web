@@ -2051,7 +2051,8 @@
       "content": {
         "approved": "コンテンツ {content_id} が承認されました",
         "rejected": "コンテンツ {content_id} は承認されませんでした",
-        "removed": "コンテンツ {content_id} が非公開になりました"
+        "removed": "コンテンツ {content_id} が非公開になりました",
+        "draft_expiring": "下書き {content_id} の有効期限が近づいています"
       },
       "resource_removal": {
         "approved": "資料の削除申請が承認されました",
@@ -2064,7 +2065,8 @@
       "student_verification": {
         "approved": "学生認証の申請が承認されました",
         "rejected": "学生認証の申請は承認されませんでした",
-        "revoked": "学生認証が取り消されました"
+        "revoked": "学生認証が取り消されました",
+        "supplement_required": "学生認証の申請には追加資料が必要です"
       },
       "identity_verification": {
         "approved": "本人確認が完了しました",
@@ -2080,7 +2082,8 @@
       },
       "teacher_verification": {
         "approved": "教員認証の申請が承認されました",
-        "rejected": "教員認証の申請は承認されませんでした"
+        "rejected": "教員認証の申請は承認されませんでした",
+        "supplement_required": "教員認証の申請には追加資料が必要です"
       },
       "system": {
         "notice": "システムからのお知らせ：{reference_id}",
@@ -2091,6 +2094,25 @@
         "notice": "システムからのお知らせ",
         "security": "セキュリティのお知らせ",
         "account": "アカウントのお知らせ"
+      },
+      "appeal": {
+        "approved": "異議申立てが認められました",
+        "rejected": "異議申立ては認められませんでした"
+      },
+      "group_membership": {
+        "grace_expiring": "グループのメンバー資格の猶予期間がまもなく終了します"
+      },
+      "storage_contribution": {
+        "exit_completed": "クラウドストレージ容量の提供が終了しました"
+      },
+      "billing": {
+        "topup_review_required": "チャージ注文は担当者による確認が必要です",
+        "refund_completed": "返金が完了しました",
+        "refund_rejected": "返金申請は承認されませんでした"
+      },
+      "teacher_homepage_request": {
+        "approved": "教員ページの変更申請が承認されました",
+        "rejected": "教員ページの変更申請は承認されませんでした"
       }
     },
     "status": {
@@ -2109,7 +2131,38 @@
     },
     "namedContent": "「{name}」",
     "contentUnavailable": "（利用できない内容）",
-    "contentNameUnavailable": "（名前を取得できません）"
+    "contentNameUnavailable": "（名前を取得できません）",
+    "reason": "理由：{reason}",
+    "reasons": {
+      "duplicate_material": "既存の資料と重複しています",
+      "copyright_claim": "著作権に関する申し立てがありました",
+      "community_guidelines": "コミュニティガイドラインに違反しています",
+      "off_topic": "テーマに沿っていません",
+      "privacy_exposure": "他の人のプライバシーに関わる情報が含まれています",
+      "low_quality": "コンテンツの品質が基準を満たしていません",
+      "author_request": "投稿者本人からの依頼がありました",
+      "insufficient_evidence": "証拠が不足しています",
+      "expired_document": "提出書類の有効期限が切れています",
+      "unclear_material": "提出資料が不鮮明です",
+      "identity_mismatch": "本人確認情報が一致しません",
+      "ineligible_status": "現在の資格では条件を満たしていません",
+      "eligibility_revoked": "資格が取り消されています",
+      "duplicate_binding": "すでに別のアカウントに連携されています",
+      "policy_violation": "プラットフォームの規則に違反しています",
+      "payment_channel_rejected": "決済サービスがこの操作を拒否しました"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "返信の通知を受け取る",
+        "on": "返信の通知をオンにしました。",
+        "off": "返信の通知をオフにしました。"
+      },
+      "like_enabled": {
+        "label": "いいねの通知を受け取る",
+        "on": "いいねの通知をオンにしました。",
+        "off": "いいねの通知をオフにしました。"
+      }
+    }
   },
   "search": {
     "title": "検索",

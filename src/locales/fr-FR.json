@@ -2051,7 +2051,8 @@
       "content": {
         "approved": "Votre contenu {content_id} a été approuvé",
         "rejected": "Votre contenu {content_id} n’a pas été approuvé",
-        "removed": "Votre contenu {content_id} a été retiré"
+        "removed": "Votre contenu {content_id} a été retiré",
+        "draft_expiring": "Votre brouillon {content_id} expire bientôt"
       },
       "resource_removal": {
         "approved": "La demande de retrait a été acceptée",
@@ -2064,7 +2065,8 @@
       "student_verification": {
         "approved": "La vérification étudiante a été approuvée",
         "rejected": "La vérification étudiante n’a pas été approuvée",
-        "revoked": "La vérification étudiante a été révoquée"
+        "revoked": "La vérification étudiante a été révoquée",
+        "supplement_required": "Des pièces complémentaires sont requises pour votre vérification étudiante"
       },
       "identity_verification": {
         "approved": "La vérification d’identité a réussi",
@@ -2080,7 +2082,8 @@
       },
       "teacher_verification": {
         "approved": "La vérification enseignant a été approuvée",
-        "rejected": "La vérification enseignant n’a pas été approuvée"
+        "rejected": "La vérification enseignant n’a pas été approuvée",
+        "supplement_required": "Des pièces complémentaires sont requises pour vérifier votre statut d’enseignant"
       },
       "system": {
         "notice": "Avis du système : {reference_id}",
@@ -2091,6 +2094,25 @@
         "notice": "Avis du système",
         "security": "Alerte de sécurité",
         "account": "Avis concernant le compte"
+      },
+      "appeal": {
+        "approved": "Votre recours a été accepté",
+        "rejected": "Votre recours a été rejeté"
+      },
+      "group_membership": {
+        "grace_expiring": "La période de grâce de votre adhésion au groupe prend bientôt fin"
+      },
+      "storage_contribution": {
+        "exit_completed": "Le retrait de votre contribution au stockage cloud est terminé"
+      },
+      "billing": {
+        "topup_review_required": "Une commande de recharge doit être vérifiée manuellement",
+        "refund_completed": "Votre remboursement a été effectué",
+        "refund_rejected": "Votre demande de remboursement a été refusée"
+      },
+      "teacher_homepage_request": {
+        "approved": "Votre demande de modification de votre page d’enseignant a été acceptée",
+        "rejected": "Votre demande de modification de votre page d’enseignant a été refusée"
       }
     },
     "status": {
@@ -2109,7 +2131,38 @@
     },
     "namedContent": "« {name} »",
     "contentUnavailable": "(contenu indisponible)",
-    "contentNameUnavailable": "(nom momentanément indisponible)"
+    "contentNameUnavailable": "(nom momentanément indisponible)",
+    "reason": "Motif : {reason}",
+    "reasons": {
+      "duplicate_material": "Fait doublon avec un support existant",
+      "copyright_claim": "Plainte relative aux droits d’auteur",
+      "community_guidelines": "Non-respect des règles de la communauté",
+      "off_topic": "Hors sujet",
+      "privacy_exposure": "Divulgation d’informations privées concernant autrui",
+      "low_quality": "Qualité insuffisante",
+      "author_request": "À la demande de l’auteur",
+      "insufficient_evidence": "Éléments de preuve insuffisants",
+      "expired_document": "Le document a expiré",
+      "unclear_material": "Les pièces justificatives manquent de clarté",
+      "identity_mismatch": "Les informations d’identité ne concordent pas",
+      "ineligible_status": "Votre statut actuel ne remplit pas les conditions requises",
+      "eligibility_revoked": "Votre éligibilité a été révoquée",
+      "duplicate_binding": "Déjà associé à un autre compte",
+      "policy_violation": "Non-respect des règles de la plateforme",
+      "payment_channel_rejected": "Le prestataire de paiement a refusé l’opération"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "Recevoir les notifications de réponse",
+        "on": "Les notifications de réponse sont activées.",
+        "off": "Les notifications de réponse sont désactivées."
+      },
+      "like_enabled": {
+        "label": "Recevoir les notifications de mention J’aime",
+        "on": "Les notifications de mention J’aime sont activées.",
+        "off": "Les notifications de mention J’aime sont désactivées."
+      }
+    }
   },
   "search": {
     "title": "Recherche",
