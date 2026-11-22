@@ -137,7 +137,9 @@
     "phone_rate_limited": "Trop de demandes de code. Réessayez plus tard.",
     "append_window_not_open": "Les compléments sont possibles 5 minutes après la première publication. Réessayez dans un instant.",
     "consent_required": "Acceptez d’abord les conditions d’utilisation et la politique de confidentialité actuelles.",
-    "consent_version_changed": "Un document a été mis à jour. Acceptez-le de nouveau."
+    "consent_version_changed": "Un document a été mis à jour. Acceptez-le de nouveau.",
+    "email_transfer_consent_required": "Acceptez l’envoi depuis l’étranger avant de demander un code par e-mail universitaire.",
+    "email_transfer_consent_changed": "La notice de transfert a été mise à jour. Veuillez confirmer à nouveau."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -1284,6 +1286,46 @@
     "documentType": "Type de pièce",
     "documentTypes": {
       "cn_resident_id_card": "Carte d’identité de résident (Chine)"
+    },
+    "transfer": {
+      "title": "Envoi de codes de vérification depuis l’étranger",
+      "intro": "Avant l’envoi d’un code à votre adresse e-mail universitaire, choisissez séparément si vous acceptez que les données ci-dessous soient transmises à un prestataire d’envoi d’e-mails situé hors de Chine.",
+      "changed": "La notice de transfert a été mise à jour. Lisez la nouvelle version et faites à nouveau votre choix.",
+      "facts": {
+        "recipient": {
+          "label": "Destinataire",
+          "text": "Plus Five Five, Inc. (service d’envoi d’e-mails Resend)"
+        },
+        "data": {
+          "label": "Données transférées",
+          "text": "Votre adresse e-mail universitaire (qui peut contenir votre numéro d’étudiant), l’objet, le corps du message avec le code et son heure d’expiration, ainsi que les identifiants nécessaires à l’envoi."
+        },
+        "purpose": {
+          "label": "Finalité",
+          "text": "Envoyer ce code, traiter les rejets de messages, les plaintes et les incidents de distribution, puis fournir les résultats de la distribution et les journaux nécessaires au diagnostic."
+        },
+        "place": {
+          "label": "Lieux de traitement et de stockage",
+          "text": "Les données sont traitées et stockées principalement aux États-Unis. La route publique des messages non distribués du domaine d’envoi pointe vers Tokyo, au Japon."
+        },
+        "period": {
+          "label": "Durées de conservation",
+          "text": "La notice ci-dessous précise les durées de conservation et les règles de suppression du corps des messages, des journaux de distribution, des sauvegardes et des entrées de la liste d’exclusion."
+        },
+        "rights": {
+          "label": "Vos droits",
+          "text": "Vous pouvez retirer votre consentement à tout moment dans « Compte et sécurité ». Pour demander un accès, une copie, une rectification ou un effacement, utilisez les coordonnées indiquées dans la notice."
+        }
+      },
+      "read": "Lire la notice et le formulaire de consentement au transfert de données personnelles (version {version})",
+      "other": "Vous pouvez aussi revenir en arrière et choisir une autre méthode proposée par votre établissement, si vous remplissez ses conditions.",
+      "agree": "Accepter l’envoi depuis l’étranger et envoyer le code",
+      "back": "Revenir et choisir une autre méthode",
+      "accepted": "Vous avez consenti à recevoir des codes de vérification envoyés depuis l’étranger à votre adresse e-mail universitaire.",
+      "acceptedAt": "Le {time}, vous avez consenti à recevoir des codes de vérification envoyés depuis l’étranger à votre adresse e-mail universitaire.",
+      "withdraw": "Retirer le consentement",
+      "withdrawConfirm": "Une fois le consentement retiré, les nouveaux envois nécessitent un nouveau consentement. Les envois déjà lancés peuvent se poursuivre et les codes déjà envoyés conservent leur échéance initiale.",
+      "withdrawn": "Le consentement à l’envoi depuis l’étranger a été retiré."
     }
   },
   "contribution": {

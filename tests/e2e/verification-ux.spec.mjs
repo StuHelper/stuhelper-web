@@ -7,6 +7,8 @@ const base = 'http://127.0.0.1:18787';
 const school = { id: 'school', name: 'Test University', enabled: true, methods: ['real_name_identity_check', 'school_sso'], profile_schema: 'buaa.imported.v1', notice_version: 'v1', opening_date: '2026-09-01', newcomer_days: 30, email_domain: 'example.edu', material_types: [], revision: 1 };
 const credential = { id: 'credential', school_id: 'school', method: 'real_name_identity_check', stage: 'bachelor', kind: 'student', state: 'active', student_display: '2026****01', revision: 1, verified_at: '2026-11-14T04:00:00Z', expires_at: null };
 const application = { id: 'application', school_id: 'school', method: 'real_name_identity_check', stage: 'bachelor', kind: 'student', state: 'in_progress', revision: 1, created_at: '2026-11-14T00:00:00Z', updated_at: '2026-11-14T00:00:00Z', expires_at: '2030-01-01T00:00:00Z', credential_id: '', result_code: '' };
+const transferPublication = { document_id: 'email-transfer', version: 'v1', digest: 'a'.repeat(64) };
+const transferStatus = { document: { ...transferPublication, url: 'https://example.com/legal/email-transfer/v1' }, accepted: false };
 async function fixture(page, options = {}) {
   const state = { writes: [], profile: { school_id: 'school', data_status: 'partial', schema: 'buaa.imported.v1', revision: 1, collected_at: '2020-01-01T00:00:00Z', source_revision: '1', fields: { student_id: '20260001', name: 'Synthetic Student', college_name: 'Test College', major_name: null, department: 'Test Department', contact_email: 'synthetic@example.edu' }, field_sources: { student_id: 'oracle_students', name: 'unknown', college_name: 'academic_profile', department: 'oracle_departments', contact_email: 'future_source' } } };
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
@@ -18,6 +20,7 @@ async function fixture(page, options = {}) {
       return route.fulfill({ status: 422, json: { code: options.errorCode ?? 'verification_information_mismatch' } });
     }
     if (endpoint === 'summary') return route.fulfill({ json: { campus_eligibility: true, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-14T00:00:00Z', revision: 1, next_evaluation_at: null } });
+    if (endpoint === 'email-transfer-consent' && request.method() === 'GET') return route.fulfill({ json: transferStatus });
     if (options.loadFailure && endpoint === 'schools') return route.fulfill({ status: 503, json: { code: 'unavailable' } });
     if (endpoint.endsWith('/profile')) return options.profileFailure?.(endpoint) ? route.fulfill({ status: 503, json: { code: 'unavailable' } }) : route.fulfill({ json: state.profile });
     return route.fulfill({ json: endpoint === 'schools' ? [options.school ?? school] : endpoint === 'credentials' ? [credential, { ...credential, id: 'second', verified_at: '2025-05-01T00:00:00Z' }] : [] });
@@ -25,6 +28,10 @@ async function fixture(page, options = {}) {
   return state;
 }
 const messages = info => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
+function transferAgreeButton(page, verification) {
+  return page.getByRole('region', { name: verification.transfer.title, exact: true })
+    .getByRole('button', { name: verification.transfer.agree, exact: true });
+}
 // Opens the page and waits until loading has settled. With `steps`, the verification steps are
 // opened as well: someone already verified sees the status first and starts a new verification on request.
 async function open(page, info, { steps = false } = {}) {
@@ -309,11 +316,13 @@ for (const [method, codes] of Object.entries({ real_name_identity_check: ['real_
     if (method === 'school_sso') await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
     else await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
     if (method === 'real_name_identity_check') await page.getByLabel(v.document, { exact: true }).fill('TEST0001');
-    await page.getByRole('button', { name: method === 'student_email_outbound_otp' ? v.createChallenge : v.submit, exact: true }).click();
+    const outbound = method === 'student_email_outbound_otp';
+    await page.getByRole('button', { name: outbound ? v.createChallenge : v.submit, exact: true }).click();
+    if (outbound) await transferAgreeButton(page, v).click();
     const error = page.locator('form').first().getByRole('alert');
     await expect(error).toHaveText(m.errors[code]);
     await expect(page.getByLabel(v.studentId, { exact: true })).toHaveValue('ZY2306123');
-    if (method === 'student_email_outbound_otp') await expect(page.getByLabel(v.document, { exact: true })).toHaveCount(0);
+    if (outbound) await expect(page.getByLabel(v.document, { exact: true })).toHaveCount(0);
     await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   });
 }
@@ -330,6 +339,7 @@ test('school email step shows live sending state, verifies six digits and allows
     if (request.method() === 'POST' && endpoint === 'applications') return route.fulfill({ json: mailApplication });
     if (request.method() === 'POST' && endpoint === 'applications/application/email') return route.fulfill({ json: mail });
     if (request.method() === 'POST' && endpoint === 'applications/application/email/confirm') return route.fulfill({ json: { ...mailApplication, state: 'approved' } });
+    if (endpoint === 'email-transfer-consent' && request.method() === 'GET') return route.fulfill({ json: transferStatus });
     if (endpoint === 'applications/application/email') {
       mail = { ...mail, state: 'delivered' };
       return route.fulfill({ json: mail });
@@ -352,6 +362,7 @@ test('school email step shows live sending state, verifies six digits and allows
   await page.getByLabel(v.studentId).fill('20260001');
   await page.getByLabel(v.name).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge }).click();
+  await transferAgreeButton(page, v).click();
   await expect(current).toHaveText(new RegExp(v.steps.finish));
   await expect(page.getByRole('status').filter({ hasText: v.emailStep.sending })).toBeVisible();
   await expect(page.getByText(v.emailStep.sent.replace('{email}', '20****01@example.edu'))).toBeVisible();
@@ -384,6 +395,7 @@ test('queued email can be resent after the cooldown without a delivered status',
   await page.getByLabel(v.studentId).fill('20260001');
   await page.getByLabel(v.name).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge }).click();
+  await transferAgreeButton(page, v).click();
   const resend = page.locator('.email-step .form-actions button').nth(1);
   await expect(resend).toBeDisabled();
   await page.clock.fastForward(61_000);
@@ -426,7 +438,14 @@ test('restored email resend collects identity again before submitting', async ({
   await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
   await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
-  expect(writes).toEqual([{ student_id: '20260001', name: 'Synthetic Student' }]);
+  const agree = transferAgreeButton(page, v);
+  await expect(agree).toBeVisible();
+  expect(writes).toEqual([]);
+  await agree.click();
+  await expect.poll(() => writes).toEqual([{
+    student_id: '20260001', name: 'Synthetic Student',
+    email_transfer_consent: { ...transferPublication, accepted: true },
+  }]);
 });
 
 test('a failed school profile is reported once, under the credential that asked for it', async ({ page }, info) => {

@@ -17,6 +17,15 @@ describe('verification contract boundary', () => {
     expect(parseEntity('Application', application).id).toBe('a1')
   })
 
+  it('accepts a transfer notice only when its link opens and its version can be submitted', () => {
+    const document = { document_id: 'email-transfer', version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/legal/email-transfer/v1' }
+    const status = { document, accepted: false }
+    expect(parseEntity('EmailTransferConsentStatus', status)).toEqual(status)
+    for (const invalid of [{ url: 'https://' }, { url: 'http://example.invalid/notice' }, { version: 'two words' }]) {
+      expect(() => parseEntity('EmailTransferConsentStatus', { ...status, document: { ...document, ...invalid } })).toThrow('incompatible')
+    }
+  })
+
   it('accepts teacher records only with known, distinct disclosure choices', () => {
     const credential = { id: 'tc', school_id: 'synthetic', teacher_ids: ['p1'], state: 'active', revision: 1, verified_at: '2026-10-28T00:00:00Z', expires_at: null, source: 'manual_material_review', note: '', disclosures: ['teacher'] }
     expect(parseEntity('TeacherCredential', credential).teacher_ids).toEqual(['p1'])
