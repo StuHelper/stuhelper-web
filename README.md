@@ -71,6 +71,12 @@ make dev
 
 旧入口 `/community`、`/community/me`、`/verification` 跳转到现行校园、个人中心及认证页。旧贡献和托管入口进入相应存储标签，`/resources/me` 与 `/resources/requests` 进入本人资料与回执页。
 
+## 公开法律文件
+
+页脚的《用户服务协议》和《隐私政策》分别打开 `/legal/terms` 和 `/legal/privacy`。任何人都能查看当前生效的正文、版本号和生效日期。当前没有生效版本时，页面显示提示并提供重试。
+
+`/legal/{slug}/versions` 按页列出已发布版本。打开某一项或同意记录中的 `/legal/{slug}/versions/{version}` 可查阅该版发布时的原文。界面可切换八种语言，正文保留发布语言。
+
 ## 账号与认证
 
 头像菜单直接退出当前设备，点击后立即反馈进度。个人中心提供当前设备和全部设备两种退出范围，账号与安全页也提供退出全部设备。确认后撤销相应范围的 StuHelper 会话，回到门户并提示退出范围。Casdoor 注销未获确认时，门户另行提示。
@@ -180,7 +186,7 @@ src/locales/      八种语言界面词条
 
 `contracts/` 下的 OpenAPI 快照与 `src/api/*.gen.ts` 由提供方仓库生成并通过 `*.source.json` 记录版本、提交与 SHA-256 摘要，接口变更须先更新提供方契约再同步生成产物。
 
-`make check` 执行会话、存储、贡献、认证、资料和学术契约检查，以及仓库检查、国际化、类型检查、ESLint、Vitest、生产构建和 `actionlint`。文档格式、链接与单段字数使用 `pnpm run check:docs` 单独检查。
+`make check` 执行会话、存储、贡献、认证、资料、学术和法律文件契约检查，以及仓库检查、国际化、类型检查、ESLint、Vitest、生产构建和 `actionlint`。文档格式、链接与单段字数使用 `pnpm run check:docs` 单独检查。
 
 本地安装依赖和 Chromium 后，使用以下命令验证正式构建和审阅原型。正式用例使用 HTTP 契约夹具，配置覆盖八种语言和桌面、移动两类视口。部分纯状态回归套件只运行中文、英语和阿拉伯语。
 

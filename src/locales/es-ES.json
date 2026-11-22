@@ -2602,5 +2602,16 @@
     "declineTitle": "Si no aceptas",
     "decline": "Las funciones que requieren una cuenta seguirán sin estar disponibles. Puedes cerrar sesión y seguir viendo las páginas públicas, o solicitar el cierre de tu cuenta de StuHelper.",
     "menu": "Revisar condiciones"
+  },
+  "legal": {
+    "title": "Documento legal",
+    "current": "Ver la versión actual",
+    "history": "Versiones anteriores",
+    "noVersions": "Todavía no hay versiones publicadas.",
+    "unpublished": "No hay ninguna versión publicada en vigor.",
+    "versionLine": "Versión {version} · en vigor desde el {date}",
+    "fixed": "Historial de versiones · Esta página muestra el texto de esta versión tal como se publicó.",
+    "terms": "Condiciones del servicio",
+    "privacy": "Política de privacidad"
   }
 }

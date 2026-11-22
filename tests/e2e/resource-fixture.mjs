@@ -77,7 +77,7 @@ export function fixture() {
     terms: {
       version: 'v1',
       digest: 'a'.repeat(64),
-      url: 'https://example.invalid/terms',
+      url: 'https://stuhelper.com/legal/upload-license/versions/v1',
     },
     allowed_types: ['text/plain'],
     max_file_size: 1000000,

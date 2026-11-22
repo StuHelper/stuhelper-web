@@ -18,6 +18,12 @@
     "README.md"
   ],
   "scenario_tests": {
+    "I18N-04": [
+      "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date"
+    ],
+    "I18N-06": [
+      "tests/e2e/legal.spec.mjs#legal body and table keep their reading direction and fit the viewport"
+    ],
     "AE-ACCESS-05": [
       "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote",
       "tests/e2e/search.spec.mjs#a member without campus access withdraws a selected review vote on the personal votes page"
