@@ -70,8 +70,10 @@ export function serverCode(body: unknown, status: number) {
 /** The server's RFC 3339 reopening time, read only when it is a well-formed timestamp. */
 export function retryAtOf(problem: unknown) {
   const value = typeof problem === 'object' && problem !== null && 'retry_at' in problem ? problem.retry_at : undefined
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return undefined
-  return Number.isFinite(Date.parse(value)) ? value : undefined
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T(?:[01]\d|2[0-3]):\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return undefined
+  // Date.parse can roll an impossible day into the next month. Check the date before applying the offset.
+  const day = new Date(value.slice(0, 10)).getUTCDate()
+  return day === Number(value.slice(8, 10)) && Number.isFinite(Date.parse(value)) ? value : undefined
 }
 
 export function errorRetryAt(error: unknown) {

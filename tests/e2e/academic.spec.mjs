@@ -735,9 +735,8 @@ test('reporting a review needs a violation type and sends it with the report', a
   await page.getByLabel(a.review.reason, { exact: true }).fill('Contains a phone number');
   await expect(page.getByRole('button', { name: all.common.submit, exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
-  // All 24 moderation categories are offered, including an author's own update request.
-  await expect(page.getByRole('option')).toHaveCount(24);
-  await expect(page.getByRole('option', { name: all.violation.categories.author_update.name, exact: true })).toHaveCount(1);
+  const categories = page.getByRole('option').and(page.locator(':not([data-disabled])'));
+  await expect(categories).toHaveText(Object.values(all.violation.categories).map(({ name }) => name));
   await page.getByRole('option', { name: all.violation.categories.privacy_leak.name, exact: true }).click();
   await page.getByRole('button', { name: all.common.submit, exact: true }).click();
   await expect.poll(() => posts.length).toBe(1);
@@ -746,31 +745,42 @@ test('reporting a review needs a violation type and sends it with the report', a
 
 test('a follow-up attempted inside the five-minute window explains when it opens', async ({ page }, info) => {
   const locale = info.project.metadata.locale, all = catalogue(info);
+  const retryAt = '2030-01-01T00:17:00Z';
   await academicFixture(page);
-  await page.route('**/api/v1/reviews/review/actions', (route) => route.fulfill({ status: 409, json: { code: 'conflict', subcode: 'append_window_not_open', field: 'action', retry_at: '2030-01-01T00:00:00Z' } }));
+  await page.route('**/api/v1/reviews/review/actions', (route) => route.fulfill({ status: 409, json: { code: 'conflict', subcode: 'append_window_not_open', field: 'action', retry_at: retryAt } }));
   await page.route('**/api/v1/reviews/me/entries/review**', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
   await page.route(/\/api\/v1\/reviews\/review(\?.*)?$/, (route) => route.fulfill({ json: { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Mine', body: 'Body', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'author' }, revision: 1, published_at: '2026-10-27T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: true, state: 'published', can_edit: false } }));
   await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
   await page.getByLabel(all.academic.followUp).fill('More notes');
   await page.getByRole('button', { name: all.academic.submitFollowUp, exact: true }).click();
-  // The server's reopening time is shown instead of a generic "try later", and the text is kept.
-  const [before, after] = all.academic.followUpOpensAt.split('{time}');
-  await expect(page.getByRole('status').filter({ hasText: before.trim() }).filter({ hasText: after.trim() })).toBeVisible();
+  const time = await page.evaluate(({ locale, retryAt }) => new Intl.DateTimeFormat(locale, {
+    calendar: 'gregory', timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'short',
+  }).format(new Date(retryAt)), { locale, retryAt });
+  const reopening = page.getByText(all.academic.followUpOpensAt.replace('{time}', time), { exact: true });
+  await expect(page.getByRole('status').and(reopening)).toBeVisible();
   await expect(page.getByText(all.errors.append_window_not_open, { exact: true })).toHaveCount(0);
   await expect(page.getByLabel(all.academic.followUp)).toHaveValue('More notes');
 });
 
 test('a mentor comment does not wait for the course follow-up window', async ({ page }, info) => {
-  const locale = info.project.metadata.locale, all = catalogue(info);
+  const locale = info.project.metadata.locale, all = catalogue(info), posts = [];
   await academicFixture(page);
-  const now = new Date(Date.now() - 30_000).toISOString();
+  await page.clock.setFixedTime(new Date('2026-11-22T00:00:30Z'));
   await page.route('**/api/v1/reviews/me/entries/review**', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
-  await page.route(/\/api\/v1\/reviews\/review(\?.*)?$/, (route) => route.fulfill({ json: { id: 'review', root_id: 'review', kind: 'mentor', school_id: 'school', target_id: 'teacher', title: 'Mine', body: 'Body', ratings: [], author: { anonymous: true, handle: 'author' }, revision: 1, published_at: now, upvotes: 0, downvotes: 0, my_vote: 0, mine: true, state: 'published', can_edit: true } }));
+  await page.route(/\/api\/v1\/reviews\/review(\?.*)?$/, (route) => route.fulfill({ json: { id: 'review', root_id: 'review', kind: 'mentor', school_id: 'school', target_id: 'teacher-a', title: 'Mine', body: 'Body', ratings: [0, 0, 0, 0, 0], author: { anonymous: true, handle: 'author' }, revision: 1, published_at: '2026-11-22T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: true, state: 'published', can_edit: true } }));
+  await page.route('**/api/v1/reviews/review/actions', (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push(route.request().postDataJSON());
+    return route.fulfill({ json: { id: 'review', state: 'published', revision: 2 } });
+  });
   await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
-  await page.getByLabel(all.academic.followUp).fill('More notes');
-  await expect(page.getByRole('button', { name: all.academic.submitFollowUp, exact: true })).toBeEnabled();
+  const followUp = page.getByLabel(all.academic.followUp);
+  await followUp.fill('More notes');
   const [before] = all.academic.followUpOpensAt.split('{time}');
   await expect(page.getByText(before.trim())).toHaveCount(0);
+  await page.getByRole('button', { name: all.academic.submitFollowUp, exact: true }).click();
+  await expect(followUp).toHaveValue('');
+  expect(posts).toEqual([{ action: 'append', revision: 1, body: 'More notes' }]);
 });
 
 test('rating groups keep their dimension names when the school customises the level wording', async ({ page }, info) => {

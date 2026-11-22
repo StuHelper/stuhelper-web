@@ -271,6 +271,15 @@
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
       "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
       "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
+    ],
+    "ACAD-41": [
+      "src/shared/api/http.test.ts#keeps a well-formed server reopening time on a 409 and drops malformed ones",
+      "tests/e2e/academic.spec.mjs#a follow-up attempted inside the five-minute window explains when it opens",
+      "tests/e2e/academic.spec.mjs#a mentor comment does not wait for the course follow-up window"
+    ],
+    "CM-22": [
+      "tests/e2e/academic.spec.mjs#reporting a review needs a violation type and sends it with the report",
+      "tests/e2e/resources.spec.mjs#a signed-in rights holder can file a complaint when resource details are denied"
     ]
   }
 }

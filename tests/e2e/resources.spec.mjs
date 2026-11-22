@@ -337,6 +337,8 @@ test('a signed-in rights holder can file a complaint when resource details are d
   // A complaint needs a violation type; the long list is searchable.
   await expect(page.getByRole('button', { name: all.common.submit, exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
+  const categories = page.getByRole('option').and(page.locator(':not([data-disabled])'));
+  await expect(categories).toHaveText(Object.values(all.violation.categories).map(({ name }) => name));
   await page.getByRole('textbox', { name: all.common.searchOptions }).fill(all.violation.categories.copyright.name);
   await page.getByRole('option', { name: all.violation.categories.copyright.name, exact: true }).click();
   await expect(page.getByText(all.violation.categories.copyright.hint, { exact: true })).toBeVisible();
