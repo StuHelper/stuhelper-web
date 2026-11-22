@@ -162,8 +162,9 @@
       "src/features/verification/flow.test.ts#asks again when resend requires consent and keeps the existing delivered code",
       "tests/e2e/email-transfer-consent.spec.mjs#resend reuses consent for the same recipient and asks again for a changed student ID",
       "tests/e2e/email-transfer-consent.spec.mjs#a revoked receipt makes resend ask again and keeps the already sent code usable",
-      "tests/e2e/email-transfer-consent.spec.mjs#account security withdraws consent only after confirmation and refreshes the status",
-      "src/features/verification/email-transfer-withdraw.test.ts#lets the account reload its withdrawal status after the document source recovers"
+      "tests/e2e/email-transfer-consent.spec.mjs#the privacy page withdraws consent only after confirmation and refreshes the status",
+      "src/features/verification/email-transfer-withdraw.test.ts#lets the account reload its withdrawal status after the document source recovers",
+      "tests/e2e/email-transfer-consent.spec.mjs#the consent gate lets a member withdraw without accepting the main agreements"
     ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
@@ -360,6 +361,11 @@
     ],
     "CAT-TEACHER-15": [
       "src/features/academic/teacherHomepage.test.ts#reads copied images with the session, rejects redirects and enforces the 20 MiB stream limit"
+    ],
+    "SSO-CONSENT-04": [
+      "tests/e2e/consent.spec.mjs#the personal center opens consent records, legal documents and account closure",
+      "tests/e2e/consent.spec.mjs#a failed agreement lookup retries and shows a newly pending version",
+      "tests/e2e/email-transfer-consent.spec.mjs#the consent gate lets a member withdraw without accepting the main agreements"
     ]
   }
 }

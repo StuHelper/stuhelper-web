@@ -8,9 +8,9 @@ import EmailTransferWithdraw from './EmailTransferWithdraw.vue'
 const path = '/api/v1/verification/email-transfer-consent'
 let app: App | undefined
 
-function mountWithdrawal(fetcher: typeof fetch) {
+function mountWithdrawal(fetcher: typeof fetch, always = false) {
   const root = document.createElement('div')
-  app = createApp(EmailTransferWithdraw).use(i18n).provide(hostFetchKey, fetcher)
+  app = createApp(EmailTransferWithdraw, { always }).use(i18n).provide(hostFetchKey, fetcher)
   app.mount(root)
   return root
 }
@@ -49,4 +49,20 @@ it('does not warn about a deployment where the withdrawal endpoint is unavailabl
 
   expect(fetcher).toHaveBeenCalledTimes(1)
   expect(root.querySelector('section')).toBeNull()
+})
+
+it.each([true, false])('shows the inactive consent explanation only on the privacy page (always=%s)', async (always) => {
+  const fetcher = vi.fn<typeof fetch>().mockResolvedValue(Response.json({
+    accepted: false,
+    document: {
+      document_id: 'email-transfer', version: 'v1', digest: 'a'.repeat(64),
+      url: 'https://legal.example.invalid/email-transfer/v1',
+    },
+  }))
+  const root = mountWithdrawal(fetcher, always)
+  await new Promise((resolve) => setTimeout(resolve, 0))
+  await nextTick()
+  expect(root.textContent?.includes(i18n.global.t('verification.transfer.notAccepted'))).toBe(always)
+  expect(root.querySelector('section') !== null).toBe(always)
+  expect(root.querySelector('button')).toBeNull()
 })

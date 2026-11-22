@@ -697,7 +697,8 @@
       "resources": "Dépôts, validations et corrections.",
       "requests": "Suite donnée aux retraits, plaintes et recours.",
       "storage": "Capacité partagée et comptes cloud.",
-      "courses": "Cours, enseignants et horaires par semestre."
+      "courses": "Cours, enseignants et horaires par semestre.",
+      "privacy": "Accords acceptés et consentements distincts"
     },
     "profile": {
       "title": "Profil",
@@ -1314,7 +1315,7 @@
         },
         "rights": {
           "label": "Vos droits",
-          "text": "Vous pouvez retirer votre consentement à tout moment dans « Compte et sécurité ». Pour demander un accès, une copie, une rectification ou un effacement, utilisez les coordonnées indiquées dans la notice."
+          "text": "Vous pouvez retirer votre consentement à tout moment dans « Confidentialité et consentements ». Pour demander un accès, une copie, une rectification ou un effacement, utilisez les coordonnées indiquées dans la notice."
         }
       },
       "read": "Lire la notice et le formulaire de consentement au transfert de données personnelles (version {version})",
@@ -1325,7 +1326,8 @@
       "acceptedAt": "Le {time}, vous avez consenti à recevoir des codes de vérification envoyés depuis l’étranger à votre adresse e-mail universitaire.",
       "withdraw": "Retirer le consentement",
       "withdrawConfirm": "Une fois le consentement retiré, les nouveaux envois nécessitent un nouveau consentement. Les envois déjà lancés peuvent se poursuivre et les codes déjà envoyés conservent leur échéance initiale.",
-      "withdrawn": "Le consentement à l’envoi depuis l’étranger a été retiré."
+      "withdrawn": "Le consentement à l’envoi depuis l’étranger a été retiré.",
+      "notAccepted": "Vous n’avez pas consenti à l’envoi depuis l’étranger. Votre accord sera demandé avant tout envoi de code à votre adresse universitaire."
     }
   },
   "contribution": {
@@ -2749,5 +2751,17 @@
       "external": "(ouvre le site de l’établissement dans une nouvelle fenêtre)",
       "untitled": "Autre contenu"
     }
+  },
+  "privacy": {
+    "title": "Confidentialité et consentements",
+    "description": "Consultez les accords que vous avez acceptés et gérez les consentements que vous pouvez retirer séparément.",
+    "agreements": "Conditions d’utilisation et politique de confidentialité",
+    "acceptedVersion": "Version {version} acceptée le {time}",
+    "pendingVersion": "Version {version} en attente de votre accord",
+    "read": "Lire",
+    "withdrawAgreements": "Si vous n’acceptez plus les conditions d’utilisation ou la politique de confidentialité, vous pouvez demander la fermeture de votre compte.",
+    "closure": "Demander la fermeture du compte",
+    "documents": "Documents juridiques",
+    "transferDocument": "Notice sur le transfert de données personnelles à l’étranger"
   }
 }

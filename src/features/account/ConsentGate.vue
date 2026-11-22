@@ -12,6 +12,7 @@ import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import { toast } from '../../shared/ui/toast'
 import AccountClosure from './AccountClosure.vue'
+import EmailTransferWithdraw from '../verification/EmailTransferWithdraw.vue'
 import { safeNext } from './access'
 
 // Before pages that need an account, the person accepts the current user agreement and privacy
@@ -231,6 +232,8 @@ async function signOut() {
       </div>
     </section>
     <AccountClosure v-if="session.state.value === 'consent'" />
+    <!-- A separate consent stays withdrawable while the main documents wait for a choice. -->
+    <EmailTransferWithdraw v-if="session.state.value === 'consent'" />
   </div>
 </template>
 

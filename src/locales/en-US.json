@@ -697,7 +697,8 @@
       "resources": "Upload results, review status and corrections.",
       "requests": "Outcomes of withdrawals, complaints and appeals.",
       "storage": "Shared capacity and cloud accounts.",
-      "courses": "Courses, teachers and class times by term."
+      "courses": "Courses, teachers and class times by term.",
+      "privacy": "Agreements you accepted and separate consents"
     },
     "profile": {
       "title": "Profile",
@@ -1314,7 +1315,7 @@
         },
         "rights": {
           "label": "Your rights",
-          "text": "You can withdraw consent at any time under Account and security. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
+          "text": "You can withdraw consent at any time under Privacy and consents. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
         }
       },
       "read": "Read the personal information transfer notice (version {version})",
@@ -1325,7 +1326,8 @@
       "acceptedAt": "On {time}, you consented to having verification codes sent to your school email from abroad.",
       "withdraw": "Withdraw consent",
       "withdrawConfirm": "After you withdraw consent, new deliveries require consent again. Any delivery that has already started may continue, and codes already sent keep their original expiry time.",
-      "withdrawn": "Consent to delivery from abroad was withdrawn."
+      "withdrawn": "Consent to delivery from abroad was withdrawn.",
+      "notAccepted": "You have not agreed to delivery from abroad. You will be asked before a school-email code is sent."
     }
   },
   "contribution": {
@@ -2749,5 +2751,17 @@
       "external": "(opens the school website in a new window)",
       "untitled": "More content"
     }
+  },
+  "privacy": {
+    "title": "Privacy and consents",
+    "description": "See the agreements you accepted and manage consents you can withdraw separately.",
+    "agreements": "Terms and privacy policy",
+    "acceptedVersion": "Accepted version {version} on {time}",
+    "pendingVersion": "Version {version} not accepted yet",
+    "read": "Read",
+    "withdrawAgreements": "If you no longer agree to the Terms of Service or the Privacy Policy, you can close your account.",
+    "closure": "Go to account closure",
+    "documents": "Legal documents",
+    "transferDocument": "Notice on transferring personal information abroad"
   }
 }

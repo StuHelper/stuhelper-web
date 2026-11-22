@@ -14,6 +14,8 @@ import { useVerification } from './api'
 // Withdrawing the separate consent to deliver school-email codes through the provider abroad.
 // Codes already sent stay valid until they expire; queued deliveries and retries stop, and
 // the next outbound code asks again.
+// `always` keeps the section on the privacy page even when nothing is in effect.
+const props = withDefaults(defineProps<{ always?: boolean }>(), { always: false })
 const { t } = useI18n()
 const format = useFormat()
 const errorText = useErrorText()
@@ -43,7 +45,7 @@ async function withdraw() {
 
 <template>
   <section
-    v-if="status.data.value?.accepted || loadFailed"
+    v-if="status.data.value?.accepted || loadFailed || (props.always && status.data.value)"
     class="section"
     aria-labelledby="email-transfer-consent"
   >
@@ -83,6 +85,12 @@ async function withdraw() {
         @cancel="confirming = false"
       />
     </template>
+    <p
+      v-else
+      class="card muted small"
+    >
+      {{ t('verification.transfer.notAccepted') }}
+    </p>
   </section>
 </template>
 

@@ -309,9 +309,9 @@ test('an unavailable transfer check offers retry and a return to other methods',
   expect(state.deliveries).toHaveLength(1);
 });
 
-test('account security withdraws consent only after confirmation and refreshes the status', async ({ page }, info) => {
+test('the privacy page withdraws consent only after confirmation and refreshes the status', async ({ page }, info) => {
   const { verification: v, common } = catalogue(info), state = await fixture(page, true);
-  await page.goto(`/me/account?lang=${info.project.metadata.locale}`);
+  await page.goto(`/me/privacy?lang=${info.project.metadata.locale}`);
   const section = notice(page, v);
   const withdraw = button(section, v.transfer.withdraw);
   const dialog = page.getByRole('dialog', { name: v.transfer.withdraw, exact: true });
@@ -326,7 +326,8 @@ test('account security withdraws consent only after confirmation and refreshes t
   if (['desktop-zh-CN', 'mobile-ar-EG'].includes(info.project.name)) await shot(dialog, info, 'withdraw');
   await button(dialog, v.transfer.withdraw).click();
   await expect(page.getByText(v.transfer.withdrawn, { exact: true })).toBeVisible();
-  await expect(section).toHaveCount(0);
+  await expect(section.getByText(v.transfer.notAccepted)).toBeVisible();
+  await expect(withdraw).toHaveCount(0);
   expect(state.withdrawals).toEqual([{ key: expect.any(String), csrf: true, body: null }]);
   expect(state.withdrawals[0].key).toBeTruthy();
   expect(state.reads).toEqual([first.version, first.version]);
@@ -341,4 +342,34 @@ test('inbound school email creates its proof without requesting outbound consent
   expect(state.deliveries).toEqual([]);
   expect(state.sends).toHaveLength(1);
   expect(state.sends[0].body).not.toHaveProperty('email_transfer_consent');
+});
+
+test('the consent gate lets a member withdraw without accepting the main agreements', async ({ page }, info) => {
+  const c = catalogue(info), v = c.verification;
+  const state = await fixture(page, true);
+  await page.route('**/api/v1/auth/session', route => route.fulfill({ json: {
+    authenticated: true, csrf_token: randomUUID().replaceAll('-', '').padEnd(43, 'a'), expires_at: '2030-01-01T00:00:00Z', consent_required: true,
+  } }));
+  const methods = [];
+  await page.route('**/api/v1/auth/consent', route => {
+    methods.push(route.request().method());
+    const pending = id => ({ version: 'v2', digest: 'b'.repeat(64), url: `https://legal.example.invalid/${id}/v2`, required: true });
+    return route.fulfill({ json: { required: true, documents: { terms: pending('terms'), privacy: pending('privacy') } } });
+  });
+  await page.route('**/api/v1/profiles/me/closure', route => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.goto(`/me/privacy?lang=${info.project.metadata.locale}`);
+  const submit = button(page, c.consent.submit);
+  await expect(submit).toBeDisabled();
+  await button(notice(page, v), v.transfer.withdraw).click();
+  const dialog = page.getByRole('dialog', { name: v.transfer.withdraw, exact: true });
+  if (process.env.PRIVACYUI_SHOTS && ['desktop-zh-CN', 'mobile-ar-EG'].includes(info.project.name)) {
+    await page.screenshot({ path: path.join(process.env.PRIVACYUI_SHOTS, `${info.project.name}-pending-withdraw.png`) });
+  }
+  await button(dialog, v.transfer.withdraw).click();
+  await expect(page.getByText(v.transfer.withdrawn, { exact: true })).toBeVisible();
+  await expect(notice(page, v)).toHaveCount(0);
+  await expect(submit).toBeDisabled();
+  expect(methods).toEqual(['GET']);
+  expect(state.reads).toEqual(['v1', 'v1']);
+  expect(state.withdrawals).toEqual([{ key: expect.any(String), csrf: true, body: null }]);
 });
