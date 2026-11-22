@@ -14,7 +14,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { extras } from '../../shared/extras'
 import MeLayout from '../account/MeLayout.vue'
-import { boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
+import { boxOf, boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
 import { setUnread } from './unread'
 
 // The message center. The server files notifications into boxes by what they are
@@ -79,7 +79,13 @@ async function openItem(item: Notification) {
     try {
       await api.read(item.id)
       list.items.value = list.items.value.map((entry) => (entry.id === item.id ? { ...entry, read_at: new Date().toISOString() } : entry))
-      // The server's counts cover every box and type, so they are read again instead of guessed.
+      // Take this one off the counts at once, so the bell on the next page is already right;
+      // the server's counts are then read again and replace this estimate.
+      const counts = unread.data.value
+      if (counts) {
+        const box = boxOf(item)
+        unread.data.value = { count: Math.max(0, counts.count - 1), by_box: { ...counts.by_box, [box]: Math.max(0, counts.by_box[box] - 1) }, by_type: { ...counts.by_type, [item.type]: Math.max(0, counts.by_type[item.type] - 1) } }
+      }
       void unread.reload()
     } catch (failure) {
       toast(errorText(errorCode(failure)))
@@ -93,9 +99,13 @@ async function readAll() {
   busy.value = true
   try {
     // Inside a box only that box is marked; the center marks everything.
-    await api.readAll(open.value)
-    const now = new Date().toISOString()
-    list.items.value = list.items.value.map((entry) => (entry.read_at ? entry : { ...entry, read_at: now }))
+    const marked = open.value
+    await api.readAll(marked)
+    // The rows on screen are marked only if they still belong to the box that was marked.
+    if (open.value === marked) {
+      const now = new Date().toISOString()
+      list.items.value = list.items.value.map((entry) => (entry.read_at ? entry : { ...entry, read_at: now }))
+    }
     await unread.reload()
     toast(t('notifications.allRead'))
   } catch (failure) {
