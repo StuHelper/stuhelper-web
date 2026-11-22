@@ -204,6 +204,20 @@
       "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters",
       "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write"
     ],
+    "NT-01": [
+      "tests/e2e/notifications.spec.mjs#notifications show localized reasons and open a comment’s root review",
+      "tests/e2e/notifications.spec.mjs#reply and like preferences are saved independently",
+      "tests/e2e/notifications.spec.mjs#a rejected preference change restores the saved switch state"
+    ],
+    "NT-02": [
+      "tests/e2e/notifications.spec.mjs#a box loads its own pages and marks only that box as read",
+      "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center"
+    ],
+    "NT-07": [
+      "src/features/notifications/title.test.ts#withholds context IDs and reason codes from title interpolation",
+      "src/features/notifications/title.test.ts#localizes a known reason code",
+      "src/features/notifications/title.test.ts#shows no reason when the code is unknown or missing"
+    ],
     "NOTIFY-BELL-01": [
       "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center",
       "tests/e2e/notifications.spec.mjs#a failed unread count leaves the bell without a number and breaks nothing",
