@@ -19,8 +19,9 @@ const { t } = useI18n()
 const format = useFormat()
 const api = useLegalApi()
 
+const validAddress = computed(() => validSlug(props.slug) && (props.version === undefined || validVersion(props.version)))
 const document = useAsync((signal) => {
-  if (!validSlug(props.slug) || (props.version !== undefined && !validVersion(props.version))) return Promise.reject(new ApiError('not_found'))
+  if (!validAddress.value) return Promise.reject(new ApiError('not_found'))
   return props.version ? api.version(props.slug, props.version, signal) : api.current(props.slug, signal)
 })
 const versions = usePaged<LegalVersion>((offset, signal) => (validSlug(props.slug) ? api.versions(props.slug, offset, signal) : Promise.reject(new ApiError('not_found'))))
@@ -31,7 +32,7 @@ watch(() => [props.slug, props.version, props.history] as const, () => {
 
 const base = computed(() => `/legal/${encodeURIComponent(props.slug)}`)
 // The effective date is a calendar date in China; it is shown without a time-zone shift.
-const day = (value: string) => format.value.date(`${value}T00:00:00+08:00`)
+const day = (value: string) => format.value.calendarDate(value)
 </script>
 
 <template>
@@ -55,6 +56,7 @@ const day = (value: string) => format.value.date(`${value}T00:00:00+08:00`)
         :next="versions.next.value"
         :appending="versions.appending.value"
         :empty-text="t('legal.noVersions')"
+        :not-found-retry-message="validAddress ? t('errors.not_found') : ''"
         @retry="versions.reload"
         @more="versions.loadMore"
       >
@@ -68,7 +70,10 @@ const day = (value: string) => format.value.date(`${value}T00:00:00+08:00`)
               :to="`${base}/versions/${encodeURIComponent(item.version)}`"
             >
               <span class="group-body">
-                <span class="group-title">{{ item.title }}</span>
+                <span
+                  class="group-title"
+                  dir="auto"
+                >{{ item.title }}</span>
                 <span class="subtle">{{ t('legal.versionLine', { version: isolate(item.version), date: day(item.effective_date) }) }}</span>
               </span>
             </RouterLink>
@@ -81,6 +86,7 @@ const day = (value: string) => format.value.date(`${value}T00:00:00+08:00`)
       :status="document.status.value"
       :error="document.error.value"
       skeleton="detail"
+      :not-found-retry-message="validAddress ? t(version ? 'errors.not_found' : 'legal.unpublished') : ''"
       @retry="document.reload()"
     >
       <article
@@ -116,10 +122,11 @@ const day = (value: string) => format.value.date(`${value}T00:00:00+08:00`)
         >
           {{ t('legal.fixed') }}
         </p>
-        <!-- The body is the server's rendered, sanitised legal HTML; its exact bytes are signed by the digest. -->
+        <!-- The body is the server's rendered, sanitised legal HTML; the digest identifies its exact bytes. -->
         <!-- eslint-disable vue/no-v-html -->
         <div
           class="legal-body"
+          dir="auto"
           v-html="document.data.value.html"
         />
         <!-- eslint-enable vue/no-v-html -->
@@ -140,6 +147,7 @@ const day = (value: string) => format.value.date(`${value}T00:00:00+08:00`)
 .legal-body :deep(ul), .legal-body :deep(ol) { padding-inline-start: 1.5rem; }
 .legal-body :deep(ul) { list-style: disc; }
 .legal-body :deep(ol) { list-style: decimal; }
+.legal-body :deep(pre) { overflow-x: auto; }
 .legal-body :deep(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 .legal-body :deep(th), .legal-body :deep(td) { padding: .375rem .625rem; border: 1px solid var(--separator); text-align: start; vertical-align: top; }
 .legal-body :deep(blockquote) { padding-inline-start: 1rem; border-inline-start: 3px solid var(--separator); color: var(--label-2); }

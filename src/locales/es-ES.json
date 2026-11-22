@@ -2559,8 +2559,9 @@
     "current": "Ver la versión actual",
     "history": "Versiones anteriores",
     "noVersions": "Todavía no hay versiones publicadas.",
+    "unpublished": "No hay ninguna versión publicada en vigor.",
     "versionLine": "Versión {version} · en vigor desde el {date}",
-    "fixed": "Estás consultando una versión anterior tal como se publicó.",
+    "fixed": "Historial de versiones · Esta página muestra el texto de esta versión tal como se publicó.",
     "terms": "Condiciones del servicio",
     "privacy": "Política de privacidad"
   }

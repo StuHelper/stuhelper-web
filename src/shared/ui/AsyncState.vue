@@ -5,7 +5,7 @@ import EmptyState from './EmptyState.vue'
 import ErrorNotice from './ErrorNotice.vue'
 import PageSkeleton from './PageSkeleton.vue'
 
-withDefaults(defineProps<{ status: LoadStatus; skeleton?: 'list' | 'detail' | 'bands'; error?: string; empty?: boolean; emptyText?: string; retryLabel?: string }>(), { skeleton: 'list', error: '', empty: false, emptyText: '', retryLabel: '' })
+withDefaults(defineProps<{ status: LoadStatus; skeleton?: 'list' | 'detail' | 'bands'; error?: string; empty?: boolean; emptyText?: string; retryLabel?: string; notFoundRetryMessage?: string }>(), { skeleton: 'list', error: '', empty: false, emptyText: '', retryLabel: '', notFoundRetryMessage: '' })
 const emit = defineEmits<{ retry: [] }>()
 const { t } = useI18n()
 </script>
@@ -19,6 +19,7 @@ const { t } = useI18n()
     v-else-if="status === 'error'"
     :code="error"
     :retry-label="retryLabel"
+    :not-found-retry-message="notFoundRetryMessage"
     @retry="emit('retry')"
   />
   <template v-else-if="status === 'ready'">

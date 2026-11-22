@@ -2538,8 +2538,9 @@
     "current": "查看当前版本",
     "history": "历史版本",
     "noVersions": "还没有已发布的版本。",
+    "unpublished": "目前没有生效的已发布版本。",
     "versionLine": "版本 {version} · {date} 生效",
-    "fixed": "你正在查看历史版本，内容与当时发布的原文一致。",
+    "fixed": "历史版本 · 此页面显示该版本发布时的原文。",
     "terms": "用户服务协议",
     "privacy": "隐私政策"
   },
