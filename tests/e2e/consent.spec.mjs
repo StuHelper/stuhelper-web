@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 import { member } from './demo-fixture.mjs';
 import { legalPath, publishedDocument } from './legal-fixture.mjs';
@@ -129,4 +131,58 @@ test('an updated version shows what was accepted before and keeps sign-out, clos
   await page.getByRole('banner').getByRole('link', { name: c.consent.menu, exact: true }).click();
   await expect(page).toHaveURL(/\/consent\?/);
   await expect(page.getByRole('heading', { name: c.consent.title, exact: true })).toBeVisible();
+});
+
+test('the personal center opens consent records, legal documents and account closure', async ({ page, isMobile }, info) => {
+  const c = catalogue(info), locale = info.project.metadata.locale;
+  const documents = {
+    terms: doc('terms', 'v1', { required: false, receipt }),
+    privacy: doc('privacy', 'v2', { required: false, receipt }),
+  };
+  consentServer(page, documents);
+  await page.goto(`/me?lang=${locale}`);
+  const menu = isMobile
+    ? page.getByRole('region', { name: c.me.groups.account, exact: true })
+    : page.getByRole('navigation', { name: c.me.title, exact: true });
+  const entry = menu.locator('a[href="/me/privacy"]');
+  await expect(entry).toContainText(c.privacy.title);
+  await entry.click();
+  await expect(page.getByRole('heading', { name: c.privacy.title, exact: true })).toBeVisible();
+  const agreements = page.getByRole('region', { name: c.privacy.agreements });
+  const time = await page.evaluate(({ locale, accepted }) => new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium', timeStyle: 'short', calendar: 'gregory', timeZone: 'Asia/Shanghai',
+  }).format(new Date(accepted)), { locale, accepted: receipt.accepted_at });
+  for (const [id, current] of Object.entries(documents)) {
+    const row = agreements.getByRole('listitem').filter({ hasText: c.consent.documents[id] });
+    await expect(row).toContainText(c.privacy.acceptedVersion.replace('{version}', `\u2066${current.version}\u2069`).replace('{time}', time));
+    await expect(row.getByRole('link', { name: c.privacy.read })).toHaveAttribute('href', current.url);
+  }
+  const links = page.getByRole('region', { name: c.privacy.documents, exact: true });
+  for (const [slug, name] of [['terms', c.consent.documents.terms], ['privacy', c.consent.documents.privacy], ['email-transfer', c.privacy.transferDocument]]) {
+    await expect(links.getByRole('link', { name, exact: true })).toHaveAttribute('href', `/legal/${slug}`);
+  }
+  await expect(page.getByText(c.verification.transfer.notAccepted, { exact: true })).toBeVisible();
+  await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar-EG' ? 'rtl' : 'ltr');
+  if (isMobile) expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  if (process.env.PRIVACYUI_SHOTS) await page.screenshot({ path: path.join(process.env.PRIVACYUI_SHOTS, `${info.project.name}-privacy.png`), fullPage: true });
+  await agreements.getByRole('link', { name: c.privacy.closure }).click();
+  await expect(page).toHaveURL(/\/me\/account#security-closure$/);
+  await expect(page.getByRole('heading', { name: c.security.closure.title, exact: true })).toBeVisible();
+});
+
+test('a failed agreement lookup retries and shows a newly pending version', async ({ page }, info) => {
+  const c = catalogue(info);
+  let reads = 0;
+  await page.route('**/api/v1/auth/consent', route => ++reads === 1
+    ? route.fulfill({ status: 503, json: { code: 'dependency_unavailable' } })
+    : route.fulfill({ json: { required: true, documents: {
+      terms: doc('terms', 'v2'), privacy: doc('privacy', 'v1', { required: false, receipt }),
+    } } }));
+  await page.goto(`/me/privacy?lang=${info.project.metadata.locale}`);
+  const agreements = page.getByRole('region', { name: c.privacy.agreements });
+  await expect(agreements.getByRole('alert')).toContainText(c.errors.unavailable);
+  await expect(page.getByText(c.verification.transfer.notAccepted, { exact: true })).toBeVisible();
+  await agreements.getByRole('button', { name: c.common.retry }).click();
+  await expect(agreements.getByText(c.privacy.pendingVersion.replace('{version}', '\u2066v2\u2069'), { exact: true })).toBeVisible();
+  expect(reads).toBe(2);
 });

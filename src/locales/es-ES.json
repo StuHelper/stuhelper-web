@@ -697,7 +697,8 @@
       "resources": "Subidas, revisión y correcciones.",
       "requests": "Resultados de retiradas, quejas y recursos.",
       "storage": "Capacidad compartida y cuentas de nube.",
-      "courses": "Cursos, profesores y horarios por semestre."
+      "courses": "Cursos, profesores y horarios por semestre.",
+      "privacy": "Acuerdos aceptados y consentimientos específicos"
     },
     "profile": {
       "title": "Perfil",
@@ -1314,7 +1315,7 @@
         },
         "rights": {
           "label": "Tus derechos",
-          "text": "Puedes retirar tu consentimiento en cualquier momento en «Cuenta y seguridad». Para solicitar acceso, una copia, una rectificación o la eliminación, utiliza los canales de contacto indicados en el aviso."
+          "text": "Puedes retirar tu consentimiento en cualquier momento en «Privacidad y consentimientos». Para solicitar acceso, una copia, una rectificación o la eliminación, utiliza los canales de contacto indicados en el aviso."
         }
       },
       "read": "Leer el aviso y consentimiento sobre transferencias de datos personales (versión {version})",
@@ -1325,7 +1326,8 @@
       "acceptedAt": "El {time}, aceptaste recibir en tu correo académico códigos de verificación enviados desde el extranjero.",
       "withdraw": "Retirar el consentimiento",
       "withdrawConfirm": "Tras retirar el consentimiento, tendrás que volver a darlo para los nuevos envíos. Los envíos ya iniciados pueden continuar y los códigos ya enviados conservan su plazo de validez original.",
-      "withdrawn": "Se ha retirado el consentimiento para el envío desde el extranjero."
+      "withdrawn": "Se ha retirado el consentimiento para el envío desde el extranjero.",
+      "notAccepted": "No has dado tu consentimiento para el envío desde el extranjero. Te lo pediremos antes de enviar un código a tu correo universitario."
     }
   },
   "contribution": {
@@ -2655,5 +2657,17 @@
     "fixed": "Historial de versiones · Esta página muestra el texto de esta versión tal como se publicó.",
     "terms": "Condiciones del servicio",
     "privacy": "Política de privacidad"
+  },
+  "privacy": {
+    "title": "Privacidad y consentimientos",
+    "description": "Consulta los acuerdos que has aceptado y gestiona los consentimientos que puedes retirar por separado.",
+    "agreements": "Condiciones de uso y política de privacidad",
+    "acceptedVersion": "Aceptaste la versión {version} el {time}",
+    "pendingVersion": "Aún no has aceptado la versión {version}",
+    "read": "Leer",
+    "withdrawAgreements": "Si ya no aceptas las condiciones de uso o la política de privacidad, puedes solicitar el cierre de tu cuenta.",
+    "closure": "Ir al cierre de la cuenta",
+    "documents": "Documentos legales",
+    "transferDocument": "Aviso sobre la transferencia de datos personales al extranjero"
   }
 }

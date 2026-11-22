@@ -84,7 +84,7 @@ const documents = computed(() => {
       </p>
       <p class="subtle small">
         {{ t('privacy.withdrawAgreements') }}
-        <RouterLink to="/me/account">
+        <RouterLink to="/me/account#security-closure">
           {{ t('privacy.closure') }}
         </RouterLink>
       </p>

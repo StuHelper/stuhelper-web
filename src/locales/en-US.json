@@ -1315,7 +1315,7 @@
         },
         "rights": {
           "label": "Your rights",
-          "text": "You can withdraw consent at any time under Account and security. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
+          "text": "You can withdraw consent at any time under Privacy and consents. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
         }
       },
       "read": "Read the personal information transfer notice (version {version})",
