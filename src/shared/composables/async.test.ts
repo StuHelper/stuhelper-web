@@ -132,6 +132,24 @@ describe('loading state', () => {
     expect(value.data.value).toBe('new')
     scope.stop()
   })
+
+  it('keeps a value during refresh when requested and clears it on denial', async () => {
+    const scope = effectScope()
+    try {
+      let response = Promise.resolve(2)
+      const value = scope.run(() => useAsync(() => response, { keepData: true }))!
+      await value.reload()
+      response = Promise.resolve(1)
+      const refresh = value.reload()
+      expect(value.data.value).toBe(2)
+      await refresh
+      expect(value.data.value).toBe(1)
+      response = Promise.reject(new ApiError('forbidden', false, 403))
+      await value.reload()
+      expect(value.data.value).toBeUndefined()
+      expect(value.status.value).toBe('error')
+    } finally { scope.stop() }
+  })
 })
 
 it('preserves order rows when a business conflict leaves the account authorized', async () => {
