@@ -135,7 +135,9 @@
     "phone_change_in_progress": "La modification précédente est en cours. Relancez la demande d’origine dans un instant.",
     "phone_write_unconfirmed": "Le résultat de la modification n’a pas pu être confirmé. Relancez la demande d’origine pour vérifier.",
     "phone_rate_limited": "Trop de demandes de code. Réessayez plus tard.",
-    "append_window_not_open": "Les compléments sont possibles 5 minutes après la première publication. Réessayez dans un instant."
+    "append_window_not_open": "Les compléments sont possibles 5 minutes après la première publication. Réessayez dans un instant.",
+    "consent_required": "Acceptez d’abord les conditions d’utilisation et la politique de confidentialité actuelles.",
+    "consent_version_changed": "Un document a été mis à jour. Acceptez-le de nouveau."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -2530,5 +2532,36 @@
       }
     },
     "receipt": "Type d’infraction : {name}"
+  },
+  "consent": {
+    "title": "Conditions d’utilisation et politique de confidentialité",
+    "description": "Avant d’utiliser les fonctions qui nécessitent un compte, lisez et acceptez la version actuelle de chaque document ci-dessous.",
+    "updated": "Ces documents ont été mis à jour. Lisez les nouvelles versions et cochez chaque document à accepter.",
+    "documents": {
+      "terms": "Conditions d’utilisation",
+      "privacy": "Politique de confidentialité"
+    },
+    "agree": "J’ai lu et j’accepte : {name}",
+    "version": "Révision {version}",
+    "read": "Lire le texte intégral : {name}",
+    "accepted": "Accepté le {date}",
+    "submit": "Accepter et continuer",
+    "sending": "Envoi…",
+    "done": "C’est accepté. Vous pouvez continuer.",
+    "changed": "Un document vient d’être mis à jour. Lisez la nouvelle version et cochez de nouveau le document modifié.",
+    "allAccepted": "Vous avez accepté la version actuelle de ces documents.",
+    "declineTitle": "Si vous n’acceptez pas",
+    "decline": "Les fonctions qui nécessitent un compte restent indisponibles. Vous pouvez vous déconnecter et continuer à consulter les pages publiques, ou demander la fermeture de votre compte StuHelper.",
+    "menu": "Accepter les conditions"
+  },
+  "legal": {
+    "title": "Document juridique",
+    "current": "Voir la version actuelle",
+    "history": "Versions précédentes",
+    "noVersions": "Aucune version publiée pour le moment.",
+    "versionLine": "Version {version} · entrée en vigueur le {date}",
+    "fixed": "Vous consultez une version précédente telle qu’elle a été publiée.",
+    "terms": "Conditions d’utilisation",
+    "privacy": "Politique de confidentialité"
   }
 }

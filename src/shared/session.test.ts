@@ -15,7 +15,7 @@ import { createAccessStore } from '../features/account/access'
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers() })
 const logoutSchema = sessionContract.paths['/api/v1/auth/logout'].post.responses['200'].content['application/json'].schema
 const parseLogout = schemaOf<{ signed_out: boolean; upstream_ended?: boolean }>({ Logout: logoutSchema }, 'Logout')
-const session = { authenticated: true, content_school_id: 'school', profile: { id: '00000000-0000-4000-8000-000000000001', nickname: 'A', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, group_card_consent: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false }, revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: false, administrator: false, expires_at: '2030-01-01T00:00:00Z' }
+const session = { authenticated: true, content_school_id: 'school', profile: { id: '00000000-0000-4000-8000-000000000001', nickname: 'A', nickname_required: false, bio: '', visibility: { school: true, badge: true, department: true, grade: false, reviews: true, resources: true }, group_card_consent: { school: false, grade: false, department: false, name: false, student_id: false, gender: false, nickname: false }, revision: 1 }, csrf_token: 'a'.repeat(43), phone_bound: false, administrator: false, expires_at: '2030-01-01T00:00:00Z', consent_required: false }
 
 describe('application session', () => {
   it('reloads the verification summary when the account changes during revalidation', async () => {

@@ -63,6 +63,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { remountOnPath: true, access: 'member', title: 'resources.detailTitle', section: 'resources' } },
   { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'member', title: 'resources.edit', section: 'resources' } },
+  // Accepting the current user agreement and privacy policy; pages that need an account show the same form in place.
+  { path: '/consent', component: () => import('../features/account/ConsentView.vue'), meta: { title: 'consent.title', section: 'me' } },
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
   { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },

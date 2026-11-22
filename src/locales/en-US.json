@@ -135,7 +135,9 @@
     "phone_change_in_progress": "The previous change is still being processed. Retry the original request shortly.",
     "phone_write_unconfirmed": "The result of the change could not be confirmed. Retry the original request to check.",
     "phone_rate_limited": "Codes are being requested too often. Try again later.",
-    "append_window_not_open": "Follow-ups open 5 minutes after first publishing. Try again shortly."
+    "append_window_not_open": "Follow-ups open 5 minutes after first publishing. Try again shortly.",
+    "consent_required": "Accept the current Terms of Service and Privacy Policy first.",
+    "consent_version_changed": "A document was updated. Please accept it again."
   },
   "connection": {
     "label": "Service connection status",
@@ -2540,5 +2542,26 @@
     "fixed": "You are viewing an earlier version, exactly as it was published.",
     "terms": "Terms of Service",
     "privacy": "Privacy Policy"
+  },
+  "consent": {
+    "title": "Review the Terms of Service and Privacy Policy",
+    "description": "Before using features that need an account, read and accept the current version of each document below.",
+    "updated": "These documents have been updated. Read the new versions and tick each one that needs your acceptance.",
+    "documents": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "agree": "I have read and accept the {name}",
+    "version": "Version {version}",
+    "read": "Read the full {name}",
+    "accepted": "Accepted on {date}",
+    "submit": "Accept and continue",
+    "sending": "Submitting…",
+    "done": "Accepted. You can continue.",
+    "changed": "A document was just updated. Read the new version and tick the changed document again.",
+    "allAccepted": "You have accepted the current version of these documents.",
+    "declineTitle": "If you do not accept",
+    "decline": "Features that need an account stay unavailable. You can sign out and keep browsing public pages, or request to close your StuHelper account.",
+    "menu": "Review terms"
   }
 }

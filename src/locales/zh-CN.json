@@ -135,7 +135,9 @@
     "phone_change_in_progress": "上一次修改还在处理中，请稍后用原请求重试。",
     "phone_write_unconfirmed": "暂时无法确认修改结果，请用原请求重试核对。",
     "phone_rate_limited": "验证码发送太频繁，请稍后再试。",
-    "append_window_not_open": "首次发布 5 分钟后才能追评，请稍后再试。"
+    "append_window_not_open": "首次发布 5 分钟后才能追评，请稍后再试。",
+    "consent_required": "请先同意当前的用户服务协议和隐私政策。",
+    "consent_version_changed": "文件已更新，请重新确认。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -2540,5 +2542,26 @@
     "fixed": "你正在查看历史版本，内容与当时发布的原文一致。",
     "terms": "用户服务协议",
     "privacy": "隐私政策"
+  },
+  "consent": {
+    "title": "确认用户服务协议与隐私政策",
+    "description": "使用需要登录的功能前，请阅读并分别同意以下文件的当前版本。",
+    "updated": "以下文件已更新。请阅读新版本，并重新勾选需要确认的文件。",
+    "documents": {
+      "terms": "《用户服务协议》",
+      "privacy": "《隐私政策》"
+    },
+    "agree": "我已阅读并同意{name}",
+    "version": "版本 {version}",
+    "read": "阅读{name}全文",
+    "accepted": "已于 {date} 同意",
+    "submit": "同意并继续",
+    "sending": "正在提交…",
+    "done": "已确认，可以继续使用。",
+    "changed": "文件刚刚更新。请阅读新版本，并重新勾选已变更的文件。",
+    "allAccepted": "你已同意以上文件的当前版本。",
+    "declineTitle": "不同意怎么办",
+    "decline": "不同意时无法使用需要登录的功能。你可以退出登录继续浏览公开页面，也可以申请注销 StuHelper 账号。",
+    "menu": "确认协议"
   }
 }
