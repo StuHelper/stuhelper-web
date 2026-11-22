@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ViolationSelect from '../moderation/ViolationSelect.vue'
 import type { ViolationCategory } from '../moderation/categories'
+import { useModerationReason } from '../moderation/reason'
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -27,7 +28,7 @@ const authorName = useAuthorName()
 type Panel = '' | 'report' | 'edit_request' | 'delete_request'
 const panel = ref<Panel>('')
 const confirming = ref<'' | 'withdraw' | 'delete'>('')
-const reason = ref('')
+const { reason, reasonText, reasonTooLong, reasonCounter, reasonCounterId } = useModerationReason()
 const category = ref<ViolationCategory | ''>('')
 const proposed = ref('')
 const appendBody = ref('')
@@ -148,9 +149,9 @@ function openPanel(next: Panel) {
 
 async function submitTask() {
   const kind = panel.value
-  if (!kind) return
+  if (!kind || !reasonText.value || reasonTooLong.value) return
   if (kind === 'report' && !category.value) return
-  const submission: Submission = { object_id: props.review.id, kind, reason: reason.value.trim(), evidence: [], ...(kind === 'report' && category.value ? { category: category.value } : {}), ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
+  const submission: Submission = { object_id: props.review.id, kind, reason: reasonText.value, evidence: [], ...(kind === 'report' && category.value ? { category: category.value } : {}), ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
   finish = () => submitted(kind)
   const task = await write.run(`task:${props.review.id}:${kind}`, submission, (body, key) => api.submitTask(body, key))
   if (task) submitted(kind)
@@ -277,7 +278,7 @@ async function retry() {
         class="small muted"
         role="status"
       >
-        {{ t('academic.followUpOpensAt', { time: format.dateTime(appendRetryAt) }) }}
+        {{ t('academic.followUpOpensAt', { time: format.dateTime(appendRetryAt, { dateStyle: 'medium', timeStyle: 'medium' }) }) }}
       </p>
       <p
         v-else-if="appendWaiting && review.published_at"
@@ -452,17 +453,25 @@ async function retry() {
         v-model="category"
         :disabled="locked"
       />
-      <label class="field">
-        <span class="field-label">{{ t('academic.review.reason') }}</span>
-        <textarea
-          v-model="reason"
-          class="textarea"
-          rows="3"
-          maxlength="2000"
-          required
-          :disabled="locked"
-        />
-      </label>
+      <div class="field">
+        <label class="field">
+          <span class="field-label">{{ t('academic.review.reason') }}</span>
+          <textarea
+            v-model="reason"
+            class="textarea"
+            rows="3"
+            required
+            :disabled="locked"
+            :aria-invalid="reasonTooLong || undefined"
+            :aria-describedby="reasonCounterId"
+          />
+        </label>
+        <bdi
+          :id="reasonCounterId"
+          :class="reasonTooLong ? 'field-error' : 'field-hint'"
+          dir="ltr"
+        >{{ reasonCounter }}</bdi>
+      </div>
       <label
         v-if="panel === 'edit_request'"
         class="field"
@@ -481,7 +490,7 @@ async function retry() {
         <button
           class="btn btn-primary btn-sm"
           type="submit"
-          :disabled="locked || !reason.trim() || (panel === 'report' && !category)"
+          :disabled="locked || !reasonText || reasonTooLong || (panel === 'report' && !category)"
         >
           {{ t('common.submit') }}
         </button>
