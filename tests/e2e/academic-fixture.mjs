@@ -18,6 +18,12 @@ export async function fixture(page, { courseMissing = false, course: courseExtra
   if (courseMissing) for (const kind of ['course', 'term_course', 'class', 'schedule', 'term', 'category', 'nature']) objects[kind] = [];
   await page.route('**/api/v1/**',async route=>{
     const u=new URL(route.request().url()),p=u.pathname;
+    if (p === '/api/v1/verification/teacher-credentials') return fulfill(route, []);
+    const homepage = /^\/api\/v1\/catalog\/objects\/([^/]+)\/teacher-homepage(\/media)?$/.exec(p);
+    if (homepage) {
+      if (!objects.teacher.some(item => item.id === homepage[1])) return fulfill(route, { code: 'not_found' }, 404);
+      return fulfill(route, homepage[2] ? { items: [] } : {});
+    }
     if(p==='/api/v1/auth/session'||p.startsWith('/api/v1/verification/'))return route.fallback();
     if(p==='/api/v1/catalog/filter-options'){
       const kind=u.searchParams.get('kind');

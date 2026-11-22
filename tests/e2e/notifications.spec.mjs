@@ -141,6 +141,45 @@ test('notifications show localized reasons and open a comment’s root review', 
   expect(state.writes).toEqual([{ method: 'POST', path: '/n2/read', box: null, body: undefined }]);
 });
 
+test('an approved teacher homepage notification opens the teacher’s own request receipt', async ({ page }, info) => {
+  const { notifications: n, teacherHomepage: h } = catalogue(info);
+  const notificationId = '00000000-0000-4000-8000-000000000002';
+  const receipt = {
+    id: '00000000-0000-4000-8000-000000000003', teacher_id: 'teacher-a', kind: 'correction', status: 'approved', revision: 2,
+    field: { field: 'biography' }, value: { text: 'Updated faculty biography.' }, message: 'My faculty biography has changed.',
+    created_at: '2026-11-01T00:00:00Z', resolved_at: '2026-11-02T00:00:00Z', resolution_note: 'We published the corrected biography.',
+  };
+  const state = await server(page, [note('review', {
+    id: notificationId, source_module: 'catalog', target: { kind: 'teacher_homepage_request', id: receipt.id },
+    title_key: 'notifications.teacher_homepage_request.approved', title_params: { request_id: receipt.id },
+  })]);
+  await page.route('**/api/v1/catalog/objects?kind=school&**', route => route.fulfill({ json: {
+    items: [{ id: 'school', kind: 'school', name: 'Test University', school_id: 'school', credits: null, aliases: [], revision: 1, updated_at: receipt.created_at }], next: '',
+  } }));
+  const receiptApi = `/api/v1/catalog/me/teacher-homepage/requests/${receipt.id}`;
+  const receiptReads = [];
+  await page.route('**/api/v1/catalog/me/teacher-homepage/requests/*', (route) => {
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    receiptReads.push({ method: request.method(), path });
+    return path === receiptApi ? route.fulfill({ json: receipt }) : route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+
+  await page.goto(`${base}/notifications?lang=${info.project.metadata.locale}`);
+  const entries = page.getByRole('navigation', { name: n.boxesLabel, exact: true });
+  await entries.getByRole('link', { name: n.boxes.review }).click();
+  await page.getByRole('button', { name: n.titles.teacher_homepage_request.approved }).click();
+  await expect(page).toHaveURL(`${base}/me/teacher-homepage/requests/${receipt.id}`);
+  await expect(page.getByRole('heading', { level: 1, name: h.receipt.title, exact: true })).toBeVisible();
+  const detail = page.getByRole('article');
+  await expect(detail.getByText(h.request.status.approved, { exact: true })).toBeVisible();
+  await expect(detail.getByText(receipt.value.text, { exact: true })).toBeVisible();
+  await expect(detail.getByText(receipt.message, { exact: true })).toBeVisible();
+  await expect(detail.getByText(receipt.resolution_note, { exact: true })).toBeVisible();
+  expect(receiptReads).toEqual([{ method: 'GET', path: receiptApi }]);
+  expect(state.writes).toEqual([{ method: 'POST', path: `/${notificationId}/read`, box: null, body: undefined }]);
+});
+
 test('reply and like preferences are saved independently', async ({ page }, info) => {
   const n = catalogue(info).notifications;
   const state = await server(page, []);

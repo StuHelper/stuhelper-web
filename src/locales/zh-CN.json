@@ -2655,5 +2655,99 @@
     "declineTitle": "不同意怎么办",
     "decline": "不同意时无法使用需要登录的功能。你可以退出登录继续浏览公开页面，也可以申请注销 StuHelper 账号。",
     "menu": "确认协议"
+  },
+  "teacherHomepage": {
+    "title": "教师主页",
+    "empty": "学校官网暂无可展示的主页资料。",
+    "source": "以上资料来自学校官网教师主页，按学校规则展示。",
+    "photo": "{name}的照片",
+    "manage": "管理我的教师主页",
+    "manageFor": "管理「{name}」的教师主页",
+    "manageTitle": "{name}的教师主页",
+    "manageDescription": "申请更正、补充或隐藏教师主页上的资料。学校审核通过后才会生效。",
+    "complain": "投诉主页资料",
+    "limit": "已输入 {count} 字，最多 {max} 字",
+    "fields": {
+      "name": "官网姓名",
+      "position": "职务",
+      "education": "学历",
+      "degree": "学位",
+      "discipline": "学科",
+      "supervisors": "导师资格",
+      "email": "邮箱",
+      "phone": "电话",
+      "office_location": "办公地点",
+      "hire_date": "入校任教时间",
+      "biography": "个人简介",
+      "research": "研究方向",
+      "fields": "其他信息",
+      "sections": "主页栏目",
+      "photo": "照片",
+      "page": "整个主页"
+    },
+    "supervisors": {
+      "doctoral": "博士生导师",
+      "master": "硕士生导师"
+    },
+    "complaint": {
+      "title": "投诉教师主页资料",
+      "description": "资料有误或侵犯权益时，请选择分类并说明情况。学校审核后可隐藏主页资料，课程目录和评价不受影响。",
+      "reason": "具体说明",
+      "evidence": "证据（每行一项，最多 5 项）",
+      "evidenceHint": "每项最多 2,000 字。",
+      "email": "也可以发邮件至 {email}。",
+      "sent": "投诉已提交，学校会尽快处理。"
+    },
+    "request": {
+      "title": "新的申请",
+      "start": "提交申请",
+      "kind": "申请类型",
+      "kinds": {
+        "correction": "更正",
+        "supplement": "补充",
+        "hide": "隐藏"
+      },
+      "field": "涉及的资料",
+      "label": "项目名称",
+      "labelHint": "填写要更正或补充的项目名称或栏目标题。",
+      "labelOptional": "不填时隐藏整组资料。",
+      "value": "新的内容",
+      "supervisors": "导师资格",
+      "supervisorsHint": "勾选后的列表会整体替换原内容，全部不勾选表示清空。",
+      "photo": "新照片",
+      "photoHint": "JPEG 或 PNG，不超过 2 MiB。",
+      "photoType": "只支持 JPEG 或 PNG 图片。",
+      "photoSize": "图片不能超过 2 MiB。",
+      "photoReadError": "无法读取所选照片。请重试或重新选择文件。",
+      "photoPreview": "新照片预览",
+      "message": "申请说明",
+      "sent": "申请已提交，学校审核后会通知你。",
+      "retention": "申请结案满 12 个月后会删除申请原文和照片。",
+      "history": "我的申请",
+      "none": "还没有申请记录。",
+      "status": {
+        "pending": "待处理",
+        "approved": "已通过",
+        "rejected": "未通过"
+      }
+    },
+    "receipt": {
+      "title": "教师主页申请",
+      "submitted": "提交时间",
+      "resolved": "处理时间",
+      "note": "学校的处理说明",
+      "cleared": "清空导师资格",
+      "photo": "申请更换照片"
+    },
+    "media": {
+      "loadFailed": "暂时无法读取主页中的图片、视频和附件。",
+      "image": "主页图片",
+      "imageFailed": "图片暂时无法显示。",
+      "imageLink": "在学校原页面查看图片",
+      "videoLink": "在学校原页面观看视频",
+      "attachmentLink": "在学校原页面查看附件",
+      "external": "（在新窗口打开学校网站）",
+      "untitled": "其他内容"
+    }
   }
 }

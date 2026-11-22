@@ -2655,5 +2655,99 @@
     "fixed": "版の履歴 · このページでは、指定された版の公開時の本文を表示しています。",
     "terms": "利用規約",
     "privacy": "プライバシーポリシー"
+  },
+  "teacherHomepage": {
+    "title": "教員ページ",
+    "empty": "学校の公式サイトには、表示できる教員情報がありません。",
+    "source": "この情報は学校の公式サイトに掲載された教員ページから取得し、学校の規定に従って表示しています。",
+    "photo": "{name}の写真",
+    "manage": "自分の教員ページを管理",
+    "manageFor": "「{name}」の教員ページを管理",
+    "manageTitle": "{name}の教員ページ",
+    "manageDescription": "教員ページの情報の訂正・追加・非表示を申請できます。変更は学校の承認後に反映されます。",
+    "complain": "ページの掲載情報を通報",
+    "limit": "{count}文字／上限{max}文字",
+    "fields": {
+      "name": "公式サイトでの氏名",
+      "position": "役職",
+      "education": "学歴",
+      "degree": "学位",
+      "discipline": "専門分野",
+      "supervisors": "研究指導資格",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "office_location": "研究室・執務室",
+      "hire_date": "着任日",
+      "biography": "プロフィール",
+      "research": "研究テーマ",
+      "fields": "その他の情報",
+      "sections": "ページ内のセクション",
+      "photo": "写真",
+      "page": "ページ全体"
+    },
+    "supervisors": {
+      "doctoral": "博士課程の研究指導",
+      "master": "修士課程の研究指導"
+    },
+    "complaint": {
+      "title": "教員ページの掲載情報を通報",
+      "description": "誤った情報や権利を侵害する情報がある場合は、分類を選び、状況を説明してください。学校は確認後、ページの掲載情報を非表示にできます。ディレクトリの掲載と評価はそのまま表示されます。",
+      "reason": "通報の詳細",
+      "evidence": "証拠（1行に1件、最大5件）",
+      "evidenceHint": "1件につき2,000文字まで。",
+      "email": "{email} にメールで連絡することもできます。",
+      "sent": "通報を送信しました。学校が速やかに確認します。"
+    },
+    "request": {
+      "title": "新しい申請",
+      "start": "申請する",
+      "kind": "申請の種類",
+      "kinds": {
+        "correction": "訂正",
+        "supplement": "追加",
+        "hide": "非表示"
+      },
+      "field": "対象の情報",
+      "label": "項目名",
+      "labelHint": "訂正または追加する項目名かセクションの見出しを入力してください。",
+      "labelOptional": "空欄にすると、このグループ全体が非表示になります。",
+      "value": "新しい内容",
+      "supervisors": "研究指導資格",
+      "supervisorsHint": "選択した資格で現在の一覧を置き換えます。すべての選択を外すと一覧が空になります。",
+      "photo": "新しい写真",
+      "photoHint": "JPEGまたはPNG形式、2 MiBまで。",
+      "photoType": "JPEGまたはPNG形式の画像のみ使用できます。",
+      "photoSize": "画像は2 MiB以下にしてください。",
+      "photoReadError": "選択した写真を読み込めませんでした。もう一度試すか、ファイルを選び直してください。",
+      "photoPreview": "新しい写真のプレビュー",
+      "message": "申請理由",
+      "sent": "申請を送信しました。学校での確認後に通知が届きます。",
+      "retention": "申請の処理が完了してから12か月後に、申請本文と写真が削除されます。",
+      "history": "自分の申請",
+      "none": "申請はまだありません。",
+      "status": {
+        "pending": "処理待ち",
+        "approved": "承認済み",
+        "rejected": "不承認"
+      }
+    },
+    "receipt": {
+      "title": "教員ページの申請",
+      "submitted": "申請日時",
+      "resolved": "処理日時",
+      "note": "学校からの回答",
+      "cleared": "研究指導資格の表示をすべて削除",
+      "photo": "写真の差し替え申請"
+    },
+    "media": {
+      "loadFailed": "現在、教員ページの画像、動画、添付ファイルを読み込めません。",
+      "image": "教員ページの画像",
+      "imageFailed": "現在、画像を表示できません。",
+      "imageLink": "学校の元のページで画像を見る",
+      "videoLink": "学校の元のページで動画を見る",
+      "attachmentLink": "学校の元のページで添付ファイルを開く",
+      "external": "（学校の公式サイトを新しいウィンドウで開きます）",
+      "untitled": "その他の内容"
+    }
   }
 }

@@ -2655,5 +2655,99 @@
     "fixed": "Historique des versions · Cette page présente le texte de cette version tel qu’il a été publié.",
     "terms": "Conditions d’utilisation",
     "privacy": "Politique de confidentialité"
+  },
+  "teacherHomepage": {
+    "title": "Page de l’enseignant",
+    "empty": "Le site de l’établissement ne fournit aucune information à afficher pour cette page.",
+    "source": "Ces informations proviennent de la page de l’enseignant sur le site de l’établissement. Elles sont affichées selon les règles de l’établissement.",
+    "photo": "Portrait de {name}",
+    "manage": "Gérer ma page d’enseignant",
+    "manageFor": "Gérer la page de « {name} »",
+    "manageTitle": "Page de {name}",
+    "manageDescription": "Demandez de corriger, d’ajouter ou de masquer des informations sur votre page. Les modifications s’appliquent après validation par l’établissement.",
+    "complain": "Signaler le contenu de la page",
+    "limit": "{count} sur {max}",
+    "fields": {
+      "name": "Nom affiché sur la page",
+      "position": "Fonction",
+      "education": "Niveau d’études",
+      "degree": "Diplôme",
+      "discipline": "Discipline universitaire",
+      "supervisors": "Habilitations à l’encadrement",
+      "email": "Adresse e-mail",
+      "phone": "Téléphone",
+      "office_location": "Bureau",
+      "hire_date": "Date d’arrivée dans l’établissement",
+      "biography": "Présentation",
+      "research": "Axes de recherche",
+      "fields": "Autres informations",
+      "sections": "Rubriques de la page",
+      "photo": "Portrait",
+      "page": "Page entière"
+    },
+    "supervisors": {
+      "doctoral": "Encadrement de doctorat",
+      "master": "Encadrement de master"
+    },
+    "complaint": {
+      "title": "Signaler le contenu de la page d’un enseignant",
+      "description": "Si des informations sont inexactes ou portent atteinte à des droits, choisissez une catégorie et décrivez la situation. Après examen, l’établissement peut masquer ces informations. La fiche de l’annuaire et les évaluations restent visibles.",
+      "reason": "Détails du signalement",
+      "evidence": "Justificatifs (un par ligne, 5 au maximum)",
+      "evidenceHint": "Chaque élément est limité à 2 000 caractères.",
+      "email": "Vous pouvez aussi écrire à {email}.",
+      "sent": "Votre signalement a été transmis. L’établissement l’examinera dès que possible."
+    },
+    "request": {
+      "title": "Nouvelle demande",
+      "start": "Faire une demande",
+      "kind": "Type de demande",
+      "kinds": {
+        "correction": "Corriger",
+        "supplement": "Ajouter",
+        "hide": "Masquer"
+      },
+      "field": "Information concernée",
+      "label": "Nom de l’élément",
+      "labelHint": "Saisissez le nom de l’élément ou le titre de la rubrique à corriger ou à ajouter.",
+      "labelOptional": "Laissez ce champ vide pour masquer le groupe entier.",
+      "value": "Nouveau contenu",
+      "supervisors": "Habilitations à l’encadrement",
+      "supervisorsHint": "Les habilitations cochées remplacent la liste actuelle. Décochez toutes les cases pour vider la liste.",
+      "photo": "Nouveau portrait",
+      "photoHint": "JPEG ou PNG, 2 Mio au maximum.",
+      "photoType": "Seules les images JPEG ou PNG sont acceptées.",
+      "photoSize": "L’image doit faire 2 Mio au maximum.",
+      "photoReadError": "Impossible de lire le portrait sélectionné. Réessayez ou sélectionnez de nouveau le fichier.",
+      "photoPreview": "Aperçu du nouveau portrait",
+      "message": "Motif de la demande",
+      "sent": "Votre demande a été envoyée. Vous recevrez une notification après son examen par l’établissement.",
+      "retention": "Le texte et la photo de la demande sont supprimés 12 mois après sa clôture.",
+      "history": "Mes demandes",
+      "none": "Vous n’avez encore soumis aucune demande.",
+      "status": {
+        "pending": "En attente",
+        "approved": "Approuvée",
+        "rejected": "Refusée"
+      }
+    },
+    "receipt": {
+      "title": "Demande concernant la page d’un enseignant",
+      "submitted": "Date d’envoi",
+      "resolved": "Date de traitement",
+      "note": "Réponse de l’établissement",
+      "cleared": "Supprimer toutes les habilitations affichées",
+      "photo": "Demande de remplacement du portrait"
+    },
+    "media": {
+      "loadFailed": "Impossible de charger les images, les vidéos et les pièces jointes de la page pour le moment.",
+      "image": "Image de la page de l’enseignant",
+      "imageFailed": "L’image ne peut pas être affichée pour le moment.",
+      "imageLink": "Voir l’image sur la page d’origine de l’établissement",
+      "videoLink": "Regarder la vidéo sur la page d’origine de l’établissement",
+      "attachmentLink": "Ouvrir la pièce jointe sur la page d’origine de l’établissement",
+      "external": "(ouvre le site de l’établissement dans une nouvelle fenêtre)",
+      "untitled": "Autre contenu"
+    }
   }
 }
