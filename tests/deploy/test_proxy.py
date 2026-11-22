@@ -15,9 +15,23 @@ from pathlib import Path
 
 
 TEACHER_REQUEST_PATH = "/api/v1/catalog/objects/fixture-teacher/teacher-homepage/requests"
+LEGAL_API_VERSION = "/api/v1/legal/documents/terms/versions/3.0"
 
 
 class Backend(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == LEGAL_API_VERSION:
+            content_type, body = "application/json", b'{"html":"<p>Terms fixture</p>"}'
+        elif self.path == LEGAL_API_VERSION + "/html":
+            content_type, body = "text/html", b"<p>Terms fixture</p>"
+        else:
+            self.send_error(404)
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_PUT(self):
         self.record_upload()
 
@@ -138,6 +152,24 @@ class TransferProxyTest(unittest.TestCase):
     def test_slow_custody_response_reaches_client(self):
         self.assertEqual(self.request("POST", "/api/v1/storage/custody", b"{}")[:2],
                          (200, b"finished"))
+
+    def test_legal_pages_support_direct_navigation(self):
+        for path in ("/legal/terms", "/legal/terms/versions", "/legal/terms/versions/3.0"):
+            with self.subTest(path=path):
+                status, body, headers = self.request("GET", path)
+                self.assertEqual((status, body), (200, b"Home fixture"))
+                self.assertEqual(headers.get_content_type(), "text/html")
+                self.assertEqual(headers.get("Cache-Control"), "no-cache")
+
+    def test_legal_document_api_reaches_backend(self):
+        for path, content_type, body in (
+            (LEGAL_API_VERSION, "application/json", b'{"html":"<p>Terms fixture</p>"}'),
+            (LEGAL_API_VERSION + "/html", "text/html", b"<p>Terms fixture</p>"),
+        ):
+            with self.subTest(path=path):
+                status, response, headers = self.request("GET", path)
+                self.assertEqual((status, response), (200, body))
+                self.assertEqual(headers.get_content_type(), content_type)
 
     def test_only_terms_get_allows_the_sso_origin(self):
         sso = "https://sso.stuhelper.com"

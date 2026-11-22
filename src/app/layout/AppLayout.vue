@@ -238,6 +238,12 @@ watch(() => route.path, async (_path, previous) => {
           >
             {{ t('nav.platform') }}
           </RouterLink>
+          <RouterLink to="/legal/terms">
+            {{ t('legal.terms') }}
+          </RouterLink>
+          <RouterLink to="/legal/privacy">
+            {{ t('legal.privacy') }}
+          </RouterLink>
           <a href="mailto:feedback@stuhelper.com">{{ t('shell.contact') }}</a>
         </nav>
         <span class="footer-note">{{ t('shell.footer') }}</span>

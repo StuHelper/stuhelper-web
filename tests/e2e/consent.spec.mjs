@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 import { member } from './demo-fixture.mjs';
+import { legalPath, publishedDocument } from './legal-fixture.mjs';
 
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 const pendingSession = { authenticated: true, csrf_token: 'a'.repeat(43), expires_at: '2030-01-01T00:00:00Z', consent_required: true };
-const doc = (id, version, extra = {}) => ({ version, digest: (id === 'terms' ? 'a' : 'b').repeat(63) + version.slice(-1), url: `https://stuhelper.com/legal/${id}/${version}`, required: true, ...extra });
+const publication = (id, version) => publishedDocument(id, version, { body: `<p>演示正文 · ${version}</p>` });
+const doc = (id, version, extra = {}) => ({ version, digest: publication(id, version).digest, url: `${base}/legal/${id}/versions/${version}`, required: true, ...extra });
 const receipt = { accepted_at: '2026-11-01T08:00:00Z', source: 'registration', request_id: '0'.repeat(32) };
 
 // A consent server: the session stays minimal until both documents are accepted.
@@ -31,9 +33,12 @@ function consentServer(page, documents) {
   return state;
 }
 
-test('a page that needs an account asks for each document separately and continues after acceptance', async ({ page }, info) => {
+test('a page that needs an account asks for each document separately and continues after acceptance', async ({ page, context }, info) => {
   const c = catalogue(info), locale = info.project.metadata.locale;
   const server = consentServer(page, { terms: doc('terms', 'v1'), privacy: doc('privacy', 'v1') });
+  const termsPublication = publication('terms', 'v1');
+  await context.route('**/api/v1/auth/session', (route) => route.fulfill({ json: pendingSession }));
+  await context.route(`**${legalPath}/terms/versions/v1`, (route) => route.fulfill({ json: termsPublication }));
   await page.goto(`${base}/me/favorites?lang=${locale}`);
   const title = page.getByRole('heading', { name: c.consent.title, exact: true });
   await expect(title).toBeVisible();
@@ -42,12 +47,20 @@ test('a page that needs an account asks for each document separately and continu
   // Nothing is ticked in advance, and one box alone is not enough.
   await expect(terms).not.toBeChecked();
   await expect(privacy).not.toBeChecked();
+  const termsLink = page.getByRole('link', { name: c.consent.read.replace('{name}', c.consent.documents.terms) });
+  await expect(termsLink).toHaveAttribute('href', `${base}/legal/terms/versions/v1`);
+  const opening = context.waitForEvent('page');
+  await termsLink.click();
+  const publishedPage = await opening;
+  await expect(publishedPage.getByRole('heading', { level: 1, name: termsPublication.title })).toBeVisible();
+  await expect(publishedPage.getByRole('main').getByText('演示正文 · v1')).toBeVisible();
+  await publishedPage.close();
+  expect(server.posts).toEqual([]);
   const submit = page.getByRole('button', { name: c.consent.submit, exact: true });
   await expect(submit).toBeDisabled();
   await terms.check();
   await expect(submit).toBeDisabled();
   await privacy.check();
-  await expect(page.getByRole('link', { name: c.consent.read.replace('{name}', c.consent.documents.terms) })).toHaveAttribute('href', 'https://stuhelper.com/legal/terms/v1');
   await submit.click();
   await expect(title).toHaveCount(0);
   expect(server.posts.map((row) => row.body)).toEqual([

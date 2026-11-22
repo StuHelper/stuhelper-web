@@ -148,7 +148,7 @@ export const receipts = [
   { id: 'q1', resource_id: 'x7', kind: 'withdrawal', state: 'waiting', can_appeal: false, created_at: ago(2) },
   { id: 'q2', resource_id: 'x4', kind: 'complaint', state: 'decided', decision_reason: '资料来源已核实，继续保留。', can_appeal: true, created_at: ago(15) },
 ]
-export const capabilities = { terms: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, allowed_types: ['application/pdf', 'image/png', 'text/plain'], max_file_size: 200_000_000, max_package_bytes: 1_000_000_000, max_package_files: 100, purchase_available: false, upload_profiles: [{ school_id: SCHOOL, access: 'public', purpose: 'resource' }] }
+export const capabilities = { allowed_types: ['application/pdf', 'image/png', 'text/plain'], max_file_size: 200_000_000, max_package_bytes: 1_000_000_000, max_package_files: 100, purchase_available: false, upload_profiles: [{ school_id: SCHOOL, access: 'public', purpose: 'resource' }] }
 
 const GB = 1e9
 export const contribution = {

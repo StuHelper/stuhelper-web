@@ -2603,6 +2603,17 @@
     "decline": "로그인이 필요한 기능은 사용할 수 없습니다. 로그아웃하고 공개 페이지를 계속 둘러보거나 StuHelper 계정 해지를 신청할 수 있습니다.",
     "menu": "약관 확인"
   },
+  "legal": {
+    "title": "법률 문서",
+    "current": "현재 버전 보기",
+    "history": "이전 버전",
+    "noVersions": "아직 게시된 버전이 없습니다.",
+    "unpublished": "현재 효력이 있는 게시 버전이 없습니다.",
+    "versionLine": "버전 {version} · {date} 시행",
+    "fixed": "버전 이력 · 이 페이지는 해당 버전의 게시 당시 원문을 보여 줍니다.",
+    "terms": "이용약관",
+    "privacy": "개인정보 처리방침"
+  },
   "teacherHomepage": {
     "title": "교수 페이지",
     "empty": "학교 공식 웹사이트에 표시할 교수 정보가 없습니다.",
