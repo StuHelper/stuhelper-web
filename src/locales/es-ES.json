@@ -135,7 +135,9 @@
     "phone_change_in_progress": "El cambio anterior aún se está procesando. Reintenta la solicitud original en breve.",
     "phone_write_unconfirmed": "No se pudo confirmar el resultado del cambio. Reintenta la solicitud original para comprobarlo.",
     "phone_rate_limited": "Se están pidiendo códigos con demasiada frecuencia. Inténtalo más tarde.",
-    "append_window_not_open": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo en un momento."
+    "append_window_not_open": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo en un momento.",
+    "consent_required": "Primero acepta las Condiciones del servicio y la Política de privacidad actuales.",
+    "consent_version_changed": "Un documento se ha actualizado. Vuelve a aceptarlo."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -2530,5 +2532,26 @@
       }
     },
     "receipt": "Tipo de infracción: {name}"
+  },
+  "consent": {
+    "title": "Revisa las Condiciones del servicio y la Política de privacidad",
+    "description": "Antes de usar las funciones que requieren una cuenta, lee y acepta la versión actual de cada documento.",
+    "updated": "Estos documentos se han actualizado. Lee las nuevas versiones y marca cada documento que debes aceptar.",
+    "documents": {
+      "terms": "Condiciones del servicio",
+      "privacy": "Política de privacidad"
+    },
+    "agree": "He leído y acepto: {name}",
+    "version": "Versión {version}",
+    "read": "Leer completo: {name}",
+    "accepted": "Aceptado el {date}",
+    "submit": "Aceptar y continuar",
+    "sending": "Enviando…",
+    "done": "Aceptado. Ya puedes continuar.",
+    "changed": "Un documento acaba de actualizarse. Lee la nueva versión y vuelve a marcar el documento modificado.",
+    "allAccepted": "Has aceptado la versión actual de estos documentos.",
+    "declineTitle": "Si no aceptas",
+    "decline": "Las funciones que requieren una cuenta seguirán sin estar disponibles. Puedes cerrar sesión y seguir viendo las páginas públicas, o solicitar el cierre de tu cuenta de StuHelper.",
+    "menu": "Revisar condiciones"
   }
 }

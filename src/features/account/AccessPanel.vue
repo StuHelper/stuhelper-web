@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 import { useSession } from '../../shared/session'
 import PageSkeleton from '../../shared/ui/PageSkeleton.vue'
+import ConsentGate from './ConsentGate.vue'
 import { useAccess } from './access'
 
 // One explanation and one next step for each reason content is not open yet.
@@ -17,7 +18,7 @@ const access = useAccess()
 const icons = { guest: LockKeyhole, unverified: ShieldCheck, processing: Hourglass, expired: ShieldAlert, unavailable: RefreshCw }
 const state = computed(() => {
   const value = access.state.value
-  return value === 'loading' || value === 'verified' ? undefined : value
+  return value === 'loading' || value === 'verified' || value === 'consent' ? undefined : value
 })
 const verify = computed(() => (props.gate ? { path: '/me/verification', query: { next: route.fullPath } } : '/me/verification'))
 </script>
@@ -26,6 +27,10 @@ const verify = computed(() => (props.gate ? { path: '/me/verification', query: {
   <PageSkeleton
     v-if="access.state.value === 'loading'"
     :variant="/^\/(courses|teachers)\/[^/]+$/.test(route.path) ? 'detail' : 'list'"
+  />
+  <ConsentGate
+    v-else-if="access.state.value === 'consent'"
+    :gate="gate"
   />
   <section
     v-else-if="state"
