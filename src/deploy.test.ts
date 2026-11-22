@@ -41,12 +41,13 @@ describe('production container and nginx configuration', () => {
     expect(spaBlock).toContain('Cache-Control "no-cache" always;')
     expect(spaBlock).toContain('try_files $uri $uri/ /index.html;')
 
-    for (const block of [assetsBlock, indexBlock, spaBlock]) {
+    for (const block of [assetsBlock, extractLocation(nginxConf, 'location = /terms.html'), indexBlock, spaBlock]) {
       expect(block).toContain('X-Content-Type-Options "nosniff" always;')
       expect(block).toContain('Referrer-Policy "strict-origin-when-cross-origin" always;')
       expect(block).toContain('Permissions-Policy "camera=(self), microphone=(), geolocation=()" always;')
       expect(block).toContain('X-Frame-Options "SAMEORIGIN" always;')
-      expect(block).toContain('Content-Security-Policy ')
+      expect(block).toContain("connect-src 'self' https://media.stuhelper.com;")
+      expect(block).toMatch(/img-src [^;]*\bblob:/)
     }
   })
 

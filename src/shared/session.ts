@@ -12,7 +12,8 @@ import { clearCompare } from '../features/search/compare'
 import { forgetTrails } from '../features/resources/browseState'
 import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
-import { useHostFetch } from './api/transport'
+import { sessionFetch, useHostFetch } from './api/transport'
+import { mediaFetch } from './api/media'
 
 // Sign-in providers the login endpoint accepts besides the regular page (session contract 0.5.0).
 type LoginProvider = NonNullable<NonNullable<operations['startLogin']['parameters']['query']>['provider']>
@@ -213,8 +214,10 @@ export function useSession(): SessionStore {
 }
 
 /** An HTTP client on the host transport that re-checks the session after a denial. */
-export function useHttp() {
-  const fetcher = useHostFetch()
+export function useHttp(media = false) {
+  const host = useHostFetch()
+  // Image reads may follow the signed redirect to the media host; a native host transport handles that itself.
+  const fetcher = media && host === sessionFetch && !import.meta.env.VITE_DEMO ? mediaFetch : host
   const session = inject(sessionKey, undefined)
   const recheck = inject(deniedKey, undefined)
   return new Http(fetcher, { onUnavailable: () => session?.revalidate(true), onDenied: (status) => {

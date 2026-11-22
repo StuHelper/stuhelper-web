@@ -2,6 +2,7 @@ import catalogContract from '../../../contracts/catalog.openapi.json'
 import moderationContract from '../../../contracts/moderation.openapi.json'
 import type { components as Catalog } from '../../api/catalog.gen'
 import type { components as Moderation } from '../../api/moderation.gen'
+import { ApiError } from '../../shared/api/errors'
 import { segment, type Http } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
 import { useHttp } from '../../shared/session'
@@ -53,7 +54,26 @@ export function textLimit(field: HomepageField, labelled: boolean) {
  * and the match state; the page shows only what it returns, always as plain text.
  */
 export class TeacherHomepageApi {
-  constructor(private readonly http: Http) {}
+  constructor(private readonly http: Http, private readonly imageHttp: Http = http) {}
+
+  /**
+   * An image through its Catalog address. The answer is a short signed link on the media
+   * host, so each attempt asks Catalog again. When too many links were signed (429) the
+   * read waits the server's Retry-After, at most twice, and stops with the page.
+   */
+  private async image(url: string, limit: number, signal?: AbortSignal) {
+    for (let attempt = 0; ; attempt++) {
+      try {
+        const blob = await this.imageHttp.blob(url, limit, { signal, redirect: 'follow' })
+        if (!blob.size || !(blob.type === 'image/png' || blob.type === 'image/jpeg' || (limit === bodyImageLimit && blob.type === 'image/gif'))) throw new ApiError('incompatible')
+        return blob
+      } catch (error) {
+        const wait = error instanceof ApiError && error.status === 429 && attempt < 2 ? Math.min(60, Math.max(1, error.retryAfter ?? 5)) : 0
+        if (!wait) throw error
+        await delay(wait * 1000, signal)
+      }
+    }
+  }
 
   homepage(teacherId: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/catalog/objects/${segment(teacherId)}/teacher-homepage`, parse.view, { signal })
@@ -66,12 +86,12 @@ export class TeacherHomepageApi {
 
   /** A copied body image through its same-origin address. */
   bodyImage(url: string, signal?: AbortSignal) {
-    return this.http.blob(url, bodyImageLimit, { signal, redirect: 'error' })
+    return this.image(url, bodyImageLimit, signal)
   }
 
   /** The photo through its same-origin address; the contract fixes the address pattern. */
   photo(url: string, signal?: AbortSignal) {
-    return this.http.blob(url, photoLimit, { signal, redirect: 'error' })
+    return this.image(url, photoLimit, signal)
   }
 
   async myRequests(teacherId: string, after: string, signal?: AbortSignal) {
@@ -93,7 +113,7 @@ export class TeacherHomepageApi {
 }
 
 export function useTeacherHomepage() {
-  return new TeacherHomepageApi(useHttp())
+  return new TeacherHomepageApi(useHttp(), useHttp(true))
 }
 
 /** Standard base64 of a file's bytes, as the request body carries a replacement photo. */
@@ -106,3 +126,19 @@ export async function base64Of(file: Blob) {
 
 /** A body image StuHelper copied and checked, as opposed to a link to the school's page. */
 export const isCopied = (item: HomepageMedium): item is CopiedImage => item.kind === 'image' && 'image' in item && !!item.image
+
+/** Wait, giving up as soon as the page cancels. */
+function delay(ms: number, signal?: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) return reject(new ApiError('cancelled'))
+    const abort = () => {
+      clearTimeout(timer)
+      reject(new ApiError('cancelled'))
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', abort)
+      resolve()
+    }, ms)
+    signal?.addEventListener('abort', abort, { once: true })
+  })
+}

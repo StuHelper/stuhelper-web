@@ -1789,7 +1789,7 @@ export interface components {
         };
         TeacherHomepageBodyImage: {
             /** @enum {string} */
-            content_type: "image/jpeg" | "image/png";
+            content_type: "image/jpeg" | "image/png" | "image/gif";
             width: number;
             height: number;
             /** Format: int64 */
@@ -4712,6 +4712,14 @@ export interface operations {
                     "image/png": string;
                 };
             };
+            /** @description Authorized private media redirect valid for 60 seconds */
+            302: {
+                headers: {
+                    Location: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Invalid input */
             400: {
                 headers: {
@@ -4747,6 +4755,15 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Error"];
                 };
+            };
+            /** @description Teacher image signature issuance limit exceeded */
+            429: {
+                headers: {
+                    /** @description Seconds until the next issuance window */
+                    "Retry-After": number;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Required dependency unavailable */
             503: {
@@ -5270,7 +5287,16 @@ export interface operations {
                 content: {
                     "image/jpeg": string;
                     "image/png": string;
+                    "image/gif": string;
                 };
+            };
+            /** @description Authorized private media redirect valid for 60 seconds */
+            302: {
+                headers: {
+                    Location: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Invalid input */
             400: {
@@ -5307,6 +5333,15 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Error"];
                 };
+            };
+            /** @description Teacher image signature issuance limit exceeded */
+            429: {
+                headers: {
+                    /** @description Seconds until the next issuance window */
+                    "Retry-After": number;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description 必要依赖暂不可用，或正文图片下载没有在请求期限内取得处理名额。 */
             503: {
@@ -5338,8 +5373,16 @@ export interface operations {
                     "Cache-Control"?: "private, no-store";
                     "X-Content-Type-Options"?: "nosniff";
                     "Content-Length"?: number;
-                    "Content-Type"?: "image/jpeg" | "image/png";
+                    "Content-Type"?: "image/jpeg" | "image/png" | "image/gif";
                     "X-Accel-Buffering"?: "no";
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authorized private media redirect valid for 60 seconds */
+            302: {
+                headers: {
+                    Location: string;
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -5368,6 +5411,15 @@ export interface operations {
             /** @description 教师或正文图片已不可见，或图片摘要不在当前可见正文中。 */
             404: {
                 headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Teacher image signature issuance limit exceeded */
+            429: {
+                headers: {
+                    /** @description Seconds until the next issuance window */
+                    "Retry-After": number;
                     [name: string]: unknown;
                 };
                 content?: never;
@@ -6171,6 +6223,14 @@ export interface operations {
                     "image/png": string;
                 };
             };
+            /** @description Authorized private media redirect valid for 60 seconds */
+            302: {
+                headers: {
+                    Location: string;
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description invalid_input。字段、内容、分页参数或幂等键不符合约定。 */
             400: {
                 headers: {
@@ -6206,6 +6266,15 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Error"];
                 };
+            };
+            /** @description Teacher image signature issuance limit exceeded */
+            429: {
+                headers: {
+                    /** @description Seconds until the next issuance window */
+                    "Retry-After": number;
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description unavailable。必要的认证、目录、审计或通知依赖暂不可用。 */
             503: {

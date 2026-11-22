@@ -355,12 +355,13 @@
       "tests/e2e/teacher-homepage-media.spec.mjs#an undecodable image response leaves a localized placeholder without refreshing the homepage",
       "tests/e2e/teacher-homepage-media.spec.mjs#an image HTTP 403 refreshes the homepage once and uses the replacement address",
       "tests/e2e/teacher-homepage-media.spec.mjs#an image HTTP 404 refreshes the homepage once and uses the replacement address",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an expired media link is signed again and the browser displays the animated GIF",
       "tests/e2e/teacher-homepage-media.spec.mjs#source links stay in their biography, research and section groups and open privately",
       "tests/e2e/teacher-homepage-media.spec.mjs#a teacher page displays named and untitled media-only sections without a profile response",
       "tests/e2e/teacher-homepage-media.spec.mjs#a failed homepage media list leaves the teacher profile and reviews usable"
     ],
     "CAT-TEACHER-15": [
-      "src/features/academic/teacherHomepage.test.ts#reads copied images with the session, rejects redirects and enforces the 20 MiB stream limit"
+      "src/features/academic/teacherHomepage.test.ts#reads copied images with the session, follows signed redirects and enforces the 20 MiB stream limit"
     ],
     "SSO-CONSENT-04": [
       "tests/e2e/consent.spec.mjs#the personal center opens consent records, legal documents and account closure",
