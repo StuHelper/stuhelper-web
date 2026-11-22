@@ -16,6 +16,28 @@ const boxes = ['interaction', 'review', 'verification', 'system'];
 const types = ['interaction', 'business', 'security', 'account'];
 const readAt = '2026-11-08T00:00:00Z';
 
+// Delay the HTTP response after the fixture has applied the write or computed the count.
+function delayedResponse() {
+  const gate = Promise.withResolvers();
+  const started = Promise.withResolvers();
+  return {
+    wait(request) { started.resolve(request); return gate.promise; },
+    request: started.promise,
+    release: gate.resolve,
+  };
+}
+
+const unreadPair = () => [
+  note('interaction', {
+    id: 'i1', type: 'interaction', target: { kind: 'comment', id: 'comment-1' }, title_key: 'notifications.interaction.reply',
+    title_params: { ...content('comment-1', 'Calculus review'), context_id: 'root-review-1' },
+  }),
+  note('verification', {
+    id: 'v1', target: { kind: 'teacher_application', id: 'ta-1' }, title_key: 'notifications.teacher_verification.approved',
+    title_params: { application_id: 'ta-1' },
+  }),
+];
+
 // Notifications server following the notifications contract. Reads and writes are recorded.
 async function server(page, items, pageSize = 30) {
   const state = { preferences: { reply_enabled: true, like_enabled: true }, lists: [], summary: undefined, writes: [] };
@@ -40,12 +62,14 @@ async function server(page, items, pageSize = 30) {
       }
       if (path === '/unread-count') {
         const unread = items.filter(({ notification }) => !notification.read_at);
-        state.summary = {
+        const summary = {
           count: unread.length,
           by_box: Object.fromEntries(boxes.map((key) => [key, unread.filter((item) => item.box === key).length])),
           by_type: Object.fromEntries(types.map((key) => [key, unread.filter(({ notification }) => notification.type === key).length])),
         };
-        return route.fulfill({ json: state.summary });
+        state.summary = summary;
+        await state.beforeSummaryResponse?.(request);
+        return route.fulfill({ json: summary });
       }
       if (path === '/preferences') return route.fulfill({ json: state.preferences });
     }
@@ -65,6 +89,7 @@ async function server(page, items, pageSize = 30) {
     }
     if (method === 'POST' && path === '/read-all') {
       for (const { notification } of items.filter(inBox)) notification.read_at ??= readAt;
+      await state.beforeReadAllResponse?.(request);
       return route.fulfill({ status: 204 });
     }
     return route.fulfill({ status: 404, json: { code: 'not_found' } });
@@ -266,6 +291,83 @@ test('the navigation bell shows the unread count on every page and follows the m
   expect(state.writes).toEqual([{ method: 'POST', path: '/read-all', box: null, body: undefined }]);
 });
 
+test('opening a comment updates the bell before the unread count returns', async ({ page }, info) => {
+  const n = catalogue(info).notifications;
+  const items = unreadPair();
+  const state = await server(page, items);
+  await page.route('**/api/v1/reviews/**', route => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.goto(`${base}/notifications?box=interaction&lang=${info.project.metadata.locale}`);
+  const badge = page.locator('header a[href="/notifications"] .d-unread');
+  await expect(badge).toHaveText(number(info, 2));
+  await expect(page.getByRole('button', { name: n.readAll, exact: true })).toBeEnabled();
+  const summary = delayedResponse();
+  state.beforeSummaryResponse = summary.wait;
+  try {
+    await page.getByRole('button', { name: fill(n.titles.interaction.reply, { content_id: named(n, 'Calculus review') }) }).click();
+    await summary.request;
+    await expect(page).toHaveURL(/\/reviews\/root-review-1$/);
+    await expect(badge).toHaveText(number(info, 1));
+    expect(state.writes).toEqual([{ method: 'POST', path: '/i1/read', box: null, body: undefined }]);
+    expect(items.map(({ notification }) => notification.read_at)).toEqual([readAt, null]);
+    expect(state.summary.count).toBe(1);
+  } finally {
+    summary.release();
+  }
+});
+
+test('opening a comment uses the known bell count while the first inbox summary is pending', async ({ page }, info) => {
+  const n = catalogue(info).notifications;
+  const items = unreadPair();
+  const state = await server(page, items);
+  await page.route('**/api/v1/reviews/**', route => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  const bell = page.getByRole('link', { name: fill(n.unread, { count: number(info, 2) }), exact: true });
+  await expect(bell).toBeVisible();
+  const summary = delayedResponse();
+  state.beforeSummaryResponse = summary.wait;
+  try {
+    await bell.click();
+    await summary.request;
+    await page.getByRole('navigation', { name: n.boxesLabel }).getByRole('link', { name: n.boxes.interaction }).click();
+    await page.getByRole('button', { name: fill(n.titles.interaction.reply, { content_id: named(n, 'Calculus review') }) }).click();
+    await expect(page).toHaveURL(/\/reviews\/root-review-1$/);
+    await expect(page.locator('header a[href="/notifications"] .d-unread')).toHaveText(number(info, 1));
+    expect(items.map(({ notification }) => notification.read_at)).toEqual([readAt, null]);
+  } finally {
+    summary.release();
+  }
+});
+
+test('a late mark-all response keeps the new box unread', async ({ page }, info) => {
+  const n = catalogue(info).notifications;
+  const items = unreadPair();
+  const state = await server(page, items);
+  await page.goto(`${base}/notifications?box=interaction&lang=${info.project.metadata.locale}`);
+  const bulk = delayedResponse();
+  state.beforeReadAllResponse = bulk.wait;
+  const readAll = page.getByRole('button', { name: n.readAll, exact: true });
+  const verification = page.getByRole('button', { name: fill(n.titles.teacher_verification.approved, { application_id: isolate('ta-1') }) });
+  const unreadMark = verification.getByText(n.unreadMark, { exact: true });
+  try {
+    await readAll.click();
+    const request = await bulk.request;
+    expect(new URL(request.url()).searchParams.get('box')).toBe('interaction');
+    expect(items.map(({ notification }) => notification.read_at)).toEqual([readAt, null]);
+    await page.locator('.page-back').getByText(n.title, { exact: true }).click();
+    await page.getByRole('navigation', { name: n.boxesLabel }).getByRole('link', { name: n.boxes.verification }).click();
+    await expect(verification).toBeVisible();
+    await expect(unreadMark).toHaveCount(1);
+  } finally {
+    bulk.release();
+  }
+  await expect(page.getByText(n.allRead, { exact: true })).toBeVisible();
+  await expect(unreadMark).toHaveCount(1);
+  await expect(readAll).toBeEnabled();
+  expect(state.summary.by_box.verification).toBe(1);
+  expect(state.writes).toEqual([{ method: 'POST', path: '/read-all', box: 'interaction', body: undefined }]);
+  expect(items.map(({ notification }) => notification.read_at)).toEqual([readAt, null]);
+});
+
 test('a failed unread count leaves the bell without a number and breaks nothing', async ({ page }, info) => {
   const n = catalogue(info).notifications, errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
@@ -320,6 +422,6 @@ test('opening an unread notification twice changes the count only once', async (
   release();
   await expect(page.locator('header a[href="/notifications"] .d-unread')).toHaveText(number(info, 1));
   expect(entries.map(({ notification }) => notification.read_at)).toEqual([readAt, null]);
-  expect(state.summary?.count).toBe(1);
+  await expect.poll(() => state.summary?.count).toBe(1);
   expect(requests).toBe(1);
 });
