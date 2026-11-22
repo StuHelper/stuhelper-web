@@ -147,6 +147,24 @@
       "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401",
       "src/shared/session.test.ts#forgets saved return filters and unread counts when the current session ends"
     ],
+    "SV-EMAIL-TRANSFER-01": [
+      "src/features/verification/flow.test.ts#requires this application to affirm the notice before first send and omits the choice on resend",
+      "src/features/verification/flow.test.ts#asks for the replacement publication after a conflict and does not reuse a concurrent click",
+      "src/features/verification/flow.test.ts#discards the stale choice when refreshing the publication also fails",
+      "src/features/verification/flow.test.ts#retries an unavailable publication without losing the entered identity or sending a code",
+      "tests/e2e/email-transfer-consent.spec.mjs#outbound email waits for explicit consent and sends the versioned document reference",
+      "tests/e2e/email-transfer-consent.spec.mjs#a changed publication shows its update and waits for consent to the new version",
+      "tests/e2e/email-transfer-consent.spec.mjs#an unavailable transfer check offers retry and a return to other methods",
+      "tests/e2e/email-transfer-consent.spec.mjs#inbound school email creates its proof without requesting outbound consent"
+    ],
+    "SV-EMAIL-TRANSFER-02": [
+      "src/features/verification/flow.test.ts#requires a fresh affirmative choice for another student number or application",
+      "src/features/verification/flow.test.ts#asks again when resend requires consent and keeps the existing delivered code",
+      "tests/e2e/email-transfer-consent.spec.mjs#resend reuses consent for the same recipient and asks again for a changed student ID",
+      "tests/e2e/email-transfer-consent.spec.mjs#a revoked receipt makes resend ask again and keeps the already sent code usable",
+      "tests/e2e/email-transfer-consent.spec.mjs#account security withdraws consent only after confirmation and refreshes the status",
+      "src/features/verification/email-transfer-withdraw.test.ts#lets the account reload its withdrawal status after the document source recovers"
+    ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
       "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification",

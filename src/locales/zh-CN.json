@@ -137,7 +137,9 @@
     "phone_rate_limited": "验证码发送太频繁，请稍后再试。",
     "append_window_not_open": "首次发布 5 分钟后才能追评，请稍后再试。",
     "consent_required": "请先同意当前的用户服务协议和隐私政策。",
-    "consent_version_changed": "文件已更新，请重新确认。"
+    "consent_version_changed": "文件已更新，请重新确认。",
+    "email_transfer_consent_required": "发送学校邮箱验证码前需要同意境外投递。",
+    "email_transfer_consent_changed": "出境告知与同意书已更新，请重新确认。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -1284,6 +1286,46 @@
     "documentType": "证件类型",
     "documentTypes": {
       "cn_resident_id_card": "居民身份证"
+    },
+    "transfer": {
+      "title": "学校邮箱验证码的境外投递",
+      "intro": "发送学校邮箱验证码前，请单独确认是否同意将下列信息提供给境外邮件服务商。",
+      "changed": "出境告知与同意书已更新，请阅读新版本后重新选择。",
+      "facts": {
+        "recipient": {
+          "label": "接收方",
+          "text": "Plus Five Five, Inc.（邮件投递服务 Resend）"
+        },
+        "data": {
+          "label": "出境的信息",
+          "text": "学校邮箱地址（可能含学号）、邮件主题、含验证码和到期时间的正文，以及必要的投递标识。"
+        },
+        "purpose": {
+          "label": "用途",
+          "text": "投递本次验证码，处理退信、投诉和投递异常，并提供投递结果和排查所需的日志。"
+        },
+        "place": {
+          "label": "处理与保存地点",
+          "text": "主要在美国处理和保存。发信域公开的退信路由指向日本东京。"
+        },
+        "period": {
+          "label": "保存期限",
+          "text": "邮件正文、投递日志、备份和拒发名单记录的保存期限与删除规则见下方告知书。"
+        },
+        "rights": {
+          "label": "你的权利",
+          "text": "可随时在「账号与安全」撤回同意。也可通过告知书所列渠道申请查阅、复制、更正或删除。"
+        }
+      },
+      "read": "阅读《个人信息出境告知与同意书》（版本 {version}）",
+      "other": "你也可以返回，选择学校已开放且你符合条件的其他认证方式。",
+      "agree": "同意境外投递并发送验证码",
+      "back": "返回选择其他方式",
+      "accepted": "你已同意学校邮箱验证码的境外投递。",
+      "acceptedAt": "你在 {time} 同意了学校邮箱验证码的境外投递。",
+      "withdraw": "撤回同意",
+      "withdrawConfirm": "撤回后，新的投递需要重新同意。撤回前已发起的投递可能继续处理，已发出的验证码沿用原有效期。",
+      "withdrawn": "已撤回境外投递同意。"
     }
   },
   "contribution": {

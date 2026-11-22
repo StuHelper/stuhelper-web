@@ -5,6 +5,7 @@ import { createI18n } from 'vue-i18n'
 import { ApiError } from '../../shared/api/errors'
 import CameraCapture from './CameraCapture.vue'
 import { useVerificationFlow } from './flow'
+import type { EmailChallenge, EmailTransferStatus } from './api'
 
 const api = vi.hoisted(() => ({ list: vi.fn(), get: vi.fn(), write: vi.fn(), upload: vi.fn(), material: vi.fn() }))
 vi.mock('./api', async (importOriginal) => ({ ...(await importOriginal<typeof import('./api')>()), useVerification: () => api }))
@@ -161,26 +162,216 @@ it('uses method capabilities to hide study stage while preserving manual identit
   expect(api.write).toHaveBeenCalledWith('Application', '/api/v1/verification/applications', expect.objectContaining({ stage: 'unknown', kind: 'alumni' }))
 })
 
-it('restored email resend reopens identity inputs without submitting hidden empty values', async () => {
+const outboundApplication = {
+  id: 'a', school_id: 's101', method: 'student_email_outbound_otp', stage: 'bachelor', kind: 'student', state: 'in_progress', revision: 1,
+  created_at: '2026-11-22T00:00:00Z', updated_at: '2026-11-22T00:00:00Z', expires_at: '2026-11-23T00:00:00Z', credential_id: '', result_code: '',
+} satisfies Parameters<ReturnType<typeof useVerificationFlow>['resume']>[0]
+const transferPath = '/api/v1/verification/email-transfer-consent'
+const outboundPath = `/api/v1/verification/applications/${outboundApplication.id}/email`
+const applicant = { student_id: '20260001', name: 'Synthetic Student' }
+const publication = {
+  document_id: 'email-transfer', version: 'v1', digest: 'a'.repeat(64), url: 'https://example.test/legal/email-transfer/v1',
+} satisfies EmailTransferStatus['document']
+const nextPublication = { ...publication, version: 'v2', digest: 'b'.repeat(64), url: 'https://example.test/legal/email-transfer/v2' }
+const delivered = {
+  id: 'mail', application_id: outboundApplication.id, state: 'delivered', expires_at: '2026-11-22T00:10:00Z', masked_email: '20****01@example.edu', target_address: '',
+} satisfies EmailChallenge
+
+function serveEmailReads(status: EmailTransferStatus | ApiError, restored?: EmailChallenge) {
+  const summary = { campus_eligibility: false, identity_verified: false, evaluated_at: '2026-11-22T00:00:00Z', revision: 1, next_evaluation_at: null }
+  api.get.mockImplementation(async (entity: string) => {
+    if (entity === 'EmailTransferConsentStatus') {
+      if (status instanceof ApiError) throw status
+      return status
+    }
+    if (entity === 'EmailChallenge') {
+      if (!restored) throw new ApiError('not_found', false, 404)
+      return restored
+    }
+    if (entity === 'Summary') return summary
+    throw new Error(`Unexpected verification entity ${entity}`)
+  })
+}
+
+async function mountOutbound(restored?: EmailChallenge, status: EmailTransferStatus | ApiError = { document: publication, accepted: false }) {
+  serveEmailReads(status, restored)
+  const outboundSchool = { ...school('s101'), methods: ['student_email_outbound_otp'], enabled: true, opening_date: '', newcomer_days: 90, email_domain: 'example.edu', revision: 1 }
+  api.list.mockImplementation(async (entity: string) => ({ items: entity === 'School' ? [outboundSchool] : entity === 'Application' ? [outboundApplication] : [], next: '' }))
   const flow = mountFlow()
   await flow.reload()
-  flow.schools.value = [{ ...school('s101'), methods: ['student_email_outbound_otp'] }] as never
-  const restored = { ...pending, method: 'student_email_outbound_otp', school_challenge: undefined }
-  api.get.mockImplementation(async (kind: string) => kind === 'EmailChallenge' ? { id: 'mail', application_id: restored.id, state: 'delivered' } : {})
+  api.write.mockResolvedValue(delivered)
+  return flow
+}
+
+function transferChoice(document: EmailTransferStatus['document']) {
+  return { document_id: document.document_id, version: document.version, digest: document.digest, accepted: true }
+}
+
+it('restored email resend reopens identity inputs without submitting hidden empty values', async () => {
+  const flow = await mountOutbound(delivered)
   Object.assign(flow.form, { student_id: 'previous-user', name: 'Previous Person' })
-  await flow.resume(restored as never)
+  await flow.resume(outboundApplication)
   expect(flow.form.student_id).toBe('')
   expect(flow.form.name).toBe('')
-  expect(flow.email.value?.id).toBe('mail')
+  expect(flow.email.value?.id).toBe(delivered.id)
   await flow.resendEmail()
   expect(api.write).not.toHaveBeenCalled()
   expect(flow.email.value).toBeUndefined()
-  expect(flow.active.value?.id).toBe(restored.id)
-  Object.assign(flow.form, { student_id: '20260001', name: 'Synthetic Student' })
-  api.write.mockResolvedValue({ id: 'mail-new', application_id: restored.id, state: 'queued' })
+  expect(flow.active.value?.id).toBe(outboundApplication.id)
+  Object.assign(flow.form, applicant)
   await flow.submit()
-  expect(api.write).toHaveBeenCalledWith('EmailChallenge', `/api/v1/verification/applications/${restored.id}/email`, { student_id: '20260001', name: 'Synthetic Student' })
-  expect(flow.email.value?.id).toBe('mail-new')
+  expect(flow.transferAsking.value).toBe(true)
+  expect(api.write).not.toHaveBeenCalled()
+  const sent = { ...delivered, id: 'mail-new' }
+  api.write.mockResolvedValueOnce(sent)
+  await flow.agreeTransfer()
+  expect(api.write).toHaveBeenCalledWith('EmailChallenge', outboundPath, { ...applicant, email_transfer_consent: transferChoice(publication) })
+  expect(flow.email.value).toEqual(sent)
+})
+
+it('requires this application to affirm the notice before first send and omits the choice on resend', async () => {
+  const flow = await mountOutbound(undefined, { document: publication, accepted: true, accepted_at: '2026-11-21T00:00:00Z' })
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  expect(api.get.mock.calls.map(([entity, path]) => [entity, path])).toContainEqual(['EmailTransferConsentStatus', transferPath])
+  expect(flow.transfer.value?.document).toEqual(publication)
+  expect(flow.transferAsking.value).toBe(true)
+  expect(api.write).not.toHaveBeenCalled()
+  await flow.agreeTransfer()
+  expect(api.write).toHaveBeenNthCalledWith(1, 'EmailChallenge', outboundPath, { ...applicant, email_transfer_consent: transferChoice(publication) })
+  expect(flow.transferAsking.value).toBe(false)
+  expect(flow.email.value).toEqual(delivered)
+  const resent = { ...delivered, id: 'mail-resent' }
+  api.write.mockResolvedValueOnce(resent)
+  await flow.resendEmail()
+  expect(api.write).toHaveBeenNthCalledWith(2, 'EmailChallenge', outboundPath, applicant)
+  expect(flow.email.value).toEqual(resent)
+})
+
+it('leaves the notice for other methods without sending a code', async () => {
+  const flow = await mountOutbound()
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  expect(flow.transferAsking.value).toBe(true)
+  flow.backToMethod()
+  expect(flow.step.value).toBe(1)
+  expect(flow.transferAsking.value).toBe(false)
+  expect(api.write).not.toHaveBeenCalled()
+})
+
+it('requires a fresh affirmative choice for another student number or application', async () => {
+  const flow = await mountOutbound()
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  await flow.agreeTransfer()
+
+  const otherApplicant = { ...applicant, student_id: '20260002' }
+  Object.assign(flow.form, otherApplicant)
+  await flow.resendEmail()
+  expect(flow.transferAsking.value).toBe(true)
+  expect(api.write).toHaveBeenCalledTimes(1)
+  await flow.agreeTransfer()
+  expect(api.write).toHaveBeenNthCalledWith(2, 'EmailChallenge', outboundPath, { ...otherApplicant, email_transfer_consent: transferChoice(publication) })
+
+  flow.backToMethod()
+  const anotherApplication = { ...outboundApplication, id: 'another' }
+  await flow.resume(anotherApplication)
+  Object.assign(flow.form, otherApplicant)
+  await flow.submit()
+  expect(flow.transferAsking.value).toBe(true)
+  expect(api.write).toHaveBeenCalledTimes(2)
+})
+
+it('asks again when resend requires consent and keeps the existing delivered code', async () => {
+  const flow = await mountOutbound()
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  await flow.agreeTransfer()
+
+  api.write.mockRejectedValueOnce(new ApiError('email_transfer_consent_required', false, 403))
+  await flow.resendEmail()
+  expect(api.write).toHaveBeenNthCalledWith(2, 'EmailChallenge', outboundPath, applicant)
+  expect(flow.transferAsking.value).toBe(true)
+  expect(flow.transferChanged.value).toBe(false)
+  expect(flow.email.value).toEqual(delivered)
+  expect(flow.error.value).toBe('email_transfer_consent_required')
+
+  await flow.agreeTransfer()
+  expect(api.write).toHaveBeenNthCalledWith(3, 'EmailChallenge', outboundPath, { ...applicant, email_transfer_consent: transferChoice(publication) })
+  expect(flow.transferAsking.value).toBe(false)
+  expect(flow.error.value).toBe('')
+})
+
+it('asks for the replacement publication after a conflict and does not reuse a concurrent click', async () => {
+  const flow = await mountOutbound()
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  expect(flow.transfer.value?.document).toEqual(publication)
+
+  serveEmailReads({ document: nextPublication, accepted: false })
+  api.write.mockRejectedValueOnce(new ApiError('email_transfer_consent_changed', false, 409))
+  await Promise.all([flow.agreeTransfer(), flow.agreeTransfer()])
+  expect(api.write).toHaveBeenCalledExactlyOnceWith('EmailChallenge', outboundPath, { ...applicant, email_transfer_consent: transferChoice(publication) })
+  expect(flow.transferAsking.value).toBe(true)
+  expect(flow.transferChanged.value).toBe(true)
+  expect(flow.transfer.value?.document).toEqual(nextPublication)
+  expect(flow.error.value).toBe('email_transfer_consent_changed')
+
+  await flow.submit()
+  expect(api.write).toHaveBeenCalledTimes(1)
+  await flow.agreeTransfer()
+  expect(api.write).toHaveBeenNthCalledWith(2, 'EmailChallenge', outboundPath, { ...applicant, email_transfer_consent: transferChoice(nextPublication) })
+  expect(flow.transferChanged.value).toBe(false)
+})
+
+it('retries an unavailable publication without losing the entered identity or sending a code', async () => {
+  const flow = await mountOutbound(undefined, new ApiError('unavailable', false, 503))
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  expect(flow.error.value).toBe('unavailable')
+  expect(flow.errorTarget.value).toBe('form')
+  expect(flow.transfer.value).toBeUndefined()
+  expect(flow.form).toMatchObject(applicant)
+  expect(api.write).not.toHaveBeenCalled()
+
+  serveEmailReads({ document: publication, accepted: false })
+  await flow.submit()
+  expect(flow.transferAsking.value).toBe(true)
+  expect(flow.transfer.value?.document).toEqual(publication)
+  expect(flow.error.value).toBe('')
+  expect(api.write).not.toHaveBeenCalled()
+  flow.backToMethod()
+  expect(flow.step.value).toBe(1)
+  expect(api.write).not.toHaveBeenCalled()
+})
+
+it('discards the stale choice when refreshing the publication also fails', async () => {
+  const flow = await mountOutbound()
+  await flow.resume(outboundApplication)
+  Object.assign(flow.form, applicant)
+  await flow.submit()
+  api.write.mockRejectedValueOnce(new ApiError('email_transfer_consent_changed', false, 409))
+  serveEmailReads(new ApiError('unavailable', false, 503))
+  await flow.agreeTransfer()
+
+  expect(flow.transfer.value).toBeUndefined()
+  expect(flow.error.value).toBe('unavailable')
+  expect(flow.form).toMatchObject(applicant)
+  await flow.agreeTransfer()
+  expect(api.write).toHaveBeenCalledTimes(1)
+
+  serveEmailReads({ document: nextPublication, accepted: false })
+  await flow.submit()
+  expect(flow.transferAsking.value).toBe(true)
+  expect(flow.transferChanged.value).toBe(true)
+  expect(flow.transfer.value?.document).toEqual(nextPublication)
+  expect(api.write).toHaveBeenCalledTimes(1)
 })
 
 // A school in the shape of the BUAA configuration: no study stage, the school account only for current students.
@@ -255,6 +446,8 @@ it('moves a created inbound email challenge to step three, where its one-time ad
   Object.assign(flow.form, { student_id: '20260001', name: 'Synthetic Student' })
   api.write.mockResolvedValue({ id: 'mail', application_id: inbound.id, state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-1@example.edu' })
   await flow.submit()
+  expect(api.get.mock.calls.map(([entity]) => entity)).not.toContain('EmailTransferConsentStatus')
+  expect(api.write).toHaveBeenCalledExactlyOnceWith('EmailChallenge', `/api/v1/verification/applications/${inbound.id}/email`, applicant)
   expect(flow.email.value?.target_address).toBe('verify-1@example.edu')
   expect(flow.writable.value).toBe(true)
   expect(flow.step.value).toBe(3)
