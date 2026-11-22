@@ -22,6 +22,7 @@ export function maskedIdentity(summary: Summary | undefined) {
 export type RemovalRequest = Schemas['RemovalRequest']
 export type Material = Schemas['Material']
 export type EmailChallenge = Schemas['EmailChallenge']
+export type EmailTransferStatus = Schemas['EmailTransferConsentStatus']
 export type StudentProfile = Schemas['StudentProfile']
 export type Method = Schemas['Method']
 export type Stage = Schemas['Stage']
@@ -31,7 +32,7 @@ export type TeacherCredential = Schemas['TeacherCredential']
 export type TeacherDisclosure = Schemas['TeacherDisclosures'][number]
 export const teacherDisclosures: TeacherDisclosure[] = ['real_name', 'teacher', 'gender', 'organization']
 
-type Entity = 'EmailInput' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential'
+type Entity = 'EmailInput' | 'EmailTransferConsentStatus' | 'EmailTransferWithdrawal' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential'
 
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
 export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
@@ -83,6 +84,9 @@ const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   AdminOverview: (v) => ['pending_student_applications', 'pending_teacher_applications', 'pending_removal_requests', 'pending_suggestions', 'abnormal_jobs'].every(key => count(v[key])),
   Problem: (v) => text(v.code) && (v.operation_id === undefined || text(v.operation_id)) && (v.remaining_attempts === undefined || count(v.remaining_attempts)) && (v.retry_after_seconds === undefined || count(v.retry_after_seconds)),
   EmailChallenge: (v) => (v.resend_available_at === undefined || instant(v.resend_available_at)) && (v.remaining_attempts === undefined || count(v.remaining_attempts)) && text(v.id) && text(v.application_id) && instant(v.expires_at) && oneOf(v.state, ['queued', 'waiting', 'delivered', 'used', 'failed']) && text(v.masked_email) && text(v.target_address),
+  // The transfer notice is read from its fixed publication; version and digest bind the choice to it.
+  EmailTransferConsentStatus: (v) => object(v.document) && v.document.document_id === 'email-transfer' && sized(v.document.version, 1, 64) && text(v.document.digest) && /^[a-f0-9]{64}$/.test(v.document.digest) && text(v.document.url) && /^https:\/\//.test(v.document.url) && typeof v.accepted === 'boolean' && (v.accepted_at === undefined || instant(v.accepted_at)),
+  EmailTransferWithdrawal: (v) => v.withdrawn === true,
   CaptureSession: (v) => text(v.token) && /^[A-Za-z0-9_-]{43}$/.test(v.token) && instant(v.expires_at),
   Material: (v) => text(v.id) && text(v.application_id) && oneOf(v.content_type, ['image/jpeg', 'image/png', 'application/pdf']) && count(v.size) && instant(v.created_at),
   Operation: (v) => text(v.id) && oneOf(v.state, ['processing', 'completed', 'failed']) && text(v.code) && instant(v.expires_at),

@@ -1,7 +1,7 @@
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { verificationPages } from './api'
 import { ApiError, errorCode } from '../../shared/api/errors'
-import { useVerification, type Application, type Credential, type EmailChallenge, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
+import { useVerification, type Application, type Credential, type EmailChallenge, type EmailTransferStatus, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
 
 type Section = 'schools' | 'applications' | 'credentials' | 'requests'
 type ErrorTarget = Section | 'form' | 'profile' | 'removal' | 'email' | 'school'
@@ -245,7 +245,31 @@ export function useVerificationFlow() {
 
   // Leaves the started application and returns to choosing the method. The draft
   // stays on the server until it expires; nothing has been verified yet.
+  // Outbound school email is delivered by a provider abroad, so the first code for a recipient
+  // needs a separate, affirmative choice of the current transfer notice. Nothing is preselected:
+  // the "agree and send" button is the choice, and going back or leaving sends nothing.
+  const transfer = shallowRef<EmailTransferStatus>()
+  const transferAsking = ref(false)
+  const transferChanged = ref(false)
+  let transferAgreed = false
+  // Recipient and document of the last accepted send; a resend to them needs no new choice.
+  let transferFor = ''
+  const transferKey = (applicationId: string, studentId: string, status = transfer.value) => (status ? `${applicationId}:${studentId}:${status.document.version}:${status.document.digest}` : '')
+  async function askTransfer(changed = false) {
+    transfer.value = await api.get('EmailTransferConsentStatus', '/api/v1/verification/email-transfer-consent')
+    transferChanged.value = changed
+    transferAsking.value = true
+  }
+  const agreeTransfer = () => {
+    if (!transfer.value) return Promise.resolve()
+    transferAgreed = true
+    return submit()
+  }
+
   function backToMethod() {
+    transferAsking.value = false
+    transferChanged.value = false
+    transferAgreed = false
     const keep = { school: selectedSchool.value, method: selectedMethod.value, consent: consent.value }
     reset()
     selectedSchool.value = keep.school
@@ -339,7 +363,32 @@ export function useVerificationFlow() {
       notice.value = 'submitted'
     } else if (emailMethod.value) {
       const body: Schemas['EmailInput'] = { student_id: form.student_id, name: form.name }
-      await check(async () => { email.value = await api.write('EmailChallenge', `${path}/email`, body) })
+      const outbound = selectedMethod.value === 'student_email_outbound_otp'
+      const applicationId = active.value.id
+      const studentId = form.student_id.trim()
+      const agreed = transferAgreed
+      transferAgreed = false
+      if (outbound && transferFor !== transferKey(applicationId, studentId)) {
+        if (!agreed || !transfer.value) {
+          await askTransfer()
+          return
+        }
+        body.email_transfer_consent = { document_id: 'email-transfer', version: transfer.value.document.version, digest: transfer.value.document.digest, accepted: true }
+      }
+      try {
+        await check(async () => { email.value = await api.write('EmailChallenge', `${path}/email`, body) })
+      } catch (failure) {
+        const code = errorCode(failure)
+        // The choice no longer counts (withdrawn or a new notice): show the current notice again.
+        if (outbound && (code === 'email_transfer_consent_required' || code === 'email_transfer_consent_changed')) {
+          transferFor = ''
+          await askTransfer(code === 'email_transfer_consent_changed').catch(() => undefined)
+        }
+        throw failure
+      }
+      if (body.email_transfer_consent) transferFor = transferKey(applicationId, studentId)
+      transferAsking.value = false
+      transferChanged.value = false
       emailSentAt.value = Date.now()
     } else {
       const body: Schemas['VerifyInput'] = { student_id: form.student_id, name: selectedMethod.value === 'school_sso' ? '' : form.name, document_number: form.document_number, password: form.password }
@@ -547,6 +596,7 @@ export function useVerificationFlow() {
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable, step, profileRequestId,
     asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,
+    transfer, transferAsking, transferChanged, agreeTransfer,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }

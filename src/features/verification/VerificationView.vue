@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ActionError from './ActionError.vue'
 import CheckGate from './CheckGate.vue'
+import EmailTransferNotice from './EmailTransferNotice.vue'
 import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { CircleCheck, Copy, RefreshCw } from 'lucide-vue-next'
@@ -555,7 +556,18 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             :remaining="cooldownSeconds"
           />
           <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
-          <div class="form-actions">
+          <EmailTransferNotice
+            v-if="flow.transferAsking.value && flow.transfer.value"
+            :status="flow.transfer.value"
+            :changed="flow.transferChanged.value"
+            :busy="flow.busy.value || cooldownSeconds > 0"
+            @agree="flow.agreeTransfer"
+            @back="flow.backToMethod"
+          />
+          <div
+            v-else
+            class="form-actions"
+          >
             <button
               class="btn btn-primary"
               type="submit"

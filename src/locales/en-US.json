@@ -137,7 +137,9 @@
     "phone_rate_limited": "Codes are being requested too often. Try again later.",
     "append_window_not_open": "Follow-ups open 5 minutes after first publishing. Try again shortly.",
     "consent_required": "Accept the current Terms of Service and Privacy Policy first.",
-    "consent_version_changed": "A document was updated. Please accept it again."
+    "consent_version_changed": "A document was updated. Please accept it again.",
+    "email_transfer_consent_required": "Agree to delivery from abroad before sending a school-email code.",
+    "email_transfer_consent_changed": "The transfer notice was updated. Please confirm again."
   },
   "connection": {
     "label": "Service connection status",
@@ -1284,6 +1286,46 @@
     "documentType": "Document type",
     "documentTypes": {
       "cn_resident_id_card": "Resident Identity Card (China)"
+    },
+    "transfer": {
+      "title": "Delivering school-email codes from abroad",
+      "intro": "School-email codes are delivered by an email provider outside China. Before sending, you need to agree separately to this transfer of personal information. You can also choose another verification method.",
+      "changed": "The transfer notice has been updated. Please read the new version and choose again.",
+      "facts": {
+        "recipient": {
+          "label": "Recipient",
+          "text": "Resend, Inc. (email delivery provider)"
+        },
+        "data": {
+          "label": "Information transferred",
+          "text": "Your school email address and the code email"
+        },
+        "purpose": {
+          "label": "Purpose",
+          "text": "Only to send this verification code to your school email"
+        },
+        "place": {
+          "label": "Where it is processed",
+          "text": "The United States and other provider locations"
+        },
+        "period": {
+          "label": "Retention",
+          "text": "The provider retention period stated in the notice, then deleted"
+        },
+        "rights": {
+          "label": "Your rights",
+          "text": "Withdraw at any time under Account and security; you may also access, correct or ask for deletion"
+        }
+      },
+      "read": "Read the personal information transfer notice (version {version})",
+      "other": "You can also go back and choose school sign-in, real-name check, sending an email yourself or manual review.",
+      "agree": "Agree to delivery from abroad and send the code",
+      "back": "Go back and choose another method",
+      "accepted": "You agreed to deliver school-email codes from abroad.",
+      "acceptedAt": "You agreed to deliver school-email codes from abroad on {time}.",
+      "withdraw": "Withdraw consent",
+      "withdrawConfirm": "After withdrawing, codes not yet sent stop; the next school-email code will ask again. Codes already sent stay valid until they expire.",
+      "withdrawn": "Consent to delivery from abroad was withdrawn."
     }
   },
   "contribution": {
