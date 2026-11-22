@@ -2602,5 +2602,88 @@
     "declineTitle": "If you do not accept",
     "decline": "Features that need an account stay unavailable. You can sign out and keep browsing public pages, or request to close your StuHelper account.",
     "menu": "Review terms"
+  },
+  "teacherHomepage": {
+    "title": "Teacher homepage",
+    "empty": "The school website has no homepage details to show.",
+    "source": "These details come from the teacher’s homepage on the school website and are shown under the school’s rules.",
+    "photo": "Photo of {name}",
+    "manage": "Manage my teacher homepage",
+    "manageFor": "Manage the homepage of “{name}”",
+    "manageTitle": "Homepage of {name}",
+    "manageDescription": "Ask to correct, add to or hide details on your teacher homepage. Changes take effect after the school approves them.",
+    "complain": "Report homepage details",
+    "limit": "{count} / {max}",
+    "fields": {
+      "name": "Name on the homepage",
+      "position": "Position",
+      "education": "Education",
+      "degree": "Degree",
+      "discipline": "Discipline",
+      "supervisors": "Supervisor roles",
+      "email": "Email",
+      "phone": "Phone",
+      "office_location": "Office",
+      "hire_date": "Joined the school",
+      "biography": "Biography",
+      "research": "Research interests",
+      "fields": "Other details",
+      "sections": "Homepage sections",
+      "photo": "Photo",
+      "page": "Whole homepage"
+    },
+    "supervisors": {
+      "doctoral": "Doctoral supervisor",
+      "master": "Master’s supervisor"
+    },
+    "complaint": {
+      "title": "Report teacher homepage details",
+      "description": "If details are wrong or infringe someone’s rights, choose a category and explain. The school may hide the homepage details; the catalog entry and reviews stay.",
+      "reason": "Details",
+      "evidence": "Evidence (one per line, up to 5)",
+      "evidenceHint": "Up to 2,000 characters each.",
+      "email": "You can also write to {email}.",
+      "sent": "Your report was sent. The school will review it soon."
+    },
+    "request": {
+      "title": "New request",
+      "start": "Make a request",
+      "kind": "Request type",
+      "kinds": {
+        "correction": "Correct",
+        "supplement": "Add",
+        "hide": "Hide"
+      },
+      "field": "Detail",
+      "label": "Item name",
+      "labelHint": "Enter the name of the item or the section title to correct or add.",
+      "labelOptional": "Leave empty to hide the whole group.",
+      "value": "New content",
+      "supervisors": "Supervisor roles",
+      "supervisorsHint": "The ticked roles replace the current list; ticking none clears it.",
+      "photo": "New photo",
+      "photoHint": "JPEG or PNG, up to 2 MiB.",
+      "photoType": "Only JPEG or PNG images are accepted.",
+      "photoSize": "The image must be 2 MiB or smaller.",
+      "photoPreview": "Preview of the new photo",
+      "message": "Explanation",
+      "sent": "Your request was sent. You will be notified after the school reviews it.",
+      "retention": "The request text and photo are deleted 12 months after the request is closed.",
+      "history": "My requests",
+      "none": "No requests yet.",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Not approved"
+      }
+    },
+    "receipt": {
+      "title": "Homepage request",
+      "submitted": "Submitted",
+      "resolved": "Resolved",
+      "note": "The school’s answer",
+      "cleared": "Clear supervisor roles",
+      "photo": "Replace the photo"
+    }
   }
 }

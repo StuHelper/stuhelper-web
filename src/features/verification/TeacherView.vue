@@ -2,6 +2,7 @@
 import { X } from 'lucide-vue-next'
 import { computed, reactive, ref, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAsync, useTask } from '../../shared/composables/async'
@@ -219,6 +220,17 @@ function schoolName(id: string, schools: School[]) {
                 {{ t('teacher.note', { note: credential.note }) }}
               </p>
               <template v-if="credential.state === 'active'">
+                <!-- Each linked catalog entry has its own homepage requests, even before its page is open. -->
+                <div class="row">
+                  <RouterLink
+                    v-for="teacher in credential.teacher_ids"
+                    :key="teacher"
+                    class="btn btn-sm"
+                    :to="`/me/teacher-homepage/${encodeURIComponent(teacher)}`"
+                  >
+                    {{ t('teacherHomepage.manageFor', { name: data.data.value?.names.get(teacher)?.name ?? teacher }) }}
+                  </RouterLink>
+                </div>
                 <div
                   v-if="editing?.id !== credential.id"
                   class="row"
