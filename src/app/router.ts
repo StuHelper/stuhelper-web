@@ -91,7 +91,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/verification/teacher', component: () => import('../features/verification/TeacherView.vue'), meta: { title: 'verification.unified.title', section: 'me' } },
   // Literal path first, so a request receipt is not read as a teacher id.
   { path: '/me/teacher-homepage/requests/:requestId', component: () => import('../features/academic/TeacherHomepageReceiptView.vue'), props: (route) => ({ requestId: String(route.params.requestId) }), meta: { access: 'member', title: 'teacherHomepage.receipt.title', section: 'me' } },
-  { path: '/me/teacher-homepage/:teacherId', component: () => import('../features/academic/TeacherHomepageManageView.vue'), props: (route) => ({ teacherId: String(route.params.teacherId) }), meta: { access: 'member', title: 'teacherHomepage.manage', section: 'me' } },
+  { path: '/me/teacher-homepage/:teacherId', component: () => import('../features/academic/TeacherHomepageManageView.vue'), props: (route) => ({ teacherId: String(route.params.teacherId) }), meta: { remountOnPath: true, access: 'member', title: 'teacherHomepage.manage', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
   { path: '/:pathMatch(.*)*', component: NotFoundView, meta: { title: 'notFound.title' } },
 ]

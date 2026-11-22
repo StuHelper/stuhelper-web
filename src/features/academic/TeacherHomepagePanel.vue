@@ -22,7 +22,7 @@ const verification = useVerification()
 const session = useSession()
 
 const homepage = useAsync((signal) => api.homepage(props.teacherId, signal))
-// Ownership comes from the reader's own active credentials; a failed read only hides the link.
+// Wait for the reader's own credentials before offering either action.
 const owner = useAsync(async (signal) => {
   if (session.state.value !== 'member') return false
   const credentials = await verificationPages((after) => verification.list('TeacherCredential', '/api/v1/verification/teacher-credentials', { limit: 100, after, signal }))
@@ -91,13 +91,18 @@ const complaining = ref(false)
           <PenLine aria-hidden="true" />{{ t('teacherHomepage.manage') }}
         </RouterLink>
         <button
-          v-else-if="hasContent && session.state.value === 'member'"
+          v-else-if="hasContent && owner.data.value === false && session.state.value === 'member'"
           class="btn btn-sm btn-ghost"
           type="button"
           @click="complaining = true"
         >
           <Flag aria-hidden="true" />{{ t('teacherHomepage.complain') }}
         </button>
+        <ErrorNotice
+          v-else-if="hasContent && owner.status.value === 'error'"
+          :code="owner.error.value"
+          @retry="owner.reload()"
+        />
       </div>
     </div>
     <ErrorNotice

@@ -2602,5 +2602,89 @@
     "declineTitle": "Si no aceptas",
     "decline": "Las funciones que requieren una cuenta seguirán sin estar disponibles. Puedes cerrar sesión y seguir viendo las páginas públicas, o solicitar el cierre de tu cuenta de StuHelper.",
     "menu": "Revisar condiciones"
+  },
+  "teacherHomepage": {
+    "title": "Página del profesor",
+    "empty": "El sitio web del centro no tiene información que mostrar en esta página.",
+    "source": "Estos datos proceden de la página del profesor en el sitio web del centro y se muestran según las normas del centro.",
+    "photo": "Foto de {name}",
+    "manage": "Gestionar mi página de profesor",
+    "manageFor": "Gestionar la página de «{name}»",
+    "manageTitle": "Página de {name}",
+    "manageDescription": "Solicita corregir, añadir u ocultar información de tu página de profesor. Los cambios se aplicarán cuando el centro los apruebe.",
+    "complain": "Denunciar contenido de la página",
+    "limit": "{count} de {max}",
+    "fields": {
+      "name": "Nombre en la página",
+      "position": "Cargo",
+      "education": "Nivel de estudios",
+      "degree": "Título académico",
+      "discipline": "Disciplina",
+      "supervisors": "Funciones de supervisión académica",
+      "email": "Correo electrónico",
+      "phone": "Teléfono",
+      "office_location": "Despacho",
+      "hire_date": "Fecha de incorporación al centro",
+      "biography": "Biografía",
+      "research": "Líneas de investigación",
+      "fields": "Otros datos",
+      "sections": "Secciones de la página",
+      "photo": "Foto",
+      "page": "Página completa"
+    },
+    "supervisors": {
+      "doctoral": "Dirección de tesis doctorales",
+      "master": "Dirección de trabajos de máster"
+    },
+    "complaint": {
+      "title": "Denunciar contenido de la página de un profesor",
+      "description": "Si los datos son incorrectos o vulneran algún derecho, elige una categoría y explica la situación. Tras revisar la denuncia, el centro puede ocultar esos datos. La ficha del catálogo y las valoraciones se mantienen.",
+      "reason": "Detalles de la denuncia",
+      "evidence": "Pruebas (una por línea, hasta 5)",
+      "evidenceHint": "Hasta 2000 caracteres por prueba.",
+      "email": "También puedes escribir a {email}.",
+      "sent": "Tu denuncia se ha enviado. El centro la revisará lo antes posible."
+    },
+    "request": {
+      "title": "Nueva solicitud",
+      "start": "Presentar una solicitud",
+      "kind": "Tipo de solicitud",
+      "kinds": {
+        "correction": "Corregir",
+        "supplement": "Añadir",
+        "hide": "Ocultar"
+      },
+      "field": "Dato afectado",
+      "label": "Nombre del elemento",
+      "labelHint": "Indica el nombre del elemento o el título de la sección que quieres corregir o añadir.",
+      "labelOptional": "Déjalo en blanco para ocultar todo el grupo.",
+      "value": "Contenido nuevo",
+      "supervisors": "Funciones de supervisión académica",
+      "supervisorsHint": "Las opciones marcadas sustituyen a la lista actual. Deja todas las casillas sin marcar para vaciar la lista.",
+      "photo": "Foto nueva",
+      "photoHint": "JPEG o PNG, hasta 2 MiB.",
+      "photoType": "Solo se admiten imágenes JPEG o PNG.",
+      "photoSize": "La imagen debe ocupar 2 MiB como máximo.",
+      "photoReadError": "No se ha podido leer la foto seleccionada. Inténtalo de nuevo o vuelve a seleccionar el archivo.",
+      "photoPreview": "Vista previa de la foto nueva",
+      "message": "Motivo de la solicitud",
+      "sent": "Tu solicitud se ha enviado. Recibirás un aviso tras la revisión del centro.",
+      "retention": "El texto y la foto de la solicitud se eliminan 12 meses después de su cierre.",
+      "history": "Mis solicitudes",
+      "none": "Aún no hay solicitudes.",
+      "status": {
+        "pending": "Pendiente",
+        "approved": "Aprobada",
+        "rejected": "Rechazada"
+      }
+    },
+    "receipt": {
+      "title": "Solicitud sobre la página del profesor",
+      "submitted": "Fecha de envío",
+      "resolved": "Fecha de resolución",
+      "note": "Respuesta del centro",
+      "cleared": "Borrar la lista de funciones de supervisión",
+      "photo": "Solicitud de cambio de foto"
+    }
   }
 }

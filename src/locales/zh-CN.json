@@ -2613,7 +2613,7 @@
     "manageTitle": "{name}的教师主页",
     "manageDescription": "申请更正、补充或隐藏教师主页上的资料。学校审核通过后才会生效。",
     "complain": "投诉主页资料",
-    "limit": "{count} / {max}",
+    "limit": "已输入 {count} 字，最多 {max} 字",
     "fields": {
       "name": "官网姓名",
       "position": "职务",
@@ -2665,6 +2665,7 @@
       "photoHint": "JPEG 或 PNG，不超过 2 MiB。",
       "photoType": "只支持 JPEG 或 PNG 图片。",
       "photoSize": "图片不能超过 2 MiB。",
+      "photoReadError": "无法读取所选照片。请重试或重新选择文件。",
       "photoPreview": "新照片预览",
       "message": "申请说明",
       "sent": "申请已提交，学校审核后会通知你。",

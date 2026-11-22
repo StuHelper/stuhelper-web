@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useFormat } from '../../app/i18n'
 import { useMutation } from '../../shared/composables/async'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import ViolationSelect from '../moderation/ViolationSelect.vue'
@@ -13,6 +14,7 @@ import { useTeacherHomepage, type Complaint } from './teacherHomepage'
 const props = defineProps<{ teacherId: string }>()
 const emit = defineEmits<{ done: [] }>()
 const { t } = useI18n()
+const format = useFormat()
 const api = useTeacherHomepage()
 const write = useMutation()
 const category = ref<ViolationCategory | ''>('')
@@ -56,7 +58,7 @@ async function retry() {
       <span
         class="small"
         :class="reasonTooLong ? 'field-error' : 'subtle'"
-      >{{ t('teacherHomepage.limit', { count: length(reason), max: 2000 }) }}</span>
+      >{{ t('teacherHomepage.limit', { count: format.number(length(reason)), max: format.number(2000) }) }}</span>
     </label>
     <label>{{ t('teacherHomepage.complaint.evidence') }}
       <textarea

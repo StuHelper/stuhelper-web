@@ -285,6 +285,30 @@
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
       "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
       "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
+    ],
+    "CAT-TEACHER-04": [
+      "tests/e2e/teacher-homepage.spec.mjs#the teacher page shows plain-text homepage details and a session-loaded photo",
+      "tests/e2e/teacher-homepage.spec.mjs#a teacher page with no visible profile leaves out the homepage panel for a reader",
+      "tests/e2e/teacher-homepage.spec.mjs#a reader can retry a homepage error and a failed photo leaves the profile readable"
+    ],
+    "CAT-TEACHER-10": [
+      "tests/e2e/teacher-homepage.spec.mjs#a teacher with an active credential for the profile can manage the homepage",
+      "tests/e2e/teacher-homepage.spec.mjs#teacher verification links each active profile to its own homepage management page",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a teacher submits fixed text and can then request to hide the whole homepage",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a general field requires an item name and accepts up to 160 Unicode code points",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a teacher supplies the section title with the proposed text",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a supervisor request sends all selected roles or an explicit empty list",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a photo request rejects the wrong type and size and submits the original PNG bytes",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a conflict or rate limit explains the rejection and preserves the teacher’s draft",
+      "tests/e2e/teacher-homepage-navigation.spec.mjs#switching teacher records clears drafts and unknown submissions from the previous teacher",
+      "tests/e2e/teacher-homepage-navigation.spec.mjs#photo preparation locks the form and drops the unsent request when switching teachers",
+      "tests/e2e/teacher-homepage-navigation.spec.mjs#a local photo read failure leaves the form ready to retry without sending a partial request"
+    ],
+    "CM-24": [
+      "tests/e2e/teacher-homepage.spec.mjs#a non-owner can report a homepage with a category and up to 2000 code points"
+    ],
+    "CAT-TEACHER-11": [
+      "tests/e2e/teacher-homepage-requests.spec.mjs#request history opens pending, approved and rejected receipts and handles an expired receipt"
     ]
   }
 }

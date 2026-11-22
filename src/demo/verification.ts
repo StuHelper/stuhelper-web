@@ -1,4 +1,5 @@
 import * as d from './data'
+import { teacherCredentials } from './teacher'
 
 // 演示用的学生认证后端：北航的学校与方式配置、各演示身份对应的认证状态，以及四种方式的核验流程。
 // 数据只在当前页面的内存里，刷新后回到所选演示身份的初始状态。规则写在这里，方便审阅时按提示触发各种结果：
@@ -80,7 +81,7 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (!p.startsWith('/verification')) return undefined
   seed(who)
   if (p === '/verification/schools') return json([school])
-  if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
+  if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: teacherCredentials(who === 'verified').some((item) => item.state === 'active'), identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
   if (p === '/verification/credentials') return json(credentials)
   if (p === '/verification/requests') return json(removalRequests)
   if (p === '/verification/suggestions' && method === 'POST') {

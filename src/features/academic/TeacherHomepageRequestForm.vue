@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useFormat } from '../../app/i18n'
 import { useMutation } from '../../shared/composables/async'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
@@ -15,6 +16,7 @@ import {
 const props = defineProps<{ teacherId: string }>()
 const emit = defineEmits<{ saved: [request: HomepageRequest] }>()
 const { t } = useI18n()
+const format = useFormat()
 const api = useTeacherHomepage()
 const write = useMutation()
 
@@ -27,6 +29,8 @@ const message = ref('')
 const photo = ref<File>()
 const photoUrl = ref('')
 const photoError = ref('')
+const preparing = ref(false)
+let disposed = false
 const saved = ref<HomepageRequest>()
 
 const length = (value: string) => [...value].length
@@ -40,20 +44,24 @@ const textInvalid = computed(() => length(text.value) > limit.value)
 const messageInvalid = computed(() => length(message.value) > 2000)
 const valueReady = computed(() => {
   if (!needsValue.value) return true
-  if (field.value === 'photo') return !!photo.value && !photoError.value
+  if (field.value === 'photo') return !!photo.value
   if (field.value === 'supervisors') return true
   return !!text.value.trim() && !textInvalid.value
 })
 // Correcting or adding a general field or section names the item by its label.
-const labelReady = computed(() => !grouped.value || !needsValue.value || !!label.value.trim())
-const ready = computed(() => valueReady.value && labelReady.value && !!message.value.trim() && !messageInvalid.value && length(label.value) <= 160)
-const locked = computed(() => write.busy.value || write.uncertain.value || !!saved.value)
+const labelTooLong = computed(() => grouped.value && length(label.value) > 160)
+const labelReady = computed(() => !labelTooLong.value && (!grouped.value || !needsValue.value || !!label.value.trim()))
+const ready = computed(() => valueReady.value && labelReady.value && !!message.value.trim() && !messageInvalid.value)
+const locked = computed(() => preparing.value || write.busy.value || write.uncertain.value || !!saved.value)
 
 function releasePhoto() {
   if (photoUrl.value) URL.revokeObjectURL(photoUrl.value)
   photoUrl.value = ''
 }
-onBeforeUnmount(releasePhoto)
+onBeforeUnmount(() => {
+  disposed = true
+  releasePhoto()
+})
 function pick(event: Event) {
   releasePhoto()
   photoError.value = ''
@@ -77,10 +85,22 @@ async function proposal(): Promise<HomepageRequestInput['value']> {
 
 async function submit() {
   if (!ready.value || locked.value) return
+  const teacherId = props.teacherId
   const selector = { field: field.value, ...(grouped.value && label.value.trim() ? { label: label.value.trim() } : {}) }
-  const proposed = await proposal()
+  preparing.value = true
+  photoError.value = ''
+  let proposed: HomepageRequestInput['value']
+  try {
+    proposed = await proposal()
+  } catch {
+    photoError.value = t('teacherHomepage.request.photoReadError')
+    return
+  } finally {
+    preparing.value = false
+  }
+  if (disposed) return
   const body: HomepageRequestInput = { kind: kind.value, field: selector, ...(proposed ? { value: proposed } : {}), message: message.value.trim() }
-  const result = await write.run(`teacher-homepage-request:${props.teacherId}`, body, (input, key) => api.submitRequest(props.teacherId, input, key))
+  const result = await write.run(`teacher-homepage-request:${teacherId}`, body, (input, key) => api.submitRequest(teacherId, input, key))
   if (result) done(result)
 }
 async function retry() {
@@ -135,11 +155,18 @@ function done(result: HomepageRequest) {
       <input
         v-model="label"
         type="text"
-        maxlength="160"
+        :aria-invalid="labelTooLong"
         :required="needsValue"
         :disabled="locked"
       >
-      <span class="subtle small">{{ t(needsValue ? 'teacherHomepage.request.labelHint' : 'teacherHomepage.request.labelOptional') }}</span>
+      <span
+        v-if="labelTooLong"
+        class="field-error small"
+      >{{ t('teacherHomepage.limit', { count: format.number(length(label)), max: format.number(160) }) }}</span>
+      <span
+        v-else
+        class="subtle small"
+      >{{ t(needsValue ? 'teacherHomepage.request.labelHint' : 'teacherHomepage.request.labelOptional') }}</span>
     </label>
     <template v-if="needsValue">
       <fieldset
@@ -192,7 +219,7 @@ function done(result: HomepageRequest) {
         <span
           class="small"
           :class="textInvalid ? 'field-error' : 'subtle'"
-        >{{ t('teacherHomepage.limit', { count: length(text), max: limit }) }}</span>
+        >{{ t('teacherHomepage.limit', { count: format.number(length(text)), max: format.number(limit) }) }}</span>
       </label>
     </template>
     <label>{{ t('teacherHomepage.request.message') }}
@@ -206,7 +233,7 @@ function done(result: HomepageRequest) {
       <span
         class="small"
         :class="messageInvalid ? 'field-error' : 'subtle'"
-      >{{ t('teacherHomepage.limit', { count: length(message), max: 2000 }) }}</span>
+      >{{ t('teacherHomepage.limit', { count: format.number(length(message)), max: format.number(2000) }) }}</span>
     </label>
     <MutationNotice
       :busy="write.busy.value"

@@ -24,14 +24,15 @@ const api = useTeacherHomepage()
 const name = useAsync(async (signal) => (await academic.lookup([props.teacherId], signal)).get(props.teacherId)?.name ?? '')
 const requests = usePaged<HomepageRequest>((after, signal) => api.myRequests(props.teacherId, after, signal))
 watch(() => props.teacherId, () => { void name.reload(); void requests.reload() }, { immediate: true })
-const composing = ref(false)
+const formState = ref<'closed' | 'editing' | 'sent'>('closed')
 const formKey = ref(0)
 function saved() {
+  formState.value = 'sent'
   void requests.reload()
 }
 function another() {
   formKey.value++
-  composing.value = true
+  formState.value = 'editing'
 }
 const tone = (status: HomepageRequest['status']) => (status === 'approved' ? 'success' : status === 'rejected' ? 'danger' : 'info')
 const title = computed(() => (name.data.value ? t('teacherHomepage.manageTitle', { name: name.data.value }) : t('teacherHomepage.manage')))
@@ -56,7 +57,7 @@ const title = computed(() => (name.data.value ? t('teacherHomepage.manageTitle',
           {{ t('teacherHomepage.request.title') }}
         </h2>
         <button
-          v-if="!composing"
+          v-if="formState !== 'editing'"
           class="btn btn-sm btn-primary"
           type="button"
           @click="another"
@@ -65,7 +66,7 @@ const title = computed(() => (name.data.value ? t('teacherHomepage.manageTitle',
         </button>
       </div>
       <div
-        v-if="composing"
+        v-if="formState !== 'closed'"
         class="card"
       >
         <TeacherHomepageRequestForm

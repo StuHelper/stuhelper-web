@@ -47,6 +47,8 @@ make dev
 | `/campus` | 校园首页，含搜索、快捷入口、待办、热门课程、最新资料与最近浏览 |
 | `/courses`、`/teachers` | 课程与教师目录，支持分面筛选和快速查看抽屉。课程目录可切换为按学院浏览 |
 | `/courses/:id`、`/teachers/:id` | 课程或教师主页，展示五维等级、评价列表、关联任课教师或所授课程；不展示开课、教学班及上课时间地点 |
+| `/me/teacher-homepage/:teacherId` | 教师申请更正、补充或隐藏本人的主页资料，查看该档案的申请记录 |
+| `/me/teacher-homepage/requests/:requestId` | 查看本人申请的具体内容、审核状态及学校答复 |
 | `/offerings/:id`、`/classes/:id` | 已关闭，访问时重定向至 `/courses` |
 | `/reviews/:id` | 单条评价完整讨论串与回复发布 |
 | `/compare` | 最多五门课程或五位教师的同时间区间评分并排对比 |
@@ -70,6 +72,8 @@ make dev
 “我的课程”功能开关位于 `src/app/features.ts`，正式构建恒为关闭，校园首页不读取选课记录。仅在同时设置 `VITE_DEMO=1` 与 `VITE_DEMO_MY_COURSES=1` 启动审阅原型时使用模拟数据展示周课表。
 
 旧入口 `/community`、`/community/me`、`/verification` 跳转到现行校园、个人中心及认证页。旧贡献和托管入口进入相应存储标签，`/resources/me` 与 `/resources/requests` 进入本人资料与回执页。
+
+教师页按学校允许展示的字段显示官网资料，正文按纯文本展示，照片单独读取。持有效教师认证的本人可以从教师页或认证页进入主页管理，每份申请指定一个字段、一个栏目或整页。其他已登录读者可在有资料的主页选择违规分类并提交投诉。
 
 ## 账号与认证
 

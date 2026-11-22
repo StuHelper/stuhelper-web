@@ -6,6 +6,7 @@ import { openPlatformRoute } from './open-platform'
 import { qqRoute } from './qq'
 import { notificationsRoute } from './notifications'
 import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
+import { teacherHomepageRoute } from './teacher-homepage'
 import { myCoursesEnabled } from '../app/features'
 import { studentCaptured, studentMaterialDeleted, verificationRoute } from './verification'
 
@@ -196,7 +197,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
 
   const notifications = await notificationsRoute(p, method, init, u.searchParams)
   if (notifications) return notifications
-  const teacher = await teacherRoute(p, method, init)
+  const teacher = await teacherRoute(p, method, who === 'verified', init)
   if (teacher) return teacher
 
   if (p.startsWith('/verification')) {
@@ -215,6 +216,8 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
     if (p === '/verification/identity') return json({ code: 'pending' }, 400)
     return json([])
   }
+  const homepage = await teacherHomepageRoute(p, method, u.searchParams, who === 'verified', init, (task) => tasks.unshift(task))
+  if (homepage) return homepage
   // Own-record names need only a session, so they stay readable after content admission lapses.
   if (p === '/reviews/me/references') {
     const ids = (u.searchParams.get('ids') ?? '').split(',')

@@ -2665,6 +2665,7 @@
       "photoHint": "JPEG or PNG, up to 2 MiB.",
       "photoType": "Only JPEG or PNG images are accepted.",
       "photoSize": "The image must be 2 MiB or smaller.",
+      "photoReadError": "Could not read the selected photo. Try again or select the file again.",
       "photoPreview": "Preview of the new photo",
       "message": "Explanation",
       "sent": "Your request was sent. You will be notified after the school reviews it.",
