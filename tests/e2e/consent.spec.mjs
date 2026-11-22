@@ -77,16 +77,39 @@ test('an update during acceptance clears only the changed document', async ({ pa
   expect(server.posts.at(-1).body).toMatchObject({ document_id: 'privacy', version: 'v1' });
 });
 
-test('an updated version shows what was accepted before and keeps sign-out, closure and public pages open', async ({ page }, info) => {
+test('an updated version shows what was accepted before and keeps sign-out, closure and public pages open', async ({ page, isMobile }, info) => {
   const c = catalogue(info), locale = info.project.metadata.locale;
   consentServer(page, { terms: doc('terms', 'v2'), privacy: doc('privacy', 'v1', { required: false, receipt }) });
   await page.route('**/api/v1/profiles/me/closure', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
-  await page.goto(`${base}/me/favorites?lang=${locale}`);
+  const favoritesURL = `${base}/me/favorites?lang=${locale}`;
+  await page.goto(favoritesURL);
   await expect(page.getByText(c.consent.updated, { exact: true })).toBeVisible();
   // Only the updated document needs a tick; the other shows its earlier acceptance.
   await expect(page.getByRole('checkbox')).toHaveCount(1);
   await expect(page.getByRole('button', { name: c.account.menu.signOut, exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: c.security.closure.request, exact: true })).toBeVisible();
+  const closureButton = page.getByRole('button', { name: c.security.closure.request, exact: true });
+  const closurePanel = page.getByRole('dialog', { name: c.security.closure.request, exact: true });
+  for (const colorScheme of isMobile ? ['light', 'dark'] : ['light']) {
+    await test.step(`open the account closure panel in ${colorScheme} mode`, async () => {
+      await page.emulateMedia({ colorScheme });
+      await closureButton.scrollIntoViewIfNeeded();
+      if (isMobile) {
+        // A button inside the viewport can still sit behind the fixed navigation.
+        const center = await closureButton.evaluate(button => {
+          button.scrollIntoView({ block: 'center', behavior: 'instant' });
+          const { x, y, width, height } = button.getBoundingClientRect();
+          return { x: x + width / 2, y: y + height / 2 };
+        });
+        await page.touchscreen.tap(center.x, center.y);
+      } else {
+        await closureButton.click();
+      }
+      await expect(closurePanel).toBeVisible();
+      await expect(page).toHaveURL(favoritesURL);
+      await closurePanel.getByRole('button', { name: c.common.close, exact: true }).click();
+      await expect(closurePanel).toBeHidden();
+    });
+  }
   // Public pages stay readable; the account menu leads back to the consent page.
   await page.goto(`${base}/?lang=${locale}`);
   await expect(page.getByRole('heading', { name: c.consent.title, exact: true })).toHaveCount(0);
