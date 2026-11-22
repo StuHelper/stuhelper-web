@@ -164,7 +164,10 @@ test('the personal center opens consent records, legal documents and account clo
   await expect(page.getByText(c.verification.transfer.notAccepted, { exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', locale === 'ar-EG' ? 'rtl' : 'ltr');
   if (isMobile) expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
-  if (process.env.PRIVACYUI_SHOTS) await page.screenshot({ path: path.join(process.env.PRIVACYUI_SHOTS, `${info.project.name}-privacy.png`), fullPage: true });
+  if (process.env.PRIVACYUI_SHOTS) {
+    await page.evaluate(() => document.activeViewTransition?.finished);
+    await page.screenshot({ path: path.join(process.env.PRIVACYUI_SHOTS, `${info.project.name}-privacy.png`), fullPage: true, animations: 'disabled' });
+  }
   await agreements.getByRole('link', { name: c.privacy.closure }).click();
   await expect(page).toHaveURL(/\/me\/account#security-closure$/);
   await expect(page.getByRole('heading', { name: c.security.closure.title, exact: true })).toBeVisible();
