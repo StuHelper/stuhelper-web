@@ -22,6 +22,10 @@ export const memberTest = base.extend({
     await page.route('**/api/v1/auth/session', route => route.fulfill({ json: member }));
     await page.route('**/api/v1/auth/phone', route => route.fulfill({ json: { bound: true, masked_phone: '138****1234' } }));
     await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: verifiedSummary }));
+    await page.route('**/api/v1/verification/email-transfer-consent', route => route.fulfill({ json: {
+      document: { document_id: 'email-transfer', version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/legal/email-transfer/v1' },
+      accepted: false,
+    } }));
     // The navigation bell reads the unread count on every page. Suites about notifications register their own answer later, which wins.
     await page.route('**/api/v1/notifications/unread-count', route => route.fulfill({ json: { count: 0 } }));
     await use(page);
