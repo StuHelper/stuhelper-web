@@ -2530,5 +2530,15 @@
       }
     },
     "receipt": "Violation type: {name}"
+  },
+  "legal": {
+    "title": "Legal document",
+    "current": "View the current version",
+    "history": "Earlier versions",
+    "noVersions": "No published versions yet.",
+    "versionLine": "Version {version} · effective {date}",
+    "fixed": "You are viewing an earlier version, exactly as it was published.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
   }
 }
