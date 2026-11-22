@@ -18,6 +18,12 @@
     "README.md"
   ],
   "scenario_tests": {
+    "I18N-04": [
+      "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date"
+    ],
+    "I18N-06": [
+      "tests/e2e/legal.spec.mjs#legal body and table keep their reading direction and fit the viewport"
+    ],
     "AE-ACCESS-05": [
       "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote",
       "tests/e2e/search.spec.mjs#a member without campus access withdraws a selected review vote on the personal votes page"
@@ -140,6 +146,24 @@
       "src/shared/session.test.ts#clears the snapshot after an explicit rejection even after an outage",
       "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401",
       "src/shared/session.test.ts#forgets saved return filters and unread counts when the current session ends"
+    ],
+    "SV-EMAIL-TRANSFER-01": [
+      "src/features/verification/flow.test.ts#requires this application to affirm the notice before first send and omits the choice on resend",
+      "src/features/verification/flow.test.ts#asks for the replacement publication after a conflict and does not reuse a concurrent click",
+      "src/features/verification/flow.test.ts#discards the stale choice when refreshing the publication also fails",
+      "src/features/verification/flow.test.ts#retries an unavailable publication without losing the entered identity or sending a code",
+      "tests/e2e/email-transfer-consent.spec.mjs#outbound email waits for explicit consent and sends the versioned document reference",
+      "tests/e2e/email-transfer-consent.spec.mjs#a changed publication shows its update and waits for consent to the new version",
+      "tests/e2e/email-transfer-consent.spec.mjs#an unavailable transfer check offers retry and a return to other methods",
+      "tests/e2e/email-transfer-consent.spec.mjs#inbound school email creates its proof without requesting outbound consent"
+    ],
+    "SV-EMAIL-TRANSFER-02": [
+      "src/features/verification/flow.test.ts#requires a fresh affirmative choice for another student number or application",
+      "src/features/verification/flow.test.ts#asks again when resend requires consent and keeps the existing delivered code",
+      "tests/e2e/email-transfer-consent.spec.mjs#resend reuses consent for the same recipient and asks again for a changed student ID",
+      "tests/e2e/email-transfer-consent.spec.mjs#a revoked receipt makes resend ask again and keeps the already sent code usable",
+      "tests/e2e/email-transfer-consent.spec.mjs#account security withdraws consent only after confirmation and refreshes the status",
+      "src/features/verification/email-transfer-withdraw.test.ts#lets the account reload its withdrawal status after the document source recovers"
     ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
@@ -288,6 +312,15 @@
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
       "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
       "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
+    ],
+    "ACAD-41": [
+      "src/shared/api/http.test.ts#keeps a well-formed server reopening time on a 409 and drops malformed ones",
+      "tests/e2e/academic.spec.mjs#a follow-up attempted inside the five-minute window explains when it opens",
+      "tests/e2e/academic.spec.mjs#a mentor comment does not wait for the course follow-up window"
+    ],
+    "CM-22": [
+      "tests/e2e/academic.spec.mjs#reporting a review needs a violation type and sends it with the report",
+      "tests/e2e/resources.spec.mjs#a signed-in rights holder can file a complaint when resource details are denied"
     ]
   }
 }

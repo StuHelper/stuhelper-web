@@ -54,7 +54,7 @@ test('QQ binding shows three parts and completes after the bot code and QQ Conne
   await expect(page.getByText(fill(q.progress, { done: '1', total: '3' }))).toBeVisible();
   await expect(page.getByText(q.requirement)).toBeVisible();
   await page.getByRole('button', { name: fill(q.bindPart, { part: q.parts.official.title }) }).click();
-  await expect(page.getByLabel(q.codeLabel)).toHaveText('StuHelper/QQ-ABCDEFGHIJKLMNOP');
+  await expect(page.getByLabel(q.codeLabel, { exact: true })).toHaveText('StuHelper/QQ-ABCDEFGHIJKLMNOP');
   await expect(page.getByText(fill(q.sendTo, { bots: 'StuHelper' }))).toBeVisible();
   await expect(page.getByText(q.ownCodeOnly)).toBeVisible();
   await expect(page.getByRole('dialog')).toHaveCount(0, { timeout: 10_000 });

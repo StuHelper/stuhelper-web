@@ -1,5 +1,5 @@
 import { onScopeDispose, readonly, ref, shallowRef, type Ref } from 'vue'
-import { ApiError, errorCode } from '../api/errors'
+import { ApiError, errorCode, errorRetryAt } from '../api/errors'
 import { Mutation } from '../api/mutation'
 
 export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -151,16 +151,19 @@ export function useMutation() {
   const mutation = new Mutation()
   const busy = ref(false)
   const error = ref('')
+  const retryAt = ref('')
   const uncertain = ref(false)
 
   async function settle<R>(work: () => Promise<R>): Promise<R | undefined> {
     if (busy.value) return undefined
     busy.value = true
     error.value = ''
+    retryAt.value = ''
     try {
       return await work()
     } catch (failure) {
       error.value = errorCode(failure)
+      retryAt.value = errorRetryAt(failure) ?? ''
       return undefined
     } finally {
       busy.value = false
@@ -171,6 +174,8 @@ export function useMutation() {
   return {
     busy: readonly(busy),
     error: readonly(error),
+    /** The server's reopening time for the last rejection, or '' when it gave none. */
+    retryAt: readonly(retryAt),
     uncertain: readonly(uncertain),
     /** Resolves to the result, or undefined when the write failed (see `error`). */
     run: <B, R>(signature: string, body: B, send: (body: B, key: string) => Promise<R>) => settle(() => mutation.run(signature, body, send)),

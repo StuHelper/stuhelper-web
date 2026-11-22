@@ -10,7 +10,7 @@ import type { EmailChallenge } from './api'
 // six-digit code, and offer resend or going back to choose another method. One real
 // input holds the code, so pasting and one-time-code autofill work; the six cells
 // above it only draw what was typed.
-const props = defineProps<{ challenge: EmailChallenge; sentAt: number; busy: boolean; error: string }>()
+const props = defineProps<{ challenge: EmailChallenge; sentAt: number; retryResend?: boolean; busy: boolean; error: string }>()
 const code = defineModel<string>('code', { required: true })
 const emit = defineEmits<{ confirm: []; resend: []; back: [] }>()
 const { t } = useI18n()
@@ -137,7 +137,7 @@ function onInput(event: Event) {
           :disabled="busy || resendIn > 0"
           @click="emit('resend')"
         >
-          {{ resendIn > 0 ? t('verification.emailStep.resendIn', { seconds: format.number(resendIn) }) : t('verification.emailStep.resend') }}
+          {{ resendIn > 0 ? t('verification.emailStep.resendIn', { seconds: format.number(resendIn) }) : t(retryResend ? 'common.retry' : 'verification.emailStep.resend') }}
         </button>
         <button
           class="btn btn-ghost"

@@ -137,7 +137,9 @@
     "phone_rate_limited": "Codes are being requested too often. Try again later.",
     "append_window_not_open": "Follow-ups open 5 minutes after first publishing. Try again shortly.",
     "consent_required": "Accept the current Terms of Service and Privacy Policy first.",
-    "consent_version_changed": "A document was updated. Please accept it again."
+    "consent_version_changed": "A document was updated. Please accept it again.",
+    "email_transfer_consent_required": "Agree to delivery from abroad before sending a school-email code.",
+    "email_transfer_consent_changed": "The transfer notice was updated. Please confirm again."
   },
   "connection": {
     "label": "Service connection status",
@@ -1284,6 +1286,46 @@
     "documentType": "Document type",
     "documentTypes": {
       "cn_resident_id_card": "Resident Identity Card (China)"
+    },
+    "transfer": {
+      "title": "Delivering school-email codes from abroad",
+      "intro": "Before sending a code to your school email, please decide separately whether to share the information below with an email delivery provider outside China.",
+      "changed": "The transfer notice has been updated. Please read the new version and choose again.",
+      "facts": {
+        "recipient": {
+          "label": "Recipient",
+          "text": "Plus Five Five, Inc. (Resend email delivery service)"
+        },
+        "data": {
+          "label": "Information transferred",
+          "text": "Your school email address (which may contain your student ID), the email subject, the message with the verification code and its expiry time, and identifiers needed for delivery."
+        },
+        "purpose": {
+          "label": "Purpose",
+          "text": "Deliver this verification code, handle bounces, complaints and delivery problems, and provide delivery results and troubleshooting logs."
+        },
+        "place": {
+          "label": "Processing and storage locations",
+          "text": "Processing and storage take place mainly in the United States. The sending domain’s public bounce route points to Tokyo, Japan."
+        },
+        "period": {
+          "label": "Retention",
+          "text": "The notice below explains how long the message body, delivery logs, backups and suppression list records are kept and how they are deleted."
+        },
+        "rights": {
+          "label": "Your rights",
+          "text": "You can withdraw consent at any time under Account and security. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
+        }
+      },
+      "read": "Read the personal information transfer notice (version {version})",
+      "other": "You can also go back and choose another method your school offers and you are eligible to use.",
+      "agree": "Agree to delivery from abroad and send the code",
+      "back": "Go back and choose another method",
+      "accepted": "You consented to having verification codes sent to your school email from abroad.",
+      "acceptedAt": "On {time}, you consented to having verification codes sent to your school email from abroad.",
+      "withdraw": "Withdraw consent",
+      "withdrawConfirm": "After you withdraw consent, new deliveries require consent again. Any delivery that has already started may continue, and codes already sent keep their original expiry time.",
+      "withdrawn": "Consent to delivery from abroad was withdrawn."
     }
   },
   "contribution": {
@@ -2581,6 +2623,17 @@
       }
     },
     "receipt": "Violation type: {name}"
+  },
+  "legal": {
+    "title": "Legal document",
+    "current": "View the current version",
+    "history": "Earlier versions",
+    "noVersions": "No published versions yet.",
+    "unpublished": "No published version is currently in effect.",
+    "versionLine": "Version {version} · effective {date}",
+    "fixed": "Version history · This page shows this version exactly as published.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
   },
   "consent": {
     "title": "Review the Terms of Service and Privacy Policy",

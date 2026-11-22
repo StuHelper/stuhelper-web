@@ -1,0 +1,13 @@
+{
+  "repository": "StuHelper/stuhelper-backend",
+  "revision": "1f61daa7c77fcf96bc3a74df60f40ccdb43cf418",
+  "version": "0.1.0",
+  "files": {
+    "contracts/legal.openapi.json": "contracts/legal.openapi.json",
+    "sdk/legal/legal.gen.ts": "src/api/legal.gen.ts"
+  },
+  "sha256": {
+    "contracts/legal.openapi.json": "34293afaa116090a7881941c47f1962874041d2dc5f4e449cc120d0f6718f17b",
+    "src/api/legal.gen.ts": "9142c7fa91ffdc989e7717f520f03180a0e74621b282596307c914461c8aa99f"
+  }
+}

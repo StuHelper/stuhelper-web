@@ -6,6 +6,12 @@ const schemas = {
 }
 
 describe('contract validation', () => {
+  it('validates published effective dates before they are formatted', () => {
+    const date = { type: 'string', format: 'date' }
+    expect(validates('2028-02-29', date, schemas)).toBe(true)
+    expect(validates('2026-02-29', date, schemas)).toBe(false)
+    expect(validates('invalid', date, schemas)).toBe(false)
+  })
   it('accepts a matching object', () => {
     expect(validates({ id: 'abc', count: 1, at: '2026-10-30T00:00:00+08:00', note: null }, { $ref: '#/components/schemas/Item' }, schemas)).toBe(true)
   })

@@ -137,7 +137,9 @@
     "phone_rate_limited": "Se están pidiendo códigos con demasiada frecuencia. Inténtalo más tarde.",
     "append_window_not_open": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo en un momento.",
     "consent_required": "Primero acepta las Condiciones del servicio y la Política de privacidad actuales.",
-    "consent_version_changed": "Un documento se ha actualizado. Vuelve a aceptarlo."
+    "consent_version_changed": "Un documento se ha actualizado. Vuelve a aceptarlo.",
+    "email_transfer_consent_required": "Acepta el envío desde el extranjero antes de solicitar un código en el correo académico.",
+    "email_transfer_consent_changed": "El aviso de transferencia se ha actualizado. Vuelve a confirmar."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -1284,6 +1286,46 @@
     "documentType": "Tipo de documento",
     "documentTypes": {
       "cn_resident_id_card": "Documento de identidad de residente (China)"
+    },
+    "transfer": {
+      "title": "Envío de códigos al correo académico desde el extranjero",
+      "intro": "Antes de enviar un código a tu correo académico, decide por separado si aceptas compartir los datos indicados a continuación con un proveedor de envío de correo situado fuera de China.",
+      "changed": "El aviso de transferencia se ha actualizado. Lee la nueva versión y vuelve a elegir.",
+      "facts": {
+        "recipient": {
+          "label": "Destinatario",
+          "text": "Plus Five Five, Inc. (servicio de envío de correo Resend)"
+        },
+        "data": {
+          "label": "Datos transferidos",
+          "text": "Tu dirección de correo académico (que puede incluir tu número de estudiante), el asunto, el cuerpo del mensaje con el código y su hora de caducidad, y los identificadores necesarios para la entrega."
+        },
+        "purpose": {
+          "label": "Finalidad",
+          "text": "Entregar este código, gestionar los mensajes devueltos, las quejas y los problemas de entrega, y facilitar el resultado de la entrega y los registros necesarios para investigar incidencias."
+        },
+        "place": {
+          "label": "Lugares de tratamiento y almacenamiento",
+          "text": "Los datos se tratan y almacenan principalmente en Estados Unidos. La ruta pública del dominio de envío para los mensajes devueltos apunta a Tokio, Japón."
+        },
+        "period": {
+          "label": "Plazos de conservación",
+          "text": "Consulta el aviso de abajo para conocer los plazos de conservación y las reglas de eliminación del cuerpo de los mensajes, los registros de entrega, las copias de seguridad y las entradas de la lista de exclusión."
+        },
+        "rights": {
+          "label": "Tus derechos",
+          "text": "Puedes retirar tu consentimiento en cualquier momento en «Cuenta y seguridad». Para solicitar acceso, una copia, una rectificación o la eliminación, utiliza los canales de contacto indicados en el aviso."
+        }
+      },
+      "read": "Leer el aviso y consentimiento sobre transferencias de datos personales (versión {version})",
+      "other": "También puedes volver atrás y elegir otro método que ofrezca tu centro y cuyos requisitos cumplas.",
+      "agree": "Aceptar el envío desde el extranjero y enviar el código",
+      "back": "Volver y elegir otro método",
+      "accepted": "Has aceptado recibir en tu correo académico códigos de verificación enviados desde el extranjero.",
+      "acceptedAt": "El {time}, aceptaste recibir en tu correo académico códigos de verificación enviados desde el extranjero.",
+      "withdraw": "Retirar el consentimiento",
+      "withdrawConfirm": "Tras retirar el consentimiento, tendrás que volver a darlo para los nuevos envíos. Los envíos ya iniciados pueden continuar y los códigos ya enviados conservan su plazo de validez original.",
+      "withdrawn": "Se ha retirado el consentimiento para el envío desde el extranjero."
     }
   },
   "contribution": {
@@ -2602,5 +2644,16 @@
     "declineTitle": "Si no aceptas",
     "decline": "Las funciones que requieren una cuenta seguirán sin estar disponibles. Puedes cerrar sesión y seguir viendo las páginas públicas, o solicitar el cierre de tu cuenta de StuHelper.",
     "menu": "Revisar condiciones"
+  },
+  "legal": {
+    "title": "Documento legal",
+    "current": "Ver la versión actual",
+    "history": "Versiones anteriores",
+    "noVersions": "Todavía no hay versiones publicadas.",
+    "unpublished": "No hay ninguna versión publicada en vigor.",
+    "versionLine": "Versión {version} · en vigor desde el {date}",
+    "fixed": "Historial de versiones · Esta página muestra el texto de esta versión tal como se publicó.",
+    "terms": "Condiciones del servicio",
+    "privacy": "Política de privacidad"
   }
 }

@@ -1,3 +1,4 @@
+import { parseCalendarDate } from '../format'
 import { ApiError } from './errors'
 
 /**
@@ -21,6 +22,7 @@ function validString(value: string, schema: Schema) {
   if (typeof schema.maxLength === 'number' && length > schema.maxLength) return false
   if (typeof schema.minLength === 'number' && length < schema.minLength) return false
   if (schema.format === 'uri' && (!URL.canParse(value) || /\s/.test(value))) return false
+  if (schema.format === 'date' && !parseCalendarDate(value)) return false
   if (schema.format === 'date-time') return dateTime.test(value) && Number.isFinite(Date.parse(value))
   if (typeof schema.pattern === 'string') {
     try {

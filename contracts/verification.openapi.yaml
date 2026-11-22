@@ -423,7 +423,7 @@ paths:
         default: { $ref: '#/components/responses/Problem' }
     post:
       operationId: createEmailChallenge
-      description: Check roster evidence before requesting school email proof. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
+      description: Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. A resend for the same application may reuse a current, active receipt. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -438,7 +438,41 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/EmailChallenge' }
         '202': { $ref: '#/components/responses/Processing' }
+        '403':
+          description: Outbound transfer consent is required (email_transfer_consent_required), or access was denied.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
+        '409':
+          description: The effective transfer document changed (email_transfer_consent_changed), or the operation conflicts with current state. Fetch the current document and ask for a new choice before retrying a changed document.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
         '429': { $ref: '#/components/responses/RateLimited' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/email-transfer-consent:
+    get:
+      operationId: getEmailTransferConsent
+      description: Read the effective outbound school email transfer document and the signed-in account's current consent state. A new application still requires its own affirmative action before the first send.
+      responses:
+        '200':
+          description: Effective document reference and account consent state.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailTransferConsentStatus' }
+        default: { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: withdrawEmailTransferConsent
+      description: Withdraw the signed-in account's outbound school email transfer consent. Queued deliveries that have not started are stopped. Previously sent codes retain their original validity.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: The withdrawal was processed. Replays with the same key return the original result.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailTransferWithdrawal' }
+        '202': { $ref: '#/components/responses/Processing' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/applications/{id}/email/confirm:
     parameters:
@@ -1020,7 +1054,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/RateLimitedProblem' }
     Problem:
-      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied, 404 not_found, 409 conflict/identity_owned, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
       headers:
         Retry-After:
           description: Remaining cooldown seconds when rate-limited.
@@ -1231,10 +1265,42 @@ components:
       properties:
         student_id: { type: string, minLength: 1, maxLength: 64 }
         name: { type: string, minLength: 1, maxLength: 100 }
+        email_transfer_consent:
+          $ref: '#/components/schemas/EmailTransferConsentInput'
         locale:
           type: string
           enum: [zh-CN, en-US, fr-FR, ru-RU, ja-JP, ko-KR, es-ES, ar-EG]
           description: 'Preferred message locale; defaults to zh-CN when omitted.'
+    EmailTransferConsentInput:
+      description: Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when resending under the same application's current, active receipt.
+      type: object
+      additionalProperties: false
+      required: [document_id, version, digest, accepted]
+      properties:
+        document_id: { type: string, enum: [email-transfer] }
+        version: { type: string, pattern: '^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$' }
+        digest: { type: string, pattern: '^[a-f0-9]{64}$', description: SHA-256 of the published HTML bytes. }
+        accepted: { type: boolean, enum: [true] }
+    EmailTransferDocument:
+      type: object
+      required: [document_id, version, digest, url]
+      properties:
+        document_id: { type: string, enum: [email-transfer] }
+        version: { type: string }
+        digest: { type: string, pattern: '^[a-f0-9]{64}$' }
+        url: { type: string, format: uri, description: Read this immutable publication before accepting. }
+    EmailTransferConsentStatus:
+      type: object
+      required: [document, accepted]
+      properties:
+        document: { $ref: '#/components/schemas/EmailTransferDocument' }
+        accepted: { type: boolean }
+        accepted_at: { type: string, format: date-time }
+    EmailTransferWithdrawal:
+      type: object
+      required: [withdrawn]
+      properties:
+        withdrawn: { type: boolean, enum: [true] }
     EmailChallenge:
       type: object
       required: [id, application_id, expires_at, state, masked_email, target_address]
