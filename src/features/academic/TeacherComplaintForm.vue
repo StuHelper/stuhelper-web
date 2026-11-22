@@ -102,3 +102,9 @@ async function retry() {
     </div>
   </form>
 </template>
+
+<style scoped>
+/* Labels stack their field and hint, so the text areas use the full dialog width. */
+label { display: grid; gap: .375rem; }
+textarea { inline-size: 100%; }
+</style>

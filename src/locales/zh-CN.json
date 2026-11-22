@@ -2685,6 +2685,15 @@
       "note": "学校的处理说明",
       "cleared": "清空导师资格",
       "photo": "申请更换照片"
+    },
+    "media": {
+      "image": "主页图片",
+      "imageFailed": "图片暂时无法显示。",
+      "imageLink": "在学校原页面查看图片",
+      "videoLink": "在学校原页面观看视频",
+      "attachmentLink": "在学校原页面查看附件",
+      "external": "（在新窗口打开学校网站）",
+      "untitled": "其他内容"
     }
   }
 }

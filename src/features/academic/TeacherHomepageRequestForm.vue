@@ -258,5 +258,7 @@ function done(result: HomepageRequest) {
 </template>
 
 <style scoped>
+label:not(.check) { display: grid; gap: .375rem; }
+textarea, input[type="text"] { inline-size: 100%; }
 .preview { max-width: 160px; max-height: 200px; margin-block-start: .5rem; border-radius: var(--radius); object-fit: contain; }
 </style>

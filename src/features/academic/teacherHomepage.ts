@@ -15,6 +15,8 @@ export type HomepageField = C['TeacherHomepageFieldSelector']['field']
 export type HomepageRequestKind = HomepageRequestInput['kind']
 export type Supervisor = C['TeacherHomepageSupervisor']
 export type Complaint = Moderation['schemas']['TeacherHomepageComplaint']
+export type HomepageMedium = C['TeacherHomepageMedium']
+export type CopiedImage = C['TeacherHomepageCopiedImage']
 
 const catalog = catalogContract.components.schemas
 const moderation = moderationContract.components.schemas
@@ -23,10 +25,13 @@ const parse = {
   request: schemaOf<HomepageRequest>(catalog, 'TeacherHomepageRequest'),
   requests: schemaOf<C['TeacherHomepageRequestPage']>(catalog, 'TeacherHomepageRequestPage'),
   task: schemaOf<Moderation['schemas']['TaskView']>(moderation, 'TaskView'),
+  media: schemaOf<C['TeacherHomepageMediaView']>(catalog, 'TeacherHomepageMediaView'),
 }
 
 /** Photos are JPEG or PNG of at most 2 MiB, read with the reader's session. */
 export const photoLimit = 2 * 1024 * 1024
+/** Copied body images are at most 20 MiB; larger ones are offered as a link to the school page. */
+export const bodyImageLimit = 20 * 1024 * 1024
 /** Fixed text fields a request may change, in the order the page shows them. */
 export const textFields = ['name', 'position', 'education', 'degree', 'discipline', 'email', 'phone', 'office_location', 'hire_date', 'biography', 'research'] as const
 /** Every field a teacher may ask about; `page` only asks to hide the whole page. */
@@ -52,6 +57,16 @@ export class TeacherHomepageApi {
 
   homepage(teacherId: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/catalog/objects/${segment(teacherId)}/teacher-homepage`, parse.view, { signal })
+  }
+
+  /** Images, videos and attachments of the homepage body, in page order. */
+  async media(teacherId: string, signal?: AbortSignal) {
+    return (await this.http.json(`/api/v1/catalog/objects/${segment(teacherId)}/teacher-homepage/media`, parse.media, { signal })).items
+  }
+
+  /** A copied body image through its same-origin address. */
+  bodyImage(url: string, signal?: AbortSignal) {
+    return this.http.blob(url, bodyImageLimit, { signal, redirect: 'error' })
   }
 
   /** The photo through its same-origin address; the contract fixes the address pattern. */
@@ -88,3 +103,6 @@ export async function base64Of(file: Blob) {
   for (let index = 0; index < bytes.length; index += 0x8000) binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000))
   return btoa(binary)
 }
+
+/** A body image StuHelper copied and checked, as opposed to a link to the school's page. */
+export const isCopied = (item: HomepageMedium): item is CopiedImage => item.kind === 'image' && 'image' in item && !!item.image

@@ -8,6 +8,7 @@ import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { useVerification, verificationPages } from '../verification/api'
+import HomepageMedia from './HomepageMedia.vue'
 import TeacherComplaintForm from './TeacherComplaintForm.vue'
 import { supervisorKey, textFields, useTeacherHomepage, type HomepageProfile } from './teacherHomepage'
 
@@ -28,7 +29,33 @@ const owner = useAsync(async (signal) => {
   const credentials = await verificationPages((after) => verification.list('TeacherCredential', '/api/v1/verification/teacher-credentials', { limit: 100, after, signal }))
   return credentials.items.some((item) => item.state === 'active' && item.teacher_ids.includes(props.teacherId))
 })
-watch(() => props.teacherId, () => { void homepage.reload(); void owner.reload() }, { immediate: true })
+// Body media load on their own: a failure leaves the text of the page in place.
+const media = useAsync((signal) => api.media(props.teacherId, signal))
+watch(() => props.teacherId, () => { void homepage.reload(); void owner.reload(); void media.reload() }, { immediate: true })
+// A withdrawn image means the list is stale; read it again once.
+let mediaRefreshed = ''
+function mediaGone() {
+  if (mediaRefreshed === props.teacherId) return
+  mediaRefreshed = props.teacherId
+  void media.reload()
+}
+const mediaOf = (field: 'biography' | 'research') => (profile.value ? (media.data.value ?? []).filter((item) => item.field === field) : [])
+// Sections in page order, with their media; a section that holds only media is listed too.
+const sections = computed(() => {
+  const value = profile.value
+  if (!value) return []
+  const items = (media.data.value ?? []).filter((item) => item.field === 'sections')
+  const rows = value.sections.map((section) => ({ title: section.title, text: section.text, media: items.filter((item) => item.section === section.title) }))
+  const known = new Set(value.sections.map((section) => section.title))
+  for (const item of items) {
+    const title = item.section ?? ''
+    if (known.has(title)) continue
+    let row = rows.find((entry) => !entry.text && entry.title === title)
+    if (!row) rows.push(row = { title, text: '', media: [] })
+    row.media.push(item)
+  }
+  return rows
+})
 
 const profile = computed<HomepageProfile | undefined>(() => homepage.data.value?.profile)
 // Short facts in a definition list; long texts and sections follow as paragraphs.
@@ -163,22 +190,22 @@ const complaining = ref(false)
         </div>
       </div>
       <div
-        v-if="profile.biography"
+        v-for="part in (['biography', 'research'] as const)"
+        v-show="profile[part] || mediaOf(part).length"
+        :key="part"
         class="stack-sm"
       >
-        <h3>{{ t('teacherHomepage.fields.biography') }}</h3>
-        <p class="prewrap">
-          {{ profile.biography }}
+        <h3>{{ t(`teacherHomepage.fields.${part}`) }}</h3>
+        <p
+          v-if="profile[part]"
+          class="prewrap"
+        >
+          {{ profile[part] }}
         </p>
-      </div>
-      <div
-        v-if="profile.research"
-        class="stack-sm"
-      >
-        <h3>{{ t('teacherHomepage.fields.research') }}</h3>
-        <p class="prewrap">
-          {{ profile.research }}
-        </p>
+        <HomepageMedia
+          :items="mediaOf(part)"
+          @gone="mediaGone"
+        />
       </div>
       <dl
         v-if="profile.fields.length"
@@ -195,14 +222,21 @@ const complaining = ref(false)
         </div>
       </dl>
       <details
-        v-for="(item, index) in profile.sections"
+        v-for="(item, index) in sections"
         :key="`${index}:${item.title}`"
         class="homepage-section"
       >
-        <summary>{{ item.title }}</summary>
-        <p class="prewrap">
+        <summary>{{ item.title || t('teacherHomepage.media.untitled') }}</summary>
+        <p
+          v-if="item.text"
+          class="prewrap"
+        >
           {{ item.text }}
         </p>
+        <HomepageMedia
+          :items="item.media"
+          @gone="mediaGone"
+        />
       </details>
       <p class="subtle small">
         {{ t('teacherHomepage.source') }}

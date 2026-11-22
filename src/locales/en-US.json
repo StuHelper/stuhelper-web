@@ -2685,6 +2685,15 @@
       "note": "The school’s answer",
       "cleared": "Clear supervisor roles",
       "photo": "Replace the photo"
+    },
+    "media": {
+      "image": "Homepage image",
+      "imageFailed": "This image cannot be shown right now.",
+      "imageLink": "View the image on the school page",
+      "videoLink": "Watch the video on the school page",
+      "attachmentLink": "Open the attachment on the school page",
+      "external": "(opens the school website in a new window)",
+      "untitled": "More content"
     }
   }
 }
