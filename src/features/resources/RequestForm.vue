@@ -6,6 +6,7 @@ import { useMutation } from '../../shared/composables/async'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import ViolationSelect from '../moderation/ViolationSelect.vue'
 import type { ViolationCategory } from '../moderation/categories'
+import { useModerationReason } from '../moderation/reason'
 import { useResourcesApi, type Receipt, type RequestInput } from './api'
 
 // Withdrawal requests (owner), infringement complaints (anyone) and appeals of
@@ -18,7 +19,7 @@ const write = useMutation()
 const kind = ref<RequestInput['kind']>(props.previousTaskId ? 'appeal' : props.owned ? 'withdrawal' : 'complaint')
 const enteredId = ref('')
 const resource = computed(() => props.resourceId ?? enteredId.value.trim())
-const reason = ref('')
+const { reason, reasonText, reasonTooLong, reasonCounter, reasonCounterId } = useModerationReason()
 const category = ref<ViolationCategory | ''>('')
 const contact = ref('')
 const evidence = ref('')
@@ -31,10 +32,10 @@ const locked = computed(() => write.busy.value || write.uncertain.value || !!rec
 async function submit() {
   const id = resource.value
   if (!id) return
-  if (evidenceInvalid.value || (complaint.value && !category.value)) return
+  if (!reasonText.value || reasonTooLong.value || evidenceInvalid.value || (complaint.value && !category.value)) return
   const body: RequestInput = {
     kind: kind.value,
-    reason: reason.value.trim(),
+    reason: reasonText.value,
     ...(complaint.value && category.value ? { category: category.value } : {}),
     ...(contact.value.trim() ? { contact: contact.value.trim() } : {}),
     evidence: lines.value,
@@ -100,18 +101,25 @@ async function retry() {
       <ViolationSelect
         v-if="complaint"
         v-model="category"
-        :exclude="['author_update']"
         :disabled="locked"
       />
-      <label class="field">
-        <span class="field-label">{{ t('resources.request.reason') }}</span>
-        <textarea
-          v-model="reason"
-          class="textarea"
-          required
-          maxlength="2000"
-        />
-      </label>
+      <div class="field">
+        <label class="field">
+          <span class="field-label">{{ t('resources.request.reason') }}</span>
+          <textarea
+            v-model="reason"
+            class="textarea"
+            required
+            :aria-invalid="reasonTooLong || undefined"
+            :aria-describedby="reasonCounterId"
+          />
+        </label>
+        <bdi
+          :id="reasonCounterId"
+          :class="reasonTooLong ? 'field-error' : 'field-hint'"
+          dir="ltr"
+        >{{ reasonCounter }}</bdi>
+      </div>
       <label class="field">
         <span class="field-label">{{ t('resources.request.contact') }}</span>
         <input
@@ -149,7 +157,7 @@ async function retry() {
       <button
         class="btn btn-primary"
         type="submit"
-        :disabled="locked || !reason.trim() || evidenceInvalid || (complaint && !category)"
+        :disabled="locked || !reasonText || reasonTooLong || evidenceInvalid || (complaint && !category)"
       >
         {{ t('common.submit') }}
       </button>
