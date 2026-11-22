@@ -42,6 +42,10 @@ const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
 const editWindowMs = 5 * 60_000
 const remainingSeconds = ref(0)
+// Only course reviews wait out the first-publication window before a follow-up; mentor comments do not.
+const appendWaiting = computed(() => props.review.kind === 'course' && remainingSeconds.value > 0)
+// When the server still refuses a follow-up, its own reopening time wins over the device clock.
+const appendRetryAt = computed(() => (write.error.value === 'append_window_not_open' && write.retryAt.value ? Date.parse(write.retryAt.value) : NaN))
 const editCountdownText = computed(() => {
   if (!remainingSeconds.value) return ''
   const mins = Math.floor(remainingSeconds.value / 60)
@@ -269,7 +273,14 @@ async function retry() {
       @submit.prevent="act({ action: 'append', revision: review.revision, body: appendBody.trim() })"
     >
       <p
-        v-if="remainingSeconds && review.published_at"
+        v-if="Number.isFinite(appendRetryAt)"
+        class="small muted"
+        role="status"
+      >
+        {{ t('academic.followUpOpensAt', { time: format.dateTime(appendRetryAt) }) }}
+      </p>
+      <p
+        v-else-if="appendWaiting && review.published_at"
         class="small muted"
       >
         {{ t('academic.followUpOpensAt', { time: format.dateTime(Date.parse(review.published_at) + editWindowMs) }) }}
@@ -285,7 +296,7 @@ async function retry() {
       <button
         type="submit"
         class="btn btn-sm"
-        :disabled="locked || !appendBody.trim() || remainingSeconds > 0"
+        :disabled="locked || !appendBody.trim() || appendWaiting"
       >
         {{ t('academic.submitFollowUp') }}
       </button>
@@ -439,7 +450,6 @@ async function retry() {
       <ViolationSelect
         v-if="panel === 'report'"
         v-model="category"
-        :exclude="['author_update']"
         :disabled="locked"
       />
       <label class="field">
@@ -489,7 +499,7 @@ async function retry() {
     <MutationNotice
       v-if="!confirming"
       :busy="write.busy.value"
-      :error="write.error.value"
+      :error="Number.isFinite(appendRetryAt) ? '' : write.error.value"
       :uncertain="write.uncertain.value"
       :success="success"
       @retry="retry"

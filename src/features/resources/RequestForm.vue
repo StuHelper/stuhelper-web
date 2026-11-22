@@ -100,7 +100,6 @@ async function retry() {
       <ViolationSelect
         v-if="complaint"
         v-model="category"
-        :exclude="['author_update']"
         :disabled="locked"
       />
       <label class="field">

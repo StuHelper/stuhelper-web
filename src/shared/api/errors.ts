@@ -31,6 +31,8 @@ export class ApiError extends Error {
     readonly operationId?: string,
     /** Seconds the server asks to wait before a new attempt (HTTP 429). */
     readonly retryAfter?: number,
+    /** Server time (RFC 3339) after which a rejected action opens, e.g. a follow-up window. */
+    readonly retryAt?: string,
   ) {
     super(code)
     this.name = 'ApiError'
@@ -63,6 +65,17 @@ export function serverCode(body: unknown, status: number) {
     if (typeof code === 'string' && /^[a-z][a-z0-9_]{0,63}$/.test(code)) return normalizeCode(code)
   }
   return statusCodes[status] ?? 'unavailable'
+}
+
+/** The server's RFC 3339 reopening time, read only when it is a well-formed timestamp. */
+export function retryAtOf(problem: unknown) {
+  const value = typeof problem === 'object' && problem !== null && 'retry_at' in problem ? problem.retry_at : undefined
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return undefined
+  return Number.isFinite(Date.parse(value)) ? value : undefined
+}
+
+export function errorRetryAt(error: unknown) {
+  return error instanceof ApiError ? error.retryAt : undefined
 }
 
 export function errorCode(error: unknown) {

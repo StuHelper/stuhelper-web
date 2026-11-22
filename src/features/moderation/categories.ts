@@ -11,6 +11,3 @@ export const violationCategories: readonly ViolationCategory[] = [
   'wrong_info', 'spam', 'malware', 'duplicate', 'low_quality',
   'author_update', 'other',
 ]
-
-/** Categories a reader may choose; an author's own update request is not a report. */
-export const reportCategories: readonly ViolationCategory[] = violationCategories.filter((code) => code !== 'author_update')
