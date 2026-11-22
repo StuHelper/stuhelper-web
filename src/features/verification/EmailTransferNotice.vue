@@ -7,7 +7,7 @@ import type { EmailTransferStatus } from './api'
 // The separate notice shown before the first outbound school-email code. The full text is
 // the fixed publication behind `status.document.url`; this card names what leaves the
 // country and why. Only the "agree and send" button counts as the choice.
-defineProps<{ status: EmailTransferStatus; changed: boolean; busy: boolean }>()
+defineProps<{ status: EmailTransferStatus; changed: boolean; busy: boolean; canAgree: boolean }>()
 const emit = defineEmits<{ agree: []; back: [] }>()
 const { t } = useI18n()
 const facts = ['recipient', 'data', 'purpose', 'place', 'period', 'rights'] as const
@@ -55,7 +55,7 @@ const facts = ['recipient', 'data', 'purpose', 'place', 'period', 'rights'] as c
       <button
         class="btn btn-primary"
         type="button"
-        :disabled="busy"
+        :disabled="busy || !canAgree"
         :aria-busy="busy || undefined"
         @click="emit('agree')"
       >

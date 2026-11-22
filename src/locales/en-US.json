@@ -1289,42 +1289,42 @@
     },
     "transfer": {
       "title": "Delivering school-email codes from abroad",
-      "intro": "School-email codes are delivered by an email provider outside China. Before sending, you need to agree separately to this transfer of personal information. You can also choose another verification method.",
+      "intro": "Before sending a code to your school email, please decide separately whether to share the information below with an email delivery provider outside China.",
       "changed": "The transfer notice has been updated. Please read the new version and choose again.",
       "facts": {
         "recipient": {
           "label": "Recipient",
-          "text": "Resend, Inc. (email delivery provider)"
+          "text": "Plus Five Five, Inc. (Resend email delivery service)"
         },
         "data": {
           "label": "Information transferred",
-          "text": "Your school email address and the code email"
+          "text": "Your school email address (which may contain your student ID), the email subject, the message with the verification code and its expiry time, and identifiers needed for delivery."
         },
         "purpose": {
           "label": "Purpose",
-          "text": "Only to send this verification code to your school email"
+          "text": "Deliver this verification code, handle bounces, complaints and delivery problems, and provide delivery results and troubleshooting logs."
         },
         "place": {
-          "label": "Where it is processed",
-          "text": "The United States and other provider locations"
+          "label": "Processing and storage locations",
+          "text": "Processing and storage take place mainly in the United States. The sending domain’s public bounce route points to Tokyo, Japan."
         },
         "period": {
           "label": "Retention",
-          "text": "The provider retention period stated in the notice, then deleted"
+          "text": "The notice below explains how long the message body, delivery logs, backups and suppression list records are kept and how they are deleted."
         },
         "rights": {
           "label": "Your rights",
-          "text": "Withdraw at any time under Account and security; you may also access, correct or ask for deletion"
+          "text": "You can withdraw consent at any time under Account and security. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
         }
       },
       "read": "Read the personal information transfer notice (version {version})",
-      "other": "You can also go back and choose school sign-in, real-name check, sending an email yourself or manual review.",
+      "other": "You can also go back and choose another method your school offers and you are eligible to use.",
       "agree": "Agree to delivery from abroad and send the code",
       "back": "Go back and choose another method",
-      "accepted": "You agreed to deliver school-email codes from abroad.",
-      "acceptedAt": "You agreed to deliver school-email codes from abroad on {time}.",
+      "accepted": "You consented to having verification codes sent to your school email from abroad.",
+      "acceptedAt": "On {time}, you consented to having verification codes sent to your school email from abroad.",
       "withdraw": "Withdraw consent",
-      "withdrawConfirm": "After withdrawing, codes not yet sent stop; the next school-email code will ask again. Codes already sent stay valid until they expire.",
+      "withdrawConfirm": "After you withdraw consent, new deliveries require consent again. Any delivery that has already started may continue, and codes already sent keep their original expiry time.",
       "withdrawn": "Consent to delivery from abroad was withdrawn."
     }
   },
