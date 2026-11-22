@@ -1,6 +1,8 @@
 """Run the image's server block against an isolated loopback upstream."""
+import base64
 import hashlib
 import http.client
+import json
 import shutil
 import socket
 import subprocess
@@ -12,6 +14,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 
+TEACHER_REQUEST_PATH = "/api/v1/catalog/objects/fixture-teacher/teacher-homepage/requests"
 LEGAL_API_VERSION = "/api/v1/legal/documents/terms/versions/3.0"
 
 
@@ -30,12 +33,18 @@ class Backend(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_PUT(self):
+        self.record_upload()
+
+    def record_upload(self):
         body = self.rfile.read(int(self.headers["Content-Length"]))
         self.server.uploads.append((self.path, hashlib.sha256(body).digest()))
         self.send_response(204)
         self.end_headers()
 
     def do_POST(self):
+        if self.path == TEACHER_REQUEST_PATH:
+            self.record_upload()
+            return
         time.sleep(36)
         self.send_response(200)
         self.end_headers()
@@ -121,6 +130,24 @@ class TransferProxyTest(unittest.TestCase):
         for path in ["/api/v1/media/uploads", "/api/v1/verification/capture"]:
             self.assertEqual(self.request("PUT", path, b"x" * ((1 << 20) + 1))[0], 413)
             self.assertFalse(any(url == path for url, _ in self.uploads))
+
+    def test_teacher_homepage_photo_request_reaches_upstream_with_a_bounded_body(self):
+        image = base64.b64encode(b"x" * (2 << 20)).decode("ascii")
+        body = json.dumps({
+            "kind": "supplement",
+            "field": {"field": "photo"},
+            "message": "Photo fixture",
+            "value": {"photo": {"content_type": "image/png", "data": image}},
+        }).encode()
+        self.assertEqual(self.request("POST", TEACHER_REQUEST_PATH, body,
+                                      {"Content-Type": "application/json"})[0], 204)
+        received = [(path, digest) for path, digest in self.uploads if path == TEACHER_REQUEST_PATH]
+        self.assertEqual(received, [(TEACHER_REQUEST_PATH, hashlib.sha256(body).digest())])
+
+        for path, limit in [(TEACHER_REQUEST_PATH, 4 << 20),
+                            (TEACHER_REQUEST_PATH + "/extra", 1 << 20)]:
+            with self.subTest(path=path):
+                self.assertEqual(self.request("POST", path, headers={"Content-Length": str(limit + 1)})[0], 413)
 
     def test_slow_custody_response_reaches_client(self):
         self.assertEqual(self.request("POST", "/api/v1/storage/custody", b"{}")[:2],

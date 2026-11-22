@@ -60,4 +60,10 @@ describe('targetRoute', () => {
     expect(at('storage_contribution')).toBe('/me/storage')
     expect(at('billing_order')).toBe('/me/wallet')
   })
+  it('opens the teacher homepage receipt with the encoded target ID', () => {
+    expect(targetRoute({
+      target: { kind: 'teacher_homepage_request', id: 'request:17' },
+      title_params: { request_id: 'request:17' },
+    })).toBe('/me/teacher-homepage/requests/request%3A17')
+  })
 })

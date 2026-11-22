@@ -1,10 +1,10 @@
 import * as d from './data'
+import type { TeacherCredential } from '../features/verification/api'
 
 // In-memory teacher verification following the verification contract. A submitted
 // form waits for review; the next read after a few seconds "approves" it and binds
 // two demo teacher profiles, so the disclosure settings can be tried.
 type Application = Record<string, unknown> & { id: string; state: string; revision: number; updated_at: string; review_note?: string }
-type Credential = { id: string; school_id: string; teacher_ids: string[]; state: 'active' | 'revoked' | 'expired'; revision: number; verified_at: string; expires_at: string | null; source: string; note: string; disclosures: string[] }
 
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
 const nope = (code: string, status: number) => json({ code }, status)
@@ -14,7 +14,12 @@ let sequence = 0
 const applications: Application[] = []
 const forms = new Map<string, Record<string, unknown>>()
 const materials = new Map<string, { id: string; application_id: string; content_type: string; size: number; created_at: string }[]>()
-const credentials: Credential[] = []
+const credentials: TeacherCredential[] = []
+const teacherIds = ['p2', 'p3']
+const defaultCredential: TeacherCredential = {
+  id: 'demo-teacher-credential', school_id: d.SCHOOL, teacher_ids: teacherIds, state: 'active',
+  revision: 1, verified_at: d.ago(45), expires_at: null, source: 'manual_material_review', note: '', disclosures: ['teacher'],
+}
 const submittedAt = new Map<string, number>()
 
 async function read(init?: RequestInit) {
@@ -29,14 +34,19 @@ function settle() {
   for (const application of applications) {
     const at = submittedAt.get(application.id)
     if (application.state !== 'pending_review' || at === undefined || Date.now() - at < 3000) continue
-    const credential: Credential = { id: `teacher-credential-${++sequence}`, school_id: d.SCHOOL, teacher_ids: ['p2', 'p3'], state: 'active', revision: 1, verified_at: now(), expires_at: null, source: 'manual_material_review', note: '', disclosures: [...((forms.get(application.id)?.disclosures as string[]) ?? [])] }
+    const credential: TeacherCredential = { id: `teacher-credential-${++sequence}`, school_id: d.SCHOOL, teacher_ids: teacherIds, state: 'active', revision: 1, verified_at: now(), expires_at: null, source: 'manual_material_review', note: '', disclosures: [...((forms.get(application.id)?.disclosures as TeacherCredential['disclosures']) ?? [])] }
     credentials.push(credential)
     Object.assign(application, { state: 'approved', revision: application.revision + 1, updated_at: now(), credential_id: credential.id })
   }
 }
 
-export async function teacherRoute(p: string, method: string, init?: RequestInit): Promise<Response | undefined> {
+export function teacherCredentials(includeDefault: boolean) {
   settle()
+  return includeDefault && !credentials.length ? [defaultCredential] : credentials
+}
+
+export async function teacherRoute(p: string, method: string, includeDefault: boolean, init?: RequestInit): Promise<Response | undefined> {
+  const ownedCredentials = teacherCredentials(includeDefault)
   if (p === '/verification/teacher-applications' && method === 'POST') {
     const body = await read(init)
     if (body.school_id !== d.SCHOOL || body.consent !== true || body.notice_version !== d.verification.school.notice_version) return nope('invalid_input', 400)
@@ -45,10 +55,10 @@ export async function teacherRoute(p: string, method: string, init?: RequestInit
     applications.push(application)
     return json(application, 201)
   }
-  if (p === '/verification/teacher-credentials') return json(credentials)
+  if (p === '/verification/teacher-credentials') return json(ownedCredentials)
   const disclosure = /^\/verification\/teacher-credentials\/([^/]+)\/disclosures$/.exec(p)
   if (disclosure && method === 'PUT') {
-    const credential = credentials.find((item) => item.id === decodeURIComponent(disclosure[1]!))
+    const credential = ownedCredentials.find((item) => item.id === decodeURIComponent(disclosure[1]!))
     if (!credential) return nope('not_found', 404)
     const body = await read(init)
     if (body.revision !== credential.revision) return nope('conflict', 409)

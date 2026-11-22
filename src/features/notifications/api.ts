@@ -44,6 +44,8 @@ export function targetRoute(item: Pick<Notification, 'target' | 'title_params'>)
       return '/me/requests'
     case 'teacher_application':
       return '/me/verification/teacher'
+    case 'teacher_homepage_request':
+      return `/me/teacher-homepage/requests/${id}`
     case 'verification_operation':
       return '/me/account/identity'
     case 'verification_application':

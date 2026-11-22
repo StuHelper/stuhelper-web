@@ -2658,6 +2658,100 @@
     "terms": "이용약관",
     "privacy": "개인정보 처리방침"
   },
+  "teacherHomepage": {
+    "title": "교수 페이지",
+    "empty": "학교 공식 웹사이트에 표시할 교수 정보가 없습니다.",
+    "source": "학교 공식 웹사이트의 교수 페이지에서 가져온 정보이며, 학교 규정에 따라 표시됩니다.",
+    "photo": "{name} 사진",
+    "manage": "내 교수 페이지 관리",
+    "manageFor": "‘{name}’ 교수 페이지 관리",
+    "manageTitle": "{name} 교수 페이지",
+    "manageDescription": "교수 페이지의 정보를 정정하거나 추가하거나 숨겨 달라고 신청할 수 있습니다. 학교에서 승인하면 변경 사항이 반영됩니다.",
+    "complain": "페이지 정보 신고",
+    "limit": "{max}자 중 {count}자",
+    "fields": {
+      "name": "공식 웹사이트에 표시된 이름",
+      "position": "직위",
+      "education": "학력",
+      "degree": "학위",
+      "discipline": "학문 분야",
+      "supervisors": "연구 지도 자격",
+      "email": "이메일",
+      "phone": "전화번호",
+      "office_location": "연구실·사무실",
+      "hire_date": "부임일",
+      "biography": "소개",
+      "research": "연구 분야",
+      "fields": "기타 정보",
+      "sections": "페이지 섹션",
+      "photo": "사진",
+      "page": "페이지 전체"
+    },
+    "supervisors": {
+      "doctoral": "박사과정 지도교수",
+      "master": "석사과정 지도교수"
+    },
+    "complaint": {
+      "title": "교수 페이지 정보 신고",
+      "description": "정보가 부정확하거나 권리를 침해하는 경우 유형을 선택하고 상황을 설명해 주세요. 학교는 검토 후 페이지 정보를 숨길 수 있습니다. 디렉터리 항목과 평가는 계속 표시됩니다.",
+      "reason": "신고 상세 설명",
+      "evidence": "증거 (한 줄에 하나씩, 최대 5개)",
+      "evidenceHint": "항목당 최대 2,000자입니다.",
+      "email": "{email}로 이메일을 보낼 수도 있습니다.",
+      "sent": "신고를 제출했습니다. 학교에서 가능한 한 빨리 검토합니다."
+    },
+    "request": {
+      "title": "새 신청",
+      "start": "신청하기",
+      "kind": "신청 유형",
+      "kinds": {
+        "correction": "정정",
+        "supplement": "추가",
+        "hide": "숨기기"
+      },
+      "field": "대상 정보",
+      "label": "항목 이름",
+      "labelHint": "정정하거나 추가할 항목의 이름 또는 섹션 제목을 입력해 주세요.",
+      "labelOptional": "비워 두면 이 그룹 전체가 숨겨집니다.",
+      "value": "새 내용",
+      "supervisors": "연구 지도 자격",
+      "supervisorsHint": "선택한 자격으로 기존 목록을 바꿉니다. 모두 선택 해제하면 목록을 비웁니다.",
+      "photo": "새 사진",
+      "photoHint": "JPEG 또는 PNG 형식, 최대 2 MiB.",
+      "photoType": "JPEG 또는 PNG 이미지만 사용할 수 있습니다.",
+      "photoSize": "이미지 크기는 2 MiB 이하여야 합니다.",
+      "photoReadError": "선택한 사진을 읽을 수 없습니다. 다시 시도하거나 파일을 다시 선택해 주세요.",
+      "photoPreview": "새 사진 미리 보기",
+      "message": "신청 사유",
+      "sent": "신청을 제출했습니다. 학교의 검토가 끝나면 알림을 받습니다.",
+      "retention": "신청 처리가 끝난 날부터 12개월이 지나면 신청 본문과 사진이 삭제됩니다.",
+      "history": "내 신청",
+      "none": "아직 신청 내역이 없습니다.",
+      "status": {
+        "pending": "처리 대기 중",
+        "approved": "승인됨",
+        "rejected": "거절됨"
+      }
+    },
+    "receipt": {
+      "title": "교수 페이지 신청",
+      "submitted": "제출 일시",
+      "resolved": "처리 일시",
+      "note": "학교 답변",
+      "cleared": "연구 지도 자격 목록 비우기",
+      "photo": "사진 교체 신청"
+    },
+    "media": {
+      "loadFailed": "지금은 교수 페이지의 이미지, 동영상, 첨부 파일을 불러올 수 없습니다.",
+      "image": "교수 페이지 이미지",
+      "imageFailed": "지금은 이미지를 표시할 수 없습니다.",
+      "imageLink": "학교의 원본 페이지에서 이미지 보기",
+      "videoLink": "학교의 원본 페이지에서 동영상 보기",
+      "attachmentLink": "학교의 원본 페이지에서 첨부 파일 열기",
+      "external": "(학교 웹사이트를 새 창에서 엽니다)",
+      "untitled": "기타 내용"
+    }
+  },
   "privacy": {
     "title": "개인정보 및 동의",
     "description": "동의한 약관을 확인하고 개별적으로 철회할 수 있는 동의를 관리하세요.",
