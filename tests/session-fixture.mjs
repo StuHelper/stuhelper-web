@@ -27,7 +27,11 @@ export const memberTest = base.extend({
       accepted: false,
     } }));
     // The navigation bell reads the unread count on every page. Suites about notifications register their own answer later, which wins.
-    await page.route('**/api/v1/notifications/unread-count', route => route.fulfill({ json: { count: 0 } }));
+    await page.route('**/api/v1/notifications/unread-count', route => route.fulfill({ json: {
+      count: 0,
+      by_box: { interaction: 0, review: 0, verification: 0, system: 0 },
+      by_type: { interaction: 0, business: 0, security: 0, account: 0 },
+    } }));
     await use(page);
   },
 });

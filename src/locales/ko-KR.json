@@ -2077,14 +2077,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "읽지 않은 알림 {count}개 이상",
     "title": "메시지",
     "link": "메시지",
     "description": "반응, 처리 결과, 인증 결과, 시스템 알림을 모았습니다.",
     "unread": "읽지 않은 알림: {count}",
-    "interaction": "반응 알림 받기(답글, 좋아요)",
-    "interactionOn": "반응 알림을 켰습니다.",
-    "interactionOff": "반응 알림을 껐습니다.",
     "always": "처리 결과, 보안 및 계정 알림은 항상 전달됩니다.",
     "readAll": "모두 읽음으로 표시",
     "allRead": "모든 알림을 읽음으로 표시했습니다.",
@@ -2099,7 +2095,8 @@
       "content": {
         "approved": "내 콘텐츠 {content_id}가 승인되었습니다",
         "rejected": "내 콘텐츠 {content_id}가 승인되지 않았습니다",
-        "removed": "내 콘텐츠 {content_id}가 게시 중단되었습니다"
+        "removed": "내 콘텐츠 {content_id}가 게시 중단되었습니다",
+        "draft_expiring": "초안 {content_id}의 보관 기간이 곧 끝납니다"
       },
       "resource_removal": {
         "approved": "자료 삭제 요청이 승인되었습니다",
@@ -2112,7 +2109,8 @@
       "student_verification": {
         "approved": "학생 인증 신청이 승인되었습니다",
         "rejected": "학생 인증 신청이 승인되지 않았습니다",
-        "revoked": "학생 인증이 취소되었습니다"
+        "revoked": "학생 인증이 취소되었습니다",
+        "supplement_required": "학생 인증 신청에 추가 자료가 필요합니다"
       },
       "identity_verification": {
         "approved": "실명 확인이 완료되었습니다",
@@ -2128,7 +2126,8 @@
       },
       "teacher_verification": {
         "approved": "교원 인증 신청이 승인되었습니다",
-        "rejected": "교원 인증 신청이 승인되지 않았습니다"
+        "rejected": "교원 인증 신청이 승인되지 않았습니다",
+        "supplement_required": "교원 인증 신청에 추가 자료가 필요합니다"
       },
       "system": {
         "notice": "시스템 알림: {reference_id}",
@@ -2139,6 +2138,25 @@
         "notice": "시스템 알림",
         "security": "보안 알림",
         "account": "계정 알림"
+      },
+      "appeal": {
+        "approved": "이의 신청이 받아들여졌습니다",
+        "rejected": "이의 신청이 받아들여지지 않았습니다"
+      },
+      "group_membership": {
+        "grace_expiring": "그룹 멤버 자격의 유예 기간이 곧 끝납니다"
+      },
+      "storage_contribution": {
+        "exit_completed": "클라우드 저장 공간 기여가 종료되었습니다"
+      },
+      "billing": {
+        "topup_review_required": "충전 주문은 담당자의 확인이 필요합니다",
+        "refund_completed": "환불이 완료되었습니다",
+        "refund_rejected": "환불 신청이 승인되지 않았습니다"
+      },
+      "teacher_homepage_request": {
+        "approved": "교원 페이지 변경 신청이 승인되었습니다",
+        "rejected": "교원 페이지 변경 신청이 승인되지 않았습니다"
       }
     },
     "status": {
@@ -2157,7 +2175,38 @@
     },
     "namedContent": "「{name}」",
     "contentUnavailable": "(이용할 수 없는 내용)",
-    "contentNameUnavailable": "(지금은 이름을 표시할 수 없음)"
+    "contentNameUnavailable": "(지금은 이름을 표시할 수 없음)",
+    "reason": "사유: {reason}",
+    "reasons": {
+      "duplicate_material": "기존 자료와 중복됩니다",
+      "copyright_claim": "저작권 침해 신고가 접수되었습니다",
+      "community_guidelines": "커뮤니티 가이드라인을 위반했습니다",
+      "off_topic": "주제와 관련이 없습니다",
+      "privacy_exposure": "다른 사람의 개인정보가 포함되어 있습니다",
+      "low_quality": "콘텐츠 품질이 기준에 미치지 못합니다",
+      "author_request": "작성자 본인이 요청했습니다",
+      "insufficient_evidence": "증거가 부족합니다",
+      "expired_document": "제출 서류의 유효 기간이 지났습니다",
+      "unclear_material": "제출 자료가 선명하지 않습니다",
+      "identity_mismatch": "신원 정보가 일치하지 않습니다",
+      "ineligible_status": "현재 자격으로는 요건을 충족하지 못합니다",
+      "eligibility_revoked": "자격이 취소되었습니다",
+      "duplicate_binding": "이미 다른 계정에 연결되어 있습니다",
+      "policy_violation": "플랫폼 규칙을 위반했습니다",
+      "payment_channel_rejected": "결제 서비스에서 이 작업을 거절했습니다"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "답글 알림 받기",
+        "on": "답글 알림을 켰습니다.",
+        "off": "답글 알림을 껐습니다."
+      },
+      "like_enabled": {
+        "label": "좋아요 알림 받기",
+        "on": "좋아요 알림을 켰습니다.",
+        "off": "좋아요 알림을 껐습니다."
+      }
+    }
   },
   "search": {
     "title": "검색",
@@ -2595,5 +2644,16 @@
     "declineTitle": "동의하지 않는 경우",
     "decline": "로그인이 필요한 기능은 사용할 수 없습니다. 로그아웃하고 공개 페이지를 계속 둘러보거나 StuHelper 계정 해지를 신청할 수 있습니다.",
     "menu": "약관 확인"
+  },
+  "legal": {
+    "title": "법률 문서",
+    "current": "현재 버전 보기",
+    "history": "이전 버전",
+    "noVersions": "아직 게시된 버전이 없습니다.",
+    "unpublished": "현재 효력이 있는 게시 버전이 없습니다.",
+    "versionLine": "버전 {version} · {date} 시행",
+    "fixed": "버전 이력 · 이 페이지는 해당 버전의 게시 당시 원문을 보여 줍니다.",
+    "terms": "이용약관",
+    "privacy": "개인정보 처리방침"
   }
 }

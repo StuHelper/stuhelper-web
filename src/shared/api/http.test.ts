@@ -33,6 +33,17 @@ describe('HTTP boundary', () => {
     await expect(respond(JSON.stringify({ code: 'Not A Code!' }), 409).json('/api/v1/x', anything)).rejects.toMatchObject({ code: 'conflict' })
   })
 
+  it('keeps a well-formed server reopening time on a 409 and drops malformed ones', async () => {
+    const respond = (body: object) => new Http(async () => new Response(JSON.stringify(body), { status: 409 }))
+    const window = { code: 'conflict', subcode: 'append_window_not_open' }
+    for (const time of ['2030-01-01T00:05:00Z', '2028-02-29T01:02:03.123456789+08:00']) {
+      await expect(respond({ ...window, retry_at: time }).json('/api/v1/x', anything, { method: 'POST', body: {} })).rejects.toMatchObject({ code: 'append_window_not_open', retryAt: time })
+    }
+    for (const time of ['soon', '2030-02-31T00:00:00Z', '2030-02-29T00:00:00Z', '2030-01-01T24:00:00Z']) {
+      await expect(respond({ ...window, retry_at: time }).json('/api/v1/x', anything, { method: 'POST', body: {} })).rejects.toMatchObject({ code: 'append_window_not_open', retryAt: undefined })
+    }
+  })
+
   it('marks a write as uncertain after a lost response or a gateway failure, but not a read', async () => {
     const lost = new Http(async () => { throw new TypeError('connection reset') })
     await expect(lost.json('/api/v1/x', anything, { method: 'POST', body: {} })).rejects.toMatchObject({ code: 'network', uncertain: true })

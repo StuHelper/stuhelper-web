@@ -2077,14 +2077,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "至少 {count} 条未读",
     "title": "消息",
     "link": "消息",
     "description": "互动、处理结果、认证结果和系统通知。",
     "unread": "未读消息：{count}",
-    "interaction": "接收互动通知（回复、点赞）",
-    "interactionOn": "已开启互动通知。",
-    "interactionOff": "已关闭互动通知。",
     "always": "处理结果、安全与账号通知始终接收。",
     "readAll": "全部标为已读",
     "allRead": "已全部标为已读。",
@@ -2099,7 +2095,8 @@
       "content": {
         "approved": "你的内容 {content_id} 已通过审核",
         "rejected": "你的内容 {content_id} 未通过审核",
-        "removed": "你的内容 {content_id} 已被下架"
+        "removed": "你的内容 {content_id} 已被下架",
+        "draft_expiring": "你的草稿 {content_id} 即将过期"
       },
       "resource_removal": {
         "approved": "资料下架申请已通过",
@@ -2112,7 +2109,8 @@
       "student_verification": {
         "approved": "学生认证申请已通过",
         "rejected": "学生认证申请未通过",
-        "revoked": "学生认证已被撤销"
+        "revoked": "学生认证已被撤销",
+        "supplement_required": "学生认证申请需要补充材料"
       },
       "identity_verification": {
         "approved": "实名核验已通过",
@@ -2128,7 +2126,8 @@
       },
       "teacher_verification": {
         "approved": "教师认证申请已通过",
-        "rejected": "教师认证申请未通过"
+        "rejected": "教师认证申请未通过",
+        "supplement_required": "教师认证申请需要补充材料"
       },
       "system": {
         "notice": "系统通知：{reference_id}",
@@ -2139,6 +2138,25 @@
         "notice": "系统通知",
         "security": "安全提醒",
         "account": "账号通知"
+      },
+      "appeal": {
+        "approved": "你的申诉已通过",
+        "rejected": "你的申诉未通过"
+      },
+      "group_membership": {
+        "grace_expiring": "群成员资格的宽限期即将结束"
+      },
+      "storage_contribution": {
+        "exit_completed": "云盘贡献已退出完成"
+      },
+      "billing": {
+        "topup_review_required": "充值订单需要人工核对",
+        "refund_completed": "退款已完成",
+        "refund_rejected": "退款申请未通过"
+      },
+      "teacher_homepage_request": {
+        "approved": "教师主页修改申请已通过",
+        "rejected": "教师主页修改申请未通过"
       }
     },
     "status": {
@@ -2157,7 +2175,38 @@
     },
     "namedContent": "「{name}」",
     "contentUnavailable": "（内容不可用）",
-    "contentNameUnavailable": "（名称暂不可用）"
+    "contentNameUnavailable": "（名称暂不可用）",
+    "reason": "原因：{reason}",
+    "reasons": {
+      "duplicate_material": "与已有资料重复",
+      "copyright_claim": "涉及版权投诉",
+      "community_guidelines": "不符合社区规范",
+      "off_topic": "与主题无关",
+      "privacy_exposure": "包含他人隐私信息",
+      "low_quality": "内容质量不足",
+      "author_request": "作者本人要求",
+      "insufficient_evidence": "证据不足",
+      "expired_document": "证件或材料已过期",
+      "unclear_material": "材料不清晰",
+      "identity_mismatch": "身份信息不一致",
+      "ineligible_status": "当前身份不符合条件",
+      "eligibility_revoked": "资格已被撤销",
+      "duplicate_binding": "已绑定其他账号",
+      "policy_violation": "违反平台规则",
+      "payment_channel_rejected": "支付渠道拒绝了该操作"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "接收回复通知",
+        "on": "已开启回复通知。",
+        "off": "已关闭回复通知。"
+      },
+      "like_enabled": {
+        "label": "接收点赞通知",
+        "on": "已开启点赞通知。",
+        "off": "已关闭点赞通知。"
+      }
+    }
   },
   "search": {
     "title": "搜索",
@@ -2574,6 +2623,17 @@
       }
     },
     "receipt": "违规类型：{name}"
+  },
+  "legal": {
+    "title": "法律文件",
+    "current": "查看当前版本",
+    "history": "历史版本",
+    "noVersions": "还没有已发布的版本。",
+    "unpublished": "目前没有生效的已发布版本。",
+    "versionLine": "版本 {version} · {date} 生效",
+    "fixed": "历史版本 · 此页面显示该版本发布时的原文。",
+    "terms": "用户服务协议",
+    "privacy": "隐私政策"
   },
   "consent": {
     "title": "确认用户服务协议与隐私政策",

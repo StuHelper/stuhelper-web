@@ -2077,14 +2077,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "عدد الإشعارات غير المقروءة لا يقل عن {count}",
     "title": "الرسائل",
     "link": "الرسائل",
     "description": "التفاعلات ونتائج المراجعة ونتائج التحقق وإشعارات النظام.",
     "unread": "إشعارات غير مقروءة: {count}",
-    "interaction": "تلقي إشعارات التفاعل (الردود والإعجابات)",
-    "interactionOn": "تم تشغيل إشعارات التفاعل.",
-    "interactionOff": "تم إيقاف إشعارات التفاعل.",
     "always": "تصل إشعارات نتائج المعالجة والأمان والحساب دائمًا.",
     "readAll": "تعليم الكل كمقروء",
     "allRead": "تم تعليم كل الإشعارات كمقروءة.",
@@ -2099,7 +2095,8 @@
       "content": {
         "approved": "تمت الموافقة على محتواك {content_id}",
         "rejected": "لم تتم الموافقة على محتواك {content_id}",
-        "removed": "تمت إزالة محتواك {content_id}"
+        "removed": "تمت إزالة محتواك {content_id}",
+        "draft_expiring": "ستنتهي صلاحية مسودتك {content_id} قريبًا"
       },
       "resource_removal": {
         "approved": "تم قبول طلب الإزالة",
@@ -2112,7 +2109,8 @@
       "student_verification": {
         "approved": "تمت الموافقة على توثيق الطالب",
         "rejected": "لم تتم الموافقة على توثيق الطالب",
-        "revoked": "تم إلغاء توثيق الطالب"
+        "revoked": "تم إلغاء توثيق الطالب",
+        "supplement_required": "يلزم تقديم مستندات إضافية لاستكمال توثيقك كطالب"
       },
       "identity_verification": {
         "approved": "نجح التحقق من الهوية",
@@ -2128,7 +2126,8 @@
       },
       "teacher_verification": {
         "approved": "تمت الموافقة على توثيق المعلّم",
-        "rejected": "لم تتم الموافقة على توثيق المعلّم"
+        "rejected": "لم تتم الموافقة على توثيق المعلّم",
+        "supplement_required": "يلزم تقديم مستندات إضافية لاستكمال توثيقك كمعلّم"
       },
       "system": {
         "notice": "إشعار النظام: {reference_id}",
@@ -2139,6 +2138,25 @@
         "notice": "إشعار النظام",
         "security": "تنبيه أمني",
         "account": "إشعار الحساب"
+      },
+      "appeal": {
+        "approved": "تم قبول اعتراضك",
+        "rejected": "تم رفض اعتراضك"
+      },
+      "group_membership": {
+        "grace_expiring": "ستنتهي فترة السماح لعضويتك في المجموعة قريبًا"
+      },
+      "storage_contribution": {
+        "exit_completed": "اكتمل انسحابك من المساهمة بمساحة التخزين السحابي"
+      },
+      "billing": {
+        "topup_review_required": "يلزم التحقق يدويًا من أحد طلبات شحن الرصيد",
+        "refund_completed": "اكتمل استرداد المبلغ",
+        "refund_rejected": "تم رفض طلبك لاسترداد المبلغ"
+      },
+      "teacher_homepage_request": {
+        "approved": "تم قبول طلب تعديل صفحتك كمعلّم",
+        "rejected": "تم رفض طلب تعديل صفحتك كمعلّم"
       }
     },
     "status": {
@@ -2157,7 +2175,38 @@
     },
     "namedContent": "«{name}»",
     "contentUnavailable": "(محتوى غير متاح)",
-    "contentNameUnavailable": "(الاسم غير متاح حاليًا)"
+    "contentNameUnavailable": "(الاسم غير متاح حاليًا)",
+    "reason": "السبب: {reason}",
+    "reasons": {
+      "duplicate_material": "المادة مكررة",
+      "copyright_claim": "بلاغ بشأن حقوق النشر",
+      "community_guidelines": "مخالفة إرشادات المجتمع",
+      "off_topic": "خارج الموضوع",
+      "privacy_exposure": "كشف معلومات خاصة بالآخرين",
+      "low_quality": "جودة المحتوى غير كافية",
+      "author_request": "بناءً على طلب المؤلف",
+      "insufficient_evidence": "الأدلة غير كافية",
+      "expired_document": "انتهت صلاحية المستند",
+      "unclear_material": "المستندات غير واضحة",
+      "identity_mismatch": "بيانات الهوية غير متطابقة",
+      "ineligible_status": "حالتك الحالية لا تستوفي الشروط",
+      "eligibility_revoked": "تم إلغاء الأهلية",
+      "duplicate_binding": "هذا الربط قائم بالفعل مع حساب آخر",
+      "policy_violation": "مخالفة قواعد المنصة",
+      "payment_channel_rejected": "رفض مزوّد الدفع العملية"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "تلقي إشعارات الردود",
+        "on": "تم تفعيل إشعارات الردود.",
+        "off": "تم إيقاف إشعارات الردود."
+      },
+      "like_enabled": {
+        "label": "تلقي إشعارات الإعجابات",
+        "on": "تم تفعيل إشعارات الإعجابات.",
+        "off": "تم إيقاف إشعارات الإعجابات."
+      }
+    }
   },
   "search": {
     "title": "البحث",
@@ -2595,5 +2644,16 @@
     "declineTitle": "إذا لم توافق",
     "decline": "ستبقى الميزات التي تتطلب حسابًا غير متاحة. يمكنك تسجيل الخروج ومواصلة تصفح الصفحات العامة، أو طلب إغلاق حساب StuHelper.",
     "menu": "مراجعة الشروط"
+  },
+  "legal": {
+    "title": "مستند قانوني",
+    "current": "عرض الإصدار الحالي",
+    "history": "الإصدارات السابقة",
+    "noVersions": "لم تُنشر أي إصدارات بعد.",
+    "unpublished": "لا يوجد حاليًا أي إصدار منشور سارٍ.",
+    "versionLine": "الإصدار {version} · يسري من {date}",
+    "fixed": "سجل الإصدارات · تعرض هذه الصفحة نص هذا الإصدار كما نُشر.",
+    "terms": "شروط الخدمة",
+    "privacy": "سياسة الخصوصية"
   }
 }

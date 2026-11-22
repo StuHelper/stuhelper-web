@@ -46,6 +46,13 @@ const parse = {
   mediaView: schemaOf<MediaVersion>(media, 'VersionView'),
 }
 
+function demoLegalLink(url: string) {
+  const location = globalThis.location
+  return import.meta.env.VITE_DEMO === '1' && location?.protocol === 'http:'
+    && ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+    && url.startsWith(`${location.origin}/legal/`)
+}
+
 // Nginx limits idle periods to 300 s. Allow a longer total time for large files.
 const transferTimeout = 30 * 60_000
 
@@ -141,7 +148,7 @@ export class ResourcesApi {
 
   async capabilities(signal?: AbortSignal) {
     const result = await this.http.json('/api/v1/resources/capabilities', parse.capabilities, { signal })
-    if (!httpsUrl(result.terms.url)) throw new ApiError('incompatible')
+    if (!httpsUrl(result.terms.url) && !demoLegalLink(result.terms.url)) throw new ApiError('incompatible')
     return result
   }
 

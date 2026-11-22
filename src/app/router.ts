@@ -42,6 +42,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/resources/me', redirect: '/me/resources' },
   { path: '/resources/requests', redirect: '/me/requests' },
   { path: '/', component: () => import('../features/portal/PortalView.vue'), meta: { section: 'portal' } },
+  // Published legal documents are public. A fixed version is what a consent record links to.
+  { path: '/legal/:slug', component: () => import('../features/legal/LegalView.vue'), props: (route) => ({ slug: String(route.params.slug) }), meta: { title: 'legal.title' } },
+  { path: '/legal/:slug/versions', component: () => import('../features/legal/LegalView.vue'), props: (route) => ({ slug: String(route.params.slug), history: true }), meta: { title: 'legal.history' } },
+  { path: '/legal/:slug/versions/:version', component: () => import('../features/legal/LegalView.vue'), props: (route) => ({ slug: String(route.params.slug), version: String(route.params.version) }), meta: { title: 'legal.title' } },
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
   { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },

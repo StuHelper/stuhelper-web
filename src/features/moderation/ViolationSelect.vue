@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, useId } from 'vue'
+import { useId } from 'vue'
 import { useI18n } from 'vue-i18n'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { violationCategories, type ViolationCategory } from './categories'
@@ -7,11 +7,11 @@ import { violationCategories, type ViolationCategory } from './categories'
 // The fixed violation categories shared by review reports and resource complaints.
 // The list is long, so AppSelect shows a search box; the chosen category's
 // description is shown below to help pick the right one.
-const props = withDefaults(defineProps<{ disabled?: boolean; exclude?: readonly ViolationCategory[] }>(), { disabled: false, exclude: () => [] })
+withDefaults(defineProps<{ disabled?: boolean }>(), { disabled: false })
 const category = defineModel<ViolationCategory | ''>({ required: true })
 const { t } = useI18n()
 const id = useId()
-const options = computed(() => violationCategories.filter((code) => !props.exclude.includes(code)))
+const options = violationCategories
 </script>
 
 <template>

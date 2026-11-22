@@ -1,0 +1,1653 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "StuHelper legal documents",
+    "version": "0.1.0",
+    "description": "Public, versioned legal documents and the platform administrator's publication workflow."
+  },
+  "paths": {
+    "/api/v1/legal/documents/{slug}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        }
+      ],
+      "get": {
+        "operationId": "getCurrentLegalDocument",
+        "description": "Read the unarchived publication effective by today in Asia/Shanghai, ordered by effective date, publication time, and version descending. Return 404 when no version is in effect.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/legal/documents/{slug}/versions": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        }
+      ],
+      "get": {
+        "operationId": "listPublishedLegalDocumentVersions",
+        "description": "List public versions including archived and future-effective publications. Sort by effective date, then publication time, then version, all descending. An empty history returns an empty items array.",
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicDocumentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/legal/documents/{slug}/versions/{version}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        },
+        {
+          "$ref": "#/components/parameters/Version"
+        }
+      ],
+      "get": {
+        "operationId": "getPublishedLegalDocumentVersion",
+        "description": "Read the immutable publication snapshot for consent evidence or historical display. Published and archived versions remain readable.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/documents": {
+      "get": {
+        "operationId": "listLegalDocuments",
+        "description": "List all managed versions with publication metadata and changed variable keys, sorted by slug ascending then revision descending.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocumentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/documents/{slug}/versions": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        }
+      ],
+      "get": {
+        "operationId": "listManagedLegalDocumentVersions",
+        "description": "List managed versions for this slug, sorted by revision descending.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocumentPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createLegalDocumentDraft",
+        "description": "Create a draft with a new version identifier for this slug.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDraft"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/PayloadTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/documents/{slug}/versions/{version}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        },
+        {
+          "$ref": "#/components/parameters/Version"
+        }
+      ],
+      "get": {
+        "operationId": "getManagedLegalDocumentVersion",
+        "description": "Read the template and, where available, publication snapshot HTML.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateLegalDocumentDraft",
+        "description": "Replace the editable fields on a draft.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ExpectedRevision"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftContent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/PayloadTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteLegalDocumentDraft",
+        "description": "Delete a draft. Published and archived versions retain their content and history.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ExpectedRevision"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/documents/{slug}/versions/{version}/preview": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        },
+        {
+          "$ref": "#/components/parameters/Version"
+        }
+      ],
+      "post": {
+        "operationId": "previewLegalDocumentVersion",
+        "description": "Render with current variables and validate the same body requirements as publication. Send draft fields to preview unsaved edits on a draft or omit the body to preview stored content. Published and archived versions return their frozen rendering when the body is omitted.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DraftContent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Preview"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/PayloadTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/documents/{slug}/versions/{version}/publish": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        },
+        {
+          "$ref": "#/components/parameters/Version"
+        }
+      ],
+      "post": {
+        "operationId": "publishLegalDocumentVersion",
+        "description": "Publish a draft after validating its effective date and rendering. The email-transfer body must display configured variables for the recipient name, address, contact email, processing region, retention, suppression rules and usage data. Store used variable values and the exact rendered HTML and digest in the version.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ExpectedRevision"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/documents/{slug}/versions/{version}/archive": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        },
+        {
+          "$ref": "#/components/parameters/Version"
+        }
+      ],
+      "post": {
+        "operationId": "archiveLegalDocumentVersion",
+        "description": "Archive a published version, removing it from current-version selection while preserving public history.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ExpectedRevision"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminDocument"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/variables": {
+      "get": {
+        "operationId": "listLegalVariables",
+        "description": "List configured variables by key ascending.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariablePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createLegalVariable",
+        "description": "Create a reusable plain-text variable.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVariable"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Variable"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/PayloadTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/legal/variables/{key}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/VariableKey"
+        }
+      ],
+      "get": {
+        "operationId": "getLegalVariable",
+        "description": "Read a configured variable and its latest revision.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Variable"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "put": {
+        "operationId": "updateLegalVariable",
+        "description": "Replace the description and currently configured value. Published snapshots keep their original rendering.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ExpectedRevision"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VariableContent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Variable"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "413": {
+            "$ref": "#/components/responses/PayloadTooLarge"
+          },
+          "415": {
+            "$ref": "#/components/responses/UnsupportedMediaType"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteLegalVariable",
+        "description": "Delete the currently configured value. Versions using it retain their publication snapshots or, for drafts, require resolution before publication.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Csrf"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/ExpectedRevision"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted"
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthenticated"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/legal/documents/{slug}/html": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        }
+      ],
+      "get": {
+        "operationId": "getCurrentLegalDocumentHTML",
+        "description": "Return the exact UTF-8 HTML fragment from the corresponding JSON endpoint as text/html. The SSO documents permit cross-origin reads from the configured Casdoor origin without credentials.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Frozen rendered HTML",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenderedHTML"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    },
+    "/api/v1/legal/documents/{slug}/versions/{version}/html": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/Slug"
+        },
+        {
+          "$ref": "#/components/parameters/Version"
+        }
+      ],
+      "get": {
+        "operationId": "getPublishedLegalDocumentVersionHTML",
+        "description": "Return the exact UTF-8 HTML fragment from the corresponding JSON endpoint as text/html. The SSO documents permit cross-origin reads from the configured Casdoor origin without credentials.",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Frozen rendered HTML",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "$ref": "#/components/schemas/RenderedHTML"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/InvalidInput"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/Unavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "stuhelper_auth_session",
+        "description": "The session must belong to a current platform administrator."
+      }
+    },
+    "parameters": {
+      "Slug": {
+        "name": "slug",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        }
+      },
+      "Version": {
+        "name": "version",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+        }
+      },
+      "VariableKey": {
+        "name": "key",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9_]{0,63}$",
+          "description": "document_version and effective_date are reserved for document-version metadata."
+        }
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      },
+      "Offset": {
+        "name": "offset",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 2147483647,
+          "default": 0
+        }
+      },
+      "Csrf": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "description": "Session CSRF token. Mutations and preview also require an Origin allowed by the session configuration.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "description": "Use one key for each distinct change. Retry with the same key, path, body and revision to retrieve the original result.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._:-]{1,128}$"
+        }
+      },
+      "ExpectedRevision": {
+        "name": "If-Match",
+        "in": "header",
+        "description": "Quoted decimal revision of the stored record, for example \"7\".",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\"[1-9][0-9]{0,18}\"$"
+        }
+      }
+    },
+    "responses": {
+      "InvalidInput": {
+        "description": "invalid_input",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthenticated": {
+        "description": "unauthenticated",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "not_found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "revision_conflict, idempotency_conflict, invalid_status, or already_exists, or capacity_exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PayloadTooLarge": {
+        "description": "payload_too_large",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "UnsupportedMediaType": {
+        "description": "unsupported_media_type",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ValidationFailed": {
+        "description": "validation_failed. See issues for the reason and any associated variable key.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unavailable": {
+        "description": "dependency_unavailable",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "PublicDocumentMetadata": {
+        "type": "object",
+        "required": [
+          "slug",
+          "title",
+          "version",
+          "effective_date",
+          "published_at",
+          "digest"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "description": "Rendered title."
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date in Asia/Shanghai (YYYY-MM-DD)."
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Lowercase SHA-256 of the exact UTF-8 bytes in html, including the rendered title heading."
+          }
+        }
+      },
+      "PublicDocument": {
+        "type": "object",
+        "required": [
+          "slug",
+          "title",
+          "version",
+          "effective_date",
+          "published_at",
+          "digest",
+          "html"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "description": "Rendered title."
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date in Asia/Shanghai (YYYY-MM-DD)."
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Lowercase SHA-256 of the exact UTF-8 bytes in html, including the rendered title heading."
+          },
+          "html": {
+            "$ref": "#/components/schemas/RenderedHTML"
+          }
+        }
+      },
+      "PublicDocumentPage": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicDocumentMetadata"
+            }
+          },
+          "next_offset": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Omitted when this is the last page."
+          }
+        }
+      },
+      "Actor": {
+        "type": "object",
+        "required": [
+          "issuer",
+          "subject"
+        ],
+        "properties": {
+          "issuer": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          }
+        }
+      },
+      "DocumentStatus": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "published",
+          "archived"
+        ]
+      },
+      "AdminDocumentMetadata": {
+        "type": "object",
+        "required": [
+          "slug",
+          "title",
+          "version",
+          "status",
+          "revision",
+          "changed_variables"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Single-line title template, at most 256 UTF-8 bytes."
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Monotonic revision used for optimistic concurrency. Send its quoted decimal value in If-Match."
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date in Asia/Shanghai (YYYY-MM-DD)."
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "published_by": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Lowercase SHA-256 of the exact UTF-8 bytes in html, including the rendered title heading."
+          },
+          "changed_variables": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Key whose current configured value differs from its publication snapshot, including deleted keys."
+            },
+            "description": "Variable changes are reported for published versions. Drafts and archived versions return an empty array."
+          }
+        }
+      },
+      "AdminDocument": {
+        "type": "object",
+        "required": [
+          "slug",
+          "title",
+          "version",
+          "status",
+          "revision",
+          "changed_variables",
+          "markdown"
+        ],
+        "properties": {
+          "slug": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Single-line title template, at most 256 UTF-8 bytes."
+          },
+          "version": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "status": {
+            "$ref": "#/components/schemas/DocumentStatus"
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Monotonic revision used for optimistic concurrency. Send its quoted decimal value in If-Match."
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date in Asia/Shanghai (YYYY-MM-DD)."
+          },
+          "published_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "published_by": {
+            "$ref": "#/components/schemas/Actor"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Lowercase SHA-256 of the exact UTF-8 bytes in html, including the rendered title heading."
+          },
+          "changed_variables": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Key whose current configured value differs from its publication snapshot, including deleted keys."
+            },
+            "description": "Variable changes are reported for published versions. Drafts and archived versions return an empty array."
+          },
+          "markdown": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 131072,
+            "description": "Markdown template, at most 131072 UTF-8 bytes. Use {{key}} for configured variables and {{document_version}} or {{effective_date}} for document metadata. Link destinations support variables as a complete absolute HTTPS URL without credentials or as the complete email address after mailto:."
+          },
+          "html": {
+            "$ref": "#/components/schemas/RenderedHTML"
+          }
+        }
+      },
+      "AdminDocumentPage": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminDocumentMetadata"
+            }
+          },
+          "next_offset": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Omitted when this is the last page."
+          }
+        }
+      },
+      "DraftContent": {
+        "type": "object",
+        "required": [
+          "title",
+          "markdown"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Single-line title template, at most 256 UTF-8 bytes."
+          },
+          "markdown": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 131072,
+            "description": "Markdown template, at most 131072 UTF-8 bytes. Use {{key}} for configured variables and {{document_version}} or {{effective_date}} for document metadata. Link destinations support variables as a complete absolute HTTPS URL without credentials or as the complete email address after mailto:."
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date in Asia/Shanghai (YYYY-MM-DD). Omit or set to null to leave the draft date unset.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateDraft": {
+        "type": "object",
+        "required": [
+          "version",
+          "title",
+          "markdown"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Single-line title template, at most 256 UTF-8 bytes."
+          },
+          "markdown": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 131072,
+            "description": "Markdown template, at most 131072 UTF-8 bytes. Use {{key}} for configured variables and {{document_version}} or {{effective_date}} for document metadata. Link destinations support variables as a complete absolute HTTPS URL without credentials or as the complete email address after mailto:."
+          },
+          "effective_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Calendar date in Asia/Shanghai (YYYY-MM-DD). Omit or set to null to leave the draft date unset.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Preview": {
+        "type": "object",
+        "required": [
+          "title",
+          "html",
+          "digest"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "html": {
+            "$ref": "#/components/schemas/RenderedHTML"
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Lowercase SHA-256 of the exact UTF-8 bytes in html, including the rendered title heading."
+          }
+        }
+      },
+      "Variable": {
+        "type": "object",
+        "required": [
+          "key",
+          "description",
+          "value",
+          "revision",
+          "updated_at",
+          "updated_by"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
+            "description": "document_version and effective_date are reserved for document-version metadata."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Variable description, at most 512 UTF-8 bytes."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096,
+            "description": "Plain-text variable value, at most 4096 UTF-8 bytes. A blank value blocks publication of a version that uses it."
+          },
+          "revision": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "description": "Monotonic revision used for optimistic concurrency. Send its quoted decimal value in If-Match."
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_by": {
+            "$ref": "#/components/schemas/Actor"
+          }
+        }
+      },
+      "VariablePage": {
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variable"
+            }
+          },
+          "next_offset": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0,
+            "description": "Omitted when this is the last page."
+          }
+        }
+      },
+      "CreateVariable": {
+        "type": "object",
+        "required": [
+          "key",
+          "description",
+          "value"
+        ],
+        "properties": {
+          "key": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]{0,63}$",
+            "description": "document_version and effective_date are reserved for document-version metadata."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Variable description, at most 512 UTF-8 bytes."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096,
+            "description": "Plain-text variable value, at most 4096 UTF-8 bytes. A blank value blocks publication of a version that uses it."
+          }
+        },
+        "additionalProperties": false
+      },
+      "VariableContent": {
+        "type": "object",
+        "required": [
+          "description",
+          "value"
+        ],
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "description": "Variable description, at most 512 UTF-8 bytes."
+          },
+          "value": {
+            "type": "string",
+            "minLength": 0,
+            "maxLength": 4096,
+            "description": "Plain-text variable value, at most 4096 UTF-8 bytes. A blank value blocks publication of a version that uses it."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationIssue": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Possible values include required, malformed_variable, undefined_variable, empty_variable, invalid_variable_value, unsupported_variable_context, too_many_variables, raw_html, unsupported_markdown, unsafe_link, and render_size_limit."
+          },
+          "key": {
+            "type": "string"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ValidationIssue"
+            }
+          }
+        }
+      },
+      "RenderedHTML": {
+        "type": "string",
+        "description": "Safe HTML fragment as rendered by the server. Published versions retain these exact bytes."
+      }
+    }
+  }
+}

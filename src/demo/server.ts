@@ -2,6 +2,7 @@ import { distribution, periods as periodStarts, teacherLevels, timetable, trend 
 import * as d from './data'
 import { favoritesRoute } from './favorites'
 import { billingRoute } from './billing'
+import { demoConsentStatus, demoUploadTerms, publicLegalRoute } from './legal'
 import { openPlatformRoute } from './open-platform'
 import { qqRoute } from './qq'
 import { notificationsRoute } from './notifications'
@@ -184,7 +185,10 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p.startsWith('/profiles/me/closure/') && p.endsWith('/cancel') && closure) { closure = { ...closure, state: 'cancelled', revision: closure.revision + 1 }; return json(closure) }
   // 原型为这些可选模块提供了模拟接口，对应页面和入口随之开放。群组和会员没有模拟接口，保持关闭。
   if (p === '/system/capabilities') return json({ api_version: 1, capabilities: ['platform.status', 'favorites.manage', 'billing.wallet', 'billing.resource-unlock', 'notifications.inbox', 'open-platform.data', 'qq-binding.manage', 'search.query'] })
+  const legal = publicLegalRoute(p, method, u.searchParams)
+  if (legal) return legal
   if (who === 'guest' && !p.startsWith('/verification/schools')) return nope('unauthenticated', 401)
+  if (p === '/auth/consent' && method === 'GET') return json(demoConsentStatus(u.origin))
   const favorite = await favoritesRoute(p, method, u, init, who === 'verified')
   if (favorite) return favorite
   const qq = await qqRoute(p, method, init)
@@ -194,7 +198,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const platform = await openPlatformRoute(p, method, init)
   if (platform) return platform
 
-  const notifications = await notificationsRoute(p, method, init)
+  const notifications = await notificationsRoute(p, method, init, u.searchParams)
   if (notifications) return notifications
   const teacher = await teacherRoute(p, method, init)
   if (teacher) return teacher
@@ -303,7 +307,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/moderation/tasks' && method === 'GET') return json(tasks)
   if (p === '/moderation/tasks') { const b = await body(init); const row = { id: nid('tk'), school_id: d.SCHOOL, content_kind: 'review', submission: { evidence: [], ...b }, object_revision: 1, revision: 1, state: 'waiting', created_at: new Date().toISOString(), updated_at: new Date().toISOString() }; tasks.unshift(row); return json(row) }
 
-  if (p === '/resources/capabilities') return json(d.capabilities)
+  if (p === '/resources/capabilities') return json({ ...d.capabilities, terms: demoUploadTerms(u.origin) })
   if (p === '/resources/categories') return json({ items: d.resCategories, next_cursor: '' })
   if (p === '/resources/directories') return json({ items: d.directories.filter((x) => !u.searchParams.get('course_id') || x.course_id === u.searchParams.get('course_id')), next_cursor: '' })
   if (p === '/resources/requests' && method === 'GET') return json({ items: d.receipts, next_cursor: '' })

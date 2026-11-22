@@ -21,7 +21,7 @@
     "test": "vitest run",
     "hooks": "lefthook install",
     "browser": "playwright test",
-    "check": "pnpm run check:session && pnpm run check:verification && pnpm run check:resources && pnpm run check:academic && pnpm run check:i18n && pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build",
+    "check": "pnpm run check:session && pnpm run check:legal && pnpm run check:verification && pnpm run check:resources && pnpm run check:academic && pnpm run check:i18n && pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build",
     "typecheck": "vue-tsc --build",
     "dev": "vite --port 5173",
     "demo": "VITE_DEMO=1 vite --port 5183",
@@ -31,6 +31,7 @@
     "check:verification": "node scripts/check-verification.mjs",
     "check:docs": "stuhelper-check docs",
     "check:session": "node scripts/check-session.mjs",
+    "check:legal": "node scripts/check-legal.mjs",
     "generate:session": "openapi-typescript contracts/session.openapi.json -o src/api/session.gen.ts",
     "browser:demo": "playwright test --config playwright.demo.config.mjs"
   },

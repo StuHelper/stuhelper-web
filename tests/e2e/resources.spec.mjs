@@ -328,21 +328,42 @@ test('a signed-in rights holder can file a complaint when resource details are d
   const state = fixture();
   await routes(page, state);
   await page.route('**/api/v1/resources/items/resource', route => route.fulfill({ status: 403, json: { code: 'resources_permission_denied' } }));
-  const all = JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
-  await page.goto(`http://127.0.0.1:18787/resources/items/resource?lang=${info.project.metadata.locale}`);
+  const { locale } = info.project.metadata;
+  const all = JSON.parse(fs.readFileSync(`src/locales/${locale}.json`, 'utf8'));
+  await page.goto(`http://127.0.0.1:18787/resources/items/resource?lang=${locale}`);
   await page.getByRole('button', { name: all.resources.detail.complain }).click();
-  await page.getByLabel(all.resources.request.reason, { exact: true }).fill('Fixture rights claim');
+  const reason = page.getByLabel(all.resources.request.reason, { exact: true });
+  const submit = page.getByRole('button', { name: all.common.submit, exact: true });
+  await reason.fill('Fixture rights claim');
   await page.getByLabel(all.resources.request.contact, { exact: true }).fill('fixture@example.invalid');
   await page.getByLabel(all.resources.request.evidence, { exact: true }).fill('Fixture ownership evidence');
   // A complaint needs a violation type; the long list is searchable.
-  await expect(page.getByRole('button', { name: all.common.submit, exact: true })).toBeDisabled();
+  await expect(submit).toBeDisabled();
   await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
+  const categories = page.getByRole('option').and(page.locator(':not([data-disabled])'));
+  await expect(categories).toHaveText(Object.values(all.violation.categories).map(({ name }) => name));
   await page.getByRole('textbox', { name: all.common.searchOptions }).fill(all.violation.categories.copyright.name);
   await page.getByRole('option', { name: all.violation.categories.copyright.name, exact: true }).click();
   await expect(page.getByText(all.violation.categories.copyright.hint, { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: all.common.submit, exact: true }).click();
+  const posts = () => state.calls.filter(call => call.path === '/items/resource/requests' && call.method === 'POST');
+  const atLimit = '😀'.repeat(2000);
+  const overLimit = atLimit + '😀';
+  const number = new Intl.NumberFormat(locale);
+  await reason.fill(overLimit);
+  expect((await reason.inputValue()) === overLimit).toBe(true);
+  await expect(reason).toHaveAttribute('aria-invalid', 'true');
+  await expect(reason).toHaveAccessibleDescription(`${number.format(2001)} / ${number.format(2000)}`);
+  await expect(submit).toBeDisabled();
+  await reason.evaluate((field) => field.form.requestSubmit());
+  expect(posts()).toHaveLength(0);
+
+  await reason.fill(atLimit);
+  await expect(reason).toHaveAccessibleDescription(`${number.format(2000)} / ${number.format(2000)}`);
+  await expect(submit).toBeEnabled();
+  await submit.click();
   await expect(page.getByText(all.resources.request.received)).toBeVisible();
-  expect(state.calls.filter(c => c.path === '/items/resource/requests' && c.method === 'POST').map(c => [c.body.kind, c.body.category])).toEqual([['complaint', 'copyright']]);
+  expect(posts().map(call => [call.body.kind, call.body.category])).toEqual([['complaint', 'copyright']]);
+  expect(posts()[0].body.reason === atLimit).toBe(true);
 });
 
 test('an uploader can correct owned metadata using its saved category when category browsing is denied', async ({ page }, info) => {

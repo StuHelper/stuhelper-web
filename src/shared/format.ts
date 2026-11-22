@@ -15,6 +15,11 @@ function instant(value: Date | number | string) {
   if (!Number.isFinite(date.getTime())) throw new RangeError('Invalid instant');
   return date;
 }
+export function parseCalendarDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+  const date = new Date(`${value}T00:00:00Z`);
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value ? date : undefined;
+}
 export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
   // Validate the selected time zone before rendering any temporal field.
   new Intl.DateTimeFormat(locale, { timeZone }).format(0);
@@ -35,9 +40,8 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
     dateTime: (value: Date | number | string, options: Intl.DateTimeFormatOptions = {}) => new Intl.DateTimeFormat(locale, { ...(Object.keys(options).length ? {} : { dateStyle: 'medium' as const, timeStyle: 'short' as const }), calendar: 'gregory', ...options, timeZone }).format(instant(value)),
     dateRange: (start: Date | number | string, end: Date | number | string) => new Intl.DateTimeFormat(locale, { dateStyle: 'medium', calendar: 'gregory', timeZone }).formatRange(instant(start), instant(end)),
     calendarDate(value: string) {
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new RangeError('Calendar dates use YYYY-MM-DD');
-      const date = new Date(`${value}T00:00:00Z`);
-      if (!Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== value) throw new RangeError('Invalid calendar date');
+      const date = parseCalendarDate(value);
+      if (!date) throw new RangeError('Invalid calendar date');
       return new Intl.DateTimeFormat(locale, { dateStyle: 'medium', calendar: 'gregory', timeZone: 'UTC' }).format(date);
     },
     relative: (value: number, unit: Intl.RelativeTimeFormatUnit) => new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(value, unit),

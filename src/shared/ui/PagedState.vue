@@ -13,7 +13,7 @@ import ErrorNotice from './ErrorNotice.vue'
 // `auto` loads the next page when the end of the list comes within about two screens, so
 // scrolling does not stop at a button. A failed page waits for an explicit retry. Without
 // IntersectionObserver the button stays.
-const props = withDefaults(defineProps<{ status: LoadStatus; error: string; count: number; next: string; appending: boolean; emptyText?: string; retryLabel?: string; total?: number; filtered?: boolean; auto?: boolean }>(), { emptyText: '', retryLabel: '', total: undefined, filtered: false, auto: false })
+const props = withDefaults(defineProps<{ status: LoadStatus; error: string; count: number; next: string; appending: boolean; emptyText?: string; retryLabel?: string; notFoundRetryMessage?: string; total?: number; filtered?: boolean; auto?: boolean }>(), { emptyText: '', retryLabel: '', notFoundRetryMessage: '', total: undefined, filtered: false, auto: false })
 const emit = defineEmits<{ retry: []; more: [] }>()
 const { t, n } = useI18n()
 
@@ -43,6 +43,7 @@ watch(() => near.value && !!props.next && !props.appending && props.status === '
     :empty="true"
     :empty-text="emptyText"
     :retry-label="retryLabel"
+    :not-found-retry-message="notFoundRetryMessage"
     @retry="emit('retry')"
   >
     <template #empty>
@@ -76,6 +77,7 @@ watch(() => near.value && !!props.next && !props.appending && props.status === '
       v-if="status === 'error'"
       :code="error"
       :retry-label="retryLabel"
+      :not-found-retry-message="notFoundRetryMessage"
       @retry="emit('more')"
     />
     <div
