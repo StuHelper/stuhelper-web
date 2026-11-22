@@ -89,6 +89,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'member', title: 'me.requests', section: 'me' } },
   { path: '/me/profile', component: () => import('../features/account/ProfileView.vue'), meta: { access: 'member', title: 'profile.title', section: 'me' } },
   { path: '/me/account', component: () => import('../features/account/SecurityView.vue'), meta: { access: 'member', title: 'security.title', section: 'me' } },
+  { path: '/me/privacy', component: () => import('../features/account/PrivacyView.vue'), meta: { access: 'member', title: 'privacy.title', section: 'me' } },
   { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { remountOnPath: true, title: 'verification.identityTitle', section: 'me' } },
   { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.unified.title', section: 'me' } },
   { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },

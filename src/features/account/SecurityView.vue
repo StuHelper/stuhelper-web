@@ -10,7 +10,6 @@ import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import { toast } from '../../shared/ui/toast'
 import { useErrorText } from '../../shared/ui/messages'
 import QqBinding from '../qq/QqBinding.vue'
-import EmailTransferWithdraw from '../verification/EmailTransferWithdraw.vue'
 import { useVerification } from '../verification/api'
 import PhoneManage from './PhoneManage.vue'
 import AccountClosure from './AccountClosure.vue'
@@ -108,8 +107,6 @@ async function signOutAll() {
       :available="capabilities.has(feature.qq)"
       :open="{ connect: capabilities.has(feature.qqConnect), onebot: capabilities.has(feature.qqOnebot), official: capabilities.has(feature.qqOfficial) }"
     />
-
-    <EmailTransferWithdraw />
 
     <section
       class="section"

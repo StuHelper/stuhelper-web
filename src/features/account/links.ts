@@ -1,4 +1,4 @@
-import { AppWindow, BadgeCheck, Bell, Bookmark, CalendarDays, Code2, Coins, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, PencilLine, ShieldCheck, ThumbsUp, UserRound, UserRoundCog, UsersRound } from 'lucide-vue-next'
+import { AppWindow, BadgeCheck, Bell, Bookmark, CalendarDays, Code2, Coins, FileCheck2, FileText, FolderOpen, HardDrive, Inbox, LockKeyhole, PencilLine, ShieldCheck, ThumbsUp, UserRound, UserRoundCog, UsersRound } from 'lucide-vue-next'
 import type { Component } from 'vue'
 import { myCoursesEnabled } from '../../app/features'
 
@@ -39,6 +39,7 @@ export const meLinks: MeLink[] = [
   { to: '/me/developer', label: 'platform.developer.title', icon: Code2, tile: 'var(--c-gray)', group: 'services' },
   { to: '/me/profile', label: 'profile.title', icon: UserRoundCog, tile: 'var(--c-pink)', group: 'account' },
   { to: '/me/account', label: 'security.title', icon: LockKeyhole, tile: 'var(--c-gray)', group: 'account' },
+  { to: '/me/privacy', label: 'privacy.title', icon: FileCheck2, tile: 'var(--c-indigo)', group: 'account', detail: 'me.links.privacy' },
 ]
 
 /** Phone menu sections in display order, with the message key of each heading. */

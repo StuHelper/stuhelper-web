@@ -697,7 +697,8 @@
       "resources": "上传结果、审核状态与更正。",
       "requests": "下架、投诉和异议的处理结果。",
       "storage": "贡献容量和云盘账号。",
-      "courses": "按学期查看课程、教师和上课安排。"
+      "courses": "按学期查看课程、教师和上课安排。",
+      "privacy": "查看同意过的协议和单独授权"
     },
     "profile": {
       "title": "个人资料",
@@ -1325,7 +1326,8 @@
       "acceptedAt": "你在 {time} 同意了学校邮箱验证码的境外投递。",
       "withdraw": "撤回同意",
       "withdrawConfirm": "撤回后，新的投递需要重新同意。撤回前已发起的投递可能继续处理，已发出的验证码沿用原有效期。",
-      "withdrawn": "已撤回境外投递同意。"
+      "withdrawn": "已撤回境外投递同意。",
+      "notAccepted": "你还没有同意境外投递。发送学校邮箱验证码前会单独询问你。"
     }
   },
   "contribution": {
@@ -2655,5 +2657,17 @@
     "declineTitle": "不同意怎么办",
     "decline": "不同意时无法使用需要登录的功能。你可以退出登录继续浏览公开页面，也可以申请注销 StuHelper 账号。",
     "menu": "确认协议"
+  },
+  "privacy": {
+    "title": "隐私与授权",
+    "description": "查看你同意过的协议，管理可单独撤回的授权。",
+    "agreements": "用户协议与隐私政策",
+    "acceptedVersion": "已同意版本 {version}，{time}",
+    "pendingVersion": "版本 {version} 尚未同意",
+    "read": "阅读",
+    "withdrawAgreements": "不再同意用户服务协议或隐私政策时，可以申请注销账号。",
+    "closure": "前往注销账号",
+    "documents": "法律文件",
+    "transferDocument": "个人信息出境告知与同意书"
   }
 }
