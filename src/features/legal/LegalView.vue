@@ -149,6 +149,6 @@ const day = (value: string) => format.value.calendarDate(value)
 .legal-body :deep(ol) { list-style: decimal; }
 .legal-body :deep(pre) { overflow-x: auto; }
 .legal-body :deep(table) { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
-.legal-body :deep(th), .legal-body :deep(td) { padding: .375rem .625rem; border: 1px solid var(--separator); text-align: start; vertical-align: top; }
+.legal-body :deep(th), .legal-body :deep(td) { padding: .375rem .625rem; border: 1px solid var(--separator); text-align: start; vertical-align: top; overflow-wrap: normal; }
 .legal-body :deep(blockquote) { padding-inline-start: 1rem; border-inline-start: 3px solid var(--separator); color: var(--label-2); }
 </style>

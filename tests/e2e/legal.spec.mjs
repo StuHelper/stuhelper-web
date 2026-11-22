@@ -12,7 +12,7 @@ const archived = publishedDocument('terms', '2.0', {
 });
 const privacy = publishedDocument('privacy', '3.0', { body: '<p>本示例介绍个人信息的处理方式。</p>' });
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
-const open = (page, url, info) => page.goto(`${base}${url}?lang=${info.project.metadata.locale}`);
+const open = (page, url, info) => page.goto(new URL(`${url}?lang=${info.project.metadata.locale}`, info.project.use.baseURL ?? base).href);
 const alertAt = (page) => page.getByRole('main').getByRole('alert');
 const problem = (route, status, code) => route.fulfill({ status, json: { code } });
 
@@ -169,6 +169,15 @@ test('legal body and table keep their reading direction and fit the viewport', a
   const last = table.getByRole('columnheader', { name: columns.at(-1), exact: true });
   await expect(first).toBeVisible();
   await expect(first).toHaveCSS('direction', 'rtl');
+  // A narrow table may scroll, but an Arabic word must remain readable on one line.
+  for (const word of [first, table.getByRole('cell', { name: 'بيانات', exact: true }).first()]) {
+    const lines = await word.evaluate((cell) => {
+      const range = document.createRange();
+      range.selectNodeContents(cell);
+      return new Set(Array.from(range.getClientRects(), (rect) => rect.top)).size;
+    });
+    expect(lines).toBe(1);
+  }
   expect((await first.boundingBox()).x).toBeGreaterThan((await last.boundingBox()).x);
   const pageOverflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(await pageOverflow()).toBeLessThanOrEqual(0);
