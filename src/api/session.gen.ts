@@ -631,7 +631,7 @@ export interface components {
             digest: string;
             /**
              * Format: uri
-             * @description Absolute HTTPS URL of the published document.
+             * @description Absolute HTTPS URL of the fixed publication. With the legal publication service, this opens the public Web page at /legal/{slug}/versions/{version}.
              */
             url: string;
             /** @description True when this account still needs to accept this document’s current version and digest. */

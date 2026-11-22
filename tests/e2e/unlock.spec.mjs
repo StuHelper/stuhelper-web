@@ -5,7 +5,7 @@ import { fixture, routes } from './resource-fixture.mjs';
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
 const fill = (text, values) => Object.entries(values).reduce((out, [key, value]) => out.replaceAll(`{${key}}`, value), text);
-const wallet = { points: 120, ivory_minor: 500, frozen_ivory_minor: 0, debt_points: 0, frozen: false };
+const wallet = { points: 120, permanent_points: 120, expiring_points: 0, expiring_soon_points: 0, ivory_minor: 500, frozen_ivory_minor: 0, debt_points: 0, frozen: false };
 const order = (state, extra = {}) => ({ id: 'order-1', kind: 'resource_unlock', state, amount_minor: 0, points: 80, reference: '', channel: '', reason: '', created_at: '2026-11-10T00:00:00Z', allocations: [], original_points: 80, original_amount_minor: 0, receipt_reference: '', failure_code: '', account: 'points', resource_id: 'resource', ...extra });
 
 // A restricted resource the member can buy, and a billing server following billing 0.3.0.
@@ -59,7 +59,7 @@ test('a resource that cannot be delivered after payment reports the refund, not 
 });
 
 test('an insufficient balance names the missing amount and links to the wallet', async ({ page }, info) => {
-  const { all } = await setup(page, info, { unlockStatus: 409, unlockCode: 'billing_insufficient_funds', wallet: { ...wallet, points: 50 } });
+  const { all } = await setup(page, info, { unlockStatus: 409, unlockCode: 'billing_insufficient_funds', wallet: { ...wallet, points: 50, permanent_points: 50 } });
   const u = all.resources.unlock;
   await page.getByRole('button', { name: new RegExp(u.buy.replace('{price}', '.+')) }).click();
   await page.getByRole('dialog').getByRole('button', { name: all.common.confirm, exact: true }).click();

@@ -222,7 +222,7 @@ test('lapsed campus eligibility keeps personal center pages accessible while gat
   await page.route('**/api/v1/favorites/folders**', (route) => route.fulfill({ json: { items: [{ id: 'default', name: '', is_default: true, item_count: 0, kind_counts: { course: 0, teacher: 0, resource: 0 }, revision: 1 }], next: '' } }));
   await page.route('**/api/v1/favorites/items**', (route) => route.fulfill({ json: { items: [], next: '' } }));
   await page.route('**/api/v1/search/my-votes**', (route) => route.fulfill({ json: { items: [], next_cursor: '' } }));
-  await page.route('**/api/v1/billing/wallet', (route) => route.fulfill({ json: { points: 0, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } }));
+  await page.route('**/api/v1/billing/wallet', (route) => route.fulfill({ json: { points: 0, permanent_points: 0, expiring_points: 0, expiring_soon_points: 0, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } }));
   await page.route('**/api/v1/notifications**', (route) => route.fulfill({ json: { items: [], next_cursor: '', unread_count: 0 } }));
   await page.route('**/api/v1/auth/sessions', (route) => route.fulfill({ json: { items: [] } }));
 
@@ -253,7 +253,7 @@ test('compare view handles missing catalog names and wallet orders render non-su
 
   await page.route('**/api/v1/billing/**', (route) => {
     const path = new URL(route.request().url()).pathname.replace('/api/v1/billing', '');
-    if (path === '/wallet') return route.fulfill({ json: { points: 50, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } });
+    if (path === '/wallet') return route.fulfill({ json: { points: 50, permanent_points: 50, expiring_points: 0, expiring_soon_points: 0, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } });
     if (path === '/lots' || path === '/ledger') return route.fulfill({ json: { items: [], next: '' } });
     if (path === '/channels' || path === '/offers') return route.fulfill({ json: { items: [] } });
     if (path === '/orders') {

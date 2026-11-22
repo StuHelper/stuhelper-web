@@ -3523,7 +3523,7 @@
             "type": "string",
             "format": "uri",
             "maxLength": 2048,
-            "description": "Absolute HTTPS URL of the published document."
+            "description": "Absolute HTTPS URL of the fixed publication. With the legal publication service, this opens the public Web page at /legal/{slug}/versions/{version}."
           },
           "required": {
             "type": "boolean",
