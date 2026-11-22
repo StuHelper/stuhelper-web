@@ -1,9 +1,11 @@
-import { ApiError, serverCode } from './errors'
+import { ApiError, retryAtOf, serverCode } from './errors'
 import type { Validator } from './schema'
 import { sessionFetch } from './transport'
 
 export type QueryValue = string | number | boolean | undefined | null
-export type Query = Record<string, QueryValue>
+// A list is sent as one parameter whose items are each percent-encoded and joined with a
+// literal comma, so a comma inside an item stays distinguishable from the separator.
+export type Query = Record<string, QueryValue | readonly string[]>
 
 export interface RequestOptions {
   method?: string
@@ -36,10 +38,12 @@ const errorLimit = 64 * 1024
 const readMethods = new Set(['GET', 'HEAD'])
 
 export function queryString(values: Query = {}) {
-  const entries = Object.entries(values)
-    .filter((entry): entry is [string, string | number | boolean] => entry[1] !== undefined && entry[1] !== null && entry[1] !== '')
-    .map(([key, value]) => [key, String(value)])
-  return entries.length ? `?${new URLSearchParams(entries).toString()}` : ''
+  const parts = Object.entries(values).flatMap(([key, value]) => {
+    if (value === undefined || value === null || value === '') return []
+    if (Array.isArray(value)) return value.length ? [`${encodeURIComponent(key)}=${value.map((item: string) => encodeURIComponent(item)).join(',')}`] : []
+    return [new URLSearchParams([[key, String(value)]]).toString()]
+  })
+  return parts.length ? `?${parts.join('&')}` : ''
 }
 
 export const segment = (value: string) => encodeURIComponent(value)
@@ -144,7 +148,7 @@ export class Http {
     if (response.status === 503) this.options.onUnavailable?.();
     if (response.status === 401 || response.status === 403) this.options.onDenied?.(response.status)
     // A gateway or server failure without a recorded operation leaves a write's outcome unknown.
-    throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation, response.status === 429 ? retryAfter(problem, response.headers.get('Retry-After')) : undefined)
+    throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation, response.status === 429 ? retryAfter(problem, response.headers.get('Retry-After')) : undefined, response.status === 409 ? retryAtOf(problem) : undefined)
   }
 
   /** Send a request and validate the JSON response against the contract. */

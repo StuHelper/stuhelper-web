@@ -18,6 +18,12 @@
     "README.md"
   ],
   "scenario_tests": {
+    "I18N-04": [
+      "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date"
+    ],
+    "I18N-06": [
+      "tests/e2e/legal.spec.mjs#legal body and table keep their reading direction and fit the viewport"
+    ],
     "AE-ACCESS-05": [
       "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote",
       "tests/e2e/search.spec.mjs#a member without campus access withdraws a selected review vote on the personal votes page"
@@ -141,6 +147,25 @@
       "src/shared/session.test.ts#does not restore a session when an in-flight check completes after a 401",
       "src/shared/session.test.ts#forgets saved return filters and unread counts when the current session ends"
     ],
+    "SV-EMAIL-TRANSFER-01": [
+      "src/features/verification/flow.test.ts#requires this application to affirm the notice before first send and omits the choice on resend",
+      "src/features/verification/flow.test.ts#asks for the replacement publication after a conflict and does not reuse a concurrent click",
+      "src/features/verification/flow.test.ts#discards the stale choice when refreshing the publication also fails",
+      "src/features/verification/flow.test.ts#retries an unavailable publication without losing the entered identity or sending a code",
+      "tests/e2e/email-transfer-consent.spec.mjs#outbound email waits for explicit consent and sends the versioned document reference",
+      "tests/e2e/email-transfer-consent.spec.mjs#a changed publication shows its update and waits for consent to the new version",
+      "tests/e2e/email-transfer-consent.spec.mjs#an unavailable transfer check offers retry and a return to other methods",
+      "tests/e2e/email-transfer-consent.spec.mjs#inbound school email creates its proof without requesting outbound consent"
+    ],
+    "SV-EMAIL-TRANSFER-02": [
+      "src/features/verification/flow.test.ts#requires a fresh affirmative choice for another student number or application",
+      "src/features/verification/flow.test.ts#asks again when resend requires consent and keeps the existing delivered code",
+      "tests/e2e/email-transfer-consent.spec.mjs#resend reuses consent for the same recipient and asks again for a changed student ID",
+      "tests/e2e/email-transfer-consent.spec.mjs#a revoked receipt makes resend ask again and keeps the already sent code usable",
+      "tests/e2e/email-transfer-consent.spec.mjs#the privacy page withdraws consent only after confirmation and refreshes the status",
+      "src/features/verification/email-transfer-withdraw.test.ts#lets the account reload its withdrawal status after the document source recovers",
+      "tests/e2e/email-transfer-consent.spec.mjs#the consent gate lets a member withdraw without accepting the main agreements"
+    ],
     "VERIFICATION-UX-01": [
       "tests/e2e/verification-ux.spec.mjs#verification dropdowns have zero layout displacement when opened and closed",
       "tests/e2e/verification-ux.spec.mjs#shared selects keep scroll locking by default outside verification",
@@ -204,7 +229,24 @@
       "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters",
       "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write"
     ],
+    "NT-01": [
+      "tests/e2e/notifications.spec.mjs#notifications show localized reasons and open a comment’s root review",
+      "tests/e2e/notifications.spec.mjs#reply and like preferences are saved independently",
+      "tests/e2e/notifications.spec.mjs#a rejected preference change restores the saved switch state"
+    ],
+    "NT-02": [
+      "tests/e2e/notifications.spec.mjs#a box loads its own pages and marks only that box as read",
+      "tests/e2e/notifications.spec.mjs#a late mark-all response keeps the new box unread",
+      "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center"
+    ],
+    "NT-07": [
+      "src/features/notifications/title.test.ts#withholds context IDs and reason codes from title interpolation",
+      "src/features/notifications/title.test.ts#localizes a known reason code",
+      "src/features/notifications/title.test.ts#shows no reason when the code is unknown or missing"
+    ],
     "NOTIFY-BELL-01": [
+      "tests/e2e/notifications.spec.mjs#opening a comment updates the bell before the unread count returns",
+      "tests/e2e/notifications.spec.mjs#opening a comment uses the known bell count while the first inbox summary is pending",
       "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center",
       "tests/e2e/notifications.spec.mjs#a failed unread count leaves the bell without a number and breaks nothing",
       "src/features/notifications/unread.test.ts#shares one request, reuses a fresh count and reads again when forced or stale",
@@ -246,7 +288,10 @@
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
     ],
     "ST-01": [
-      "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte"
+      "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte",
+      "tests/e2e/contributions.spec.mjs#the owner sees the drive total, used and remaining space, and an unreadable drive says why",
+      "tests/e2e/contributions.spec.mjs#the contribution form shows the drive space and stops a quota above what is left",
+      "tests/e2e/contributions.spec.mjs#a quota the server finds above the drive space names that reason and can be read again"
     ],
     "DS-01": [
       "tests/e2e/search.spec.mjs#expired popular ranking stays on screen until the reader refreshes"
@@ -266,7 +311,62 @@
     ],
     "QQB-02": [
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
-      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained"
+      "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
+      "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
+    ],
+    "ACAD-41": [
+      "src/shared/api/http.test.ts#keeps a well-formed server reopening time on a 409 and drops malformed ones",
+      "tests/e2e/academic.spec.mjs#a follow-up attempted inside the five-minute window explains when it opens",
+      "tests/e2e/academic.spec.mjs#a mentor comment does not wait for the course follow-up window"
+    ],
+    "CM-22": [
+      "tests/e2e/academic.spec.mjs#reporting a review needs a violation type and sends it with the report",
+      "tests/e2e/resources.spec.mjs#a signed-in rights holder can file a complaint when resource details are denied"
+    ],
+    "CAT-TEACHER-04": [
+      "tests/e2e/teacher-homepage.spec.mjs#the teacher page shows plain-text homepage details and a session-loaded photo",
+      "tests/e2e/teacher-homepage.spec.mjs#a teacher page with no visible profile leaves out the homepage panel for a reader",
+      "tests/e2e/teacher-homepage.spec.mjs#a reader can retry a homepage error and a failed photo leaves the profile readable"
+    ],
+    "CAT-TEACHER-10": [
+      "tests/e2e/teacher-homepage.spec.mjs#a teacher with an active credential for the profile can manage the homepage",
+      "tests/e2e/teacher-homepage.spec.mjs#teacher verification links each active profile to its own homepage management page",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a teacher submits fixed text and can then request to hide the whole homepage",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a general field requires an item name and accepts up to 160 Unicode code points",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a teacher supplies the section title with the proposed text",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a supervisor request sends all selected roles or an explicit empty list",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a photo request rejects the wrong type and size and submits the original PNG bytes",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#a conflict or rate limit explains the rejection and preserves the teacher’s draft",
+      "tests/e2e/teacher-homepage-navigation.spec.mjs#switching teacher records clears drafts and unknown submissions from the previous teacher",
+      "tests/e2e/teacher-homepage-navigation.spec.mjs#photo preparation locks the form and drops the unsent request when switching teachers",
+      "tests/e2e/teacher-homepage-navigation.spec.mjs#a local photo read failure leaves the form ready to retry without sending a partial request"
+    ],
+    "CM-24": [
+      "tests/e2e/teacher-homepage.spec.mjs#a non-owner can report a homepage with a category and up to 2000 code points"
+    ],
+    "CAT-TEACHER-11": [
+      "src/features/notifications/api.test.ts#opens the teacher homepage receipt with the encoded target ID",
+      "tests/e2e/notifications.spec.mjs#an approved teacher homepage notification opens the teacher’s own request receipt",
+      "tests/e2e/teacher-homepage-requests.spec.mjs#request history opens pending, approved and rejected receipts and handles an expired receipt"
+    ],
+    "CAT-TEACHER-14": [
+      "tests/e2e/teacher-homepage-media.spec.mjs#a copied homepage image is read only when it enters the viewport and displays as a Blob",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an unavailable image response leaves a localized placeholder without refreshing the homepage",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an undecodable image response leaves a localized placeholder without refreshing the homepage",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an image HTTP 403 refreshes the homepage once and uses the replacement address",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an image HTTP 404 refreshes the homepage once and uses the replacement address",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an expired media link is signed again and the browser displays the animated GIF",
+      "tests/e2e/teacher-homepage-media.spec.mjs#source links stay in their biography, research and section groups and open privately",
+      "tests/e2e/teacher-homepage-media.spec.mjs#a teacher page displays named and untitled media-only sections without a profile response",
+      "tests/e2e/teacher-homepage-media.spec.mjs#a failed homepage media list leaves the teacher profile and reviews usable"
+    ],
+    "CAT-TEACHER-15": [
+      "src/features/academic/teacherHomepage.test.ts#reads copied images with the session, follows signed redirects and enforces the 20 MiB stream limit"
+    ],
+    "SSO-CONSENT-04": [
+      "tests/e2e/consent.spec.mjs#the personal center opens consent records, legal documents and account closure",
+      "tests/e2e/consent.spec.mjs#a failed agreement lookup retries and shows a newly pending version",
+      "tests/e2e/email-transfer-consent.spec.mjs#the consent gate lets a member withdraw without accepting the main agreements"
     ]
   }
 }

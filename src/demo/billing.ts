@@ -5,7 +5,7 @@ import * as d from './data'
 // seconds later. A refund waits for review and then asks for payout details.
 type Asset = 'points' | 'ivory'
 type Entry = { id: string; asset: Asset; kind: string; amount: number; reference: string; created_at: string }
-type Lot = { id: string; asset: Asset; original: number; remaining: number; held: number; expired: number; consumed: number; expires_at?: string; created_at: string }
+type Lot = { id: string; asset: Asset; original: number; remaining: number; held: number; expired: number; consumed: number; expires_at: string; created_at: string }
 type Order = {
   id: string; kind: 'topup' | 'purchase' | 'refund' | 'purchase_refund'; state: string; amount_minor: number; points: number; reference: string; channel: string; reason: string; created_at: string
   allocations: never[]; original_points: number; original_amount_minor: number; receipt_reference: string; failure_code: string; payment_instruction?: { type: 'qr_code' | 'redirect'; content: string; expires_at: string }
@@ -58,7 +58,20 @@ const page = <T>(rows: T[]) => json({ items: rows, next: '' })
 export async function billingRoute(p: string, method: string, u: URL, init: RequestInit | undefined): Promise<Response | undefined> {
   if (!p.startsWith('/billing/')) return undefined
   if (method === 'GET') {
-    if (p === '/billing/wallet') return json(wallet)
+    if (p === '/billing/wallet') {
+      const now = Date.now()
+      const active = lots.filter((lot) => Date.parse(lot.expires_at) > now && lot.remaining > 0)
+      const expiring = active.reduce((total, lot) => total + lot.remaining, 0)
+      const soon = active.filter((lot) => Date.parse(lot.expires_at) <= now + 7 * 864e5)
+      return json({
+        ...wallet,
+        points: expiring,
+        permanent_points: 0,
+        expiring_points: expiring,
+        expiring_soon_points: soon.reduce((total, lot) => total + lot.remaining, 0),
+        nearest_expires_at: active.map((lot) => lot.expires_at).sort()[0],
+      })
+    }
     if (p === '/billing/ledger') return page(entries)
     if (p === '/billing/lots') return page(lots.filter((lot) => lot.asset === (u.searchParams.get('asset') ?? lot.asset) && lot.remaining > 0))
     if (p === '/billing/orders') return page(orders)

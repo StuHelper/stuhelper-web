@@ -134,7 +134,12 @@
     "phone_binding_changed": "番号がほかの場所で変更されました。最新の状態を表示しています。もう一度操作してください。",
     "phone_change_in_progress": "前回の変更を処理中です。少し待ってから元のリクエストを再試行してください。",
     "phone_write_unconfirmed": "変更結果を確認できませんでした。元のリクエストを再試行して確認してください。",
-    "phone_rate_limited": "コードの送信回数が多すぎます。しばらくしてから再試行してください。"
+    "phone_rate_limited": "コードの送信回数が多すぎます。しばらくしてから再試行してください。",
+    "append_window_not_open": "追記は初回公開の 5 分後から可能です。しばらくしてからお試しください。",
+    "consent_required": "先に最新の利用規約とプライバシーポリシーに同意してください。",
+    "consent_version_changed": "文書が更新されました。もう一度同意してください。",
+    "email_transfer_consent_required": "学校メールへの確認コードの送信前に、国外配信への同意が必要です。",
+    "email_transfer_consent_changed": "個人情報の国外移転に関する通知が更新されました。改めて確認してください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -641,7 +646,8 @@
       "course_enrollment": "マイ授業を見る"
     },
     "followUp": "追記",
-    "submitFollowUp": "追記を送信"
+    "submitFollowUp": "追記を送信",
+    "followUpOpensAt": "追記は初回公開の 5 分後から可能です。{time} 以降にもう一度お試しください。"
   },
   "me": {
     "title": "マイページ",
@@ -691,7 +697,8 @@
       "resources": "アップロード結果、審査状況、修正。",
       "requests": "取り下げ・苦情・異議の結果。",
       "storage": "提供容量とクラウドアカウント。",
-      "courses": "学期ごとの授業、教員、時間割。"
+      "courses": "学期ごとの授業、教員、時間割。",
+      "privacy": "同意した規約と個別の同意"
     },
     "profile": {
       "title": "プロフィール",
@@ -855,7 +862,7 @@
       "unknownHint": "出典が不明なら作らずに、後で補足できます。",
       "author": "著者（任意）",
       "license": "ライセンスの説明（任意）",
-      "consentNotice": "許諾権限のあるオリジナル内容について、商用利用、再許諾、継続的な許諾に同意します。提出前に全文を確認してください。",
+      "consentNotice": "許諾権限のあるオリジナル内容について、全世界・無償・非独占・譲渡可能・再許諾可能なライセンスを本サービスに付与します。商用利用を含み、期間は法定保護期間全体で、撤回・非公開・退会後も有効です。送信前に全文をお読みください。",
       "terms": "規約全文",
       "accept": "現在の規約を読み、同意します"
     },
@@ -1195,7 +1202,6 @@
     "continueNext": "続行",
     "returnHint": "認証が有効になると、開こうとしたページに自動で戻ります。",
     "identityTitle": "本人確認",
-    "identityDescription": "本人確認は学生認証とは別のもので、本人であることの確認が必要な操作に使います。",
     "identityName": "氏名",
     "identityNumber": "証明書番号",
     "schoolSearch": "学校コード、名称、別名で検索",
@@ -1281,6 +1287,47 @@
     "documentType": "証明書の種類",
     "documentTypes": {
       "cn_resident_id_card": "中国居民身分証"
+    },
+    "transfer": {
+      "title": "学校メールへの確認コードの国外配信",
+      "intro": "学校メールへ確認コードを送信する前に、以下の情報を中国国外のメール配信事業者に提供することに同意するかを個別に選択してください。",
+      "changed": "個人情報の国外移転に関する通知が更新されました。新版を読み、改めて選択してください。",
+      "facts": {
+        "recipient": {
+          "label": "提供先",
+          "text": "Plus Five Five, Inc.（メール配信サービス Resend）"
+        },
+        "data": {
+          "label": "提供する情報",
+          "text": "学校メールアドレス（学籍番号を含む場合があります）、件名、確認コードと有効期限を記載した本文、配信に必要な識別情報。"
+        },
+        "purpose": {
+          "label": "利用目的",
+          "text": "今回の確認コードの配信、不達メールや苦情、配信障害への対応、配信結果や調査に必要なログの提供。"
+        },
+        "place": {
+          "label": "処理・保存場所",
+          "text": "主に米国で処理・保存します。送信ドメインの公開されている不達メールの返送先は日本の東京です。"
+        },
+        "period": {
+          "label": "保存期間",
+          "text": "メール本文、配信ログ、バックアップ、送信除外リストの記録の保存期間と削除ルールは、下記の通知書をご覧ください。"
+        },
+        "rights": {
+          "label": "あなたの権利",
+          "text": "「プライバシーと同意」からいつでも同意を撤回できます。開示、写しの交付、訂正、削除は通知書に記載の窓口へ請求できます。"
+        }
+      },
+      "read": "個人情報の国外移転に関する通知・同意書を読む（バージョン {version}）",
+      "other": "前の画面に戻り、学校が提供している認証方法のうち、利用条件を満たす別の方法を選ぶこともできます。",
+      "agree": "国外配信に同意してコードを送信",
+      "back": "戻って別の方法を選ぶ",
+      "accepted": "学校メールへの確認コードの国外配信に同意済みです。",
+      "acceptedAt": "{time} に学校メールへの確認コードの国外配信に同意しました。",
+      "withdraw": "同意を撤回",
+      "withdrawConfirm": "撤回後、新たに配信するには再度同意が必要です。撤回前に開始された配信は続く場合があり、送信済みのコードには元の有効期限が適用されます。",
+      "withdrawn": "国外配信への同意を撤回しました。",
+      "notAccepted": "国外からの配信にはまだ同意していません。学校のメールアドレスに確認コードを送信する前に、同意を求めます。"
     }
   },
   "contribution": {
@@ -1353,14 +1400,35 @@
       "binding_unavailable": "このアカウントは利用できません。管理者が対応します。",
       "cleanup_unconfirmed": "まだ移行していないファイルがあります。",
       "storage_writes_disabled": "新規ファイルの受け入れを停止しています。",
-      "capacity_unknown": "容量を読み取れません。",
-      "exit_overdue": "終了目標日時を過ぎていますが、移行は処理中です。"
+      "capacity_unknown": "ドライブ容量はまだ読み取られていません。",
+      "exit_overdue": "終了目標日時を過ぎていますが、移行は処理中です。",
+      "capacity_read_failed": "ドライブ容量の読み取りに失敗しました。自動的に再試行します。",
+      "capacity_expired": "ドライブ容量のデータが古くなりました。自動的に更新します。"
     },
     "displayLabel": "メモ名（任意）",
     "displayLabelHint": "例：メインのドライブ",
     "displayLabelTooLong": "メモ名は 32 文字までです。",
     "reviewLabel": "メモ名：",
-    "reviewLabelCleared": "メモ名を削除します。"
+    "reviewLabelCleared": "メモ名を削除します。",
+    "provider": {
+      "title": "ドライブ容量",
+      "total": "ドライブ合計",
+      "used": "ドライブ使用済み",
+      "remaining": "ドライブ残り",
+      "max": "最大 {max} まで提供できます",
+      "over": "上限を超えています（最大 {max}）",
+      "unavailable": "ドライブ容量を読み取れないため、まだ送信できません。",
+      "status": {
+        "not_read": "ドライブ容量はまだ読み取られていません。",
+        "read_failed": "ドライブ容量の読み取りに失敗しました。自動的に再試行します。",
+        "expired": "ドライブ容量のデータが古くなりました。自動的に更新します。"
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "共有容量がドライブの残り容量を超えています。減らしてからもう一度お試しください。",
+        "provider_capacity_unavailable": "現在ドライブ容量を確認できません。しばらくしてからお試しください。"
+      }
+    },
+    "neverObserved": "容量はまだ読み取られていません"
   },
   "custody": {
     "disabled": "ストレージアカウントの管理機能は有効になっていません。",
@@ -1605,7 +1673,7 @@
     "verify": "確認する",
     "devices": "ログイン中の端末",
     "signOutAll": "すべての端末からログアウト",
-    "signOutAllHint": "この端末を含むすべての端末で StuHelper からログアウトします。",
+    "signOutAllHint": "すべてのデバイスで StuHelper からログアウトします。",
     "signOutAllConfirm": "すべての端末の StuHelper ログインが無効になり、再ログインが必要になります。",
     "closure": {
       "title": "アカウントの削除",
@@ -2011,14 +2079,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "未読 {count} 件以上",
     "title": "メッセージ",
     "link": "メッセージ",
     "description": "反応、審査結果、認証結果、システム通知をまとめています。",
     "unread": "未読の通知：{count}",
-    "interaction": "反応の通知を受け取る（返信、いいね）",
-    "interactionOn": "反応の通知をオンにしました。",
-    "interactionOff": "反応の通知をオフにしました。",
     "always": "処理結果、セキュリティ、アカウントの通知は常に届きます。",
     "readAll": "すべて既読にする",
     "allRead": "すべて既読にしました。",
@@ -2033,7 +2097,8 @@
       "content": {
         "approved": "コンテンツ {content_id} が承認されました",
         "rejected": "コンテンツ {content_id} は承認されませんでした",
-        "removed": "コンテンツ {content_id} が非公開になりました"
+        "removed": "コンテンツ {content_id} が非公開になりました",
+        "draft_expiring": "下書き {content_id} の有効期限が近づいています"
       },
       "resource_removal": {
         "approved": "資料の削除申請が承認されました",
@@ -2046,7 +2111,8 @@
       "student_verification": {
         "approved": "学生認証の申請が承認されました",
         "rejected": "学生認証の申請は承認されませんでした",
-        "revoked": "学生認証が取り消されました"
+        "revoked": "学生認証が取り消されました",
+        "supplement_required": "学生認証の申請には追加資料が必要です"
       },
       "identity_verification": {
         "approved": "本人確認が完了しました",
@@ -2062,7 +2128,8 @@
       },
       "teacher_verification": {
         "approved": "教員認証の申請が承認されました",
-        "rejected": "教員認証の申請は承認されませんでした"
+        "rejected": "教員認証の申請は承認されませんでした",
+        "supplement_required": "教員認証の申請には追加資料が必要です"
       },
       "system": {
         "notice": "システムからのお知らせ：{reference_id}",
@@ -2073,6 +2140,25 @@
         "notice": "システムからのお知らせ",
         "security": "セキュリティのお知らせ",
         "account": "アカウントのお知らせ"
+      },
+      "appeal": {
+        "approved": "異議申立てが認められました",
+        "rejected": "異議申立ては認められませんでした"
+      },
+      "group_membership": {
+        "grace_expiring": "グループのメンバー資格の猶予期間がまもなく終了します"
+      },
+      "storage_contribution": {
+        "exit_completed": "クラウドストレージ容量の提供が終了しました"
+      },
+      "billing": {
+        "topup_review_required": "チャージ注文は担当者による確認が必要です",
+        "refund_completed": "返金が完了しました",
+        "refund_rejected": "返金申請は承認されませんでした"
+      },
+      "teacher_homepage_request": {
+        "approved": "教員ページの変更申請が承認されました",
+        "rejected": "教員ページの変更申請は承認されませんでした"
       }
     },
     "status": {
@@ -2091,7 +2177,38 @@
     },
     "namedContent": "「{name}」",
     "contentUnavailable": "（利用できない内容）",
-    "contentNameUnavailable": "（名前を取得できません）"
+    "contentNameUnavailable": "（名前を取得できません）",
+    "reason": "理由：{reason}",
+    "reasons": {
+      "duplicate_material": "既存の資料と重複しています",
+      "copyright_claim": "著作権に関する申し立てがありました",
+      "community_guidelines": "コミュニティガイドラインに違反しています",
+      "off_topic": "テーマに沿っていません",
+      "privacy_exposure": "他の人のプライバシーに関わる情報が含まれています",
+      "low_quality": "コンテンツの品質が基準を満たしていません",
+      "author_request": "投稿者本人からの依頼がありました",
+      "insufficient_evidence": "証拠が不足しています",
+      "expired_document": "提出書類の有効期限が切れています",
+      "unclear_material": "提出資料が不鮮明です",
+      "identity_mismatch": "本人確認情報が一致しません",
+      "ineligible_status": "現在の資格では条件を満たしていません",
+      "eligibility_revoked": "資格が取り消されています",
+      "duplicate_binding": "すでに別のアカウントに連携されています",
+      "policy_violation": "プラットフォームの規則に違反しています",
+      "payment_channel_rejected": "決済サービスがこの操作を拒否しました"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "返信の通知を受け取る",
+        "on": "返信の通知をオンにしました。",
+        "off": "返信の通知をオフにしました。"
+      },
+      "like_enabled": {
+        "label": "いいねの通知を受け取る",
+        "on": "いいねの通知をオンにしました。",
+        "off": "いいねの通知をオフにしました。"
+      }
+    }
   },
   "search": {
     "title": "検索",
@@ -2122,7 +2239,8 @@
       "courses": "人気の授業",
       "teachers": "人気の教員",
       "kind": "ランキングの種類",
-      "empty": "ランキングを作るためのデータがまだ足りません。"
+      "empty": "ランキングを作るためのデータがまだ足りません。",
+      "descriptionDays": "直近 {days} 日（北京時間、今日を含む）の閲覧、評価、お気に入り、交流で並べています。注目度を示すもので、評価はそれぞれの評点をご覧ください。"
     },
     "votes": {
       "title": "自分の投票",
@@ -2373,7 +2491,8 @@
     "viewDetails": "詳細を見る",
     "groupDisplay": "学院ごとの表示",
     "expandAllGroups": "すべて展開",
-    "collapseAllGroups": "すべて折りたたむ"
+    "collapseAllGroups": "すべて折りたたむ",
+    "hottestDays": "人気順（直近 {days} 日）"
   },
   "tags": {
     "placeholder": "タグを入力して Enter",
@@ -2390,10 +2509,8 @@
     "unbindLabel": "電話番号の連携を解除",
     "bindTitle": "電話番号を登録",
     "changeTitle": "電話番号を変更",
-    "hint": "確認コードは新しい番号に送信されます。変更後は、ログインとパスワード再設定に新しい番号を使います。",
     "newNumber": "新しい電話番号",
     "numberPlaceholder": "11 桁の中国本土の携帯番号",
-    "numberFormat": "11 桁の中国本土の携帯番号を入力してください（+86 は省略可）。",
     "sendCode": "コードを送信",
     "resend": "再送信",
     "resendIn": "{seconds} 秒後に再送信できます",
@@ -2404,5 +2521,247 @@
     "unbound": "電話番号の連携を解除しました",
     "unbindTitle": "電話番号の連携を解除",
     "unbindWarning": "解除後は、この番号でログインやパスワード再設定ができなくなります。"
+  },
+  "violation": {
+    "label": "違反の種類",
+    "search": "違反の種類を検索",
+    "required": "違反の種類を選んでください。",
+    "categories": {
+      "illegal_content": {
+        "name": "違法・違反",
+        "hint": "国家の安全を害する、政権転覆の扇動、テロ、過激主義などの違法情報"
+      },
+      "pornography": {
+        "name": "わいせつ・低俗",
+        "hint": "わいせつ、性的な示唆、低俗な内容"
+      },
+      "gambling_drugs": {
+        "name": "賭博・薬物・禁制品",
+        "hint": "賭博、薬物、規制品や禁制品の取引"
+      },
+      "fraud": {
+        "name": "詐欺・フィッシング",
+        "hint": "詐欺、フィッシングリンク、偽の副業、アカウントや金銭の詐取"
+      },
+      "violence_threat": {
+        "name": "暴力・脅迫",
+        "hint": "暴力の宣伝、身の安全への脅迫、自傷や自殺の誘導"
+      },
+      "minors_harm": {
+        "name": "未成年者への有害",
+        "hint": "未成年者の心身の健康に有害な内容"
+      },
+      "personal_attack": {
+        "name": "暴言・人身攻撃",
+        "hint": "暴言、人身攻撃、挑発"
+      },
+      "harassment_discrimination": {
+        "name": "嫌がらせ・差別",
+        "hint": "嫌がらせ、地域・性別・民族・宗教などによる差別"
+      },
+      "defamation_rumor": {
+        "name": "名誉毀損・デマ",
+        "hint": "事実の捏造、他人への名誉毀損、デマの拡散"
+      },
+      "privacy_leak": {
+        "name": "プライバシー漏洩",
+        "hint": "他人の氏名、連絡先、身分証、住所などの個人情報の漏洩"
+      },
+      "impersonation": {
+        "name": "なりすまし",
+        "hint": "他人、教員、学校、団体へのなりすまし"
+      },
+      "copyright": {
+        "name": "著作権侵害",
+        "hint": "無許可の教科書スキャン、講義資料、論文など"
+      },
+      "other_ip": {
+        "name": "その他の権利侵害",
+        "hint": "商標、肖像、名誉などその他の正当な権利の侵害"
+      },
+      "academic_integrity": {
+        "name": "学術不正",
+        "hint": "代筆、替え玉受験、カンニング道具、盗用"
+      },
+      "leaked_exam": {
+        "name": "試験問題の漏洩",
+        "hint": "未公開の試験問題、解答、試験日程"
+      },
+      "fake_review": {
+        "name": "事実と異なる評価",
+        "hint": "実体験に基づかない、水増し、悪意ある低評価、利害関係のある評価"
+      },
+      "wrong_teacher": {
+        "name": "教員・科目の誤り",
+        "hint": "評価や資料が誤った教員や科目に紐づいている"
+      },
+      "wrong_info": {
+        "name": "情報の誤り",
+        "hint": "タイトル、分類、タグ、学期などが内容と一致しない"
+      },
+      "spam": {
+        "name": "広告・スパム",
+        "hint": "広告、誘導、無関係な宣伝、連投"
+      },
+      "malware": {
+        "name": "悪意あるファイル・リンク",
+        "hint": "ウイルス、トロイの木馬、悪意あるスクリプト、危険なリンク"
+      },
+      "duplicate": {
+        "name": "重複",
+        "hint": "既存の内容と重複している"
+      },
+      "low_quality": {
+        "name": "低品質",
+        "hint": "無意味、水増し、開けない、内容が欠けている"
+      },
+      "author_update": {
+        "name": "作成者による更新依頼",
+        "hint": "作成者本人が訂正または取り下げを求めている"
+      },
+      "other": {
+        "name": "その他",
+        "hint": "上記に当てはまらない場合、詳細に具体的な状況を記入してください"
+      }
+    },
+    "receipt": "違反の種類：{name}"
+  },
+  "consent": {
+    "title": "利用規約とプライバシーポリシーの確認",
+    "description": "ログインが必要な機能を使う前に、以下の各文書の最新版を読み、それぞれに同意してください。",
+    "updated": "以下の文書が更新されました。新しい版を読み、確認が必要な文書にもう一度チェックしてください。",
+    "documents": {
+      "terms": "利用規約",
+      "privacy": "プライバシーポリシー"
+    },
+    "agree": "{name}を読み、同意します",
+    "version": "バージョン {version}",
+    "read": "{name}の全文を読む",
+    "accepted": "{date} に同意済み",
+    "submit": "同意して続ける",
+    "sending": "送信中…",
+    "done": "確認しました。引き続きご利用いただけます。",
+    "changed": "文書が更新されたところです。新しい版を読み、変更された文書にもう一度チェックしてください。",
+    "allAccepted": "以上の文書の最新版に同意済みです。",
+    "declineTitle": "同意しない場合",
+    "decline": "ログインが必要な機能は使えません。ログアウトして公開ページの閲覧を続けるか、StuHelper アカウントの削除を申請できます。",
+    "menu": "規約を確認"
+  },
+  "legal": {
+    "title": "法的文書",
+    "current": "現行版を見る",
+    "history": "過去の版",
+    "noVersions": "公開済みの版はまだありません。",
+    "unpublished": "現在有効な公開版はありません。",
+    "versionLine": "バージョン {version} · {date} 発効",
+    "fixed": "版の履歴 · このページでは、指定された版の公開時の本文を表示しています。",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー"
+  },
+  "teacherHomepage": {
+    "title": "教員ページ",
+    "empty": "学校の公式サイトには、表示できる教員情報がありません。",
+    "source": "この情報は学校の公式サイトに掲載された教員ページから取得し、学校の規定に従って表示しています。",
+    "photo": "{name}の写真",
+    "manage": "自分の教員ページを管理",
+    "manageFor": "「{name}」の教員ページを管理",
+    "manageTitle": "{name}の教員ページ",
+    "manageDescription": "教員ページの情報の訂正・追加・非表示を申請できます。変更は学校の承認後に反映されます。",
+    "complain": "ページの掲載情報を通報",
+    "limit": "{count}文字／上限{max}文字",
+    "fields": {
+      "name": "公式サイトでの氏名",
+      "position": "役職",
+      "education": "学歴",
+      "degree": "学位",
+      "discipline": "専門分野",
+      "supervisors": "研究指導資格",
+      "email": "メールアドレス",
+      "phone": "電話番号",
+      "office_location": "研究室・執務室",
+      "hire_date": "着任日",
+      "biography": "プロフィール",
+      "research": "研究テーマ",
+      "fields": "その他の情報",
+      "sections": "ページ内のセクション",
+      "photo": "写真",
+      "page": "ページ全体"
+    },
+    "supervisors": {
+      "doctoral": "博士課程の研究指導",
+      "master": "修士課程の研究指導"
+    },
+    "complaint": {
+      "title": "教員ページの掲載情報を通報",
+      "description": "誤った情報や権利を侵害する情報がある場合は、分類を選び、状況を説明してください。学校は確認後、ページの掲載情報を非表示にできます。ディレクトリの掲載と評価はそのまま表示されます。",
+      "reason": "通報の詳細",
+      "evidence": "証拠（1行に1件、最大5件）",
+      "evidenceHint": "1件につき2,000文字まで。",
+      "email": "{email} にメールで連絡することもできます。",
+      "sent": "通報を送信しました。学校が速やかに確認します。"
+    },
+    "request": {
+      "title": "新しい申請",
+      "start": "申請する",
+      "kind": "申請の種類",
+      "kinds": {
+        "correction": "訂正",
+        "supplement": "追加",
+        "hide": "非表示"
+      },
+      "field": "対象の情報",
+      "label": "項目名",
+      "labelHint": "訂正または追加する項目名かセクションの見出しを入力してください。",
+      "labelOptional": "空欄にすると、このグループ全体が非表示になります。",
+      "value": "新しい内容",
+      "supervisors": "研究指導資格",
+      "supervisorsHint": "選択した資格で現在の一覧を置き換えます。すべての選択を外すと一覧が空になります。",
+      "photo": "新しい写真",
+      "photoHint": "JPEGまたはPNG形式、2 MiBまで。",
+      "photoType": "JPEGまたはPNG形式の画像のみ使用できます。",
+      "photoSize": "画像は2 MiB以下にしてください。",
+      "photoReadError": "選択した写真を読み込めませんでした。もう一度試すか、ファイルを選び直してください。",
+      "photoPreview": "新しい写真のプレビュー",
+      "message": "申請理由",
+      "sent": "申請を送信しました。学校での確認後に通知が届きます。",
+      "retention": "申請の処理が完了してから12か月後に、申請本文と写真が削除されます。",
+      "history": "自分の申請",
+      "none": "申請はまだありません。",
+      "status": {
+        "pending": "処理待ち",
+        "approved": "承認済み",
+        "rejected": "不承認"
+      }
+    },
+    "receipt": {
+      "title": "教員ページの申請",
+      "submitted": "申請日時",
+      "resolved": "処理日時",
+      "note": "学校からの回答",
+      "cleared": "研究指導資格の表示をすべて削除",
+      "photo": "写真の差し替え申請"
+    },
+    "media": {
+      "loadFailed": "現在、教員ページの画像、動画、添付ファイルを読み込めません。",
+      "image": "教員ページの画像",
+      "imageFailed": "現在、画像を表示できません。",
+      "imageLink": "学校の元のページで画像を見る",
+      "videoLink": "学校の元のページで動画を見る",
+      "attachmentLink": "学校の元のページで添付ファイルを開く",
+      "external": "（学校の公式サイトを新しいウィンドウで開きます）",
+      "untitled": "その他の内容"
+    }
+  },
+  "privacy": {
+    "title": "プライバシーと同意",
+    "description": "同意した規約を確認し、個別に撤回できる同意を管理できます。",
+    "agreements": "利用規約とプライバシーポリシー",
+    "acceptedVersion": "バージョン {version} に同意済み（{time}）",
+    "pendingVersion": "バージョン {version} にはまだ同意していません",
+    "read": "読む",
+    "withdrawAgreements": "利用規約またはプライバシーポリシーに同意できなくなった場合は、アカウントの削除を申請できます。",
+    "closure": "アカウントの削除手続きへ",
+    "documents": "法的文書",
+    "transferDocument": "個人情報の国外移転に関する通知と同意書"
   }
 }

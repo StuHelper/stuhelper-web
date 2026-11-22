@@ -134,7 +134,12 @@
     "phone_binding_changed": "번호가 방금 다른 곳에서 변경되었습니다. 최신 상태를 표시했으니 다시 시도하세요.",
     "phone_change_in_progress": "이전 변경을 처리하는 중입니다. 잠시 후 원래 요청을 다시 시도하세요.",
     "phone_write_unconfirmed": "변경 결과를 확인하지 못했습니다. 원래 요청을 다시 시도해 확인하세요.",
-    "phone_rate_limited": "코드 요청이 너무 잦습니다. 잠시 후 다시 시도하세요."
+    "phone_rate_limited": "코드 요청이 너무 잦습니다. 잠시 후 다시 시도하세요.",
+    "append_window_not_open": "추가 평가는 처음 게시 후 5분이 지나야 할 수 있습니다. 잠시 후 다시 시도하세요.",
+    "consent_required": "먼저 현재 이용약관과 개인정보 처리방침에 동의해 주세요.",
+    "consent_version_changed": "문서가 업데이트되었습니다. 다시 동의해 주세요.",
+    "email_transfer_consent_required": "학교 이메일로 인증 코드를 보내기 전에 국외 발송에 동의해야 합니다.",
+    "email_transfer_consent_changed": "개인정보 국외 이전 안내가 업데이트되었습니다. 다시 확인해 주세요."
   },
   "connection": {
     "label": "서비스 연결 상태",
@@ -641,7 +646,8 @@
       "course_enrollment": "내 강의 보기"
     },
     "followUp": "추가 후기",
-    "submitFollowUp": "추가 후기 제출"
+    "submitFollowUp": "추가 후기 제출",
+    "followUpOpensAt": "추가 평가는 처음 게시 후 5분이 지나야 할 수 있습니다. {time} 이후에 다시 시도하세요."
   },
   "me": {
     "title": "마이페이지",
@@ -691,7 +697,8 @@
       "resources": "업로드 결과, 심사 상태, 수정.",
       "requests": "내리기, 신고, 이의의 처리 결과.",
       "storage": "공유 용량과 클라우드 계정.",
-      "courses": "학기별 강의, 교수, 시간표."
+      "courses": "학기별 강의, 교수, 시간표.",
+      "privacy": "동의한 약관 및 개별 동의 내역"
     },
     "profile": {
       "title": "프로필",
@@ -855,7 +862,7 @@
       "unknownHint": "출처를 모르면 만들지 말고 나중에 보완하세요.",
       "author": "알려진 저자 (선택)",
       "license": "라이선스 설명 (선택)",
-      "consentNotice": "허가 권한이 있는 창작물에 대해 상업적 이용, 재허가 및 지속적 이용 허가에 동의합니다. 제출 전에 전체 약관을 읽으세요.",
+      "consentNotice": "권리를 가진 창작 콘텐츠에 대해 플랫폼에 전 세계적, 무상, 비독점적, 양도 및 재허락 가능한 이용 허락을 부여합니다. 상업적 이용을 포함하며 법정 보호 기간 전체 동안 유효하고, 철회·게시 중단·탈퇴 후에도 유지됩니다. 제출 전 전체 약관을 읽어 주세요.",
       "terms": "전체 약관 보기",
       "accept": "현재 약관을 읽고 동의합니다"
     },
@@ -1195,7 +1202,6 @@
     "continueNext": "계속",
     "returnHint": "인증이 적용되면 보려던 페이지로 자동으로 돌아갑니다.",
     "identityTitle": "본인 인증",
-    "identityDescription": "본인 인증은 학생 인증과 별개이며 본인 확인이 필요한 작업에 사용합니다.",
     "identityName": "이름",
     "identityNumber": "신분증 번호",
     "schoolSearch": "학교 코드, 이름 또는 별칭 검색",
@@ -1281,6 +1287,47 @@
     "documentType": "신분증 종류",
     "documentTypes": {
       "cn_resident_id_card": "중국 주민신분증"
+    },
+    "transfer": {
+      "title": "학교 이메일 인증 코드의 국외 발송",
+      "intro": "학교 이메일로 인증 코드를 보내기 전에 아래 정보를 중국 밖의 이메일 발송 서비스 제공업체에 전달하는 데 별도로 동의할지 선택해 주세요.",
+      "changed": "개인정보 국외 이전 안내가 업데이트되었습니다. 새 버전을 읽고 다시 선택해 주세요.",
+      "facts": {
+        "recipient": {
+          "label": "제공받는 자",
+          "text": "Plus Five Five, Inc.(이메일 발송 서비스 Resend)"
+        },
+        "data": {
+          "label": "국외 이전 정보",
+          "text": "학교 이메일 주소(학번이 포함될 수 있음), 이메일 제목, 인증 코드와 만료 시간이 담긴 본문, 발송에 필요한 식별 정보."
+        },
+        "purpose": {
+          "label": "처리 목적",
+          "text": "이번 인증 코드의 발송, 반송·신고·발송 오류 처리, 발송 결과 및 문제 해결에 필요한 로그 제공."
+        },
+        "place": {
+          "label": "처리 및 보관 장소",
+          "text": "주로 미국에서 처리하고 보관합니다. 발신 도메인의 공개 반송 경로는 일본 도쿄를 가리킵니다."
+        },
+        "period": {
+          "label": "보관 기간",
+          "text": "이메일 본문, 발송 로그, 백업 및 발송 제외 목록 기록의 보관 기간과 삭제 기준은 아래 안내문에서 확인할 수 있습니다."
+        },
+        "rights": {
+          "label": "정보주체의 권리",
+          "text": "「개인정보 및 동의」에서 언제든지 동의를 철회할 수 있습니다. 열람, 사본 제공, 정정 또는 삭제는 안내문에 기재된 연락처로 요청할 수 있습니다."
+        }
+      },
+      "read": "개인정보 국외 이전 안내 및 동의서 읽기(버전 {version})",
+      "other": "이전 화면으로 돌아가 학교에서 제공하는 다른 방법 중 이용 조건에 맞는 방법을 선택할 수도 있습니다.",
+      "agree": "국외 발송에 동의하고 코드 보내기",
+      "back": "돌아가서 다른 방법 선택",
+      "accepted": "학교 이메일 인증 코드의 국외 발송에 동의했습니다.",
+      "acceptedAt": "{time}에 학교 이메일 인증 코드의 국외 발송에 동의했습니다.",
+      "withdraw": "동의 철회",
+      "withdrawConfirm": "철회한 뒤에는 새로 발송하려면 다시 동의해야 합니다. 철회 전에 시작된 발송은 계속 처리될 수 있으며, 이미 발송된 코드는 원래 유효 기간이 적용됩니다.",
+      "withdrawn": "국외 발송 동의를 철회했습니다.",
+      "notAccepted": "국외 발송에 동의하지 않은 상태입니다. 학교 이메일로 인증 코드를 보내기 전에 동의를 요청합니다."
     }
   },
   "contribution": {
@@ -1353,14 +1400,35 @@
       "binding_unavailable": "이 계정을 사용할 수 없습니다. 관리자가 도와드립니다.",
       "cleanup_unconfirmed": "아직 옮기지 못한 파일이 있습니다.",
       "storage_writes_disabled": "새 파일을 받지 않는 저장소입니다.",
-      "capacity_unknown": "용량을 읽을 수 없습니다.",
-      "exit_overdue": "종료 목표 시각을 지났으며 이전 처리가 계속되고 있습니다."
+      "capacity_unknown": "드라이브 용량을 아직 읽지 않았습니다.",
+      "exit_overdue": "종료 목표 시각을 지났으며 이전 처리가 계속되고 있습니다.",
+      "capacity_read_failed": "드라이브 용량을 읽지 못했습니다. 자동으로 다시 시도합니다.",
+      "capacity_expired": "드라이브 용량 정보가 만료되었습니다. 자동으로 새로 고칩니다."
     },
     "displayLabel": "메모 이름(선택)",
     "displayLabelHint": "예: 주 드라이브",
     "displayLabelTooLong": "메모 이름은 최대 32자입니다.",
     "reviewLabel": "메모 이름: ",
-    "reviewLabelCleared": "메모 이름을 지웁니다."
+    "reviewLabelCleared": "메모 이름을 지웁니다.",
+    "provider": {
+      "title": "드라이브 공간",
+      "total": "드라이브 전체",
+      "used": "드라이브 사용",
+      "remaining": "드라이브 남음",
+      "max": "최대 {max}까지 기여할 수 있습니다",
+      "over": "한도를 넘었습니다(최대 {max})",
+      "unavailable": "지금은 드라이브 용량을 읽을 수 없어 제출할 수 없습니다.",
+      "status": {
+        "not_read": "드라이브 용량을 아직 읽지 않았습니다.",
+        "read_failed": "드라이브 용량을 읽지 못했습니다. 자동으로 다시 시도합니다.",
+        "expired": "드라이브 용량 정보가 만료되었습니다. 자동으로 새로 고칩니다."
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "공유 용량이 드라이브 남은 공간보다 큽니다. 줄인 뒤 다시 시도하세요.",
+        "provider_capacity_unavailable": "지금은 드라이브 용량을 확인할 수 없습니다. 잠시 후 다시 시도하세요."
+      }
+    },
+    "neverObserved": "아직 용량을 읽지 않음"
   },
   "custody": {
     "disabled": "스토리지 계정 위탁 기능은 활성화되지 않았습니다.",
@@ -1605,7 +1673,7 @@
     "verify": "인증하기",
     "devices": "로그인한 기기",
     "signOutAll": "모든 기기에서 로그아웃",
-    "signOutAllHint": "현재 기기를 포함한 모든 기기에서 StuHelper 로그아웃합니다.",
+    "signOutAllHint": "모든 기기에서 StuHelper 로그아웃합니다.",
     "signOutAllConfirm": "모든 기기의 StuHelper 로그인이 해제되어 다시 로그인해야 합니다.",
     "closure": {
       "title": "계정 해지",
@@ -2011,14 +2079,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "읽지 않은 알림 {count}개 이상",
     "title": "메시지",
     "link": "메시지",
     "description": "반응, 처리 결과, 인증 결과, 시스템 알림을 모았습니다.",
     "unread": "읽지 않은 알림: {count}",
-    "interaction": "반응 알림 받기(답글, 좋아요)",
-    "interactionOn": "반응 알림을 켰습니다.",
-    "interactionOff": "반응 알림을 껐습니다.",
     "always": "처리 결과, 보안 및 계정 알림은 항상 전달됩니다.",
     "readAll": "모두 읽음으로 표시",
     "allRead": "모든 알림을 읽음으로 표시했습니다.",
@@ -2033,7 +2097,8 @@
       "content": {
         "approved": "내 콘텐츠 {content_id}가 승인되었습니다",
         "rejected": "내 콘텐츠 {content_id}가 승인되지 않았습니다",
-        "removed": "내 콘텐츠 {content_id}가 게시 중단되었습니다"
+        "removed": "내 콘텐츠 {content_id}가 게시 중단되었습니다",
+        "draft_expiring": "초안 {content_id}의 보관 기간이 곧 끝납니다"
       },
       "resource_removal": {
         "approved": "자료 삭제 요청이 승인되었습니다",
@@ -2046,7 +2111,8 @@
       "student_verification": {
         "approved": "학생 인증 신청이 승인되었습니다",
         "rejected": "학생 인증 신청이 승인되지 않았습니다",
-        "revoked": "학생 인증이 취소되었습니다"
+        "revoked": "학생 인증이 취소되었습니다",
+        "supplement_required": "학생 인증 신청에 추가 자료가 필요합니다"
       },
       "identity_verification": {
         "approved": "실명 확인이 완료되었습니다",
@@ -2062,7 +2128,8 @@
       },
       "teacher_verification": {
         "approved": "교원 인증 신청이 승인되었습니다",
-        "rejected": "교원 인증 신청이 승인되지 않았습니다"
+        "rejected": "교원 인증 신청이 승인되지 않았습니다",
+        "supplement_required": "교원 인증 신청에 추가 자료가 필요합니다"
       },
       "system": {
         "notice": "시스템 알림: {reference_id}",
@@ -2073,6 +2140,25 @@
         "notice": "시스템 알림",
         "security": "보안 알림",
         "account": "계정 알림"
+      },
+      "appeal": {
+        "approved": "이의 신청이 받아들여졌습니다",
+        "rejected": "이의 신청이 받아들여지지 않았습니다"
+      },
+      "group_membership": {
+        "grace_expiring": "그룹 멤버 자격의 유예 기간이 곧 끝납니다"
+      },
+      "storage_contribution": {
+        "exit_completed": "클라우드 저장 공간 기여가 종료되었습니다"
+      },
+      "billing": {
+        "topup_review_required": "충전 주문은 담당자의 확인이 필요합니다",
+        "refund_completed": "환불이 완료되었습니다",
+        "refund_rejected": "환불 신청이 승인되지 않았습니다"
+      },
+      "teacher_homepage_request": {
+        "approved": "교원 페이지 변경 신청이 승인되었습니다",
+        "rejected": "교원 페이지 변경 신청이 승인되지 않았습니다"
       }
     },
     "status": {
@@ -2091,7 +2177,38 @@
     },
     "namedContent": "「{name}」",
     "contentUnavailable": "(이용할 수 없는 내용)",
-    "contentNameUnavailable": "(지금은 이름을 표시할 수 없음)"
+    "contentNameUnavailable": "(지금은 이름을 표시할 수 없음)",
+    "reason": "사유: {reason}",
+    "reasons": {
+      "duplicate_material": "기존 자료와 중복됩니다",
+      "copyright_claim": "저작권 침해 신고가 접수되었습니다",
+      "community_guidelines": "커뮤니티 가이드라인을 위반했습니다",
+      "off_topic": "주제와 관련이 없습니다",
+      "privacy_exposure": "다른 사람의 개인정보가 포함되어 있습니다",
+      "low_quality": "콘텐츠 품질이 기준에 미치지 못합니다",
+      "author_request": "작성자 본인이 요청했습니다",
+      "insufficient_evidence": "증거가 부족합니다",
+      "expired_document": "제출 서류의 유효 기간이 지났습니다",
+      "unclear_material": "제출 자료가 선명하지 않습니다",
+      "identity_mismatch": "신원 정보가 일치하지 않습니다",
+      "ineligible_status": "현재 자격으로는 요건을 충족하지 못합니다",
+      "eligibility_revoked": "자격이 취소되었습니다",
+      "duplicate_binding": "이미 다른 계정에 연결되어 있습니다",
+      "policy_violation": "플랫폼 규칙을 위반했습니다",
+      "payment_channel_rejected": "결제 서비스에서 이 작업을 거절했습니다"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "답글 알림 받기",
+        "on": "답글 알림을 켰습니다.",
+        "off": "답글 알림을 껐습니다."
+      },
+      "like_enabled": {
+        "label": "좋아요 알림 받기",
+        "on": "좋아요 알림을 켰습니다.",
+        "off": "좋아요 알림을 껐습니다."
+      }
+    }
   },
   "search": {
     "title": "검색",
@@ -2122,7 +2239,8 @@
       "courses": "인기 강의",
       "teachers": "인기 교원",
       "kind": "순위 유형",
-      "empty": "순위를 만들 데이터가 아직 부족합니다."
+      "empty": "순위를 만들 데이터가 아직 부족합니다.",
+      "descriptionDays": "최근 {days}일(베이징 시간, 오늘 포함)의 조회, 평가, 즐겨찾기, 상호작용 순입니다. 관심도를 나타내며 평가는 각 평점을 참고하세요."
     },
     "votes": {
       "title": "내 투표",
@@ -2373,7 +2491,8 @@
     "viewDetails": "자세히 보기",
     "groupDisplay": "단과대학별 보기",
     "expandAllGroups": "모두 펼치기",
-    "collapseAllGroups": "모두 접기"
+    "collapseAllGroups": "모두 접기",
+    "hottestDays": "인기순(최근 {days}일)"
   },
   "tags": {
     "placeholder": "태그를 입력하고 Enter",
@@ -2390,10 +2509,8 @@
     "unbindLabel": "전화번호 연결 해제",
     "bindTitle": "전화번호 등록",
     "changeTitle": "전화번호 변경",
-    "hint": "인증 코드는 새 번호로 전송됩니다. 변경 후에는 로그인과 비밀번호 찾기에 새 번호를 사용합니다.",
     "newNumber": "새 전화번호",
     "numberPlaceholder": "11자리 중국 본토 휴대폰 번호",
-    "numberFormat": "11자리 중국 본토 휴대폰 번호를 입력하세요. +86은 생략할 수 있습니다.",
     "sendCode": "코드 받기",
     "resend": "다시 보내기",
     "resendIn": "{seconds}초 후 다시 보내기",
@@ -2404,5 +2521,247 @@
     "unbound": "전화번호 연결을 해제했습니다",
     "unbindTitle": "전화번호 연결 해제",
     "unbindWarning": "해제하면 이 번호로 로그인하거나 비밀번호를 찾을 수 없습니다."
+  },
+  "violation": {
+    "label": "위반 유형",
+    "search": "위반 유형 검색",
+    "required": "위반 유형을 선택하세요.",
+    "categories": {
+      "illegal_content": {
+        "name": "불법 콘텐츠",
+        "hint": "국가 안보 위협, 체제 전복 선동, 테러, 극단주의 등 불법 정보"
+      },
+      "pornography": {
+        "name": "음란·저속",
+        "hint": "음란물, 성적 암시, 저속한 콘텐츠"
+      },
+      "gambling_drugs": {
+        "name": "도박·마약·금지 물품",
+        "hint": "도박, 마약, 규제 물품 또는 금지 물품 거래"
+      },
+      "fraud": {
+        "name": "사기·피싱",
+        "hint": "사기, 피싱 링크, 허위 아르바이트, 계정이나 금전 갈취"
+      },
+      "violence_threat": {
+        "name": "폭력·위협",
+        "hint": "폭력 조장, 신변 위협, 자해나 자살 유도"
+      },
+      "minors_harm": {
+        "name": "미성년자 유해",
+        "hint": "미성년자의 심신 건강에 해로운 콘텐츠"
+      },
+      "personal_attack": {
+        "name": "욕설·인신공격",
+        "hint": "욕설, 인신공격, 도발"
+      },
+      "harassment_discrimination": {
+        "name": "괴롭힘·차별",
+        "hint": "괴롭힘, 지역·성별·민족·종교 등에 따른 차별"
+      },
+      "defamation_rumor": {
+        "name": "명예훼손·유언비어",
+        "hint": "사실 날조, 타인 명예훼손, 유언비어 유포"
+      },
+      "privacy_leak": {
+        "name": "개인정보 유출",
+        "hint": "타인의 이름, 연락처, 신분증, 주소 등 개인정보 유출"
+      },
+      "impersonation": {
+        "name": "사칭",
+        "hint": "타인, 교원, 학교 또는 기관 사칭"
+      },
+      "copyright": {
+        "name": "저작권 침해",
+        "hint": "무단 교재 스캔, 강의 자료, 논문 등"
+      },
+      "other_ip": {
+        "name": "기타 권리 침해",
+        "hint": "상표, 초상, 명예 등 기타 정당한 권리 침해"
+      },
+      "academic_integrity": {
+        "name": "학업 부정",
+        "hint": "대필, 대리 시험, 부정행위 도구, 표절"
+      },
+      "leaked_exam": {
+        "name": "시험 문제 유출",
+        "hint": "공개되지 않은 시험 문제, 정답 또는 시험 일정"
+      },
+      "fake_review": {
+        "name": "사실과 다른 평가",
+        "hint": "직접 경험이 아닌 평가, 조작, 악의적 혹평, 이해관계가 있는 평가"
+      },
+      "wrong_teacher": {
+        "name": "교원 또는 과목 오류",
+        "hint": "평가나 자료가 잘못된 교원이나 과목에 연결됨"
+      },
+      "wrong_info": {
+        "name": "정보 오류",
+        "hint": "제목, 분류, 태그, 학기 등이 내용과 맞지 않음"
+      },
+      "spam": {
+        "name": "광고·스팸",
+        "hint": "광고, 유입 유도, 무관한 홍보, 도배"
+      },
+      "malware": {
+        "name": "악성 파일 또는 링크",
+        "hint": "바이러스, 트로이 목마, 악성 스크립트 또는 위험한 링크"
+      },
+      "duplicate": {
+        "name": "중복 콘텐츠",
+        "hint": "기존 콘텐츠와 중복됨"
+      },
+      "low_quality": {
+        "name": "낮은 품질",
+        "hint": "무의미, 도배, 열 수 없음 또는 내용 누락"
+      },
+      "author_update": {
+        "name": "작성자 수정 요청",
+        "hint": "작성자 본인이 수정 또는 철회를 요청함"
+      },
+      "other": {
+        "name": "기타",
+        "hint": "위에 해당하지 않으면 설명에 구체적인 상황을 적어 주세요"
+      }
+    },
+    "receipt": "위반 유형: {name}"
+  },
+  "consent": {
+    "title": "이용약관 및 개인정보 처리방침 확인",
+    "description": "로그인이 필요한 기능을 사용하기 전에 아래 각 문서의 현재 버전을 읽고 각각 동의해 주세요.",
+    "updated": "아래 문서가 업데이트되었습니다. 새 버전을 읽고 확인이 필요한 문서에 다시 체크해 주세요.",
+    "documents": {
+      "terms": "이용약관",
+      "privacy": "개인정보 처리방침"
+    },
+    "agree": "{name}을(를) 읽었으며 동의합니다",
+    "version": "버전 {version}",
+    "read": "{name} 전문 보기",
+    "accepted": "{date}에 동의함",
+    "submit": "동의하고 계속",
+    "sending": "제출 중…",
+    "done": "확인되었습니다. 계속 이용할 수 있습니다.",
+    "changed": "문서가 방금 업데이트되었습니다. 새 버전을 읽고 변경된 문서에 다시 체크해 주세요.",
+    "allAccepted": "위 문서의 현재 버전에 모두 동의했습니다.",
+    "declineTitle": "동의하지 않는 경우",
+    "decline": "로그인이 필요한 기능은 사용할 수 없습니다. 로그아웃하고 공개 페이지를 계속 둘러보거나 StuHelper 계정 해지를 신청할 수 있습니다.",
+    "menu": "약관 확인"
+  },
+  "legal": {
+    "title": "법률 문서",
+    "current": "현재 버전 보기",
+    "history": "이전 버전",
+    "noVersions": "아직 게시된 버전이 없습니다.",
+    "unpublished": "현재 효력이 있는 게시 버전이 없습니다.",
+    "versionLine": "버전 {version} · {date} 시행",
+    "fixed": "버전 이력 · 이 페이지는 해당 버전의 게시 당시 원문을 보여 줍니다.",
+    "terms": "이용약관",
+    "privacy": "개인정보 처리방침"
+  },
+  "teacherHomepage": {
+    "title": "교수 페이지",
+    "empty": "학교 공식 웹사이트에 표시할 교수 정보가 없습니다.",
+    "source": "학교 공식 웹사이트의 교수 페이지에서 가져온 정보이며, 학교 규정에 따라 표시됩니다.",
+    "photo": "{name} 사진",
+    "manage": "내 교수 페이지 관리",
+    "manageFor": "‘{name}’ 교수 페이지 관리",
+    "manageTitle": "{name} 교수 페이지",
+    "manageDescription": "교수 페이지의 정보를 정정하거나 추가하거나 숨겨 달라고 신청할 수 있습니다. 학교에서 승인하면 변경 사항이 반영됩니다.",
+    "complain": "페이지 정보 신고",
+    "limit": "{max}자 중 {count}자",
+    "fields": {
+      "name": "공식 웹사이트에 표시된 이름",
+      "position": "직위",
+      "education": "학력",
+      "degree": "학위",
+      "discipline": "학문 분야",
+      "supervisors": "연구 지도 자격",
+      "email": "이메일",
+      "phone": "전화번호",
+      "office_location": "연구실·사무실",
+      "hire_date": "부임일",
+      "biography": "소개",
+      "research": "연구 분야",
+      "fields": "기타 정보",
+      "sections": "페이지 섹션",
+      "photo": "사진",
+      "page": "페이지 전체"
+    },
+    "supervisors": {
+      "doctoral": "박사과정 지도교수",
+      "master": "석사과정 지도교수"
+    },
+    "complaint": {
+      "title": "교수 페이지 정보 신고",
+      "description": "정보가 부정확하거나 권리를 침해하는 경우 유형을 선택하고 상황을 설명해 주세요. 학교는 검토 후 페이지 정보를 숨길 수 있습니다. 디렉터리 항목과 평가는 계속 표시됩니다.",
+      "reason": "신고 상세 설명",
+      "evidence": "증거 (한 줄에 하나씩, 최대 5개)",
+      "evidenceHint": "항목당 최대 2,000자입니다.",
+      "email": "{email}로 이메일을 보낼 수도 있습니다.",
+      "sent": "신고를 제출했습니다. 학교에서 가능한 한 빨리 검토합니다."
+    },
+    "request": {
+      "title": "새 신청",
+      "start": "신청하기",
+      "kind": "신청 유형",
+      "kinds": {
+        "correction": "정정",
+        "supplement": "추가",
+        "hide": "숨기기"
+      },
+      "field": "대상 정보",
+      "label": "항목 이름",
+      "labelHint": "정정하거나 추가할 항목의 이름 또는 섹션 제목을 입력해 주세요.",
+      "labelOptional": "비워 두면 이 그룹 전체가 숨겨집니다.",
+      "value": "새 내용",
+      "supervisors": "연구 지도 자격",
+      "supervisorsHint": "선택한 자격으로 기존 목록을 바꿉니다. 모두 선택 해제하면 목록을 비웁니다.",
+      "photo": "새 사진",
+      "photoHint": "JPEG 또는 PNG 형식, 최대 2 MiB.",
+      "photoType": "JPEG 또는 PNG 이미지만 사용할 수 있습니다.",
+      "photoSize": "이미지 크기는 2 MiB 이하여야 합니다.",
+      "photoReadError": "선택한 사진을 읽을 수 없습니다. 다시 시도하거나 파일을 다시 선택해 주세요.",
+      "photoPreview": "새 사진 미리 보기",
+      "message": "신청 사유",
+      "sent": "신청을 제출했습니다. 학교의 검토가 끝나면 알림을 받습니다.",
+      "retention": "신청 처리가 끝난 날부터 12개월이 지나면 신청 본문과 사진이 삭제됩니다.",
+      "history": "내 신청",
+      "none": "아직 신청 내역이 없습니다.",
+      "status": {
+        "pending": "처리 대기 중",
+        "approved": "승인됨",
+        "rejected": "거절됨"
+      }
+    },
+    "receipt": {
+      "title": "교수 페이지 신청",
+      "submitted": "제출 일시",
+      "resolved": "처리 일시",
+      "note": "학교 답변",
+      "cleared": "연구 지도 자격 목록 비우기",
+      "photo": "사진 교체 신청"
+    },
+    "media": {
+      "loadFailed": "지금은 교수 페이지의 이미지, 동영상, 첨부 파일을 불러올 수 없습니다.",
+      "image": "교수 페이지 이미지",
+      "imageFailed": "지금은 이미지를 표시할 수 없습니다.",
+      "imageLink": "학교의 원본 페이지에서 이미지 보기",
+      "videoLink": "학교의 원본 페이지에서 동영상 보기",
+      "attachmentLink": "학교의 원본 페이지에서 첨부 파일 열기",
+      "external": "(학교 웹사이트를 새 창에서 엽니다)",
+      "untitled": "기타 내용"
+    }
+  },
+  "privacy": {
+    "title": "개인정보 및 동의",
+    "description": "동의한 약관을 확인하고 개별적으로 철회할 수 있는 동의를 관리하세요.",
+    "agreements": "이용약관 및 개인정보 처리방침",
+    "acceptedVersion": "버전 {version}에 동의함 · {time}",
+    "pendingVersion": "버전 {version}에 아직 동의하지 않았습니다",
+    "read": "읽기",
+    "withdrawAgreements": "이용약관 또는 개인정보 처리방침에 더 이상 동의하지 않으면 회원 탈퇴를 신청할 수 있습니다.",
+    "closure": "회원 탈퇴로 이동",
+    "documents": "법적 문서",
+    "transferDocument": "개인정보 국외 이전 안내 및 동의서"
   }
 }

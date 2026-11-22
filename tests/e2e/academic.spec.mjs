@@ -721,3 +721,99 @@ test('a nature filter in navigation state reaches the directory without changing
   expect(new URL(page.url()).searchParams.has('nature')).toBe(false);
   expect(new URL(page.url()).hash).toBe('');
 });
+
+test('reporting a review needs a violation type and sends it with the report', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, posts = [];
+  await academicFixture(page);
+  await page.route('**/api/v1/moderation/tasks', (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push(route.request().postDataJSON());
+    return route.fulfill({ json: { id: 'task', object_id: 'review', kind: 'report', state: 'waiting', can_appeal: false, created_at: '2026-11-22T00:00:00Z', revision: 1 } });
+  });
+  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
+  await page.getByRole('button', { name: a.review.report, exact: true }).first().click();
+  const reason = page.getByLabel(a.review.reason, { exact: true });
+  const submit = page.getByRole('button', { name: all.common.submit, exact: true });
+  await reason.fill('Contains a phone number');
+  await expect(submit).toBeDisabled();
+  await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
+  const categories = page.getByRole('option').and(page.locator(':not([data-disabled])'));
+  await expect(categories).toHaveText(Object.values(all.violation.categories).map(({ name }) => name));
+  await page.getByRole('option', { name: all.violation.categories.privacy_leak.name, exact: true }).click();
+  const atLimit = '😀'.repeat(2000);
+  const overLimit = atLimit + '😀';
+  const number = new Intl.NumberFormat(locale);
+  await reason.fill(overLimit);
+  expect((await reason.inputValue()) === overLimit).toBe(true);
+  await expect(reason).toHaveAttribute('aria-invalid', 'true');
+  await expect(reason).toHaveAccessibleDescription(`${number.format(2001)} / ${number.format(2000)}`);
+  await expect(submit).toBeDisabled();
+  await reason.evaluate((field) => field.form.requestSubmit());
+  expect(posts).toHaveLength(0);
+
+  await reason.fill(atLimit);
+  await expect(reason).toHaveAccessibleDescription(`${number.format(2000)} / ${number.format(2000)}`);
+  await expect(submit).toBeEnabled();
+  await submit.click();
+  await expect.poll(() => posts.length).toBe(1);
+  expect(posts[0]).toMatchObject({ object_id: 'review', kind: 'report', category: 'privacy_leak' });
+  expect(posts[0].reason === atLimit).toBe(true);
+});
+
+test('a follow-up attempted inside the five-minute window explains when it opens', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info);
+  const retryAt = '2030-01-01T00:05:54Z';
+  await academicFixture(page);
+  await page.route('**/api/v1/reviews/review/actions', (route) => route.fulfill({ status: 409, json: { code: 'conflict', subcode: 'append_window_not_open', field: 'action', retry_at: retryAt } }));
+  await page.route('**/api/v1/reviews/me/entries/review**', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.route(/\/api\/v1\/reviews\/review(\?.*)?$/, (route) => route.fulfill({ json: { id: 'review', root_id: 'review', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Mine', body: 'Body', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'author' }, revision: 1, published_at: '2026-10-27T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: true, state: 'published', can_edit: false } }));
+  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
+  await page.getByLabel(all.academic.followUp).fill('More notes');
+  await page.getByRole('button', { name: all.academic.submitFollowUp, exact: true }).click();
+  const time = await page.evaluate(({ locale, retryAt }) => new Intl.DateTimeFormat(locale, {
+    calendar: 'gregory', timeZone: 'Asia/Shanghai', dateStyle: 'medium', timeStyle: 'medium',
+  }).format(new Date(retryAt)), { locale, retryAt });
+  const reopening = page.getByText(all.academic.followUpOpensAt.replace('{time}', time), { exact: true });
+  await expect(page.getByRole('status').and(reopening)).toBeVisible();
+  await expect(page.getByText(all.errors.append_window_not_open, { exact: true })).toHaveCount(0);
+  await expect(page.getByLabel(all.academic.followUp)).toHaveValue('More notes');
+});
+
+test('a mentor comment does not wait for the course follow-up window', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), posts = [];
+  await academicFixture(page);
+  await page.clock.setFixedTime(new Date('2026-11-22T00:00:30Z'));
+  await page.route('**/api/v1/reviews/me/entries/review**', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.route(/\/api\/v1\/reviews\/review(\?.*)?$/, (route) => route.fulfill({ json: { id: 'review', root_id: 'review', kind: 'mentor', school_id: 'school', target_id: 'teacher-a', title: 'Mine', body: 'Body', ratings: [0, 0, 0, 0, 0], author: { anonymous: true, handle: 'author' }, revision: 1, published_at: '2026-11-22T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: true, state: 'published', can_edit: true } }));
+  await page.route('**/api/v1/reviews/review/actions', (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push(route.request().postDataJSON());
+    return route.fulfill({ json: { id: 'review', state: 'published', revision: 2 } });
+  });
+  await page.goto(`http://127.0.0.1:18787/reviews/review?lang=${locale}`);
+  const followUp = page.getByLabel(all.academic.followUp);
+  await followUp.fill('More notes');
+  const [before] = all.academic.followUpOpensAt.split('{time}');
+  await expect(page.getByText(before.trim())).toHaveCount(0);
+  await page.getByRole('button', { name: all.academic.submitFollowUp, exact: true }).click();
+  await expect(followUp).toHaveValue('');
+  expect(posts).toEqual([{ action: 'append', revision: 1, body: 'More notes' }]);
+});
+
+test('rating groups keep their dimension names when the school customises the level wording', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic;
+  await academicFixture(page);
+  // A school's level 0 text is the "not enough data" wording used in summaries.
+  const band = ['Not enough data', 'L1', 'L2', 'Fair', 'L4', 'L5'];
+  await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({ json: { effective: { school_id: 'school', revision: 1, rating_texts: { [locale]: Array.from({ length: 5 }, () => band) } }, configured: null, source: 'custom' } }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await pick(editor, 'spring');
+  for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) {
+    const group = editor.getByRole('group', { name: a.ratings[name].label, exact: true });
+    await expect(group).toHaveCount(1);
+    await expect(group.getByText('Fair', { exact: true })).toBeVisible();
+  }
+  await expect(editor.getByRole('group', { name: 'Not enough data', exact: true })).toHaveCount(0);
+});

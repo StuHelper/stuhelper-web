@@ -42,6 +42,10 @@ const routes: RouteRecordRaw[] = [
   { path: '/resources/me', redirect: '/me/resources' },
   { path: '/resources/requests', redirect: '/me/requests' },
   { path: '/', component: () => import('../features/portal/PortalView.vue'), meta: { section: 'portal' } },
+  // Published legal documents are public. A fixed version is what a consent record links to.
+  { path: '/legal/:slug', component: () => import('../features/legal/LegalView.vue'), props: (route) => ({ slug: String(route.params.slug) }), meta: { title: 'legal.title' } },
+  { path: '/legal/:slug/versions', component: () => import('../features/legal/LegalView.vue'), props: (route) => ({ slug: String(route.params.slug), history: true }), meta: { title: 'legal.history' } },
+  { path: '/legal/:slug/versions/:version', component: () => import('../features/legal/LegalView.vue'), props: (route) => ({ slug: String(route.params.slug), version: String(route.params.version) }), meta: { title: 'legal.title' } },
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
   { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },
@@ -59,6 +63,8 @@ const routes: RouteRecordRaw[] = [
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { remountOnPath: true, access: 'member', title: 'resources.detailTitle', section: 'resources' } },
   { path: '/resources/items/:id/edit', component: () => import('../features/resources/EditorView.vue'), props: true, meta: { remountOnPath: true, continuesFrom: '/resources/new', access: 'member', title: 'resources.edit', section: 'resources' } },
+  // Accepting the current user agreement and privacy policy; pages that need an account show the same form in place.
+  { path: '/consent', component: () => import('../features/account/ConsentView.vue'), meta: { title: 'consent.title', section: 'me' } },
   { path: '/me', component: () => import('../features/account/OverviewView.vue'), meta: { title: 'me.title', section: 'me' } },
   { path: '/me/reviews', component: () => import('../features/academic/MyReviewsView.vue'), meta: { access: 'member', title: 'me.reviews', section: 'me' } },
   { path: '/me/reviews/entries/:id', component: () => import('../features/academic/OwnEntryView.vue'), props: true, meta: { access: 'member', title: 'me.reviews', section: 'me' } },
@@ -83,10 +89,14 @@ const routes: RouteRecordRaw[] = [
   { path: '/me/requests', component: () => import('../features/resources/RequestsView.vue'), meta: { access: 'member', title: 'me.requests', section: 'me' } },
   { path: '/me/profile', component: () => import('../features/account/ProfileView.vue'), meta: { access: 'member', title: 'profile.title', section: 'me' } },
   { path: '/me/account', component: () => import('../features/account/SecurityView.vue'), meta: { access: 'member', title: 'security.title', section: 'me' } },
+  { path: '/me/privacy', component: () => import('../features/account/PrivacyView.vue'), meta: { access: 'member', title: 'privacy.title', section: 'me' } },
   { path: '/me/account/identity', component: () => import('../features/verification/VerificationView.vue'), props: { scope: 'identity' }, meta: { remountOnPath: true, title: 'verification.identityTitle', section: 'me' } },
   { path: '/me/verification', component: () => import('../features/verification/VerificationView.vue'), meta: { remountOnPath: true, title: 'verification.unified.title', section: 'me' } },
   { path: '/me/storage', component: () => import('../features/storage/ContributionsView.vue'), meta: { title: 'nav.contributions', section: 'me' } },
   { path: '/me/verification/teacher', component: () => import('../features/verification/TeacherView.vue'), meta: { title: 'verification.unified.title', section: 'me' } },
+  // Literal path first, so a request receipt is not read as a teacher id.
+  { path: '/me/teacher-homepage/requests/:requestId', component: () => import('../features/academic/TeacherHomepageReceiptView.vue'), props: (route) => ({ requestId: String(route.params.requestId) }), meta: { access: 'member', title: 'teacherHomepage.receipt.title', section: 'me' } },
+  { path: '/me/teacher-homepage/:teacherId', component: () => import('../features/academic/TeacherHomepageManageView.vue'), props: (route) => ({ teacherId: String(route.params.teacherId) }), meta: { remountOnPath: true, access: 'member', title: 'teacherHomepage.manage', section: 'me' } },
   { path: '/verification/capture', component: () => import('../features/verification/CaptureView.vue'), meta: { title: 'verification.capture.title', section: 'me' } },
   { path: '/:pathMatch(.*)*', component: NotFoundView, meta: { title: 'notFound.title' } },
 ]

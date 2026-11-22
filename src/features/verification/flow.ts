@@ -1,7 +1,7 @@
 import { computed, onBeforeUnmount, reactive, ref, shallowRef, watch } from 'vue'
 import { verificationPages } from './api'
 import { ApiError, errorCode } from '../../shared/api/errors'
-import { useVerification, type Application, type Credential, type EmailChallenge, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
+import { useVerification, type Application, type Credential, type EmailChallenge, type EmailTransferStatus, type Kind, type Material, type Method, type RemovalRequest, type School, type Schemas, type Stage, type StudentProfile, type Summary } from './api'
 
 type Section = 'schools' | 'applications' | 'credentials' | 'requests'
 type ErrorTarget = Section | 'form' | 'profile' | 'removal' | 'email' | 'school'
@@ -159,6 +159,7 @@ export function useVerificationFlow() {
   }
 
   function clearPrivate() {
+    clearTransfer()
     summary.value = undefined
     applications.value = []
     credentials.value = []
@@ -195,6 +196,7 @@ export function useVerificationFlow() {
   }
 
   function reset() {
+    clearTransfer()
     stopPolling()
     stopMailPolling()
     cancelDetached(active.value)
@@ -243,8 +245,36 @@ export function useVerificationFlow() {
     reset()
   }
 
-  // Leaves the started application and returns to choosing the method. The draft
-  // stays on the server until it expires; nothing has been verified yet.
+  const transfer = shallowRef<EmailTransferStatus>()
+  const transferAsking = ref(false)
+  const transferChanged = ref(false)
+  const transferRetry = ref(false)
+  // A successful send can be reused only for this application, recipient and publication.
+  let grant: { applicationId: string; studentId: string; version: string; digest: string } | undefined
+
+  function clearTransfer() {
+    grant = undefined
+    transfer.value = undefined
+    transferAsking.value = false
+    transferChanged.value = false
+    transferRetry.value = false
+  }
+
+  watch(() => form.student_id.trim(), clearTransfer, { flush: 'sync' })
+
+  async function askTransfer(changed = transferChanged.value) {
+    clearTransfer()
+    transferChanged.value = changed
+    try {
+      transfer.value = await api.get('EmailTransferConsentStatus', '/api/v1/verification/email-transfer-consent', lifetime.signal)
+      transferAsking.value = true
+    } catch (failure) {
+      transferRetry.value = true
+      throw failure
+    }
+  }
+
+  // Leave the draft on the server for a later visit.
   function backToMethod() {
     const keep = { school: selectedSchool.value, method: selectedMethod.value, consent: consent.value }
     reset()
@@ -284,6 +314,7 @@ export function useVerificationFlow() {
   })
 
   const resume = (application: StudentApplication) => action(async () => {
+    clearTransfer()
     mode.value = 'student'
     for (let page = 0; !schools.value.some((row) => row.id === application.school_id) && cursors.schools && page < 20; page++) {
       const more = await api.list('School', '/api/v1/verification/schools', { limit: 100, after: cursors.schools })
@@ -321,7 +352,12 @@ export function useVerificationFlow() {
     }
   })
 
-  const submit = () => action(async () => {
+  const submit = () => submitForm()
+  const agreeTransfer = () => transferAsking.value && transfer.value
+    ? submitForm(transfer.value.document)
+    : Promise.resolve()
+
+  const submitForm = (choice?: EmailTransferStatus['document']) => action(async () => {
     if (mode.value === 'identity') {
       if (!school.value || !consent.value) throw new ApiError('invalid_input')
       const body: Schemas['IdentityInput'] = { student_id: form.student_id, name: form.name, document_number: form.document_number, password: '', school_id: school.value.id, notice_version: school.value.notice_version, consent: true }
@@ -339,7 +375,37 @@ export function useVerificationFlow() {
       notice.value = 'submitted'
     } else if (emailMethod.value) {
       const body: Schemas['EmailInput'] = { student_id: form.student_id, name: form.name }
-      await check(async () => { email.value = await api.write('EmailChallenge', `${path}/email`, body) })
+      const outbound = selectedMethod.value === 'student_email_outbound_otp'
+      const applicationId = active.value.id
+      const studentId = form.student_id.trim()
+      const current = transfer.value?.document
+      const canResend = grant && current && grant.applicationId === applicationId && grant.studentId === studentId
+        && grant.version === current.version && grant.digest === current.digest
+      if (outbound && !canResend) {
+        if (!choice || choice !== current) {
+          if (transferAsking.value) return
+          await askTransfer()
+          return
+        }
+        body.email_transfer_consent = { document_id: choice.document_id, version: choice.version, digest: choice.digest, accepted: true }
+      }
+      try {
+        await check(async () => { email.value = await api.write('EmailChallenge', `${path}/email`, body) })
+      } catch (failure) {
+        const code = errorCode(failure)
+        // The choice no longer counts (withdrawn or a new notice): show the current notice again.
+        if (outbound && (code === 'email_transfer_consent_required' || code === 'email_transfer_consent_changed')) {
+          await askTransfer(code === 'email_transfer_consent_changed')
+        } else if (outbound && failure instanceof ApiError && failure.status === 503) {
+          if (choice) clearTransfer()
+          transferRetry.value = true
+        }
+        throw failure
+      }
+      transferRetry.value = false
+      if (choice) grant = { applicationId, studentId, version: choice.version, digest: choice.digest }
+      transferAsking.value = false
+      transferChanged.value = false
       emailSentAt.value = Date.now()
     } else {
       const body: Schemas['VerifyInput'] = { student_id: form.student_id, name: selectedMethod.value === 'school_sso' ? '' : form.name, document_number: form.document_number, password: form.password }
@@ -547,6 +613,7 @@ export function useVerificationFlow() {
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable, step, profileRequestId,
     asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,
+    transfer, transferAsking, transferChanged, transferRetry, agreeTransfer,
     reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }

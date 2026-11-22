@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useNotificationTitle } from './title'
+import { useNotificationReason, useNotificationTitle } from './title'
 import { BadgeCheck, Bell, CheckCheck, ClipboardCheck, MessageCircleHeart, UsersRound } from 'lucide-vue-next'
 import { computed, ref, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -14,13 +14,14 @@ import { useErrorText } from '../../shared/ui/messages'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { extras } from '../../shared/extras'
 import MeLayout from '../account/MeLayout.vue'
-import { boxOf, boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
-import { setUnread } from './unread'
+import { boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
+import { setUnread, unreadCount } from './unread'
 
-// The message center. Notifications are filed into boxes by what they are
-// about: three boxes sit on top as entries, and the conversation list below
-// holds threads. System notices are the first thread; the list is where
-// further kinds of conversation appear without changing this layout.
+// The message center. The server files notifications into boxes by what they are
+// about and counts unread items per box: three boxes sit on top as entries, and the
+// conversation list below holds threads. System notices are the first thread; the
+// list is where further kinds of conversation appear without changing this layout.
+// Each box is read page by page from the server, so counts and pages always agree.
 // Opening a notification marks it read and goes to its page when the target is
 // still accessible; otherwise the notification explains why it cannot open.
 const { t } = useI18n()
@@ -30,16 +31,19 @@ const route = useRoute()
 const router = useRouter()
 const linkAvailable = useLinkAvailable()
 const targetAvailable = (item: Notification) => {
-  const to = targetRoute(item.target)
+  const to = targetRoute(item)
   return !!to && linkAvailable(to)
 }
 const api = useNotificationsApi()
-const list = usePaged<Notification>((cursor, signal) => api.list(cursor, signal))
-void list.reload()
-const unread = useAsync((signal) => api.unread(signal))
+const open = computed<Box | undefined>(() => boxes.find((box) => box === route.query.box))
+// The center previews the system thread; an open box lists its own notifications.
+const listed = computed<Box>(() => open.value ?? 'system')
+const list = usePaged<Notification>((cursor, signal) => api.list(listed.value, cursor, signal))
+watch(listed, () => { void list.reload() }, { immediate: true })
+const unread = useAsync((signal) => api.summary(signal), { keepData: true })
 void unread.reload()
 // The bell in the navigation shows the same number, so every change here reaches it.
-watch(() => unread.data.value, (value) => { if (typeof value === 'number') setUnread(value) })
+watch(() => unread.data.value, (value) => { if (value) setUnread(value.count) })
 const preferences = useAsync((signal) => api.preferences(signal))
 void preferences.reload()
 
@@ -51,53 +55,64 @@ const looks: Record<Box, { icon: Component; tile: string }> = {
 }
 const entries = ['interaction', 'review', 'verification'] as const
 const threadBoxes = ['system'] as const
-const open = computed<Box | undefined>(() => boxes.find((box) => box === route.query.box))
-const filed = computed(() => {
-  const groups = Object.fromEntries(boxes.map((box) => [box, [] as Notification[]])) as Record<Box, Notification[]>
-  for (const item of list.items.value) groups[boxOf(item)].push(item)
-  return groups
-})
-const unreadIn = (box: Box) => filed.value[box].filter((item) => !item.read_at).length
-// The API exposes a global total but only the loaded page of each category.
-const badge = (count: number) => list.next.value ? `≥${format.value.number(count)}` : format.value.number(count)
-const badgeLabel = (count: number) => t(list.next.value ? 'notifications.atLeastUnread' : 'notifications.unreadCount', { count: format.value.number(count) })
-const threads = computed(() => threadBoxes.filter((box) => filed.value[box].length || list.next.value).map((box) => ({ box, latest: filed.value[box][0], unread: unreadIn(box) })))
+const unreadIn = (which: Box) => unread.data.value?.by_box[which] ?? 0
+const badge = (count: number) => format.value.number(count)
+const badgeLabel = (count: number) => t('notifications.unreadCount', { count: format.value.number(count) })
+const threads = computed(() => (open.value ? [] : threadBoxes.map((which) => ({ box: which, latest: list.items.value[0], unread: unreadIn(which) })).filter((thread) => thread.latest || thread.unread)))
 // Conversations with people and groups come after the notification threads, newest first.
 const chats = computed(() => [...extras.threads].sort((a, b) => b.at.localeCompare(a.at)))
-const shown = computed(() => (open.value ? filed.value[open.value] : []))
+const shown = computed(() => (open.value ? list.items.value : []))
 const busy = ref(false)
-const pendingInteraction = ref<boolean>()
+const pendingSwitch = ref<{ key: Switch; value: boolean }>()
 
 const opening = new Set<string>()
 const title = useNotificationTitle()
+const reason = useNotificationReason()
 function stamp(at: string) {
   return format.value.dateTime(at)
 }
 async function openItem(item: Notification) {
   if (opening.has(item.id)) return
   if (!item.read_at) {
+    const box = listed.value
     opening.add(item.id)
     // Marking read is idempotent; a failure keeps the item unread and is retried on the next open.
     try {
       await api.read(item.id)
-      const stillUnread = list.items.value.some(entry => entry.id === item.id && !entry.read_at)
       list.items.value = list.items.value.map((entry) => (entry.id === item.id ? { ...entry, read_at: new Date().toISOString() } : entry))
-      if (stillUnread && typeof unread.data.value === 'number') unread.data.value = Math.max(0, unread.data.value - 1)
+      // Navigation can cancel the next summary request when this view unmounts.
+      const counts = unread.data.value
+      if (counts) {
+        unread.data.value = {
+          count: Math.max(0, counts.count - 1),
+          by_box: { ...counts.by_box, [box]: Math.max(0, counts.by_box[box] - 1) },
+          by_type: { ...counts.by_type, [item.type]: Math.max(0, counts.by_type[item.type] - 1) },
+        }
+      } else if (unread.status.value === 'loading' && unreadCount.value !== undefined) {
+        // The bell may already know the total while the center loads its first summary.
+        setUnread(unreadCount.value - 1)
+      }
+      void unread.reload()
     } catch (failure) {
       toast(errorText(errorCode(failure)))
     } finally { opening.delete(item.id) }
   }
-  const to = targetRoute(item.target)
+  const to = targetRoute(item)
   if (item.target_status === 'accessible' && to && linkAvailable(to)) void router.push(to)
 }
 async function readAll() {
   if (busy.value) return
   busy.value = true
   try {
-    await api.readAll()
-    const now = new Date().toISOString()
-    list.items.value = list.items.value.map((entry) => (entry.read_at ? entry : { ...entry, read_at: now }))
-    unread.data.value = 0
+    // Inside a box only that box is marked; the center marks everything.
+    const marked = open.value
+    await api.readAll(marked)
+    // The rows on screen are marked only if they still belong to the box that was marked.
+    if (open.value === marked) {
+      const now = new Date().toISOString()
+      list.items.value = list.items.value.map((entry) => (entry.read_at ? entry : { ...entry, read_at: now }))
+    }
+    await unread.reload()
     toast(t('notifications.allRead'))
   } catch (failure) {
     toast(errorText(errorCode(failure)))
@@ -105,21 +120,26 @@ async function readAll() {
     busy.value = false
   }
 }
-async function toggleInteraction(enabled: boolean) {
+// Replies and likes are switched separately; only the changed switch is sent.
+const switches = ['reply_enabled', 'like_enabled'] as const
+type Switch = (typeof switches)[number]
+async function toggle(key: Switch, enabled: boolean) {
   if (busy.value) return
-  pendingInteraction.value = enabled
+  pendingSwitch.value = { key, value: enabled }
   busy.value = true
   try {
-    preferences.data.value = await api.savePreferences({ interaction_enabled: enabled })
-    toast(t(preferences.data.value.interaction_enabled ? 'notifications.interactionOn' : 'notifications.interactionOff'))
+    preferences.data.value = await api.savePreferences({ [key]: enabled })
+    toast(t(`notifications.preferences.${key}.${preferences.data.value[key] ? 'on' : 'off'}`))
   } catch (failure) {
     toast(errorText(errorCode(failure)))
   } finally {
-    pendingInteraction.value = undefined
+    pendingSwitch.value = undefined
     busy.value = false
   }
 }
-const description = computed(() => (typeof unread.data.value === 'number' && unread.data.value > 0 ? t('notifications.unread', { count: format.value.number(unread.data.value) }) : t('notifications.description')))
+const switchValue = (key: Switch) => (pendingSwitch.value?.key === key ? pendingSwitch.value.value : preferences.data.value?.[key])
+const unreadHere = computed(() => (open.value ? unreadIn(open.value) : unread.data.value?.count ?? 0))
+const description = computed(() => (unread.data.value?.count ? t('notifications.unread', { count: format.value.number(unread.data.value.count) }) : t('notifications.description')))
 </script>
 
 <template>
@@ -133,7 +153,7 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
       <button
         class="btn btn-sm"
         type="button"
-        :disabled="busy || !unread.data.value"
+        :disabled="busy || !unreadHere"
         @click="readAll"
       >
         <CheckCheck aria-hidden="true" />{{ t('notifications.readAll') }}
@@ -176,6 +196,10 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
                 v-if="item.count > 1"
                 class="group-detail"
               >{{ t('notifications.count', { count: format.number(item.count) }) }}</span>
+              <span
+                v-if="reason(item)"
+                class="group-detail"
+              >{{ reason(item) }}</span>
               <span
                 v-if="item.target_status !== 'accessible' || !targetAvailable(item)"
                 class="group-detail"
@@ -266,7 +290,7 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
                   >{{ stamp(thread.latest.created_at) }}</span>
                 </span>
                 <span class="thread-foot">
-                  <span class="thread-preview truncate">{{ thread.latest ? title(thread.latest) : t('common.loadMore') }}</span>
+                  <span class="thread-preview truncate">{{ thread.latest ? title(thread.latest) : t('notifications.boxes.system') }}</span>
                   <span
                     v-if="thread.unread"
                     class="badge inline"
@@ -317,21 +341,8 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
           v-else-if="list.status.value !== 'loading' && list.status.value !== 'idle'"
           class="empty"
         >
-          {{ list.items.value.length ? t('notifications.noThreads') : t('notifications.empty') }}
+          {{ t('notifications.noThreads') }}
         </p>
-        <div
-          v-if="list.next.value"
-          class="more"
-        >
-          <button
-            class="btn btn-sm"
-            type="button"
-            :disabled="list.appending.value"
-            @click="list.loadMore"
-          >
-            {{ list.appending.value ? t('common.loading') : t('common.loadMore') }}
-          </button>
-        </div>
       </section>
 
       <section class="card stack-sm">
@@ -340,18 +351,21 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
           :code="preferences.error.value"
           @retry="preferences.reload"
         />
-        <label
-          v-if="preferences.data.value"
-          class="check switch"
-        >
-          <input
-            type="checkbox"
-            :checked="pendingInteraction ?? preferences.data.value.interaction_enabled"
-            :disabled="busy"
-            @change="toggleInteraction(($event.target as HTMLInputElement).checked)"
+        <template v-if="preferences.data.value">
+          <label
+            v-for="key in switches"
+            :key="key"
+            class="check switch"
           >
-          <span>{{ t('notifications.interaction') }}</span>
-        </label>
+            <input
+              type="checkbox"
+              :checked="switchValue(key)"
+              :disabled="busy"
+              @change="toggle(key, ($event.target as HTMLInputElement).checked)"
+            >
+            <span>{{ t(`notifications.preferences.${key}.label`) }}</span>
+          </label>
+        </template>
         <p class="subtle small">
           {{ t('notifications.always') }}
         </p>
@@ -391,5 +405,4 @@ const description = computed(() => (typeof unread.data.value === 'number' && unr
 .thread.unread .thread-name { font-weight: 680; }
 .thread-time { flex: none; }
 .thread-preview { color: var(--label-2); font-size: .9375rem; }
-.more { display: flex; justify-content: center; }
 </style>

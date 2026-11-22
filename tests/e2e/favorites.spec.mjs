@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import { fixture as academicFixture } from './academic-fixture.mjs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
+import { recordDialogUntilClosed } from './dialog-helpers.mjs';
 
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
@@ -15,7 +16,11 @@ function favorites(page) {
     ],
     writes: [],
   };
-  const view = (folder) => ({ ...folder, item_count: state.items.filter((item) => item.folder_id === folder.id).length });
+  const view = (folder) => {
+    const rows = state.items.filter((item) => item.folder_id === folder.id);
+    const count = (kind) => rows.filter((item) => item.kind === kind).length;
+    return { ...folder, item_count: rows.length, kind_counts: { course: count('course'), teacher: count('teacher'), resource: count('resource') } };
+  };
   page.route('**/api/v1/favorites/**', async (route) => {
     const request = route.request();
     const url = new URL(request.url());
@@ -128,7 +133,13 @@ test('saving a favorite offers quick move to folder, persists selected folder on
   await page.getByRole('button', { name: f.manageFolderItem.replace('{p0}', 'Exam') }).click();
   await page.getByRole('menuitem', { name: f.deleteFolder }).click();
   await expect(page.getByRole('dialog')).toBeVisible();
+  const confirmText = await page.getByRole('dialog').innerText();
+  const closing = recordDialogUntilClosed(page);
   await page.getByRole('dialog').getByRole('button', { name: all.common.cancel, exact: true }).click();
+  // The shared dialog keeps its last content during the closing animation, so the message does not go blank.
+  const closingTexts = await closing;
+  expect(closingTexts.length).toBeGreaterThan(0);
+  for (const text of closingTexts) expect(text).toBe(confirmText);
   expect(state.writes.some((w) => w.path === '/folders/exam/delete')).toBe(false);
 
   await page.getByRole('button', { name: f.manageFolderItem.replace('{p0}', 'Exam') }).click();

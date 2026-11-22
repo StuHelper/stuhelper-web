@@ -1,13 +1,13 @@
 {
   "repository": "StuHelper/stuhelper-groups",
-  "revision": "053888485b9f09294e82c341bcd18c23c94dc259",
+  "revision": "0014aba478b38b3a89befb2a7e2bc574307a95a2",
   "version": "0.4.0",
   "files": {
     "contracts/groups.openapi.json": "contracts/groups.openapi.json",
     "sdk/groups.gen.ts": "src/api/groups.gen.ts"
   },
   "sha256": {
-    "contracts/groups.openapi.json": "9ed571bc66efad4b4c24e32b7d08f3544aa8f772c76e79bde5953ac9c20ff068",
-    "src/api/groups.gen.ts": "92960f9f28b8bc762c0442de98bd0101e2f55975b089dff70c271eb0da8b252d"
+    "contracts/groups.openapi.json": "6cf2084f787e5686067350a9e2aa9b5d3dc852cbda4bf6848394f71cca4f5f05",
+    "src/api/groups.gen.ts": "44420c176b3adaeef31b9aee946985083eb1b2ceac35dd635343c0828ea8eb54"
   }
 }

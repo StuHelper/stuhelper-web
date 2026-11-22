@@ -1,4 +1,6 @@
+import type { components } from '../api/verification.gen'
 import * as d from './data'
+import { teacherCredentials } from './teacher'
 
 // 演示用的学生认证后端：北航的学校与方式配置、各演示身份对应的认证状态，以及四种方式的核验流程。
 // 数据只在当前页面的内存里，刷新后回到所选演示身份的初始状态。规则写在这里，方便审阅时按提示触发各种结果：
@@ -8,6 +10,9 @@ import * as d from './data'
 //   邮箱验证码填 000000       → 验证码错误；其他六位数字通过
 //   校友选择学校账号核验      → 该方式仅适用于在读学生
 type Row = Record<string, any>
+type Schemas = components['schemas']
+type TransferReceipt = { acceptedAt: string }
+type DemoMail = { sent: number; challenge: Schemas['EmailChallenge']; receipt: TransferReceipt | undefined }
 export type VerificationPersona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired' | 'rejected'
 
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
@@ -16,6 +21,12 @@ const now = () => new Date().toISOString()
 const read = (init?: RequestInit): Row => { try { return JSON.parse(String(init?.body ?? '{}')) as Row } catch { return {} } }
 
 const school = d.verification.school
+const transferDocument: Schemas['EmailTransferDocument'] = {
+  document_id: 'email-transfer',
+  version: 'demo-v1',
+  digest: 'a'.repeat(64),
+  url: 'https://example.invalid/legal/email-transfer/demo-v1',
+}
 
 const application = (values: Row): Row => ({ school_id: d.SCHOOL, stage: 'unknown', kind: 'student', revision: 1, created_at: d.ago(1), updated_at: d.ago(0, 5), expires_at: new Date(Date.now() + 30 * 864e5).toISOString(), credential_id: '', result_code: '', ...values })
 const credential = (state: string, values: Row = {}): Row => ({ id: 'cred', school_id: d.SCHOOL, method: 'real_name_identity_check', stage: 'unknown', kind: 'student', state, student_display: '2137****', revision: 1, verified_at: d.ago(50), expires_at: state === 'expired' ? d.ago(3) : null, ...values })
@@ -25,7 +36,8 @@ const applications: Row[] = []
 const credentials: Row[] = []
 const removalRequests: Row[] = []
 const materials = new Map<string, Row[]>()
-const mails = new Map<string, { sent: number; challenge: Row }>()
+const mails = new Map<string, DemoMail>()
+const transferReceipts = new Map<string, TransferReceipt>()
 let sequence = 0
 let seeded = ''
 
@@ -37,6 +49,8 @@ function seed(who: VerificationPersona) {
   eligible = who === 'verified'
   applications.length = 0
   credentials.length = 0
+  mails.clear()
+  transferReceipts.clear()
   if (who === 'verified') credentials.push(credential('active'))
   if (who === 'expired') credentials.push(credential('expired'))
   if (who === 'processing') applications.push(application({ id: 'app-review', method: 'manual_material_review', state: 'pending_review', revision: 2 }))
@@ -51,12 +65,90 @@ function approve(row: Row) {
   return json(row)
 }
 
-function mail(row: Row) {
-  const entry = mails.get(row.id)
-  if (!entry) return undefined
+function mailState(entry: DemoMail) {
   // 邮件先排队，约三秒后送达。
-  if (entry.challenge.state === 'queued' && Date.now() - entry.sent > 3000) entry.challenge = { ...entry.challenge, state: 'delivered' }
+  if (entry.challenge.state === 'queued' && Date.now() - entry.sent >= 3000) entry.challenge.state = 'delivered'
   return entry.challenge
+}
+
+function transferConsent(method: string) {
+  if (method === 'GET') {
+    const last = [...transferReceipts.values()].at(-1)
+    const status: Schemas['EmailTransferConsentStatus'] = {
+      document: transferDocument,
+      accepted: last !== undefined,
+      ...(last ? { accepted_at: last.acceptedAt } : {}),
+    }
+    return json(status)
+  }
+  if (method === 'DELETE') {
+    for (const entry of mails.values()) {
+      if (entry.receipt && mailState(entry).state === 'queued') entry.challenge.state = 'failed'
+    }
+    transferReceipts.clear()
+    const withdrawal: Schemas['EmailTransferWithdrawal'] = { withdrawn: true }
+    return json(withdrawal)
+  }
+  return undefined
+}
+
+function checkTransferChoice(input: unknown) {
+  if (typeof input !== 'object' || input === null || Array.isArray(input)) return nope('invalid_input', 400)
+  const { document_id, version, digest, accepted } = input as Record<string, unknown>
+  if (accepted == null || accepted === false) return nope('email_transfer_consent_required', 403)
+  if (accepted !== true || document_id !== transferDocument.document_id || typeof version !== 'string' ||
+      !/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/.test(version) || typeof digest !== 'string' || !/^[a-f0-9]{64}$/.test(digest)) {
+    return nope('invalid_input', 400)
+  }
+  if (version !== transferDocument.version || digest !== transferDocument.digest) return nope('email_transfer_consent_changed', 409)
+  return undefined
+}
+
+function beginEmail(applicationId: string, outbound: boolean, body: Row) {
+  const choice: unknown = body.email_transfer_consent
+  const studentId = typeof body.student_id === 'string' ? body.student_id.trim().toLowerCase() : ''
+  if (outbound && (!studentId || /\s/.test(studentId) || [...studentId].length > 64)) return nope('invalid_input', 400)
+  const scope = JSON.stringify([applicationId, studentId])
+  let receipt = transferReceipts.get(scope)
+  if (outbound && choice != null) {
+    const problem = checkTransferChoice(choice)
+    if (problem) return problem
+  } else if (outbound) {
+    // 只能沿用该申请上一次发码对应的凭证。
+    if (!receipt || mails.get(applicationId)?.receipt !== receipt) return nope('email_transfer_consent_required', 403)
+  } else if (choice != null) {
+    return nope('invalid_input', 400)
+  }
+  if ((outbound ? studentId : String(body.student_id ?? '')).startsWith('9')) return nope('email_identity_no_record')
+  if (String(body.name ?? '').trim() === '测试') return nope('email_identity_mismatch')
+  if (outbound && !receipt) {
+    receipt = { acceptedAt: now() }
+    transferReceipts.set(scope, receipt)
+  }
+  const sent = Date.now()
+  const challenge: Schemas['EmailChallenge'] = {
+    id: `mail-${++sequence}`,
+    application_id: applicationId,
+    expires_at: new Date(sent + 5 * 60_000).toISOString(),
+    state: 'queued',
+    masked_email: '21****34@buaa.edu.cn',
+    target_address: '',
+  }
+  mails.set(applicationId, { sent, challenge, receipt })
+  return json(challenge, 201)
+}
+
+function confirmEmail(row: Row, code: unknown) {
+  if (row.method !== 'student_email_outbound_otp') return code === '000000' ? nope('information_mismatch') : approve(row)
+  if (typeof code !== 'string' || !/^[0-9]{6}$/.test(code)) return nope('invalid_input', 400)
+  const entry = mails.get(row.id)
+  if (!entry) return nope('not_found', 404)
+  const challenge = mailState(entry)
+  if (Date.parse(challenge.expires_at) <= Date.now()) return nope('expired', 410)
+  if (challenge.state !== 'delivered') return nope('conflict', 409)
+  if (code === '000000') return nope('information_mismatch')
+  challenge.state = 'used'
+  return approve(row)
 }
 
 /** 手机或当前设备拍到的照片，记到最近一份填写中的人工审核申请上。 */
@@ -80,7 +172,8 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (!p.startsWith('/verification')) return undefined
   seed(who)
   if (p === '/verification/schools') return json([school])
-  if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: false, identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
+  if (p === '/verification/email-transfer-consent') return transferConsent(method)
+  if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: teacherCredentials(who === 'verified').some((item) => item.state === 'active'), identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
   if (p === '/verification/credentials') return json(credentials)
   if (p === '/verification/requests') return json(removalRequests)
   if (p === '/verification/suggestions' && method === 'POST') {
@@ -133,14 +226,11 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
     Object.assign(row, { state: 'pending_review', revision: row.revision + 1, updated_at: now() })
     return json(row)
   }
-  if (step === 'email' && method === 'POST') {
-    if (noRecord) return nope('email_identity_no_record')
-    if (mismatch) return nope('email_identity_mismatch')
-    const challenge = { id: `mail-${++sequence}`, application_id: row.id, expires_at: new Date(Date.now() + 5 * 60_000).toISOString(), state: 'queued', masked_email: '21****34@buaa.edu.cn', target_address: '' }
-    mails.set(row.id, { sent: Date.now(), challenge })
-    return json(challenge, 201)
+  if (step === 'email' && method === 'POST') return beginEmail(row.id, row.method === 'student_email_outbound_otp', body)
+  if (step === 'email') {
+    const entry = mails.get(row.id)
+    return entry ? json(mailState(entry)) : nope('not_found', 404)
   }
-  if (step === 'email') return mail(row) ? json(mail(row)) : nope('not_found', 404)
-  if (step === 'email/confirm') return body.code === '000000' ? nope('information_mismatch') : approve(row)
+  if (step === 'email/confirm') return confirmEmail(row, body.code)
   return undefined
 }

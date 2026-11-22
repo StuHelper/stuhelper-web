@@ -1,14 +1,14 @@
 import { onScopeDispose, readonly, ref, shallowRef, type Ref } from 'vue'
-import { ApiError, errorCode } from '../api/errors'
+import { ApiError, errorCode, errorRetryAt } from '../api/errors'
 import { Mutation } from '../api/mutation'
 
 export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 /**
- * Load one value. A new load cancels the previous one, and both a new load and
- * a failure clear the old value so revoked data never stays on screen.
+ * Load one value. A new load cancels the previous one and clears the old value.
+ * With keepData the old value stays during refresh and is cleared if the refresh fails.
  */
-export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
+export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>, options: { keepData?: boolean } = {}) {
   const data = shallowRef<T>()
   const status = ref<LoadStatus>('idle')
   const error = ref('')
@@ -20,7 +20,7 @@ export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
     current = controller
     status.value = 'loading'
     error.value = ''
-    data.value = undefined
+    if (!options.keepData) data.value = undefined
     try {
       const value = await loader(controller.signal)
       if (current !== controller) return
@@ -28,6 +28,7 @@ export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
       status.value = 'ready'
     } catch (failure) {
       if (current !== controller) return
+      if (options.keepData) data.value = undefined
       error.value = errorCode(failure)
       status.value = 'error'
     }
@@ -150,16 +151,19 @@ export function useMutation() {
   const mutation = new Mutation()
   const busy = ref(false)
   const error = ref('')
+  const retryAt = ref('')
   const uncertain = ref(false)
 
   async function settle<R>(work: () => Promise<R>): Promise<R | undefined> {
     if (busy.value) return undefined
     busy.value = true
     error.value = ''
+    retryAt.value = ''
     try {
       return await work()
     } catch (failure) {
       error.value = errorCode(failure)
+      retryAt.value = errorRetryAt(failure) ?? ''
       return undefined
     } finally {
       busy.value = false
@@ -170,6 +174,8 @@ export function useMutation() {
   return {
     busy: readonly(busy),
     error: readonly(error),
+    /** The server's reopening time for the last rejection, or '' when it gave none. */
+    retryAt: readonly(retryAt),
     uncertain: readonly(uncertain),
     /** Resolves to the result, or undefined when the write failed (see `error`). */
     run: <B, R>(signature: string, body: B, send: (body: B, key: string) => Promise<R>) => settle(() => mutation.run(signature, body, send)),

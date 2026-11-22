@@ -106,6 +106,7 @@ async function removeRoot() {
         <ReviewCard
           :review="root.data.value.entry"
           :names="root.data.value.names"
+          appendable
           reply-enabled
           @reply="reply"
           @updated="updateRoot"

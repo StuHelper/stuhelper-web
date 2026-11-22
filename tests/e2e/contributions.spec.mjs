@@ -147,14 +147,14 @@ test('records stay distinguishable by masked account and an optional nickname', 
   const card = page.locator('article').first();
   await expect(card.getByRole('heading', { level: 3 })).toHaveText('BHpan · 21****89');
   await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
-  await page.getByLabel(m.displayLabel, { exact: true }).fill('  主力网盘  ');
+  await page.getByLabel(m.displayLabel, { exact: true }).fill('  主力云盘  ');
   await page.getByRole('button', { name: m.review, exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  expect(state.requests[0].body.display_label).toBe('主力网盘');
+  expect(state.requests[0].body.display_label).toBe('主力云盘');
   // Renaming alone keeps the saved conditions, so none are sent or re-checked.
   expect(state.requests[0].body.conditions).toBeUndefined();
-  await expect(card.getByRole('heading', { level: 3 })).toHaveText('主力网盘');
+  await expect(card.getByRole('heading', { level: 3 })).toHaveText('主力云盘');
   await expect(card).toContainText('BHpan · 21****89');
   await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
   await page.getByLabel(m.limit, { exact: true }).fill('12');
@@ -173,7 +173,7 @@ test('records stay distinguishable by masked account and an optional nickname', 
 });
 
 test('a nickname never rides along on renewal, and accounts with the same mask stay apart', async ({ page }, info) => {
-  const labelled = { ...example.page.items[0], adapter: 'bhpan', account_hint: '21****89', display_label: '主力网盘' };
+  const labelled = { ...example.page.items[0], adapter: 'bhpan', account_hint: '21****89', display_label: '主力云盘' };
   const { m, c, state, errors } = await setup(page, info, false, labelled);
   await page.getByRole('button', { name: m.actions.renew, exact: true }).click();
   await expect(page.getByLabel(m.displayLabel, { exact: true })).toHaveCount(0);
@@ -192,5 +192,72 @@ test('a nickname never rides along on renewal, and accounts with the same mask s
   const [a, b] = await headings.allTextContents();
   expect(a).not.toBe(b);
   expect(b).toContain('#beef');
+  expect(errors).toEqual([]);
+});
+const before = (template) => template.split('{')[0].trim();
+test('the owner sees the drive total, used and remaining space, and an unreadable drive says why', async ({ page }, info) => {
+  const failed = { ...structuredClone(example.page.items[0]), reason: 'capacity_read_failed', provider_capacity: { total_bytes: null, used_bytes: null, remaining_bytes: null, observed_at: null, status: 'read_failed' } };
+  const { m, state, errors } = await setup(page, info);
+  const drive = page.locator('article').getByLabel(m.provider.title, { exact: true });
+  for (const name of [m.provider.total, m.provider.used, m.provider.remaining]) await expect(drive.getByText(name, { exact: true })).toBeVisible();
+  const shown = await page.evaluate(() => [...document.querySelectorAll('article dl[aria-label] dd')].map((node) => node.textContent?.trim()));
+  expect(shown).toHaveLength(3);
+  expect(new Set(shown).size).toBe(3);
+  await expect(page.locator('article')).not.toContainText(m.neverObserved);
+  state.item = failed;
+  await page.reload();
+  await expect(page.locator('article')).toContainText(m.reasons.capacity_read_failed);
+  await expect(page.locator('article').getByLabel(m.provider.title, { exact: true })).toHaveCount(0);
+  await expect(page.locator('article')).toContainText(m.neverObserved);
+  expect(errors).toEqual([]);
+});
+test('the contribution form shows the drive space and stops a quota above what is left', async ({ page }, info) => {
+  const { m, c, state, errors } = await setup(page, info, true);
+  await page.getByRole('button', { name: m.create, exact: true }).click();
+  await page.getByRole('combobox', { name: m.storage, exact: true }).click();
+  await page.getByRole('option').last().click();
+  await expect(page.getByRole('group', { name: m.provider.title })).toBeVisible();
+  // The time shown is the last successful read of the drive, so the owner can judge how fresh it is.
+  await expect(page.getByRole('group', { name: m.provider.title })).toContainText(before(m.observed));
+  const hint = page.getByText(before(m.provider.max));
+  await expect(hint).toBeVisible();
+  const full = await hint.textContent();
+  await page.getByLabel(m.reserve, { exact: true }).fill('20');
+  await expect(hint).not.toHaveText(full ?? '');
+  // 170 GB remain on the drive; with 20 GB kept back, at most 150 GB can be contributed.
+  await page.getByLabel(m.limit, { exact: true }).fill('160');
+  await expect(page.getByRole('alert').filter({ hasText: before(m.provider.over) }).first()).toBeVisible();
+  await pickDate(page, '2030-01', 2);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests).toHaveLength(0);
+  await page.getByLabel(m.limit, { exact: true }).fill('150');
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(state.requests[0].body.conditions).toMatchObject({ limit_bytes: 150_000_000_000, personal_reserve: 20_000_000_000 });
+  expect(errors).toEqual([]);
+});
+test('a quota the server finds above the drive space names that reason and can be read again', async ({ page }, info) => {
+  const { m, c, state, errors } = await setup(page, info, true);
+  await page.route('**/api/v1/storage-contributions', async (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    state.requests.push(route.request().postDataJSON());
+    await route.fulfill({ status: 400, json: { code: 'invalid', detail_code: 'limit_exceeds_provider_capacity' } });
+  });
+  await page.getByRole('button', { name: m.create, exact: true }).click();
+  await page.getByRole('combobox', { name: m.storage, exact: true }).click();
+  await page.getByRole('option').last().click();
+  await page.getByLabel(m.limit, { exact: true }).fill('100');
+  await pickDate(page, '2030-01', 2);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: m.review, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  const notice = page.getByRole('alert').filter({ hasText: m.provider.errors.limit_exceeds_provider_capacity });
+  await expect(notice).toBeVisible();
+  expect(state.requests).toHaveLength(1);
+  await notice.getByRole('button', { name: c.retry, exact: true }).click();
+  await expect(notice).toHaveCount(0);
   expect(errors).toEqual([]);
 });

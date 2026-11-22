@@ -134,7 +134,12 @@
     "phone_binding_changed": "Le numéro vient d’être modifié ailleurs. La page affiche l’état actuel ; réessayez.",
     "phone_change_in_progress": "La modification précédente est en cours. Relancez la demande d’origine dans un instant.",
     "phone_write_unconfirmed": "Le résultat de la modification n’a pas pu être confirmé. Relancez la demande d’origine pour vérifier.",
-    "phone_rate_limited": "Trop de demandes de code. Réessayez plus tard."
+    "phone_rate_limited": "Trop de demandes de code. Réessayez plus tard.",
+    "append_window_not_open": "Les compléments sont possibles 5 minutes après la première publication. Réessayez dans un instant.",
+    "consent_required": "Acceptez d’abord les conditions d’utilisation et la politique de confidentialité actuelles.",
+    "consent_version_changed": "Un document a été mis à jour. Acceptez-le de nouveau.",
+    "email_transfer_consent_required": "Acceptez l’envoi depuis l’étranger avant de demander un code par e-mail universitaire.",
+    "email_transfer_consent_changed": "La notice de transfert a été mise à jour. Veuillez confirmer à nouveau."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -641,7 +646,8 @@
       "course_enrollment": "Voir mes cours"
     },
     "followUp": "Complément",
-    "submitFollowUp": "Envoyer le complément"
+    "submitFollowUp": "Envoyer le complément",
+    "followUpOpensAt": "Les compléments sont possibles 5 minutes après la première publication. Réessayez après {time}."
   },
   "me": {
     "title": "Espace personnel",
@@ -691,7 +697,8 @@
       "resources": "Dépôts, validations et corrections.",
       "requests": "Suite donnée aux retraits, plaintes et recours.",
       "storage": "Capacité partagée et comptes cloud.",
-      "courses": "Cours, enseignants et horaires par semestre."
+      "courses": "Cours, enseignants et horaires par semestre.",
+      "privacy": "Accords acceptés et consentements distincts"
     },
     "profile": {
       "title": "Profil",
@@ -855,7 +862,7 @@
       "unknownHint": "Si la source est inconnue, n’en inventez pas ; vous pourrez la compléter.",
       "author": "Auteur connu (facultatif)",
       "license": "Licence (facultatif)",
-      "consentNotice": "Pour les œuvres originales que vous pouvez autoriser, l’accord couvre l’usage commercial, la sous-licence et la continuité de l’autorisation. Lisez les conditions complètes.",
+      "consentNotice": "Pour le contenu original que vous avez le droit de concéder, vous accordez à la plateforme une licence mondiale, gratuite, non exclusive, cessible et sous-licenciable, y compris pour un usage commercial, pour toute la durée légale de protection. Elle reste valable après retrait, dépublication ou clôture du compte. Lisez les conditions complètes avant d’envoyer.",
       "terms": "Lire les conditions complètes",
       "accept": "J’ai lu et j’accepte les conditions actuelles"
     },
@@ -1195,7 +1202,6 @@
     "continueNext": "Continuer",
     "returnHint": "Vous reviendrez à la page demandée dès que la vérification prendra effet.",
     "identityTitle": "Vérification d’identité",
-    "identityDescription": "La vérification d’identité est distincte de la vérification étudiante et sert aux actions qui confirment votre identité.",
     "identityName": "Nom",
     "identityNumber": "Numéro de pièce d’identité",
     "schoolSearch": "Rechercher un code, un nom ou un alias d’établissement",
@@ -1281,6 +1287,47 @@
     "documentType": "Type de pièce",
     "documentTypes": {
       "cn_resident_id_card": "Carte d’identité de résident (Chine)"
+    },
+    "transfer": {
+      "title": "Envoi de codes de vérification depuis l’étranger",
+      "intro": "Avant l’envoi d’un code à votre adresse e-mail universitaire, choisissez séparément si vous acceptez que les données ci-dessous soient transmises à un prestataire d’envoi d’e-mails situé hors de Chine.",
+      "changed": "La notice de transfert a été mise à jour. Lisez la nouvelle version et faites à nouveau votre choix.",
+      "facts": {
+        "recipient": {
+          "label": "Destinataire",
+          "text": "Plus Five Five, Inc. (service d’envoi d’e-mails Resend)"
+        },
+        "data": {
+          "label": "Données transférées",
+          "text": "Votre adresse e-mail universitaire (qui peut contenir votre numéro d’étudiant), l’objet, le corps du message avec le code et son heure d’expiration, ainsi que les identifiants nécessaires à l’envoi."
+        },
+        "purpose": {
+          "label": "Finalité",
+          "text": "Envoyer ce code, traiter les rejets de messages, les plaintes et les incidents de distribution, puis fournir les résultats de la distribution et les journaux nécessaires au diagnostic."
+        },
+        "place": {
+          "label": "Lieux de traitement et de stockage",
+          "text": "Les données sont traitées et stockées principalement aux États-Unis. La route publique des messages non distribués du domaine d’envoi pointe vers Tokyo, au Japon."
+        },
+        "period": {
+          "label": "Durées de conservation",
+          "text": "La notice ci-dessous précise les durées de conservation et les règles de suppression du corps des messages, des journaux de distribution, des sauvegardes et des entrées de la liste d’exclusion."
+        },
+        "rights": {
+          "label": "Vos droits",
+          "text": "Vous pouvez retirer votre consentement à tout moment dans « Confidentialité et consentements ». Pour demander un accès, une copie, une rectification ou un effacement, utilisez les coordonnées indiquées dans la notice."
+        }
+      },
+      "read": "Lire la notice et le formulaire de consentement au transfert de données personnelles (version {version})",
+      "other": "Vous pouvez aussi revenir en arrière et choisir une autre méthode proposée par votre établissement, si vous remplissez ses conditions.",
+      "agree": "Accepter l’envoi depuis l’étranger et envoyer le code",
+      "back": "Revenir et choisir une autre méthode",
+      "accepted": "Vous avez consenti à recevoir des codes de vérification envoyés depuis l’étranger à votre adresse e-mail universitaire.",
+      "acceptedAt": "Le {time}, vous avez consenti à recevoir des codes de vérification envoyés depuis l’étranger à votre adresse e-mail universitaire.",
+      "withdraw": "Retirer le consentement",
+      "withdrawConfirm": "Une fois le consentement retiré, les nouveaux envois nécessitent un nouveau consentement. Les envois déjà lancés peuvent se poursuivre et les codes déjà envoyés conservent leur échéance initiale.",
+      "withdrawn": "Le consentement à l’envoi depuis l’étranger a été retiré.",
+      "notAccepted": "Vous n’avez pas consenti à l’envoi depuis l’étranger. Votre accord sera demandé avant tout envoi de code à votre adresse universitaire."
     }
   },
   "contribution": {
@@ -1353,14 +1400,35 @@
       "binding_unavailable": "Ce compte est indisponible. Un administrateur vous aidera.",
       "cleanup_unconfirmed": "Certains fichiers n’ont pas encore été déplacés.",
       "storage_writes_disabled": "Le stockage n’accepte pas de nouveaux fichiers.",
-      "capacity_unknown": "Capacité illisible pour le moment.",
-      "exit_overdue": "Objectif de retrait dépassé ; migration en cours."
+      "capacity_unknown": "La capacité du disque n’a pas encore été lue.",
+      "exit_overdue": "Objectif de retrait dépassé ; migration en cours.",
+      "capacity_read_failed": "La lecture de la capacité du disque a échoué. StuHelper réessaiera automatiquement.",
+      "capacity_expired": "La lecture de la capacité du disque a expiré. StuHelper la mettra à jour automatiquement."
     },
     "displayLabel": "Surnom (facultatif)",
     "displayLabelHint": "Par exemple : disque principal",
     "displayLabelTooLong": "Un surnom compte au plus 32 caractères.",
     "reviewLabel": "Surnom : ",
-    "reviewLabelCleared": "Le surnom sera supprimé."
+    "reviewLabelCleared": "Le surnom sera supprimé.",
+    "provider": {
+      "title": "Espace du disque",
+      "total": "Disque : total",
+      "used": "Disque : utilisé",
+      "remaining": "Disque : restant",
+      "max": "Contribution possible jusqu’à {max}",
+      "over": "Au-delà de la limite : {max} au maximum",
+      "unavailable": "La capacité du disque est illisible pour le moment ; l’envoi n’est pas encore possible.",
+      "status": {
+        "not_read": "La capacité du disque n’a pas encore été lue.",
+        "read_failed": "La lecture de la capacité du disque a échoué. StuHelper réessaiera automatiquement.",
+        "expired": "La lecture de la capacité du disque a expiré. StuHelper la mettra à jour automatiquement."
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "Le quota partagé dépasse l’espace restant sur le disque. Réduisez-le puis réessayez.",
+        "provider_capacity_unavailable": "La capacité du disque ne peut pas être vérifiée pour le moment. Réessayez plus tard."
+      }
+    },
+    "neverObserved": "Capacité pas encore lue"
   },
   "custody": {
     "disabled": "La gestion des comptes de stockage n’est pas activée.",
@@ -1605,7 +1673,7 @@
     "verify": "Vérifier",
     "devices": "Appareils connectés",
     "signOutAll": "Se déconnecter partout",
-    "signOutAllHint": "Déconnectez StuHelper sur tous les appareils, y compris celui-ci.",
+    "signOutAllHint": "Se déconnecter de StuHelper sur tous les appareils.",
     "signOutAllConfirm": "Les connexions StuHelper de tous les appareils prendront fin et vous devrez vous reconnecter.",
     "closure": {
       "title": "Fermer le compte",
@@ -2011,14 +2079,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "Au moins {count} non lues",
     "title": "Messagerie",
     "link": "Messagerie",
     "description": "Interactions, résultats de modération, résultats de vérification et notifications système.",
     "unread": "Notifications non lues : {count}",
-    "interaction": "Recevoir les notifications de réactions (réponses, j’aime)",
-    "interactionOn": "Notifications de réactions activées.",
-    "interactionOff": "Notifications de réactions désactivées.",
     "always": "Les résultats de traitement, la sécurité et le compte sont toujours notifiés.",
     "readAll": "Tout marquer comme lu",
     "allRead": "Toutes les notifications sont lues.",
@@ -2033,7 +2097,8 @@
       "content": {
         "approved": "Votre contenu {content_id} a été approuvé",
         "rejected": "Votre contenu {content_id} n’a pas été approuvé",
-        "removed": "Votre contenu {content_id} a été retiré"
+        "removed": "Votre contenu {content_id} a été retiré",
+        "draft_expiring": "Votre brouillon {content_id} expire bientôt"
       },
       "resource_removal": {
         "approved": "La demande de retrait a été acceptée",
@@ -2046,7 +2111,8 @@
       "student_verification": {
         "approved": "La vérification étudiante a été approuvée",
         "rejected": "La vérification étudiante n’a pas été approuvée",
-        "revoked": "La vérification étudiante a été révoquée"
+        "revoked": "La vérification étudiante a été révoquée",
+        "supplement_required": "Des pièces complémentaires sont requises pour votre vérification étudiante"
       },
       "identity_verification": {
         "approved": "La vérification d’identité a réussi",
@@ -2062,7 +2128,8 @@
       },
       "teacher_verification": {
         "approved": "La vérification enseignant a été approuvée",
-        "rejected": "La vérification enseignant n’a pas été approuvée"
+        "rejected": "La vérification enseignant n’a pas été approuvée",
+        "supplement_required": "Des pièces complémentaires sont requises pour vérifier votre statut d’enseignant"
       },
       "system": {
         "notice": "Avis du système : {reference_id}",
@@ -2073,6 +2140,25 @@
         "notice": "Avis du système",
         "security": "Alerte de sécurité",
         "account": "Avis concernant le compte"
+      },
+      "appeal": {
+        "approved": "Votre recours a été accepté",
+        "rejected": "Votre recours a été rejeté"
+      },
+      "group_membership": {
+        "grace_expiring": "La période de grâce de votre adhésion au groupe prend bientôt fin"
+      },
+      "storage_contribution": {
+        "exit_completed": "Le retrait de votre contribution au stockage cloud est terminé"
+      },
+      "billing": {
+        "topup_review_required": "Une commande de recharge doit être vérifiée manuellement",
+        "refund_completed": "Votre remboursement a été effectué",
+        "refund_rejected": "Votre demande de remboursement a été refusée"
+      },
+      "teacher_homepage_request": {
+        "approved": "Votre demande de modification de votre page d’enseignant a été acceptée",
+        "rejected": "Votre demande de modification de votre page d’enseignant a été refusée"
       }
     },
     "status": {
@@ -2091,7 +2177,38 @@
     },
     "namedContent": "« {name} »",
     "contentUnavailable": "(contenu indisponible)",
-    "contentNameUnavailable": "(nom momentanément indisponible)"
+    "contentNameUnavailable": "(nom momentanément indisponible)",
+    "reason": "Motif : {reason}",
+    "reasons": {
+      "duplicate_material": "Fait doublon avec un support existant",
+      "copyright_claim": "Plainte relative aux droits d’auteur",
+      "community_guidelines": "Non-respect des règles de la communauté",
+      "off_topic": "Hors sujet",
+      "privacy_exposure": "Divulgation d’informations privées concernant autrui",
+      "low_quality": "Qualité insuffisante",
+      "author_request": "À la demande de l’auteur",
+      "insufficient_evidence": "Éléments de preuve insuffisants",
+      "expired_document": "Le document a expiré",
+      "unclear_material": "Les pièces justificatives manquent de clarté",
+      "identity_mismatch": "Les informations d’identité ne concordent pas",
+      "ineligible_status": "Votre statut actuel ne remplit pas les conditions requises",
+      "eligibility_revoked": "Votre éligibilité a été révoquée",
+      "duplicate_binding": "Déjà associé à un autre compte",
+      "policy_violation": "Non-respect des règles de la plateforme",
+      "payment_channel_rejected": "Le prestataire de paiement a refusé l’opération"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "Recevoir les notifications de réponse",
+        "on": "Les notifications de réponse sont activées.",
+        "off": "Les notifications de réponse sont désactivées."
+      },
+      "like_enabled": {
+        "label": "Recevoir les notifications de mention J’aime",
+        "on": "Les notifications de mention J’aime sont activées.",
+        "off": "Les notifications de mention J’aime sont désactivées."
+      }
+    }
   },
   "search": {
     "title": "Recherche",
@@ -2122,7 +2239,8 @@
       "courses": "Cours populaires",
       "teachers": "Enseignants populaires",
       "kind": "Classement",
-      "empty": "Pas encore assez d’activité pour établir un classement."
+      "empty": "Pas encore assez d’activité pour établir un classement.",
+      "descriptionDays": "Classement selon les consultations, avis, favoris et interactions des {days} derniers jours (heure de Pékin, aujourd’hui inclus). Il reflète l’attention ; les notes sont affichées à part."
     },
     "votes": {
       "title": "Mes votes",
@@ -2373,7 +2491,8 @@
     "viewDetails": "Voir les détails",
     "groupDisplay": "Affichage par école",
     "expandAllGroups": "Tout déplier",
-    "collapseAllGroups": "Tout replier"
+    "collapseAllGroups": "Tout replier",
+    "hottestDays": "Les plus populaires ({days} derniers jours)"
   },
   "tags": {
     "placeholder": "Saisissez un mot-clé puis Entrée",
@@ -2390,10 +2509,8 @@
     "unbindLabel": "Retirer le numéro de téléphone",
     "bindTitle": "Ajouter un numéro de téléphone",
     "changeTitle": "Modifier le numéro de téléphone",
-    "hint": "Le code est envoyé au nouveau numéro. Ensuite, la connexion et la récupération du mot de passe utiliseront le nouveau numéro.",
     "newNumber": "Nouveau numéro",
     "numberPlaceholder": "Numéro de Chine continentale à 11 chiffres",
-    "numberFormat": "Saisissez un mobile de Chine continentale à 11 chiffres, avec +86 facultatif.",
     "sendCode": "Envoyer le code",
     "resend": "Renvoyer",
     "resendIn": "Renvoyer dans {seconds} s",
@@ -2404,5 +2521,247 @@
     "unbound": "Numéro de téléphone retiré",
     "unbindTitle": "Retirer le numéro de téléphone",
     "unbindWarning": "Après le retrait, ce numéro ne servira plus à se connecter ni à récupérer le mot de passe."
+  },
+  "violation": {
+    "label": "Type d’infraction",
+    "search": "Rechercher un type d’infraction",
+    "required": "Choisissez un type d’infraction.",
+    "categories": {
+      "illegal_content": {
+        "name": "Contenu illégal",
+        "hint": "Contenu portant atteinte à la sécurité nationale, incitant à la subversion, au terrorisme, à l’extrémisme ou à d’autres actes illégaux"
+      },
+      "pornography": {
+        "name": "Pornographique ou vulgaire",
+        "hint": "Contenu pornographique, sexuellement suggestif ou vulgaire"
+      },
+      "gambling_drugs": {
+        "name": "Jeux d’argent, drogues ou produits interdits",
+        "hint": "Jeux d’argent, drogues, produits contrôlés ou commerce de produits interdits"
+      },
+      "fraud": {
+        "name": "Fraude ou hameçonnage",
+        "hint": "Arnaques, liens d’hameçonnage, faux emplois, tentatives d’obtenir des comptes ou de l’argent"
+      },
+      "violence_threat": {
+        "name": "Violence ou menaces",
+        "hint": "Apologie de la violence, menaces contre la sécurité d’autrui, incitation à l’automutilation ou au suicide"
+      },
+      "minors_harm": {
+        "name": "Nuisible aux mineurs",
+        "hint": "Contenu nuisible à la santé physique ou mentale des mineurs"
+      },
+      "personal_attack": {
+        "name": "Insultes ou attaques personnelles",
+        "hint": "Insultes, attaques personnelles ou provocations"
+      },
+      "harassment_discrimination": {
+        "name": "Harcèlement ou discrimination",
+        "hint": "Harcèlement ou discrimination liée à la région, au sexe, à l’ethnie, à la religion, etc."
+      },
+      "defamation_rumor": {
+        "name": "Diffamation ou rumeurs",
+        "hint": "Faits inventés, diffamation ou diffusion de rumeurs"
+      },
+      "privacy_leak": {
+        "name": "Atteinte à la vie privée",
+        "hint": "Divulgation du nom, des coordonnées, d’une pièce d’identité, de l’adresse ou d’autres données personnelles d’autrui"
+      },
+      "impersonation": {
+        "name": "Usurpation d’identité",
+        "hint": "Se faire passer pour une autre personne, un enseignant, une école ou une organisation"
+      },
+      "copyright": {
+        "name": "Atteinte au droit d’auteur",
+        "hint": "Scans de manuels, supports de cours, articles, etc. sans autorisation"
+      },
+      "other_ip": {
+        "name": "Atteinte à d’autres droits",
+        "hint": "Atteinte aux marques, au droit à l’image, à la réputation ou à d’autres droits légitimes"
+      },
+      "academic_integrity": {
+        "name": "Fraude académique",
+        "hint": "Rédaction pour autrui, examen passé par un tiers, outils de triche ou plagiat"
+      },
+      "leaked_exam": {
+        "name": "Fuite d’examen",
+        "hint": "Sujets, corrigés ou modalités d’examen non publiés"
+      },
+      "fake_review": {
+        "name": "Avis mensonger",
+        "hint": "Avis non fondé sur une expérience personnelle, faux avis, avis malveillant ou en conflit d’intérêts"
+      },
+      "wrong_teacher": {
+        "name": "Mauvais enseignant ou cours",
+        "hint": "L’avis ou le document est lié au mauvais enseignant ou cours"
+      },
+      "wrong_info": {
+        "name": "Informations erronées",
+        "hint": "Titre, catégorie, étiquettes, semestre, etc. ne correspondent pas au contenu"
+      },
+      "spam": {
+        "name": "Spam ou publicité",
+        "hint": "Publicité, redirection de trafic, promotion sans rapport ou envoi massif"
+      },
+      "malware": {
+        "name": "Fichier ou lien malveillant",
+        "hint": "Virus, chevaux de Troie, scripts malveillants ou liens dangereux"
+      },
+      "duplicate": {
+        "name": "Doublon",
+        "hint": "Reprend un contenu existant"
+      },
+      "low_quality": {
+        "name": "Faible qualité",
+        "hint": "Sans intérêt, remplissage, impossible à ouvrir ou incomplet"
+      },
+      "author_update": {
+        "name": "Demande de mise à jour de l’auteur",
+        "hint": "L’auteur demande une correction ou un retrait"
+      },
+      "other": {
+        "name": "Autre",
+        "hint": "Aucune des catégories ci-dessus ; décrivez la situation dans les détails"
+      }
+    },
+    "receipt": "Type d’infraction : {name}"
+  },
+  "consent": {
+    "title": "Conditions d’utilisation et politique de confidentialité",
+    "description": "Avant d’utiliser les fonctions qui nécessitent un compte, lisez et acceptez la version actuelle de chaque document ci-dessous.",
+    "updated": "Ces documents ont été mis à jour. Lisez les nouvelles versions et cochez chaque document à accepter.",
+    "documents": {
+      "terms": "Conditions d’utilisation",
+      "privacy": "Politique de confidentialité"
+    },
+    "agree": "J’ai lu et j’accepte : {name}",
+    "version": "Révision {version}",
+    "read": "Lire le texte intégral : {name}",
+    "accepted": "Accepté le {date}",
+    "submit": "Accepter et continuer",
+    "sending": "Envoi…",
+    "done": "C’est accepté. Vous pouvez continuer.",
+    "changed": "Un document vient d’être mis à jour. Lisez la nouvelle version et cochez de nouveau le document modifié.",
+    "allAccepted": "Vous avez accepté la version actuelle de ces documents.",
+    "declineTitle": "Si vous n’acceptez pas",
+    "decline": "Les fonctions qui nécessitent un compte restent indisponibles. Vous pouvez vous déconnecter et continuer à consulter les pages publiques, ou demander la fermeture de votre compte StuHelper.",
+    "menu": "Accepter les conditions"
+  },
+  "legal": {
+    "title": "Document juridique",
+    "current": "Voir la version actuelle",
+    "history": "Versions précédentes",
+    "noVersions": "Aucune version publiée pour le moment.",
+    "unpublished": "Aucune version publiée n’est en vigueur actuellement.",
+    "versionLine": "Version {version} · entrée en vigueur le {date}",
+    "fixed": "Historique des versions · Cette page présente le texte de cette version tel qu’il a été publié.",
+    "terms": "Conditions d’utilisation",
+    "privacy": "Politique de confidentialité"
+  },
+  "teacherHomepage": {
+    "title": "Page de l’enseignant",
+    "empty": "Le site de l’établissement ne fournit aucune information à afficher pour cette page.",
+    "source": "Ces informations proviennent de la page de l’enseignant sur le site de l’établissement. Elles sont affichées selon les règles de l’établissement.",
+    "photo": "Portrait de {name}",
+    "manage": "Gérer ma page d’enseignant",
+    "manageFor": "Gérer la page de « {name} »",
+    "manageTitle": "Page de {name}",
+    "manageDescription": "Demandez de corriger, d’ajouter ou de masquer des informations sur votre page. Les modifications s’appliquent après validation par l’établissement.",
+    "complain": "Signaler le contenu de la page",
+    "limit": "{count} sur {max}",
+    "fields": {
+      "name": "Nom affiché sur la page",
+      "position": "Fonction",
+      "education": "Niveau d’études",
+      "degree": "Diplôme",
+      "discipline": "Discipline universitaire",
+      "supervisors": "Habilitations à l’encadrement",
+      "email": "Adresse e-mail",
+      "phone": "Téléphone",
+      "office_location": "Bureau",
+      "hire_date": "Date d’arrivée dans l’établissement",
+      "biography": "Présentation",
+      "research": "Axes de recherche",
+      "fields": "Autres informations",
+      "sections": "Rubriques de la page",
+      "photo": "Portrait",
+      "page": "Page entière"
+    },
+    "supervisors": {
+      "doctoral": "Encadrement de doctorat",
+      "master": "Encadrement de master"
+    },
+    "complaint": {
+      "title": "Signaler le contenu de la page d’un enseignant",
+      "description": "Si des informations sont inexactes ou portent atteinte à des droits, choisissez une catégorie et décrivez la situation. Après examen, l’établissement peut masquer ces informations. La fiche de l’annuaire et les évaluations restent visibles.",
+      "reason": "Détails du signalement",
+      "evidence": "Justificatifs (un par ligne, 5 au maximum)",
+      "evidenceHint": "Chaque élément est limité à 2 000 caractères.",
+      "email": "Vous pouvez aussi écrire à {email}.",
+      "sent": "Votre signalement a été transmis. L’établissement l’examinera dès que possible."
+    },
+    "request": {
+      "title": "Nouvelle demande",
+      "start": "Faire une demande",
+      "kind": "Type de demande",
+      "kinds": {
+        "correction": "Corriger",
+        "supplement": "Ajouter",
+        "hide": "Masquer"
+      },
+      "field": "Information concernée",
+      "label": "Nom de l’élément",
+      "labelHint": "Saisissez le nom de l’élément ou le titre de la rubrique à corriger ou à ajouter.",
+      "labelOptional": "Laissez ce champ vide pour masquer le groupe entier.",
+      "value": "Nouveau contenu",
+      "supervisors": "Habilitations à l’encadrement",
+      "supervisorsHint": "Les habilitations cochées remplacent la liste actuelle. Décochez toutes les cases pour vider la liste.",
+      "photo": "Nouveau portrait",
+      "photoHint": "JPEG ou PNG, 2 Mio au maximum.",
+      "photoType": "Seules les images JPEG ou PNG sont acceptées.",
+      "photoSize": "L’image doit faire 2 Mio au maximum.",
+      "photoReadError": "Impossible de lire le portrait sélectionné. Réessayez ou sélectionnez de nouveau le fichier.",
+      "photoPreview": "Aperçu du nouveau portrait",
+      "message": "Motif de la demande",
+      "sent": "Votre demande a été envoyée. Vous recevrez une notification après son examen par l’établissement.",
+      "retention": "Le texte et la photo de la demande sont supprimés 12 mois après sa clôture.",
+      "history": "Mes demandes",
+      "none": "Vous n’avez encore soumis aucune demande.",
+      "status": {
+        "pending": "En attente",
+        "approved": "Approuvée",
+        "rejected": "Refusée"
+      }
+    },
+    "receipt": {
+      "title": "Demande concernant la page d’un enseignant",
+      "submitted": "Date d’envoi",
+      "resolved": "Date de traitement",
+      "note": "Réponse de l’établissement",
+      "cleared": "Supprimer toutes les habilitations affichées",
+      "photo": "Demande de remplacement du portrait"
+    },
+    "media": {
+      "loadFailed": "Impossible de charger les images, les vidéos et les pièces jointes de la page pour le moment.",
+      "image": "Image de la page de l’enseignant",
+      "imageFailed": "L’image ne peut pas être affichée pour le moment.",
+      "imageLink": "Voir l’image sur la page d’origine de l’établissement",
+      "videoLink": "Regarder la vidéo sur la page d’origine de l’établissement",
+      "attachmentLink": "Ouvrir la pièce jointe sur la page d’origine de l’établissement",
+      "external": "(ouvre le site de l’établissement dans une nouvelle fenêtre)",
+      "untitled": "Autre contenu"
+    }
+  },
+  "privacy": {
+    "title": "Confidentialité et consentements",
+    "description": "Consultez les accords que vous avez acceptés et gérez les consentements que vous pouvez retirer séparément.",
+    "agreements": "Conditions d’utilisation et politique de confidentialité",
+    "acceptedVersion": "Version {version} acceptée le {time}",
+    "pendingVersion": "Version {version} en attente de votre accord",
+    "read": "Lire",
+    "withdrawAgreements": "Si vous n’acceptez plus les conditions d’utilisation ou la politique de confidentialité, vous pouvez demander la fermeture de votre compte.",
+    "closure": "Demander la fermeture du compte",
+    "documents": "Documents juridiques",
+    "transferDocument": "Notice sur le transfert de données personnelles à l’étranger"
   }
 }

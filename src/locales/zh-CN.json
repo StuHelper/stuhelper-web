@@ -134,7 +134,12 @@
     "phone_binding_changed": "手机号刚在别处被修改，已刷新为最新状态，请重新操作。",
     "phone_change_in_progress": "上一次修改还在处理中，请稍后用原请求重试。",
     "phone_write_unconfirmed": "暂时无法确认修改结果，请用原请求重试核对。",
-    "phone_rate_limited": "验证码发送太频繁，请稍后再试。"
+    "phone_rate_limited": "验证码发送太频繁，请稍后再试。",
+    "append_window_not_open": "首次发布 5 分钟后才能追评，请稍后再试。",
+    "consent_required": "请先同意当前的用户服务协议和隐私政策。",
+    "consent_version_changed": "文件已更新，请重新确认。",
+    "email_transfer_consent_required": "发送学校邮箱验证码前需要同意境外投递。",
+    "email_transfer_consent_changed": "出境告知与同意书已更新，请重新确认。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -174,7 +179,7 @@
       },
       "contributions": {
         "title": "我的存储贡献",
-        "text": "自愿贡献网盘容量，用于保存学习资料。"
+        "text": "自愿贡献云盘容量，用于保存学习资料。"
       },
       "me": {
         "title": "个人中心",
@@ -641,7 +646,8 @@
       "course_enrollment": "查看我的课程"
     },
     "followUp": "追评",
-    "submitFollowUp": "提交追评"
+    "submitFollowUp": "提交追评",
+    "followUpOpensAt": "首次发布 5 分钟后才能追评，请在 {time} 之后再试。"
   },
   "me": {
     "title": "个人中心",
@@ -690,8 +696,9 @@
       "drafts": "继续编辑未发布的草稿。",
       "resources": "上传结果、审核状态与更正。",
       "requests": "下架、投诉和异议的处理结果。",
-      "storage": "贡献容量和网盘账号。",
-      "courses": "按学期查看课程、教师和上课安排。"
+      "storage": "贡献容量和云盘账号。",
+      "courses": "按学期查看课程、教师和上课安排。",
+      "privacy": "查看同意过的协议和单独授权"
     },
     "profile": {
       "title": "个人资料",
@@ -855,7 +862,7 @@
       "unknownHint": "来源未知时无需编造出处，以后可以更正补充。",
       "author": "已知作者（可选）",
       "license": "许可说明（可选）",
-      "consentNotice": "仅就你有权授权的原创内容，同意平台商业使用、再授权及许可持续有效。提交前请阅读完整条款。",
+      "consentNotice": "你仅就有权授权的原创内容，授予平台全球、免费、非独占、可转让、可再授权的许可，可用于商业用途，期限覆盖法定保护期，撤回、下架或注销后仍然有效。提交前请阅读完整条款。",
       "terms": "查看完整条款",
       "accept": "我已阅读并同意当前版本条款"
     },
@@ -1195,7 +1202,6 @@
     "continueNext": "继续前往",
     "returnHint": "认证生效后会自动回到你刚才要看的页面。",
     "identityTitle": "实名认证",
-    "identityDescription": "实名认证独立于学生认证，用于需要确认本人身份的操作。",
     "identityName": "姓名",
     "identityNumber": "证件号",
     "schoolSearch": "搜索学校代码、名称或别名",
@@ -1281,11 +1287,52 @@
     "documentType": "证件类型",
     "documentTypes": {
       "cn_resident_id_card": "居民身份证"
+    },
+    "transfer": {
+      "title": "学校邮箱验证码的境外投递",
+      "intro": "发送学校邮箱验证码前，请单独确认是否同意将下列信息提供给境外邮件服务商。",
+      "changed": "出境告知与同意书已更新，请阅读新版本后重新选择。",
+      "facts": {
+        "recipient": {
+          "label": "接收方",
+          "text": "Plus Five Five, Inc.（邮件投递服务 Resend）"
+        },
+        "data": {
+          "label": "出境的信息",
+          "text": "学校邮箱地址（可能含学号）、邮件主题、含验证码和到期时间的正文，以及必要的投递标识。"
+        },
+        "purpose": {
+          "label": "用途",
+          "text": "投递本次验证码，处理退信、投诉和投递异常，并提供投递结果和排查所需的日志。"
+        },
+        "place": {
+          "label": "处理与保存地点",
+          "text": "主要在美国处理和保存。发信域公开的退信路由指向日本东京。"
+        },
+        "period": {
+          "label": "保存期限",
+          "text": "邮件正文、投递日志、备份和拒发名单记录的保存期限与删除规则见下方告知书。"
+        },
+        "rights": {
+          "label": "你的权利",
+          "text": "可随时在「隐私与授权」撤回同意。也可通过告知书所列渠道申请查阅、复制、更正或删除。"
+        }
+      },
+      "read": "阅读《个人信息出境告知与同意书》（版本 {version}）",
+      "other": "你也可以返回，选择学校已开放且你符合条件的其他认证方式。",
+      "agree": "同意境外投递并发送验证码",
+      "back": "返回选择其他方式",
+      "accepted": "你已同意学校邮箱验证码的境外投递。",
+      "acceptedAt": "你在 {time} 同意了学校邮箱验证码的境外投递。",
+      "withdraw": "撤回同意",
+      "withdrawConfirm": "撤回后，新的投递需要重新同意。撤回前已发起的投递可能继续处理，已发出的验证码沿用原有效期。",
+      "withdrawn": "已撤回境外投递同意。",
+      "notAccepted": "你还没有同意境外投递。发送学校邮箱验证码前会单独询问你。"
     }
   },
   "contribution": {
     "eyebrow": "共享存储",
-    "description": "自愿贡献闲置的网盘容量，用于保存学习资料。",
+    "description": "自愿贡献闲置的云盘容量，用于保存学习资料。",
     "summary": "社区贡献存储概况",
     "declared": "用户申报的容量",
     "available": "实际可用",
@@ -1296,7 +1343,7 @@
     "accepted": "已提交，生效后此处会更新。",
     "signInHint": "登录后可以查看和管理你的贡献。",
     "create": "新增存储贡献",
-    "noOptions": "暂无可用的存储，请先接入一个网盘账号。",
+    "noOptions": "暂无可用的存储，请先接入一个云盘账号。",
     "storage": "选择已授权存储",
     "option": "{adapter} · {id} · 可用 {capacity}",
     "limit": "共享额度（GB）",
@@ -1347,25 +1394,46 @@
     "reasons": {
       "observation_stale": "容量数据尚未更新。",
       "consent_expired": "贡献期限已到，等待退出处理。",
-      "storage_unavailable": "网盘暂时不可用。",
-      "authorization_required": "网盘授权已失效，请重新授权。",
-      "storage_conflict": "网盘状态有变化，请刷新后查看。",
-      "binding_unavailable": "该网盘账号暂时不可用，管理员会协助处理。",
+      "storage_unavailable": "云盘暂时不可用。",
+      "authorization_required": "云盘授权已失效，请重新授权。",
+      "storage_conflict": "云盘状态有变化，请刷新后查看。",
+      "binding_unavailable": "该云盘账号暂时不可用，管理员会协助处理。",
       "cleanup_unconfirmed": "仍有文件尚未迁出。",
       "storage_writes_disabled": "存储暂不接受新文件。",
-      "capacity_unknown": "暂时读取不到容量。",
-      "exit_overdue": "已超过退出目标时间，迁移仍在处理。"
+      "capacity_unknown": "尚未读取到云盘容量。",
+      "exit_overdue": "已超过退出目标时间，迁移仍在处理。",
+      "capacity_read_failed": "读取云盘容量失败，平台会自动重试。",
+      "capacity_expired": "云盘容量数据已过期，平台会自动刷新。"
     },
     "displayLabel": "备注名（选填）",
-    "displayLabelHint": "例如：主力网盘",
+    "displayLabelHint": "例如：主力云盘",
     "displayLabelTooLong": "备注名最多 32 个字符。",
     "reviewLabel": "备注名：",
-    "reviewLabelCleared": "将清除备注名。"
+    "reviewLabelCleared": "将清除备注名。",
+    "provider": {
+      "title": "云盘空间",
+      "total": "云盘总空间",
+      "used": "云盘已用",
+      "remaining": "云盘剩余",
+      "max": "最多可贡献 {max}",
+      "over": "超出可贡献上限，最多 {max}",
+      "unavailable": "暂时读取不到云盘容量，暂不能提交。",
+      "status": {
+        "not_read": "尚未读取到云盘容量。",
+        "read_failed": "读取云盘容量失败，平台会自动重试。",
+        "expired": "云盘容量数据已过期，平台会自动刷新。"
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "共享额度超过了云盘剩余空间，请调低后重试。",
+        "provider_capacity_unavailable": "暂时无法核实云盘容量，请稍后再试。"
+      }
+    },
+    "neverObserved": "尚未读取到容量"
   },
   "custody": {
     "disabled": "存储账号托管尚未启用。",
     "title": "存储账号",
-    "description": "接入网盘账号后，可选择贡献的容量和期限。",
+    "description": "接入云盘账号后，可选择贡献的容量和期限。",
     "sending": "正在验证账号，请稍候…",
     "uncertain": "提交结果尚未确认。密码已清除，请先查询结果，不要重复提交。",
     "recover": "查询结果",
@@ -1394,13 +1462,13 @@
       "credentials_required": "需要重新输入密码"
     },
     "reasons": {
-      "authorization_rejected": "网盘拒绝了登录，请检查账号和密码。",
-      "dependency_unavailable": "网盘暂时不可用，请稍后重试。",
-      "result_unknown": "网盘尚未返回结果，请稍后查看。",
+      "authorization_rejected": "云盘拒绝了登录，请检查账号和密码。",
+      "dependency_unavailable": "云盘暂时不可用，请稍后重试。",
+      "result_unknown": "云盘尚未返回结果，请稍后查看。",
       "conflict": "该账号已接入或状态刚发生变化，请刷新后查看。",
       "attempts_exhausted": "多次尝试仍未成功，管理员会协助处理。",
       "credentials_required": "请重新输入账号和密码。",
-      "interactive_verification_required": "网盘要求交互验证，请完成验证后重试。"
+      "interactive_verification_required": "云盘要求交互验证，请完成验证后重试。"
     },
     "maxTermHint": "最长可授权 {days} 天。"
   },
@@ -1605,7 +1673,7 @@
     "verify": "去认证",
     "devices": "登录设备",
     "signOutAll": "退出所有设备",
-    "signOutAllHint": "在所有设备上退出 StuHelper，包括当前设备。",
+    "signOutAllHint": "在所有设备上退出 StuHelper 登录。",
     "signOutAllConfirm": "所有设备上的 StuHelper 登录都会失效，需要重新登录。",
     "closure": {
       "title": "注销账号",
@@ -2011,14 +2079,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "至少 {count} 条未读",
     "title": "消息",
     "link": "消息",
     "description": "互动、处理结果、认证结果和系统通知。",
     "unread": "未读消息：{count}",
-    "interaction": "接收互动通知（回复、点赞）",
-    "interactionOn": "已开启互动通知。",
-    "interactionOff": "已关闭互动通知。",
     "always": "处理结果、安全与账号通知始终接收。",
     "readAll": "全部标为已读",
     "allRead": "已全部标为已读。",
@@ -2033,7 +2097,8 @@
       "content": {
         "approved": "你的内容 {content_id} 已通过审核",
         "rejected": "你的内容 {content_id} 未通过审核",
-        "removed": "你的内容 {content_id} 已被下架"
+        "removed": "你的内容 {content_id} 已被下架",
+        "draft_expiring": "你的草稿 {content_id} 即将过期"
       },
       "resource_removal": {
         "approved": "资料下架申请已通过",
@@ -2046,7 +2111,8 @@
       "student_verification": {
         "approved": "学生认证申请已通过",
         "rejected": "学生认证申请未通过",
-        "revoked": "学生认证已被撤销"
+        "revoked": "学生认证已被撤销",
+        "supplement_required": "学生认证申请需要补充材料"
       },
       "identity_verification": {
         "approved": "实名核验已通过",
@@ -2062,7 +2128,8 @@
       },
       "teacher_verification": {
         "approved": "教师认证申请已通过",
-        "rejected": "教师认证申请未通过"
+        "rejected": "教师认证申请未通过",
+        "supplement_required": "教师认证申请需要补充材料"
       },
       "system": {
         "notice": "系统通知：{reference_id}",
@@ -2073,6 +2140,25 @@
         "notice": "系统通知",
         "security": "安全提醒",
         "account": "账号通知"
+      },
+      "appeal": {
+        "approved": "你的申诉已通过",
+        "rejected": "你的申诉未通过"
+      },
+      "group_membership": {
+        "grace_expiring": "群成员资格的宽限期即将结束"
+      },
+      "storage_contribution": {
+        "exit_completed": "云盘贡献已退出完成"
+      },
+      "billing": {
+        "topup_review_required": "充值订单需要人工核对",
+        "refund_completed": "退款已完成",
+        "refund_rejected": "退款申请未通过"
+      },
+      "teacher_homepage_request": {
+        "approved": "教师主页修改申请已通过",
+        "rejected": "教师主页修改申请未通过"
       }
     },
     "status": {
@@ -2091,7 +2177,38 @@
     },
     "namedContent": "「{name}」",
     "contentUnavailable": "（内容不可用）",
-    "contentNameUnavailable": "（名称暂不可用）"
+    "contentNameUnavailable": "（名称暂不可用）",
+    "reason": "原因：{reason}",
+    "reasons": {
+      "duplicate_material": "与已有资料重复",
+      "copyright_claim": "涉及版权投诉",
+      "community_guidelines": "不符合社区规范",
+      "off_topic": "与主题无关",
+      "privacy_exposure": "包含他人隐私信息",
+      "low_quality": "内容质量不足",
+      "author_request": "作者本人要求",
+      "insufficient_evidence": "证据不足",
+      "expired_document": "证件或材料已过期",
+      "unclear_material": "材料不清晰",
+      "identity_mismatch": "身份信息不一致",
+      "ineligible_status": "当前身份不符合条件",
+      "eligibility_revoked": "资格已被撤销",
+      "duplicate_binding": "已绑定其他账号",
+      "policy_violation": "违反平台规则",
+      "payment_channel_rejected": "支付渠道拒绝了该操作"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "接收回复通知",
+        "on": "已开启回复通知。",
+        "off": "已关闭回复通知。"
+      },
+      "like_enabled": {
+        "label": "接收点赞通知",
+        "on": "已开启点赞通知。",
+        "off": "已关闭点赞通知。"
+      }
+    }
   },
   "search": {
     "title": "搜索",
@@ -2122,7 +2239,8 @@
       "courses": "热门课程",
       "teachers": "热门教师",
       "kind": "榜单类型",
-      "empty": "数据不足，暂时无法生成榜单。"
+      "empty": "数据不足，暂时无法生成榜单。",
+      "descriptionDays": "按近 {days} 天（北京时间，含今天）的浏览、评价、收藏和互动排序。榜单反映关注度，评价情况以各自的评分为准。"
     },
     "votes": {
       "title": "我的投票",
@@ -2373,7 +2491,8 @@
     "viewDetails": "查看详情",
     "groupDisplay": "学院分组显示",
     "expandAllGroups": "全部展开",
-    "collapseAllGroups": "全部收起"
+    "collapseAllGroups": "全部收起",
+    "hottestDays": "最热门（近 {days} 天）"
   },
   "tags": {
     "placeholder": "输入标签，按回车添加",
@@ -2390,10 +2509,8 @@
     "unbindLabel": "解绑手机号",
     "bindTitle": "绑定手机号",
     "changeTitle": "更换手机号",
-    "hint": "验证码会发到新号码。更换后，登录和找回密码都使用新号码。",
     "newNumber": "新手机号",
     "numberPlaceholder": "11 位中国大陆手机号",
-    "numberFormat": "请输入 11 位中国大陆手机号，可带 +86。",
     "sendCode": "获取验证码",
     "resend": "重新发送",
     "resendIn": "{seconds} 秒后可重发",
@@ -2404,5 +2521,247 @@
     "unbound": "手机号已解绑",
     "unbindTitle": "解绑手机号",
     "unbindWarning": "解绑后不能再用这个号码登录或找回密码。"
+  },
+  "violation": {
+    "label": "违规类型",
+    "search": "搜索违规类型",
+    "required": "请选择违规类型。",
+    "categories": {
+      "illegal_content": {
+        "name": "违法违规",
+        "hint": "危害国家安全、煽动颠覆、恐怖主义、极端主义等违法信息"
+      },
+      "pornography": {
+        "name": "色情低俗",
+        "hint": "色情、性暗示或低俗内容"
+      },
+      "gambling_drugs": {
+        "name": "赌博毒品违禁品",
+        "hint": "赌博、毒品、管制物品或违禁品交易"
+      },
+      "fraud": {
+        "name": "诈骗钓鱼",
+        "hint": "诈骗、钓鱼链接、虚假兼职、套取账号或钱财"
+      },
+      "violence_threat": {
+        "name": "暴力威胁",
+        "hint": "宣扬暴力、威胁他人人身安全、引导自残自杀"
+      },
+      "minors_harm": {
+        "name": "危害未成年人",
+        "hint": "不利于未成年人身心健康的内容"
+      },
+      "personal_attack": {
+        "name": "辱骂攻击",
+        "hint": "辱骂、人身攻击、挑衅"
+      },
+      "harassment_discrimination": {
+        "name": "骚扰歧视",
+        "hint": "骚扰，或地域、性别、民族、宗教等歧视"
+      },
+      "defamation_rumor": {
+        "name": "诽谤谣言",
+        "hint": "虚构事实、诽谤他人、传播谣言"
+      },
+      "privacy_leak": {
+        "name": "泄露隐私",
+        "hint": "泄露他人姓名、联系方式、证件、住址等个人信息"
+      },
+      "impersonation": {
+        "name": "冒充他人",
+        "hint": "冒充他人、教师、学校或机构"
+      },
+      "copyright": {
+        "name": "侵犯著作权",
+        "hint": "未经许可的教材扫描、课件、论文等"
+      },
+      "other_ip": {
+        "name": "侵犯其他权益",
+        "hint": "侵犯商标、肖像、名誉等其他合法权益"
+      },
+      "academic_integrity": {
+        "name": "学术不端",
+        "hint": "代写、代考、作弊工具、抄袭"
+      },
+      "leaked_exam": {
+        "name": "泄露试题",
+        "hint": "未公开的试题、答案或考试安排"
+      },
+      "fake_review": {
+        "name": "不实评价",
+        "hint": "非亲身经历、刷评、恶意差评或利益相关的评价"
+      },
+      "wrong_teacher": {
+        "name": "教师或课程对应错误",
+        "hint": "评价或资料关联到了错误的教师或课程"
+      },
+      "wrong_info": {
+        "name": "信息错误",
+        "hint": "标题、分类、标签、学期等描述与内容不符"
+      },
+      "spam": {
+        "name": "广告垃圾",
+        "hint": "广告、引流、无关推广、刷屏"
+      },
+      "malware": {
+        "name": "恶意文件或链接",
+        "hint": "病毒、木马、恶意脚本或危险链接"
+      },
+      "duplicate": {
+        "name": "重复内容",
+        "hint": "与已有内容重复"
+      },
+      "low_quality": {
+        "name": "内容质量低",
+        "hint": "无意义、灌水、无法打开或内容残缺"
+      },
+      "author_update": {
+        "name": "作者要求更新",
+        "hint": "作者本人要求更正或撤回"
+      },
+      "other": {
+        "name": "其他",
+        "hint": "以上都不符合，请在说明中写清具体情况"
+      }
+    },
+    "receipt": "违规类型：{name}"
+  },
+  "legal": {
+    "title": "法律文件",
+    "current": "查看当前版本",
+    "history": "历史版本",
+    "noVersions": "还没有已发布的版本。",
+    "unpublished": "目前没有生效的已发布版本。",
+    "versionLine": "版本 {version} · {date} 生效",
+    "fixed": "历史版本 · 此页面显示该版本发布时的原文。",
+    "terms": "用户服务协议",
+    "privacy": "隐私政策"
+  },
+  "consent": {
+    "title": "确认用户服务协议与隐私政策",
+    "description": "使用需要登录的功能前，请阅读并分别同意以下文件的当前版本。",
+    "updated": "以下文件已更新。请阅读新版本，并重新勾选需要确认的文件。",
+    "documents": {
+      "terms": "《用户服务协议》",
+      "privacy": "《隐私政策》"
+    },
+    "agree": "我已阅读并同意{name}",
+    "version": "版本 {version}",
+    "read": "阅读{name}全文",
+    "accepted": "已于 {date} 同意",
+    "submit": "同意并继续",
+    "sending": "正在提交…",
+    "done": "已确认，可以继续使用。",
+    "changed": "文件刚刚更新。请阅读新版本，并重新勾选已变更的文件。",
+    "allAccepted": "你已同意以上文件的当前版本。",
+    "declineTitle": "不同意怎么办",
+    "decline": "不同意时无法使用需要登录的功能。你可以退出登录继续浏览公开页面，也可以申请注销 StuHelper 账号。",
+    "menu": "确认协议"
+  },
+  "teacherHomepage": {
+    "title": "教师主页",
+    "empty": "学校官网暂无可展示的主页资料。",
+    "source": "以上资料来自学校官网教师主页，按学校规则展示。",
+    "photo": "{name}的照片",
+    "manage": "管理我的教师主页",
+    "manageFor": "管理「{name}」的教师主页",
+    "manageTitle": "{name}的教师主页",
+    "manageDescription": "申请更正、补充或隐藏教师主页上的资料。学校审核通过后才会生效。",
+    "complain": "投诉主页资料",
+    "limit": "已输入 {count} 字，最多 {max} 字",
+    "fields": {
+      "name": "官网姓名",
+      "position": "职务",
+      "education": "学历",
+      "degree": "学位",
+      "discipline": "学科",
+      "supervisors": "导师资格",
+      "email": "邮箱",
+      "phone": "电话",
+      "office_location": "办公地点",
+      "hire_date": "入校任教时间",
+      "biography": "个人简介",
+      "research": "研究方向",
+      "fields": "其他信息",
+      "sections": "主页栏目",
+      "photo": "照片",
+      "page": "整个主页"
+    },
+    "supervisors": {
+      "doctoral": "博士生导师",
+      "master": "硕士生导师"
+    },
+    "complaint": {
+      "title": "投诉教师主页资料",
+      "description": "资料有误或侵犯权益时，请选择分类并说明情况。学校审核后可隐藏主页资料，课程目录和评价不受影响。",
+      "reason": "具体说明",
+      "evidence": "证据（每行一项，最多 5 项）",
+      "evidenceHint": "每项最多 2,000 字。",
+      "email": "也可以发邮件至 {email}。",
+      "sent": "投诉已提交，学校会尽快处理。"
+    },
+    "request": {
+      "title": "新的申请",
+      "start": "提交申请",
+      "kind": "申请类型",
+      "kinds": {
+        "correction": "更正",
+        "supplement": "补充",
+        "hide": "隐藏"
+      },
+      "field": "涉及的资料",
+      "label": "项目名称",
+      "labelHint": "填写要更正或补充的项目名称或栏目标题。",
+      "labelOptional": "不填时隐藏整组资料。",
+      "value": "新的内容",
+      "supervisors": "导师资格",
+      "supervisorsHint": "勾选后的列表会整体替换原内容，全部不勾选表示清空。",
+      "photo": "新照片",
+      "photoHint": "JPEG 或 PNG，不超过 2 MiB。",
+      "photoType": "只支持 JPEG 或 PNG 图片。",
+      "photoSize": "图片不能超过 2 MiB。",
+      "photoReadError": "无法读取所选照片。请重试或重新选择文件。",
+      "photoPreview": "新照片预览",
+      "message": "申请说明",
+      "sent": "申请已提交，学校审核后会通知你。",
+      "retention": "申请结案满 12 个月后会删除申请原文和照片。",
+      "history": "我的申请",
+      "none": "还没有申请记录。",
+      "status": {
+        "pending": "待处理",
+        "approved": "已通过",
+        "rejected": "未通过"
+      }
+    },
+    "receipt": {
+      "title": "教师主页申请",
+      "submitted": "提交时间",
+      "resolved": "处理时间",
+      "note": "学校的处理说明",
+      "cleared": "清空导师资格",
+      "photo": "申请更换照片"
+    },
+    "media": {
+      "loadFailed": "暂时无法读取主页中的图片、视频和附件。",
+      "image": "主页图片",
+      "imageFailed": "图片暂时无法显示。",
+      "imageLink": "在学校原页面查看图片",
+      "videoLink": "在学校原页面观看视频",
+      "attachmentLink": "在学校原页面查看附件",
+      "external": "（在新窗口打开学校网站）",
+      "untitled": "其他内容"
+    }
+  },
+  "privacy": {
+    "title": "隐私与授权",
+    "description": "查看你同意过的协议，管理可单独撤回的授权。",
+    "agreements": "用户协议与隐私政策",
+    "acceptedVersion": "已同意版本 {version}，{time}",
+    "pendingVersion": "版本 {version} 尚未同意",
+    "read": "阅读",
+    "withdrawAgreements": "不再同意用户服务协议或隐私政策时，可以申请注销账号。",
+    "closure": "前往注销账号",
+    "documents": "法律文件",
+    "transferDocument": "个人信息出境告知与同意书"
   }
 }

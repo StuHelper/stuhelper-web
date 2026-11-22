@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ActionError from './ActionError.vue'
 import CheckGate from './CheckGate.vue'
+import EmailTransferNotice from './EmailTransferNotice.vue'
 import EmailCodeStep from './EmailCodeStep.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { CircleCheck, Copy, RefreshCw } from 'lucide-vue-next'
@@ -136,7 +137,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
 <template>
   <MeLayout
     :title="t(scope === 'identity' ? 'verification.identityTitle' : 'verification.unified.title')"
-    :description="t(scope === 'identity' ? 'verification.identityDescription' : 'verification.description')"
+    :description="scope === 'identity' ? undefined : t('verification.description')"
     :back="scope === 'identity' ? '/me/account' : undefined"
     :back-label="scope === 'identity' ? t('me.security') : undefined"
   >
@@ -555,14 +556,17 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             :remaining="cooldownSeconds"
           />
           <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
-          <div class="form-actions">
+          <div
+            v-if="!flow.transferAsking.value"
+            class="form-actions"
+          >
             <button
               class="btn btn-primary"
               type="submit"
               :disabled="flow.busy.value || cooldownSeconds > 0 || (flow.manual.value && !flow.materials.value.length)"
               :aria-busy="flow.busy.value || undefined"
             >
-              {{ t(flow.emailMethod.value ? 'verification.createChallenge' : 'verification.submit') }}
+              {{ t(flow.transferRetry.value ? 'common.retry' : flow.emailMethod.value ? 'verification.createChallenge' : 'verification.submit') }}
             </button>
             <button
               class="btn btn-ghost"
@@ -585,6 +589,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             v-model:code="form.code"
             :challenge="flow.email.value"
             :sent-at="flow.emailSentAt.value"
+            :retry-resend="flow.transferRetry.value"
             :busy="flow.busy.value"
             :error="flow.errorTarget.value === 'email' || flow.errorTarget.value === 'form' ? shownError : ''"
             @confirm="flow.confirmEmail"
@@ -710,6 +715,15 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             </div>
           </section>
         </div>
+        <EmailTransferNotice
+          v-if="flow.transferAsking.value && flow.transfer.value"
+          :status="flow.transfer.value"
+          :changed="flow.transferChanged.value"
+          :busy="flow.busy.value || cooldownSeconds > 0"
+          :can-agree="!!form.student_id && !!form.name"
+          @agree="flow.agreeTransfer"
+          @back="flow.backToMethod"
+        />
       </section>
       <button
         v-else-if="scope === 'student' && flow.summary.value"

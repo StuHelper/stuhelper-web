@@ -18,7 +18,13 @@ const format = useFormat()
 const api = useSearchApi()
 const kind = ref<'course' | 'teacher'>('course')
 const tabs = computed(() => [{ value: 'course' as const, label: t('search.popular.courses') }, ...(teacherDirectoryEnabled ? [{ value: 'teacher' as const, label: t('search.popular.teachers') }] : [])])
-const list = usePaged<SearchItem>((cursor, signal) => api.popular(kind.value, cursor, signal))
+// The ranking window in days, from the first page; later pages keep the same window.
+const windowDays = ref<number>()
+const list = usePaged<SearchItem>(async (cursor, signal) => {
+  const page = await api.popular(kind.value, cursor, signal)
+  if (!cursor) windowDays.value = page.windowDays
+  return page
+})
 watch(kind, () => void list.reload(), { immediate: true })
 // Course rows carry the current code and English name; teacher rows have neither.
 const detail = (item: SearchItem) => [item.code, item.english_name].filter(Boolean).join(' · ')
@@ -28,7 +34,7 @@ const detail = (item: SearchItem) => [item.code, item.english_name].filter(Boole
   <div class="stack-lg">
     <PageHeader
       :title="t('search.popular.title')"
-      :description="t('search.popular.description')"
+      :description="windowDays ? t('search.popular.descriptionDays', { days: format.number(windowDays) }) : t('search.popular.description')"
     />
     <TabBar
       v-model="kind"

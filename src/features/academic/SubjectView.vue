@@ -19,6 +19,7 @@ import { knownCredits, listSize, useAcademic, type Result } from './api'
 import ReviewEditor from './ReviewEditor.vue'
 import ReviewFeed from './ReviewFeed.vue'
 import StatisticsPanel from './StatisticsPanel.vue'
+import TeacherHomepagePanel from './TeacherHomepagePanel.vue'
 import { extras } from '../../shared/extras'
 import { feature, useCapabilities } from '../../shared/capabilities'
 import TabBar from '../../shared/ui/TabBar.vue'
@@ -201,6 +202,10 @@ function submitted(result: Result) {
             :kind="kind"
             :target-id="id"
             :school-id="subject.school_id"
+          />
+          <TeacherHomepagePanel
+            v-if="kind === 'teacher'"
+            :teacher-id="id"
           />
           <component
             :is="panel"

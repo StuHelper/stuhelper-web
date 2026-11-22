@@ -33,7 +33,15 @@ const nickname = ref('')
 const nicknameValid = computed(() => !!nickname.value.trim() && [...nickname.value.trim()].length <= 20)
 const saved = ref('')
 const current = ref<Profile>()
-const signingOut = ref<'' | 'device' | 'all'>('')
+// The dialog keeps showing the chosen scope while it closes, so its text does not
+// switch to the other scope during the closing animation.
+const signOutScope = ref<'device' | 'all'>('device')
+const signOutOpen = ref(false)
+function askSignOut(scope: 'device' | 'all') {
+  signOutScope.value = scope
+  signOutError.value = ''
+  signOutOpen.value = true
+}
 const signOutError = ref('')
 const signOutBusy = ref(false)
 const available = useLinkAvailable()
@@ -54,7 +62,7 @@ const ownResources = useAsync((signal) => resources.mySummary(signal))
 const favoriteCount = useAsync(async (signal) => (await favorites.allFolders(signal)).reduce((sum, folder) => sum + folder.item_count, 0))
 // Ivory is stored in hundredths; the card shows the balance in whole units with any cents.
 const balance = useAsync(async (signal) => (await wallet.wallet(signal)).ivory_minor / 100)
-const activity = useAsync(async (signal) => (await notifications.list('', signal)).items.slice(0, 4))
+const activity = useAsync(async (signal) => (await notifications.list(undefined, '', signal)).items.slice(0, 4))
 // Optional modules (favorites, wallet, notifications) are only read when this deployment
 // runs them; their numbers and links are hidden otherwise.
 const capabilities = useCapabilities()
@@ -142,11 +150,11 @@ async function keepMine() {
 }
 
 async function signOut() {
-  if (!signingOut.value) return
+  if (!signOutOpen.value) return
   signOutBusy.value = true
   signOutError.value = ''
   try {
-    await session.signOut(signingOut.value === 'all')
+    await session.signOut(signOutScope.value === 'all')
   } catch (failure) {
     signOutError.value = errorCode(failure)
   } finally {
@@ -429,14 +437,14 @@ async function signOut() {
           <button
             class="group-row sign-out"
             type="button"
-            @click="signingOut = 'device'"
+            @click="askSignOut('device')"
           >
             {{ t('account.signOut') }}
           </button>
           <button
             class="group-row sign-out danger"
             type="button"
-            @click="signingOut = 'all'"
+            @click="askSignOut('all')"
           >
             {{ t('account.signOutAll') }}
           </button>
@@ -448,13 +456,13 @@ async function signOut() {
     </div>
 
     <ConfirmDialog
-      :open="signingOut !== ''"
-      :title="t(signingOut === 'all' ? 'account.signOutAll' : 'account.signOut')"
-      :message="t(signingOut === 'all' ? 'me.sessions.allConfirm' : 'me.sessions.deviceConfirm')"
-      :danger="signingOut === 'all'"
+      :open="signOutOpen"
+      :title="t(signOutScope === 'all' ? 'account.signOutAll' : 'account.signOut')"
+      :message="t(signOutScope === 'all' ? 'me.sessions.allConfirm' : 'me.sessions.deviceConfirm')"
+      :danger="signOutScope === 'all'"
       :busy="signOutBusy"
       @confirm="signOut"
-      @cancel="signingOut = ''; signOutError = ''"
+      @cancel="signOutOpen = false"
     >
       <p
         v-if="signOutError"

@@ -134,7 +134,12 @@
     "phone_binding_changed": "The number was just changed elsewhere. The page shows the current state; try again.",
     "phone_change_in_progress": "The previous change is still being processed. Retry the original request shortly.",
     "phone_write_unconfirmed": "The result of the change could not be confirmed. Retry the original request to check.",
-    "phone_rate_limited": "Codes are being requested too often. Try again later."
+    "phone_rate_limited": "Codes are being requested too often. Try again later.",
+    "append_window_not_open": "Follow-ups open 5 minutes after first publishing. Try again shortly.",
+    "consent_required": "Accept the current Terms of Service and Privacy Policy first.",
+    "consent_version_changed": "A document was updated. Please accept it again.",
+    "email_transfer_consent_required": "Agree to delivery from abroad before sending a school-email code.",
+    "email_transfer_consent_changed": "The transfer notice was updated. Please confirm again."
   },
   "connection": {
     "label": "Service connection status",
@@ -641,7 +646,8 @@
       "course_enrollment": "View my courses"
     },
     "followUp": "Follow-up",
-    "submitFollowUp": "Submit follow-up"
+    "submitFollowUp": "Submit follow-up",
+    "followUpOpensAt": "Follow-ups open 5 minutes after first publishing. Try again after {time}."
   },
   "me": {
     "title": "Personal center",
@@ -691,7 +697,8 @@
       "resources": "Upload results, review status and corrections.",
       "requests": "Outcomes of withdrawals, complaints and appeals.",
       "storage": "Shared capacity and cloud accounts.",
-      "courses": "Courses, teachers and class times by term."
+      "courses": "Courses, teachers and class times by term.",
+      "privacy": "Agreements you accepted and separate consents"
     },
     "profile": {
       "title": "Profile",
@@ -855,7 +862,7 @@
       "unknownHint": "If the source is unknown, do not invent one; you can add it later.",
       "author": "Known author (optional)",
       "license": "License details (optional)",
-      "consentNotice": "For original content you can authorize, consent covers commercial use, sublicensing and continuing permission. Read the full terms before submitting.",
+      "consentNotice": "For original content you have the right to license, you grant the platform a worldwide, free, non-exclusive, transferable and sublicensable license, including commercial use, for the full legal term of protection. It stays in effect after withdrawal, removal or account closure. Read the full terms before submitting.",
       "terms": "Read full terms",
       "accept": "I have read and accept the current terms"
     },
@@ -1195,7 +1202,6 @@
     "continueNext": "Continue",
     "returnHint": "You return to the page you wanted once verification takes effect.",
     "identityTitle": "Identity verification",
-    "identityDescription": "Identity verification is separate from student verification and is used for actions that confirm who you are.",
     "identityName": "Name",
     "identityNumber": "ID number",
     "schoolSearch": "Search school code, name or alias",
@@ -1281,6 +1287,47 @@
     "documentType": "Document type",
     "documentTypes": {
       "cn_resident_id_card": "Resident Identity Card (China)"
+    },
+    "transfer": {
+      "title": "Delivering school-email codes from abroad",
+      "intro": "Before sending a code to your school email, please decide separately whether to share the information below with an email delivery provider outside China.",
+      "changed": "The transfer notice has been updated. Please read the new version and choose again.",
+      "facts": {
+        "recipient": {
+          "label": "Recipient",
+          "text": "Plus Five Five, Inc. (Resend email delivery service)"
+        },
+        "data": {
+          "label": "Information transferred",
+          "text": "Your school email address (which may contain your student ID), the email subject, the message with the verification code and its expiry time, and identifiers needed for delivery."
+        },
+        "purpose": {
+          "label": "Purpose",
+          "text": "Deliver this verification code, handle bounces, complaints and delivery problems, and provide delivery results and troubleshooting logs."
+        },
+        "place": {
+          "label": "Processing and storage locations",
+          "text": "Processing and storage take place mainly in the United States. The sending domain’s public bounce route points to Tokyo, Japan."
+        },
+        "period": {
+          "label": "Retention",
+          "text": "The notice below explains how long the message body, delivery logs, backups and suppression list records are kept and how they are deleted."
+        },
+        "rights": {
+          "label": "Your rights",
+          "text": "You can withdraw consent at any time under Privacy and consents. To request access, a copy, correction or deletion, use the contact channels listed in the notice."
+        }
+      },
+      "read": "Read the personal information transfer notice (version {version})",
+      "other": "You can also go back and choose another method your school offers and you are eligible to use.",
+      "agree": "Agree to delivery from abroad and send the code",
+      "back": "Go back and choose another method",
+      "accepted": "You consented to having verification codes sent to your school email from abroad.",
+      "acceptedAt": "On {time}, you consented to having verification codes sent to your school email from abroad.",
+      "withdraw": "Withdraw consent",
+      "withdrawConfirm": "After you withdraw consent, new deliveries require consent again. Any delivery that has already started may continue, and codes already sent keep their original expiry time.",
+      "withdrawn": "Consent to delivery from abroad was withdrawn.",
+      "notAccepted": "You have not agreed to delivery from abroad. You will be asked before a school-email code is sent."
     }
   },
   "contribution": {
@@ -1353,14 +1400,35 @@
       "binding_unavailable": "This account is unavailable. An administrator will help.",
       "cleanup_unconfirmed": "Some files have not moved yet.",
       "storage_writes_disabled": "Storage is not accepting new files.",
-      "capacity_unknown": "Capacity cannot be read right now.",
-      "exit_overdue": "Exit target passed; migration is still pending."
+      "capacity_unknown": "The drive capacity has not been read yet.",
+      "exit_overdue": "Exit target passed; migration is still pending.",
+      "capacity_read_failed": "Reading the drive capacity failed. StuHelper will retry automatically.",
+      "capacity_expired": "The drive capacity reading has expired. StuHelper will refresh it automatically."
     },
     "displayLabel": "Nickname (optional)",
     "displayLabelHint": "For example: main drive",
     "displayLabelTooLong": "A nickname can have at most 32 characters.",
     "reviewLabel": "Nickname: ",
-    "reviewLabelCleared": "The nickname will be removed."
+    "reviewLabelCleared": "The nickname will be removed.",
+    "provider": {
+      "title": "Drive space",
+      "total": "Drive total",
+      "used": "Drive used",
+      "remaining": "Drive remaining",
+      "max": "Up to {max} can be contributed",
+      "over": "Above the limit: up to {max}",
+      "unavailable": "The drive capacity cannot be read right now, so this cannot be submitted yet.",
+      "status": {
+        "not_read": "The drive capacity has not been read yet.",
+        "read_failed": "Reading the drive capacity failed. StuHelper will retry automatically.",
+        "expired": "The drive capacity reading has expired. StuHelper will refresh it automatically."
+      },
+      "errors": {
+        "limit_exceeds_provider_capacity": "The shared quota is more than the space left on the drive. Lower it and try again.",
+        "provider_capacity_unavailable": "The drive capacity cannot be confirmed right now. Try again later."
+      }
+    },
+    "neverObserved": "Capacity not read yet"
   },
   "custody": {
     "disabled": "Storage account custody is not enabled.",
@@ -1605,7 +1673,7 @@
     "verify": "Verify",
     "devices": "Signed-in devices",
     "signOutAll": "Sign out everywhere",
-    "signOutAllHint": "Sign out of StuHelper on every device, including this one.",
+    "signOutAllHint": "Sign out of StuHelper on all devices.",
     "signOutAllConfirm": "StuHelper sign-ins on all devices will end, and you will need to sign in again.",
     "closure": {
       "title": "Close account",
@@ -2011,14 +2079,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "At least {count} unread",
     "title": "Messages",
     "link": "Messages",
     "description": "Interactions, review results, verification results and system notices.",
     "unread": "Unread notifications: {count}",
-    "interaction": "Receive interaction notifications (replies, likes)",
-    "interactionOn": "Interaction notifications are on.",
-    "interactionOff": "Interaction notifications are off.",
     "always": "Handling results, security and account notifications are always delivered.",
     "readAll": "Mark all as read",
     "allRead": "All notifications are marked as read.",
@@ -2033,7 +2097,8 @@
       "content": {
         "approved": "Your content {content_id} was approved",
         "rejected": "Your content {content_id} was not approved",
-        "removed": "Your content {content_id} was taken down"
+        "removed": "Your content {content_id} was taken down",
+        "draft_expiring": "Your draft {content_id} expires soon"
       },
       "resource_removal": {
         "approved": "Takedown request was accepted",
@@ -2046,7 +2111,8 @@
       "student_verification": {
         "approved": "Student verification was approved",
         "rejected": "Student verification was not approved",
-        "revoked": "Student verification was revoked"
+        "revoked": "Student verification was revoked",
+        "supplement_required": "Your student verification needs more material"
       },
       "identity_verification": {
         "approved": "Identity check passed",
@@ -2062,7 +2128,8 @@
       },
       "teacher_verification": {
         "approved": "Teacher verification was approved",
-        "rejected": "Teacher verification was not approved"
+        "rejected": "Teacher verification was not approved",
+        "supplement_required": "Your teacher verification needs more material"
       },
       "system": {
         "notice": "System notice: {reference_id}",
@@ -2073,6 +2140,25 @@
         "notice": "System notice",
         "security": "Security alert",
         "account": "Account notice"
+      },
+      "appeal": {
+        "approved": "Your appeal was accepted",
+        "rejected": "Your appeal was not accepted"
+      },
+      "group_membership": {
+        "grace_expiring": "The grace period of your group membership ends soon"
+      },
+      "storage_contribution": {
+        "exit_completed": "Your cloud drive contribution has been withdrawn"
+      },
+      "billing": {
+        "topup_review_required": "A top-up order needs a manual check",
+        "refund_completed": "Your refund is complete",
+        "refund_rejected": "Your refund request was not accepted"
+      },
+      "teacher_homepage_request": {
+        "approved": "Your teacher homepage request was approved",
+        "rejected": "Your teacher homepage request was not approved"
       }
     },
     "status": {
@@ -2091,7 +2177,38 @@
     },
     "namedContent": "“{name}”",
     "contentUnavailable": "(content unavailable)",
-    "contentNameUnavailable": "(name unavailable right now)"
+    "contentNameUnavailable": "(name unavailable right now)",
+    "reason": "Reason: {reason}",
+    "reasons": {
+      "duplicate_material": "Duplicates existing material",
+      "copyright_claim": "Copyright complaint",
+      "community_guidelines": "Breaks the community guidelines",
+      "off_topic": "Off topic",
+      "privacy_exposure": "Exposes someone’s private information",
+      "low_quality": "Quality is too low",
+      "author_request": "Requested by the author",
+      "insufficient_evidence": "Not enough evidence",
+      "expired_document": "The document has expired",
+      "unclear_material": "The material is not clear",
+      "identity_mismatch": "Identity details do not match",
+      "ineligible_status": "Your current status is not eligible",
+      "eligibility_revoked": "Eligibility was revoked",
+      "duplicate_binding": "Already linked to another account",
+      "policy_violation": "Breaks the platform rules",
+      "payment_channel_rejected": "The payment channel declined it"
+    },
+    "preferences": {
+      "reply_enabled": {
+        "label": "Receive reply notifications",
+        "on": "Reply notifications are on.",
+        "off": "Reply notifications are off."
+      },
+      "like_enabled": {
+        "label": "Receive like notifications",
+        "on": "Like notifications are on.",
+        "off": "Like notifications are off."
+      }
+    }
   },
   "search": {
     "title": "Search",
@@ -2122,7 +2239,8 @@
       "courses": "Popular courses",
       "teachers": "Popular teachers",
       "kind": "Ranking",
-      "empty": "Not enough activity yet to build a ranking."
+      "empty": "Not enough activity yet to build a ranking.",
+      "descriptionDays": "Ranked by views, reviews, favorites and interactions over the last {days} days (Beijing time, including today). The ranking shows attention; ratings are shown separately."
     },
     "votes": {
       "title": "My votes",
@@ -2373,7 +2491,8 @@
     "viewDetails": "View details",
     "groupDisplay": "School groups",
     "expandAllGroups": "Expand all",
-    "collapseAllGroups": "Collapse all"
+    "collapseAllGroups": "Collapse all",
+    "hottestDays": "Hottest (last {days} days)"
   },
   "tags": {
     "placeholder": "Type a tag and press Enter",
@@ -2390,10 +2509,8 @@
     "unbindLabel": "Remove phone number",
     "bindTitle": "Add phone number",
     "changeTitle": "Change phone number",
-    "hint": "The code is sent to the new number. Afterwards, sign-in and password recovery use the new number.",
     "newNumber": "New phone number",
     "numberPlaceholder": "11-digit mainland China number",
-    "numberFormat": "Enter an 11-digit mainland China mobile number, optionally with +86.",
     "sendCode": "Send code",
     "resend": "Send again",
     "resendIn": "Resend in {seconds}s",
@@ -2404,5 +2521,247 @@
     "unbound": "Phone number removed",
     "unbindTitle": "Remove phone number",
     "unbindWarning": "After removal, this number can no longer be used to sign in or recover your password."
+  },
+  "violation": {
+    "label": "Violation type",
+    "search": "Search violation types",
+    "required": "Choose a violation type.",
+    "categories": {
+      "illegal_content": {
+        "name": "Illegal content",
+        "hint": "Content that endangers national security, incites subversion, or promotes terrorism, extremism or other illegal acts"
+      },
+      "pornography": {
+        "name": "Pornographic or vulgar",
+        "hint": "Pornographic, sexually suggestive or vulgar content"
+      },
+      "gambling_drugs": {
+        "name": "Gambling, drugs or prohibited goods",
+        "hint": "Gambling, drugs, controlled items or trade in prohibited goods"
+      },
+      "fraud": {
+        "name": "Fraud or phishing",
+        "hint": "Scams, phishing links, fake part-time jobs, or attempts to obtain accounts or money"
+      },
+      "violence_threat": {
+        "name": "Violence or threats",
+        "hint": "Promoting violence, threatening someone's safety, or encouraging self-harm or suicide"
+      },
+      "minors_harm": {
+        "name": "Harmful to minors",
+        "hint": "Content harmful to the physical or mental health of minors"
+      },
+      "personal_attack": {
+        "name": "Abuse or personal attacks",
+        "hint": "Insults, personal attacks or provocation"
+      },
+      "harassment_discrimination": {
+        "name": "Harassment or discrimination",
+        "hint": "Harassment, or discrimination by region, gender, ethnicity, religion and so on"
+      },
+      "defamation_rumor": {
+        "name": "Defamation or rumors",
+        "hint": "Made-up facts, defamation or spreading rumors"
+      },
+      "privacy_leak": {
+        "name": "Privacy leak",
+        "hint": "Revealing someone's name, contact details, ID, address or other personal information"
+      },
+      "impersonation": {
+        "name": "Impersonation",
+        "hint": "Pretending to be another person, a teacher, a school or an organization"
+      },
+      "copyright": {
+        "name": "Copyright infringement",
+        "hint": "Unauthorized textbook scans, slides, papers and so on"
+      },
+      "other_ip": {
+        "name": "Other rights infringement",
+        "hint": "Infringing trademarks, portrait rights, reputation or other lawful rights"
+      },
+      "academic_integrity": {
+        "name": "Academic misconduct",
+        "hint": "Ghostwriting, exam proxies, cheating tools or plagiarism"
+      },
+      "leaked_exam": {
+        "name": "Leaked exam",
+        "hint": "Unreleased exam questions, answers or exam arrangements"
+      },
+      "fake_review": {
+        "name": "Untruthful review",
+        "hint": "Not based on first-hand experience, fake or malicious reviews, or reviews with a conflict of interest"
+      },
+      "wrong_teacher": {
+        "name": "Wrong teacher or course",
+        "hint": "The review or material is linked to the wrong teacher or course"
+      },
+      "wrong_info": {
+        "name": "Incorrect information",
+        "hint": "Title, category, tags, term or other details do not match the content"
+      },
+      "spam": {
+        "name": "Spam or ads",
+        "hint": "Advertising, traffic diversion, unrelated promotion or flooding"
+      },
+      "malware": {
+        "name": "Malicious file or link",
+        "hint": "Viruses, trojans, malicious scripts or dangerous links"
+      },
+      "duplicate": {
+        "name": "Duplicate",
+        "hint": "Repeats existing content"
+      },
+      "low_quality": {
+        "name": "Low quality",
+        "hint": "Meaningless, filler, cannot be opened, or incomplete"
+      },
+      "author_update": {
+        "name": "Author update request",
+        "hint": "The author asks to correct or withdraw it"
+      },
+      "other": {
+        "name": "Other",
+        "hint": "None of the above; describe the situation in the details"
+      }
+    },
+    "receipt": "Violation type: {name}"
+  },
+  "legal": {
+    "title": "Legal document",
+    "current": "View the current version",
+    "history": "Earlier versions",
+    "noVersions": "No published versions yet.",
+    "unpublished": "No published version is currently in effect.",
+    "versionLine": "Version {version} · effective {date}",
+    "fixed": "Version history · This page shows this version exactly as published.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+  "consent": {
+    "title": "Review the Terms of Service and Privacy Policy",
+    "description": "Before using features that need an account, read and accept the current version of each document below.",
+    "updated": "These documents have been updated. Read the new versions and tick each one that needs your acceptance.",
+    "documents": {
+      "terms": "Terms of Service",
+      "privacy": "Privacy Policy"
+    },
+    "agree": "I have read and accept the {name}",
+    "version": "Version {version}",
+    "read": "Read the full {name}",
+    "accepted": "Accepted on {date}",
+    "submit": "Accept and continue",
+    "sending": "Submitting…",
+    "done": "Accepted. You can continue.",
+    "changed": "A document was just updated. Read the new version and tick the changed document again.",
+    "allAccepted": "You have accepted the current version of these documents.",
+    "declineTitle": "If you do not accept",
+    "decline": "Features that need an account stay unavailable. You can sign out and keep browsing public pages, or request to close your StuHelper account.",
+    "menu": "Review terms"
+  },
+  "teacherHomepage": {
+    "title": "Teacher homepage",
+    "empty": "The school website has no homepage details to show.",
+    "source": "These details come from the teacher’s homepage on the school website and are shown under the school’s rules.",
+    "photo": "Photo of {name}",
+    "manage": "Manage my teacher homepage",
+    "manageFor": "Manage the homepage of “{name}”",
+    "manageTitle": "Homepage of {name}",
+    "manageDescription": "Ask to correct, add to or hide details on your teacher homepage. Changes take effect after the school approves them.",
+    "complain": "Report homepage details",
+    "limit": "{count} / {max}",
+    "fields": {
+      "name": "Name on the homepage",
+      "position": "Position",
+      "education": "Education",
+      "degree": "Degree",
+      "discipline": "Discipline",
+      "supervisors": "Supervisor roles",
+      "email": "Email",
+      "phone": "Phone",
+      "office_location": "Office",
+      "hire_date": "Joined the school",
+      "biography": "Biography",
+      "research": "Research interests",
+      "fields": "Other details",
+      "sections": "Homepage sections",
+      "photo": "Photo",
+      "page": "Whole homepage"
+    },
+    "supervisors": {
+      "doctoral": "Doctoral supervisor",
+      "master": "Master’s supervisor"
+    },
+    "complaint": {
+      "title": "Report teacher homepage details",
+      "description": "If details are wrong or infringe someone’s rights, choose a category and explain. The school may hide the homepage details; the catalog entry and reviews stay.",
+      "reason": "Details",
+      "evidence": "Evidence (one per line, up to 5)",
+      "evidenceHint": "Up to 2,000 characters each.",
+      "email": "You can also write to {email}.",
+      "sent": "Your report was sent. The school will review it soon."
+    },
+    "request": {
+      "title": "New request",
+      "start": "Make a request",
+      "kind": "Request type",
+      "kinds": {
+        "correction": "Correct",
+        "supplement": "Add",
+        "hide": "Hide"
+      },
+      "field": "Detail",
+      "label": "Item name",
+      "labelHint": "Enter the name of the item or the section title to correct or add.",
+      "labelOptional": "Leave empty to hide the whole group.",
+      "value": "New content",
+      "supervisors": "Supervisor roles",
+      "supervisorsHint": "The ticked roles replace the current list; ticking none clears it.",
+      "photo": "New photo",
+      "photoHint": "JPEG or PNG, up to 2 MiB.",
+      "photoType": "Only JPEG or PNG images are accepted.",
+      "photoSize": "The image must be 2 MiB or smaller.",
+      "photoReadError": "Could not read the selected photo. Try again or select the file again.",
+      "photoPreview": "Preview of the new photo",
+      "message": "Explanation",
+      "sent": "Your request was sent. You will be notified after the school reviews it.",
+      "retention": "The request text and photo are deleted 12 months after the request is closed.",
+      "history": "My requests",
+      "none": "No requests yet.",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Not approved"
+      }
+    },
+    "receipt": {
+      "title": "Homepage request",
+      "submitted": "Submitted",
+      "resolved": "Resolved",
+      "note": "The school’s answer",
+      "cleared": "Clear supervisor roles",
+      "photo": "Replace the photo"
+    },
+    "media": {
+      "loadFailed": "The homepage’s images, videos and attachments couldn’t be loaded.",
+      "image": "Homepage image",
+      "imageFailed": "This image cannot be shown right now.",
+      "imageLink": "View the image on the school page",
+      "videoLink": "Watch the video on the school page",
+      "attachmentLink": "Open the attachment on the school page",
+      "external": "(opens the school website in a new window)",
+      "untitled": "More content"
+    }
+  },
+  "privacy": {
+    "title": "Privacy and consents",
+    "description": "See the agreements you accepted and manage consents you can withdraw separately.",
+    "agreements": "Terms and privacy policy",
+    "acceptedVersion": "Accepted version {version} on {time}",
+    "pendingVersion": "Version {version} not accepted yet",
+    "read": "Read",
+    "withdrawAgreements": "If you no longer agree to the Terms of Service or the Privacy Policy, you can close your account.",
+    "closure": "Go to account closure",
+    "documents": "Legal documents",
+    "transferDocument": "Notice on transferring personal information abroad"
   }
 }

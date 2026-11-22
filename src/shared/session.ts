@@ -12,18 +12,26 @@ import { clearCompare } from '../features/search/compare'
 import { forgetTrails } from '../features/resources/browseState'
 import { forgetPages } from './recent'
 import { schemaOf } from './api/schema'
-import { useHostFetch } from './api/transport'
+import { sessionFetch, useHostFetch } from './api/transport'
+import { mediaFetch } from './api/media'
 
 // Sign-in providers the login endpoint accepts besides the regular page (session contract 0.5.0).
 type LoginProvider = NonNullable<NonNullable<operations['startLogin']['parameters']['query']>['provider']>
 
-export type Session = components['schemas']['Session']
+/** The full session of an account that accepted the current terms. */
+export type Session = components['schemas']['FullSession']
+type SessionResponse = components['schemas']['Session']
 export type Profile = components['schemas']['Profile']
 export type ProfileUpdate = components['schemas']['ProfileUpdate']
-export type SessionState = 'loading' | 'guest' | 'member' | 'error'
+/** `consent`: signed in, but the current user agreement or privacy policy still needs acceptance. */
+export type SessionState = 'loading' | 'guest' | 'consent' | 'member' | 'error'
+export type LegalConsentStatus = components['schemas']['LegalConsentStatus']
+export type LegalDocumentId = components['schemas']['LegalConsentRequest']['document_id']
+export type LegalConsentDocument = components['schemas']['LegalConsentDocument']
 
 const schemas = contract.components.schemas
-const parseSession = schemaOf<Session>(schemas, 'Session')
+const parseSession = schemaOf<SessionResponse>(schemas, 'Session')
+const parseConsent = schemaOf<LegalConsentStatus>(schemas, 'LegalConsentStatus')
 export const parseProfile = schemaOf<Profile>(schemas, 'Profile')
 export type OwnPhone = components['schemas']['OwnPhone']
 const parseOwnPhone = schemaOf<OwnPhone>(schemas, 'OwnPhone')
@@ -55,9 +63,16 @@ export function createSessionStore(fetcher: typeof fetch) {
       const value = await http.json('/api/v1/auth/session', parseSession, { timeout: 10_000 })
       if (current !== generation) return
       if (!value.authenticated) throw new ApiError('incompatible')
-      if (session.value && session.value.profile.id !== value.profile.id) clearAccountData()
-      session.value = value
-      state.value = 'member';
+      if (value.consent_required) {
+        // The minimal session carries no account data; nothing from a previous account may stay.
+        if (session.value) clearAccountData()
+        session.value = null
+        state.value = 'consent'
+      } else {
+        if (session.value && session.value.profile.id !== value.profile.id) clearAccountData()
+        session.value = value
+        state.value = 'member'
+      }
       unavailable.value = false;
       failures = 0;
       retryAt = 0;
@@ -69,7 +84,7 @@ export function createSessionStore(fetcher: typeof fetch) {
         // Keep mounted forms and their valid input during a temporary outage.
         // Every business action is still authorized independently by the server.
         unavailable.value = true;
-        state.value = session.value ? 'member' : 'error';
+        if (state.value !== 'consent') state.value = session.value ? 'member' : 'error';
         if (error instanceof ApiError && (error.status === 503 || error.code === 'network' || error.code === 'timeout')) {
           failures = Math.min(failures + 1, 4);
           retryAt = Date.now() + Math.min(1000 * 2 ** (failures - 1), 8000);
@@ -89,7 +104,7 @@ export function createSessionStore(fetcher: typeof fetch) {
 
   /** A business API rejected the account; confirm whether the session ended. */
   function revalidate(serviceUnavailable = false) {
-    if (state.value === 'member' && (!serviceUnavailable || !unavailable.value)) void reload()
+    if ((state.value === 'member' || state.value === 'consent') && (!serviceUnavailable || !unavailable.value)) void reload()
   }
 
   function clearAccountData() {
@@ -161,6 +176,19 @@ export function createSessionStore(fetcher: typeof fetch) {
     return http.json('/api/v1/auth/phone', parseOwnPhone, { method: 'DELETE', key, timeout: 20_000 })
   }
 
+  /** The current user agreement and privacy policy, and which of them this account still has to accept. */
+  async function consentStatus(signal?: AbortSignal) {
+    return http.json('/api/v1/auth/consent', parseConsent, { signal, timeout: 10_000 })
+  }
+
+  /**
+   * Record that the person ticked one document. The server keeps the first receipt for the same
+   * version and digest, so a repeated submission returns the original receipt. Returns the updated status of both documents.
+   */
+  async function acceptDocument(document_id: LegalDocumentId, document: Pick<LegalConsentDocument, 'version' | 'digest'>) {
+    return http.json('/api/v1/auth/consent', parseConsent, { method: 'POST', body: { document_id, accepted: true, version: document.version, digest: document.digest }, timeout: 15_000 })
+  }
+
   async function currentProfile(signal?: AbortSignal) {
     return http.json('/api/v1/profiles/me', parseProfile, { signal })
   }
@@ -171,7 +199,7 @@ export function createSessionStore(fetcher: typeof fetch) {
     return saved
   }
 
-  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, ownPhone, sendPhoneCode, changePhone, unbindPhone, currentProfile, saveProfile }
+  return { unavailable: readonly(unavailable), state: readonly(state), session: readonly(session), reload, revalidate, invalidate, signIn, signInWithQq, signOut, consentStatus, acceptDocument, ownPhone, sendPhoneCode, changePhone, unbindPhone, currentProfile, saveProfile }
 }
 
 export type SessionStore = ReturnType<typeof createSessionStore>
@@ -186,8 +214,10 @@ export function useSession(): SessionStore {
 }
 
 /** An HTTP client on the host transport that re-checks the session after a denial. */
-export function useHttp() {
-  const fetcher = useHostFetch()
+export function useHttp(media = false) {
+  const host = useHostFetch()
+  // Image reads may follow the signed redirect to the media host; a native host transport handles that itself.
+  const fetcher = media && host === sessionFetch && !import.meta.env.VITE_DEMO ? mediaFetch : host
   const session = inject(sessionKey, undefined)
   const recheck = inject(deniedKey, undefined)
   return new Http(fetcher, { onUnavailable: () => session?.revalidate(true), onDenied: (status) => {

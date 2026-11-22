@@ -172,7 +172,6 @@ onMounted(() => {
   <SheetDialog
     :open="editing"
     :title="phone.data.value?.bound ? t('phone.changeTitle') : t('phone.bindTitle')"
-    :description="t('phone.hint')"
     @close="!change.busy.value && !change.uncertain.value && (editing = false)"
   >
     <form
@@ -208,12 +207,6 @@ onMounted(() => {
           </button>
         </span>
       </div>
-      <p
-        v-if="form.phone && !validPhone"
-        class="field-hint"
-      >
-        {{ t('phone.numberFormat') }}
-      </p>
       <p
         v-if="sendError"
         class="notice notice-error"

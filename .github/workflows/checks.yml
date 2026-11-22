@@ -22,7 +22,8 @@ jobs:
     if: needs.changes.outputs.browser == 'true'
     name: Contribution browser checks
     runs-on: ubuntu-26.04
-    timeout-minutes: 45
+    # The 16 locale/viewport projects run over 4,000 browser cases before the headed layout check.
+    timeout-minutes: 60
     env:
       LEFTHOOK: '0'
     steps:

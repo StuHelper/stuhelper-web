@@ -24,6 +24,7 @@ const modules = {
   search: { repo: 'search', files: { 'contracts/search.openapi.json': 'contracts/search.openapi.json', 'sdk/search.gen.ts': 'src/api/search.gen.ts' } },
   groups: { repo: 'groups', files: { 'contracts/groups.openapi.json': 'contracts/groups.openapi.json', 'sdk/groups.gen.ts': 'src/api/groups.gen.ts' } },
   notifications: { repo: 'notifications', files: { 'contracts/notifications.openapi.json': 'contracts/notifications.openapi.json', 'sdk/notifications.gen.ts': 'src/api/notifications.gen.ts' } },
+  legal: { repo: 'backend', files: { 'contracts/legal.openapi.json': 'contracts/legal.openapi.json', 'sdk/legal/legal.gen.ts': 'src/api/legal.gen.ts' } },
   session: { repo: 'backend', single: true, files: { 'contracts/session.openapi.json': 'contracts/session.openapi.json' }, extra: { generator: 'openapi-typescript@7.13.0' } },
   verification: { repo: 'verification', single: true, files: { 'contracts/verification.openapi.yaml': 'contracts/verification.openapi.yaml', 'sdk/verification.gen.ts': 'src/api/verification.gen.ts', 'contracts/verification-cases.json': 'contracts/verification-cases.json' } },
   platform: { repo: 'platform', single: true, files: { 'contracts/platform.openapi.yaml': 'contracts/platform.openapi.yaml', 'sdk/platform.gen.ts': 'src/api/platform.gen.ts', 'contracts/client-cases.json': 'contracts/client-cases.json' } },

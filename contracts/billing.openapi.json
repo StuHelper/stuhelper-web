@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "StuHelper Billing",
-    "version": "0.3.1",
-    "description": "Ivory 以最小单位（0.01 Ivory）整数表示，CNY 按 1:1 入账。积分为整数，时间为 UTC RFC3339。长期积分不返回 expires_at。分页按稳定 ID 升序，next 为空表示结束。所有写入要求幂等键，同键不同内容返回 409。支持资料解锁、会员商业条款与加密退款收款资料。"
+    "version": "0.4.0",
+    "description": "Ivory 以最小单位（0.01 Ivory）整数表示，CNY 按 1:1 入账。积分为整数，时间为 UTC RFC3339。长期积分不返回 expires_at。分页默认按稳定 ID 升序，订单与流水可选 order=desc 按最新优先，批次可选 active_only=true 与 sort=expires_at，next 为空表示结束。所有写入要求幂等键，同键不同内容返回 409。错误用 missing 返回差额，用 reason 标明冲突原因。支持资料批量查价与价格保护解锁、会员商业条款、管理异常订单巡检、待审退款撤回、奖励进度与追回明细及加密退款收款资料。"
   },
   "security": [
     {
@@ -110,6 +110,31 @@
               "minimum": 1,
               "maximum": 100,
               "default": 50
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序方向：asc 按流水号升序，desc 按流水号倒序",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          },
+          {
+            "name": "asset",
+            "in": "query",
+            "description": "按账户类型筛选",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "points",
+                "ivory"
+              ]
             }
           }
         ],
@@ -220,6 +245,28 @@
                 "ivory"
               ]
             }
+          },
+          {
+            "name": "active_only",
+            "in": "query",
+            "description": "为 true 时仅返回仍有可用余额且未过期的批次",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "排序方式：id 按批次号升序，expires_at 按最早到期优先（长期批次排后）",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "id",
+                "expires_at"
+              ],
+              "default": "id"
+            }
           }
         ],
         "responses": {
@@ -316,6 +363,60 @@
               "minimum": 1,
               "maximum": 100,
               "default": 50
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序方向：asc 按订单 ID 升序，desc 按创建时间及订单 ID 倒序",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "asc"
+            }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "按订单类型筛选",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "topup",
+                "purchase",
+                "refund",
+                "purchase_refund",
+                "resource_unlock",
+                "membership"
+              ]
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "按订单状态筛选",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "submitted",
+                "processing",
+                "succeeded",
+                "failed",
+                "rejected",
+                "awaiting_details",
+                "awaiting_manual",
+                "awaiting_payment",
+                "expired",
+                "cancelled",
+                "needs_review",
+                "review_query_pending",
+                "paid",
+                "fulfilled",
+                "refunded"
+              ]
             }
           }
         ],
@@ -495,6 +596,222 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/billing/rewards": {
+      "get": {
+        "operationId": "listRewards",
+        "summary": "分页读取本人奖励发放、未计奖原因与追回明细",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "granted",
+                "disabled",
+                "limit_reached",
+                "expired"
+              ]
+            }
+          },
+          {
+            "name": "revoked",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求登录。按事件发生时间及 event_id 倒序返回当前登录用户的奖励发放、上限未计奖与追回明细；游标绑定账号和筛选条件。"
+      }
+    },
+    "/api/v1/billing/reward-rules": {
+      "get": {
+        "operationId": "listRewardRules",
+        "summary": "列出当前启用的奖励规则与周期获取进度",
+        "parameters": [
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardRulePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求登录。仅返回当前生效且启用的奖励规则公开参数，数据库先过滤再按规则 ID 的 C 排序升序分页。非对象级规则返回当前周期已获次数与剩余次数。"
       }
     },
     "/api/v1/billing/topups": {
@@ -903,6 +1220,105 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/billing/refunds/{id}/cancel": {
+      "post": {
+        "operationId": "cancelRefund",
+        "summary": "撤回待审或待补资料的退款申请",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突：非退款单或当前状态不允许撤回时返回 billing_conflict；账号注销冻结返回 billing_closure_conflict。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "仅允许本人在 submitted 或 awaiting_details 状态下原子解冻原充值批次余额并将退款单置为 cancelled。"
       }
     },
     "/api/v1/billing/orders/{id}/refresh": {
@@ -1320,7 +1736,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/Rule"
+                "$ref": "#/components/schemas/RuleInput"
               }
             }
           }
@@ -1328,6 +1744,142 @@
       }
     },
     "/api/v1/billing/admin/rewards": {
+      "get": {
+        "operationId": "listAdminRewards",
+        "summary": "账务管理读取：目标账号奖励记录列表",
+        "parameters": [
+          {
+            "name": "issuer",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "granted",
+                "disabled",
+                "limit_reached",
+                "expired"
+              ]
+            }
+          },
+          {
+            "name": "revoked",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewardPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。按奖励事件发生时间及 event_id 倒序分页，支持按 state 和 revoked 筛选，游标绑定当前管理员、目标账号和筛选条件。"
+      },
       "post": {
         "operationId": "grantReward",
         "summary": "管理员：grantReward",
@@ -2358,6 +2910,7 @@
                 "succeeded",
                 "failed",
                 "rejected",
+                "cancelled",
                 "needs_review",
                 "review_query_pending"
               ]
@@ -2791,6 +3344,23 @@
               "maximum": 100,
               "default": 50
             }
+          },
+          {
+            "name": "rewards_after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "rewards_limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
           }
         ],
         "responses": {
@@ -2865,7 +3435,134 @@
             }
           }
         },
-        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。返回钱包、最近订单及明细。订单按创建时间和 id 倒序，明细按流水号倒序；两者独立分页。没有账务记录时返回零余额与空列表。"
+        "description": "要求 billing.manage，读取与审计同事务提交。每页默认 50，最多 100。游标绑定当前管理员和筛选条件。返回钱包、最近订单、明细及奖励记录，各项独立分页。没有账务记录时返回零余额与空列表。"
+      }
+    },
+    "/api/v1/billing/admin/orders": {
+      "get": {
+        "operationId": "listAdminOrders",
+        "summary": "账务管理读取：待核实与未交付异常订单队列",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "description": "按订单类型筛选；省略时返回全部类型的异常订单",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "topup",
+                "purchase",
+                "refund",
+                "purchase_refund",
+                "resource_unlock",
+                "membership"
+              ]
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "异常订单状态；省略时返回 needs_review、review_query_pending 和 paid 三类待处理订单",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "needs_review",
+                "review_query_pending",
+                "paid"
+              ]
+            }
+          },
+          {
+            "name": "after",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminOrderPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突：billing_conflict 表示版本、状态或幂等键内容冲突；billing_closure_conflict 表示账号注销冻结或注销申请冲突。余额不足、未结清资产和容量限制由各自错误码表示。",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。跨账号按创建时间、issuer、subject、id 倒序分页返回待人工核实或未完成权益交付的异常订单。"
       }
     },
     "/api/v1/billing/admin/orders/{id}/payment-review": {
@@ -3082,6 +3779,13 @@
                       "points",
                       "ivory"
                     ]
+                  },
+                  "expected_amount": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "用户确认的预期支付额度；当前实际价格高于该值时返回 409"
                   }
                 },
                 "required": [
@@ -3092,6 +3796,194 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/billing/resource-prices/batch": {
+      "post": {
+        "operationId": "batchGetResourcePrices",
+        "summary": "批量读取资料价格",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourcePriceList"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResourcePriceBatchInput"
+              }
+            }
+          }
+        },
+        "description": "只读批量查询最多 100 个资料 ID 的价格配置，未配置收费的免费资料不在返回列表中出现。"
+      }
+    },
+    "/api/v1/billing/admin/resource-prices": {
+      "get": {
+        "operationId": "listAdminResourcePrices",
+        "summary": "账务管理读取：已配置价格的资料列表",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "after",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminResourcePricePage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "description": "要求 billing.manage，读取与审计同事务提交。按 resource_id 升序分页返回已配置价格的资料。"
       }
     },
     "/api/v1/billing/admin/resource-prices/{id}": {
@@ -3196,6 +4088,102 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ResourcePrice"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteResourcePrice",
+        "summary": "清除资料价格配置",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          },
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResourcePrice"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "输入无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "未登录",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无权限",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "不存在或不属于当前账号",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "业务冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "依赖不可用或结果暂未确认",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
               }
             }
           }
@@ -3523,10 +4511,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/MembershipPlan"
-                  }
+                  "$ref": "#/components/schemas/AdminMembershipPlanPage"
                 }
               }
             }
@@ -3699,6 +4684,13 @@
                       "points",
                       "ivory"
                     ]
+                  },
+                  "expected_amount": {
+                    "type": "integer",
+                    "format": "int64",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "用户确认的预期支付额度；当前实际价格高于该值时返回 409"
                   }
                 },
                 "required": [
@@ -4031,8 +5023,9 @@
                   "amount": {
                     "type": "integer",
                     "format": "int64",
-                    "minimum": 1,
-                    "maximum": 9007199254740991
+                    "minimum": 0,
+                    "maximum": 9007199254740991,
+                    "description": "退款额度；付费订单须为正整数，撤回管理员免费授予的会员期限时传 0"
                   },
                   "reason": {
                     "type": "string"
@@ -4263,7 +5256,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "管理员读取目标账号；本人读取省略"
+            "description": "退款所属账号的身份字段",
+            "required": true
           },
           {
             "in": "query",
@@ -4271,7 +5265,8 @@
             "schema": {
               "type": "string"
             },
-            "description": "管理员读取目标账号；本人读取省略"
+            "description": "退款所属账号的身份字段",
+            "required": true
           }
         ],
         "responses": {
@@ -4488,6 +5483,18 @@
             "minimum": 1,
             "maximum": 9007199254740991,
             "description": "缺少的积分或 Ivory 最小单位"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "idempotency_mismatch",
+              "stale_version",
+              "option_disabled",
+              "unsupported_account",
+              "invalid_state",
+              "duplicate_reference"
+            ],
+            "description": "billing_conflict 的细分冲突原因"
           }
         },
         "required": [
@@ -4501,6 +5508,32 @@
           "points": {
             "type": "integer",
             "format": "int64"
+          },
+          "permanent_points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "扣减待抵扣欠款后的当前可用长期积分"
+          },
+          "expiring_points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "扣减待抵扣欠款后的当前可用限时积分"
+          },
+          "expiring_soon_points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "7 天内即将到期的当前可用限时积分"
+          },
+          "nearest_expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最早一笔可用限时积分的到期时间；无可用限时积分时省略"
           },
           "ivory_minor": {
             "type": "integer",
@@ -4526,6 +5559,9 @@
         },
         "required": [
           "points",
+          "permanent_points",
+          "expiring_points",
+          "expiring_soon_points",
           "ivory_minor",
           "frozen_ivory_minor",
           "debt_points",
@@ -4735,6 +5771,13 @@
             "minimum": 0,
             "maximum": 9007199254740991
           },
+          "refunded_amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "资料解锁或会员订单已退回的积分或 Ivory 最小单位数额"
+          },
           "receipt_reference": {
             "type": "string"
           },
@@ -4827,7 +5870,7 @@
             "items": {
               "type": "integer",
               "format": "int64",
-              "minimum": 0,
+              "minimum": 1,
               "maximum": 9007199254740991
             }
           },
@@ -4855,20 +5898,20 @@
           "amount_minor": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "points": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "valid_seconds": {
             "type": "integer",
             "format": "int64",
             "minimum": 0,
-            "maximum": 9007199254740991
+            "maximum": 315576000
           },
           "version": {
             "type": "integer",
@@ -4909,25 +5952,25 @@
           "points": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "valid_seconds": {
             "type": "integer",
             "format": "int64",
             "minimum": 0,
-            "maximum": 9007199254740991
+            "maximum": 315576000
           },
           "period_seconds": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
-            "maximum": 9007199254740991
+            "minimum": 1,
+            "maximum": 315576000
           },
           "limit": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "object_scoped": {
@@ -4956,7 +5999,7 @@
           "amount_minor": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           }
         },
@@ -4975,7 +6018,7 @@
           "version": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           }
         },
@@ -4994,7 +6037,7 @@
           "amount_minor": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "reason": {
@@ -5076,6 +6119,30 @@
           },
           "revoked": {
             "type": "boolean"
+          },
+          "revoke_reason": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "管理员追回该笔奖励时填写的原因"
+          },
+          "revoked_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "奖励被追回的 UTC 时间"
+          },
+          "revoked_points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "追回时从原批次或可用余额直接扣回的积分数量"
+          },
+          "debt_points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "追回时因可用积分不足而记入待抵扣欠款的积分数量"
           }
         },
         "required": [
@@ -5088,6 +6155,113 @@
           "lot_id",
           "revoked"
         ]
+      },
+      "RewardPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reward"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
+      },
+      "PublicRewardRule": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "valid_seconds": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 315576000
+          },
+          "period_seconds": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 315576000
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "object_scoped": {
+            "type": "boolean"
+          },
+          "granted_count": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "nullable": true,
+            "description": "非对象级规则在当前周期已获奖励次数；对象级规则为 null"
+          },
+          "remaining_count": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "nullable": true,
+            "description": "非对象级规则在当前周期剩余可获次数；对象级规则为 null"
+          },
+          "period_ends_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "非对象级规则当前计次周期结束的 UTC 时间"
+          }
+        },
+        "required": [
+          "id",
+          "points",
+          "valid_seconds",
+          "period_seconds",
+          "limit",
+          "object_scoped",
+          "granted_count",
+          "remaining_count"
+        ]
+      },
+      "RewardRulePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicRewardRule"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
       },
       "Target": {
         "type": "object",
@@ -5133,6 +6307,11 @@
           },
           "reason": {
             "type": "string"
+          },
+          "restore_quota": {
+            "type": "boolean",
+            "default": false,
+            "description": "为 true 时（如复审纠错撤销奖励）同步回退原奖励占用的周期配额"
           }
         },
         "required": [
@@ -5257,7 +6436,7 @@
           "amount_minor": {
             "type": "integer",
             "format": "int64",
-            "minimum": 0,
+            "minimum": 1,
             "maximum": 9007199254740991
           },
           "state": {
@@ -5265,7 +6444,10 @@
             "enum": [
               "processing",
               "succeeded",
-              "failed"
+              "failed",
+              "awaiting_payment",
+              "expired",
+              "cancelled"
             ]
           },
           "reference": {
@@ -5478,6 +6660,13 @@
             "minimum": 0,
             "maximum": 9007199254740991
           },
+          "refunded_amount": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991,
+            "description": "资料解锁或会员订单已退回的积分或 Ivory 最小单位数额"
+          },
           "receipt_reference": {
             "type": "string"
           },
@@ -5635,11 +6824,13 @@
       },
       "AdminAccount": {
         "type": "object",
+        "additionalProperties": false,
         "required": [
           "target",
           "wallet",
           "orders",
-          "ledger"
+          "ledger",
+          "rewards"
         ],
         "properties": {
           "target": {
@@ -5653,6 +6844,49 @@
           },
           "ledger": {
             "$ref": "#/components/schemas/LedgerPage"
+          },
+          "rewards": {
+            "$ref": "#/components/schemas/RewardPage"
+          }
+        }
+      },
+      "AdminOrderPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminOrder"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        }
+      },
+      "AdminMembershipPlanPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MembershipPlan"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
           }
         }
       },
@@ -5681,6 +6915,12 @@
             "minLength": 1,
             "maxLength": 256,
             "description": "渠道核实依据编号；仅保存引用，不提交支付载荷。"
+          },
+          "provider_reference": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "核实充值成功时确认的原渠道交易号"
           }
         },
         "required": [
@@ -5714,6 +6954,58 @@
         },
         "required": [
           "resource_id"
+        ]
+      },
+      "ResourcePriceBatchInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "resource_ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "resource_ids"
+        ]
+      },
+      "ResourcePriceList": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourcePrice"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "AdminResourcePricePage": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ResourcePrice"
+            }
+          },
+          "next": {
+            "type": "string",
+            "description": "下一页游标；空字符串表示结束"
+          }
+        },
+        "required": [
+          "items",
+          "next"
         ]
       },
       "MembershipPlan": {
@@ -5906,6 +7198,61 @@
               "ivory_minor"
             ]
           }
+        ]
+      },
+      "RuleInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "points": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "valid_seconds": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 0,
+            "maximum": 315576000
+          },
+          "period_seconds": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 315576000
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": 1,
+            "maximum": 9007199254740991
+          },
+          "object_scoped": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "enabled",
+          "points",
+          "valid_seconds",
+          "period_seconds",
+          "limit",
+          "object_scoped"
         ]
       }
     }

@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import { expect, memberTest } from '../session-fixture.mjs';
+import { recordDialogUntilClosed } from './dialog-helpers.mjs';
 
 const base = 'http://127.0.0.1:18787';
 const catalogue = (info) => JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
@@ -42,4 +43,21 @@ memberTest('signing out everywhere says all signed-in devices were signed out an
   await expect(notice).toBeVisible();
   await expect(notice).toContainText(c.account.upstreamStillActive);
   expect(logout.calls).toEqual(['POST']);
+});
+
+memberTest('cancelling sign out everywhere keeps the dialog on that choice while it closes', async ({ page }, info) => {
+  const c = catalogue(info);
+  await page.goto(`${base}/me?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: c.account.signOutAll, exact: true }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toContainText(c.me.sessions.allConfirm);
+  const seen = recordDialogUntilClosed(page);
+  await dialog.getByRole('button', { name: c.common.cancel, exact: true }).click();
+  const texts = await seen;
+  expect(texts.length).toBeGreaterThan(0);
+  for (const text of texts) {
+    expect(text).toContain(c.me.sessions.allConfirm);
+    expect(text).not.toContain(c.me.sessions.deviceConfirm);
+  }
+  await expect(dialog).toHaveCount(0);
 });

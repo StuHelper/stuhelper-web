@@ -263,6 +263,8 @@ a.tag-hue:hover { background: color-mix(in srgb, var(--hue) 22%, transparent); }
 .sheet[data-state="closed"] { animation: sheet-out .2s ease-in forwards; }
 .sheet-title { font-size: 1.3125rem; font-weight: 650; line-height: 1.2; }
 .sheet-grabber { display: none; }
+/* Wrappers inside the sheet keep the grid layout of their children. */
+.sheet-body { display: contents; }
 @media (max-width: 640px) {
   /* On phones the sheet floats just above the bottom edge instead of attaching to it. */
   .sheet, [dir="rtl"] .sheet { inset: auto .5rem calc(.5rem + var(--safe-bottom)); width: auto; max-height: 90dvh; padding: .5rem 1.25rem 1.25rem; border-radius: var(--radius-xl); translate: 0; }

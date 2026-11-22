@@ -1,6 +1,8 @@
 """Run the image's server block against an isolated loopback upstream."""
+import base64
 import hashlib
 import http.client
+import json
 import shutil
 import socket
 import subprocess
@@ -12,14 +14,37 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 
+TEACHER_REQUEST_PATH = "/api/v1/catalog/objects/fixture-teacher/teacher-homepage/requests"
+LEGAL_API_VERSION = "/api/v1/legal/documents/terms/versions/3.0"
+
+
 class Backend(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == LEGAL_API_VERSION:
+            content_type, body = "application/json", b'{"html":"<p>Terms fixture</p>"}'
+        elif self.path == LEGAL_API_VERSION + "/html":
+            content_type, body = "text/html", b"<p>Terms fixture</p>"
+        else:
+            self.send_error(404)
+            return
+        self.send_response(200)
+        self.send_header("Content-Type", content_type)
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_PUT(self):
+        self.record_upload()
+
+    def record_upload(self):
         body = self.rfile.read(int(self.headers["Content-Length"]))
         self.server.uploads.append((self.path, hashlib.sha256(body).digest()))
         self.send_response(204)
         self.end_headers()
 
     def do_POST(self):
+        if self.path == TEACHER_REQUEST_PATH:
+            self.record_upload()
+            return
         time.sleep(36)
         self.send_response(200)
         self.end_headers()
@@ -106,9 +131,45 @@ class TransferProxyTest(unittest.TestCase):
             self.assertEqual(self.request("PUT", path, b"x" * ((1 << 20) + 1))[0], 413)
             self.assertFalse(any(url == path for url, _ in self.uploads))
 
+    def test_teacher_homepage_photo_request_reaches_upstream_with_a_bounded_body(self):
+        image = base64.b64encode(b"x" * (2 << 20)).decode("ascii")
+        body = json.dumps({
+            "kind": "supplement",
+            "field": {"field": "photo"},
+            "message": "Photo fixture",
+            "value": {"photo": {"content_type": "image/png", "data": image}},
+        }).encode()
+        self.assertEqual(self.request("POST", TEACHER_REQUEST_PATH, body,
+                                      {"Content-Type": "application/json"})[0], 204)
+        received = [(path, digest) for path, digest in self.uploads if path == TEACHER_REQUEST_PATH]
+        self.assertEqual(received, [(TEACHER_REQUEST_PATH, hashlib.sha256(body).digest())])
+
+        for path, limit in [(TEACHER_REQUEST_PATH, 4 << 20),
+                            (TEACHER_REQUEST_PATH + "/extra", 1 << 20)]:
+            with self.subTest(path=path):
+                self.assertEqual(self.request("POST", path, headers={"Content-Length": str(limit + 1)})[0], 413)
+
     def test_slow_custody_response_reaches_client(self):
         self.assertEqual(self.request("POST", "/api/v1/storage/custody", b"{}")[:2],
                          (200, b"finished"))
+
+    def test_legal_pages_support_direct_navigation(self):
+        for path in ("/legal/terms", "/legal/terms/versions", "/legal/terms/versions/3.0"):
+            with self.subTest(path=path):
+                status, body, headers = self.request("GET", path)
+                self.assertEqual((status, body), (200, b"Home fixture"))
+                self.assertEqual(headers.get_content_type(), "text/html")
+                self.assertEqual(headers.get("Cache-Control"), "no-cache")
+
+    def test_legal_document_api_reaches_backend(self):
+        for path, content_type, body in (
+            (LEGAL_API_VERSION, "application/json", b'{"html":"<p>Terms fixture</p>"}'),
+            (LEGAL_API_VERSION + "/html", "text/html", b"<p>Terms fixture</p>"),
+        ):
+            with self.subTest(path=path):
+                status, response, headers = self.request("GET", path)
+                self.assertEqual((status, response), (200, body))
+                self.assertEqual(headers.get_content_type(), content_type)
 
     def test_only_terms_get_allows_the_sso_origin(self):
         sso = "https://sso.stuhelper.com"

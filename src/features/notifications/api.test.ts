@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import contract from '../../../contracts/notifications.openapi.json'
-import { boxOf, type TitleKey } from './api'
+import { boxOf, targetRoute, type Notification, type TitleKey } from './api'
 
 describe('boxOf', () => {
   it('files every title of the contract in the box of its subject', () => {
@@ -26,9 +26,44 @@ describe('boxOf', () => {
       'verification_deletion.rejected': 'verification',
       'teacher_verification.approved': 'verification',
       'teacher_verification.rejected': 'verification',
+      'content.draft_expiring': 'review',
+      'appeal.approved': 'review',
+      'appeal.rejected': 'review',
+      'teacher_homepage_request.approved': 'review',
+      'teacher_homepage_request.rejected': 'review',
+      'student_verification.supplement_required': 'verification',
+      'teacher_verification.supplement_required': 'verification',
+      'group_membership.grace_expiring': 'system',
+      'storage_contribution.exit_completed': 'system',
+      'billing.topup_review_required': 'system',
+      'billing.refund_completed': 'system',
+      'billing.refund_rejected': 'system',
       'system.notice': 'system',
       'system.security': 'system',
       'system.account': 'system',
     })
+  })
+})
+
+describe('targetRoute', () => {
+  const at = (kind: Notification['target']['kind'], title_params: Record<string, string> = {}) => targetRoute({ target: { kind, id: 'x1' }, title_params } as Pick<Notification, 'target' | 'title_params'>)
+  it('opens the root review of a comment when the server names it, and the content page otherwise', () => {
+    expect(at('comment', { content_id: 'c1', context_id: 'root-1' })).toBe('/reviews/root-1')
+    expect(at('comment', { content_id: 'c1' })).toBe('/me/reviews')
+    expect(at('comment', { context_id: '../admin' })).toBe('/me/reviews')
+    // Only comments use the root review; a review opens itself.
+    expect(at('review', { context_id: 'other' })).toBe('/reviews/x1')
+  })
+  it('sends the new result kinds to the pages that list them', () => {
+    expect(at('moderation_appeal')).toBe('/me/reviews')
+    expect(at('group_membership')).toBe('/me/groups')
+    expect(at('storage_contribution')).toBe('/me/storage')
+    expect(at('billing_order')).toBe('/me/wallet')
+  })
+  it('opens the teacher homepage receipt with the encoded target ID', () => {
+    expect(targetRoute({
+      target: { kind: 'teacher_homepage_request', id: 'request:17' },
+      title_params: { request_id: 'request:17' },
+    })).toBe('/me/teacher-homepage/requests/request%3A17')
   })
 })
