@@ -2033,14 +2033,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "Au moins {count} non lues",
     "title": "Messagerie",
     "link": "Messagerie",
     "description": "Interactions, résultats de modération, résultats de vérification et notifications système.",
     "unread": "Notifications non lues : {count}",
-    "interaction": "Recevoir les notifications de réactions (réponses, j’aime)",
-    "interactionOn": "Notifications de réactions activées.",
-    "interactionOff": "Notifications de réactions désactivées.",
     "always": "Les résultats de traitement, la sécurité et le compte sont toujours notifiés.",
     "readAll": "Tout marquer comme lu",
     "allRead": "Toutes les notifications sont lues.",

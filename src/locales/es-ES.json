@@ -2033,14 +2033,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "Al menos {count} sin leer",
     "title": "Mensajes",
     "link": "Mensajes",
     "description": "Interacciones, resultados de revisión, resultados de verificación y avisos del sistema.",
     "unread": "Notificaciones sin leer: {count}",
-    "interaction": "Recibir notificaciones de reacciones (respuestas, me gusta)",
-    "interactionOn": "Notificaciones de reacciones activadas.",
-    "interactionOff": "Notificaciones de reacciones desactivadas.",
     "always": "Los resultados de gestión, la seguridad y la cuenta se notifican siempre.",
     "readAll": "Marcar todo como leído",
     "allRead": "Todas las notificaciones están leídas.",

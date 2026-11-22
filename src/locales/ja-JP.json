@@ -2033,14 +2033,10 @@
     }
   },
   "notifications": {
-    "atLeastUnread": "未読 {count} 件以上",
     "title": "メッセージ",
     "link": "メッセージ",
     "description": "反応、審査結果、認証結果、システム通知をまとめています。",
     "unread": "未読の通知：{count}",
-    "interaction": "反応の通知を受け取る（返信、いいね）",
-    "interactionOn": "反応の通知をオンにしました。",
-    "interactionOff": "反応の通知をオフにしました。",
     "always": "処理結果、セキュリティ、アカウントの通知は常に届きます。",
     "readAll": "すべて既読にする",
     "allRead": "すべて既読にしました。",

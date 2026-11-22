@@ -12,14 +12,29 @@ const items = [
   { id: 'n5', type: 'security', source_module: 'platform', target: { kind: 'verification_operation', id: 'sec-1' }, title_key: 'notifications.system.security', title_params: { reference_id: 'sec-1' }, created_at: d.ago(0, 8), read_at: null, target_status: 'accessible', count: 1 },
   { id: 'n4', type: 'business', source_module: 'platform', target: { kind: 'verification_operation', id: 'ntc-7' }, title_key: 'notifications.system.notice', title_params: { reference_id: 'ntc-7' }, created_at: d.ago(2), read_at: d.ago(1), target_status: 'accessible', count: 1 },
 ] as Array<Record<string, unknown> & { id: string; read_at: string | null }>
-const preferences = { interaction_enabled: true }
+const preferences = { reply_enabled: true, like_enabled: true }
+const boxNames = ['interaction', 'review', 'verification', 'system'] as const
+// Mirrors the server's BoxForTitleKey.
+function boxOf(key: string) {
+  const subject = key.slice('notifications.'.length).split('.')[0] ?? ''
+  if (subject === 'interaction') return 'interaction'
+  if (['content', 'resource_removal', 'report', 'appeal', 'teacher_homepage_request'].includes(subject)) return 'review'
+  if (subject.endsWith('_verification') || subject.startsWith('verification_')) return 'verification'
+  return 'system'
+}
+const inBox = (box: string | null) => items.filter((item) => !box || boxOf(String(item.title_key)) === box)
 
-export async function notificationsRoute(p: string, method: string, init?: RequestInit): Promise<Response | undefined> {
+export async function notificationsRoute(p: string, method: string, init?: RequestInit, query = new URLSearchParams()): Promise<Response | undefined> {
   if (!p.startsWith('/notifications')) return undefined
-  if (p === '/notifications') return json({ items, next_cursor: '' })
-  if (p === '/notifications/unread-count') return json({ count: items.filter((item) => !item.read_at).length })
+  if (p === '/notifications') return json({ items: inBox(query.get('box')), next_cursor: '' })
+  if (p === '/notifications/unread-count') {
+    const unread = items.filter((item) => !item.read_at)
+    const by_box = Object.fromEntries(boxNames.map((box) => [box, unread.filter((item) => boxOf(String(item.title_key)) === box).length]))
+    const by_type = Object.fromEntries(['interaction', 'business', 'security', 'account'].map((type) => [type, unread.filter((item) => item.type === type).length]))
+    return json({ count: unread.length, by_box, by_type })
+  }
   if (p === '/notifications/read-all') {
-    for (const item of items) item.read_at ??= new Date().toISOString()
+    for (const item of inBox(query.get('box'))) item.read_at ??= new Date().toISOString()
     return new Response(null, { status: 204 })
   }
   if (p === '/notifications/preferences') {
