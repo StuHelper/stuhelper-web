@@ -4,7 +4,6 @@ import path from 'node:path';
 import process from 'node:process';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 
-const base = 'http://127.0.0.1:18787';
 const outbound = 'student_email_outbound_otp';
 const inbound = 'student_email_inbound_challenge';
 const methods = [outbound, inbound];
@@ -43,7 +42,7 @@ async function fixture(page, accepted = false) {
     receipts.clear();
   };
   await page.clock.install({ time: new Date(now) });
-  await page.context().addCookies([{ url: base, name: 'stuhelper_csrf', value: csrf }]);
+  await page.context().addCookies([{ url: test.info().project.use.baseURL, name: 'stuhelper_csrf', value: csrf }]);
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/verification/**', async route => {
     const request = route.request();
@@ -119,7 +118,7 @@ async function fixture(page, accepted = false) {
 
 async function start(page, info, v, method = outbound) {
   const choose = page.getByRole('region', { name: v.start, exact: true });
-  if (!(await choose.isVisible())) await page.goto(`${base}/me/verification?lang=${info.project.metadata.locale}`);
+  if (!(await choose.isVisible())) await page.goto(`/me/verification?lang=${info.project.metadata.locale}`);
   await choose.getByText(v.methods[method], { exact: true }).click();
   await expect(choose.getByRole('radio', { name: v.methods[method] })).toBeChecked();
   await choose.getByRole('checkbox', { name: v.consent }).check();
@@ -312,7 +311,7 @@ test('an unavailable transfer check offers retry and a return to other methods',
 
 test('account security withdraws consent only after confirmation and refreshes the status', async ({ page }, info) => {
   const { verification: v, common } = catalogue(info), state = await fixture(page, true);
-  await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);
+  await page.goto(`/me/account?lang=${info.project.metadata.locale}`);
   const section = notice(page, v);
   const withdraw = button(section, v.transfer.withdraw);
   const dialog = page.getByRole('dialog', { name: v.transfer.withdraw, exact: true });
