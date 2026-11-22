@@ -4,7 +4,7 @@ import { Bookmark, CalendarDays, CircleAlert, FileText, FolderOpen, LoaderCircle
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuSeparator, DropdownMenuTrigger } from 'reka-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAccess } from '../../features/account/access'
 import SessionNotice from '../../shared/ui/SessionNotice.vue'
 import { useSession } from '../../shared/session'
@@ -16,8 +16,9 @@ const { t, locale } = useI18n()
 const session = useSession()
 const access = useAccess()
 const router = useRouter()
+const route = useRoute()
 const available = useLinkAvailable()
-const statusKey = computed(() => ({ verified: 'account.status.verified', unverified: 'account.status.unverified', processing: 'account.status.processing', expired: 'account.status.expired', unavailable: 'me.status.unknown', guest: '', loading: '' }[access.state.value]))
+const statusKey = computed(() => ({ verified: 'account.status.verified', unverified: 'account.status.unverified', processing: 'account.status.processing', expired: 'account.status.expired', unavailable: 'me.status.unknown', guest: '', consent: '', loading: '' }[access.state.value]))
 const nextStep = computed(() => ({ unverified: 'gate.unverified.action', processing: 'gate.processing.action', expired: 'gate.expired.action' } as Record<string, string>)[access.state.value])
 const content = computed(() => [
   ...(myCoursesEnabled ? [{ to: '/me/courses', label: 'courses.title', icon: CalendarDays }] : []),
@@ -125,6 +126,13 @@ async function signOut() {
       </DropdownMenuContent>
     </DropdownMenuPortal>
   </DropdownMenuRoot>
+  <RouterLink
+    v-else-if="session.state.value === 'consent'"
+    class="btn btn-sm btn-primary"
+    :to="{ path: '/consent', query: { next: route.fullPath } }"
+  >
+    {{ t('consent.menu') }}
+  </RouterLink>
   <button
     v-else-if="session.state.value === 'guest'"
     class="btn btn-sm btn-primary"

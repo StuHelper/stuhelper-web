@@ -2,6 +2,7 @@
 import { LockKeyhole } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import { useSession } from '../../shared/session'
+import ConsentGate from './ConsentGate.vue'
 import QqSignInButton from './QqSignInButton.vue'
 
 // Personal pages render only for a signed-in session. The server still checks
@@ -21,6 +22,7 @@ const session = useSession()
     <span aria-hidden="true" />
     <span aria-hidden="true" />
   </div>
+  <ConsentGate v-else-if="session.state.value === 'consent'" />
   <section
     v-else
     class="card sign-in"
