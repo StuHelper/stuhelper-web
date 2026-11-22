@@ -144,7 +144,15 @@ async function shot(locator, info, name) {
   const folder = process.env.EMAIL_TRANSFER_SCREENSHOTS;
   if (!folder) return;
   fs.mkdirSync(folder, { recursive: true });
-  await locator.screenshot({ animations: 'disabled', path: path.join(folder, `${info.project.name}-${name}.png`) });
+  // The mobile tab bar is fixed to the viewport. Keep it outside an isolated card capture.
+  await locator.screenshot({
+    animations: 'disabled', path: path.join(folder, `${info.project.name}-${name}.png`),
+    style: name === 'withdraw' ? undefined : '.tabbar { visibility: hidden !important; }',
+  });
+  if (info.project.name === 'mobile-ar-EG' && name === 'notice') {
+    await locator.getByRole('button').last().scrollIntoViewIfNeeded();
+    await locator.page().screenshot({ animations: 'disabled', path: path.join(folder, `${info.project.name}-viewport.png`) });
+  }
 }
 
 test('outbound email waits for explicit consent and sends the versioned document reference', async ({ page }, info) => {
