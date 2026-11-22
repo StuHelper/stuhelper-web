@@ -2687,6 +2687,7 @@
       "photo": "申请更换照片"
     },
     "media": {
+      "loadFailed": "暂时无法读取主页中的图片、视频和附件。",
       "image": "主页图片",
       "imageFailed": "图片暂时无法显示。",
       "imageLink": "在学校原页面查看图片",

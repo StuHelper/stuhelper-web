@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { expect, memberTest as test } from '../session-fixture.mjs';
+import { captureHomepage } from '../teacher-homepage-screenshot.mjs';
 import { catalogue, localizedUrl, managePath, openForm, pickField, png, receipt, serveHomepageRequests, teachers } from './teacher-homepage-fixture.mjs';
 
 const [teacher] = teachers;
@@ -50,6 +51,22 @@ test('a general field requires an item name and accepts up to 160 Unicode code p
   await editor.content.fill(newText);
   await editor.message.fill(explanation);
   await expect(editor.submit).toBeDisabled();
+  await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
+  const layout = await editor.form.evaluate((form) => {
+    const formBounds = form.getBoundingClientRect();
+    const fieldEdges = Array.from(form.querySelectorAll('input[type="text"], textarea'), (field) => {
+      const bounds = field.getBoundingClientRect();
+      return Math.max(Math.abs(bounds.left - formBounds.left), Math.abs(bounds.right - formBounds.right));
+    });
+    const overflow = Math.max(...[form, document.documentElement].map((node) => node.scrollWidth - node.clientWidth));
+    return { fieldEdges, overflow };
+  });
+  expect(layout.fieldEdges).toHaveLength(3);
+  for (const edge of layout.fieldEdges) expect(edge).toBeLessThanOrEqual(1);
+  expect(layout.overflow).toBe(0);
+  if (['desktop-zh-CN', 'mobile-ar-EG'].includes(info.project.name)) {
+    await captureHomepage(editor.form, `request-form-${info.project.name}.png`);
+  }
 
   const name = '𠮷'.repeat(160);
   await editor.itemName.focus();

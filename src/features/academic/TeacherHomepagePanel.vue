@@ -10,7 +10,7 @@ import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { useVerification, verificationPages } from '../verification/api'
 import HomepageMedia from './HomepageMedia.vue'
 import TeacherComplaintForm from './TeacherComplaintForm.vue'
-import { supervisorKey, textFields, useTeacherHomepage, type HomepageProfile } from './teacherHomepage'
+import { supervisorKey, textFields, useTeacherHomepage, type HomepageMedium, type HomepageProfile } from './teacherHomepage'
 
 // The teacher's official homepage as the school allows it to be shown: facts, contact,
 // biography, research and the homepage's own sections. Everything is plain text. The
@@ -31,33 +31,42 @@ const owner = useAsync(async (signal) => {
 })
 // Body media load on their own: a failure leaves the text of the page in place.
 const media = useAsync((signal) => api.media(props.teacherId, signal))
-watch(() => props.teacherId, () => { void homepage.reload(); void owner.reload(); void media.reload() }, { immediate: true })
-// A withdrawn image means the list is stale; read it again once.
-let mediaRefreshed = ''
+let refreshedAfterImageDenial = false
+watch(() => props.teacherId, () => {
+  refreshedAfterImageDenial = false
+  void homepage.reload()
+  void owner.reload()
+  void media.reload()
+}, { immediate: true })
+// An image can disappear because its entire source section was withdrawn.
 function mediaGone() {
-  if (mediaRefreshed === props.teacherId) return
-  mediaRefreshed = props.teacherId
+  if (refreshedAfterImageDenial) return
+  refreshedAfterImageDenial = true
+  void homepage.reload()
   void media.reload()
 }
-const mediaOf = (field: 'biography' | 'research') => (profile.value ? (media.data.value ?? []).filter((item) => item.field === field) : [])
-// Sections in page order, with their media; a section that holds only media is listed too.
+const profile = computed<HomepageProfile | undefined>(() => homepage.data.value?.profile)
+const mediaOf = (field: 'biography' | 'research') => (media.data.value ?? []).filter((item) => item.field === field)
 const sections = computed(() => {
-  const value = profile.value
-  if (!value) return []
-  const items = (media.data.value ?? []).filter((item) => item.field === 'sections')
-  const rows = value.sections.map((section) => ({ title: section.title, text: section.text, media: items.filter((item) => item.section === section.title) }))
-  const known = new Set(value.sections.map((section) => section.title))
-  for (const item of items) {
+  const groups = new Map<string, HomepageMedium[]>()
+  for (const item of media.data.value ?? []) {
+    if (item.field !== 'sections') continue
     const title = item.section ?? ''
-    if (known.has(title)) continue
-    let row = rows.find((entry) => !entry.text && entry.title === title)
-    if (!row) rows.push(row = { title, text: '', media: [] })
-    row.media.push(item)
+    const group = groups.get(title)
+    if (group) group.push(item)
+    else groups.set(title, [item])
   }
+  // The contract identifies a section by title. Keep repeated text sections,
+  // attach the group once, then append media-only sections in source order.
+  const rows = (profile.value?.sections ?? []).map(({ title, text }) => {
+    const items = groups.get(title) ?? []
+    groups.delete(title)
+    return { title, text, media: items }
+  })
+  for (const [title, items] of groups) rows.push({ title, text: '', media: items })
   return rows
 })
 
-const profile = computed<HomepageProfile | undefined>(() => homepage.data.value?.profile)
 // Short facts in a definition list; long texts and sections follow as paragraphs.
 const shortFacts = ['position', 'education', 'degree', 'discipline', 'email', 'phone', 'office_location', 'hire_date'] as const
 const facts = computed(() => {
@@ -66,9 +75,12 @@ const facts = computed(() => {
   return shortFacts.filter((key) => value[key]).map((key) => ({ key, text: value[key] as string }))
 })
 const hasContent = computed(() => {
+  if (homepage.status.value !== 'ready') return false
+  if (media.data.value?.length) return true
   const value = profile.value
   return !!value && (textFields.some((key) => value[key]) || value.supervisors.length > 0 || value.fields.length > 0 || value.sections.length > 0 || !!value.photo)
 })
+const mediaFailed = computed(() => homepage.status.value === 'ready' && media.status.value === 'error')
 
 // The photo is read with the session and shown from a temporary object URL.
 const photoUrl = ref('')
@@ -98,7 +110,7 @@ const complaining = ref(false)
 
 <template>
   <section
-    v-if="homepage.status.value === 'error' || hasContent || owner.data.value"
+    v-if="homepage.status.value === 'error' || hasContent || mediaFailed || owner.data.value"
     class="section"
     aria-labelledby="teacher-homepage-title"
   >
@@ -138,16 +150,19 @@ const complaining = ref(false)
       @retry="homepage.reload()"
     />
     <p
-      v-else-if="!hasContent"
+      v-else-if="!hasContent && !mediaFailed"
       class="muted small"
     >
       {{ t('teacherHomepage.empty') }}
     </p>
     <article
-      v-else-if="profile"
+      v-else-if="hasContent"
       class="card stack homepage"
     >
-      <div class="homepage-head">
+      <div
+        v-if="profile"
+        class="homepage-head"
+      >
         <img
           v-if="photoUrl && profile.photo"
           class="homepage-photo"
@@ -191,13 +206,13 @@ const complaining = ref(false)
       </div>
       <div
         v-for="part in (['biography', 'research'] as const)"
-        v-show="profile[part] || mediaOf(part).length"
+        v-show="profile?.[part] || mediaOf(part).length"
         :key="part"
         class="stack-sm"
       >
         <h3>{{ t(`teacherHomepage.fields.${part}`) }}</h3>
         <p
-          v-if="profile[part]"
+          v-if="profile?.[part]"
           class="prewrap"
         >
           {{ profile[part] }}
@@ -208,7 +223,7 @@ const complaining = ref(false)
         />
       </div>
       <dl
-        v-if="profile.fields.length"
+        v-if="profile?.fields.length"
         class="facts"
       >
         <div
@@ -242,6 +257,20 @@ const complaining = ref(false)
         {{ t('teacherHomepage.source') }}
       </p>
     </article>
+    <div
+      v-if="mediaFailed"
+      class="notice notice-error"
+      role="alert"
+    >
+      <span>{{ t('teacherHomepage.media.loadFailed') }}</span>
+      <button
+        type="button"
+        class="btn btn-sm"
+        @click="media.reload()"
+      >
+        {{ t('common.retry') }}
+      </button>
+    </div>
 
     <SheetDialog
       :open="complaining"

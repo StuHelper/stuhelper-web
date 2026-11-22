@@ -2687,6 +2687,7 @@
       "photo": "Replace the photo"
     },
     "media": {
+      "loadFailed": "The homepage’s images, videos and attachments couldn’t be loaded.",
       "image": "Homepage image",
       "imageFailed": "This image cannot be shown right now.",
       "imageLink": "View the image on the school page",

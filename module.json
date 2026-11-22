@@ -311,6 +311,19 @@
       "src/features/notifications/api.test.ts#opens the teacher homepage receipt with the encoded target ID",
       "tests/e2e/notifications.spec.mjs#an approved teacher homepage notification opens the teacher’s own request receipt",
       "tests/e2e/teacher-homepage-requests.spec.mjs#request history opens pending, approved and rejected receipts and handles an expired receipt"
+    ],
+    "CAT-TEACHER-14": [
+      "tests/e2e/teacher-homepage-media.spec.mjs#a copied homepage image is read only when it enters the viewport and displays as a Blob",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an unavailable image response leaves a localized placeholder without refreshing the homepage",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an undecodable image response leaves a localized placeholder without refreshing the homepage",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an image HTTP 403 refreshes the homepage once and uses the replacement address",
+      "tests/e2e/teacher-homepage-media.spec.mjs#an image HTTP 404 refreshes the homepage once and uses the replacement address",
+      "tests/e2e/teacher-homepage-media.spec.mjs#source links stay in their biography, research and section groups and open privately",
+      "tests/e2e/teacher-homepage-media.spec.mjs#a teacher page displays named and untitled media-only sections without a profile response",
+      "tests/e2e/teacher-homepage-media.spec.mjs#a failed homepage media list leaves the teacher profile and reviews usable"
+    ],
+    "CAT-TEACHER-15": [
+      "src/features/academic/teacherHomepage.test.ts#reads copied images with the session, rejects redirects and enforces the 20 MiB stream limit"
     ]
   }
 }

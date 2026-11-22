@@ -23,6 +23,10 @@ function release() {
   if (url.value) URL.revokeObjectURL(url.value)
   url.value = ''
 }
+function decodeFailed() {
+  release()
+  failed.value = true
+}
 watch([seen, () => props.item.url], async ([visible]) => {
   release()
   failed.value = false
@@ -54,6 +58,7 @@ onBeforeUnmount(release)
       :height="item.image.height"
       :alt="item.title ?? t('teacherHomepage.media.image')"
       decoding="async"
+      @error="decodeFailed"
     >
     <span
       v-else

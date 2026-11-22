@@ -2685,6 +2685,16 @@
       "note": "Réponse de l’établissement",
       "cleared": "Supprimer toutes les habilitations affichées",
       "photo": "Demande de remplacement du portrait"
+    },
+    "media": {
+      "loadFailed": "Impossible de charger les images, les vidéos et les pièces jointes de la page pour le moment.",
+      "image": "Image de la page de l’enseignant",
+      "imageFailed": "L’image ne peut pas être affichée pour le moment.",
+      "imageLink": "Voir l’image sur la page d’origine de l’établissement",
+      "videoLink": "Regarder la vidéo sur la page d’origine de l’établissement",
+      "attachmentLink": "Ouvrir la pièce jointe sur la page d’origine de l’établissement",
+      "external": "(ouvre le site de l’établissement dans une nouvelle fenêtre)",
+      "untitled": "Autre contenu"
     }
   }
 }

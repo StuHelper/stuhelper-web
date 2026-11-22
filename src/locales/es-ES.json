@@ -2685,6 +2685,16 @@
       "note": "Respuesta del centro",
       "cleared": "Borrar la lista de funciones de supervisión",
       "photo": "Solicitud de cambio de foto"
+    },
+    "media": {
+      "loadFailed": "No se han podido cargar las imágenes, los vídeos y los archivos adjuntos de la página.",
+      "image": "Imagen de la página del profesor",
+      "imageFailed": "La imagen no se puede mostrar en este momento.",
+      "imageLink": "Ver la imagen en la página original del centro",
+      "videoLink": "Ver el vídeo en la página original del centro",
+      "attachmentLink": "Abrir el archivo adjunto en la página original del centro",
+      "external": "(abre el sitio web del centro en una ventana nueva)",
+      "untitled": "Más contenido"
     }
   }
 }

@@ -208,6 +208,20 @@ test('a non-owner can report a homepage with a category and up to 2000 code poin
   await page.getByRole('option', { name: category.name, exact: true }).click();
   await expect(dialog.getByText(category.hint, { exact: true })).toBeVisible();
   await expect(submit).toBeEnabled();
+  await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
+  const layout = await dialog.evaluate((sheet) => {
+    const form = sheet.querySelector('form');
+    const formBounds = form.getBoundingClientRect();
+    const fieldEdges = Array.from(form.querySelectorAll('textarea'), (field) => {
+      const bounds = field.getBoundingClientRect();
+      return Math.max(Math.abs(bounds.left - formBounds.left), Math.abs(bounds.right - formBounds.right));
+    });
+    const overflow = Math.max(...[form, sheet, document.documentElement].map((node) => node.scrollWidth - node.clientWidth));
+    return { fieldEdges, overflow };
+  });
+  expect(layout.fieldEdges).toHaveLength(2);
+  for (const edge of layout.fieldEdges) expect(edge).toBeLessThanOrEqual(1);
+  expect(layout.overflow).toBe(0);
   await screenshot(dialog, info, 'complaint');
 
   await reason.fill(detail);

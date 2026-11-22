@@ -8,6 +8,7 @@ import { photoLimit, textLimit } from '../features/academic/teacherHomepage'
 import { schemaOf, type Validator } from '../shared/api/schema'
 import { SCHOOL, ago, teachers } from './data'
 import { teacherCredentials } from './teacher'
+import researchImage from './teacher-body-image.png?inline'
 import portrait from './teacher-portrait.png?inline'
 
 type C = Catalog['schemas']
@@ -27,6 +28,22 @@ const photoBytes = base64Bytes(portrait.slice(portrait.indexOf(',') + 1))
 const photoId = bytesToHex(sha256(photoBytes))
 const photoType = 'image/png'
 const profilePhoto = { content_type: photoType, width: 128, height: 160 } as const
+const bodyImageBytes = base64Bytes(researchImage.slice(researchImage.indexOf(',') + 1))
+const bodyImageId = bytesToHex(sha256(bodyImageBytes))
+const bodyImageMetadata: C['TeacherHomepageBodyImage'] = { content_type: photoType, width: 640, height: 360, size_bytes: bodyImageBytes.length }
+const bodyImages = new Map([[bodyImageId, { bytes: bodyImageBytes, metadata: bodyImageMetadata }]])
+const teachingPage = 'https://teachers.example.invalid/lin/teaching'
+const publishedMedia = new Map<string, C['TeacherHomepageMedium'][]>([
+  ['p1', [
+    {
+      kind: 'image', field: 'research', title: '数值方法收敛曲线',
+      url: `/api/v1/catalog/objects/p1/teacher-homepage/images/${bodyImageId}`, image: bodyImageMetadata,
+    },
+    { kind: 'image', field: 'sections', section: '近期教学', title: '课堂板书示例', url: teachingPage },
+    { kind: 'video', field: 'sections', section: '教学媒体', url: `${teachingPage}/video` },
+    { kind: 'attachment', field: 'sections', section: '教学媒体', url: `${teachingPage}/worksheet.pdf` },
+  ]],
+])
 const profiles = new Map<string, C['TeacherHomepagePublicProfile']>([
   ['p1', {
     name: '林知远',
@@ -64,8 +81,9 @@ const requests: HomepageRequest[] = [
 
 const parseProposal = schemaOf<RequestInput>(catalogContract.components.schemas, 'TeacherHomepageRequestInput')
 const parseComplaint = schemaOf<Complaint>(moderationContract.components.schemas, 'TeacherHomepageComplaint')
+const privateCache = 'private, no-store'
 const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), {
-  status, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' },
+  status, headers: { 'Content-Type': 'application/json', 'Cache-Control': privateCache },
 })
 const error = (code: string, status: number) => json({ code, request_id: 'demo' }, status)
 const invalid = () => error('invalid_input', 400)
@@ -141,10 +159,46 @@ function listRequests(teacherId: string, query: URLSearchParams) {
   return json({ items, total: rows.length, next: start + limit < rows.length ? items.at(-1)?.id ?? '' : '' })
 }
 
+function readMedia(path: string, method: string, verified: boolean): Response | undefined {
+  const matched = /^\/catalog\/objects\/([^/]+)\/teacher-homepage\/(?:media|images\/([^/]+))$/.exec(path)
+  if (!matched) return undefined
+  const [, encodedTeacherId, encodedImageId] = matched
+  if (method !== 'GET' && !(method === 'HEAD' && encodedImageId)) return missing()
+
+  let teacherId: string
+  let imageId: string
+  try {
+    teacherId = decodeURIComponent(encodedTeacherId!)
+    imageId = decodeURIComponent(encodedImageId ?? '')
+  } catch {
+    return invalid()
+  }
+  if (!/^[A-Za-z0-9_.:-]{1,128}$/.test(teacherId) || (encodedImageId && !/^[\da-f]{64}$/.test(imageId))) return invalid()
+  if (!verified) return error('forbidden', 403)
+  if (!teacherExists(teacherId)) return missing()
+
+  const items = publishedMedia.get(teacherId) ?? []
+  if (!encodedImageId) return json({ items } satisfies C['TeacherHomepageMediaView'])
+  const asset = bodyImages.get(imageId)
+  if (!asset || !items.some((item) => 'image' in item && item.url.endsWith(`/${imageId}`))) return missing()
+  return new Response(method === 'HEAD' ? null : asset.bytes, {
+    headers: {
+      'Content-Type': asset.metadata.content_type,
+      'Content-Length': String(asset.metadata.size_bytes),
+      'Cache-Control': privateCache,
+      'X-Content-Type-Options': 'nosniff',
+      'X-Accel-Buffering': 'no',
+    },
+  })
+}
+
 export async function teacherHomepageRoute(
   path: string, method: string, query: URLSearchParams, verified: boolean, init: RequestInit | undefined,
   addComplaint: (task: Task) => void,
 ): Promise<Response | undefined> {
+  const media = readMedia(path, method, verified)
+  if (media) return media
+
   const receipt = /^\/catalog\/me\/teacher-homepage\/requests\/([\w.:-]+)$/.exec(path)
   if (receipt && method === 'GET') {
     const request = requests.find((item) => item.id === receipt[1])
