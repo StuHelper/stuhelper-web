@@ -210,6 +210,20 @@
       "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters",
       "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write"
     ],
+    "NT-01": [
+      "tests/e2e/notifications.spec.mjs#notifications show localized reasons and open a comment’s root review",
+      "tests/e2e/notifications.spec.mjs#reply and like preferences are saved independently",
+      "tests/e2e/notifications.spec.mjs#a rejected preference change restores the saved switch state"
+    ],
+    "NT-02": [
+      "tests/e2e/notifications.spec.mjs#a box loads its own pages and marks only that box as read",
+      "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center"
+    ],
+    "NT-07": [
+      "src/features/notifications/title.test.ts#withholds context IDs and reason codes from title interpolation",
+      "src/features/notifications/title.test.ts#localizes a known reason code",
+      "src/features/notifications/title.test.ts#shows no reason when the code is unknown or missing"
+    ],
     "NOTIFY-BELL-01": [
       "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center",
       "tests/e2e/notifications.spec.mjs#a failed unread count leaves the bell without a number and breaks nothing",
@@ -277,6 +291,15 @@
       "tests/e2e/account-security.spec.mjs#QQ binding shows three parts and completes after the bot code and QQ Connect",
       "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
       "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
+    ],
+    "ACAD-41": [
+      "src/shared/api/http.test.ts#keeps a well-formed server reopening time on a 409 and drops malformed ones",
+      "tests/e2e/academic.spec.mjs#a follow-up attempted inside the five-minute window explains when it opens",
+      "tests/e2e/academic.spec.mjs#a mentor comment does not wait for the course follow-up window"
+    ],
+    "CM-22": [
+      "tests/e2e/academic.spec.mjs#reporting a review needs a violation type and sends it with the report",
+      "tests/e2e/resources.spec.mjs#a signed-in rights holder can file a complaint when resource details are denied"
     ]
   }
 }

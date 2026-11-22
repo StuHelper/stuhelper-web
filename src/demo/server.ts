@@ -198,7 +198,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   const platform = await openPlatformRoute(p, method, init)
   if (platform) return platform
 
-  const notifications = await notificationsRoute(p, method, init)
+  const notifications = await notificationsRoute(p, method, init, u.searchParams)
   if (notifications) return notifications
   const teacher = await teacherRoute(p, method, init)
   if (teacher) return teacher

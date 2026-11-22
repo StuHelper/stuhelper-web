@@ -62,7 +62,7 @@ const ownResources = useAsync((signal) => resources.mySummary(signal))
 const favoriteCount = useAsync(async (signal) => (await favorites.allFolders(signal)).reduce((sum, folder) => sum + folder.item_count, 0))
 // Ivory is stored in hundredths; the card shows the balance in whole units with any cents.
 const balance = useAsync(async (signal) => (await wallet.wallet(signal)).ivory_minor / 100)
-const activity = useAsync(async (signal) => (await notifications.list('', signal)).items.slice(0, 4))
+const activity = useAsync(async (signal) => (await notifications.list(undefined, '', signal)).items.slice(0, 4))
 // Optional modules (favorites, wallet, notifications) are only read when this deployment
 // runs them; their numbers and links are hidden otherwise.
 const capabilities = useCapabilities()

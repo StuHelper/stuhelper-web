@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ViolationSelect from '../moderation/ViolationSelect.vue'
 import type { ViolationCategory } from '../moderation/categories'
+import { useModerationReason } from '../moderation/reason'
 import { MessageCircle, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -27,7 +28,7 @@ const authorName = useAuthorName()
 type Panel = '' | 'report' | 'edit_request' | 'delete_request'
 const panel = ref<Panel>('')
 const confirming = ref<'' | 'withdraw' | 'delete'>('')
-const reason = ref('')
+const { reason, reasonText, reasonTooLong, reasonCounter, reasonCounterId } = useModerationReason()
 const category = ref<ViolationCategory | ''>('')
 const proposed = ref('')
 const appendBody = ref('')
@@ -42,6 +43,10 @@ const isRoot = computed(() => props.review.id === props.review.root_id)
 const published = computed(() => props.review.state === 'published')
 const editWindowMs = 5 * 60_000
 const remainingSeconds = ref(0)
+// Only course reviews wait out the first-publication window before a follow-up; mentor comments do not.
+const appendWaiting = computed(() => props.review.kind === 'course' && remainingSeconds.value > 0)
+// When the server still refuses a follow-up, its own reopening time wins over the device clock.
+const appendRetryAt = computed(() => (write.error.value === 'append_window_not_open' && write.retryAt.value ? Date.parse(write.retryAt.value) : NaN))
 const editCountdownText = computed(() => {
   if (!remainingSeconds.value) return ''
   const mins = Math.floor(remainingSeconds.value / 60)
@@ -144,9 +149,9 @@ function openPanel(next: Panel) {
 
 async function submitTask() {
   const kind = panel.value
-  if (!kind) return
+  if (!kind || !reasonText.value || reasonTooLong.value) return
   if (kind === 'report' && !category.value) return
-  const submission: Submission = { object_id: props.review.id, kind, reason: reason.value.trim(), evidence: [], ...(kind === 'report' && category.value ? { category: category.value } : {}), ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
+  const submission: Submission = { object_id: props.review.id, kind, reason: reasonText.value, evidence: [], ...(kind === 'report' && category.value ? { category: category.value } : {}), ...(kind === 'edit_request' ? { proposed_body: proposed.value } : {}) }
   finish = () => submitted(kind)
   const task = await write.run(`task:${props.review.id}:${kind}`, submission, (body, key) => api.submitTask(body, key))
   if (task) submitted(kind)
@@ -269,7 +274,14 @@ async function retry() {
       @submit.prevent="act({ action: 'append', revision: review.revision, body: appendBody.trim() })"
     >
       <p
-        v-if="remainingSeconds && review.published_at"
+        v-if="Number.isFinite(appendRetryAt)"
+        class="small muted"
+        role="status"
+      >
+        {{ t('academic.followUpOpensAt', { time: format.dateTime(appendRetryAt, { dateStyle: 'medium', timeStyle: 'medium' }) }) }}
+      </p>
+      <p
+        v-else-if="appendWaiting && review.published_at"
         class="small muted"
       >
         {{ t('academic.followUpOpensAt', { time: format.dateTime(Date.parse(review.published_at) + editWindowMs) }) }}
@@ -285,7 +297,7 @@ async function retry() {
       <button
         type="submit"
         class="btn btn-sm"
-        :disabled="locked || !appendBody.trim() || remainingSeconds > 0"
+        :disabled="locked || !appendBody.trim() || appendWaiting"
       >
         {{ t('academic.submitFollowUp') }}
       </button>
@@ -439,20 +451,27 @@ async function retry() {
       <ViolationSelect
         v-if="panel === 'report'"
         v-model="category"
-        :exclude="['author_update']"
         :disabled="locked"
       />
-      <label class="field">
-        <span class="field-label">{{ t('academic.review.reason') }}</span>
-        <textarea
-          v-model="reason"
-          class="textarea"
-          rows="3"
-          maxlength="2000"
-          required
-          :disabled="locked"
-        />
-      </label>
+      <div class="field">
+        <label class="field">
+          <span class="field-label">{{ t('academic.review.reason') }}</span>
+          <textarea
+            v-model="reason"
+            class="textarea"
+            rows="3"
+            required
+            :disabled="locked"
+            :aria-invalid="reasonTooLong || undefined"
+            :aria-describedby="reasonCounterId"
+          />
+        </label>
+        <bdi
+          :id="reasonCounterId"
+          :class="reasonTooLong ? 'field-error' : 'field-hint'"
+          dir="ltr"
+        >{{ reasonCounter }}</bdi>
+      </div>
       <label
         v-if="panel === 'edit_request'"
         class="field"
@@ -471,7 +490,7 @@ async function retry() {
         <button
           class="btn btn-primary btn-sm"
           type="submit"
-          :disabled="locked || !reason.trim() || (panel === 'report' && !category)"
+          :disabled="locked || !reasonText || reasonTooLong || (panel === 'report' && !category)"
         >
           {{ t('common.submit') }}
         </button>
@@ -489,7 +508,7 @@ async function retry() {
     <MutationNotice
       v-if="!confirming"
       :busy="write.busy.value"
-      :error="write.error.value"
+      :error="Number.isFinite(appendRetryAt) ? '' : write.error.value"
       :uncertain="write.uncertain.value"
       :success="success"
       @retry="retry"

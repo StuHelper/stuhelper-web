@@ -1,4 +1,4 @@
-import { ApiError, serverCode } from './errors'
+import { ApiError, retryAtOf, serverCode } from './errors'
 import type { Validator } from './schema'
 import { sessionFetch } from './transport'
 
@@ -148,7 +148,7 @@ export class Http {
     if (response.status === 503) this.options.onUnavailable?.();
     if (response.status === 401 || response.status === 403) this.options.onDenied?.(response.status)
     // A gateway or server failure without a recorded operation leaves a write's outcome unknown.
-    throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation, response.status === 429 ? retryAfter(problem, response.headers.get('Retry-After')) : undefined)
+    throw new ApiError(serverCode(problem, response.status), write && response.status >= 500 && !operation, response.status, operation, response.status === 429 ? retryAfter(problem, response.headers.get('Retry-After')) : undefined, response.status === 409 ? retryAtOf(problem) : undefined)
   }
 
   /** Send a request and validate the JSON response against the contract. */

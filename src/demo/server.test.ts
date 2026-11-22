@@ -4,6 +4,7 @@ import { installDemoFetch, setPersona } from './server'
 import { teacherLevels } from './store'
 import { Http } from '../shared/api/http'
 import { LegalApi } from '../features/legal/api'
+import { boxes, boxOf, NotificationsApi } from '../features/notifications/api'
 import { ResourcesApi } from '../features/resources/api'
 import { createSessionStore } from '../shared/session'
 
@@ -72,4 +73,12 @@ it('links the demo consent status and upload terms to their published snapshots'
   } finally {
     vi.unstubAllEnvs()
   }
+})
+
+it.each([undefined, ...boxes])('returns a contract-valid demo notifications page for box %s', async (box) => {
+  installDemoFetch()
+  const api = new NotificationsApi(new Http(window.fetch.bind(window)))
+  const page = await api.list(box, '')
+
+  expect(new Set(page.items.map(boxOf))).toEqual(new Set(box ? [box] : boxes))
 })
