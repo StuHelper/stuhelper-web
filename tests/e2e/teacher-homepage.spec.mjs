@@ -46,7 +46,7 @@ async function installFixture(page, credentials = []) {
 async function screenshot(target, info, view) {
   const project = info.project.name;
   if (['desktop-zh-CN', 'mobile-ar-EG'].includes(project)) {
-    await captureHomepage(target, `${view}-${project}.png`, { dialog: view === 'complaint' });
+    await captureHomepage(target, `${view}-${project}.png`);
   }
 }
 
