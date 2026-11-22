@@ -33,6 +33,7 @@ describe('contract-checked test fixtures', () => {
       phone_bound: true,
       administrator: false,
       expires_at: '2030-01-01T00:00:00Z',
+      consent_required: false,
     })).not.toThrow()
 
     expect(() => parseReview({

@@ -161,7 +161,7 @@ async function body(init?: RequestInit) {
 async function route(u: URL, method: string, init?: RequestInit): Promise<Response> {
   const p = u.pathname.replace('/api/v1', '')
   const who = persona()
-  if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, content_school_id: d.SCHOOL, profile: demoProfile, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z' })
+  if (p === '/auth/session') return who === 'guest' ? nope('unauthenticated', 401) : json({ authenticated: true, content_school_id: d.SCHOOL, profile: demoProfile, csrf_token: 'a'.repeat(43), phone_bound: true, administrator: false, expires_at: '2030-01-01T00:00:00Z', consent_required: false })
   if (p === '/auth/phone' && method === 'DELETE') { demoPhone = null; return json({ bound: false, masked_phone: null }) }
   if (p === '/auth/phone') return json({ bound: demoPhone !== null, masked_phone: demoPhone })
   if (p === '/auth/phone/code') return json({ challenge_id: 'd'.repeat(43), expires_at: new Date(Date.now() + 300_000).toISOString() })

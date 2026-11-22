@@ -20,6 +20,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read the current user agreement and privacy policy and this account’s consent for each. Authenticated business operations requiring current consent return HTTP 403 with code consent_required while either document is pending. */
+        get: operations["getLegalConsent"];
+        put?: never;
+        /** @description Record the account’s explicit acceptance of one current document. The server validates the document identifier, version and digest and derives the account and source. A retry of the same current document version and digest returns its original receipt. An allowed browser Origin and the session CSRF token are required. */
+        post: operations["acceptLegalConsent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/phone": {
         parameters: {
             query?: never;
@@ -253,6 +271,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/profiles/me/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Synthesizes the caller's PublicProfile from unsaved draft fields and current academic facts without persisting changes. */
+        post: operations["previewOwnProfile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profiles/{id}": {
         parameters: {
             query?: never;
@@ -262,6 +297,23 @@ export interface paths {
         };
         /** @description Guest-readable basic profile and current academic facts selected by the owner. Includes no real name, identity document, contact, account identifier or contribution content. Related content requires its own authorized endpoints; unfinished nickname profiles are not published. */
         get: operations["getPublicProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/profiles/{id}/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns the currently bound avatar image of a published profile. The profile identifier cannot address draft uploads or previous avatars. */
+        get: operations["getPublicProfileAvatar"];
         put?: never;
         post?: never;
         delete?: never;
@@ -374,22 +426,19 @@ export interface components {
             id: string;
             nickname_required: boolean;
             bio: string;
+            /** @description Active media version identifier for profile_avatar usage; omitted when unset. */
+            avatar_version_id?: string;
             visibility: components["schemas"]["ProfileVisibility"];
             group_card_consent: components["schemas"]["GroupCardConsent"];
         };
-        Session: {
-            authenticated: boolean;
-            profile: components["schemas"]["Profile"];
-            csrf_token: string;
-            phone_bound: boolean;
-            administrator: boolean;
-            /** Format: date-time */
-            expires_at: string;
-            /** @description Canonical community school selected by the server configuration. Clients must use this value instead of a build-time school setting. */
-            content_school_id: string;
-        };
+        /** @description Use consent_required to distinguish the minimal session for consent and account lifecycle actions from the full session. */
+        Session: components["schemas"]["FullSession"] | components["schemas"]["ConsentPendingSession"];
         Error: {
             code: string;
+            /** @description Optional request field name associated with a validation failure. */
+            field?: string;
+            /** @description Optional stable validation reason code for localized field messages. */
+            reason?: string;
         };
         ProfileVisibility: {
             /** @default true */
@@ -410,7 +459,10 @@ export interface components {
             nickname: string;
             /** Format: int64 */
             revision: number;
+            /** @description Up to 120 Unicode code points; CRLF line endings are normalized to LF before validation, and other control, private-use, or surrogate characters are rejected. */
             bio?: string;
+            /** @description Ready owner-uploaded profile_avatar version identifier; pass empty string to clear, omit to keep current avatar. */
+            avatar_version_id?: string;
             visibility?: components["schemas"]["ProfileVisibility"];
             group_card_consent?: components["schemas"]["GroupCardConsent"];
         };
@@ -420,6 +472,8 @@ export interface components {
             /** @description Unicode code points; empty only while nickname_required is true. */
             nickname: string;
             bio: string;
+            /** @description Active media version identifier for profile_avatar usage; omitted when unset. */
+            avatar_version_id?: string;
             visibility: components["schemas"]["ProfileVisibility"];
             affiliations: components["schemas"]["PublicAffiliation"][];
             /**
@@ -460,7 +514,9 @@ export interface components {
              */
             profile_id: string;
             /** @description 经持久安装记录确认从未安装并跳过的模块。缺失或未知记录不能跳过。 */
-            skipped_modules?: ("billing" | "open-platform" | "reviews" | "resources" | "favorites" | "qq-binding")[];
+            skipped_modules?: ("billing" | "open-platform" | "storage" | "storage-contribution" | "reviews" | "resources" | "favorites" | "qq-binding" | "verification")[];
+            /** @description Sanitized asset settlement blockers when blocker is assets_pending; never includes balances or payment payloads. */
+            pending_reasons?: ("ivory_balance_remaining" | "refund_in_progress" | "payment_pending_reconciliation")[];
         };
         ClosureRequest: {
             /**
@@ -471,6 +527,11 @@ export interface components {
         };
         ClosurePage: {
             items: components["schemas"]["Closure"][];
+            /**
+             * Format: uuid
+             * @description Exclusive cursor for the next page ordered by (created_at ASC, id ASC).
+             */
+            next_cursor?: string;
         };
         /** @description 群名片用途逐字段许可，默认全部拒绝；所有字段必须提供。 */
         GroupCardConsent: {
@@ -557,6 +618,87 @@ export interface components {
             code: "phone_rate_limited";
             retry_after_seconds: number;
         };
+        ProfilePreview: {
+            /** @description Draft nickname; omit to use the saved nickname, or pass empty string while nickname_required is true. */
+            nickname?: string;
+            /** @description Draft bio; omit to use the saved bio. */
+            bio?: string;
+            visibility?: components["schemas"]["ProfileVisibility"];
+        };
+        LegalConsentDocument: {
+            version: string;
+            /** @description Lowercase SHA-256 of the published document bytes. */
+            digest: string;
+            /**
+             * Format: uri
+             * @description Absolute HTTPS URL of the published document.
+             */
+            url: string;
+            /** @description True when this account still needs to accept this document’s current version and digest. */
+            required: boolean;
+            receipt?: components["schemas"]["LegalConsentReceipt"];
+        };
+        LegalConsentDocuments: {
+            terms: components["schemas"]["LegalConsentDocument"];
+            privacy: components["schemas"]["LegalConsentDocument"];
+        };
+        LegalConsentRequest: {
+            /**
+             * @description Stable identifier for the user agreement or the privacy policy.
+             * @enum {string}
+             */
+            document_id: "terms" | "privacy";
+            /**
+             * @description Affirmatively selected by the user for this document.
+             * @enum {boolean}
+             */
+            accepted: true;
+            version: string;
+            /** @description Lowercase SHA-256 of the published document bytes. */
+            digest: string;
+        };
+        LegalConsentReceipt: {
+            /**
+             * Format: date-time
+             * @description Time of the first committed acceptance of this document version and digest.
+             */
+            accepted_at: string;
+            /**
+             * @description registration is the first recorded StuHelper consent for this document and account, including accounts created before this feature. version_update indicates a later acceptance of this document.
+             * @enum {string}
+             */
+            source: "registration" | "version_update";
+            /** @description Server-generated identifier of the first successful submission. */
+            request_id: string;
+        };
+        LegalConsentStatus: {
+            /** @description True when the account still needs to accept at least one of the current documents. */
+            required: boolean;
+            documents: components["schemas"]["LegalConsentDocuments"];
+        };
+        FullSession: {
+            /** @enum {boolean} */
+            authenticated: true;
+            profile: components["schemas"]["Profile"];
+            csrf_token: string;
+            phone_bound: boolean;
+            administrator: boolean;
+            /** Format: date-time */
+            expires_at: string;
+            /** @description Canonical community school selected by the server configuration. Clients must use this value instead of a build-time school setting. */
+            content_school_id: string;
+            /** @enum {boolean} */
+            consent_required: false;
+        };
+        ConsentPendingSession: {
+            /** @enum {boolean} */
+            authenticated: true;
+            csrf_token: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** @enum {boolean} */
+            consent_required: true;
+        };
     };
     responses: never;
     parameters: never;
@@ -575,7 +717,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Success */
+            /** @description Authenticated session. Pending consent responses contain the CSRF token and expiration and set consent_required to true. */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -630,6 +772,128 @@ export interface operations {
                 };
             };
             /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getLegalConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current documents with separate status and receipt for each accepted version and digest. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalConsentStatus"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description forbidden or business_account_closed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description dependency_unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    acceptLegalConsent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Allowed browser origin. Browsers supply this header automatically. */
+                Origin: string;
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegalConsentRequest"];
+            };
+        };
+        responses: {
+            /** @description Current document statuses and the persisted receipt for the submitted document. */
+            200: {
+                headers: {
+                    /** @description Server-generated identifier of this submission attempt. The receipt keeps the identifier of the first successful attempt. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LegalConsentStatus"];
+                };
+            };
+            /** @description invalid_input, including an unknown document or missing or false acceptance */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description forbidden or business_account_closed */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description consent_version_changed. Fetch the current documents and ask for explicit acceptance of the updated document again. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description dependency_unavailable */
             503: {
                 headers: {
                     [name: string]: unknown;
@@ -1741,15 +2005,6 @@ export interface operations {
                     "application/json": components["schemas"]["Error"];
                 };
             };
-            /** @description Revision or idempotency conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Error"];
-                };
-            };
             /** @description Capacity exceeded */
             429: {
                 headers: {
@@ -1854,6 +2109,86 @@ export interface operations {
             };
         };
     };
+    previewOwnProfile: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfilePreview"];
+            };
+        };
+        responses: {
+            /** @description Synthesized public profile preview */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicProfile"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden or invalid CSRF */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Profile not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Capacity exceeded */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     getPublicProfile: {
         parameters: {
             query?: never;
@@ -1879,7 +2214,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description 请求过于频繁，稍后重试 */
             429: {
@@ -1887,9 +2224,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        code?: string;
-                    };
+                    "application/json": components["schemas"]["Error"];
                 };
             };
             /** @description Database unavailable */
@@ -1897,7 +2232,61 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    getPublicProfileAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current approved avatar image */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "image/jpeg": string;
+                    "image/png": string;
+                    "image/webp": string;
+                };
+            };
+            /** @description Profile or current avatar unavailable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Too many requests */
+            429: {
+                headers: {
+                    "Retry-After"?: number;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Profiles or media temporarily unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
         };
     };
@@ -1951,13 +2340,6 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-            /** @description Revision or idempotency conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
                 content: {
                     "application/json": components["schemas"]["Error"];
                 };
@@ -1987,6 +2369,7 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
+                "X-CSRF-Token": string;
             };
             path?: never;
             cookie?: never;
@@ -2038,7 +2421,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description Revision or idempotency conflict */
             409: {
@@ -2074,6 +2459,7 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
+                "X-CSRF-Token": string;
             };
             path: {
                 closure_id: string;
@@ -2123,7 +2509,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description Revision or idempotency conflict */
             409: {
@@ -2206,13 +2594,6 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-            /** @description Revision or idempotency conflict */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
                 content: {
                     "application/json": components["schemas"]["Error"];
                 };
@@ -2242,6 +2623,7 @@ export interface operations {
             query?: never;
             header: {
                 "Idempotency-Key": string;
+                "X-CSRF-Token": string;
             };
             path: {
                 closure_id: string;
@@ -2291,7 +2673,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
             };
             /** @description Revision or idempotency conflict */
             409: {
@@ -2327,6 +2711,10 @@ export interface operations {
             query?: {
                 after?: string;
                 limit?: number;
+                state?: "cooling" | "cancelled" | "awaiting_assets" | "processing" | "closed";
+                /** @description When true, returns only closures ready for approval after the seven-day cooling period or awaiting retry. */
+                actionable?: boolean;
+                blocker?: "assets_unavailable" | "assets_pending" | "sessions_unavailable" | "authorizations_unavailable" | "content_unavailable";
             };
             header?: never;
             path?: never;
@@ -2372,13 +2760,6 @@ export interface operations {
             };
             /** @description No matching closure */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Revision or idempotency conflict */
-            409: {
                 headers: {
                     [name: string]: unknown;
                 };
