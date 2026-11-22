@@ -12,7 +12,7 @@ const order = (values) => ({ points: 0, reference: '', channel: '', reason: '', 
 // Billing server following the billing contract. Writes are recorded with their idempotency keys.
 async function billing(page, options = {}) {
   const state = {
-    wallet: { points: 133, ivory_minor: 2000, frozen_ivory_minor: 0, debt_points: 0, frozen: false, ...options.wallet },
+    wallet: { points: 133, permanent_points: 125, expiring_points: 8, expiring_soon_points: 0, ivory_minor: 2000, frozen_ivory_minor: 0, debt_points: 0, frozen: false, ...options.wallet },
     channels: options.channels ?? [{ id: 'demo-pay', enabled: true, amounts_minor: [1000, 3000], original_refunds: true }],
     offers: options.offers ?? [{ id: 'points-120', enabled: true, amount_minor: 1000, points: 120, valid_seconds: 30 * 86400, version: 3 }, { id: 'points-400', enabled: true, amount_minor: 3000, points: 400, valid_seconds: 0, version: 1 }],
     orders: options.orders ?? [order({ id: 'paid', kind: 'topup', state: 'succeeded', amount_minor: 3000, channel: 'demo-pay' })],
@@ -44,7 +44,7 @@ async function billing(page, options = {}) {
     }
     if (path === '/purchases') {
       const offer = state.offers.find((item) => item.id === body.offer_id);
-      state.wallet = { ...state.wallet, ivory_minor: state.wallet.ivory_minor - offer.amount_minor, points: state.wallet.points + offer.points };
+      state.wallet = { ...state.wallet, ivory_minor: state.wallet.ivory_minor - offer.amount_minor, points: state.wallet.points + offer.points, permanent_points: state.wallet.permanent_points + (offer.valid_seconds ? 0 : offer.points), expiring_points: state.wallet.expiring_points + (offer.valid_seconds ? offer.points : 0) };
       return route.fulfill({ json: order({ id: 'purchase', kind: 'purchase', state: 'succeeded', amount_minor: offer.amount_minor, points: offer.points, reference: offer.id }) });
     }
     if (path === '/refunds') {

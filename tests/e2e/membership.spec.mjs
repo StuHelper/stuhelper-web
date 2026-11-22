@@ -17,7 +17,7 @@ async function setup(page, info, options = {}) {
     const request = route.request();
     const path = new URL(request.url()).pathname;
     if (path === '/api/v1/billing/membership-plans') return route.fulfill({ json: plans });
-    if (path === '/api/v1/billing/wallet') return route.fulfill({ json: { points: options.points ?? 500, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } });
+    if (path === '/api/v1/billing/wallet') return route.fulfill({ json: { points: options.points ?? 500, permanent_points: options.points ?? 500, expiring_points: 0, expiring_soon_points: 0, ivory_minor: 0, frozen_ivory_minor: 0, debt_points: 0, frozen: false } });
     if (path === '/api/v1/billing/memberships' && request.method() === 'POST') {
       state.buys.push({ body: request.postDataJSON(), key: request.headers()['idempotency-key'] });
       if (options.buyCode) return route.fulfill({ status: 409, json: { code: options.buyCode } });
