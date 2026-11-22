@@ -64,7 +64,9 @@ export class TeacherHomepageApi {
   private async image(url: string, limit: number, signal?: AbortSignal) {
     for (let attempt = 0; ; attempt++) {
       try {
-        return await this.imageHttp.blob(url, limit, { signal, redirect: 'follow' })
+        const blob = await this.imageHttp.blob(url, limit, { signal, redirect: 'follow' })
+        if (!blob.size || !(blob.type === 'image/png' || blob.type === 'image/jpeg' || (limit === bodyImageLimit && blob.type === 'image/gif'))) throw new ApiError('incompatible')
+        return blob
       } catch (error) {
         const wait = error instanceof ApiError && error.status === 429 && attempt < 2 ? Math.min(60, Math.max(1, error.retryAfter ?? 5)) : 0
         if (!wait) throw error
@@ -129,7 +131,14 @@ export const isCopied = (item: HomepageMedium): item is CopiedImage => item.kind
 function delay(ms: number, signal?: AbortSignal) {
   return new Promise<void>((resolve, reject) => {
     if (signal?.aborted) return reject(new ApiError('cancelled'))
-    const timer = setTimeout(resolve, ms)
-    signal?.addEventListener('abort', () => { clearTimeout(timer); reject(new ApiError('cancelled')) }, { once: true })
+    const abort = () => {
+      clearTimeout(timer)
+      reject(new ApiError('cancelled'))
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', abort)
+      resolve()
+    }, ms)
+    signal?.addEventListener('abort', abort, { once: true })
   })
 }

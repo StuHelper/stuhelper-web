@@ -217,7 +217,7 @@ export function useSession(): SessionStore {
 export function useHttp(media = false) {
   const host = useHostFetch()
   // Image reads may follow the signed redirect to the media host; a native host transport handles that itself.
-  const fetcher = media && host === sessionFetch ? mediaFetch : host
+  const fetcher = media && host === sessionFetch && !import.meta.env.VITE_DEMO ? mediaFetch : host
   const session = inject(sessionKey, undefined)
   const recheck = inject(deniedKey, undefined)
   return new Http(fetcher, { onUnavailable: () => session?.revalidate(true), onDenied: (status) => {

@@ -1,29 +1,36 @@
-/**
- * Teacher photos and body images are read through their Catalog address, which answers
- * with a 60-second signed link on the media host once the reader's access is checked.
- * The redirect leaves the site, so this transport is the only one allowed to follow it:
- * it starts only from a known Catalog image route, sends the session cookie only to the
- * site itself (the browser drops it across origins) and accepts the final response only
- * from the site or the configured HTTPS media host.
- */
-export const mediaOrigin = (() => {
-  const configured = import.meta.env.VITE_MEDIA_ORIGIN as string | undefined
-  try {
-    const url = new URL(configured || 'https://media.stuhelper.com')
-    return url.protocol === 'https:' ? url.origin : ''
-  } catch {
-    return ''
-  }
-})()
-
+/** Browser-only transport for authenticated Catalog image reads. */
 const imageRoute = /^\/api\/v1\/catalog\/(?:objects\/[^/?#]+\/teacher-homepage\/(?:photos|images)\/[0-9a-f]{64}|admin\/schools\/[^/?#]+\/teacher-sites\/requests\/[^/?#]+\/photo)$/
+
+function configuredOrigin() {
+  try {
+    const url = new URL(import.meta.env.VITE_MEDIA_ORIGIN || 'https://media.stuhelper.com')
+    if (url.protocol === 'https:' && !url.username && !url.password && url.href === url.origin + '/') return url.origin
+  } catch { /* An invalid setting disables cross-origin image reads. */ }
+  return ''
+}
 
 export const mediaFetch: typeof fetch = async (input, init) => {
   const target = new URL(input instanceof Request ? input.url : String(input), window.location.href)
-  if (target.origin !== window.location.origin || !imageRoute.test(target.pathname)) throw new TypeError('media_route_mismatch')
-  const response = await fetch(target, { ...init, mode: 'cors', credentials: 'same-origin', redirect: 'follow' })
-  // An opaque or unexpected final address is never read.
-  const final = response.url ? new URL(response.url) : target
-  if (final.origin !== window.location.origin && final.origin !== mediaOrigin) throw new TypeError('media_origin_mismatch')
-  return response
+  const method = init?.method ?? (input instanceof Request ? input.method : 'GET')
+  if (method !== 'GET' || target.origin !== window.location.origin || target.search || target.hash ||
+      target.username || target.password || !imageRoute.test(target.pathname)) throw new TypeError('media_route_mismatch')
+
+  // Only the Catalog GET uses the session. Never forward caller-supplied headers to the CDN.
+  const options: RequestInit = {
+    method, signal: init?.signal ?? (input instanceof Request ? input.signal : undefined),
+    mode: 'cors', credentials: 'same-origin', redirect: 'follow', cache: 'no-store',
+  }
+  const mediaOrigin = configuredOrigin()
+  for (let attempt = 0; ; attempt++) {
+    const response = await fetch(target, options)
+    const origin = response.url && new URL(response.url).origin
+    if (origin === window.location.origin) return response
+    if (!origin || origin !== mediaOrigin) {
+      await response.body?.cancel()
+      throw new TypeError('media_origin_mismatch')
+    }
+    // An expired signed link can return 403. Ask Catalog for a fresh decision once.
+    if (response.status !== 403 || attempt > 0) return response
+    await response.body?.cancel()
+  }
 }

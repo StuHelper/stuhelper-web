@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 import { fixture as academicFixture } from './academic-fixture.mjs';
 
+import { animation, cdn, interceptMedia } from '../teacher-media-fixture.mjs';
+
 const base = 'http://127.0.0.1:18787';
 const profilePath = '/api/v1/catalog/objects/teacher-a/teacher-homepage';
 const mediaPath = `${profilePath}/media`;
@@ -283,4 +285,29 @@ test('a failed homepage media list leaves the teacher profile and reviews usable
   await expect(homepage.getByText(existingSection.text, { exact: true })).toBeVisible();
   expect(listReads).toBe(2);
   expect(profileReads).toBe(1);
+});
+
+test('an expired media link is signed again and the browser displays the animated GIF', async ({ page }, info) => {
+  const picture = copiedImage('a', { title: 'Animated diagram', image: { content_type: 'image/gif', width: 8, height: 8, size_bytes: animation.length } });
+  await fixture(page, { items: [picture] });
+  const requests = await interceptMedia(page, base, url => url.pathname === '/first' ? { status: 403 } : {});
+  let reads = 0;
+  await page.route(`**${picture.url}`, route => route.fulfill({
+    status: 302, headers: { location: cdn + (++reads === 1 ? '/first' : '/second'), 'cache-control': 'no-store' },
+  }));
+  const { homepage } = await openTeacher(page, info);
+  const frame = figure(homepage, picture.title);
+  await frame.scrollIntoViewIfNeeded();
+  const image = frame.getByRole('img');
+  await expect(image).toHaveAttribute('src', /^blob:/);
+  await expect(image).toHaveJSProperty('naturalWidth', 8);
+  const first = await image.screenshot();
+  await expect.poll(async () => (await image.screenshot()).equals(first)).toBe(false);
+  expect(reads).toBe(2);
+  expect(requests.map(request => new URL(request.url).pathname)).toEqual(['/first', '/second']);
+  for (const request of requests) {
+    const headers = new Headers(request.headers);
+    expect(headers.get('origin')).toBe(base);
+    expect(headers.has('authorization') || headers.has('cookie')).toBe(false);
+  }
 });
