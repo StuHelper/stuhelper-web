@@ -5,10 +5,10 @@ import { Mutation } from '../api/mutation'
 export type LoadStatus = 'idle' | 'loading' | 'ready' | 'error'
 
 /**
- * Load one value. A new load cancels the previous one, and both a new load and
- * a failure clear the old value so revoked data never stays on screen.
+ * Load one value. A new load cancels the previous one and clears the old value.
+ * With keepData the old value stays during refresh and is cleared if the refresh fails.
  */
-export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
+export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>, options: { keepData?: boolean } = {}) {
   const data = shallowRef<T>()
   const status = ref<LoadStatus>('idle')
   const error = ref('')
@@ -20,7 +20,7 @@ export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
     current = controller
     status.value = 'loading'
     error.value = ''
-    data.value = undefined
+    if (!options.keepData) data.value = undefined
     try {
       const value = await loader(controller.signal)
       if (current !== controller) return
@@ -28,6 +28,7 @@ export function useAsync<T>(loader: (signal: AbortSignal) => Promise<T>) {
       status.value = 'ready'
     } catch (failure) {
       if (current !== controller) return
+      if (options.keepData) data.value = undefined
       error.value = errorCode(failure)
       status.value = 'error'
     }

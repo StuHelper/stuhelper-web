@@ -14,8 +14,8 @@ import { useErrorText } from '../../shared/ui/messages'
 import { useLinkAvailable } from '../../shared/capabilities'
 import { extras } from '../../shared/extras'
 import MeLayout from '../account/MeLayout.vue'
-import { boxOf, boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
-import { setUnread } from './unread'
+import { boxes, targetRoute, useNotificationsApi, type Box, type Notification } from './api'
+import { setUnread, unreadCount } from './unread'
 
 // The message center. The server files notifications into boxes by what they are
 // about and counts unread items per box: three boxes sit on top as entries, and the
@@ -40,7 +40,7 @@ const open = computed<Box | undefined>(() => boxes.find((box) => box === route.q
 const listed = computed<Box>(() => open.value ?? 'system')
 const list = usePaged<Notification>((cursor, signal) => api.list(listed.value, cursor, signal))
 watch(listed, () => { void list.reload() }, { immediate: true })
-const unread = useAsync((signal) => api.summary(signal))
+const unread = useAsync((signal) => api.summary(signal), { keepData: true })
 void unread.reload()
 // The bell in the navigation shows the same number, so every change here reaches it.
 watch(() => unread.data.value, (value) => { if (value) setUnread(value.count) })
@@ -74,17 +74,23 @@ function stamp(at: string) {
 async function openItem(item: Notification) {
   if (opening.has(item.id)) return
   if (!item.read_at) {
+    const box = listed.value
     opening.add(item.id)
     // Marking read is idempotent; a failure keeps the item unread and is retried on the next open.
     try {
       await api.read(item.id)
       list.items.value = list.items.value.map((entry) => (entry.id === item.id ? { ...entry, read_at: new Date().toISOString() } : entry))
-      // Take this one off the counts at once, so the bell on the next page is already right;
-      // the server's counts are then read again and replace this estimate.
+      // Navigation can cancel the next summary request when this view unmounts.
       const counts = unread.data.value
       if (counts) {
-        const box = boxOf(item)
-        unread.data.value = { count: Math.max(0, counts.count - 1), by_box: { ...counts.by_box, [box]: Math.max(0, counts.by_box[box] - 1) }, by_type: { ...counts.by_type, [item.type]: Math.max(0, counts.by_type[item.type] - 1) } }
+        unread.data.value = {
+          count: Math.max(0, counts.count - 1),
+          by_box: { ...counts.by_box, [box]: Math.max(0, counts.by_box[box] - 1) },
+          by_type: { ...counts.by_type, [item.type]: Math.max(0, counts.by_type[item.type] - 1) },
+        }
+      } else if (unread.status.value === 'loading' && unreadCount.value !== undefined) {
+        // The bell may already know the total while the center loads its first summary.
+        setUnread(unreadCount.value - 1)
       }
       void unread.reload()
     } catch (failure) {

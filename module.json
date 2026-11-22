@@ -211,6 +211,7 @@
     ],
     "NT-02": [
       "tests/e2e/notifications.spec.mjs#a box loads its own pages and marks only that box as read",
+      "tests/e2e/notifications.spec.mjs#a late mark-all response keeps the new box unread",
       "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center"
     ],
     "NT-07": [
@@ -219,6 +220,8 @@
       "src/features/notifications/title.test.ts#shows no reason when the code is unknown or missing"
     ],
     "NOTIFY-BELL-01": [
+      "tests/e2e/notifications.spec.mjs#opening a comment updates the bell before the unread count returns",
+      "tests/e2e/notifications.spec.mjs#opening a comment uses the known bell count while the first inbox summary is pending",
       "tests/e2e/notifications.spec.mjs#the navigation bell shows the unread count on every page and follows the message center",
       "tests/e2e/notifications.spec.mjs#a failed unread count leaves the bell without a number and breaks nothing",
       "src/features/notifications/unread.test.ts#shares one request, reuses a fresh count and reads again when forced or stale",
