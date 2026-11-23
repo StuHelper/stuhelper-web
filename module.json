@@ -206,6 +206,7 @@
     ],
     "BROWSE-RESOURCES-01": [
       "tests/e2e/resources.spec.mjs#the side list shows recently visited courses, filters by one and can be cleared",
+      "tests/e2e/resources.spec.mjs#a searchable list in the resource filter sheet scrolls with wheel or touch",
       "tests/e2e/resources.spec.mjs#the filter sheet does not follow the reader to another page and is closed on return"
     ],
     "MC-SWITCH-01": [

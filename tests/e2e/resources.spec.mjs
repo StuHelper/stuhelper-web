@@ -45,6 +45,48 @@ test('configured category field filters and grouping follow server configuration
   await layout(page, errors, locale);
 });
 
+test('a searchable list in the resource filter sheet scrolls with wheel or touch', async ({ page }, info) => {
+  const state = fixture();
+  await routes(page, state);
+  const categories = Array.from({ length: 24 }, (_, i) => ({
+    ...state.category, id: `category-${i}`, names: { 'zh-CN': `Category ${i}` },
+  }));
+  await page.route('**/api/v1/resources/categories*', route => route.fulfill({ json: { items: categories, next_cursor: '' } }));
+  const { locale } = info.project.metadata;
+  const all = JSON.parse(fs.readFileSync(`src/locales/${locale}.json`, 'utf8'));
+  await page.goto(`/resources?lang=${locale}`);
+  await page.getByRole('button', { name: all.common.filters, exact: true }).click();
+  const sheet = page.getByRole('dialog', { name: all.common.filters, exact: true });
+  const field = sheet.getByRole('combobox', { name: all.resources.category, exact: true });
+  await field.click();
+  const list = page.getByRole('listbox');
+  const search = page.getByRole('textbox', { name: all.common.searchOptions });
+  await expect(search).toBeFocused();
+  const start = list.getByRole('option').nth(2);
+  await expect(start).toBeInViewport();
+  const box = await start.boundingBox();
+  const x = box.x + box.width / 2, y = box.y + box.height / 2;
+  if (info.project.use.hasTouch) {
+    const session = await page.context().newCDPSession(page);
+    await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+    for (const distance of [10, 20, 30, 40, 50]) {
+      await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: y - distance }] });
+    }
+    await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+    await session.detach();
+  } else {
+    await page.mouse.move(x, y);
+    await page.mouse.wheel(0, 200);
+  }
+  await expect.poll(() => list.evaluate(el => el.scrollTop)).toBeGreaterThan(0);
+  await expect(search).toBeInViewport();
+  await search.fill('Category 23');
+  await list.getByRole('option', { name: 'Category 23', exact: true }).click();
+  await expect(field).toHaveText('Category 23');
+  await sheet.getByRole('button', { name: all.resources.browse.find, exact: true }).click();
+  await expect.poll(() => state.calls.some(call => call.query?.category_id === 'category-23')).toBe(true);
+});
+
 test('new resource explains why uploads are unavailable when there are no enabled categories', async ({ page }, info) => {
   const target = '/resources/new?school_id=school&course_id=course';
   const { m } = await setup(page, info, target);
@@ -341,8 +383,10 @@ test('a signed-in rights holder can file a complaint when resource details are d
   await expect(submit).toBeDisabled();
   await page.getByRole('button', { name: all.violation.label, exact: true }).click();
   const picker = page.getByRole('dialog', { name: all.violation.pick, exact: true });
-  await expect(picker.getByRole('listitem')).toHaveText(Object.values(all.violation.categories).map(({ name, hint }) => name + hint));
-  await picker.getByRole('button', { name: all.violation.categories.copyright.name, exact: true }).click();
+  const copyright = picker.getByRole('button', { name: all.violation.categories.copyright.name, exact: true });
+  await expect(copyright).toHaveAccessibleDescription(all.violation.categories.copyright.hint);
+  await copyright.click();
+  await expect(picker).toHaveCount(0);
   await expect(page.getByText(all.violation.categories.copyright.hint, { exact: true })).toBeVisible();
   const posts = () => state.calls.filter(call => call.path === '/items/resource/requests' && call.method === 'POST');
   const atLimit = '😀'.repeat(2000);

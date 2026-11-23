@@ -94,6 +94,7 @@ function choose(value: unknown) {
           :collision-padding="8"
         >
           <ListboxRoot
+            class="app-search-root"
             :model-value="text || EMPTY"
             highlight-on-hover
             @update:model-value="pick"

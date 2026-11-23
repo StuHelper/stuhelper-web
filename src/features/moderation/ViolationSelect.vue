@@ -76,10 +76,14 @@ function pick(code: ViolationCategory) {
                 class="violation-option"
                 type="button"
                 :aria-pressed="category === code"
+                :aria-labelledby="`${id}-${code}-name`"
                 :aria-describedby="`${id}-${code}`"
                 @click="pick(code)"
               >
-                <span class="violation-name">
+                <span
+                  :id="`${id}-${code}-name`"
+                  class="violation-name"
+                >
                   {{ t(`violation.categories.${code}.name`) }}
                   <Check
                     v-if="category === code"

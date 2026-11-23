@@ -736,12 +736,18 @@ test('reporting a review needs a violation type and sends it with the report', a
   const submit = page.getByRole('button', { name: all.common.submit, exact: true });
   await reason.fill('Contains a phone number');
   await expect(submit).toBeDisabled();
-  await page.getByRole('button', { name: all.violation.label, exact: true }).click();
-  // Every category is laid out at once, each with its description.
+  const field = page.getByRole('button', { name: all.violation.label, exact: true });
+  await field.press('Enter');
   const picker = page.getByRole('dialog', { name: all.violation.pick, exact: true });
-  await expect(picker.getByRole('listitem')).toHaveText(Object.values(all.violation.categories).map(({ name, hint }) => name + hint));
-  await picker.getByRole('button', { name: all.violation.categories.privacy_leak.name, exact: true }).click();
+  await expect(picker).toHaveCSS('direction', locale === 'ar-EG' ? 'rtl' : 'ltr');
+  await expect(picker.getByRole('heading', { level: 3 })).toHaveText(Object.values(all.violation.groups));
+  await expect(picker.getByRole('listitem')).toHaveCount(24);
+  for (const { name, hint } of Object.values(all.violation.categories)) {
+    await expect(picker.getByRole('button', { name, exact: true })).toHaveAccessibleDescription(hint);
+  }
+  await picker.getByRole('button', { name: all.violation.categories.privacy_leak.name, exact: true }).press('Enter');
   await expect(picker).toHaveCount(0);
+  await expect(field).toBeFocused();
   const atLimit = '😀'.repeat(2000);
   const overLimit = atLimit + '😀';
   const number = new Intl.NumberFormat(locale);
