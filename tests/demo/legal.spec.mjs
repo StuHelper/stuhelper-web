@@ -10,7 +10,7 @@ test('the demo opens published legal text and fetches the next history page', as
   await expect(main.getByRole('heading', { level: 1, name: 'StuHelper 用户服务协议' })).toBeVisible();
   await expect(main.getByText('SH-TOS-2026.11.01', { exact: true })).toBeVisible();
   await expect(main.getByText('运营主体', { exact: true })).toBeVisible();
-  await expect(article.getByText('版本 3.0')).toHaveCount(0);
+  await expect(article.getByText('版本 SH-TOS-2026.11.01')).toHaveCount(0);
   await expect(article.getByRole('table').getByRole('cell', { name: '学习资料' })).toBeVisible();
   await main.getByRole('navigation', { name: c.legal.contents }).getByRole('link', { name: '第二条 账号与安全' }).click();
   await expect(page).toHaveURL(/#section-2$/);

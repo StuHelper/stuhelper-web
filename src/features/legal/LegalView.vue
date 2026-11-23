@@ -68,9 +68,10 @@ watch(layout, async (value) => {
 onBeforeUnmount(() => observer?.disconnect())
 
 const tocOpen = ref(false)
-function jump(id: string) {
+async function jump(id: string) {
   tocOpen.value = false
   active.value = id
+  await nextTick()
   body.value?.querySelector(`#${CSS.escape(id)}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   history.replaceState(history.state, '', `#${id}`)
 }
@@ -262,7 +263,7 @@ const print = () => window.print()
 <style scoped>
 /* Wide screens get a reading column plus a sticky contents rail; the text itself keeps a
    comfortable line length and grows a little with the viewport. */
-.legal { width: min(100%, 80rem); margin-inline: auto; display: grid; gap: clamp(1rem, 2vw, 1.75rem); }
+.legal { grid-template-columns: minmax(0, 1fr); min-width: 0; width: min(100%, 80rem); margin-inline: auto; display: grid; gap: clamp(1rem, 2vw, 1.75rem); }
 
 .legal-hero { position: relative; display: grid; gap: .875rem; padding: clamp(1.5rem, 4vw, 3rem); border-radius: var(--radius-xl); background: radial-gradient(120% 140% at 0% 0%, var(--accent-soft), transparent 60%), var(--surface); box-shadow: var(--shadow-card); overflow: hidden; }
 .legal-hero::after { content: ''; position: absolute; inset-inline-end: -4rem; inset-block-start: -4rem; width: 16rem; height: 16rem; border-radius: 50%; border: 1px solid var(--separator); box-shadow: 0 0 0 2.5rem var(--accent-soft), 0 0 0 5rem color-mix(in srgb, var(--accent-soft) 50%, transparent); opacity: .7; pointer-events: none; }
@@ -283,7 +284,7 @@ const print = () => window.print()
 .legal-actions svg { width: 1em; height: 1em; }
 .legal-fixed { margin: 0; }
 
-.legal-layout { display: grid; gap: 1.25rem; align-items: start; }
+.legal-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem; align-items: start; }
 .legal-toc { padding: .75rem; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-card); }
 .legal-toc-heading { display: none; padding: .25rem .625rem .5rem; color: var(--label-3); font-size: .75rem; font-weight: 600; letter-spacing: .06em; }
 .legal-toc-toggle { display: flex; align-items: center; gap: .5rem; width: 100%; padding: .375rem .5rem; border: 0; background: none; color: var(--label); font: inherit; font-weight: 600; cursor: pointer; }
@@ -296,7 +297,7 @@ const print = () => window.print()
 .legal-toc a:hover { background: var(--fill); color: var(--label); }
 .legal-toc a[aria-current] { border-inline-start-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 
-.legal-paper { padding: clamp(1.25rem, 4vw, 3.5rem); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-card); }
+.legal-paper { min-inline-size: 0; padding: clamp(1.25rem, 4vw, 3.5rem); border-radius: var(--radius-lg); background: var(--surface); box-shadow: var(--shadow-card); }
 .legal-body { max-width: 56rem; margin-inline: auto; font-size: clamp(1rem, .95rem + .2vw, 1.0625rem); line-height: 1.9; overflow-wrap: anywhere; }
 .legal-body :deep(h1) { font-size: 1.5rem; font-weight: 700; margin-block-end: 1rem; }
 .legal-body :deep(h2) { scroll-margin-top: calc(var(--nav-height) + 1.5rem); margin-block: 2.75rem 1rem; padding-block-start: 1.75rem; border-block-start: 1px solid var(--separator); font-size: clamp(1.1875rem, 1.05rem + .5vw, 1.375rem); font-weight: 680; line-height: 1.4; }
