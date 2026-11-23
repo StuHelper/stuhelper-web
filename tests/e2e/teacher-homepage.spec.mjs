@@ -203,9 +203,8 @@ test('a non-owner can report a homepage with a category and up to 2000 code poin
   await expect(submit).toBeDisabled();
 
   const category = m.violation.categories.wrong_info;
-  await dialog.getByRole('combobox', { name: m.violation.label, exact: true }).click();
-  await page.getByRole('textbox', { name: m.common.searchOptions }).fill(category.name);
-  await page.getByRole('option', { name: category.name, exact: true }).click();
+  await dialog.getByRole('button', { name: m.violation.label, exact: true }).click();
+  await page.getByRole('dialog', { name: m.violation.pick, exact: true }).getByRole('button', { name: category.name, exact: true }).click();
   await expect(dialog.getByText(category.hint, { exact: true })).toBeVisible();
   await expect(submit).toBeEnabled();
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');

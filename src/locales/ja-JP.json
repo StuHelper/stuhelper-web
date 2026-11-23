@@ -2524,7 +2524,14 @@
   },
   "violation": {
     "label": "違反の種類",
-    "search": "違反の種類を検索",
+    "pick": "違反の種類を選択",
+    "groups": {
+      "unlawful": "違法・有害な内容",
+      "personal": "人身・プライバシー",
+      "rights": "知的財産",
+      "campus": "学術・評価",
+      "quality": "情報の質・その他"
+    },
     "required": "違反の種類を選んでください。",
     "categories": {
       "illegal_content": {

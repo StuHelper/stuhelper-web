@@ -122,9 +122,8 @@ for (const [locale, { direction }] of Object.entries(languages)) {
 
       const dialog = page.getByRole('dialog', { name: homepage.complaint.title, exact: true });
       const category = messages.violation.categories.wrong_info.name;
-      await dialog.getByRole('combobox', { name: messages.violation.label, exact: true }).click();
-      await page.getByRole('textbox', { name: messages.common.searchOptions, exact: true }).fill(category);
-      await page.getByRole('option', { name: category, exact: true }).click();
+      await dialog.getByRole('button', { name: messages.violation.label, exact: true }).click();
+      await page.getByRole('dialog', { name: messages.violation.pick, exact: true }).getByRole('button', { name: category, exact: true }).click();
       await dialog.getByRole('textbox', { name: homepage.complaint.reason }).fill('演示资料中的答疑时间有误。');
       await dialog.getByRole('button', { name: messages.common.submit, exact: true }).click();
       await expect(dialog.getByText(homepage.complaint.sent, { exact: true })).toBeVisible();
