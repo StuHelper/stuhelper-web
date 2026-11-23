@@ -22,7 +22,8 @@ describe('localized presentation', () => {
     expect(format.percent(0.25)).toBe('25%');
     expect(() => format.currency('12,50', 'EUR')).toThrow();
     expect(format.bytes(999)).toBe('999 byte');
-    expect(format.bytes(1_500_000_000)).toBe('1.5 GB');
+    expect(format.bytes(1_610_612_736)).toBe('1.5 GB');
+    expect(format.bytes(500 * 1024 ** 3)).toBe('500 GB');
     expect(() => format.bytes(-1)).toThrow();
   });
   it('keeps instants and calendar dates distinct across time zones', () => {

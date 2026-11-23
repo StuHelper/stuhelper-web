@@ -63,7 +63,7 @@ test('consent, creation, quota adjustment and renewal retain distinct request st
   await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.locator('article')).toContainText(m.states.pending);
   expect(state.requests[0].body.consent).toEqual({ accepted: true, version: example.policy.terms.version, digest: example.policy.terms.digest });
-  expect(state.requests[0].body.conditions.limit_bytes).toBe(10_000_000_000);
+  expect(state.requests[0].body.conditions.limit_bytes).toBe(10 * 1024 ** 3);
   const until = state.item.conditions.until;
   await page.getByRole('button', { name: m.actions.configure, exact: true }).click();
   await page.getByLabel(m.limit, { exact: true }).fill('12');
@@ -224,19 +224,20 @@ test('the contribution form shows the drive space and stops a quota above what i
   const full = await hint.textContent();
   await page.getByLabel(m.reserve, { exact: true }).fill('20');
   await expect(hint).not.toHaveText(full ?? '');
-  // 170 GB remain on the drive; with 20 GB kept back, at most 150 GB can be contributed.
-  await page.getByLabel(m.limit, { exact: true }).fill('160');
+  // 170,000,000,000 bytes (about 158.3 GB of 1024³ bytes) remain on the drive; with 20 GB kept
+  // back, at most about 138.3 GB can be contributed.
+  await page.getByLabel(m.limit, { exact: true }).fill('140');
   await expect(page.getByRole('alert').filter({ hasText: before(m.provider.over) }).first()).toBeVisible();
   await pickDate(page, '2030-01', 2);
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: m.review, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests).toHaveLength(0);
-  await page.getByLabel(m.limit, { exact: true }).fill('150');
+  await page.getByLabel(m.limit, { exact: true }).fill('130');
   await page.getByRole('button', { name: m.review, exact: true }).click();
   await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  expect(state.requests[0].body.conditions).toMatchObject({ limit_bytes: 150_000_000_000, personal_reserve: 20_000_000_000 });
+  expect(state.requests[0].body.conditions).toMatchObject({ limit_bytes: 130 * 1024 ** 3, personal_reserve: 20 * 1024 ** 3 });
   expect(errors).toEqual([]);
 });
 test('a quota the server finds above the drive space names that reason and can be read again', async ({ page }, info) => {
