@@ -2524,7 +2524,14 @@
   },
   "violation": {
     "label": "Type d’infraction",
-    "search": "Rechercher un type d’infraction",
+    "pick": "Choisir un type d’infraction",
+    "groups": {
+      "unlawful": "Contenus illégaux et nuisibles",
+      "personal": "Personnes et vie privée",
+      "rights": "Propriété intellectuelle",
+      "campus": "Études et avis",
+      "quality": "Qualité de l’information et autres"
+    },
     "required": "Choisissez un type d’infraction.",
     "categories": {
       "illegal_content": {

@@ -736,10 +736,12 @@ test('reporting a review needs a violation type and sends it with the report', a
   const submit = page.getByRole('button', { name: all.common.submit, exact: true });
   await reason.fill('Contains a phone number');
   await expect(submit).toBeDisabled();
-  await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
-  const categories = page.getByRole('option').and(page.locator(':not([data-disabled])'));
-  await expect(categories).toHaveText(Object.values(all.violation.categories).map(({ name }) => name));
-  await page.getByRole('option', { name: all.violation.categories.privacy_leak.name, exact: true }).click();
+  await page.getByRole('button', { name: all.violation.label, exact: true }).click();
+  // Every category is laid out at once, each with its description.
+  const picker = page.getByRole('dialog', { name: all.violation.pick, exact: true });
+  await expect(picker.getByRole('listitem')).toHaveText(Object.values(all.violation.categories).map(({ name, hint }) => name + hint));
+  await picker.getByRole('button', { name: all.violation.categories.privacy_leak.name, exact: true }).click();
+  await expect(picker).toHaveCount(0);
   const atLimit = '😀'.repeat(2000);
   const overLimit = atLimit + '😀';
   const number = new Intl.NumberFormat(locale);

@@ -337,13 +337,12 @@ test('a signed-in rights holder can file a complaint when resource details are d
   await reason.fill('Fixture rights claim');
   await page.getByLabel(all.resources.request.contact, { exact: true }).fill('fixture@example.invalid');
   await page.getByLabel(all.resources.request.evidence, { exact: true }).fill('Fixture ownership evidence');
-  // A complaint needs a violation type; the long list is searchable.
+  // A complaint needs a violation type, picked from a sheet that lays out every category.
   await expect(submit).toBeDisabled();
-  await page.getByRole('combobox', { name: all.violation.label, exact: true }).click();
-  const categories = page.getByRole('option').and(page.locator(':not([data-disabled])'));
-  await expect(categories).toHaveText(Object.values(all.violation.categories).map(({ name }) => name));
-  await page.getByRole('textbox', { name: all.common.searchOptions }).fill(all.violation.categories.copyright.name);
-  await page.getByRole('option', { name: all.violation.categories.copyright.name, exact: true }).click();
+  await page.getByRole('button', { name: all.violation.label, exact: true }).click();
+  const picker = page.getByRole('dialog', { name: all.violation.pick, exact: true });
+  await expect(picker.getByRole('listitem')).toHaveText(Object.values(all.violation.categories).map(({ name, hint }) => name + hint));
+  await picker.getByRole('button', { name: all.violation.categories.copyright.name, exact: true }).click();
   await expect(page.getByText(all.violation.categories.copyright.hint, { exact: true })).toBeVisible();
   const posts = () => state.calls.filter(call => call.path === '/items/resource/requests' && call.method === 'POST');
   const atLimit = '😀'.repeat(2000);

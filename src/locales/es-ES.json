@@ -2524,7 +2524,14 @@
   },
   "violation": {
     "label": "Tipo de infracción",
-    "search": "Buscar tipo de infracción",
+    "pick": "Elegir tipo de infracción",
+    "groups": {
+      "unlawful": "Contenido ilegal y dañino",
+      "personal": "Personas y privacidad",
+      "rights": "Propiedad intelectual",
+      "campus": "Estudios y reseñas",
+      "quality": "Calidad de la información y otros"
+    },
     "required": "Elige un tipo de infracción.",
     "categories": {
       "illegal_content": {

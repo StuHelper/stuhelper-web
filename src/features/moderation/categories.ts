@@ -11,3 +11,12 @@ export const violationCategories: readonly ViolationCategory[] = [
   'wrong_info', 'spam', 'malware', 'duplicate', 'low_quality',
   'author_update', 'other',
 ]
+
+/** The same categories in contract order, grouped for the picker. */
+export const violationGroups: readonly { id: 'unlawful' | 'personal' | 'rights' | 'campus' | 'quality'; categories: readonly ViolationCategory[] }[] = [
+  { id: 'unlawful', categories: violationCategories.slice(0, 6) },
+  { id: 'personal', categories: violationCategories.slice(6, 11) },
+  { id: 'rights', categories: violationCategories.slice(11, 13) },
+  { id: 'campus', categories: violationCategories.slice(13, 17) },
+  { id: 'quality', categories: violationCategories.slice(17) },
+]

@@ -2524,7 +2524,14 @@
   },
   "violation": {
     "label": "Violation type",
-    "search": "Search violation types",
+    "pick": "Choose a violation type",
+    "groups": {
+      "unlawful": "Unlawful and harmful content",
+      "personal": "People and privacy",
+      "rights": "Intellectual property",
+      "campus": "Academics and reviews",
+      "quality": "Information quality and other"
+    },
     "required": "Choose a violation type.",
     "categories": {
       "illegal_content": {

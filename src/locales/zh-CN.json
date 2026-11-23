@@ -2524,7 +2524,14 @@
   },
   "violation": {
     "label": "违规类型",
-    "search": "搜索违规类型",
+    "pick": "选择违规类型",
+    "groups": {
+      "unlawful": "违法与有害内容",
+      "personal": "人身与隐私",
+      "rights": "知识产权",
+      "campus": "学术与评价",
+      "quality": "信息质量与其他"
+    },
     "required": "请选择违规类型。",
     "categories": {
       "illegal_content": {
