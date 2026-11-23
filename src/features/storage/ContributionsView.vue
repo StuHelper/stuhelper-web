@@ -48,9 +48,12 @@ const formTitle = ref<HTMLElement>()
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const route = useRoute()
 const router = useRouter()
+function selectTab(value: 'contributions' | 'accounts') {
+  return router.replace({ query: { ...route.query, tab: value === 'accounts' ? 'accounts' : undefined } })
+}
 const tab = computed<'contributions' | 'accounts'>({
   get: () => (route.query.tab === 'accounts' ? 'accounts' : 'contributions'),
-  set: (value) => void router.replace({ query: { ...route.query, tab: value === 'accounts' ? 'accounts' : undefined } }),
+  set: (value) => void selectTab(value),
 })
 const tabs = computed(() => [{ value: 'contributions' as const, label: t('contribution.mine') }, { value: 'accounts' as const, label: t('custody.title') }])
 const creating = ref(false)
@@ -69,22 +72,16 @@ function refresh() {
 }
 // With no account left to contribute, the form could only point elsewhere, so the button goes
 // straight to connecting a storage account.
-function startCreate() {
+async function startCreate() {
   if (options.value && options.value.items.length === 0 && !options.value.next_cursor && custodyEnabled.value) {
-    connectPending.value = true
-    tab.value = 'accounts'
+    if (await selectTab('accounts')) return
+    // The panel mounts on first visit and stays hidden between visits.
+    await nextTick()
+    custody.value?.connect()
     return
   }
   creating.value = true
 }
-// The accounts panel mounts after the route switches tabs, so the request waits for it.
-const connectPending = ref(false)
-watch([custody, connectPending], ([panel, wanted]) => {
-  if (panel && wanted) {
-    connectPending.value = false
-    panel.connect()
-  }
-}, { flush: 'post' })
 const paged = ref(false)
 const showForm = computed(() => !!editing.value || creating.value)
 function goNext() { paged.value = true; void next() }

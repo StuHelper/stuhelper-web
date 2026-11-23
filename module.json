@@ -285,13 +285,15 @@
       "tests/e2e/teacher.spec.mjs#the current teacher application and its school can both follow a full first page"
     ],
     "ST-10": [
-      "tests/e2e/custody.spec.mjs#switching away from custody clears the unfinished account and password"
+      "tests/e2e/custody.spec.mjs#switching away from custody clears the unfinished account and password",
+      "tests/e2e/custody.spec.mjs#adding a contribution with no account left goes straight to connecting one"
     ],
     "PC-01": [
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
     ],
     "ST-01": [
       "src/features/storage/conditions.test.ts#round trips the largest supported GB value to the exact byte",
+      "tests/e2e/custody.spec.mjs#an empty options page with a next cursor keeps the contribution picker open",
       "tests/e2e/contributions.spec.mjs#the owner sees the drive total, used and remaining space, and an unreadable drive says why",
       "tests/e2e/contributions.spec.mjs#the contribution form shows the drive space and stops a quota above what is left",
       "tests/e2e/contributions.spec.mjs#a quota the server finds above the drive space names that reason and can be read again"

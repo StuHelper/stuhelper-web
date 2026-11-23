@@ -100,8 +100,8 @@ function connect() {
   adding.value = true
   focusForm.value = true
 }
-watch(title, (element) => {
-  if (element && focusForm.value) {
+watch([focusForm, title], ([requested, element]) => {
+  if (requested && element) {
     focusForm.value = false
     element.focus()
   }
