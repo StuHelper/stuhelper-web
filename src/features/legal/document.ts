@@ -15,23 +15,6 @@ export interface LegalLayout {
   html: string
 }
 
-/** Short document numbers for the published set; other slugs fall back to their initials. */
-const codes: Record<string, string> = {
-  'sso-privacy': 'SSO-PP',
-  'sso-terms': 'SSO-TOS',
-  'terms': 'TOS',
-  'privacy': 'PP',
-  'content-rules': 'CR',
-  'upload-license': 'UL',
-  'minors': 'MIN',
-  'transactions-refunds': 'TRR',
-  'cloud-storage': 'CS',
-  'developer-terms': 'DEV',
-  'cookies-third-parties': 'CTP',
-  'infringement': 'IPR',
-  'email-transfer': 'XBT',
-}
-
 export function documentCode(slug: string) {
   const code = codes[slug] ?? slug.split('-').map((part) => part[0]).join('').toUpperCase()
   return `SH-${code}`

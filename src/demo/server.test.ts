@@ -27,9 +27,9 @@ it('serves current, fixed and paged public legal documents to a guest', async ()
   try {
     const api = new LegalApi(new Http(window.fetch.bind(window)))
     const current = await api.current('terms')
-    expect(current).toMatchObject({ title: 'StuHelper 用户服务协议', version: '3.0' })
-    const older = await api.version('terms', '2.0')
-    const fragment = await window.fetch('/api/v1/legal/documents/terms/versions/2.0/html')
+    expect(current).toMatchObject({ title: 'StuHelper 用户服务协议', version: 'SH-TOS-2026.11.01' })
+    const older = await api.version('terms', 'SH-TOS-2026.10.01')
+    const fragment = await window.fetch('/api/v1/legal/documents/terms/versions/SH-TOS-2026.10.01/html')
     expect(fragment.headers.get('content-type')).toBe('text/html; charset=utf-8')
     expect(await fragment.text()).toBe(older.html)
     expect(older.digest).not.toBe(current.digest)
@@ -39,7 +39,7 @@ it('serves current, fixed and paged public legal documents to a guest', async ()
     expect(first.items[0]).not.toHaveProperty('html')
     expect(first.next).toBe('50')
     const last = await api.versions('terms', first.next)
-    expect(last.items.map(({ version }) => version)).toEqual(['1.1'])
+    expect(last.items.map(({ version }) => version)).toEqual(['SH-TOS-2022.09.01'])
     expect(last.next).toBe('')
     await expect(api.version('terms', 'missing')).rejects.toMatchObject({ code: 'not_found' })
     await expect(api.versions('missing', '')).resolves.toEqual({ items: [], next: '' })
@@ -60,7 +60,7 @@ it('links the demo consent status and upload terms to their published snapshots'
     vi.stubEnv('VITE_DEMO', '1')
     const capabilities = await resources.capabilities()
     const otherOrigin = new ResourcesApi(new Http(async () => Response.json({
-      ...capabilities, terms: { ...capabilities.terms, url: 'http://127.0.0.1:18874/legal/upload-license/versions/3.0' },
+      ...capabilities, terms: { ...capabilities.terms, url: 'http://127.0.0.1:18874/legal/upload-license/versions/SH-UL-2026.11.01' },
     })))
     await expect(otherOrigin.capabilities()).rejects.toMatchObject({ code: 'incompatible' })
     for (const [slug, reference] of Object.entries({ ...documents, 'upload-license': capabilities.terms })) {

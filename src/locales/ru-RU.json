@@ -2662,7 +2662,7 @@
     "latest": "Последняя",
     "contents": "Содержание",
     "print": "Печать",
-    "seal": "{code} · {version} · Опубликовано {time}",
+    "seal": "{version} · Опубликовано {time}",
     "digest": "SHA-256 {value}…"
   },
   "teacherHomepage": {

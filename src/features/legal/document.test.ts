@@ -1,9 +1,9 @@
 // @vitest-environment happy-dom
 import { describe, expect, it } from 'vitest'
-import { documentCode, layoutDocument } from './document'
+import { layoutDocument } from './document'
 
 const published = `<h1>StuHelper 用户服务协议</h1>
-<p>版本 3.0<br>
+<p>版本 SH-TOS-2026.11.23<br>
 修订日期 2026-11-22<br>
 生效日期 2026-11-23<br>
 运营主体 StuHelper</p>
@@ -15,10 +15,10 @@ const published = `<h1>StuHelper 用户服务协议</h1>
 
 describe('layoutDocument', () => {
   it('lifts the title and header block, marks the key-terms notice and anchors chapters', () => {
-    const layout = layoutDocument(published, '3.0')
+    const layout = layoutDocument(published, 'SH-TOS-2026.11.23')
     expect(layout.title).toBe('StuHelper 用户服务协议')
     expect(layout.meta).toEqual([
-      { label: '版本', value: '3.0' },
+      { label: '版本', value: 'SH-TOS-2026.11.23' },
       { label: '修订日期', value: '2026-11-22' },
       { label: '生效日期', value: '2026-11-23' },
       { label: '运营主体', value: 'StuHelper' },
@@ -34,16 +34,8 @@ describe('layoutDocument', () => {
 
   it('keeps an opening paragraph that is ordinary prose', () => {
     const prose = '<h1>标题</h1>\n<p>第一行 说明<br>\n第二行 说明</p>\n<p>正文</p>'
-    const layout = layoutDocument(prose, '3.0')
+    const layout = layoutDocument(prose, 'SH-TOS-2026.11.23')
     expect(layout.meta).toEqual([])
     expect(layout.html).toContain('第一行 说明')
-  })
-})
-
-describe('documentCode', () => {
-  it('uses the published number or the slug initials', () => {
-    expect(documentCode('terms')).toBe('SH-TOS')
-    expect(documentCode('email-transfer')).toBe('SH-XBT')
-    expect(documentCode('new-policy-doc')).toBe('SH-NPD')
   })
 })

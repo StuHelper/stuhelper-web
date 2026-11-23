@@ -2641,7 +2641,7 @@
     "latest": "最新",
     "contents": "目录",
     "print": "打印",
-    "seal": "{code} · {version} · 发布于 {time}",
+    "seal": "{version} · 发布于 {time}",
     "digest": "SHA-256 {value}…"
   },
   "consent": {

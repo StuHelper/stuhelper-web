@@ -10,7 +10,7 @@ import { isolate } from '../../shared/format'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { useLegalApi, validSlug, validVersion, type LegalVersion } from './api'
-import { documentCode, layoutDocument } from './document'
+import { layoutDocument } from './document'
 
 // A published legal document: the current version, one fixed version (as linked from a
 // consent record), or the list of all published versions. The body is the server's
@@ -33,17 +33,15 @@ watch(() => [props.slug, props.version, props.history] as const, () => {
 }, { immediate: true })
 
 const base = computed(() => `/legal/${encodeURIComponent(props.slug)}`)
-const code = computed(() => documentCode(props.slug))
 // The effective date is a calendar date in China; it is shown without a time-zone shift.
 const day = (value: string) => format.value.calendarDate(value)
-// Versions read as release tags, e.g. v3.0; the stored value itself is unchanged.
-const tag = (version: string) => `v${version}`
 const layout = computed(() => {
   const value = document.data.value
   return value ? layoutDocument(value.html, value.version) : undefined
 })
 // The document's own header lines (revision and effective dates, operator) are shown as facts;
-// the version line is left to the badge. Without such a block the record's date is used.
+// the version line is left to the badge. A version is the document number plus its date, e.g.
+// SH-TOS-2026.11.23. Without such a block the record's date is used.
 const facts = computed(() => {
   const value = document.data.value
   if (!value || !layout.value) return []
@@ -84,7 +82,7 @@ const print = () => window.print()
     <template v-if="history">
       <header class="legal-hero legal-hero-compact">
         <p class="legal-eyebrow">
-          <span class="legal-code">{{ code }}</span>{{ t('legal.eyebrow') }}
+          {{ t('legal.eyebrow') }}
         </p>
         <h1 class="legal-title">
           <History aria-hidden="true" />{{ t('legal.history') }}
@@ -116,7 +114,7 @@ const print = () => window.print()
               class="legal-release"
               :to="`${base}/versions/${encodeURIComponent(item.version)}`"
             >
-              <span class="legal-badge">{{ tag(item.version) }}</span>
+              <span class="legal-badge">{{ item.version }}</span>
               <span class="legal-release-body">
                 <span
                   class="legal-release-title"
@@ -144,7 +142,7 @@ const print = () => window.print()
       <template v-if="document.data.value && layout">
         <header class="legal-hero">
           <p class="legal-eyebrow">
-            <span class="legal-code">{{ code }}</span>{{ t('legal.eyebrow') }}
+            {{ t('legal.eyebrow') }}
           </p>
           <h1
             class="legal-title"
@@ -154,7 +152,7 @@ const print = () => window.print()
           </h1>
           <div class="legal-facts">
             <span class="legal-badge legal-badge-lg">
-              <ShieldCheck aria-hidden="true" />{{ tag(document.data.value.version) }}
+              <ShieldCheck aria-hidden="true" />{{ document.data.value.version }}
             </span>
             <dl>
               <div
@@ -248,7 +246,7 @@ const print = () => window.print()
             <!-- eslint-enable vue/no-v-html -->
             <footer class="legal-seal">
               <FileText aria-hidden="true" />
-              <span>{{ t('legal.seal', { code, version: isolate(tag(document.data.value.version)), time: format.dateTime(document.data.value.published_at) }) }}</span>
+              <span>{{ t('legal.seal', { version: isolate(document.data.value.version), time: format.dateTime(document.data.value.published_at) }) }}</span>
               <span
                 class="legal-digest"
                 :title="document.data.value.digest"
@@ -270,7 +268,6 @@ const print = () => window.print()
 .legal-hero::after { content: ''; position: absolute; inset-inline-end: -4rem; inset-block-start: -4rem; width: 16rem; height: 16rem; border-radius: 50%; border: 1px solid var(--separator); box-shadow: 0 0 0 2.5rem var(--accent-soft), 0 0 0 5rem color-mix(in srgb, var(--accent-soft) 50%, transparent); opacity: .7; pointer-events: none; }
 .legal-hero-compact { gap: .75rem; justify-items: start; }
 .legal-eyebrow { display: flex; align-items: center; gap: .625rem; color: var(--label-2); font-size: .8125rem; font-weight: 550; letter-spacing: .04em; }
-.legal-code { padding: .125rem .5rem; border-radius: 6px; background: var(--label); color: var(--surface); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .75rem; letter-spacing: .08em; }
 .legal-title { display: flex; align-items: center; gap: .625rem; max-width: 40ch; font-size: clamp(1.625rem, 1.1rem + 2vw, 2.625rem); font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
 .legal-title svg { width: .9em; height: .9em; }
 

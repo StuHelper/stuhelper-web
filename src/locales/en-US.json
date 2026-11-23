@@ -2641,7 +2641,7 @@
     "latest": "Latest",
     "contents": "Contents",
     "print": "Print",
-    "seal": "{code} · {version} · Published {time}",
+    "seal": "{version} · Published {time}",
     "digest": "SHA-256 {value}…"
   },
   "consent": {

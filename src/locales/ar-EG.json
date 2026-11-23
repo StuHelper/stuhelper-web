@@ -2662,7 +2662,7 @@
     "latest": "الأحدث",
     "contents": "المحتويات",
     "print": "طباعة",
-    "seal": "{code} · {version} · نُشر في {time}",
+    "seal": "{version} · نُشر في {time}",
     "digest": "SHA-256 {value}…"
   },
   "teacherHomepage": {

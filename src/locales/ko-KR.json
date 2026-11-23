@@ -2662,7 +2662,7 @@
     "latest": "최신",
     "contents": "목차",
     "print": "인쇄",
-    "seal": "{code} · {version} · 게시 {time}",
+    "seal": "{version} · 게시 {time}",
     "digest": "SHA-256 {value}…"
   },
   "teacherHomepage": {

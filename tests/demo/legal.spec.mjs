@@ -8,7 +8,7 @@ test('the demo opens published legal text and fetches the next history page', as
   const article = page.getByRole('article', { name: 'StuHelper 用户服务协议' });
   const main = page.getByRole('main');
   await expect(main.getByRole('heading', { level: 1, name: 'StuHelper 用户服务协议' })).toBeVisible();
-  await expect(main.getByText('v3.0', { exact: true })).toBeVisible();
+  await expect(main.getByText('SH-TOS-2026.11.01', { exact: true })).toBeVisible();
   await expect(main.getByText('运营主体', { exact: true })).toBeVisible();
   await expect(article.getByText('版本 3.0')).toHaveCount(0);
   await expect(article.getByRole('table').getByRole('cell', { name: '学习资料' })).toBeVisible();
@@ -21,7 +21,7 @@ test('the demo opens published legal text and fetches the next history page', as
   await expect(history.getByRole('listitem')).toHaveCount(51);
   await history.getByRole('link').last().click();
   await expect(page.getByRole('main').getByRole('note')).toHaveText(c.legal.fixed);
-  await expect(page.getByRole('main').getByText('v1.1', { exact: true })).toBeVisible();
+  await expect(page.getByRole('main').getByText('SH-TOS-2022.09.01', { exact: true })).toBeVisible();
   await page.getByRole('contentinfo').getByRole('link', { name: c.legal.privacy }).click();
   const privacyPolicy = page.getByRole('article', { name: 'StuHelper 隐私政策' });
   await expect(privacyPolicy.getByRole('table').getByRole('cell', { name: '昵称' })).toBeVisible();

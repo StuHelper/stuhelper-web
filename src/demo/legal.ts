@@ -44,9 +44,12 @@ const texts = {
 }
 
 type DemoSlug = keyof typeof texts
+// Versions are the document number plus the publication date, as in production.
+const codes: Record<DemoSlug, string> = { 'terms': 'SH-TOS', 'privacy': 'SH-PP', 'upload-license': 'SH-UL' }
 
-function publication(slug: DemoSlug, version: string, date: string): Publication {
+function publication(slug: DemoSlug, date: string): Publication {
   const { title, body } = texts[slug]
+  const version = `${codes[slug]}-${date.replaceAll('-', '.')}`
   // Same opening as the imported templates: title, a "label value" block, then the body.
   const html = `<h1>${title}</h1>
 <p>版本 ${version}<br>
@@ -63,19 +66,19 @@ ${body}`
   }
 }
 
-const terms = publication('terms', '3.0', '2026-11-01')
-const privacy = publication('privacy', '3.0', '2026-11-01')
-const uploadLicense = publication('upload-license', '3.0', '2026-11-01')
+const terms = publication('terms', '2026-11-01')
+const privacy = publication('privacy', '2026-11-01')
+const uploadLicense = publication('upload-license', '2026-11-01')
 const history = new Map<string, readonly Publication[]>([
   ['terms', [
     terms,
-    publication('terms', '2.0', '2026-10-01'),
+    publication('terms', '2026-10-01'),
     // Two pages at the public Web page size of 50.
     ...Array.from({ length: 49 }, (_, index) => publication(
-      'terms', `1.${49 - index}`, new Date(Date.UTC(2026, 8 - index, 1)).toISOString().slice(0, 10),
+      'terms', new Date(Date.UTC(2026, 8 - index, 1)).toISOString().slice(0, 10),
     )),
   ]],
-  ['privacy', [privacy, publication('privacy', '2.0', '2026-10-01')]],
+  ['privacy', [privacy, publication('privacy', '2026-10-01')]],
   ['upload-license', [uploadLicense]],
 ])
 

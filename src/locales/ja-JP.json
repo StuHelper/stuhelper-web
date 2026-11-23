@@ -2662,7 +2662,7 @@
     "latest": "最新",
     "contents": "目次",
     "print": "印刷",
-    "seal": "{code} · {version} · 公開日時 {time}",
+    "seal": "{version} · 公開日時 {time}",
     "digest": "SHA-256 {value}…"
   },
   "teacherHomepage": {
