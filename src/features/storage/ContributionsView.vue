@@ -48,9 +48,12 @@ const formTitle = ref<HTMLElement>()
 const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
 const route = useRoute()
 const router = useRouter()
+function selectTab(value: 'contributions' | 'accounts') {
+  return router.replace({ query: { ...route.query, tab: value === 'accounts' ? 'accounts' : undefined } })
+}
 const tab = computed<'contributions' | 'accounts'>({
   get: () => (route.query.tab === 'accounts' ? 'accounts' : 'contributions'),
-  set: (value) => void router.replace({ query: { ...route.query, tab: value === 'accounts' ? 'accounts' : undefined } }),
+  set: (value) => void selectTab(value),
 })
 const tabs = computed(() => [{ value: 'contributions' as const, label: t('contribution.mine') }, { value: 'accounts' as const, label: t('custody.title') }])
 const creating = ref(false)
@@ -66,6 +69,18 @@ watch(tab, (value) => {
 function refresh() {
   void reload()
   if (tab.value === 'accounts') custody.value?.refresh()
+}
+// With no account left to contribute, the form could only point elsewhere, so the button goes
+// straight to connecting a storage account.
+async function startCreate() {
+  if (options.value && options.value.items.length === 0 && !options.value.next_cursor && custodyEnabled.value) {
+    if (await selectTab('accounts')) return
+    // The panel mounts on first visit and stays hidden between visits.
+    await nextTick()
+    custody.value?.connect()
+    return
+  }
+  creating.value = true
 }
 const paged = ref(false)
 const showForm = computed(() => !!editing.value || creating.value)
@@ -541,7 +556,7 @@ watch(completed, (value) => {
               class="btn btn-sm btn-primary"
               type="button"
               :disabled="locked"
-              @click="creating = true"
+              @click="startCreate"
             >
               {{ t('contribution.create') }}
             </button>

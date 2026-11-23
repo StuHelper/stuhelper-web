@@ -105,15 +105,20 @@ test('a missing custody request unlocks re-entry without resending a password', 
   expect(state.posts).toHaveLength(1);
 });
 
-test('custody shows maximum term hint, returns to first page after paging, and refreshes contribution options across tabs', async ({ page }, info) => {
+async function mockContributionOptions(page, getOptions) {
   const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
-  let optionCalls = 0;
   await page.route('**/api/v1/storage-contributions**', (route) => {
-    const endpoint = new URL(route.request().url()).pathname.split('/').pop();
+    const url = new URL(route.request().url());
+    const endpoint = url.pathname.split('/').pop();
     if (endpoint === 'policy' || endpoint === 'statistics') return route.fulfill({ json: example[endpoint] });
-    if (endpoint === 'options') { optionCalls++; return route.fulfill({ json: example.options }); }
+    if (endpoint === 'options') return route.fulfill({ json: getOptions(url, example.options) });
     return route.fulfill({ json: example.page });
   });
+}
+
+test('custody shows maximum term hint, returns to first page after paging, and refreshes contribution options across tabs', async ({ page }, info) => {
+  let optionCalls = 0;
+  await mockContributionOptions(page, (_url, options) => { optionCalls++; return options; });
   const { m, state, messages } = await setup(page, info);
   const days = new Intl.NumberFormat(info.project.metadata.locale).format(30);
   await expect(page.getByText(m.maxTermHint.replace('{days}', days), { exact: true })).toBeVisible();
@@ -148,4 +153,41 @@ test('switching away from custody clears the unfinished account and password', a
   await expect(username).toHaveValue('');
   await expect(password).toHaveValue('');
   expect(state.posts).toEqual([]);
+});
+
+test('an empty options page with a next cursor keeps the contribution picker open', async ({ page }, info) => {
+  await mockContributionOptions(page, (url, options) => (
+    url.searchParams.get('after') === 'more' ? options : { items: [], next_cursor: 'more' }
+  ));
+  const { messages } = await setup(page, info);
+  const mine = page.getByRole('tab', { name: messages.contribution.mine, exact: true });
+  await mine.click();
+  await page.getByRole('button', { name: messages.contribution.create, exact: true }).click();
+  await page.getByRole('button', { name: messages.contribution.moreOptions, exact: true }).click();
+  await expect(mine).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('combobox', { name: messages.contribution.storage, exact: true })).toBeVisible();
+});
+
+test('adding a contribution with no account left goes straight to connecting one', async ({ page }, info) => {
+  await mockContributionOptions(page, () => ({ items: [], next_cursor: '' }));
+  const { m, state, errors, messages } = await setup(page, info);
+  async function openFromContributions() {
+    await page.getByRole('button', { name: messages.contribution.create, exact: true }).click();
+    await expect(page).toHaveURL(/tab=accounts/);
+    await expect(page.getByRole('heading', { name: m.connect, exact: true })).toBeFocused();
+    await expect(page.getByLabel(m.username, { exact: true })).toBeVisible();
+    await expect(page.getByText(messages.contribution.noOptions, { exact: true })).toHaveCount(0);
+  }
+  // The empty account panel already has a mounted form when the reader returns.
+  await page.getByRole('tab', { name: messages.contribution.mine, exact: true }).click();
+  await openFromContributions();
+
+  // Start a new page on contributions. The first account read now contains a binding,
+  // so the panel would normally show only the list.
+  state.items = [{ id: 'cu-existing', adapter: 'bhpan', revision: 1, state: 'ready', authorization_expires_at: '2030-01-01T00:00:00Z', request_id: 'r1', last_error: '' }];
+  await page.goto(`/me/storage?lang=${info.project.metadata.locale}`);
+  await openFromContributions();
+  await expect(page.locator('article')).toContainText(m.states.ready);
+  expect(state.posts).toEqual([]);
+  expect(errors).toEqual([]);
 });
