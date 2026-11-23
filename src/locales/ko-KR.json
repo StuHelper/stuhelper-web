@@ -2653,10 +2653,17 @@
     "history": "이전 버전",
     "noVersions": "아직 게시된 버전이 없습니다.",
     "unpublished": "현재 효력이 있는 게시 버전이 없습니다.",
-    "versionLine": "버전 {version} · {date} 시행",
     "fixed": "버전 이력 · 이 페이지는 해당 버전의 게시 당시 원문을 보여 줍니다.",
     "terms": "이용약관",
-    "privacy": "개인정보 처리방침"
+    "privacy": "개인정보 처리방침",
+    "eyebrow": "StuHelper 법률 문서",
+    "effective": "시행일",
+    "effectiveOn": "{date} 시행",
+    "latest": "최신",
+    "contents": "목차",
+    "print": "인쇄",
+    "seal": "{code} · {version} · 게시 {time}",
+    "digest": "SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "교수 페이지",

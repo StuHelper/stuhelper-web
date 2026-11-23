@@ -2653,10 +2653,17 @@
     "history": "過去の版",
     "noVersions": "公開済みの版はまだありません。",
     "unpublished": "現在有効な公開版はありません。",
-    "versionLine": "バージョン {version} · {date} 発効",
     "fixed": "版の履歴 · このページでは、指定された版の公開時の本文を表示しています。",
     "terms": "利用規約",
-    "privacy": "プライバシーポリシー"
+    "privacy": "プライバシーポリシー",
+    "eyebrow": "StuHelper 法的文書",
+    "effective": "発効日",
+    "effectiveOn": "{date} 発効",
+    "latest": "最新",
+    "contents": "目次",
+    "print": "印刷",
+    "seal": "{code} · {version} · 公開日時 {time}",
+    "digest": "SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "教員ページ",

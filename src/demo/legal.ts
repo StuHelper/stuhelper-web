@@ -10,7 +10,12 @@ type Publication = Legal['schemas']['PublicDocument']
 const texts = {
   terms: {
     title: 'StuHelper 用户服务协议',
-    body: `<h2>使用校园服务</h2>
+    body: `<h2>第一条 适用范围与确认</h2>
+<p>1.1 本演示协议说明校园服务的使用方式。你主动确认后，协议成立。</p>
+<p>1.2 <strong>默认勾选、浏览和沉默不作为接受协议的依据。</strong></p>
+<h2>第二条 账号与安全</h2>
+<p>2.1 账号限本人使用，请妥善保管登录凭据。</p>
+<h2>第三条 使用校园服务</h2>
 <p>登录后，可以查看校园资料与课程评价。发布内容时，请尊重他人的权利。</p>
 <ul><li>使用本人账号。</li><li>发布前检查资料是否允许分享。</li></ul>
 <table>
@@ -42,8 +47,13 @@ type DemoSlug = keyof typeof texts
 
 function publication(slug: DemoSlug, version: string, date: string): Publication {
   const { title, body } = texts[slug]
+  // Same opening as the imported templates: title, a "label value" block, then the body.
   const html = `<h1>${title}</h1>
-<p>演示文档 · ${version}</p>
+<p>版本 ${version}<br>
+修订日期 ${date}<br>
+生效日期 ${date}<br>
+运营主体 StuHelper 演示</p>
+<p><strong>演示文档。订立前请阅读第一条的确认方式和第二条的账号规则。</strong></p>
 ${body}`
   return {
     slug, title, version, html,
