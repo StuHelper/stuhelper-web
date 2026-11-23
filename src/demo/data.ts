@@ -150,7 +150,7 @@ export const receipts = [
 ]
 export const capabilities = { allowed_types: ['application/pdf', 'image/png', 'text/plain'], max_file_size: 200_000_000, max_package_bytes: 1_000_000_000, max_package_files: 100, purchase_available: false, upload_profiles: [{ school_id: SCHOOL, access: 'public', purpose: 'resource' }] }
 
-const GB = 1e9
+const GB = 2 ** 30
 export const contribution = {
   policy: { terms: { version: 'v1', digest: 'a'.repeat(64), url: 'https://example.invalid/terms' }, adapters: ['bhpan'], min_bytes: GB, max_bytes: 1000 * GB, min_term_seconds: 86400, max_term_seconds: 31536000, exit_target_seconds: 86400, max_per_owner: 5, observation_max_age_seconds: 3600, renewal_notice_seconds: 86_400 },
   statistics: { declared_bytes: 4200 * GB, available_bytes: 2900 * GB, used_bytes: 1300 * GB, reserved_bytes: 40 * GB, contributions: 86, fresh_observations: 83, status: 'current', generated_at: ago(0, 1) },

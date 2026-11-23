@@ -68,13 +68,13 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
       }
       return rtf.format(0, 'minute');
     },
-    /** Decimal byte units, matching the GB values users type into storage forms. */
+    /** Binary byte units (1 GB = 1024³ bytes), matching cloud drives and the GB values typed into storage forms. */
     bytes(value: number) {
       if (!Number.isFinite(value) || value < 0) throw new RangeError('Invalid byte count');
       const units = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte'];
       let amount = value;
       let index = 0;
-      while (amount >= 1000 && index < units.length - 1) { amount /= 1000; index++; }
+      while (amount >= 1024 && index < units.length - 1) { amount /= 1024; index++; }
       return new Intl.NumberFormat(locale, { style: 'unit', unit: units[index], unitDisplay: 'short', maximumFractionDigits: index === 0 ? 0 : 1 }).format(amount);
     },
     list: (values: string[]) => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(values),
