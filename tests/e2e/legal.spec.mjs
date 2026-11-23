@@ -47,15 +47,16 @@ test('footer links open the current public terms and privacy policy with their c
   await expect(policy).toHaveAttribute('href', '/legal/privacy');
   await terms.click();
   const article = page.getByRole('article', { name: current.title });
-  await expect(article.getByRole('heading', { level: 1, name: current.title })).toBeVisible();
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1, name: current.title })).toBeVisible();
   await expect(article.getByText('本示例说明服务的使用方式及用户行权渠道。')).toBeVisible();
   const date = await page.evaluate(({ locale, date }) => new Intl.DateTimeFormat(locale, {
     calendar: 'gregory', dateStyle: 'medium', timeZone: 'UTC',
   }).format(new Date(`${date}T00:00:00Z`)), { locale: info.project.metadata.locale, date: current.effective_date });
-  const versionLine = c.legal.versionLine.replace('{version}', `\u2066${current.version}\u2069`).replace('{date}', date);
-  await expect(article.getByText(versionLine, { exact: true })).toBeVisible();
-  await expect(article.getByRole('link', { name: c.legal.history })).toHaveAttribute('href', '/legal/terms/versions');
-  await expect(article.getByRole('note')).toHaveCount(0);
+  await expect(main.getByText(current.version, { exact: true })).toBeVisible();
+  await expect(main.getByRole('definition')).toHaveText(date);
+  await expect(main.getByRole('link', { name: c.legal.history })).toHaveAttribute('href', '/legal/terms/versions');
+  await expect(main.getByRole('note')).toHaveCount(0);
   await screenshot(page, info, 'current');
   await policy.click();
   await expect(page.getByRole('heading', { level: 1, name: privacy.title })).toBeVisible();
@@ -67,13 +68,14 @@ test('a fixed version opens the stored publication and can return to the current
   const requests = await routeDocuments(page, (route, url) => route.fulfill({ json: url.pathname.endsWith('/2.0') ? archived : current }));
   await open(page, '/legal/terms/versions/2.0', info);
   const article = page.getByRole('article', { name: archived.title });
-  await expect(article.getByRole('note')).toHaveText(c.legal.fixed);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('note')).toHaveText(c.legal.fixed);
   await expect(article.getByText('此版本的服务范围以最初发布的内容为准。')).toBeVisible();
-  await expect(article.getByRole('link', { name: c.legal.history })).toHaveAttribute('href', '/legal/terms/versions');
+  await expect(main.getByRole('link', { name: c.legal.history })).toHaveAttribute('href', '/legal/terms/versions');
   await screenshot(page, info, 'fixed');
-  await article.getByRole('link', { name: c.legal.current }).click();
+  await main.getByRole('link', { name: c.legal.current }).click();
   await expect(article.getByText('本示例说明服务的使用方式及用户行权渠道。')).toBeVisible();
-  await expect(article.getByRole('note')).toHaveCount(0);
+  await expect(main.getByRole('note')).toHaveCount(0);
   expect(requests).toEqual([`GET ${legalPath}/terms/versions/2.0`, `GET ${legalPath}/terms`]);
 });
 
@@ -183,7 +185,7 @@ test('legal body and table keep their reading direction and fit the viewport', a
   expect(await pageOverflow()).toBeLessThanOrEqual(0);
   await screenshot(page, info, 'rtl', 'mobile-ar-EG');
   if (isMobile) {
-    const scrollRange = await table.evaluate((element) => {
+    const scrollRange = await table.locator('..').evaluate((element) => {
       element.scrollLeft = -element.scrollWidth;
       return { width: element.clientWidth, scrollWidth: element.scrollWidth, position: element.scrollLeft };
     });

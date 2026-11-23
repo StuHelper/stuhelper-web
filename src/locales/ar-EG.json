@@ -2653,10 +2653,17 @@
     "history": "الإصدارات السابقة",
     "noVersions": "لم تُنشر أي إصدارات بعد.",
     "unpublished": "لا يوجد حاليًا أي إصدار منشور سارٍ.",
-    "versionLine": "الإصدار {version} · يسري من {date}",
     "fixed": "سجل الإصدارات · تعرض هذه الصفحة نص هذا الإصدار كما نُشر.",
     "terms": "شروط الخدمة",
-    "privacy": "سياسة الخصوصية"
+    "privacy": "سياسة الخصوصية",
+    "eyebrow": "مستندات StuHelper القانونية",
+    "effective": "تاريخ السريان",
+    "effectiveOn": "ساري منذ {date}",
+    "latest": "الأحدث",
+    "contents": "المحتويات",
+    "print": "طباعة",
+    "seal": "{version} · نُشر في {time}",
+    "digest": "البصمة SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "صفحة الأستاذ",

@@ -10,7 +10,12 @@ type Publication = Legal['schemas']['PublicDocument']
 const texts = {
   terms: {
     title: 'StuHelper 用户服务协议',
-    body: `<h2>使用校园服务</h2>
+    body: `<h2>第一条 适用范围与确认</h2>
+<p>1.1 本演示协议说明校园服务的使用方式。你主动确认后，协议成立。</p>
+<p>1.2 <strong>默认勾选、浏览和沉默不作为接受协议的依据。</strong></p>
+<h2>第二条 账号与安全</h2>
+<p>2.1 账号限本人使用，请妥善保管登录凭据。</p>
+<h2>第三条 使用校园服务</h2>
 <p>登录后，可以查看校园资料与课程评价。发布内容时，请尊重他人的权利。</p>
 <ul><li>使用本人账号。</li><li>发布前检查资料是否允许分享。</li></ul>
 <table>
@@ -39,11 +44,19 @@ const texts = {
 }
 
 type DemoSlug = keyof typeof texts
+// Versions are the document number plus the publication date, as in production.
+const codes: Record<DemoSlug, string> = { 'terms': 'SH-TOS', 'privacy': 'SH-PP', 'upload-license': 'SH-UL' }
 
-function publication(slug: DemoSlug, version: string, date: string): Publication {
+function publication(slug: DemoSlug, date: string): Publication {
   const { title, body } = texts[slug]
+  const version = `${codes[slug]}-${date.replaceAll('-', '.')}`
+  // Same opening as the imported templates: title, a "label value" block, then the body.
   const html = `<h1>${title}</h1>
-<p>演示文档 · ${version}</p>
+<p>版本 ${version}<br>
+修订日期 ${date}<br>
+生效日期 ${date}<br>
+运营主体 StuHelper 演示</p>
+<p><strong>演示文档。订立前请阅读第一条的确认方式和第二条的账号规则。</strong></p>
 ${body}`
   return {
     slug, title, version, html,
@@ -53,19 +66,19 @@ ${body}`
   }
 }
 
-const terms = publication('terms', '3.0', '2026-11-01')
-const privacy = publication('privacy', '3.0', '2026-11-01')
-const uploadLicense = publication('upload-license', '3.0', '2026-11-01')
+const terms = publication('terms', '2026-11-01')
+const privacy = publication('privacy', '2026-11-01')
+const uploadLicense = publication('upload-license', '2026-11-01')
 const history = new Map<string, readonly Publication[]>([
   ['terms', [
     terms,
-    publication('terms', '2.0', '2026-10-01'),
+    publication('terms', '2026-10-01'),
     // Two pages at the public Web page size of 50.
     ...Array.from({ length: 49 }, (_, index) => publication(
-      'terms', `1.${49 - index}`, new Date(Date.UTC(2026, 8 - index, 1)).toISOString().slice(0, 10),
+      'terms', new Date(Date.UTC(2026, 8 - index, 1)).toISOString().slice(0, 10),
     )),
   ]],
-  ['privacy', [privacy, publication('privacy', '2.0', '2026-10-01')]],
+  ['privacy', [privacy, publication('privacy', '2026-10-01')]],
   ['upload-license', [uploadLicense]],
 ])
 

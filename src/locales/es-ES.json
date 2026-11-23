@@ -2653,10 +2653,17 @@
     "history": "Versiones anteriores",
     "noVersions": "Todavía no hay versiones publicadas.",
     "unpublished": "No hay ninguna versión publicada en vigor.",
-    "versionLine": "Versión {version} · en vigor desde el {date}",
     "fixed": "Historial de versiones · Esta página muestra el texto de esta versión tal como se publicó.",
     "terms": "Condiciones del servicio",
-    "privacy": "Política de privacidad"
+    "privacy": "Política de privacidad",
+    "eyebrow": "Documentos legales de StuHelper",
+    "effective": "Entrada en vigor",
+    "effectiveOn": "Vigente desde {date}",
+    "latest": "Última",
+    "contents": "Índice",
+    "print": "Imprimir",
+    "seal": "{version} · Publicado el {time}",
+    "digest": "Huella SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "Página del profesor",
