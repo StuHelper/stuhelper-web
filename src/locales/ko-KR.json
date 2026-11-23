@@ -2663,7 +2663,7 @@
     "contents": "목차",
     "print": "인쇄",
     "seal": "{version} · 게시 {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "지문 SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "교수 페이지",

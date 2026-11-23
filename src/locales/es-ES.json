@@ -2663,7 +2663,7 @@
     "contents": "Índice",
     "print": "Imprimir",
     "seal": "{version} · Publicado el {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "Huella SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "Página del profesor",

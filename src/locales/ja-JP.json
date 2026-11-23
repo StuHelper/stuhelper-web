@@ -2663,7 +2663,7 @@
     "contents": "目次",
     "print": "印刷",
     "seal": "{version} · 公開日時 {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "フィンガープリント SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "教員ページ",

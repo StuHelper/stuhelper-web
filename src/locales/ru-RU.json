@@ -2663,7 +2663,7 @@
     "contents": "Содержание",
     "print": "Печать",
     "seal": "{version} · Опубликовано {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "Отпечаток SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "Страница преподавателя",

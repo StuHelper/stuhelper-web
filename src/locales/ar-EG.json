@@ -2663,7 +2663,7 @@
     "contents": "المحتويات",
     "print": "طباعة",
     "seal": "{version} · نُشر في {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "البصمة SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "صفحة الأستاذ",

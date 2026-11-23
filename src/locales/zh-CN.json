@@ -2642,7 +2642,7 @@
     "contents": "目录",
     "print": "打印",
     "seal": "{version} · 发布于 {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "文件指纹 SHA-256 {value}…"
   },
   "consent": {
     "title": "确认用户服务协议与隐私政策",

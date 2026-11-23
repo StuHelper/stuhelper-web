@@ -2642,7 +2642,7 @@
     "contents": "Contents",
     "print": "Print",
     "seal": "{version} · Published {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "Fingerprint SHA-256 {value}…"
   },
   "consent": {
     "title": "Review the Terms of Service and Privacy Policy",

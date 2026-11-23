@@ -2663,7 +2663,7 @@
     "contents": "Sommaire",
     "print": "Imprimer",
     "seal": "{version} · Publié le {time}",
-    "digest": "SHA-256 {value}…"
+    "digest": "Empreinte SHA-256 {value}…"
   },
   "teacherHomepage": {
     "title": "Page de l’enseignant",
