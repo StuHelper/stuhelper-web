@@ -1402,7 +1402,7 @@
       "storage_writes_disabled": "Le stockage n’accepte pas de nouveaux fichiers.",
       "capacity_unknown": "La capacité du disque n’a pas encore été lue.",
       "exit_overdue": "Objectif de retrait dépassé ; migration en cours.",
-      "capacity_read_failed": "La lecture de la capacité du disque a échoué. StuHelper réessaiera automatiquement.",
+      "capacity_read_failed": "Lecture de la capacité impossible.",
       "capacity_expired": "La lecture de la capacité du disque a expiré. StuHelper la mettra à jour automatiquement."
     },
     "displayLabel": "Surnom (facultatif)",
@@ -1420,12 +1420,17 @@
       "unavailable": "La capacité du disque est illisible pour le moment ; l’envoi n’est pas encore possible.",
       "status": {
         "not_read": "La capacité du disque n’a pas encore été lue.",
-        "read_failed": "La lecture de la capacité du disque a échoué. StuHelper réessaiera automatiquement.",
+        "read_failed": "Lecture de la capacité impossible.",
         "expired": "La lecture de la capacité du disque a expiré. StuHelper la mettra à jour automatiquement."
       },
       "errors": {
         "limit_exceeds_provider_capacity": "Le quota partagé dépasse l’espace restant sur le disque. Réduisez-le puis réessayez.",
         "provider_capacity_unavailable": "La capacité du disque ne peut pas être vérifiée pour le moment. Réessayez plus tard."
+      },
+      "recovery": {
+        "waiting_retry": "Une nouvelle tentative est prévue.",
+        "waiting_scan": "En attente du prochain relevé de capacité.",
+        "credentials_required": "Renouvelez l’autorisation sur la page des comptes de stockage."
       }
     },
     "neverObserved": "Capacité pas encore lue"
@@ -1440,13 +1445,9 @@
     "reauthorize": "Mettre à jour l’autorisation",
     "connect": "Connecter un compte",
     "credentials": "Identifiants BHpan",
-    "mode": "Mode de connexion",
-    "local": "Compte local BHpan",
-    "sso": "Authentification unique BUAA",
-    "username": "Compte",
-    "password": "Mot de passe",
+    "username": "Identifiant universitaire unique",
+    "password": "Mot de passe universitaire unique",
     "until": "Autorisé jusqu’au ({zone})",
-    "ssoNotice": "Avec l’authentification unique, vous autorisez la conservation du mot de passe universitaire uniquement pour reconnecter BHpan. Il reste chiffré jusqu’à expiration, révocation ou remplacement.",
     "terms": "Lire comment votre compte est conservé ({version})",
     "consent": "J’accepte que la plateforme conserve le mot de passe de mon compte à cette fin jusqu’à la date indiquée. La capacité partagée est confirmée séparément.",
     "invalid": "Vérifiez le compte, le mot de passe et la date, puis cochez le consentement.",
@@ -1470,7 +1471,9 @@
       "credentials_required": "Saisissez à nouveau le compte et le mot de passe.",
       "interactive_verification_required": "Terminez la vérification interactive du service de stockage, puis réessayez."
     },
-    "maxTermHint": "Durée maximale d’autorisation : {days} jours."
+    "maxTermHint": "Durée maximale d’autorisation : {days} jours.",
+    "loginNotice": "StuHelper utilise vos identifiants universitaires sur le portail officiel BHpan pendant la durée de votre autorisation.",
+    "withdrawApplication": "Retirer la demande"
   },
   "gate": {
     "guest": {

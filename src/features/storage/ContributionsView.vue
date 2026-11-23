@@ -120,6 +120,10 @@ function edit(item: Contribution, mode: 'configure' | 'renew' | 'reopen') {
 // the owner can see how much is left to contribute. Only the owner's views carry it.
 const capacityOf = (item: Contribution | DeepReadonly<{ provider_capacity?: ProviderCapacity }>) => ('provider_capacity' in item ? item.provider_capacity : undefined)
 // "Updated" means the last successful provider quota read, not when the page was loaded.
+function capacityMessage(capacity: DeepReadonly<ProviderCapacity> | undefined) {
+  if (capacity?.status === 'read_failed' && capacity.recovery) return t(`contribution.provider.recovery.${capacity.recovery}`)
+  return t(`contribution.provider.status.${capacity?.status ?? 'not_read'}`)
+}
 const observedAt = (item: Contribution) => { const capacity = capacityOf(item); return capacity ? capacity.observed_at : item.observation?.observed_at ?? null }
 const selectedOption = computed(() => options.value?.items.find((item) => item.id === instance.value))
 const formCapacity = computed(() => (editing.value ? capacityOf(editing.value.item) : selectedOption.value?.provider_capacity))
@@ -408,7 +412,7 @@ watch(completed, (value) => {
                 v-else
                 class="notice notice-warning small"
               >
-                {{ t(`contribution.provider.status.${formCapacity.status}`) }}
+                {{ capacityMessage(formCapacity) }}
               </p>
               <p
                 v-if="formCapacity.observed_at"
@@ -610,7 +614,7 @@ watch(completed, (value) => {
                 v-if="item.reason"
                 class="notice notice-warning small"
               >
-                {{ label('contribution.reasons', item.reason) }}
+                {{ item.reason === 'capacity_read_failed' ? capacityMessage(capacityOf(item)) : label('contribution.reasons', item.reason) }}
               </p>
               <template v-if="capacityOf(item)">
                 <dl
@@ -635,7 +639,7 @@ watch(completed, (value) => {
                   v-else-if="!item.reason"
                   class="notice notice-warning small"
                 >
-                  {{ t(`contribution.provider.status.${capacityOf(item)?.status}`) }}
+                  {{ capacityMessage(capacityOf(item)) }}
                 </p>
               </template>
               <template v-if="item.observation">

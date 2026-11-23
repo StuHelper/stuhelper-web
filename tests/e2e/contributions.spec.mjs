@@ -196,7 +196,7 @@ test('a nickname never rides along on renewal, and accounts with the same mask s
 });
 const before = (template) => template.split('{')[0].trim();
 test('the owner sees the drive total, used and remaining space, and an unreadable drive says why', async ({ page }, info) => {
-  const failed = { ...structuredClone(example.page.items[0]), reason: 'capacity_read_failed', provider_capacity: { total_bytes: null, used_bytes: null, remaining_bytes: null, observed_at: null, status: 'read_failed' } };
+  const failed = { ...structuredClone(example.page.items[0]), reason: 'capacity_read_failed', provider_capacity: { total_bytes: null, used_bytes: null, remaining_bytes: null, observed_at: null, status: 'read_failed', recovery: 'credentials_required' } };
   const { m, state, errors } = await setup(page, info);
   const drive = page.locator('article').getByLabel(m.provider.title, { exact: true });
   for (const name of [m.provider.total, m.provider.used, m.provider.remaining]) await expect(drive.getByText(name, { exact: true })).toBeVisible();
@@ -206,7 +206,7 @@ test('the owner sees the drive total, used and remaining space, and an unreadabl
   await expect(page.locator('article')).not.toContainText(m.neverObserved);
   state.item = failed;
   await page.reload();
-  await expect(page.locator('article')).toContainText(m.reasons.capacity_read_failed);
+  await expect(page.locator('article')).toContainText(m.provider.recovery.credentials_required);
   await expect(page.locator('article').getByLabel(m.provider.title, { exact: true })).toHaveCount(0);
   await expect(page.locator('article')).toContainText(m.neverObserved);
   expect(errors).toEqual([]);

@@ -1,7 +1,7 @@
 {
   "repository": "StuHelper/stuhelper-storage",
-  "revision": "a50bc27fb3cfeefad765809ed69a4d6388d52cee",
+  "revision": "9cfdecd8c32b5daa0ecb51c3c282b2ab705e6ed5",
   "version": "0.1.2",
-  "sha256": "8ebbc68b7cb47198cbf12ffb649fecd16c8b9efb56c90f5f59eec024d5036fb3",
-  "custody_browser_sha256": "710980ac677df10b161a55107b943caf5713d578674d222bde29b2f058376f0e"
+  "sha256": "66266c940c14ffe933fe62ccd70f7e5a09a1f60721bb254c20b6e02ff56b63a9",
+  "custody_browser_sha256": "4b769d2845d87ec1f2512816d3d2d6a9e04321529c558328e9dfb3c8ed081c8d"
 }

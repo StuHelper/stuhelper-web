@@ -3,9 +3,9 @@ import path from 'node:path';
 import process from 'node:process';
 import { expect, memberTest as test } from '../session-fixture.mjs';
 
-async function setup(page, info) {
+async function setup(page, info, items = []) {
   const messages = JSON.parse(fs.readFileSync(`src/locales/${info.project.metadata.locale}.json`, 'utf8'));
-  const m = messages.custody, state = { items: [], posts: [], lose: false, reject: 0, lookups: 0 };
+  const m = messages.custody, state = { items, posts: [], lose: false, reject: 0, lookups: 0 };
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   page.on('console', e => { if (/\[intlify\].*(Not found|Fall back)/i.test(e.text())) errors.push(e.text()); });
   await page.clock.install({ time: new Date('2029-12-26T00:00:00Z') });
@@ -13,6 +13,12 @@ async function setup(page, info) {
     const request = route.request(), url = new URL(request.url());
     if (url.pathname.endsWith('/policy')) return route.fulfill({ json: { version: 'custody-v1', digest: 'a'.repeat(64), url: 'https://example.invalid/custody', max_term_seconds: 30 * 86400 } });
     if (state.reject) return route.fulfill({ status: state.reject, json: { code: 'denied' } });
+    if (request.method() === 'DELETE') {
+      const item = state.items.find(row => url.pathname.endsWith('/' + row.id));
+      if (!item?.can_withdraw) return route.fulfill({ status: 409 });
+      state.items = state.items.filter(row => row.id !== item.id);
+      return route.fulfill({ json: item });
+    }
     if (request.method() === 'POST') {
       const body = request.postDataJSON(), key = request.headers()['idempotency-key']; state.posts.push({ body, key });
       if (state.offline) return route.abort();
@@ -26,7 +32,7 @@ async function setup(page, info) {
   });
   await page.goto(`http://127.0.0.1:18787/me/storage?tab=accounts&lang=${info.project.metadata.locale}`);
   await expect(page).toHaveURL(/\/me\/storage\?.*tab=accounts/);
-  await expect(page.getByRole('heading', { name: m.connect, exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: items.length ? m.accounts : m.connect, exact: true })).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   if (process.env.CUSTODY_SCREENSHOTS) { fs.mkdirSync(process.env.CUSTODY_SCREENSHOTS,{recursive:true}); await page.screenshot({path:path.join(process.env.CUSTODY_SCREENSHOTS,`web-${info.project.name}.png`),fullPage:true}); }
@@ -44,9 +50,11 @@ async function fill(page, m) {
 }
 test('custody requires consent, clears secrets and preserves the binding on renewal', async ({ page }, info) => {
   const { m, state, errors } = await setup(page, info);
+  await expect(page.locator('form select')).toHaveCount(0);
   await fill(page, m); await page.getByRole('button', { name: m.submit, exact: true }).click(); expect(state.posts).toHaveLength(0);
   await page.getByRole('checkbox').check(); await page.getByRole('button', { name: m.submit, exact: true }).focus(); await page.keyboard.press('Enter');
   await expect(page.locator('article')).toContainText(m.states.ready); await expect(page.getByLabel(m.password, { exact: true })).toHaveCount(0);
+  expect(state.posts[0].body.credential).not.toHaveProperty('mode');
   expect(state.posts[0].body.consent).toEqual({ accepted: true, version: 'custody-v1', digest: 'a'.repeat(64) });
   expect(state.posts[0].body).not.toHaveProperty('owner_domain'); expect(state.posts[0].body).not.toHaveProperty('root');
   const original = state.items[0].id;
@@ -190,4 +198,22 @@ test('adding a contribution with no account left goes straight to connecting one
   await expect(page.locator('article')).toContainText(m.states.ready);
   expect(state.posts).toEqual([]);
   expect(errors).toEqual([]);
+});
+
+test('the owner can update an adopted drive and withdraw a separate incomplete application', async ({ page }, info) => {
+  const adopted = { id: 'adopted.disk-1', adapter: 'bhpan', state: 'ready', revision: 3, authorization_expires_at: '2030-01-02T00:00:00Z', request_id: '', last_error: '' };
+  const failed = { ...adopted, id: '10000000-0000-4000-8000-000000000002', request_id: '10000000-0000-4000-8000-000000000002', state: 'credentials_required', last_error: 'credentials_required', can_withdraw: true };
+  const { m, state } = await setup(page, info, [adopted, failed]);
+  const cards = page.locator('article');
+  await expect(cards).toHaveCount(2);
+  await cards.nth(1).getByRole('button', { name: m.withdrawApplication }).click();
+  await expect(cards).toHaveCount(1);
+  await cards.first().getByRole('button', { name: m.reauthorize }).click();
+  await fill(page, m);
+  await page.getByRole('checkbox').check();
+  await page.getByRole('button', { name: m.submit, exact: true }).click();
+  await expect(cards).toContainText(m.states.ready);
+  expect(state.items[0].id).toBe(adopted.id);
+  expect(state.posts[0].body.revision).toBe(3);
+  expect(Object.keys(state.posts[0].body.credential).sort()).toEqual(['password','username']);
 });
