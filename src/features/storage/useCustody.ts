@@ -20,7 +20,7 @@ function useCustodyApi() {
 export function useCustody(admin = false, api = useCustodyApi()) {
   const data = shallowRef<CustodyPage | null>(null), policy = shallowRef<CustodyPolicy | null>(null);
   const loading = shallowRef(false), sending = shallowRef(false), error = shallowRef<CustodyError['code'] | 'not_found' | null>(null);
-  const recovery = shallowRef<{ key: string; item?: CustodyBinding } | null>(null);
+  const recovery = shallowRef<{ key: string; item?: CustodyBinding; withdrawID?: string } | null>(null);
   let read: AbortController | undefined, write: AbortController | undefined, disposed = false, cursor = '';
   function failed(e: unknown) {
     error.value = e instanceof CustodyError ? e.code : 'network';
@@ -41,7 +41,7 @@ export function useCustody(admin = false, api = useCustodyApi()) {
     }
     loading.value = false;
   }
-  async function mutation(run: (signal: AbortSignal) => Promise<CustodyBinding>, pending: { key: string; item?: CustodyBinding }) {
+  async function mutation(run: (signal: AbortSignal) => Promise<CustodyBinding>, pending: { key: string; item?: CustodyBinding; withdrawID?: string }) {
     if (sending.value || disposed || !data.value) return;
     read?.abort(); const controller = new AbortController(); write = controller;
     const timer = setTimeout(() => controller.abort(), 105_000);
@@ -68,8 +68,15 @@ export function useCustody(admin = false, api = useCustodyApi()) {
     const snapshot = parseCustodyBinding(item);
     await mutation(signal => api.resume(snapshot, signal, admin), { key: snapshot.request_id, item: snapshot });
   }
+  async function withdraw(item: CustodyBinding) {
+    if (admin || !item.can_withdraw || recovery.value || loading.value) return;
+    const key = crypto.randomUUID();
+    await mutation(signal => api.remove(item.id, key, signal), { key, withdrawID: item.id });
+  }
   async function recover() {
     const pending = recovery.value; if (!pending || sending.value || disposed) return;
+    const id = pending.withdrawID;
+    if (id) { await mutation(signal => api.remove(id, pending.key, signal), pending); return; }
     if (pending.item) { await mutation(signal => api.resume(pending.item!, signal, admin), pending); return; }
     const controller = new AbortController(); read = controller; loading.value = true; error.value = null;
     const timer = setTimeout(() => controller.abort(), 10_000);
@@ -87,5 +94,5 @@ export function useCustody(admin = false, api = useCustodyApi()) {
   }
   onMounted(() => reload());
   onScopeDispose(() => { disposed = true; read?.abort(); write?.abort(); data.value = null; recovery.value = null; });
-  return { data: readonly(data), policy: readonly(policy), loading: readonly(loading), sending: readonly(sending), error: readonly(error), recovery: readonly(recovery), reload, submit, resume, recover };
+  return { data: readonly(data), policy: readonly(policy), loading: readonly(loading), sending: readonly(sending), error: readonly(error), recovery: readonly(recovery), reload, submit, resume, recover, withdraw };
 }

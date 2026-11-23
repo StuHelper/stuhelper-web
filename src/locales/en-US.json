@@ -1402,7 +1402,7 @@
       "storage_writes_disabled": "Storage is not accepting new files.",
       "capacity_unknown": "The drive capacity has not been read yet.",
       "exit_overdue": "Exit target passed; migration is still pending.",
-      "capacity_read_failed": "Reading the drive capacity failed. StuHelper will retry automatically.",
+      "capacity_read_failed": "Could not read drive capacity.",
       "capacity_expired": "The drive capacity reading has expired. StuHelper will refresh it automatically."
     },
     "displayLabel": "Nickname (optional)",
@@ -1420,12 +1420,17 @@
       "unavailable": "The drive capacity cannot be read right now, so this cannot be submitted yet.",
       "status": {
         "not_read": "The drive capacity has not been read yet.",
-        "read_failed": "Reading the drive capacity failed. StuHelper will retry automatically.",
+        "read_failed": "Could not read drive capacity.",
         "expired": "The drive capacity reading has expired. StuHelper will refresh it automatically."
       },
       "errors": {
         "limit_exceeds_provider_capacity": "The shared quota is more than the space left on the drive. Lower it and try again.",
         "provider_capacity_unavailable": "The drive capacity cannot be confirmed right now. Try again later."
+      },
+      "recovery": {
+        "waiting_retry": "A retry is scheduled.",
+        "waiting_scan": "Waiting for the next capacity scan.",
+        "credentials_required": "Update authorization on the storage accounts page."
       }
     },
     "neverObserved": "Capacity not read yet"
@@ -1440,13 +1445,9 @@
     "reauthorize": "Update account authorization",
     "connect": "Connect a storage account",
     "credentials": "BHpan sign-in details",
-    "mode": "Sign-in method",
-    "local": "BHpan local account",
-    "sso": "BUAA single sign-on",
-    "username": "Account",
-    "password": "Password",
+    "username": "University single sign-on account",
+    "password": "University single sign-on password",
     "until": "Authorized until ({zone})",
-    "ssoNotice": "For single sign-on, you authorize custody of your university password solely to sign in to BHpan again. It is encrypted until consent expires, is revoked, or the credential is replaced.",
     "terms": "Read how your account is stored ({version})",
     "consent": "I agree that the platform stores my account password for this purpose until the end date. Shared capacity is confirmed separately.",
     "invalid": "Check the account, password and end date, and tick the consent box.",
@@ -1470,7 +1471,9 @@
       "credentials_required": "Please enter your account and password again.",
       "interactive_verification_required": "Complete the storage provider’s interactive verification and try again."
     },
-    "maxTermHint": "Maximum authorization duration: {days} days."
+    "maxTermHint": "Maximum authorization duration: {days} days.",
+    "loginNotice": "StuHelper uses your university single sign-on credentials at the official BHpan sign-in page during the authorized custody period.",
+    "withdrawApplication": "Withdraw application"
   },
   "gate": {
     "guest": {
@@ -2524,7 +2527,14 @@
   },
   "violation": {
     "label": "Violation type",
-    "search": "Search violation types",
+    "pick": "Choose a violation type",
+    "groups": {
+      "unlawful": "Unlawful and harmful content",
+      "personal": "People and privacy",
+      "rights": "Intellectual property",
+      "campus": "Academics and reviews",
+      "quality": "Information quality and other"
+    },
     "required": "Choose a violation type.",
     "categories": {
       "illegal_content": {

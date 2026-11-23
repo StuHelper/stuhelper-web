@@ -1402,7 +1402,7 @@
       "storage_writes_disabled": "새 파일을 받지 않는 저장소입니다.",
       "capacity_unknown": "드라이브 용량을 아직 읽지 않았습니다.",
       "exit_overdue": "종료 목표 시각을 지났으며 이전 처리가 계속되고 있습니다.",
-      "capacity_read_failed": "드라이브 용량을 읽지 못했습니다. 자동으로 다시 시도합니다.",
+      "capacity_read_failed": "드라이브 용량을 읽지 못했습니다.",
       "capacity_expired": "드라이브 용량 정보가 만료되었습니다. 자동으로 새로 고칩니다."
     },
     "displayLabel": "메모 이름(선택)",
@@ -1420,12 +1420,17 @@
       "unavailable": "지금은 드라이브 용량을 읽을 수 없어 제출할 수 없습니다.",
       "status": {
         "not_read": "드라이브 용량을 아직 읽지 않았습니다.",
-        "read_failed": "드라이브 용량을 읽지 못했습니다. 자동으로 다시 시도합니다.",
+        "read_failed": "드라이브 용량을 읽지 못했습니다.",
         "expired": "드라이브 용량 정보가 만료되었습니다. 자동으로 새로 고칩니다."
       },
       "errors": {
         "limit_exceeds_provider_capacity": "공유 용량이 드라이브 남은 공간보다 큽니다. 줄인 뒤 다시 시도하세요.",
         "provider_capacity_unavailable": "지금은 드라이브 용량을 확인할 수 없습니다. 잠시 후 다시 시도하세요."
+      },
+      "recovery": {
+        "waiting_retry": "재시도가 예정되어 있습니다.",
+        "waiting_scan": "다음 정기 용량 확인을 기다리고 있습니다.",
+        "credentials_required": "저장소 계정 페이지에서 인증을 갱신하세요."
       }
     },
     "neverObserved": "아직 용량을 읽지 않음"
@@ -1440,13 +1445,9 @@
     "reauthorize": "계정 승인 업데이트",
     "connect": "저장소 계정 연결",
     "credentials": "BHpan 로그인 정보",
-    "mode": "로그인 방식",
-    "local": "BHpan 로컬 계정",
-    "sso": "베이항 통합 인증",
-    "username": "계정",
-    "password": "비밀번호",
+    "username": "학교 통합 인증 계정",
+    "password": "학교 통합 인증 비밀번호",
     "until": "승인 기한({zone})",
-    "ssoNotice": "통합 인증을 선택하면 BHpan 재로그인만을 위해 학교 비밀번호 보관을 허용합니다. 기한 만료, 동의 철회 또는 교체 시까지 암호화해 보관합니다.",
     "terms": "계정 보관 안내 읽기({version})",
     "consent": "이 목적으로 기한까지 플랫폼이 계정 비밀번호를 보관하는 데 동의합니다. 공유 용량은 별도로 확인합니다.",
     "invalid": "계정, 비밀번호, 기한을 확인하고 동의에 체크하세요.",
@@ -1470,7 +1471,9 @@
       "credentials_required": "계정과 비밀번호를 다시 입력하세요.",
       "interactive_verification_required": "저장소 서비스에서 추가 인증을 완료한 후 다시 시도하세요."
     },
-    "maxTermHint": "최대 권한 부여 기간: {days}일."
+    "maxTermHint": "최대 권한 부여 기간: {days}일.",
+    "loginNotice": "StuHelper는 승인 기간 동안 학교 통합 인증 계정과 비밀번호로 BHpan 공식 로그인 페이지에 접속합니다.",
+    "withdrawApplication": "연결 신청 철회"
   },
   "gate": {
     "guest": {
@@ -2524,7 +2527,14 @@
   },
   "violation": {
     "label": "위반 유형",
-    "search": "위반 유형 검색",
+    "pick": "위반 유형 선택",
+    "groups": {
+      "unlawful": "불법·유해 콘텐츠",
+      "personal": "인신·개인정보",
+      "rights": "지식재산권",
+      "campus": "학업·평가",
+      "quality": "정보 품질·기타"
+    },
     "required": "위반 유형을 선택하세요.",
     "categories": {
       "illegal_content": {

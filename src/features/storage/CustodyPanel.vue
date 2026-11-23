@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppDateTime from '../../shared/ui/AppDateTime.vue'
-import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { CustodyBinding } from '../../api/custody'
@@ -15,9 +14,8 @@ import { useCustody } from './useCustody'
 const emit = defineEmits<{ updated: [] }>()
 const { t, te } = useI18n()
 const format = useFormat()
-const { data, policy, loading, sending, error, recovery, reload, submit, resume, recover } = useCustody(false)
+const { data, policy, loading, sending, error, recovery, reload, submit, resume, recover, withdraw } = useCustody(false)
 const paged = ref(false)
-const mode = ref<'local' | 'sso'>('local')
 const username = ref('')
 const password = ref('')
 const until = ref('')
@@ -58,7 +56,7 @@ async function send() {
     return
   }
   invalid.value = false
-  const task = submit({ adapter: 'bhpan', credential: { mode: mode.value, username: username.value, password: password.value }, until: new Date(expires).toISOString(), consent: { accepted: true, version: current.version, digest: current.digest }, ...(editing.value ? { revision: editing.value.revision } : {}) }, editing.value ?? undefined)
+  const task = submit({ adapter: 'bhpan', credential: { username: username.value, password: password.value }, until: new Date(expires).toISOString(), consent: { accepted: true, version: current.version, digest: current.digest }, ...(editing.value ? { revision: editing.value.revision } : {}) }, editing.value ?? undefined)
   clearSecrets()
   accepted.value = false
   await task
@@ -92,7 +90,21 @@ const accountTitle = (item: { adapter: string; account_hint?: string; id: string
   const tag = item.account_hint ? (shared ? `${item.account_hint} #${item.id.slice(-4)}` : item.account_hint) : item.id.slice(-8)
   return `${adapterName(item.adapter)} · ${tag}`
 }
-defineExpose({ clearSecrets, refresh: () => { paged.value = false; return reload('') } })
+// Opened from the contributions tab when no account is left to contribute: show the connect
+// form straight away and move focus to it once the account list has loaded.
+const focusForm = ref(false)
+function connect() {
+  reset()
+  adding.value = true
+  focusForm.value = true
+}
+watch([focusForm, title], ([requested, element]) => {
+  if (requested && element) {
+    focusForm.value = false
+    element.focus()
+  }
+}, { flush: 'post' })
+defineExpose({ clearSecrets, connect, refresh: () => { paged.value = false; return reload('') } })
 watch(error, (value) => {
   if (value === 'forbidden' || value === 'unauthenticated') reset()
 })
@@ -154,16 +166,6 @@ watch(error, (value) => {
         </legend>
         <div class="form-grid">
           <label class="field">
-            <span class="field-label">{{ t('custody.mode') }}</span>
-            <AppSelect
-              v-model="mode"
-              class="select"
-            >
-              <option value="local">{{ t('custody.local') }}</option>
-              <option value="sso">{{ t('custody.sso') }}</option>
-            </AppSelect>
-          </label>
-          <label class="field">
             <span class="field-label">{{ t('custody.username') }}</span>
             <input
               v-model="username"
@@ -197,7 +199,7 @@ watch(error, (value) => {
           </label>
         </div>
         <p class="small muted">
-          {{ t('custody.ssoNotice') }}
+          {{ t('custody.loginNotice') }}
         </p>
         <a
           :href="policy.url"
@@ -287,6 +289,15 @@ watch(error, (value) => {
               {{ label('custody.reasons', item.last_error) }}
             </p>
             <div class="row">
+              <button
+                v-if="item.can_withdraw"
+                class="btn btn-sm"
+                type="button"
+                :disabled="locked"
+                @click="withdraw(item)"
+              >
+                {{ t('custody.withdrawApplication') }}
+              </button>
               <button
                 v-if="item.state === 'ready' || item.state === 'credentials_required'"
                 class="btn btn-sm"

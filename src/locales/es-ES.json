@@ -1402,7 +1402,7 @@
       "storage_writes_disabled": "El almacenamiento no acepta archivos nuevos.",
       "capacity_unknown": "Todavía no se ha leído la capacidad del disco.",
       "exit_overdue": "Plazo de salida superado; la migración sigue pendiente.",
-      "capacity_read_failed": "No se pudo leer la capacidad del disco. StuHelper lo reintentará automáticamente.",
+      "capacity_read_failed": "No se pudo leer la capacidad.",
       "capacity_expired": "La lectura de la capacidad del disco ha caducado. StuHelper la actualizará automáticamente."
     },
     "displayLabel": "Apodo (opcional)",
@@ -1420,12 +1420,17 @@
       "unavailable": "Ahora no se puede leer la capacidad del disco, así que todavía no se puede enviar.",
       "status": {
         "not_read": "Todavía no se ha leído la capacidad del disco.",
-        "read_failed": "No se pudo leer la capacidad del disco. StuHelper lo reintentará automáticamente.",
+        "read_failed": "No se pudo leer la capacidad.",
         "expired": "La lectura de la capacidad del disco ha caducado. StuHelper la actualizará automáticamente."
       },
       "errors": {
         "limit_exceeds_provider_capacity": "La cuota compartida supera el espacio libre del disco. Redúcela e inténtalo de nuevo.",
         "provider_capacity_unavailable": "Ahora no se puede confirmar la capacidad del disco. Inténtalo más tarde."
+      },
+      "recovery": {
+        "waiting_retry": "Hay un reintento programado.",
+        "waiting_scan": "A la espera de la siguiente lectura de capacidad.",
+        "credentials_required": "Actualiza la autorización en la página de cuentas de almacenamiento."
       }
     },
     "neverObserved": "Capacidad aún no leída"
@@ -1440,13 +1445,9 @@
     "reauthorize": "Actualizar autorización",
     "connect": "Conectar una cuenta",
     "credentials": "Datos de acceso a BHpan",
-    "mode": "Método de acceso",
-    "local": "Cuenta local de BHpan",
-    "sso": "Inicio de sesión único de BUAA",
-    "username": "Cuenta",
-    "password": "Contraseña",
+    "username": "Cuenta de acceso único de la universidad",
+    "password": "Contraseña de acceso único de la universidad",
     "until": "Autorizado hasta ({zone})",
-    "ssoNotice": "Con el inicio de sesión único autorizas guardar la contraseña universitaria solo para volver a acceder a BHpan. Se cifra hasta el vencimiento, la revocación o su sustitución.",
     "terms": "Lee cómo se guarda tu cuenta ({version})",
     "consent": "Acepto que la plataforma guarde la contraseña de mi cuenta para este fin hasta la fecha indicada. La capacidad compartida se confirma aparte.",
     "invalid": "Revisa la cuenta, la contraseña y la fecha, y marca la casilla de consentimiento.",
@@ -1470,7 +1471,9 @@
       "credentials_required": "Vuelve a introducir la cuenta y la contraseña.",
       "interactive_verification_required": "Completa la verificación interactiva del proveedor de almacenamiento y vuelve a intentarlo."
     },
-    "maxTermHint": "Duración máxima de autorización: {days} días."
+    "maxTermHint": "Duración máxima de autorización: {days} días.",
+    "loginNotice": "StuHelper usa las credenciales de acceso único de la universidad en el portal oficial de BHpan durante el periodo autorizado.",
+    "withdrawApplication": "Retirar solicitud"
   },
   "gate": {
     "guest": {
@@ -2524,7 +2527,14 @@
   },
   "violation": {
     "label": "Tipo de infracción",
-    "search": "Buscar tipo de infracción",
+    "pick": "Elegir tipo de infracción",
+    "groups": {
+      "unlawful": "Contenido ilegal y dañino",
+      "personal": "Personas y privacidad",
+      "rights": "Propiedad intelectual",
+      "campus": "Estudios y reseñas",
+      "quality": "Calidad de la información y otros"
+    },
     "required": "Elige un tipo de infracción.",
     "categories": {
       "illegal_content": {

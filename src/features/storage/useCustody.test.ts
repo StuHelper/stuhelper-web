@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CustodyError, type CustodyBinding, type CustodyRequest } from '../../api/custody';
 import { useCustody } from './useCustody';
 const item: CustodyBinding = { id: 'fixture-id', adapter: 'bhpan', revision: 1, state: 'ready', authorization_expires_at: '2030-01-01T00:00:00Z', request_id: 'fixture-request', last_error: '' };
-const body: CustodyRequest = { adapter: 'bhpan', credential: { mode: 'local', username: 'fixture', password: 'test-only-secret' }, consent: { accepted: true, version: 'v1', digest: 'a'.repeat(64) }, until: item.authorization_expires_at };
+const body: CustodyRequest = { adapter: 'bhpan', credential: { username: 'fixture', password: 'test-only-secret' }, consent: { accepted: true, version: 'v1', digest: 'a'.repeat(64) }, until: item.authorization_expires_at };
 const disposals: (() => void)[] = [];
 afterEach(() => { for (const f of disposals.splice(0)) f(); });
 async function settle() { for (let n = 0; n < 10; n++) await Promise.resolve(); await nextTick(); }
