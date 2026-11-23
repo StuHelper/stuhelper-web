@@ -19,10 +19,12 @@
   ],
   "scenario_tests": {
     "I18N-04": [
-      "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date"
+      "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date",
+      "tests/demo/legal.spec.mjs#the demo opens published legal text and fetches the next history page"
     ],
     "I18N-06": [
-      "tests/e2e/legal.spec.mjs#legal body and table keep their reading direction and fit the viewport"
+      "tests/e2e/legal.spec.mjs#legal body and table keep their reading direction and fit the viewport",
+      "tests/e2e/legal.spec.mjs#long published versions fit the history cards at a 375 pixel viewport"
     ],
     "AE-ACCESS-05": [
       "tests/e2e/page-state-regressions.spec.mjs#own vote receipts open their discussion and a withdrawal removes only the selected vote",

@@ -1,6 +1,6 @@
 # StuHelper Web
 
-<!-- updated: 2026-11-22 -->
+<!-- updated: 2026-11-23 -->
 
 StuHelper 的学生端 Web 应用，基于 Vue 3、TypeScript、Vite、Vue Router 和 Reka UI 构建。页面覆盖校园目录、评价、学习资料、校园认证、存储贡献和个人中心。服务端判断资格和授权，并提供选课事实。
 
@@ -81,7 +81,7 @@ make dev
 
 页脚的《用户服务协议》和《隐私政策》分别打开 `/legal/terms` 和 `/legal/privacy`。任何人都能查看当前生效的正文、版本号和生效日期。当前没有生效版本时，页面显示提示并提供重试。
 
-`/legal/{slug}/versions` 按页列出已发布版本。打开某一项或同意记录中的 `/legal/{slug}/versions/{version}` 可查阅该版发布时的原文。界面可切换八种语言，正文保留发布语言。
+`/legal/{slug}/versions` 按页列出已发布版本。打开某一项或同意记录中的 `/legal/{slug}/versions/{version}` 可查阅该版发布时的原文。版本号直接显示发布记录中的原值。桌面目录可随正文滚动，窄屏可展开目录跳到指定章节。界面可切换八种语言，正文保留发布语言。
 
 ## 账号与认证
 
