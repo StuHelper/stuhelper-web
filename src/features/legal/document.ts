@@ -15,11 +15,6 @@ export interface LegalLayout {
   html: string
 }
 
-export function documentCode(slug: string) {
-  const code = codes[slug] ?? slug.split('-').map((part) => part[0]).join('').toUpperCase()
-  return `SH-${code}`
-}
-
 const metaLine = /^(\S{1,12})\s+(.{1,80})$/
 
 export function layoutDocument(html: string, version: string): LegalLayout {
