@@ -1402,7 +1402,7 @@
       "storage_writes_disabled": "新規ファイルの受け入れを停止しています。",
       "capacity_unknown": "ドライブ容量はまだ読み取られていません。",
       "exit_overdue": "終了目標日時を過ぎていますが、移行は処理中です。",
-      "capacity_read_failed": "ドライブ容量の読み取りに失敗しました。自動的に再試行します。",
+      "capacity_read_failed": "ドライブ容量を取得できませんでした。",
       "capacity_expired": "ドライブ容量のデータが古くなりました。自動的に更新します。"
     },
     "displayLabel": "メモ名（任意）",
@@ -1420,12 +1420,17 @@
       "unavailable": "ドライブ容量を読み取れないため、まだ送信できません。",
       "status": {
         "not_read": "ドライブ容量はまだ読み取られていません。",
-        "read_failed": "ドライブ容量の読み取りに失敗しました。自動的に再試行します。",
+        "read_failed": "ドライブ容量を取得できませんでした。",
         "expired": "ドライブ容量のデータが古くなりました。自動的に更新します。"
       },
       "errors": {
         "limit_exceeds_provider_capacity": "共有容量がドライブの残り容量を超えています。減らしてからもう一度お試しください。",
         "provider_capacity_unavailable": "現在ドライブ容量を確認できません。しばらくしてからお試しください。"
+      },
+      "recovery": {
+        "waiting_retry": "再試行を予定しています。",
+        "waiting_scan": "次回の定期容量確認を待っています。",
+        "credentials_required": "ストレージアカウント画面で認証を更新してください。"
       }
     },
     "neverObserved": "容量はまだ読み取られていません"
@@ -1440,13 +1445,9 @@
     "reauthorize": "アカウントの許可を更新",
     "connect": "アカウントを接続",
     "credentials": "BHpan のログイン情報",
-    "mode": "ログイン方法",
-    "local": "BHpan ローカルアカウント",
-    "sso": "北航の統合認証",
-    "username": "アカウント",
-    "password": "パスワード",
+    "username": "大学の統一認証アカウント",
+    "password": "大学の統一認証パスワード",
     "until": "許可の期限（{zone}）",
-    "ssoNotice": "統合認証を選ぶと、BHpan への再ログインのみを目的として大学のパスワードの保管を許可します。期限切れ、同意の撤回、更新まで暗号化して保管します。",
     "terms": "アカウントの保管について読む（{version}）",
     "consent": "この目的のため、期限までプラットフォームがアカウントのパスワードを保存することに同意します。提供容量は別途確認します。",
     "invalid": "アカウント、パスワード、期限を確認し、同意にチェックしてください。",
@@ -1470,7 +1471,9 @@
       "credentials_required": "アカウントとパスワードを再入力してください。",
       "interactive_verification_required": "ストレージ側で本人確認を完了してから再試行してください。"
     },
-    "maxTermHint": "最長認可期間：{days} 日。"
+    "maxTermHint": "最長認可期間：{days} 日。",
+    "loginNotice": "許可された期間中、StuHelper は大学の統一認証情報を使って BHpan の公式ログイン画面から接続します。",
+    "withdrawApplication": "接続申請を取り下げる"
   },
   "gate": {
     "guest": {

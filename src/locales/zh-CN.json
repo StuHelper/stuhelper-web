@@ -1402,7 +1402,7 @@
       "storage_writes_disabled": "存储暂不接受新文件。",
       "capacity_unknown": "尚未读取到云盘容量。",
       "exit_overdue": "已超过退出目标时间，迁移仍在处理。",
-      "capacity_read_failed": "读取云盘容量失败，平台会自动重试。",
+      "capacity_read_failed": "读取云盘容量失败。",
       "capacity_expired": "云盘容量数据已过期，平台会自动刷新。"
     },
     "displayLabel": "备注名（选填）",
@@ -1420,12 +1420,17 @@
       "unavailable": "暂时读取不到云盘容量，暂不能提交。",
       "status": {
         "not_read": "尚未读取到云盘容量。",
-        "read_failed": "读取云盘容量失败，平台会自动重试。",
+        "read_failed": "读取云盘容量失败。",
         "expired": "云盘容量数据已过期，平台会自动刷新。"
       },
       "errors": {
         "limit_exceeds_provider_capacity": "共享额度超过了云盘剩余空间，请调低后重试。",
         "provider_capacity_unavailable": "暂时无法核实云盘容量，请稍后再试。"
+      },
+      "recovery": {
+        "waiting_retry": "等待后台补试。",
+        "waiting_scan": "等待下一轮容量扫描。",
+        "credentials_required": "请在存储账号页更新账号授权。"
       }
     },
     "neverObserved": "尚未读取到容量"
@@ -1440,13 +1445,9 @@
     "reauthorize": "更新账号授权",
     "connect": "接入存储账号",
     "credentials": "BHpan 登录信息",
-    "mode": "登录方式",
-    "local": "BHpan 独立账号",
-    "sso": "北航统一认证",
-    "username": "账号",
-    "password": "密码",
+    "username": "学校统一身份认证账号",
+    "password": "学校统一身份认证密码",
     "until": "授权截止时间（{zone}）",
-    "ssoNotice": "选择统一认证时，你授权平台仅为 BHpan 重新登录托管学校密码。密码会加密保存至授权到期、撤销或替换。",
     "terms": "阅读账号保管说明（{version}）",
     "consent": "我同意平台按上述用途和截止时间代为保存账号密码。贡献容量需要另外确认。",
     "invalid": "请检查账号、密码和截止时间，并勾选同意。",
@@ -1470,7 +1471,9 @@
       "credentials_required": "请重新输入账号和密码。",
       "interactive_verification_required": "云盘要求交互验证，请完成验证后重试。"
     },
-    "maxTermHint": "最长可授权 {days} 天。"
+    "maxTermHint": "最长可授权 {days} 天。",
+    "loginNotice": "平台使用学校统一身份认证账号密码，通过 BHpan 官方入口登录，凭据仅用于授权期限内的云盘托管。",
+    "withdrawApplication": "撤回接入申请"
   },
   "gate": {
     "guest": {
