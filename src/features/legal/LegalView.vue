@@ -277,7 +277,7 @@ const print = () => window.print()
 .legal-facts dl > div { display: grid; gap: .125rem; padding-inline-start: .875rem; border-inline-start: 1px solid var(--separator); }
 .legal-facts dt { color: var(--label-3); font-size: .75rem; }
 .legal-facts dd { font-weight: 600; font-variant-numeric: tabular-nums; }
-.legal-badge { display: inline-flex; align-items: center; gap: .375rem; padding: .25rem .625rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .8125rem; font-weight: 650; letter-spacing: .02em; white-space: nowrap; }
+.legal-badge { display: inline-flex; align-items: center; gap: .375rem; padding: .25rem .625rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .8125rem; font-weight: 650; letter-spacing: .02em; max-inline-size: 100%; overflow-wrap: anywhere; }
 .legal-badge-lg { padding: .5rem .875rem; font-size: 1rem; }
 .legal-badge svg { width: 1.05em; height: 1.05em; }
 .legal-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
@@ -325,12 +325,19 @@ const print = () => window.print()
 .legal-seal svg { width: 1em; height: 1em; }
 .legal-digest { margin-inline-start: auto; font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
 
-.legal-timeline { display: grid; gap: .625rem; }
+.legal-timeline { display: grid; grid-template-columns: minmax(0, 1fr); gap: .625rem; }
 .legal-release { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-card); color: inherit; text-decoration: none; transition: transform .3s var(--spring), box-shadow .3s; }
 .legal-release:hover { transform: translateY(-1px); box-shadow: var(--shadow-lift); }
 .legal-release-body { display: grid; gap: .125rem; flex: 1; min-width: 0; }
 .legal-release-title { font-weight: 600; }
 .legal-pill { padding: .125rem .5rem; border-radius: 999px; background: var(--fill); color: var(--label-2); font-size: .75rem; font-weight: 600; }
+
+@media (max-width: 40rem) {
+  .legal-release { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem .75rem; }
+  .legal-release .legal-badge { grid-area: 1 / 1; justify-self: start; }
+  .legal-release .legal-pill { grid-area: 1 / 2; justify-self: end; }
+  .legal-release-body { grid-row: 2; grid-column: 1 / -1; }
+}
 
 /* Desktop: the contents become a sticky rail beside the text and are always open. */
 @media (min-width: 1080px) {

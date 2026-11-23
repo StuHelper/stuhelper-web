@@ -79,6 +79,30 @@ test('a fixed version opens the stored publication and can return to the current
   expect(requests).toEqual([`GET ${legalPath}/terms/versions/2.0`, `GET ${legalPath}/terms`]);
 });
 
+test('long published versions fit the history cards at a 375 pixel viewport', async ({ page }, info) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const title = 'StuHelper SSO 账号注册与使用条款';
+  const versions = ['SH-SSO-TOS-2026.11.23-2', 'A'.repeat(64)];
+  const items = versions.map(version => metadata(publishedDocument('sso-terms', version, { title })));
+  await routeDocuments(page, route => route.fulfill({ json: { items } }));
+  await open(page, '/legal/sso-terms/versions', info);
+  const cards = page.getByRole('main').getByRole('listitem');
+  await expect(cards).toHaveCount(2);
+  for (const [i, version] of versions.entries()) {
+    const card = cards.nth(i);
+    const badge = card.getByText(version, { exact: true });
+    await expect(badge).toBeVisible();
+    await expect(card.getByText(title, { exact: true })).toBeVisible();
+    await expect(card.getByRole('link')).toHaveAttribute('href', '/legal/sso-terms/versions/' + version);
+    const fits = await card.evaluate(el => {
+      const box = el.getBoundingClientRect();
+      return box.left >= 0 && box.right <= innerWidth && el.scrollWidth <= el.clientWidth;
+    });
+    expect(fits).toBe(true);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+});
+
 test('legal history follows the server offset and retries an unavailable next page', async ({ page }, info) => {
   const c = catalogue(info);
   const upcoming = publishedDocument('terms', '4.0', { effectiveDate: '2027-01-01' });
