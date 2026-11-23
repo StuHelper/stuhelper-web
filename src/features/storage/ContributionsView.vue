@@ -67,6 +67,24 @@ function refresh() {
   void reload()
   if (tab.value === 'accounts') custody.value?.refresh()
 }
+// With no account left to contribute, the form could only point elsewhere, so the button goes
+// straight to connecting a storage account.
+function startCreate() {
+  if (options.value && options.value.items.length === 0 && !options.value.next_cursor && custodyEnabled.value) {
+    connectPending.value = true
+    tab.value = 'accounts'
+    return
+  }
+  creating.value = true
+}
+// The accounts panel mounts after the route switches tabs, so the request waits for it.
+const connectPending = ref(false)
+watch([custody, connectPending], ([panel, wanted]) => {
+  if (panel && wanted) {
+    connectPending.value = false
+    panel.connect()
+  }
+}, { flush: 'post' })
 const paged = ref(false)
 const showForm = computed(() => !!editing.value || creating.value)
 function goNext() { paged.value = true; void next() }
@@ -541,7 +559,7 @@ watch(completed, (value) => {
               class="btn btn-sm btn-primary"
               type="button"
               :disabled="locked"
-              @click="creating = true"
+              @click="startCreate"
             >
               {{ t('contribution.create') }}
             </button>

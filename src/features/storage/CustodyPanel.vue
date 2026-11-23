@@ -92,7 +92,21 @@ const accountTitle = (item: { adapter: string; account_hint?: string; id: string
   const tag = item.account_hint ? (shared ? `${item.account_hint} #${item.id.slice(-4)}` : item.account_hint) : item.id.slice(-8)
   return `${adapterName(item.adapter)} · ${tag}`
 }
-defineExpose({ clearSecrets, refresh: () => { paged.value = false; return reload('') } })
+// Opened from the contributions tab when no account is left to contribute: show the connect
+// form straight away and move focus to it once the account list has loaded.
+const focusForm = ref(false)
+function connect() {
+  reset()
+  adding.value = true
+  focusForm.value = true
+}
+watch(title, (element) => {
+  if (element && focusForm.value) {
+    focusForm.value = false
+    element.focus()
+  }
+}, { flush: 'post' })
+defineExpose({ clearSecrets, connect, refresh: () => { paged.value = false; return reload('') } })
 watch(error, (value) => {
   if (value === 'forbidden' || value === 'unauthenticated') reset()
 })

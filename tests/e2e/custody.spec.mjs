@@ -149,3 +149,23 @@ test('switching away from custody clears the unfinished account and password', a
   await expect(password).toHaveValue('');
   expect(state.posts).toEqual([]);
 });
+
+test('adding a contribution with no account left goes straight to connecting one', async ({ page }, info) => {
+  const example = JSON.parse(fs.readFileSync('contracts/contribution.example.json', 'utf8'));
+  await page.route('**/api/v1/storage-contributions**', (route) => {
+    const endpoint = new URL(route.request().url()).pathname.split('/').pop();
+    if (endpoint === 'policy' || endpoint === 'statistics') return route.fulfill({ json: example[endpoint] });
+    if (endpoint === 'options') return route.fulfill({ json: { items: [], next_cursor: '' } });
+    return route.fulfill({ json: example.page });
+  });
+  const { m, state, errors, messages } = await setup(page, info);
+  // An account already exists, so the accounts tab would normally hide the connect form.
+  state.items = [{ id: 'cu-existing', adapter: 'bhpan', revision: 1, state: 'ready', authorization_expires_at: '2030-01-01T00:00:00Z', request_id: 'r1', last_error: '' }];
+  await page.getByRole('tab', { name: messages.contribution.mine, exact: true }).click();
+  await page.getByRole('button', { name: messages.contribution.create, exact: true }).click();
+  await expect(page).toHaveURL(/tab=accounts/);
+  await expect(page.getByRole('heading', { name: m.connect, exact: true })).toBeFocused();
+  await expect(page.getByLabel(m.username, { exact: true })).toBeVisible();
+  await expect(page.getByText(messages.contribution.noOptions, { exact: true })).toHaveCount(0);
+  expect(errors).toEqual([]);
+});
