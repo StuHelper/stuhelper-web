@@ -11,6 +11,16 @@ import process from 'node:process';
 // Each entry maps provider files to snapshot files. The first file is the contract whose
 // info.version is recorded. Formats follow the existing check scripts for each module.
 const modules = {
+  storage: {
+    repo: 'storage',
+    sourceHashes: { 'sdk/custody-browser.ts': 'custody_browser_sha256', 'sdk/capacity.ts': 'capacity_sha256' },
+    files: {
+      'contracts/storage.openapi.json': 'contracts/storage.openapi.json',
+      'sdk/storage.gen.ts': 'src/api/storage.gen.ts',
+      'sdk/custody-browser.ts': 'src/api/custody.ts',
+      'sdk/capacity.ts': 'src/api/capacity.ts',
+    },
+  },
   catalog: { repo: 'catalog', files: { 'contracts/catalog.openapi.json': 'contracts/catalog.openapi.json', 'sdk/catalog.gen.ts': 'src/api/catalog.gen.ts' } },
   reviews: { repo: 'reviews', files: { 'contracts/reviews.openapi.json': 'contracts/reviews.openapi.json', 'sdk/reviews.gen.ts': 'src/api/reviews.gen.ts' } },
   moderation: { repo: 'moderation', files: { 'contracts/moderation.openapi.json': 'contracts/moderation.openapi.json', 'sdk/moderation.gen.ts': 'src/api/moderation.gen.ts' } },
@@ -60,6 +70,13 @@ for (const name of selected.length ? selected : Object.keys(modules)) {
     ...(spec.single ? { sha256: sha256[contract], files: spec.files } : { files: spec.files, sha256 }),
     ...spec.extra,
   };
+  if (spec.sourceHashes) {
+    record.sha256 = sha256[contract];
+    delete record.files;
+    for (const [providerFile, field] of Object.entries(spec.sourceHashes)) {
+      record[field] = sha256[spec.files[providerFile]];
+    }
+  }
   fs.writeFileSync(`contracts/${name}.source.json`, `${JSON.stringify(record, null, 2)}\n`);
   console.log(`${name}: ${revision} ${version}`);
 }

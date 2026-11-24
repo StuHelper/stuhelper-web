@@ -1,29 +1,15 @@
 import type { Conditions, Policy } from '../../api/contribution';
 
-// 1 GB here is 1024³ bytes, the unit BHpan and most operating systems use for drive space, so a
-// "500 GB" drive reads as 500 on this page. Ten decimal places resolve below one byte, which keeps
-// every byte count expressible; input is rounded to the nearest byte with exact integer arithmetic.
-const GB = 1n << 30n
-const scale = 10n ** 10n
+import { formatQuotaInput, parseQuotaBytes } from '../../api/capacity';
+
 export function parseGB(raw: string): number | null {
-  if (!/^\d{1,16}(?:\.\d{1,10})?$/.test(raw)) return null;
-  const [whole = '0', fraction = ''] = raw.split('.');
-  const scaled = BigInt(whole) * scale + BigInt(fraction.padEnd(10, '0'));
-  const bytes = (scaled * GB + scale / 2n) / scale;
-  if (scaled > 0n && bytes === 0n) return null;
-  return bytes <= BigInt(Number.MAX_SAFE_INTEGER) ? Number(bytes) : null;
+  return raw === raw.trim() ? parseQuotaBytes(raw, 'GB') ?? null : null;
 }
-/** The shortest GB text that parses back to exactly these bytes. */
+
 export function gbInput(bytes: number): string {
-  const exact = BigInt(bytes);
-  for (let digits = 0; ; digits++) {
-    const unit = 10n ** BigInt(digits);
-    const rounded = (exact * unit + GB / 2n) / GB;
-    const fraction = (rounded % unit).toString().padStart(digits, '0');
-    const text = (rounded / unit).toString() + (digits ? '.' + fraction : '');
-    if (digits === 10 || parseGB(text) === bytes) return text.includes('.') ? text.replace(/\.?0+$/, '') : text;
-  }
+  return formatQuotaInput(bytes, 'GB');
 }
+
 export function localDateInput(instant: number): string {
   const date = new Date(instant);
   return new Date(instant - date.getTimezoneOffset() * 60_000).toISOString().replace(/Z$/, '');
