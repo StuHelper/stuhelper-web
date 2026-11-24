@@ -138,7 +138,8 @@
       "tests/e2e/capabilities.spec.mjs#enabled modules show personal entries and discovery failure leaves them available",
       "tests/e2e/capabilities.spec.mjs#loading capabilities blocks wallet requests until discovery finishes",
       "tests/e2e/capabilities.spec.mjs#disabled groups preserve card consent and disabled QQ lists its three parts as not open without requests",
-      "tests/e2e/capabilities.spec.mjs#disabled favorites and search send no list lookups or personal vote requests"
+      "tests/e2e/capabilities.spec.mjs#disabled favorites and search send no list lookups or personal vote requests",
+      "tests/e2e/capabilities.spec.mjs#disabled academic modules block direct course and discussion requests"
     ],
     "SESSION-AVAILABILITY-01": [
       "src/shared/session.test.ts#coalesces 25 failures, waits with bounded backoff and preserves the signed-in snapshot"
@@ -382,6 +383,11 @@
       "tests/e2e/consent.spec.mjs#the personal center opens consent records, legal documents and account closure",
       "tests/e2e/consent.spec.mjs#a failed agreement lookup retries and shows a newly pending version",
       "tests/e2e/email-transfer-consent.spec.mjs#the consent gate lets a member withdraw without accepting the main agreements"
+    ],
+    "PC-09": [
+      "src/features/account/closure.test.ts#opens the first application when the host reports no matching closure",
+      "src/features/account/closure.test.ts#reports a missing route, denial or host failure to the page",
+      "tests/e2e/account-security.spec.mjs#closure needs the points acknowledgement and the typed phrase, and can be cancelled while cooling"
     ]
   }
 }

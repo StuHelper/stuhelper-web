@@ -1,6 +1,6 @@
 import sessionContract from '../../../contracts/session.openapi.json'
 import type { components } from '../../api/session.gen'
-import { errorCode } from '../../shared/api/errors'
+import { ApiError } from '../../shared/api/errors'
 import { segment, type Http } from '../../shared/api/http'
 import { schemaOf } from '../../shared/api/schema'
 import { useHttp } from '../../shared/session'
@@ -20,7 +20,7 @@ export class ClosureApi {
     try {
       return await this.http.json('/api/v1/profiles/me/closure', parse, { signal })
     } catch (failure) {
-      if (errorCode(failure) === 'not_found') return undefined
+      if (failure instanceof ApiError && failure.status === 404 && failure.code === 'closure_not_found') return undefined
       throw failure
     }
   }

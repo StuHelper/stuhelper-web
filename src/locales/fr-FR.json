@@ -1727,7 +1727,14 @@
         "assets_pending": "Un solde Ivory, un remboursement ou un paiement non confirmé reste à régler.",
         "sessions_unavailable": "Les sessions ne peuvent pas être révoquées pour le moment. Le traitement reprendra quand le service sera rétabli.",
         "authorizations_unavailable": "Les autorisations d’applications ne peuvent pas être retirées pour le moment. Le traitement reprendra quand le service sera rétabli.",
-        "content_unavailable": "Le contenu personnel ne peut pas être traité pour le moment. Le traitement reprendra quand le service sera rétabli."
+        "content_unavailable": "Le contenu personnel ne peut pas être traité pour le moment. Le traitement reprendra quand le service sera rétabli.",
+        "storage_draining": "Les répliques de stockage sont en cours de migration.",
+        "background_processing": "Le traitement se poursuit en arrière-plan."
+      },
+      "reasons": {
+        "ivory_balance_remaining": "Solde Ivory non réglé",
+        "refund_in_progress": "Remboursement en cours",
+        "payment_pending_reconciliation": "Paiement à rapprocher"
       }
     },
     "phoneBoundMasked": "Associé {phone}"

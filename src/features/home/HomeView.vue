@@ -262,6 +262,7 @@ function search() {
             />{{ t('browse.studentsWatching') }}
           </h2>
           <RouterLink
+            v-if="available('/courses')"
             class="small"
             to="/courses"
           >

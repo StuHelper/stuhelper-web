@@ -54,6 +54,9 @@ const tabs: { to: string; label: string; section: string; icon: Component }[] = 
   { to: '/me', label: 'nav.me', section: 'me', icon: UserRound },
 ]
 
+const visibleSubnav = computed(() => subnav.filter(link => linkAvailable(link.to)))
+const visibleTabs = computed(() => tabs.filter(tab => linkAvailable(tab.to)))
+
 watch([() => route.meta.title, section, locale], () => {
   const title = route.meta.title ? t(route.meta.title) : ''
   if (section.value === 'api' || section.value === 'store') document.title = products[section.value].fullName
@@ -195,7 +198,7 @@ watch(() => route.path, async (_path, previous) => {
               aria-hidden="true"
             />
             <RouterLink
-              v-for="link in subnav"
+              v-for="link in visibleSubnav"
               :key="link.to"
               :to="link.to"
               :aria-current="link.active() ? 'page' : undefined"
@@ -260,7 +263,7 @@ watch(() => route.path, async (_path, previous) => {
       :aria-label="t('nav.campusSections')"
     >
       <RouterLink
-        v-for="tab in tabs"
+        v-for="tab in visibleTabs"
         :key="tab.to"
         class="tabbar-item"
         :to="tab.to"

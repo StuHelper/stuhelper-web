@@ -1727,7 +1727,14 @@
         "assets_pending": "ما زال هناك رصيد Ivory أو استرداد أو دفعة غير مؤكدة يجب تسويتها.",
         "sessions_unavailable": "تعذّر إنهاء جلسات الدخول حاليًا، وستستمر المعالجة بعد عودة الخدمة.",
         "authorizations_unavailable": "تعذّر سحب تفويضات التطبيقات حاليًا، وستستمر المعالجة بعد عودة الخدمة.",
-        "content_unavailable": "تعذّرت معالجة المحتوى الشخصي حاليًا، وستستمر المعالجة بعد عودة الخدمة."
+        "content_unavailable": "تعذّرت معالجة المحتوى الشخصي حاليًا، وستستمر المعالجة بعد عودة الخدمة.",
+        "storage_draining": "يجري نقل نسخ التخزين.",
+        "background_processing": "تجري المعالجة في الخلفية."
+      },
+      "reasons": {
+        "ivory_balance_remaining": "رصيد Ivory غير مسوّى",
+        "refund_in_progress": "استرداد قيد المعالجة",
+        "payment_pending_reconciliation": "دفعة تنتظر المطابقة"
       }
     },
     "phoneBoundMasked": "مرتبط {phone}"

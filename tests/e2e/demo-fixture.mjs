@@ -14,7 +14,7 @@ const verification = {
 export async function demo(page, options = {}) {
   await page.route('**/api/v1/auth/session', (route) => (options.guest ? route.fulfill({ status: 401, json: { code: 'unauthenticated' } }) : route.fulfill({ json: member })));
   await academic(page);
-  await page.route('**/api/v1/system/capabilities', (route) => route.fulfill({ json: { api_version: 1, capabilities: ['platform.status'] } }));
+  await page.route('**/api/v1/system/capabilities', (route) => route.fulfill({ json: { api_version: 1, capabilities: ['platform.status', 'catalog.read', 'reviews.read'] } }));
   const resources = resourceState();
   await resourceRoutes(page, resources);
   // The academic directory answers catalog requests for every page.
