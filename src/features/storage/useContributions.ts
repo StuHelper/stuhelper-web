@@ -1,6 +1,12 @@
 import { onMounted, onScopeDispose, readonly, shallowRef } from 'vue';
-import { contributionAPI, ContributionError, type Candidates, type Operation, type Page, type Policy, type Statistics } from '../../api/contribution';
+import { contributionAPI, ContributionError, type Candidates, type Contribution, type Operation, type Page, type Policy, type Statistics } from '../../api/contribution';
+import { useChangePolling } from './polling';
 import { useStorageFetch } from './transport';
+
+// Accepted commands are applied by a background job. A contribution is still changing while it has not
+// reached its desired state or applied its latest revision. Blocked and exited items wait for the owner.
+export const changing = (item: Contribution) =>
+  item.state !== 'blocked' && item.state !== 'exited' && (item.state !== item.desired_state || item.applied_revision < item.revision);
 
 export function useContributions(admin = false, api = contributionAPI(useStorageFetch())) {
   const data = shallowRef<Page | null>(null);
@@ -64,6 +70,17 @@ export function useContributions(admin = false, api = contributionAPI(useStorage
     } finally { clearTimeout(timeout); sending.value = false; command = undefined; }
     if (refresh) await reload('', '');
   }
+  // Re-read the current list page in place. Public statistics follow the next full reload.
+  useChangePolling(data, page => page.items.some(changing), () => !!pending.value || sending.value || loading.value, async () => {
+    const controller = new AbortController(); current = controller;
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    try {
+      const page = await api.list(controller.signal, cursor, admin);
+      if (controller.signal.aborted || disposed || current !== controller) return !disposed && current === controller;
+      data.value = page; return false;
+    } catch { return !disposed && current === controller; }
+    finally { clearTimeout(timeout); }
+  });
   onMounted(() => reload());
   onScopeDispose(() => { disposed = true; current?.abort(); command?.abort(); data.value = null; options.value = null; pending.value = null; });
   return { data: readonly(data), options: readonly(options), policy: readonly(policy), statistics: readonly(statistics), loading: readonly(loading), sending: readonly(sending), error: readonly(error), errorDetail: readonly(errorDetail), publicError: readonly(publicError), pending: readonly(pending), uncertain: readonly(uncertain), completed: readonly(completed), reload, prepare, cancel, submit,
