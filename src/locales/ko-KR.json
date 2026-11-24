@@ -1705,7 +1705,14 @@
         "assets_pending": "Ivory 잔액, 환불 또는 결과가 확인되지 않은 결제가 남아 있습니다.",
         "sessions_unavailable": "지금은 로그인 세션을 해제할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다.",
         "authorizations_unavailable": "지금은 앱 승인을 철회할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다.",
-        "content_unavailable": "지금은 개인 콘텐츠를 처리할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다."
+        "content_unavailable": "지금은 개인 콘텐츠를 처리할 수 없습니다. 서비스가 복구되면 처리를 이어 갑니다.",
+        "storage_draining": "저장소 복제본을 이전하고 있습니다.",
+        "background_processing": "백그라운드에서 처리 중입니다."
+      },
+      "reasons": {
+        "ivory_balance_remaining": "Ivory 잔액 미정산",
+        "refund_in_progress": "환불 처리 중",
+        "payment_pending_reconciliation": "결제 결과 대조 대기"
       }
     },
     "phoneBoundMasked": "연결됨 {phone}"

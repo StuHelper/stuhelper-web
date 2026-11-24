@@ -1705,7 +1705,14 @@
         "assets_pending": "An Ivory balance, a refund or an unconfirmed payment still needs settling.",
         "sessions_unavailable": "Sign-in sessions cannot be revoked right now. Processing continues once the service recovers.",
         "authorizations_unavailable": "Application authorizations cannot be revoked right now. Processing continues once the service recovers.",
-        "content_unavailable": "Personal content cannot be processed right now. Processing continues once the service recovers."
+        "content_unavailable": "Personal content cannot be processed right now. Processing continues once the service recovers.",
+        "storage_draining": "Storage replicas are being migrated.",
+        "background_processing": "Background processing is in progress."
+      },
+      "reasons": {
+        "ivory_balance_remaining": "Outstanding Ivory balance",
+        "refund_in_progress": "Refund in progress",
+        "payment_pending_reconciliation": "Payment awaiting reconciliation"
       }
     },
     "phoneBoundMasked": "Linked {phone}"
