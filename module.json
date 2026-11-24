@@ -285,7 +285,13 @@
       "tests/e2e/teacher.spec.mjs#a failed teacher evidence read can be retried before editing",
       "tests/e2e/teacher.spec.mjs#the current teacher application and its school can both follow a full first page"
     ],
+    "ST-08": [
+      "src/features/storage/useContributions.test.ts#clears owner data when a poll is denied and stops polling",
+      "src/features/storage/useCustody.test.ts#clears pending accounts when a poll loses authorization"
+    ],
     "ST-10": [
+      "src/features/storage/useCustody.test.ts#re-reads a pending account in place until the provider finishes",
+      "src/features/storage/useCustody.test.ts#ignores a late poll after a mutation and its full reload",
       "tests/e2e/custody.spec.mjs#switching away from custody clears the unfinished account and password",
       "tests/e2e/custody.spec.mjs#adding a contribution with no account left goes straight to connecting one"
     ],
@@ -310,6 +316,9 @@
       "tests/e2e/my-reviews-discussion.spec.mjs#a pending appeal receipt appends evidence to its original request after a lost response"
     ],
     "ST-03": [
+      "tests/e2e/contributions.spec.mjs#resuming a contribution shows the applied state without a manual refresh",
+      "src/features/storage/useContributions.test.ts#re-reads the page in place until the accepted change is applied",
+      "src/features/storage/useContributions.test.ts#cancels an in-flight poll during confirmation and resumes after cancellation",
       "src/features/account/lifecycle-actions.test.ts#requires new consent and a future end date to reopen the exited binding",
       "tests/e2e/contributions.spec.mjs#an exited contribution reactivates its original ID with fresh consent and retries the same command",
       "tests/e2e/contributions.spec.mjs#records stay distinguishable by masked account and an optional nickname",
