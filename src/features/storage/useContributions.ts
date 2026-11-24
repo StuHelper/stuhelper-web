@@ -5,7 +5,7 @@ import { useStorageFetch } from './transport';
 
 // Accepted commands are applied by a background job. A contribution is still changing while it has not
 // reached its desired state or applied its latest revision. Blocked and exited items wait for the owner.
-export const changing = (item: Contribution) =>
+const changing = (item: Contribution) =>
   item.state !== 'blocked' && item.state !== 'exited' && (item.state !== item.desired_state || item.applied_revision < item.revision);
 
 export function useContributions(admin = false, api = contributionAPI(useStorageFetch())) {
@@ -71,16 +71,13 @@ export function useContributions(admin = false, api = contributionAPI(useStorage
     if (refresh) await reload('', '');
   }
   // Re-read the current list page in place. Public statistics follow the next full reload.
-  useChangePolling(data, page => page.items.some(changing), () => !!pending.value || sending.value || loading.value, async () => {
-    const controller = new AbortController(); current = controller;
-    const timeout = setTimeout(() => controller.abort(), 10_000);
-    try {
-      const page = await api.list(controller.signal, cursor, admin);
-      if (controller.signal.aborted || disposed || current !== controller) return !disposed && current === controller;
-      data.value = page; return false;
-    } catch { return !disposed && current === controller; }
-    finally { clearTimeout(timeout); }
-  });
+  useChangePolling(data, page => page.items.some(changing), () => !!pending.value || sending.value || loading.value,
+    signal => api.list(signal, cursor, admin),
+    failure => {
+      if (failure instanceof ContributionError && (failure.code === 'forbidden' || failure.code === 'unauthenticated')) {
+        error.value = failure.code; data.value = null; options.value = null;
+      }
+    });
   onMounted(() => reload());
   onScopeDispose(() => { disposed = true; current?.abort(); command?.abort(); data.value = null; options.value = null; pending.value = null; });
   return { data: readonly(data), options: readonly(options), policy: readonly(policy), statistics: readonly(statistics), loading: readonly(loading), sending: readonly(sending), error: readonly(error), errorDetail: readonly(errorDetail), publicError: readonly(publicError), pending: readonly(pending), uncertain: readonly(uncertain), completed: readonly(completed), reload, prepare, cancel, submit,

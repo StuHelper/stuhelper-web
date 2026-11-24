@@ -43,16 +43,9 @@ export function useCustody(admin = false, api = useCustodyApi()) {
     loading.value = false;
   }
   // A pending account is still being verified by the provider; re-read the page in place.
-  useChangePolling(data, page => page.items.some(item => item.state === 'pending'), () => sending.value || loading.value || !!recovery.value, async () => {
-    const controller = new AbortController(); read = controller;
-    const timer = setTimeout(() => controller.abort(), 10_000);
-    try {
-      const page = await api.list(controller.signal, cursor, admin);
-      if (controller.signal.aborted || disposed || read !== controller) return !disposed && read === controller;
-      data.value = page; return false;
-    } catch { return !disposed && read === controller; }
-    finally { clearTimeout(timer); }
-  });
+  useChangePolling(data, page => page.items.some(item => item.state === 'pending'), () => sending.value || loading.value || !!recovery.value,
+    signal => api.list(signal, cursor, admin),
+    e => { if (e instanceof CustodyError && (e.code === 'forbidden' || e.code === 'unauthenticated')) failed(e); });
   async function mutation(run: (signal: AbortSignal) => Promise<CustodyBinding>, pending: { key: string; item?: CustodyBinding; withdrawID?: string }) {
     if (sending.value || disposed || !data.value) return;
     read?.abort(); const controller = new AbortController(); write = controller;

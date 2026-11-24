@@ -1,31 +1,53 @@
-import { onScopeDispose, watch, type Ref } from 'vue';
+import { watch, type Ref } from 'vue';
 
-// Delays between quiet re-reads while something is changing; the last one repeats.
 export const pollDelays = [3_000, 5_000, 10_000, 20_000, 30_000] as const;
 
-/**
- * Re-reads a page while the server is still applying an accepted change, so the page updates
- * without a manual refresh. Every full reload passes through an empty page, which restarts the
- * quick delays. `refresh` replaces the page on success. It returns true only when the re-read
- * failed and the shown page stays, so the poll is tried again; a superseded re-read returns false.
- */
-export function useChangePolling<T>(page: Readonly<Ref<T | null>>, changing: (page: T) => boolean, busy: () => boolean, refresh: () => Promise<boolean>) {
-  let timer: ReturnType<typeof setTimeout> | undefined, polls = 0, stopped = false;
-  function schedule() {
-    if (stopped || timer) return;
-    timer = setTimeout(() => void poll(), pollDelays[Math.min(polls++, pollDelays.length - 1)]);
-  }
-  async function poll() {
-    timer = undefined;
-    if (stopped || page.value === null) return;
-    // A hidden tab or an operation in progress waits for the next turn.
-    if (busy() || document.visibilityState === 'hidden') { schedule(); return; }
-    // A new page schedules the next poll through the watcher below.
-    if (await refresh() && page.value !== null && changing(page.value)) schedule();
-  }
-  watch(page, (value) => {
-    clearTimeout(timer); timer = undefined;
-    if (value !== null && changing(value)) schedule(); else polls = 0;
-  });
-  onScopeDispose(() => { stopped = true; clearTimeout(timer); });
+/** Read the visible page in place while the server is applying a change. */
+export function useChangePolling<T>(
+  page: Ref<T | null>,
+  changing: (page: T) => boolean,
+  busy: () => boolean,
+  readPage: (signal: AbortSignal) => Promise<T>,
+  onError: (error: unknown) => void,
+) {
+  watch(() => page.value !== null && !busy() && changing(page.value), (enabled, _, onCleanup) => {
+    if (!enabled) return;
+    let delayIndex = 0;
+    let timer: ReturnType<typeof setTimeout>;
+    let request: AbortController | undefined;
+    let stopped = false;
+
+    function schedule() {
+      if (stopped) return;
+      timer = setTimeout(() => void poll(), pollDelays[delayIndex]);
+      delayIndex = Math.min(delayIndex + 1, pollDelays.length - 1);
+    }
+    async function poll() {
+      if (document.visibilityState === 'hidden') {
+        schedule();
+        return;
+      }
+      const controller = new AbortController();
+      request = controller;
+      const timeout = setTimeout(() => controller.abort(), 10_000);
+      try {
+        const result = await readPage(controller.signal);
+        if (!controller.signal.aborted) page.value = result;
+      } catch (error) {
+        if (!controller.signal.aborted) onError(error);
+      } finally {
+        clearTimeout(timeout);
+        request = undefined;
+        schedule();
+      }
+    }
+    // Cancel synchronously when a foreground operation starts, including requests
+    // whose transport still resolves after abort. Each polling run owns its timers.
+    onCleanup(() => {
+      stopped = true;
+      clearTimeout(timer);
+      request?.abort();
+    });
+    schedule();
+  }, { flush: 'sync' });
 }

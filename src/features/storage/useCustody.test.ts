@@ -47,6 +47,28 @@ describe('custody request lifecycle', () => {
 });
 describe('custody status refresh', () => {
   afterEach(() => { vi.useRealTimers(); });
+  it('ignores a late poll after a mutation and its full reload', async () => {
+    vi.useFakeTimers();
+    const api = fixture(), pending = { items: [{ ...item, state: 'pending' }], next_cursor: '' };
+    let finish: ((result: typeof pending) => void) | undefined;
+    const late = new Promise<typeof pending>(resolve => { finish = resolve; });
+    api.list.mockResolvedValueOnce(pending).mockReturnValueOnce(late);
+    const model = mount(api); await settle();
+    await vi.advanceTimersByTimeAsync(3_000);
+    await model.resume(item);
+    finish?.(pending); await settle();
+    expect(api.list.mock.calls[1]?.[0].aborted).toBe(true);
+    expect(model.data.value?.items[0]?.state).toBe('ready');
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(3);
+  });
+  it('clears pending accounts when a poll loses authorization', async () => {
+    vi.useFakeTimers();
+    const api = fixture();
+    api.list.mockResolvedValueOnce({ items: [{ ...item, state: 'pending' }], next_cursor: '' }).mockRejectedValue(new CustodyError('unauthenticated'));
+    const model = mount(api); await settle(); await vi.advanceTimersByTimeAsync(3_000);
+    expect(model.data.value).toBeNull(); expect(model.error.value).toBe('unauthenticated');
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(2);
+  });
   it('re-reads a pending account in place until the provider finishes', async () => {
     vi.useFakeTimers();
     const api = fixture(), page = (state: CustodyBinding['state']) => ({ items: [{ ...item, state }], next_cursor: '' });

@@ -71,6 +71,52 @@ describe('contribution status refresh', () => {
     await vi.advanceTimersByTimeAsync(60_000);
     expect(api.list).toHaveBeenCalledTimes(4);
   });
+  it('cancels an in-flight poll during confirmation and resumes after cancellation', async () => {
+    vi.useFakeTimers();
+    const api = fixture(), pending = page('pending');
+    let finish: ((result: typeof pending) => void) | undefined;
+    const late = new Promise<typeof pending>(resolve => { finish = resolve; });
+    api.list.mockReset().mockResolvedValueOnce(pending).mockReturnValueOnce(late).mockResolvedValue(page('active'));
+    const model = mount(api); await settle();
+    await vi.advanceTimersByTimeAsync(3_000);
+    const signal = api.list.mock.calls[1]?.[0];
+    model.prepare({ kind: 'command', id: 'id', key: 'key', body: { action: 'pause', revision: 1 } });
+    expect(signal.aborted).toBe(true);
+    finish?.(page('active')); await settle();
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(model.data.value?.items[0]?.state).toBe('pending');
+    expect(api.list).toHaveBeenCalledTimes(2);
+    model.cancel(); await vi.advanceTimersByTimeAsync(3_000);
+    expect(model.data.value?.items[0]?.state).toBe('active');
+  });
+  it('defers a hidden tab and discards a stale poll when changing pages', async () => {
+    vi.useFakeTimers();
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    try {
+      const api = fixture(), pending = page('pending');
+      let finish: ((result: typeof pending) => void) | undefined;
+      const late = new Promise<typeof pending>(resolve => { finish = resolve; });
+      api.list.mockResolvedValueOnce(pending).mockReturnValueOnce(late).mockResolvedValueOnce(pending).mockResolvedValue(page('active'));
+      const model = mount(api); await settle();
+      await vi.advanceTimersByTimeAsync(3_000); expect(api.list).toHaveBeenCalledTimes(1);
+      visibility.mockReturnValue('visible'); await vi.advanceTimersByTimeAsync(5_000);
+      await model.next(); expect(api.list.mock.calls[1]?.[0].aborted).toBe(true);
+      finish?.(page('exited')); await settle();
+      expect(model.data.value?.items[0]?.state).toBe('pending');
+      await vi.advanceTimersByTimeAsync(3_000);
+      expect(api.list.mock.calls.slice(2).map(call => call[1])).toEqual([pending.next_cursor, pending.next_cursor]);
+      expect(model.data.value?.items[0]?.state).toBe('active');
+    } finally { visibility.mockRestore(); }
+  });
+  it('clears owner data when a poll is denied and stops polling', async () => {
+    vi.useFakeTimers();
+    const api = fixture();
+    api.list.mockReset().mockResolvedValueOnce(page('pending')).mockRejectedValue(new ContributionError('forbidden'));
+    const model = mount(api); await settle(); await vi.advanceTimersByTimeAsync(3_000);
+    expect(model.data.value).toBeNull(); expect(model.options.value).toBeNull();
+    expect(model.error.value).toBe('forbidden'); expect(model.statistics.value).not.toBeNull();
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(2);
+  });
   it('does not poll settled or blocked contributions and stops on disposal', async () => {
     vi.useFakeTimers();
     const blocked = fixture(); blocked.list.mockResolvedValue(page('blocked'));

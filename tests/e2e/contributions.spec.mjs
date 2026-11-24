@@ -77,6 +77,22 @@ test('consent, creation, quota adjustment and renewal retain distinct request st
   await expect(page.getByRole('dialog')).toHaveCount(0);
   expect(state.requests[2].body.action).toBe('renew'); expect(state.requests[2].body.consent.accepted).toBe(true); expect(errors).toEqual([]);
 });
+test('resuming a contribution shows the applied state without a manual refresh', async ({ page }, info) => {
+  const paused = { ...example.page.items[0], state: 'paused', desired_state: 'paused' };
+  const { m, c, state, errors } = await setup(page, info, false, paused);
+  const card = page.locator('article');
+  await card.getByRole('button', { name: m.actions.resume, exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: c.confirm, exact: true }).click();
+  await expect(card.getByText(m.states.pending, { exact: true })).toBeVisible();
+  expect(state.requests.map(request => request.body.action)).toEqual(['resume']);
+
+  // The fixture's background worker has now applied the accepted revision.
+  state.item = { ...state.item, state: 'active', applied_revision: state.item.revision };
+  await page.clock.fastForward(3_000);
+  await expect(card.getByText(m.states.active, { exact: true })).toBeVisible();
+  expect(state.requests).toHaveLength(1);
+  expect(errors).toEqual([]);
+});
 test('lost response retries original mutation, paginates and clears revoked data', async ({ page }, info) => {
   const { m, c, all, state, errors } = await setup(page, info); state.failNext = true;
   await page.getByRole('button', { name: m.actions.pause, exact: true }).focus(); await page.keyboard.press('Enter');
