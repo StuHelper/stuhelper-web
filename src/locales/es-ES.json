@@ -1727,7 +1727,14 @@
         "assets_pending": "Aún queda un saldo de Ivory, un reembolso o un pago sin confirmar por liquidar.",
         "sessions_unavailable": "Ahora no se pueden revocar las sesiones. El proceso seguirá cuando el servicio se recupere.",
         "authorizations_unavailable": "Ahora no se pueden revocar las autorizaciones de aplicaciones. El proceso seguirá cuando el servicio se recupere.",
-        "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere."
+        "content_unavailable": "Ahora no se puede procesar el contenido personal. El proceso seguirá cuando el servicio se recupere.",
+        "storage_draining": "Se están migrando las réplicas de almacenamiento.",
+        "background_processing": "El procesamiento continúa en segundo plano."
+      },
+      "reasons": {
+        "ivory_balance_remaining": "Saldo de Ivory pendiente",
+        "refund_in_progress": "Reembolso en curso",
+        "payment_pending_reconciliation": "Pago pendiente de conciliación"
       }
     },
     "phoneBoundMasked": "Vinculado {phone}"

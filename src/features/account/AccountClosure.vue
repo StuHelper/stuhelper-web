@@ -75,11 +75,22 @@ const canCancel = (value: Closure) => value.state === 'cooling' && Date.parse(va
     >
       <p>{{ t(`security.closure.states.${active.state}`, { date: format.dateTime(active.cooling_ends_at) }) }}</p>
       <p
-        v-if="active.blocker"
+        v-if="active.blocker && !active.pending_reasons?.length"
         class="muted small"
       >
         {{ t(`security.closure.blockers.${active.blocker}`) }}
       </p>
+      <ul
+        v-if="active.pending_reasons?.length"
+        class="muted small"
+      >
+        <li
+          v-for="reason in active.pending_reasons"
+          :key="reason"
+        >
+          {{ t(`security.closure.reasons.${reason}`) }}
+        </li>
+      </ul>
       <div
         v-if="canCancel(active)"
         class="row"

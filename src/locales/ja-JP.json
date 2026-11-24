@@ -1727,7 +1727,14 @@
         "assets_pending": "Ivory 残高、返金、または結果が確定していない支払いがまだ残っています。",
         "sessions_unavailable": "現在、ログインセッションを無効にできません。サービスの回復後に処理を続けます。",
         "authorizations_unavailable": "現在、アプリの認可を取り消せません。サービスの回復後に処理を続けます。",
-        "content_unavailable": "現在、個人のコンテンツを処理できません。サービスの回復後に処理を続けます。"
+        "content_unavailable": "現在、個人のコンテンツを処理できません。サービスの回復後に処理を続けます。",
+        "storage_draining": "ストレージの複製を移行しています。",
+        "background_processing": "バックグラウンド処理中です。"
+      },
+      "reasons": {
+        "ivory_balance_remaining": "Ivory 残高が未精算",
+        "refund_in_progress": "返金処理中",
+        "payment_pending_reconciliation": "決済結果の照合待ち"
       }
     },
     "phoneBoundMasked": "連携済み {phone}"

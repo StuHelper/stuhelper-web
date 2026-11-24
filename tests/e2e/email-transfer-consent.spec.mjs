@@ -356,7 +356,7 @@ test('the consent gate lets a member withdraw without accepting the main agreeme
     const pending = id => ({ version: 'v2', digest: 'b'.repeat(64), url: `https://legal.example.invalid/${id}/v2`, required: true });
     return route.fulfill({ json: { required: true, documents: { terms: pending('terms'), privacy: pending('privacy') } } });
   });
-  await page.route('**/api/v1/profiles/me/closure', route => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.route('**/api/v1/profiles/me/closure', route => route.fulfill({ status: 404, json: { code: 'closure_not_found' } }));
   await page.goto(`/me/privacy?lang=${info.project.metadata.locale}`);
   const submit = button(page, c.consent.submit);
   await expect(submit).toBeDisabled();

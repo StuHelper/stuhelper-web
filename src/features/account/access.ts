@@ -1,5 +1,6 @@
 import { computed, inject, readonly, ref, shallowRef, watch, type ComputedRef, type InjectionKey } from 'vue'
 import { ApiError } from '../../shared/api/errors'
+import { hasCatalog } from '../../shared/capabilities'
 import { Http } from '../../shared/api/http'
 import type { SessionStore } from '../../shared/session'
 import { AcademicApi, type CatalogObject } from '../academic/api'
@@ -55,7 +56,8 @@ export function createAccessStore(fetcher: typeof fetch, session: SessionStore) 
         ])
         next = deriveAccess(latest, applications.items, credentials.items)
       }
-      if (next === 'verified' && !campus.value) {
+      if (next === 'verified' && !campus.value && await hasCatalog(http)) {
+        if (current !== generation) return
         const schools = await academic.options({ kind: 'school' })
         if (current !== generation) return
         campus.value = chooseCampus(schools, session.session.value?.content_school_id)
