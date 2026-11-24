@@ -3,6 +3,7 @@ import { ApiError } from '../../shared/api/errors';
 import { segment } from '../../shared/api/http';
 import { useHttp } from '../../shared/session';
 import { custodyAPI, CustodyError, parseCustodyBinding, type CustodyBinding, type CustodyPage, type CustodyPolicy, type CustodyRequest } from '../../api/custody';
+import { useChangePolling } from './polling';
 import { useStorageFetch } from './transport';
 
 // The provider SDK maps a missing operation and a temporary outage to the same error.
@@ -41,6 +42,10 @@ export function useCustody(admin = false, api = useCustodyApi()) {
     }
     loading.value = false;
   }
+  // A pending account is still being verified by the provider; re-read the page in place.
+  useChangePolling(data, page => page.items.some(item => item.state === 'pending'), () => sending.value || loading.value || !!recovery.value,
+    signal => api.list(signal, cursor, admin),
+    e => { if (e instanceof CustodyError && (e.code === 'forbidden' || e.code === 'unauthenticated')) failed(e); });
   async function mutation(run: (signal: AbortSignal) => Promise<CustodyBinding>, pending: { key: string; item?: CustodyBinding; withdrawID?: string }) {
     if (sending.value || disposed || !data.value) return;
     read?.abort(); const controller = new AbortController(); write = controller;
