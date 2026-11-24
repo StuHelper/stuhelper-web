@@ -3,6 +3,7 @@ import { createApp, h, nextTick } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import example from '../../../contracts/contribution.example.json';
 import { ContributionError, parsePage, parsePolicy, parseStatistics } from '../../api/contribution';
+import { pollDelays } from './polling';
 import { useContributions } from './useContributions';
 
 const disposals: (() => void)[] = [];
@@ -49,5 +50,81 @@ describe('contribution request lifecycle', () => {
     model.prepare({ kind: 'retry', id: 'id', key: 'key', body: { revision: 1 } }); const first = model.submit(); await model.submit();
     expect(api.execute).toHaveBeenCalledTimes(1); disposals.pop()?.(); resolve?.(); await first;
     expect(model.data.value).toBeNull(); expect(model.pending.value).toBeNull();
+  });
+});
+describe('contribution status refresh', () => {
+  afterEach(() => { vi.useRealTimers(); });
+  const page = (state: string, revision = 1, applied = 1) => parsePage({ ...example.page, items: [{ ...example.page.items[0], state, revision, applied_revision: applied }] });
+  it('re-reads the page in place until the accepted change is applied', async () => {
+    vi.useFakeTimers();
+    const api = fixture();
+    api.list.mockReset().mockResolvedValueOnce(page('active', 2, 1)).mockRejectedValueOnce(new ContributionError('network')).mockResolvedValueOnce(page('paused', 2, 1)).mockResolvedValue(page('active', 2, 2));
+    const model = mount(api); await settle();
+    expect(model.data.value?.items[0]?.applied_revision).toBe(1);
+    await vi.advanceTimersByTimeAsync(pollDelays[0]);
+    // A failed re-read keeps the shown page and tries again later.
+    expect(api.list).toHaveBeenCalledTimes(2); expect(model.data.value?.items[0]?.revision).toBe(2); expect(model.loading.value).toBe(false);
+    await vi.advanceTimersByTimeAsync(pollDelays[1]); await settle();
+    expect(model.data.value?.items[0]?.state).toBe('paused');
+    await vi.advanceTimersByTimeAsync(pollDelays[2]); await settle();
+    expect(model.data.value?.items[0]).toMatchObject({ state: 'active', applied_revision: 2 });
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(api.list).toHaveBeenCalledTimes(4);
+  });
+  it('cancels an in-flight poll during confirmation and resumes after cancellation', async () => {
+    vi.useFakeTimers();
+    const api = fixture(), pending = page('pending');
+    let finish: ((result: typeof pending) => void) | undefined;
+    const late = new Promise<typeof pending>(resolve => { finish = resolve; });
+    api.list.mockReset().mockResolvedValueOnce(pending).mockReturnValueOnce(late).mockResolvedValue(page('active'));
+    const model = mount(api); await settle();
+    await vi.advanceTimersByTimeAsync(3_000);
+    const signal = api.list.mock.calls[1]?.[0];
+    model.prepare({ kind: 'command', id: 'id', key: 'key', body: { action: 'pause', revision: 1 } });
+    expect(signal.aborted).toBe(true);
+    finish?.(page('active')); await settle();
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(model.data.value?.items[0]?.state).toBe('pending');
+    expect(api.list).toHaveBeenCalledTimes(2);
+    model.cancel(); await vi.advanceTimersByTimeAsync(3_000);
+    expect(model.data.value?.items[0]?.state).toBe('active');
+  });
+  it('defers a hidden tab and discards a stale poll when changing pages', async () => {
+    vi.useFakeTimers();
+    const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden');
+    try {
+      const api = fixture(), pending = page('pending');
+      let finish: ((result: typeof pending) => void) | undefined;
+      const late = new Promise<typeof pending>(resolve => { finish = resolve; });
+      api.list.mockResolvedValueOnce(pending).mockReturnValueOnce(late).mockResolvedValueOnce(pending).mockResolvedValue(page('active'));
+      const model = mount(api); await settle();
+      await vi.advanceTimersByTimeAsync(3_000); expect(api.list).toHaveBeenCalledTimes(1);
+      visibility.mockReturnValue('visible'); await vi.advanceTimersByTimeAsync(5_000);
+      await model.next(); expect(api.list.mock.calls[1]?.[0].aborted).toBe(true);
+      finish?.(page('exited')); await settle();
+      expect(model.data.value?.items[0]?.state).toBe('pending');
+      await vi.advanceTimersByTimeAsync(3_000);
+      expect(api.list.mock.calls.slice(2).map(call => call[1])).toEqual([pending.next_cursor, pending.next_cursor]);
+      expect(model.data.value?.items[0]?.state).toBe('active');
+    } finally { visibility.mockRestore(); }
+  });
+  it('clears owner data when a poll is denied and stops polling', async () => {
+    vi.useFakeTimers();
+    const api = fixture();
+    api.list.mockReset().mockResolvedValueOnce(page('pending')).mockRejectedValue(new ContributionError('forbidden'));
+    const model = mount(api); await settle(); await vi.advanceTimersByTimeAsync(3_000);
+    expect(model.data.value).toBeNull(); expect(model.options.value).toBeNull();
+    expect(model.error.value).toBe('forbidden'); expect(model.statistics.value).not.toBeNull();
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(2);
+  });
+  it('does not poll settled or blocked contributions and stops on disposal', async () => {
+    vi.useFakeTimers();
+    const blocked = fixture(); blocked.list.mockResolvedValue(page('blocked'));
+    mount(blocked); await settle(); await vi.advanceTimersByTimeAsync(60_000);
+    expect(blocked.list).toHaveBeenCalledTimes(1);
+    const changing = fixture(); changing.list.mockResolvedValue(page('pending'));
+    mount(changing); await settle(); disposals.pop()?.();
+    await vi.advanceTimersByTimeAsync(60_000);
+    expect(changing.list).toHaveBeenCalledTimes(1);
   });
 });
