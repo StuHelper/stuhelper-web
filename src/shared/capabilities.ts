@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getCapabilities } from '../features/platform/api'
 import { errorCode } from './api/errors'
+import type { Http } from './api/http'
 import { useHttp } from './session'
 
 /**
@@ -14,23 +15,30 @@ const status = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
 const failure = ref('')
 let pending: Promise<void> | undefined
 
+function loadCapabilities(http: Http) {
+  pending ??= (async () => {
+    status.value = 'loading'
+    try {
+      names.value = new Set((await getCapabilities(http)).capabilities)
+      status.value = 'ready'
+    } catch (error) {
+      failure.value = errorCode(error)
+      status.value = 'error'
+    } finally {
+      pending = undefined
+    }
+  })()
+  return pending
+}
+
+export async function hasCatalog(http: Http) {
+  if (status.value === 'idle' || status.value === 'loading') await loadCapabilities(http)
+  return status.value === 'error' || names.value.has(feature.catalog)
+}
+
 export function useCapabilities() {
   const http = useHttp()
-  function load() {
-    pending ??= (async () => {
-      status.value = 'loading'
-      try {
-        names.value = new Set((await getCapabilities(http)).capabilities)
-        status.value = 'ready'
-      } catch (error) {
-        failure.value = errorCode(error)
-        status.value = 'error'
-      } finally {
-        pending = undefined
-      }
-    })()
-    return pending
-  }
+  const load = () => loadCapabilities(http)
   if (status.value === 'idle') void load()
   /**
    * Whether every named capability is available. Entries stay hidden until the
