@@ -2705,6 +2705,7 @@
     "menu": "Review terms"
   },
   "teacherHomepage": {
+    "showContacts": "Show contact details",
     "title": "Teacher homepage",
     "empty": "The school website has no homepage details to show.",
     "source": "These details come from the teacher’s homepage on the school website and are shown under the school’s rules.",
