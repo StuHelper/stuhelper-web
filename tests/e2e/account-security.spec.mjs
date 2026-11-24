@@ -38,7 +38,7 @@ async function closure(page) {
   const state = { value: undefined };
   await page.route('**/api/v1/profiles/me/closure**', async (route) => {
     const request = route.request();
-    if (request.method() === 'GET') return state.value ? route.fulfill({ json: state.value }) : route.fulfill({ status: 404, json: { code: 'not_found' } });
+    if (request.method() === 'GET') return state.value ? route.fulfill({ json: state.value }) : route.fulfill({ status: 404, json: { code: 'closure_not_found' } });
     if (request.url().endsWith('/cancel')) { state.value = { ...state.value, state: 'cancelled', revision: 2 }; return route.fulfill({ json: state.value }); }
     expect(request.postDataJSON()).toEqual({ acknowledge_points_forfeiture: true });
     state.value = { id: '00000000-0000-4000-8000-0000000000c1', state: 'cooling', revision: 1, requested_at: '2026-11-08T00:00:00Z', cooling_ends_at: new Date(Date.now() + 7 * 864e5).toISOString(), completed_steps: [], blocker: '', points_policy: 'forfeit_all_points_and_pending_deductions', profile_id: '00000000-0000-4000-8000-000000000001' };

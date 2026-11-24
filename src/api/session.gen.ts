@@ -255,6 +255,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/event-retries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List sanitized manual deliveries for one source, restricted to explicitly granted global retry operators. */
+        get: operations["listManualEventDeliveries"];
+        put?: never;
+        /** Requeue the exact failed delivery generation and audit the operator. */
+        post: operations["retryManualEventDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/profiles/me": {
         parameters: {
             query?: never;
@@ -505,7 +523,7 @@ export interface components {
             completed_at?: string;
             completed_steps: ("assets" | "sessions" | "authorizations" | "content")[];
             /** @enum {string} */
-            blocker: "" | "assets_unavailable" | "assets_pending" | "sessions_unavailable" | "authorizations_unavailable" | "content_unavailable";
+            blocker: "" | "assets_unavailable" | "assets_pending" | "sessions_unavailable" | "authorizations_unavailable" | "content_unavailable" | "storage_draining" | "background_processing";
             /** @enum {string} */
             points_policy: "forfeit_all_points_and_pending_deductions";
             /**
@@ -689,6 +707,8 @@ export interface components {
             content_school_id: string;
             /** @enum {boolean} */
             consent_required: false;
+            /** @description The current business account has an explicit global manual delivery retry grant. */
+            event_retry_operator?: boolean;
         };
         ConsentPendingSession: {
             /** @enum {boolean} */
@@ -698,6 +718,25 @@ export interface components {
             expires_at: string;
             /** @enum {boolean} */
             consent_required: true;
+        };
+        ManualDelivery: {
+            id: string;
+            /** Format: date-time */
+            first_failure: string;
+            attempts: number;
+            /** @enum {string} */
+            last_error_code: "" | "unavailable" | "timeout" | "canceled" | "input" | "conflict" | "forbidden" | "not_found";
+        };
+        ManualDeliveryPage: {
+            items: components["schemas"]["ManualDelivery"][];
+            next_cursor?: string;
+        };
+        ManualRetryRequest: {
+            /** @enum {string} */
+            source: "billing" | "catalog" | "favorites" | "groups" | "moderation" | "qq-binding" | "resources" | "reviews" | "verification";
+            id: string;
+            /** Format: date-time */
+            first_failure: string;
         };
     };
     responses: never;
@@ -1960,6 +1999,144 @@ export interface operations {
             };
         };
     };
+    listManualEventDeliveries: {
+        parameters: {
+            query: {
+                source: "billing" | "catalog" | "favorites" | "groups" | "moderation" | "qq-binding" | "resources" | "reviews" | "verification";
+                after?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Manual deliveries ordered by event ID. The next cursor is exclusive. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManualDeliveryPage"];
+                };
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Version conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    retryManualEventDelivery: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": string;
+                "X-CSRF-Token": string;
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualRetryRequest"];
+            };
+        };
+        responses: {
+            /** @description Retry accepted, or the same operator request was already accepted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Invalid input */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Unauthenticated */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Version conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+            /** @description Dependency unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
     getOwnProfile: {
         parameters: {
             query?: never;
@@ -2714,7 +2891,7 @@ export interface operations {
                 state?: "cooling" | "cancelled" | "awaiting_assets" | "processing" | "closed";
                 /** @description When true, returns only closures ready for approval after the seven-day cooling period or awaiting retry. */
                 actionable?: boolean;
-                blocker?: "assets_unavailable" | "assets_pending" | "sessions_unavailable" | "authorizations_unavailable" | "content_unavailable";
+                blocker?: "assets_unavailable" | "assets_pending" | "sessions_unavailable" | "authorizations_unavailable" | "content_unavailable" | "storage_draining" | "background_processing";
             };
             header?: never;
             path?: never;

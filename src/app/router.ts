@@ -49,16 +49,16 @@ const routes: RouteRecordRaw[] = [
   { path: '/campus', component: HomeView, meta: { title: 'nav.campus', section: 'home' } },
   { path: '/newapi', component: () => import('../features/portal/ProductView.vue'), props: { product: 'api' }, meta: { remountOnPath: true, section: 'api' } },
   { path: '/store', component: () => import('../features/portal/ProductView.vue'), props: { product: 'store' }, meta: { remountOnPath: true, section: 'store' } },
-  { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.courses', section: 'courses' } },
+  { path: '/courses', component: academic.directory, props: { kind: 'course' }, meta: { capability: feature.catalog, remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.courses', section: 'courses' } },
   teacherDirectoryEnabled
-    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.teachers', section: 'teachers' } }
+    ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { capability: feature.catalog, remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.teachers', section: 'teachers' } }
     : { path: '/teachers', redirect: '/courses' },
-  { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.course', section: 'courses' } },
-  { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { access: 'verified', title: 'academic.teacher', section: 'teachers' } },
+  { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { capability: feature.catalog, access: 'verified', title: 'academic.course', section: 'courses' } },
+  { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { capability: feature.catalog, access: 'verified', title: 'academic.teacher', section: 'teachers' } },
   // Offering and teaching-class pages are closed; old links land on the course directory.
   { path: '/offerings/:id', redirect: '/courses' },
   { path: '/classes/:id', redirect: '/courses' },
-  { path: '/reviews/:id', component: academic.discussion, props: true, meta: { access: 'verified', title: 'academic.discussion', section: 'courses' } },
+  { path: '/reviews/:id', component: academic.discussion, props: true, meta: { capability: feature.reviews, access: 'verified', title: 'academic.discussion', section: 'courses' } },
   { path: '/resources', component: () => import('../features/resources/BrowseView.vue'), meta: { keepAlive: true, access: 'verified', title: 'nav.resources', section: 'resources' } },
   { path: '/resources/new', component: () => import('../features/resources/EditorView.vue'), meta: { remountOnPath: true, access: 'verified', title: 'resources.upload', section: 'resources' } },
   { path: '/resources/items/:id', component: () => import('../features/resources/DetailView.vue'), props: true, meta: { remountOnPath: true, access: 'member', title: 'resources.detailTitle', section: 'resources' } },

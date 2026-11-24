@@ -1727,7 +1727,14 @@
         "assets_pending": "还有 Ivory 余额、退款或结果未明的支付需要处理。",
         "sessions_unavailable": "暂时无法撤销登录会话，处理会在恢复后继续。",
         "authorizations_unavailable": "暂时无法撤回应用授权，处理会在恢复后继续。",
-        "content_unavailable": "暂时无法处理个人内容，处理会在恢复后继续。"
+        "content_unavailable": "暂时无法处理个人内容，处理会在恢复后继续。",
+        "storage_draining": "存储副本正在迁移。",
+        "background_processing": "后台正在处理，稍后可查看进度。"
+      },
+      "reasons": {
+        "ivory_balance_remaining": "Ivory 余额未结清",
+        "refund_in_progress": "退款处理中",
+        "payment_pending_reconciliation": "支付结果待核对"
       }
     },
     "phoneBoundMasked": "已绑定 {phone}"

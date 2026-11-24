@@ -95,7 +95,7 @@ test('disabled groups preserve card consent and disabled QQ lists its three part
 
 test('disabled favorites and search send no list lookups or personal vote requests', async ({ page }, info) => {
   await academicFixture(page);
-  await discovery(page, []);
+  await discovery(page, ['catalog.read', 'reviews.read']);
   const sent = [];
   page.on('request', req => {
     if (/\/api\/v1\/(favorites\/items|search\/my-votes)/.test(req.url())) sent.push(req.url());
@@ -105,5 +105,19 @@ test('disabled favorites and search send no list lookups or personal vote reques
   await page.route('**/api/v1/reviews/me/votes?**', route => route.fulfill({ json: [] }));
   await page.goto(`${base}/me/votes?lang=${info.project.metadata.locale}`);
   await expect(page.locator('main h1')).toBeVisible();
+  expect(sent).toEqual([]);
+});
+
+test('disabled academic modules block direct course and discussion requests', async ({ page }, info) => {
+  await discovery(page, []);
+  const sent = [];
+  page.on('request', req => {
+    if (/\/api\/v1\/(catalog|reviews)\//.test(req.url())) sent.push(req.url());
+  });
+  for (const path of ['/courses', '/reviews/fixture']) {
+    await page.goto(`${base}${path}?lang=${info.project.metadata.locale}`);
+    await expect(page.getByRole('heading', { name: messages(info).notFound.disabled })).toBeVisible();
+    await expect(page.locator('nav a[href="/courses"]')).toHaveCount(0);
+  }
   expect(sent).toEqual([]);
 });
