@@ -75,8 +75,8 @@ export class TeacherHomepageApi {
     }
   }
 
-  homepage(teacherId: string, signal?: AbortSignal) {
-    return this.http.json(`/api/v1/catalog/objects/${segment(teacherId)}/teacher-homepage`, parse.view, { signal })
+  homepage(teacherId: string, signal?: AbortSignal, revealContacts = false) {
+    return this.http.json(`/api/v1/catalog/objects/${segment(teacherId)}/teacher-homepage`, parse.view, { signal, query: revealContacts ? { reveal_contacts: true } : undefined })
   }
 
   /** Images, videos and attachments of the homepage body, in page order. */

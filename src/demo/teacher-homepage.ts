@@ -218,7 +218,11 @@ export async function teacherHomepageRoute(
       if (method === 'POST') return submitRequest(teacherId, init)
     } else if (method === 'GET') {
       const profile = profiles.get(teacherId)
-      if (!tail) return json({ profile } satisfies C['TeacherHomepagePublicView'])
+      if (!tail) {
+        if (!profile || query.get('reveal_contacts') === 'true') return json({ profile })
+        const { email, phone, office_location, ...initial } = profile
+        return json({ profile: initial, contacts_available: !!(email || phone || office_location) } satisfies C['TeacherHomepagePublicView'])
+      }
       if (profile?.photo?.url !== '/api/v1' + path) return missing()
       return new Response(photoBytes, { headers: { 'Content-Type': photoType, 'Cache-Control': 'no-store' } })
     }
