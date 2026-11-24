@@ -139,7 +139,15 @@
     "consent_required": "先に最新の利用規約とプライバシーポリシーに同意してください。",
     "consent_version_changed": "文書が更新されました。もう一度同意してください。",
     "email_transfer_consent_required": "学校メールへの確認コードの送信前に、国外配信への同意が必要です。",
-    "email_transfer_consent_changed": "個人情報の国外移転に関する通知が更新されました。改めて確認してください。"
+    "email_transfer_consent_changed": "個人情報の国外移転に関する通知が更新されました。改めて確認してください。",
+    "storage_replica_shortage": "この分類のアップロードを停止しています。利用可能な保存先では必要なコピー数を確保できません。",
+    "media_storage_replica_shortage": "この分類のアップロードを停止しています。利用可能な保存先では必要なコピー数を確保できません。",
+    "storage_replica_space": "必要なコピーを保存する空き容量が足りません。",
+    "media_storage_replica_space": "必要なコピーを保存する空き容量が足りません。",
+    "storage_status_unknown": "ストレージの状態を確認できません。しばらくしてから再試行してください。",
+    "file_too_large": "この用途で許可されたファイルサイズを超えています。",
+    "storage_restricted_encryption_unavailable": "暗号化を利用できないため、制限付きファイルの受け付けを一時停止しています。",
+    "media_storage_restricted_encryption_unavailable": "暗号化を利用できないため、制限付きファイルの受け付けを一時停止しています。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -1473,7 +1481,21 @@
     },
     "maxTermHint": "最長認可期間：{days} 日。",
     "loginNotice": "許可された期間中、StuHelper は大学の統一認証情報を使って BHpan の公式ログイン画面から接続します。",
-    "withdrawApplication": "接続申請を取り下げる"
+    "withdrawApplication": "接続申請を取り下げる",
+    "trust": {
+      "title": "ファイル保管への同意",
+      "explanation": "隔離ファイルは平文で保存され、ドライブのアカウント管理者が読み取れます。制限付きファイルはドライブへの保存前に暗号化されます。",
+      "active": "管理者がこのアカウントを信頼済みに設定しています。",
+      "inactive": "現在、このアカウントには公開ファイルだけを保存します。",
+      "categories": "保管を許可する分類",
+      "quarantine": "審査待ち・隔離ファイル",
+      "restricted": "制限付きファイル（暗号化）",
+      "scope": "対象の学校",
+      "until": "同意の期限",
+      "agree": "指定した期限まで、この学校の選択したファイルを保管することに同意します。",
+      "save": "同意内容を保存",
+      "withdraw": "この同意を撤回"
+    }
   },
   "gate": {
     "guest": {

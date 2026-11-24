@@ -139,7 +139,15 @@
     "consent_required": "Acceptez d’abord les conditions d’utilisation et la politique de confidentialité actuelles.",
     "consent_version_changed": "Un document a été mis à jour. Acceptez-le de nouveau.",
     "email_transfer_consent_required": "Acceptez l’envoi depuis l’étranger avant de demander un code par e-mail universitaire.",
-    "email_transfer_consent_changed": "La notice de transfert a été mise à jour. Veuillez confirmer à nouveau."
+    "email_transfer_consent_changed": "La notice de transfert a été mise à jour. Veuillez confirmer à nouveau.",
+    "storage_replica_shortage": "Envois suspendus pour cette catégorie. Le stockage disponible ne permet pas la réplication requise.",
+    "media_storage_replica_shortage": "Envois suspendus pour cette catégorie. Le stockage disponible ne permet pas la réplication requise.",
+    "storage_replica_space": "Espace insuffisant pour stocker les copies requises de ce fichier.",
+    "media_storage_replica_space": "Espace insuffisant pour stocker les copies requises de ce fichier.",
+    "storage_status_unknown": "État du stockage inconnu. Réessayez plus tard.",
+    "file_too_large": "Le fichier dépasse la taille autorisée pour cet usage.",
+    "storage_restricted_encryption_unavailable": "Les dépôts de fichiers à accès restreint sont suspendus car le chiffrement est indisponible.",
+    "media_storage_restricted_encryption_unavailable": "Les dépôts de fichiers à accès restreint sont suspendus car le chiffrement est indisponible."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -1473,7 +1481,21 @@
     },
     "maxTermHint": "Durée maximale d’autorisation : {days} jours.",
     "loginNotice": "StuHelper utilise vos identifiants universitaires sur le portail officiel BHpan pendant la durée de votre autorisation.",
-    "withdrawApplication": "Retirer la demande"
+    "withdrawApplication": "Retirer la demande",
+    "trust": {
+      "title": "Accord de conservation",
+      "explanation": "Le titulaire du compte peut lire les fichiers en quarantaine en clair. La plateforme chiffre les fichiers à accès restreint avant de les écrire sur le disque.",
+      "active": "Un administrateur a approuvé ce compte comme compte de confiance.",
+      "inactive": "Ce compte conserve uniquement des fichiers publics.",
+      "categories": "Catégories autorisées",
+      "quarantine": "Fichiers en quarantaine",
+      "restricted": "Fichiers à accès restreint (chiffrés)",
+      "scope": "Établissement",
+      "until": "Fin de l’autorisation",
+      "agree": "J’accepte de conserver les fichiers sélectionnés pour cet établissement jusqu’à la date indiquée.",
+      "save": "Enregistrer mon accord",
+      "withdraw": "Retirer cet accord"
+    }
   },
   "gate": {
     "guest": {

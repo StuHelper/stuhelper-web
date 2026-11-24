@@ -139,7 +139,15 @@
     "consent_required": "Primero acepta las Condiciones del servicio y la Política de privacidad actuales.",
     "consent_version_changed": "Un documento se ha actualizado. Vuelve a aceptarlo.",
     "email_transfer_consent_required": "Acepta el envío desde el extranjero antes de solicitar un código en el correo académico.",
-    "email_transfer_consent_changed": "El aviso de transferencia se ha actualizado. Vuelve a confirmar."
+    "email_transfer_consent_changed": "El aviso de transferencia se ha actualizado. Vuelve a confirmar.",
+    "storage_replica_shortage": "Las subidas de esta categoría están en pausa. El almacenamiento disponible no permite crear las copias necesarias.",
+    "media_storage_replica_shortage": "Las subidas de esta categoría están en pausa. El almacenamiento disponible no permite crear las copias necesarias.",
+    "storage_replica_space": "No hay espacio suficiente para todas las copias necesarias del archivo.",
+    "media_storage_replica_space": "No hay espacio suficiente para todas las copias necesarias del archivo.",
+    "storage_status_unknown": "No se puede comprobar el estado del almacenamiento. Inténtalo más tarde.",
+    "file_too_large": "El archivo supera el tamaño permitido para este uso.",
+    "storage_restricted_encryption_unavailable": "La carga de archivos restringidos está en pausa porque el cifrado no está disponible.",
+    "media_storage_restricted_encryption_unavailable": "La carga de archivos restringidos está en pausa porque el cifrado no está disponible."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -1473,7 +1481,21 @@
     },
     "maxTermHint": "Duración máxima de autorización: {days} días.",
     "loginNotice": "StuHelper usa las credenciales de acceso único de la universidad en el portal oficial de BHpan durante el periodo autorizado.",
-    "withdrawApplication": "Retirar solicitud"
+    "withdrawApplication": "Retirar solicitud",
+    "trust": {
+      "title": "Consentimiento para custodiar archivos",
+      "explanation": "El titular de la cuenta puede leer los archivos en cuarentena en texto claro. La plataforma cifra los archivos restringidos antes de guardarlos en la unidad.",
+      "active": "Un administrador ha marcado esta cuenta como de confianza.",
+      "inactive": "Esta cuenta almacena únicamente archivos públicos.",
+      "categories": "Categorías permitidas",
+      "quarantine": "Archivos en cuarentena",
+      "restricted": "Archivos restringidos (cifrados)",
+      "scope": "Centro educativo",
+      "until": "Fin del consentimiento",
+      "agree": "Acepto custodiar los archivos seleccionados de este centro hasta la fecha indicada.",
+      "save": "Guardar consentimiento",
+      "withdraw": "Retirar este consentimiento"
+    }
   },
   "gate": {
     "guest": {

@@ -302,7 +302,8 @@
       "tests/e2e/custody.spec.mjs#an empty options page with a next cursor keeps the contribution picker open",
       "tests/e2e/contributions.spec.mjs#the owner sees the drive total, used and remaining space, and an unreadable drive says why",
       "tests/e2e/contributions.spec.mjs#the contribution form shows the drive space and stops a quota above what is left",
-      "tests/e2e/contributions.spec.mjs#a quota the server finds above the drive space names that reason and can be read again"
+      "tests/e2e/contributions.spec.mjs#a quota the server finds above the drive space names that reason and can be read again",
+      "tests/e2e/custody.spec.mjs#owner grants scoped custody and withdraws it without granting administrative trust"
     ],
     "DS-01": [
       "tests/e2e/search.spec.mjs#expired popular ranking stays on screen until the reader refreshes"
