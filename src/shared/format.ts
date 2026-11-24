@@ -1,3 +1,5 @@
+import { formatBytes } from '../api/capacity'
+
 /** Presentation helpers. API values keep their canonical currency and UTC instant. */
 const pluralOrder: Intl.LDMLPluralRule[] = ['zero', 'one', 'two', 'few', 'many', 'other'];
 export function pluralCategories(locale: string, type: Intl.PluralRuleType = 'cardinal') {
@@ -68,15 +70,7 @@ export function createFormatters(locale: string, timeZone = 'Asia/Shanghai') {
       }
       return rtf.format(0, 'minute');
     },
-    /** Binary byte units (1 GB = 1024³ bytes), matching cloud drives and the GB values typed into storage forms. */
-    bytes(value: number) {
-      if (!Number.isFinite(value) || value < 0) throw new RangeError('Invalid byte count');
-      const units = ['byte', 'kilobyte', 'megabyte', 'gigabyte', 'terabyte', 'petabyte'];
-      let amount = value;
-      let index = 0;
-      while (amount >= 1024 && index < units.length - 1) { amount /= 1024; index++; }
-      return new Intl.NumberFormat(locale, { style: 'unit', unit: units[index], unitDisplay: 'short', maximumFractionDigits: index === 0 ? 0 : 1 }).format(amount);
-    },
+    bytes: (value: number) => formatBytes(locale, value),
     list: (values: string[]) => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(values),
     compare: new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }).compare,
   };
