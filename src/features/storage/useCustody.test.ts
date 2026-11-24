@@ -2,6 +2,7 @@
 import { createApp, h, nextTick } from 'vue';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { CustodyError, type CustodyBinding, type CustodyRequest } from '../../api/custody';
+import { pollDelays } from './polling';
 import { useCustody } from './useCustody';
 const item: CustodyBinding = { id: 'fixture-id', adapter: 'bhpan', revision: 1, state: 'ready', authorization_expires_at: '2030-01-01T00:00:00Z', request_id: 'fixture-request', last_error: '' };
 const body: CustodyRequest = { adapter: 'bhpan', credential: { username: 'fixture', password: 'test-only-secret' }, consent: { accepted: true, version: 'v1', digest: 'a'.repeat(64) }, until: item.authorization_expires_at };
@@ -42,5 +43,40 @@ describe('custody request lifecycle', () => {
     const model = mount(api, true); await settle(); const visible = model.data.value?.items[0]; if (!visible) throw new Error("missing fixture"); const task = model.resume(visible); await model.resume(visible);
     expect(api.resume).toHaveBeenCalledTimes(1); disposals.pop()?.(); finish?.(item); await task;
     expect(model.data.value).toBeNull(); expect(model.recovery.value).toBeNull();
+  });
+});
+describe('custody status refresh', () => {
+  afterEach(() => { vi.useRealTimers(); });
+  it('ignores a late poll after a mutation and its full reload', async () => {
+    vi.useFakeTimers();
+    const api = fixture(), pending = { items: [{ ...item, state: 'pending' }], next_cursor: '' };
+    let finish: ((result: typeof pending) => void) | undefined;
+    const late = new Promise<typeof pending>(resolve => { finish = resolve; });
+    api.list.mockResolvedValueOnce(pending).mockReturnValueOnce(late);
+    const model = mount(api); await settle();
+    await vi.advanceTimersByTimeAsync(3_000);
+    await model.resume(item);
+    finish?.(pending); await settle();
+    expect(api.list.mock.calls[1]?.[0].aborted).toBe(true);
+    expect(model.data.value?.items[0]?.state).toBe('ready');
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(3);
+  });
+  it('clears pending accounts when a poll loses authorization', async () => {
+    vi.useFakeTimers();
+    const api = fixture();
+    api.list.mockResolvedValueOnce({ items: [{ ...item, state: 'pending' }], next_cursor: '' }).mockRejectedValue(new CustodyError('unauthenticated'));
+    const model = mount(api); await settle(); await vi.advanceTimersByTimeAsync(3_000);
+    expect(model.data.value).toBeNull(); expect(model.error.value).toBe('unauthenticated');
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(2);
+  });
+  it('re-reads a pending account in place until the provider finishes', async () => {
+    vi.useFakeTimers();
+    const api = fixture(), page = (state: CustodyBinding['state']) => ({ items: [{ ...item, state }], next_cursor: '' });
+    api.list.mockReset().mockResolvedValueOnce(page('pending')).mockResolvedValue(page('ready'));
+    const model = mount(api); await settle();
+    expect(model.data.value?.items[0]?.state).toBe('pending');
+    await vi.advanceTimersByTimeAsync(pollDelays[0]); await settle();
+    expect(model.data.value?.items[0]?.state).toBe('ready'); expect(api.policy).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(60_000); expect(api.list).toHaveBeenCalledTimes(2);
   });
 });
