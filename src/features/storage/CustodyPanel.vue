@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import TrustConsentPanel from './TrustConsentPanel.vue'
 import AppDateTime from '../../shared/ui/AppDateTime.vue'
 import { computed, nextTick, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -288,6 +289,10 @@ watch(error, (value) => {
             >
               {{ label('custody.reasons', item.last_error) }}
             </p>
+            <TrustConsentPanel
+              v-if="item.state === 'ready'"
+              :id="item.id"
+            />
             <div class="row">
               <button
                 v-if="item.can_withdraw"

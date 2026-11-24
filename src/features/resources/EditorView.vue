@@ -104,6 +104,25 @@ const setup = useAsync(async (signal) => {
 const capabilities = computed(() => setup.data.value?.capabilities)
 const category = computed(() => setup.data.value?.categories.find((item) => item.id === metadata.value.category_id))
 const profile = computed(() => capabilities.value?.upload_profiles.find((item) => item.school_id === metadata.value.associations.school_id && item.access === metadata.value.access))
+const intakeReason = ref('')
+const intakeLoading = ref(false)
+const intakeRefresh = ref(0)
+watch([file, profile, intakeRefresh], async ([chosen, purpose], _, onCleanup) => {
+  intakeReason.value = ''
+  intakeLoading.value = false
+  if (!chosen?.size || !purpose) return
+  intakeLoading.value = true
+  const controller = new AbortController()
+  onCleanup(() => controller.abort())
+  try {
+    const result = await api.checkIntake(purpose.purpose, chosen.size, controller.signal)
+    if (!controller.signal.aborted && result.mode === 'paused') intakeReason.value = result.reason ?? 'storage_status_unknown'
+  } catch {
+    if (!controller.signal.aborted) intakeReason.value = 'storage_status_unknown'
+  } finally {
+    if (!controller.signal.aborted) intakeLoading.value = false
+  }
+})
 const fingerprint = () => JSON.stringify([metadata.value, tags.value, consent.value])
 const baseline = ref('')
 const dirty = computed(() => baseline.value !== '' && fingerprint() !== baseline.value)
@@ -183,7 +202,7 @@ async function sendFile() {
   const limits = capabilities.value
   const purpose = profile.value?.purpose
   const current = entry.value
-  if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value || cancelling.value) return
+  if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value || cancelling.value || !upload && (intakeLoading.value || intakeReason.value)) return
   uploadError.value = ''
   if (!chosen.size || chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
     uploadError.value = 'file_not_allowed'
@@ -635,6 +654,20 @@ function uploadMessage(state: string) {
               {{ t('resources.editor.reused') }}
             </p>
             <p
+              v-if="intakeReason && !uploadError"
+              class="notice notice-warning"
+              role="status"
+            >
+              {{ errorText(intakeReason) }}
+              <button
+                class="btn btn-sm"
+                type="button"
+                @click="intakeRefresh++"
+              >
+                {{ t('common.refresh') }}
+              </button>
+            </p>
+            <p
               v-if="uploadError"
               class="notice notice-error small"
               role="alert"
@@ -651,7 +684,7 @@ function uploadMessage(state: string) {
               <button
                 class="btn btn-primary"
                 type="button"
-                :disabled="uploadBusy || attaching.busy.value || attaching.uncertain.value || !file || !entry || dirty || !profile"
+                :disabled="uploadBusy || attaching.busy.value || attaching.uncertain.value || !file || !entry || dirty || !profile || (!upload && (intakeLoading || !!intakeReason))"
                 @click="sendFile"
               >
                 {{ t(uploadError || uploadState ? 'common.retry' : 'resources.editor.send') }}

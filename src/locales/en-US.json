@@ -139,7 +139,15 @@
     "consent_required": "Accept the current Terms of Service and Privacy Policy first.",
     "consent_version_changed": "A document was updated. Please accept it again.",
     "email_transfer_consent_required": "Agree to delivery from abroad before sending a school-email code.",
-    "email_transfer_consent_changed": "The transfer notice was updated. Please confirm again."
+    "email_transfer_consent_changed": "The transfer notice was updated. Please confirm again.",
+    "storage_replica_shortage": "Uploads of this type are paused. Available storage cannot meet the replica requirement.",
+    "media_storage_replica_shortage": "Uploads of this type are paused. Available storage cannot meet the replica requirement.",
+    "storage_replica_space": "This file cannot be accepted. There is too little space for the required copies.",
+    "media_storage_replica_space": "This file cannot be accepted. There is too little space for the required copies.",
+    "storage_status_unknown": "Storage status is unknown. Try again later.",
+    "file_too_large": "The file exceeds the size limit for this use.",
+    "storage_restricted_encryption_unavailable": "Restricted uploads are paused because file encryption is unavailable.",
+    "media_storage_restricted_encryption_unavailable": "Restricted uploads are paused because file encryption is unavailable."
   },
   "connection": {
     "label": "Service connection status",
@@ -1473,7 +1481,21 @@
     },
     "maxTermHint": "Maximum authorization duration: {days} days.",
     "loginNotice": "StuHelper uses your university single sign-on credentials at the official BHpan sign-in page during the authorized custody period.",
-    "withdrawApplication": "Withdraw application"
+    "withdrawApplication": "Withdraw application",
+    "trust": {
+      "title": "File custody consent",
+      "explanation": "The drive account holder can read quarantine files in plaintext. The platform encrypts restricted files before writing them to the drive.",
+      "active": "An administrator has marked this account as trusted.",
+      "inactive": "This account currently stores public files only.",
+      "categories": "Allowed file categories",
+      "quarantine": "Quarantined files",
+      "restricted": "Restricted files (encrypted)",
+      "scope": "School scope",
+      "until": "Consent expires",
+      "agree": "I agree to store the selected files for this school until the specified date.",
+      "save": "Save consent",
+      "withdraw": "Withdraw this consent"
+    }
   },
   "gate": {
     "guest": {

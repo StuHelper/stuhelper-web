@@ -217,3 +217,44 @@ test('the owner can update an adopted drive and withdraw a separate incomplete a
   expect(state.posts[0].body.revision).toBe(3);
   expect(Object.keys(state.posts[0].body.credential).sort()).toEqual(['password','username']);
 });
+
+test('owner grants scoped custody and withdraws it without granting administrative trust', async ({ page }, info) => {
+  const until = '2030-01-01T00:00:00Z';
+  const account = { id: 'cu-storageplan', adapter: 'bhpan', revision: 1, state: 'ready',
+    authorization_expires_at: until, request_id: 'r1', last_error: '' };
+  await mockContributionOptions(page, (_url, options) => options);
+  const { m, errors } = await setup(page, info, [account]);
+  let decision = { revision: 7, trusted: false, available_scopes: ['school'], maximum_until: until };
+  const writes = [];
+  await page.route('**/api/v1/storage/instances/cu-storageplan/trust-consent', async route => {
+    const request = route.request();
+    if (request.method() === 'PUT') {
+      const body = request.postDataJSON();
+      writes.push({ body, key: request.headers()['idempotency-key'] });
+      expect(body.revision).toBe(decision.revision);
+      decision = { revision: decision.revision + 1, trusted: false, available_scopes: ['school'], maximum_until: until,
+        ...(body.classes.length ? { consent: { classes: body.classes, scope: body.scope, until: body.until,
+          recorded_at: '2029-12-26T00:00:00Z', source: 'owner_session' } } : {}) };
+    }
+    await route.fulfill({ json: decision });
+  });
+  await page.getByRole('button', { name: m.trust.title }).click();
+  const save = page.getByRole('button', { name: m.trust.save });
+  await expect(save).toBeDisabled();
+  await page.getByRole('checkbox', { name: m.trust.quarantine }).check();
+  await page.getByRole('checkbox', { name: m.trust.restricted }).check();
+  await expect(save).toBeDisabled();
+  await page.getByRole('checkbox', { name: m.trust.agree }).check();
+  await save.click();
+  const withdraw = page.getByRole('button', { name: m.trust.withdraw });
+  await expect(withdraw).toBeVisible();
+  await expect(page.getByText(m.trust.inactive, { exact: true })).toBeVisible();
+  await withdraw.click();
+  await expect(withdraw).toHaveCount(0);
+  expect(writes).toHaveLength(2);
+  expect(writes[0].body).toMatchObject({ scope: 'school', classes: ['quarantine', 'restricted'], revision: 7 });
+  expect(writes[1].body).toMatchObject({ scope: 'school', classes: [], revision: 8 });
+  expect(writes[0].key).toBeTruthy();
+  expect(writes[0].key).not.toBe(writes[1].key);
+  expect(errors).toEqual([]);
+});

@@ -139,7 +139,15 @@
     "consent_required": "请先同意当前的用户服务协议和隐私政策。",
     "consent_version_changed": "文件已更新，请重新确认。",
     "email_transfer_consent_required": "发送学校邮箱验证码前需要同意境外投递。",
-    "email_transfer_consent_changed": "出境告知与同意书已更新，请重新确认。"
+    "email_transfer_consent_changed": "出境告知与同意书已更新，请重新确认。",
+    "storage_replica_shortage": "暂停接收此类文件。可用存储不足以满足副本要求。",
+    "media_storage_replica_shortage": "暂停接收此类文件。可用存储不足以满足副本要求。",
+    "storage_replica_space": "暂停接收此文件。可用空间不足以保存所需副本。",
+    "media_storage_replica_space": "暂停接收此文件。可用空间不足以保存所需副本。",
+    "storage_status_unknown": "暂时无法确认存储状态，请稍后重试。",
+    "file_too_large": "文件超过此用途的大小上限。",
+    "storage_restricted_encryption_unavailable": "受限文件的加密服务暂不可用，已暂停接收此类文件。",
+    "media_storage_restricted_encryption_unavailable": "受限文件的加密服务暂不可用，已暂停接收此类文件。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -1473,7 +1481,21 @@
     },
     "maxTermHint": "最长可授权 {days} 天。",
     "loginNotice": "平台使用学校统一身份认证账号密码，通过 BHpan 官方入口登录，凭据仅用于授权期限内的云盘托管。",
-    "withdrawApplication": "撤回接入申请"
+    "withdrawApplication": "撤回接入申请",
+    "trust": {
+      "title": "文件保管授权",
+      "explanation": "隔离文件以明文存放，云盘账号控制者可以读取。平台会先加密受限文件，再写入云盘。",
+      "active": "管理员已将此账号标记为可信。",
+      "inactive": "此账号当前只存公开文件。",
+      "categories": "允许的文件类别",
+      "quarantine": "待审或隔离文件",
+      "restricted": "受限文件（已加密）",
+      "scope": "学校范围",
+      "until": "授权截止时间",
+      "agree": "我同意在所选范围和期限内保管上述文件。",
+      "save": "保存授权",
+      "withdraw": "撤回此项授权"
+    }
   },
   "gate": {
     "guest": {
