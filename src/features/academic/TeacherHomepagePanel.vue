@@ -9,6 +9,7 @@ import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { useVerification, verificationPages } from '../verification/api'
 import HomepageMedia from './HomepageMedia.vue'
+import HomepageText from './HomepageText.vue'
 import TeacherComplaintForm from './TeacherComplaintForm.vue'
 import { supervisorKey, textFields, useTeacherHomepage, type HomepageMedium, type HomepageProfile } from './teacherHomepage'
 
@@ -22,7 +23,12 @@ const api = useTeacherHomepage()
 const verification = useVerification()
 const session = useSession()
 
-const homepage = useAsync((signal) => api.homepage(props.teacherId, signal))
+const revealContacts = ref(false)
+const homepage = useAsync((signal) => api.homepage(props.teacherId, signal, revealContacts.value))
+function showContacts() {
+  revealContacts.value = true
+  void homepage.reload()
+}
 // Wait for the reader's own credentials before offering either action.
 const owner = useAsync(async (signal) => {
   if (session.state.value !== 'member') return false
@@ -34,6 +40,7 @@ const media = useAsync((signal) => api.media(props.teacherId, signal))
 let refreshedAfterImageDenial = false
 watch(() => props.teacherId, () => {
   refreshedAfterImageDenial = false
+  revealContacts.value = false
   void homepage.reload()
   void owner.reload()
   void media.reload()
@@ -76,7 +83,7 @@ const facts = computed(() => {
 })
 const hasContent = computed(() => {
   if (homepage.status.value !== 'ready') return false
-  if (media.data.value?.length) return true
+  if (media.data.value?.length || homepage.data.value?.contacts_available) return true
   const value = profile.value
   return !!value && (textFields.some((key) => value[key]) || value.supervisors.length > 0 || value.fields.length > 0 || value.sections.length > 0 || !!value.photo)
 })
@@ -215,7 +222,7 @@ const complaining = ref(false)
           v-if="profile?.[part]"
           class="prewrap"
         >
-          {{ profile[part] }}
+          <HomepageText :text="profile[part]" />
         </p>
         <HomepageMedia
           :items="mediaOf(part)"
@@ -232,7 +239,7 @@ const complaining = ref(false)
         >
           <dt>{{ item.label }}</dt>
           <dd class="prewrap">
-            {{ item.value || t('common.notProvided') }}
+            <HomepageText :text="item.value || t('common.notProvided')" />
           </dd>
         </div>
       </dl>
@@ -246,13 +253,21 @@ const complaining = ref(false)
           v-if="item.text"
           class="prewrap"
         >
-          {{ item.text }}
+          <HomepageText :text="item.text" />
         </p>
         <HomepageMedia
           :items="item.media"
           @gone="mediaGone"
         />
       </details>
+      <button
+        v-if="homepage.data.value?.contacts_available"
+        class="btn btn-sm"
+        type="button"
+        @click="showContacts"
+      >
+        {{ t('teacherHomepage.showContacts') }}
+      </button>
       <p class="subtle small">
         {{ t('teacherHomepage.source') }}
       </p>

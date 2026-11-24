@@ -24,7 +24,7 @@ const profile = {
   office_location: 'Room 203',
   hire_date: 'September 2021',
   supervisors: ['博士生导师', '硕士生导师'],
-  biography: 'First line.\n<em>Second line</em>',
+  biography: 'First line.\n<em>Second line</em>\n主页：https://example.org/lab',
   research: 'Language and cognition',
   fields: [{ label: 'Research group', value: 'Computing & Society' }],
   sections: [{ title: 'Recent work', text: '<strong>Study A</strong>\nStudy B' }],
@@ -39,7 +39,9 @@ const credential = (id, state, teacherIds) => ({
 async function installFixture(page, credentials = []) {
   await academicFixture(page);
   await page.route('**/api/v1/verification/teacher-credentials?**', route => route.fulfill({ json: credentials }));
-  await page.route(`**${teacherPath('teacher-a')}`, route => route.fulfill({ json: { profile } }));
+  const { email, phone, office_location, ...initial } = profile;
+  await page.route(`**${teacherPath('teacher-a')}`, route => route.fulfill({ json: { profile: initial, contacts_available: !!(email || phone || office_location) } }));
+  await page.route(`**${teacherPath('teacher-a')}?reveal_contacts=true`, route => route.fulfill({ json: { profile } }));
   await page.route(`**${photoPath}`, route => route.fulfill({ contentType: 'image/png', body: tinyPng }));
 }
 
@@ -58,6 +60,8 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
   const homepage = page.getByRole('region', { name: h.title, exact: true });
 
   await expect(homepage.getByText(profile.name, { exact: true })).toBeVisible();
+  await expect(page.getByText(profile.email, { exact: true })).toHaveCount(0);
+  await homepage.getByRole('button', { name: h.showContacts }).click();
   for (const field of ['position', 'education', 'degree', 'discipline', 'email', 'phone', 'office_location', 'hire_date']) {
     const label = homepage.getByText(h.fields[field], { exact: true });
     await expect(label).toBeVisible();
@@ -70,6 +74,11 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
   await expect(biography).toBeVisible();
   await expect(biography).toHaveCSS('white-space', 'pre-wrap');
   await expect(biography.locator('em')).toHaveCount(0);
+  const link = biography.getByRole('link', { name: 'https://example.org/lab' });
+  await expect(link).toHaveAttribute('href', 'https://example.org/lab');
+  await expect(link).toHaveAttribute('referrerpolicy', 'no-referrer');
+  await expect(link).toHaveAttribute('target', '_blank');
+  await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   await expect(homepage.getByRole('heading', { name: h.fields.research, exact: true })).toBeVisible();
   await expect(homepage.getByText(profile.research, { exact: true })).toBeVisible();
   const field = profile.fields[0];

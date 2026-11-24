@@ -2705,6 +2705,7 @@
     "menu": "确认协议"
   },
   "teacherHomepage": {
+    "showContacts": "查看联系方式",
     "title": "教师主页",
     "empty": "学校官网暂无可展示的主页资料。",
     "source": "以上资料来自学校官网教师主页，按学校规则展示。",
