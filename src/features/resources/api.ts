@@ -252,6 +252,11 @@ export class ResourcesApi {
     saveBlob(await this.http.blob(`/api/v1/resources/packages/${segment(pack.id)}/parts/${part}`, limit + (4 << 20), { signal, timeout: transferTimeout }), `resources-${part}.zip`)
   }
 
+  async checkIntake(purpose: string, size: number, signal?: AbortSignal) {
+    const parseIntake = schemaOf<Media['schemas']['UploadIntake']>(media, 'UploadIntake')
+    return this.http.json(`/api/v1/media/profiles/${segment(purpose)}/intake`, parseIntake, { query: { size }, signal })
+  }
+
   createUpload(body: Media['schemas']['UploadRequest'], key: string) {
     return this.http.json('/api/v1/media/uploads', parse.mediaVersion, { method: 'POST', body, key })
   }

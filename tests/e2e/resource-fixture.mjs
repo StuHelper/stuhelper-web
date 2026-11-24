@@ -197,6 +197,7 @@ export async function routes(page, s) {
       key: req.headers()['idempotency-key'],
       body: req.method() === 'POST' ? req.postDataJSON() : null,
     });
+    if (url.pathname.endsWith('/intake')) return route.fulfill({ json: s.intake ?? {mode: 'bhpan'} });
     if (req.method() === 'POST') return route.fulfill({ json: s.media });
     if (req.method() === 'DELETE') {
       s.media.state = 'cancelled';

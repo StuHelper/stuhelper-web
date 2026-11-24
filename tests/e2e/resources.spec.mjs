@@ -110,7 +110,15 @@ test('upload uses current terms and retries the original metadata request', asyn
   expect(posts[0].key).toBe(posts[1].key);
   expect(posts[0].body).toEqual(posts[1].body);
   expect(posts[0].body.metadata.origin.consent).toEqual({ accepted: true, version: 'v1', digest: 'a'.repeat(64) });
+  s.intake = { mode: 'paused', reason: 'storage_replica_space' };
   await page.getByLabel(m.editor.chooseFile, { exact: true }).setInputFiles({ name: 'lecture.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
+  const paused = page.getByRole('status').filter({ hasText: all.errors.storage_replica_space });
+  await expect(paused).toBeVisible();
+  await expect(page.getByRole('button', { name: m.editor.send, exact: true })).toBeDisabled();
+  expect(s.calls.filter(call => call.path === '/api/v1/media/uploads' && call.method === 'POST')).toHaveLength(0);
+  s.intake = { mode: 'cos_only' };
+  await paused.getByRole('button', {name: all.common.refresh}).click();
+  await expect(paused).toHaveCount(0);
   await page.getByRole('button', { name: m.editor.send, exact: true }).click();
   await expect(page.getByText(m.editor.uploadState.attached, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: m.editor.submit, exact: true }).click();
