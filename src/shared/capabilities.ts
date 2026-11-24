@@ -42,6 +42,8 @@ export function useCapabilities() {
 
 /** Capability each optional feature needs, named after the backend module descriptors. */
 export const feature = {
+  catalog: 'catalog.read',
+  reviews: 'reviews.read',
   custody: 'storage.custody',
   favorites: 'favorites.manage',
   groups: 'groups.read',
