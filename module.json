@@ -372,6 +372,11 @@
       "tests/e2e/consent.spec.mjs#the personal center opens consent records, legal documents and account closure",
       "tests/e2e/consent.spec.mjs#a failed agreement lookup retries and shows a newly pending version",
       "tests/e2e/email-transfer-consent.spec.mjs#the consent gate lets a member withdraw without accepting the main agreements"
+    ],
+    "PC-09": [
+      "src/features/account/closure.test.ts#opens the first application when the host reports no matching closure",
+      "src/features/account/closure.test.ts#reports a missing route, denial or host failure to the page",
+      "tests/e2e/account-security.spec.mjs#closure needs the points acknowledgement and the typed phrase, and can be cancelled while cooling"
     ]
   }
 }

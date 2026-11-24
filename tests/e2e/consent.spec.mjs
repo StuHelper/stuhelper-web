@@ -95,7 +95,7 @@ test('an update during acceptance clears only the changed document', async ({ pa
 test('an updated version shows what was accepted before and keeps sign-out, closure and public pages open', async ({ page, isMobile }, info) => {
   const c = catalogue(info), locale = info.project.metadata.locale;
   consentServer(page, { terms: doc('terms', 'v2'), privacy: doc('privacy', 'v1', { required: false, receipt }) });
-  await page.route('**/api/v1/profiles/me/closure', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
+  await page.route('**/api/v1/profiles/me/closure', (route) => route.fulfill({ status: 404, json: { code: 'closure_not_found' } }));
   const favoritesURL = `${base}/me/favorites?lang=${locale}`;
   await page.goto(favoritesURL);
   await expect(page.getByText(c.consent.updated, { exact: true })).toBeVisible();
