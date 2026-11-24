@@ -1,6 +1,6 @@
 {
   "repository": "StuHelper/stuhelper-media",
-  "revision": "54ad79485b074cbda9c03d9fbbac79c845b47ee3",
+  "revision": "83ea1d2257c2ebe4a2581acbfcac88f425cdda9f",
   "version": "1.0.0",
   "files": {
     "contracts/media.openapi.json": "contracts/media.openapi.json",
