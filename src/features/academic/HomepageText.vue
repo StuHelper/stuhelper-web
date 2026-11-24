@@ -27,6 +27,8 @@ const parts = computed(() => props.text.split(/(https?:\/\/[^\s<>"'，。；、�
       rel="noopener noreferrer"
       referrerpolicy="no-referrer"
     >{{ part.text }}</a>
-    <template v-else>{{ part.text }}</template>
+    <template v-else>
+      {{ part.text }}
+    </template>
   </template>
 </template>

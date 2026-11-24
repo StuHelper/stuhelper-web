@@ -265,7 +265,9 @@ const complaining = ref(false)
         class="btn btn-sm"
         type="button"
         @click="showContacts"
-      >{{ t('teacherHomepage.showContacts') }}</button>
+      >
+        {{ t('teacherHomepage.showContacts') }}
+      </button>
       <p class="subtle small">
         {{ t('teacherHomepage.source') }}
       </p>
