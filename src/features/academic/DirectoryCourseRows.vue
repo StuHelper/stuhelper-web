@@ -56,12 +56,14 @@ const dash = '\u2014'
       </span>
       <template v-if="!compact">
         <span class="cell small truncate dept">{{ r.departments[0]?.name ?? '' }}</span>
-        <span class="cell"><span
+        <span class="cell"><RouterLink
           v-if="r.categories[0]"
+          :to="`/courses/${encodeURIComponent(r.object.id)}`"
+          :tabindex="-1"
           class="tag tag-hue"
           :style="{ '--hue': hue(r.categories[0].id) }"
           :title="r.categories[0].name"
-        >{{ r.categories[0].name }}</span></span>
+        >{{ r.categories[0].name }}</RouterLink></span>
       </template>
       <span
         class="cell rec"
@@ -128,7 +130,7 @@ li.line:hover { background: var(--accent-soft); }
 .cell { min-width: 0; color: var(--label-2); font-variant-numeric: tabular-nums; }
 .cell.none { color: var(--label-3); }
 /* A category stays on one line; a name longer than the column is cut with its full text in the tooltip. */
-.cell .tag { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cell .tag { position: relative; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rec { display: flex; align-items: center; }
 /* A narrow card drops the department column first; the name and the rating matter more. Phones have their own layout below. */
 @media (min-width: 761px) {
