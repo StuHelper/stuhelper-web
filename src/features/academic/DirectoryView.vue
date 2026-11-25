@@ -57,6 +57,8 @@ const groupedKey = 'stuhelper.directory.grouped'
 const grouped = ref((() => { try { return localStorage.getItem(groupedKey) === '1' } catch { return false } })())
 watch(grouped, (value) => { try { localStorage.setItem(groupedKey, value ? '1' : '0') } catch { /* private windows keep the default */ } })
 
+// Empty IDs serialize as no filter and would load the entire directory in one card.
+const namedDepartments = (items: DirectoryFacet[]) => items.filter((facet) => facet.id.trim() && facet.name.trim())
 const facets = shallowRef<{ total: number; facetTotal: number; categories: DirectoryFacet[]; departments: DirectoryFacet[] }>({ total: 0, facetTotal: 0, categories: [], departments: [] })
 // Scrolling reads the next page well before the end, so larger pages only cut the number of
 // requests. The grouped view reads rows per department and needs only the facets here.
@@ -75,14 +77,14 @@ const results = usePaged<DirectoryItem>(async (after, signal) => {
   const result = await api.directory(query(after), signal)
   if (!after) {
     heatDays.value = result.window_days
-    facets.value = { total: result.total, facetTotal: result.facet_total, categories: result.category_facets, departments: result.department_facets }
+    facets.value = { total: result.total, facetTotal: result.facet_total, categories: result.category_facets, departments: namedDepartments(result.department_facets) }
     arrival.value += 1
   }
   return { items: result.items, next: result.next }
 }, { resetOnConflict: true, keepRows: true })
 // Department facets keep every condition, so with a department chosen the other departments
 // would all count zero. A one-row request without the department supplies their counts.
-const otherDepartments = useAsync(async (signal) => (applied.value.department ? (await api.directory(query('', { department_id: undefined, limit: 1 }), signal)).department_facets : undefined))
+const otherDepartments = useAsync(async (signal) => (applied.value.department ? namedDepartments((await api.directory(query('', { department_id: undefined, limit: 1 }), signal)).department_facets) : undefined))
 const teacherName = useAsync(async (signal) => (applied.value.teacher ? (await api.lookup([applied.value.teacher], signal)).get(applied.value.teacher)?.name ?? '' : ''))
 
 const categories = computed(() => facets.value.categories.filter((f) => f.count > 0 || f.id === applied.value.category))
@@ -170,7 +172,7 @@ const columns = computed(() => {
 // unassigned count from those non-exclusive totals.
 async function loadDepartment(id: string, after: string, limit: number, signal: AbortSignal) {
   const result = await api.directory(query(after, { department_id: id, limit }), signal)
-  return { items: result.items, next: result.next }
+  return { items: result.items, next: result.next, total: result.total }
 }
 const reviewText = (n: number) => (n ? t('browse.reviewCount', { p0: format.value.number(n) }) : t('browse.noReviews'))
 const sub = (row: DirectoryItem) => {

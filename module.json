@@ -217,6 +217,7 @@
     ],
     "BROWSE-DIRECTORY-02": [
       "tests/e2e/academic.spec.mjs#course rows show the recommendation in words and the next page arrives without a button",
+      "tests/e2e/academic.spec.mjs#department groups omit missing identities and restart expired pagination",
       "tests/e2e/academic.spec.mjs#each department in the grouped view reads its own rows and shows all of them on request",
       "tests/e2e/academic.spec.mjs#expanding every department reads at most two pages at once and stops when collapsed",
       "src/shared/limit.test.ts#runs no more than the limit at once and starts waiting tasks in order"
