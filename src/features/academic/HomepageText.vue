@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { contactMarker } from './teacherHomepage'
 
-const props = defineProps<{ text: string; revealing?: boolean }>()
+const props = defineProps<{ text: string; revealing?: boolean; plain?: boolean }>()
 const emit = defineEmits<{ reveal: [] }>()
 const { t } = useI18n()
 
@@ -13,7 +13,7 @@ function linked(source: string): Part[] {
   return source.split(/(https?:\/\/[^\s<>"'，。；、（）]+)/giu).map((text, index, chunks) => {
     const prefix = chunks[index - 1] ?? ''
     const labeled = /(?:^|\n)\s*(?:主页|个人主页|个人网站|homepage|personal homepage|website|personal website)\s*[:：]\s*$/iu.test(prefix)
-    if (index % 2 === 0 || (!labeled && /[\w/:=@?&%#-]$/u.test(prefix))) return { text }
+    if (text.includes(contactMarker) || index % 2 === 0 || (!labeled && /[\w/:=@?&%#-]$/u.test(prefix))) return { text }
     try {
       const url = new URL(text)
       if (url.hostname && !url.username && !url.password && !text.includes('\\') && ['http:', 'https:'].includes(url.protocol)) return { text, href: url.href }
@@ -22,10 +22,13 @@ function linked(source: string): Part[] {
   })
 }
 // A hidden contact becomes a button at its own place in the text.
-const parts = computed(() => props.text.split(contactMarker).flatMap((chunk, index): Part[] => [
-  ...(index > 0 ? [{ text: '', contact: true as const }] : []),
-  ...linked(chunk),
-]))
+const parts = computed(() => (props.plain ? [{ text: props.text }] : linked(props.text)).flatMap((part): Part[] => {
+  if (!part.text.includes(contactMarker)) return [part]
+  return part.text.split(contactMarker).flatMap((text, index) => [
+    ...(index ? [{ text: '', contact: true as const }] : []),
+    { text },
+  ])
+}))
 </script>
 
 <template>

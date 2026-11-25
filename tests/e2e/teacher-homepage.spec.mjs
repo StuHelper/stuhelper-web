@@ -111,6 +111,34 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
   await screenshot(homepage, info, 'homepage');
 });
 
+test('a failed inline reveal keeps the section open and retries from the same page', async ({ page }, info) => {
+  const { teacherHomepage: h, common } = catalogue(info);
+  await installFixture(page);
+  const route = teacherPath('teacher-a');
+  const address = 'lab@example.org';
+  const marker = '\uE000';
+  const content = (value) => ({ ...emptyProfile, sections: [{ title: `Lab ${value}`, text: `Contact: ${value}` }] });
+  await page.route(`**${route}`, r => r.fulfill({ json: { profile: content(marker), contacts_available: true } }));
+  let reads = 0;
+  await page.route(`**${route}?reveal_contacts=true`, r => ++reads === 1
+    ? r.fulfill({ status: 503, json: { code: 'unavailable' } })
+    : r.fulfill({ json: { profile: content(address) } }));
+  await page.goto(teacherURL(info));
+  const panel = page.getByRole('region', { name: h.title, exact: true });
+  const disclosure = panel.locator('details');
+  await expect(disclosure.locator('summary').getByRole('button', { name: h.showContacts })).toBeVisible();
+  await disclosure.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await disclosure.locator('p').getByRole('button', { name: h.showContacts }).click();
+  await expect(disclosure).toHaveJSProperty('open', true);
+  await expect(disclosure.getByRole('button', { name: h.showContacts })).toHaveCount(2);
+  await panel.getByRole('alert').getByRole('button', { name: common.retry }).click();
+  await expect(disclosure.locator('p')).toHaveText(`Contact: ${address}`);
+  await expect(disclosure).toHaveJSProperty('open', true);
+  await expect(panel.getByRole('button', { name: h.showContacts })).toHaveCount(0);
+  expect(reads).toBe(2);
+});
+
 test('a teacher page with no visible profile leaves out the homepage panel for a reader', async ({ page }, info) => {
   const m = catalogue(info);
   await installFixture(page);

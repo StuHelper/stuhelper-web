@@ -12,7 +12,7 @@ import { useVerification, verificationPages } from '../verification/api'
 import HomepageMedia from './HomepageMedia.vue'
 import HomepageText from './HomepageText.vue'
 import TeacherComplaintForm from './TeacherComplaintForm.vue'
-import { supervisorKey, textFields, useTeacherHomepage, type HomepageMedium, type HomepageProfile, type HomepageView } from './teacherHomepage'
+import { contactMarker, supervisorKey, textFields, useTeacherHomepage, type HomepageMedium, type HomepageProfile, type HomepageView } from './teacherHomepage'
 
 // The teacher's official homepage as the school allows it to be shown: facts, contact,
 // biography, research and the homepage's own sections. Everything is plain text. The
@@ -209,14 +209,19 @@ const complaining = ref(false)
           :src="photoUrl"
           :width="profile.photo.width"
           :height="profile.photo.height"
-          :alt="t('teacherHomepage.photo', { name: profile.name ?? '' })"
+          :alt="t('teacherHomepage.photo', { name: profile.name?.replaceAll(contactMarker, '') ?? '' })"
         >
         <div class="stack-sm">
           <p
             v-if="profile.name"
             class="homepage-name"
           >
-            {{ profile.name }}
+            <HomepageText
+              :text="profile.name"
+              :revealing="revealing"
+              plain
+              @reveal="showContacts"
+            />
           </p>
           <p
             v-if="profile.supervisors.length"
@@ -276,9 +281,16 @@ const complaining = ref(false)
       >
         <div
           v-for="(item, index) in profile.fields"
-          :key="`${index}:${item.label}`"
+          :key="index"
         >
-          <dt>{{ item.label }}</dt>
+          <dt>
+            <HomepageText
+              :text="item.label"
+              :revealing="revealing"
+              plain
+              @reveal="showContacts"
+            />
+          </dt>
           <dd class="prewrap">
             <HomepageText
               :text="item.value || t('common.notProvided')"
@@ -290,10 +302,17 @@ const complaining = ref(false)
       </dl>
       <details
         v-for="(item, index) in sections"
-        :key="`${index}:${item.title}`"
+        :key="index"
         class="homepage-section"
       >
-        <summary>{{ item.title || t('teacherHomepage.media.untitled') }}</summary>
+        <summary>
+          <HomepageText
+            :text="item.title || t('teacherHomepage.media.untitled')"
+            :revealing="revealing"
+            plain
+            @reveal="showContacts"
+          />
+        </summary>
         <p
           v-if="item.text"
           class="prewrap"
