@@ -60,6 +60,7 @@ const dash = '\u2014'
           v-if="r.categories[0]"
           class="tag tag-hue"
           :style="{ '--hue': hue(r.categories[0].id) }"
+          :title="r.categories[0].name"
         >{{ r.categories[0].name }}</span></span>
       </template>
       <span
@@ -103,7 +104,7 @@ const dash = '\u2014'
 </template>
 
 <style scoped>
-.line { position: relative; display: grid; align-items: center; gap: .75rem; min-height: 44px; padding: .25rem 1rem; grid-template-columns: minmax(0, 1fr) 12rem 6.5rem 7.5rem 3.5rem 7.25rem; }
+.line { position: relative; display: grid; align-items: center; gap: .75rem; min-height: 44px; padding: .25rem 1rem; grid-template-columns: minmax(0, 1fr) 12rem 9rem 7.5rem 3.5rem 7.25rem; }
 .line.compact { grid-template-columns: minmax(0, 1fr) auto 7.25rem; }
 li.line + li.line { border-block-start: .5px solid var(--separator); }
 li.line:hover { background: var(--accent-soft); }
@@ -126,11 +127,13 @@ li.line:hover { background: var(--accent-soft); }
 }
 .cell { min-width: 0; color: var(--label-2); font-variant-numeric: tabular-nums; }
 .cell.none { color: var(--label-3); }
+/* A category stays on one line; a name longer than the column is cut with its full text in the tooltip. */
+.cell .tag { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rec { display: flex; align-items: center; }
 /* A narrow card drops the department column first; the name and the rating matter more. Phones have their own layout below. */
 @media (min-width: 761px) {
   @container (max-width: 50rem) {
-    .line:not(.compact) { grid-template-columns: minmax(0, 1fr) 6.5rem 7.5rem 3.5rem 7.25rem; }
+    .line:not(.compact) { grid-template-columns: minmax(0, 1fr) 9rem 7.5rem 3.5rem 7.25rem; }
     .dept { display: none; }
   }
   @container (max-width: 24rem) { .line.compact .rec { display: none; } }
