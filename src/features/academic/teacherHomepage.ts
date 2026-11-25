@@ -100,6 +100,10 @@ export class TeacherHomepageApi {
     return this.image(url, photoLimit, signal)
   }
 
+  thumbnail(url: string, signal?: AbortSignal) {
+    return this.image(url, 32 * 1024, signal)
+  }
+
   async myRequests(teacherId: string, after: string, signal?: AbortSignal) {
     const page = await this.http.json(`/api/v1/catalog/objects/${segment(teacherId)}/teacher-homepage/requests`, parse.requests, { query: { after: after || undefined, limit: 20 }, signal })
     return { items: page.items, next: page.next }
