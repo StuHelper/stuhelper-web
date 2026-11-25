@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer';
 import fs from 'node:fs';
 import { fixture as academicFixture } from './academic-fixture.mjs';
 import { expect, memberTest as test } from '../session-fixture.mjs';

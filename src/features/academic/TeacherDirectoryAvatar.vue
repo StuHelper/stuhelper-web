@@ -53,7 +53,10 @@ function clearImage() {
       height="44"
       @error="clearImage"
     >
-    <span v-else aria-hidden="true">{{ [...name][0] }}</span>
+    <span
+      v-else
+      aria-hidden="true"
+    >{{ [...name][0] }}</span>
   </span>
 </template>
 
