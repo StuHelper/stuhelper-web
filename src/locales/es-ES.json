@@ -93,7 +93,6 @@
     "rate_limited": "Demasiados intentos o se alcanzó el límite. Inténtalo más tarde.",
     "retry_required": "El último envío no está confirmado. Envíalo de nuevo primero.",
     "edit_window_closed": "El plazo de edición terminó. Esta acción no está disponible.",
-    "enrollment_required": "No se encontró tu matrícula en este curso y semestre. Aún no puedes publicar una reseña.",
     "disclosure_required": "Falta el nombre real o la acreditación autorizada. Aún no puedes responder sobre tu curso.",
     "identity_owned": "Esta identidad estudiantil está vinculada a otra cuenta. Recupérala o contacta con un administrador.",
     "expired": "La solicitud, el código o el enlace caducó. Inicia de nuevo.",
@@ -562,8 +561,7 @@
       "term": "Semestre evaluado",
       "termsUnavailable": "No se pudo cargar la lista de semestres. Inténtalo más tarde.",
       "teacher": "Docentes del curso",
-      "teacherHint": "Los docentes provienen de tu matrícula del periodo. Puedes no especificarlo.",
-      "teacherRequiredHint": "Una reseña de deporte debe indicar un docente de tu matrícula en ese deporte para el periodo elegido.",
+      "teacherHint": "Con la autorización, los profesores salen de tu matrícula del periodo; si no, se muestran todos los profesores de la asignatura en ese periodo. Si dudas, déjalo sin especificar.",
       "moreTerms": "Más semestres",
       "ratingsRequired": "Valora los cinco aspectos para publicar.",
       "title": "Título",
@@ -587,7 +585,10 @@
       "pending": "Enviado a moderación.",
       "published": "Publicado.",
       "missing": "Falta por completar antes de publicar: {items}",
-      "ratingsDone": "valoraciones ({done} de {total} elegidas)"
+      "ratingsDone": "valoraciones ({done} de {total} elegidas)",
+      "enrollmentActive": "La autorización está activada. Al publicar se comprueba tu matrícula y el resultado aparece en la reseña.",
+      "enrollmentInactive": "La autorización de datos escolares está desactivada, así que tu reseña mostrará esta etiqueta.",
+      "enrollmentSetup": "Activarla"
     },
     "disclosure": {
       "title": "Información verificada que se mostrará",
@@ -597,20 +598,14 @@
       "labels": {
         "gender": "Género",
         "department": "Facultad",
-        "enrollment": "Matrícula",
         "real_name": "Nombre real",
         "teacher": "Docente verificado",
         "organization": "Institución"
-      },
-      "enrollment": {
-        "enrolled": "Matriculado en este curso",
-        "not_enrolled": "No matriculado en este curso"
       }
     },
     "composer": {
       "ready": "Actualmente cumples los requisitos para publicar.",
-      "choose_term": "Elige un semestre para comprobar tu matrícula.",
-      "enrollment_required": "No hay matrícula para este periodo. Guarda un borrador y publica cuando se sincronice.",
+      "choose_term": "Elige un periodo para ver sus profesores.",
       "unauthenticated": "Inicia sesión para publicar.",
       "forbidden": "Aún no cumples los requisitos; revisa los elementos pendientes arriba.",
       "unavailable": "No se pueden comprobar los requisitos ahora. Inténtalo más tarde.",
@@ -620,8 +615,7 @@
       "login": "Sesión iniciada",
       "campus_eligibility": "Verificación de estudiante",
       "phone_bound": "Número de teléfono vinculado",
-      "identity_verified": "Verificación de identidad",
-      "course_enrollment": "Registro personal de matrícula"
+      "identity_verified": "Verificación de identidad"
     },
     "requirementState": {
       "satisfied": "Cumplido",
@@ -650,12 +644,23 @@
     },
     "requirementStep": {
       "campus_eligibility": "Verificar",
-      "identity_verified": "Verificar identidad",
-      "course_enrollment": "Ver mis cursos"
+      "identity_verified": "Verificar identidad"
     },
     "followUp": "Comentario adicional",
     "submitFollowUp": "Enviar comentario adicional",
-    "followUpOpensAt": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo después de las {time}."
+    "followUpOpensAt": "Los añadidos se abren 5 minutos después de la primera publicación. Vuelve a intentarlo después de las {time}.",
+    "enrollmentStatus": {
+      "label": {
+        "enrolled": "Matriculado",
+        "not_enrolled": "No matriculado",
+        "unknown": "Matrícula desconocida"
+      },
+      "hint": {
+        "enrolled": "El autor tenía la autorización activa al publicar y su matrícula de este periodo incluye esta asignatura.",
+        "not_enrolled": "El autor tenía la autorización activa al publicar, pero su matrícula de este periodo no incluye esta asignatura.",
+        "unknown": "No se pudo comprobar la matrícula del autor al publicar, por ejemplo porque no tenía la autorización activada."
+      }
+    }
   },
   "me": {
     "title": "Área personal",
@@ -1336,6 +1341,30 @@
       "withdrawConfirm": "Tras retirar el consentimiento, tendrás que volver a darlo para los nuevos envíos. Los envíos ya iniciados pueden continuar y los códigos ya enviados conservan su plazo de validez original.",
       "withdrawn": "Se ha retirado el consentimiento para el envío desde el extranjero.",
       "notAccepted": "No has dado tu consentimiento para el envío desde el extranjero. Te lo pediremos antes de enviar un código a tu correo universitario."
+    },
+    "schoolData": {
+      "title": "Autorización de datos escolares",
+      "active": "Activada",
+      "inactive": "Desactivada",
+      "intro": "Cuando está activada, leemos tu matrícula en el sistema académico de la universidad solo cuando la necesitas, por ejemplo para mostrar tus propios profesores al reseñar una asignatura y para indicar el estado de matrícula de tus reseñas. Puedes reseñar sin activarla; tus reseñas mostrarán «Matrícula desconocida».",
+      "points": {
+        "storage": "Tu cuenta y contraseña de la universidad se guardan cifradas en nuestros servidores. Solo el servicio de verificación puede descifrarlas y nunca aparecen en texto claro en registros ni copias de seguridad.",
+        "validity": "Cada verificación correcta es válida durante 24 horas y volvemos a verificar periódicamente con el mismo servicio. Si falla, dejamos de leer tu matrícula de inmediato.",
+        "labels": "Mientras está activada, tus reseñas muestran automáticamente «Matriculado» o «No matriculado». Si está desactivada o la verificación falla, muestran «Matrícula desconocida». Las reseñas publicadas conservan la etiqueta que tenían.",
+        "revoke": "Puedes desactivarla aquí en cualquier momento. La cuenta y la contraseña guardadas se eliminan al instante y dejamos de leer tu matrícula."
+      },
+      "password": "Contraseña de inicio de sesión único de la universidad",
+      "consent": "He leído lo anterior y acepto que StuHelper guarde cifradas mi cuenta y contraseña de la universidad para leer mi propia matrícula y mostrar el estado de matrícula en mis reseñas.",
+      "submit": "Activar la autorización",
+      "needsCampus": "Completa la verificación de estudiante antes de activar la autorización de datos escolares.",
+      "verifiedAt": "Última verificación",
+      "expiresAt": "Válida hasta",
+      "revoke": "Desactivar",
+      "revokeTitle": "¿Desactivar la autorización de datos escolares?",
+      "revokeMessage": "La cuenta y la contraseña guardadas se eliminarán de inmediato y dejaremos de leer tu matrícula. Las reseñas que publiques después mostrarán «Matrícula desconocida»; las ya publicadas conservan su etiqueta.",
+      "opened": "La autorización de datos escolares está activada.",
+      "revoked": "La autorización de datos escolares está desactivada.",
+      "mismatch": "Este número de estudiante no coincide con tu identidad de estudiante verificada. Usa tu propia cuenta de la universidad."
     }
   },
   "contribution": {

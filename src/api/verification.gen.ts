@@ -4,6 +4,22 @@
  */
 
 export interface paths {
+    "/api/v1/verification/me/school-data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getSchoolDataAuthorization"];
+        put: operations["submitSchoolDataAuthorization"];
+        post?: never;
+        delete: operations["revokeSchoolDataAuthorization"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/verification/teacher-credentials": {
         parameters: {
             query?: never;
@@ -955,6 +971,21 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SchoolDataSubmission: {
+            student_id: string;
+            /** Format: password */
+            password: string;
+            /** @description Explicit consent to encrypted retention and periodic verification for personal enrollment reads. */
+            accepted: boolean;
+        };
+        SchoolDataAuthorization: {
+            /** @enum {string} */
+            state: "inactive" | "active";
+            /** Format: date-time */
+            verified_at?: string;
+            /** Format: date-time */
+            expires_at?: string;
+        };
         TeacherCreateInput: {
             school_id: string;
             notice_version: string;
@@ -1439,6 +1470,80 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getSchoolDataAuthorization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current authorization for the authenticated account. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataAuthorization"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    submitSchoolDataAuthorization: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolDataSubmission"];
+            };
+        };
+        responses: {
+            /** @description Current authorization for the authenticated account. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataAuthorization"];
+                };
+            };
+            429: components["responses"]["RateLimited"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    revokeSchoolDataAuthorization: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current authorization for the authenticated account. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataAuthorization"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     searchAdminTeacherCredentials: {
         parameters: {
             query: {

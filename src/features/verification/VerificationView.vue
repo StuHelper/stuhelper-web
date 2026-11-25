@@ -22,6 +22,7 @@ import { maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
 import MaterialThumb from './MaterialThumb.vue'
 import MethodPicker from './MethodPicker.vue'
+import SchoolDataCard from './SchoolDataCard.vue'
 import SchoolPicker from './SchoolPicker.vue'
 import VerificationRoles from './VerificationRoles.vue'
 import VerificationStatus from './VerificationStatus.vue'
@@ -833,6 +834,11 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
           </div>
         </form>
       </section>
+      <!-- School data authorization is separate from campus verification and only for one's own records. -->
+      <SchoolDataCard
+        v-if="scope === 'student' && flow.summary.value"
+        :eligible="flow.summary.value.campus_eligibility"
+      />
       <!-- 3. Records: what has been verified, and what was asked for. Empty lists are left out. -->
       <section
         v-if="scope === 'student' && flow.credentials.value.length"

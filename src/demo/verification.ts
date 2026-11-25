@@ -167,6 +167,20 @@ export function studentMaterialDeleted(id: string) {
   return undefined
 }
 
+/** 学校数据认证：演示里只记录是否开通，不保存账号和密码。 */
+let schoolData: { state: 'active' | 'inactive'; verified_at?: string; expires_at?: string } = { state: 'inactive' }
+export const schoolDataActive = () => schoolData.state === 'active'
+function schoolDataRoute(method: string, init: RequestInit | undefined) {
+  if (method === 'PUT') {
+    const { student_id, password, accepted } = read(init)
+    if (!eligible) return nope('permission_denied', 403)
+    if (accepted !== true || !student_id || !password) return nope('invalid_input', 400)
+    if (password === 'wrong') return nope('school_credentials_rejected', 422)
+    schoolData = { state: 'active', verified_at: new Date().toISOString(), expires_at: new Date(Date.now() + 86_400_000).toISOString() }
+  } else if (method === 'DELETE') schoolData = { state: 'inactive' }
+  return json(schoolData)
+}
+
 /** 学生认证接口。others 是教师认证演示里同一账号的申请，学生列表也要显示。 */
 export function verificationRoute(p: string, method: string, init: RequestInit | undefined, who: VerificationPersona, others: Row[]): Response | undefined {
   if (!p.startsWith('/verification')) return undefined
@@ -174,6 +188,7 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (p === '/verification/schools') return json([school])
   if (p === '/verification/email-transfer-consent') return transferConsent(method)
   if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: teacherCredentials(who === 'verified').some((item) => item.state === 'active'), identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
+  if (p === '/verification/me/school-data') return schoolDataRoute(method, init)
   if (p === '/verification/credentials') return json(credentials)
   if (p === '/verification/requests') return json(removalRequests)
   if (p === '/verification/suggestions' && method === 'POST') {

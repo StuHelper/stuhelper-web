@@ -30,10 +30,11 @@ export type Stage = Schemas['Stage']
 export type Kind = Schemas['Kind']
 export type TeacherForm = Schemas['TeacherForm']
 export type TeacherCredential = Schemas['TeacherCredential']
+export type SchoolDataAuthorization = Schemas['SchoolDataAuthorization']
 export type TeacherDisclosure = Schemas['TeacherDisclosures'][number]
 export const teacherDisclosures: TeacherDisclosure[] = ['real_name', 'teacher', 'gender', 'organization']
 
-type Entity = 'EmailInput' | 'EmailTransferConsentStatus' | 'EmailTransferWithdrawal' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential'
+type Entity = 'EmailInput' | 'EmailTransferConsentStatus' | 'EmailTransferWithdrawal' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential' | 'SchoolDataAuthorization'
 
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
 export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
@@ -97,6 +98,7 @@ const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   Operation: (v) => text(v.id) && oneOf(v.state, ['processing', 'completed', 'failed']) && text(v.code) && instant(v.expires_at),
   TeacherForm: (v) => sized(v.name, 0, 100) && sized(v.organization, 0, 100) && (v.gender === undefined || sized(v.gender, 0, 32)) && sized(v.email, 0, 254) && sized(v.material_type, 0, 64) && strings(v.material_ids) && v.material_ids.length <= 5 && disclosures(v.disclosures) && count(v.revision),
   TeacherCredential: (v) => text(v.id) && text(v.school_id) && strings(v.teacher_ids) && oneOf(v.state, ['active', 'revoked', 'expired']) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at) && text(v.source) && text(v.note) && disclosures(v.disclosures),
+  SchoolDataAuthorization: (v) => oneOf(v.state, ['inactive', 'active']) && (v.verified_at === undefined || instant(v.verified_at)) && (v.expires_at === undefined || instant(v.expires_at)),
   ManualInput: (v) => text(v.student_id) && text(v.name) && text(v.department) && text(v.email) && text(v.material_type) && strings(v.material_ids) && count(v.revision),
 }
 
@@ -107,6 +109,7 @@ export function parseEntity<K extends Entity>(kind: K, value: unknown): Schemas[
 }
 
 const pageSize = 25
+const schoolDataPath = '/api/v1/verification/me/school-data'
 const operationId = /^[a-f0-9]{64}$/
 
 async function fingerprint(method: string, path: string, body: string) {
@@ -178,6 +181,22 @@ export class VerificationApi {
       if (!isUncertain(error)) this.keys.delete(print)
       throw error
     }
+  }
+
+  /**
+   * School data authorization lets the server read this account's own enrollment. The
+   * school account and password are kept encrypted by the provider and never echoed back.
+   */
+  schoolData(signal?: AbortSignal) {
+    return this.get('SchoolDataAuthorization', schoolDataPath, signal)
+  }
+
+  submitSchoolData(input: { student_id: string; password: string; accepted: true }) {
+    return this.write('SchoolDataAuthorization', schoolDataPath, input, 'PUT')
+  }
+
+  revokeSchoolData() {
+    return this.write('SchoolDataAuthorization', schoolDataPath, undefined, 'DELETE')
   }
 
   /** Upload a captured image with a single-use capture token. */

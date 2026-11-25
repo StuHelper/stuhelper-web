@@ -93,7 +93,6 @@
     "rate_limited": "Trop de tentatives ou limite atteinte. Réessayez plus tard.",
     "retry_required": "Le dernier envoi n’est pas confirmé. Renvoyez-le d’abord.",
     "edit_window_closed": "Le délai de modification est écoulé. Cette action est indisponible.",
-    "enrollment_required": "Aucune inscription à ce cours et ce semestre n’a été trouvée pour vous. L’avis ne peut pas encore être envoyé.",
     "disclosure_required": "Le nom réel ou la certification autorisée manque. Vous ne pouvez pas répondre à votre cours.",
     "identity_owned": "Cette identité étudiante est liée à un autre compte. Récupérez-le ou contactez un administrateur.",
     "expired": "La demande, le code ou le lien a expiré. Recommencez.",
@@ -562,8 +561,7 @@
       "term": "Semestre évalué",
       "termsUnavailable": "La liste des semestres n’a pas pu se charger. Réessayez plus tard.",
       "teacher": "Équipe enseignante",
-      "teacherHint": "Les enseignants proviennent de votre inscription au semestre. Vous pouvez ne pas préciser.",
-      "teacherRequiredHint": "Un avis sur un sport doit indiquer un enseignant, choisi parmi votre inscription à ce sport pour le semestre.",
+      "teacherHint": "Avec l’autorisation, les enseignants proviennent de vos inscriptions du semestre ; sinon, tous les enseignants du cours pour ce semestre sont proposés. En cas de doute, ne précisez pas.",
       "moreTerms": "Plus de semestres",
       "ratingsRequired": "Notez les cinq critères pour publier.",
       "title": "Titre",
@@ -587,7 +585,10 @@
       "pending": "Envoyé pour modération.",
       "published": "Publié.",
       "missing": "À compléter avant de publier : {items}",
-      "ratingsDone": "notes ({done} sur {total} choisies)"
+      "ratingsDone": "notes ({done} sur {total} choisies)",
+      "enrollmentActive": "L’autorisation est activée. À la publication, vos inscriptions sont vérifiées et le résultat est affiché sur l’avis.",
+      "enrollmentInactive": "L’autorisation des données scolaires est désactivée : votre avis affichera cette étiquette.",
+      "enrollmentSetup": "L’activer"
     },
     "disclosure": {
       "title": "Informations vérifiées à afficher",
@@ -597,20 +598,14 @@
       "labels": {
         "gender": "Genre",
         "department": "Faculté",
-        "enrollment": "Inscription au cours",
         "real_name": "Nom réel",
         "teacher": "Enseignant vérifié",
         "organization": "Établissement"
-      },
-      "enrollment": {
-        "enrolled": "Inscrit à ce cours",
-        "not_enrolled": "Non inscrit à ce cours"
       }
     },
     "composer": {
       "ready": "Vous remplissez les conditions de publication.",
-      "choose_term": "Choisissez un semestre pour vérifier vos inscriptions.",
-      "enrollment_required": "Aucune inscription pour ce semestre. Enregistrez un brouillon et publiez après synchronisation.",
+      "choose_term": "Choisissez un semestre pour afficher ses enseignants.",
       "unauthenticated": "Connectez-vous pour publier.",
       "forbidden": "Les conditions de publication ne sont pas remplies ; voyez les éléments manquants ci-dessus.",
       "unavailable": "Impossible de vérifier les conditions pour l’instant. Réessayez plus tard.",
@@ -620,8 +615,7 @@
       "login": "Connexion au compte",
       "campus_eligibility": "Vérification étudiante",
       "phone_bound": "Numéro de téléphone associé",
-      "identity_verified": "Vérification d’identité",
-      "course_enrollment": "Inscription personnelle au cours"
+      "identity_verified": "Vérification d’identité"
     },
     "requirementState": {
       "satisfied": "Rempli",
@@ -650,12 +644,23 @@
     },
     "requirementStep": {
       "campus_eligibility": "Vérifier",
-      "identity_verified": "Vérifier l’identité",
-      "course_enrollment": "Voir mes cours"
+      "identity_verified": "Vérifier l’identité"
     },
     "followUp": "Complément",
     "submitFollowUp": "Envoyer le complément",
-    "followUpOpensAt": "Les compléments sont possibles 5 minutes après la première publication. Réessayez après {time}."
+    "followUpOpensAt": "Les compléments sont possibles 5 minutes après la première publication. Réessayez après {time}.",
+    "enrollmentStatus": {
+      "label": {
+        "enrolled": "Inscrit",
+        "not_enrolled": "Non inscrit",
+        "unknown": "Inscription inconnue"
+      },
+      "hint": {
+        "enrolled": "L’auteur avait l’autorisation active à la publication et ses inscriptions de ce semestre incluent ce cours.",
+        "not_enrolled": "L’auteur avait l’autorisation active à la publication, mais ses inscriptions de ce semestre n’incluent pas ce cours.",
+        "unknown": "Les inscriptions de l’auteur n’ont pas pu être vérifiées à la publication, par exemple faute d’autorisation."
+      }
+    }
   },
   "me": {
     "title": "Espace personnel",
@@ -1336,6 +1341,30 @@
       "withdrawConfirm": "Une fois le consentement retiré, les nouveaux envois nécessitent un nouveau consentement. Les envois déjà lancés peuvent se poursuivre et les codes déjà envoyés conservent leur échéance initiale.",
       "withdrawn": "Le consentement à l’envoi depuis l’étranger a été retiré.",
       "notAccepted": "Vous n’avez pas consenti à l’envoi depuis l’étranger. Votre accord sera demandé avant tout envoi de code à votre adresse universitaire."
+    },
+    "schoolData": {
+      "title": "Autorisation des données scolaires",
+      "active": "Activée",
+      "inactive": "Désactivée",
+      "intro": "Une fois activée, nous lisons vos inscriptions dans le système de scolarité uniquement lorsque vous en avez besoin, par exemple pour proposer vos propres enseignants lors d’un avis et indiquer le statut d’inscription de vos avis de cours. Vous pouvez publier des avis sans l’activer ; ils afficheront « Inscription inconnue ».",
+      "points": {
+        "storage": "Votre compte et votre mot de passe scolaires sont conservés chiffrés sur nos serveurs. Seul le service de vérification peut les déchiffrer, et ils n’apparaissent jamais en clair dans les journaux ni les sauvegardes.",
+        "validity": "Chaque vérification réussie est valable 24 heures, et nous revérifions régulièrement via le même service de l’école. En cas d’échec, nous cessons immédiatement de lire vos inscriptions.",
+        "labels": "Tant qu’elle est activée, vos avis de cours affichent automatiquement « Inscrit » ou « Non inscrit ». Désactivée ou en échec, ils affichent « Inscription inconnue ». Les avis publiés conservent leur étiquette d’origine.",
+        "revoke": "Vous pouvez la désactiver ici à tout moment. Le compte et le mot de passe enregistrés sont supprimés aussitôt et nous cessons de lire vos inscriptions."
+      },
+      "password": "Mot de passe d’authentification unique de l’école",
+      "consent": "J’ai lu ce qui précède et j’accepte que StuHelper conserve chiffrés mon compte et mon mot de passe scolaires pour lire mes propres inscriptions et afficher le statut d’inscription sur mes avis de cours.",
+      "submit": "Activer l’autorisation",
+      "needsCampus": "Terminez la vérification étudiante avant d’activer l’autorisation des données scolaires.",
+      "verifiedAt": "Dernière vérification",
+      "expiresAt": "Valable jusqu’au",
+      "revoke": "Désactiver",
+      "revokeTitle": "Désactiver l’autorisation des données scolaires ?",
+      "revokeMessage": "Le compte et le mot de passe enregistrés seront supprimés immédiatement et nous cesserons de lire vos inscriptions. Les avis publiés ensuite afficheront « Inscription inconnue » ; les avis déjà publiés gardent leur étiquette.",
+      "opened": "L’autorisation des données scolaires est activée.",
+      "revoked": "L’autorisation des données scolaires est désactivée.",
+      "mismatch": "Ce numéro d’étudiant ne correspond pas à votre identité étudiante vérifiée. Utilisez votre propre compte scolaire."
     }
   },
   "contribution": {

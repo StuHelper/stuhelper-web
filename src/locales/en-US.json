@@ -93,7 +93,6 @@
     "rate_limited": "Too many attempts or the limit is reached. Please try again later.",
     "retry_required": "The last submission is unconfirmed. Please submit it again first.",
     "edit_window_closed": "The editing window has closed. This action is unavailable.",
-    "enrollment_required": "No enrollment record was found for you in this course and semester. You cannot submit a review yet.",
     "disclosure_required": "Authorized real name or teacher verification is missing. You cannot reply to your own course yet.",
     "identity_owned": "This student identity belongs to another account. Recover that account or contact an administrator.",
     "expired": "The application, code or capture link expired. Please start again.",
@@ -562,8 +561,7 @@
       "term": "Reviewed semester",
       "termsUnavailable": "The semester list could not load. Please try again later.",
       "teacher": "Teaching staff",
-      "teacherHint": "Teachers come from your enrollment for the selected term. You can leave this unspecified.",
-      "teacherRequiredHint": "Sports reviews must name a teacher. The choices come from your enrollment in this sport for the selected term.",
+      "teacherHint": "With school data authorization, teachers come from your own enrollment for the term; otherwise all teachers of this course in the term are listed. If unsure, leave it unspecified.",
       "moreTerms": "More semesters",
       "ratingsRequired": "Rate all five items to publish.",
       "title": "Title",
@@ -587,7 +585,10 @@
       "pending": "Submitted for moderation.",
       "published": "Published.",
       "missing": "Still needed before publishing: {items}",
-      "ratingsDone": "ratings ({done} of {total} chosen)"
+      "ratingsDone": "ratings ({done} of {total} chosen)",
+      "enrollmentActive": "School data authorization is on. When you publish, your own enrollment is checked and the result is shown on the review.",
+      "enrollmentInactive": "School data authorization is off, so your review will show this label.",
+      "enrollmentSetup": "Turn it on"
     },
     "disclosure": {
       "title": "Verified information to display",
@@ -597,20 +598,14 @@
       "labels": {
         "gender": "Gender",
         "department": "College",
-        "enrollment": "Enrollment",
         "real_name": "Real name",
         "teacher": "Verified teacher",
         "organization": "Organization"
-      },
-      "enrollment": {
-        "enrolled": "Enrolled in this course",
-        "not_enrolled": "Not enrolled in this course"
       }
     },
     "composer": {
       "ready": "You currently meet the publication requirements.",
-      "choose_term": "Choose a semester to check your enrollment records.",
-      "enrollment_required": "No enrollment found for this term. Save a draft and publish once your courses sync.",
+      "choose_term": "Choose a term to list its teachers.",
       "unauthenticated": "Sign in to publish.",
       "forbidden": "You do not meet the publication requirements yet; see the missing items above.",
       "unavailable": "The requirements cannot be confirmed right now. Please try again later.",
@@ -620,8 +615,7 @@
       "login": "Signed-in account",
       "campus_eligibility": "Student verification",
       "phone_bound": "Linked phone number",
-      "identity_verified": "Identity verification",
-      "course_enrollment": "Personal enrollment record"
+      "identity_verified": "Identity verification"
     },
     "requirementState": {
       "satisfied": "Satisfied",
@@ -650,12 +644,23 @@
     },
     "requirementStep": {
       "campus_eligibility": "Verify",
-      "identity_verified": "Verify identity",
-      "course_enrollment": "View my courses"
+      "identity_verified": "Verify identity"
     },
     "followUp": "Follow-up",
     "submitFollowUp": "Submit follow-up",
-    "followUpOpensAt": "Follow-ups open 5 minutes after first publishing. Try again after {time}."
+    "followUpOpensAt": "Follow-ups open 5 minutes after first publishing. Try again after {time}.",
+    "enrollmentStatus": {
+      "label": {
+        "enrolled": "Enrolled",
+        "not_enrolled": "Not enrolled",
+        "unknown": "Enrollment unknown"
+      },
+      "hint": {
+        "enrolled": "The author had school data authorization when publishing, and their enrollment for this term includes this course.",
+        "not_enrolled": "The author had school data authorization when publishing, but their enrollment for this term does not include this course.",
+        "unknown": "The author's enrollment could not be checked when publishing, for example because school data authorization was off."
+      }
+    }
   },
   "me": {
     "title": "Personal center",
@@ -1336,6 +1341,30 @@
       "withdrawConfirm": "After you withdraw consent, new deliveries require consent again. Any delivery that has already started may continue, and codes already sent keep their original expiry time.",
       "withdrawn": "Consent to delivery from abroad was withdrawn.",
       "notAccepted": "You have not agreed to delivery from abroad. You will be asked before a school-email code is sent."
+    },
+    "schoolData": {
+      "title": "School data authorization",
+      "active": "On",
+      "inactive": "Off",
+      "intro": "When this is on, we read your enrollment from the school's academic system only when you need it, such as listing your own teachers when you review a course and labeling the enrollment status of your course reviews. You can still review courses without it; your reviews will show “Enrollment unknown”.",
+      "points": {
+        "storage": "Your school account and password are kept encrypted on our servers. Only the verification service can decrypt them, and they never appear in logs or backups in plain text.",
+        "validity": "Each successful check is valid for 24 hours, and we recheck regularly through the same school service. If a check fails, we stop reading your enrollment at once.",
+        "labels": "While this is on, your course reviews automatically show “Enrolled” or “Not enrolled”. When it is off or a check has failed, they show “Enrollment unknown”. Published reviews keep the label they had when published.",
+        "revoke": "You can turn this off here at any time. Your stored account and password are deleted immediately and we stop reading your enrollment."
+      },
+      "password": "School single sign-on password",
+      "consent": "I have read the above and agree that StuHelper keeps my school account and password encrypted to read my own enrollment and to show the enrollment status on my course reviews.",
+      "submit": "Turn on school data authorization",
+      "needsCampus": "Complete student verification before turning on school data authorization.",
+      "verifiedAt": "Last checked",
+      "expiresAt": "Valid until",
+      "revoke": "Turn off",
+      "revokeTitle": "Turn off school data authorization?",
+      "revokeMessage": "Your stored school account and password will be deleted immediately and we will stop reading your enrollment. Reviews you publish afterwards show “Enrollment unknown”; published reviews keep their labels.",
+      "opened": "School data authorization is on.",
+      "revoked": "School data authorization is off.",
+      "mismatch": "This student ID does not match your verified student identity. Use your own school account."
     }
   },
   "contribution": {

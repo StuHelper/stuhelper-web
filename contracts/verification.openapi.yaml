@@ -8,6 +8,44 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /api/v1/verification/me/school-data:
+    get:
+      operationId: getSchoolDataAuthorization
+      responses:
+        '200':
+          description: Current authorization for the authenticated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataAuthorization' }
+        default: { $ref: '#/components/responses/Problem' }
+    put:
+      operationId: submitSchoolDataAuthorization
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchoolDataSubmission' }
+      responses:
+        '200':
+          description: Current authorization for the authenticated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataAuthorization' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        default: { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: revokeSchoolDataAuthorization
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Current authorization for the authenticated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataAuthorization' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/admin/verification/teacher-credentials:
     get:
       operationId: searchAdminTeacherCredentials
@@ -1063,6 +1101,22 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
   schemas:
+    SchoolDataSubmission:
+      type: object
+      additionalProperties: false
+      required: [student_id, password, accepted]
+      properties:
+        student_id: { type: string, minLength: 1, maxLength: 64, writeOnly: true }
+        password: { type: string, format: password, minLength: 1, maxLength: 256, writeOnly: true }
+        accepted: { type: boolean, description: Explicit consent to encrypted retention and periodic verification for personal enrollment reads. }
+    SchoolDataAuthorization:
+      type: object
+      additionalProperties: false
+      required: [state]
+      properties:
+        state: { type: string, enum: [inactive, active] }
+        verified_at: { type: string, format: date-time }
+        expires_at: { type: string, format: date-time }
     TeacherCreateInput:
       type: object
       additionalProperties: false

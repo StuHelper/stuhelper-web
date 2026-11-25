@@ -97,8 +97,11 @@ const rows: Row[] = [
   ['r16', 'c10', 't-26s', 'p9', '我写的：适合想做项目的同学', '我们组做了一个校园图像分类，老师给了不少建议。', [5, 4, 4, 4, 4], 12, 0, 6, '小航同学'],
 ]
 const stateFor = (id: string) => (id === 'r16' ? { mine: true, can_edit: true } : { mine: false, can_edit: false })
-export const reviews = rows.map(([id, target_id, term_id, teacher_id, title, body, ratings, upvotes, downvotes, days, who, featured]) => ({
+const enrollmentDemo = ['enrolled', 'unknown', 'enrolled', 'not_enrolled'] as const
+export const reviews = rows.map(([id, target_id, term_id, teacher_id, title, body, ratings, upvotes, downvotes, days, who, featured], index) => ({
   id, root_id: id, kind: target_id.startsWith('p') ? 'mentor' : 'course', school_id: SCHOOL, target_id, ...(term_id ? { term_id } : {}), ...(teacher_id ? { teacher_id } : {}), title, body, ratings, author: author(who), revision: 1, published_at: ago(days), upvotes, downvotes, my_vote: 0, state: 'published', ...(featured ? { featured } : {}), ...stateFor(id),
+  // Course reviews show all three enrollment statuses across the demo.
+  ...(target_id.startsWith('p') ? {} : { enrollment_status: enrollmentDemo[index % enrollmentDemo.length] }),
 }))
 export const replies = [
   { root: 'r1', who: '不周山', body: '同意，图算法那个实验确实要预留足够时间。', days: 2 },
