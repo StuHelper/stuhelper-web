@@ -75,6 +75,7 @@ export function fixture() {
   };
   const capabilities = {
     terms: {
+      document_id: 'upload-license',
       version: 'v1',
       digest: 'a'.repeat(64),
       url: 'https://stuhelper.com/legal/upload-license/versions/v1',

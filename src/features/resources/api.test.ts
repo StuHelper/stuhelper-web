@@ -11,6 +11,13 @@ const view = (changes: Partial<MediaVersion> = {}) => Response.json({ ...media, 
 const draft = { revision: 0, metadata: { title: 't', description: '', tags: [], category_id: 'c', category_revision: 1, attributes: { year: { number: 2025 } }, associations: { school_id: 's' }, access: 'public' as const, origin: { kind: 'unknown' as const } } }
 afterEach(() => vi.unstubAllGlobals())
 
+it('loads browse capabilities with the managed upload license document', async () => {
+  const terms = { document_id: 'upload-license', version: 'v1', digest: 'a'.repeat(64), url: 'https://example.org/legal/upload-license/versions/v1' }
+  const response = { terms, allowed_types: ['application/pdf'], upload_profiles: [], max_file_size: 1024, max_package_bytes: 1024, max_package_files: 1, purchase_available: true }
+  const api = new ResourcesApi(new Http(async () => Response.json(response)))
+  await expect(api.capabilities()).resolves.toEqual(response)
+})
+
 it('retries unknown writes with the frozen nested payload and original key', async () => {
   const calls: RequestInit[] = []
   const api = new ResourcesApi(new Http(async (_url, init) => {
