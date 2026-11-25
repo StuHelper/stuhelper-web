@@ -42,7 +42,7 @@ const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(p
 const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
 // Enrollment is shown by the status badge above; an old disclosure of it would repeat it.
-const shownDisclosures = computed(() => (props.review.author.disclosures ?? []).filter((option) => option.key !== 'enrollment'))
+const shownDisclosures = computed(() => props.review.author.disclosures ?? [])
 const published = computed(() => props.review.state === 'published')
 const editWindowMs = 5 * 60_000
 const remainingSeconds = ref(0)

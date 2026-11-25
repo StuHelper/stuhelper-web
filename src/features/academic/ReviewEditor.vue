@@ -98,7 +98,7 @@ const showEligibility = computed(() => {
 // 课程评价发布时五个维度都要评分。草稿可以只填一部分。
 const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.some((level) => !level))
 // Enrollment is no longer a disclosure: every course review carries its status automatically.
-const disclosureOptions = computed(() => (composer.value?.disclosures ?? []).filter((option) => option.key !== 'enrollment'))
+const disclosureOptions = computed(() => composer.value?.disclosures ?? [])
 const missingConsent = computed(() => disclosureOptions.value.some(option => option.required && !disclosures.value.includes(option.key)))
 const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
 // What the author still has to fill in before publishing, named next to the disabled button.

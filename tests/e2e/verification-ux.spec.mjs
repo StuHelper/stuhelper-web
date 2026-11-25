@@ -343,6 +343,7 @@ test('school email step shows live sending state, verifies six digits and allows
   const writes = [];
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/verification/**', route => {
+    if (route.request().method() === 'GET' && new URL(route.request().url()).pathname.endsWith('/me/school-data')) return route.fulfill({ json: { state: 'inactive' } });
     const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
     if (request.method() === 'POST') writes.push(endpoint);
     if (request.method() === 'POST' && endpoint === 'applications') return route.fulfill({ json: mailApplication });

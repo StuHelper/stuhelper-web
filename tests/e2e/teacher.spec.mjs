@@ -19,6 +19,7 @@ async function server(page, options = {}) {
   const state = { schools: options.schools ?? [school], applications: options.applications ?? [], credentials: options.credentials ?? [], materials: options.materials ?? [], writes: [] };
   await page.route('**/api/v1/catalog/objects/lookup**', (route) => route.fulfill({ json: { items: [teacher('p1', 'Prof. Lin'), teacher('p2', 'Dr. Zhao')], missing_ids: [] } }));
   await page.route('**/api/v1/verification/**', async (route) => {
+    if (route.request().method() === 'GET' && new URL(route.request().url()).pathname.endsWith('/me/school-data')) return route.fulfill({ json: { state: 'inactive' } });
     const request = route.request();
     const path = new URL(request.url()).pathname.replace('/api/v1/verification', '');
     if (path === '/summary') return route.fallback();

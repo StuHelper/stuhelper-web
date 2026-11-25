@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DatabaseZap, ShieldCheck } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
+import { computed, onMounted, onScopeDispose, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useAsync, useMutation } from '../../shared/composables/async'
@@ -21,8 +21,17 @@ const api = useVerification()
 
 const status = useAsync((signal) => api.schoolData(signal), { keepData: true })
 void status.reload()
-const current = ref<SchoolDataAuthorization>()
-const shown = computed(() => current.value ?? status.data.value)
+const shown = status.data
+const refresh = () => { void status.reload() }
+onMounted(() => window.addEventListener('focus', refresh))
+onScopeDispose(() => window.removeEventListener('focus', refresh))
+watch(() => shown.value?.expires_at, (expires, _, cleanup) => {
+  if (!expires) return
+  const remaining = Date.parse(expires) - Date.now()
+  if (remaining <= 0) return
+  const timer = window.setTimeout(refresh, remaining)
+  cleanup(() => window.clearTimeout(timer))
+})
 const active = computed(() => shown.value?.state === 'active')
 
 const studentId = ref('')
@@ -44,9 +53,10 @@ async function retryOpen() {
 }
 function opened(result: SchoolDataAuthorization | undefined) {
   // A rejected password is never kept for another try; the student ID stays.
-  if (result || submit.error.value === 'school_credentials_rejected') password.value = ''
+  if (!submit.uncertain.value) password.value = ''
   if (!result) return
-  current.value = result
+  status.data.value = result
+  refresh()
   accepted.value = false
   toast(t('verification.schoolData.opened'))
 }
@@ -54,12 +64,13 @@ function opened(result: SchoolDataAuthorization | undefined) {
 async function withdraw(retrying = false) {
   const result = (retrying ? await revoke.retry() : await revoke.run('school-data-revoke', {}, () => api.revokeSchoolData())) as SchoolDataAuthorization | undefined
   if (!result) return
-  current.value = result
+  status.data.value = result
+  refresh()
   confirming.value = false
   toast(t('verification.schoolData.revoked'))
 }
 
-const errorText = (code: string) => (code === 'information_mismatch' ? t('verification.schoolData.mismatch') : '')
+const errorText = (code: string) => ((code === 'information_mismatch' || code === 'forbidden') ? t('verification.schoolData.mismatch') : '')
 </script>
 
 <template>
