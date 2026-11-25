@@ -21,7 +21,7 @@ const props = defineProps<{
   bulk?: { expanded: boolean; turn: number }
   /** Page-wide limit on "show all" reads, so expanding every department stays bounded. */
   queue?: Limiter
-  load: (after: string, limit: number, signal: AbortSignal) => Promise<{ items: T[]; next: string }>
+  load: (after: string, limit: number, signal: AbortSignal) => Promise<{ items: T[]; next: string; total: number }>
 }>()
 defineSlots<{ default(props: { rows: T[] }): unknown }>()
 const { t } = useI18n()
@@ -42,6 +42,7 @@ async function read(all: boolean, retryConflict = true) {
   controller = current
   status.value = 'loading'
   error.value = ''
+  let after = ''
   try {
     if (!all) {
       const page = await props.load('', props.preview, current.signal)
@@ -50,7 +51,6 @@ async function read(all: boolean, retryConflict = true) {
       complete.value = !page.next
     } else {
       // Rows appear page by page so a large department does not wait for its last page.
-      let after = ''
       const loaded: T[] = []
       const cursors = new Set<string>()
       do {
@@ -60,7 +60,7 @@ async function read(all: boolean, retryConflict = true) {
         loaded.push(...page.items)
         rows.value = [...loaded]
         after = page.next
-        if (after && (cursors.has(after) || !page.items.length || loaded.length >= props.count)) throw new ApiError('conflict', false, 409)
+        if (after && (cursors.has(after) || !page.items.length || loaded.length >= page.total)) throw new ApiError('incompatible')
         cursors.add(after)
       } while (after)
       complete.value = true
@@ -68,7 +68,10 @@ async function read(all: boolean, retryConflict = true) {
     status.value = 'ready'
   } catch (failure) {
     if (controller !== current) return
-    if (retryConflict && all && failure instanceof ApiError && failure.status === 409) return read(all, false)
+    if (retryConflict && after && failure instanceof ApiError && failure.status === 409) {
+      rows.value = []
+      return read(all, false)
+    }
     error.value = errorCode(failure)
     status.value = 'error'
   }

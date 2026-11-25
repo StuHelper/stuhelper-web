@@ -321,6 +321,44 @@ test('each department in the grouped view reads its own rows and shows all of th
   expect(errors).toEqual([]);
 });
 
+test('department groups omit missing identities and restart expired pagination', async ({ page }, info) => {
+  const facets = [
+    { id: 'dept', name: 'Named college', count: 100, review_count: 0 },
+    { id: '', name: '', count: 86, review_count: 0 },
+  ];
+  const requests = [];
+  let restarted = false;
+  await page.addInitScript(() => localStorage.setItem('stuhelper.directory.grouped', '1'));
+  await academicFixture(page);
+  await page.route('**/api/v1/catalog/directory**', async (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    const id = q.get('department_id'), after = q.get('after'), limit = Number(q.get('limit'));
+    if (id !== 'dept') {
+      return route.fulfill({ json: { ...directoryPage([directoryRow('named', 'Assigned', 'average')], '', 102), department_facets: facets } });
+    }
+    requests.push([after, limit]);
+    if (after === 'expired') {
+      restarted = true;
+      return route.fulfill({ status: 409, json: { code: 'conflict' } });
+    }
+    const start = after === 'current' ? 100 : 0;
+    const size = start ? 2 : limit;
+    const rows = Array.from({ length: size }, (_, i) => ({
+      ...directoryRow(`unknown-${start+i}`, `Department course ${start + i}`, 'average'), departments: [directoryObject('dept', 'department', 'Named college')],
+    }));
+    return route.fulfill({ json: { ...directoryPage(rows, start ? '' : restarted ? 'current' : 'expired', restarted ? 102 : 101), department_facets: facets.slice(0, 1) } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const group = page.getByRole('region', { name: 'Named college' });
+  await expect(group).toBeVisible();
+  await expect(page.locator('.masonry section')).toHaveCount(1);
+  await expect(group.locator('li.line')).toHaveCount(5);
+  await group.locator('button.more').click();
+  await expect(group.locator('li.line')).toHaveCount(102);
+  expect(requests).toEqual([[null, 5], [null, 100], ['expired', 100], [null, 100], ['current', 100]]);
+  await expect(group.getByText('Assigned', { exact: true })).toHaveCount(0);
+});
+
 test('expanding every department reads at most two pages at once and stops when collapsed', async ({ page }, info) => {
   const b = catalogue(info).browse, errors = watch(page);
   const departments = Array.from({ length: 4 }, (_, i) => ({ id: `d${i}`, name: `College ${i}`, count: 250, review_count: 0 }));
