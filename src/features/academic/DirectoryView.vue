@@ -5,8 +5,8 @@ import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { useFormat } from '../../app/i18n'
 import { useAsync, usePaged } from '../../shared/composables/async'
-import { createLimiter } from '../../shared/limit'
 import { hue } from '../../shared/hue'
+import { createLimiter } from '../../shared/limit'
 import { usePageFilters } from '../../shared/pageFilters'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import ChipScroller from '../../shared/ui/ChipScroller.vue'
@@ -21,6 +21,7 @@ import { compareList, maxCompare, toggleCompare } from '../search/compare'
 import { knownCredits, useAcademic, type DirectoryFacet, type DirectoryItem, type DirectorySort } from './api'
 import DirectoryCourseRows from './DirectoryCourseRows.vue'
 import DirectoryGroup from './DirectoryGroup.vue'
+import TeacherDirectoryAvatar from './TeacherDirectoryAvatar.vue'
 import QuickView from './QuickView.vue'
 import { recommendationLevel } from './ratings/levels'
 import RatingLevel from './ratings/RatingLevel.vue'
@@ -182,8 +183,7 @@ const sub = (row: DirectoryItem) => {
 const listKey = computed(() => `${arrival.value}|${grouped.value}`)
 const level = (row: DirectoryItem) => recommendationLevel[row.recommendation]
 const open = (row: DirectoryItem) => { quick.value = { id: row.object.id, name: row.object.name, note: props.kind === 'course' ? [sub(row), row.departments[0]?.name].filter(Boolean).join(' · ') : row.departments[0]?.name ?? '' } }
-// White initials need a darkened background for contrast.
-const tint = (id: string) => `color-mix(in srgb, ${hue(id)} 72%, black)`
+const loadAvatar = createLimiter(4)
 function compare(id: string) {
   if (!toggleCompare(props.kind, id)) toast(t('browse.compareLimit', { p0: format.value.number(maxCompare) }))
 }
@@ -355,11 +355,12 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           class="card teacher-card"
         >
           <div class="row teacher">
-            <span
-              class="face"
-              :style="{ background: tint(row.object.id) }"
-              aria-hidden="true"
-            >{{ [...row.object.name][0] }}</span>
+            <TeacherDirectoryAvatar
+              :id="row.object.id"
+              :name="row.object.name"
+              :url="row.avatar_url"
+              :limit="loadAvatar"
+            />
             <span class="group-body">
               <RouterLink
                 class="card-title"
@@ -472,7 +473,6 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
 /* Cards in a row share a height so ratings and buttons line up at the bottom. */
 .teacher-card { display: flex; flex-direction: column; gap: .625rem; }
 .teacher { flex-wrap: nowrap; gap: .75rem; }
-.face { display: grid; flex: none; place-items: center; width: 44px; height: 44px; border-radius: 50%; color: #fff; font-weight: 600; }
 .clamp-2 { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 .dims { margin-block-start: auto; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .25rem .75rem; }
 .dims small { color: var(--label-2); font-size: .8125rem; }
