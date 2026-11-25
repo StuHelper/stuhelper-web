@@ -216,6 +216,7 @@
       "tests/e2e/personal-center.spec.mjs#every personal page can be reached from the personal center on a phone and on a wide screen"
     ],
     "BROWSE-DIRECTORY-02": [
+      "tests/e2e/academic.spec.mjs#offscreen teacher photos wait and at most four thumbnails load together",
       "tests/e2e/academic.spec.mjs#teacher cards read the homepage thumbnail and retain initials on denial",
       "tests/e2e/academic.spec.mjs#course rows show the recommendation in words and the next page arrives without a button",
       "tests/e2e/academic.spec.mjs#department groups omit missing identities and restart expired pagination",

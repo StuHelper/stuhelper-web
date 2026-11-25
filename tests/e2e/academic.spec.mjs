@@ -159,8 +159,9 @@ test('the teacher directory is open and lists teachers from the server', async (
   expect(kinds).toContain('teacher');
 });
 
+const avatar = (id) => `/api/v1/catalog/objects/${id}/teacher-homepage/photos/${'a'.repeat(64)}/thumbnail`;
+
 test('teacher cards read the homepage thumbnail and retain initials on denial', async ({ page }, info) => {
-  const avatar = (id) => `/api/v1/catalog/objects/${id}/teacher-homepage/photos/${'a'.repeat(64)}/thumbnail`;
   await academicFixture(page, { avatars: { 'teacher-a': avatar('teacher-a'), 'teacher-b': avatar('teacher-b') } });
   const jpeg = await page.evaluate(() => document.createElement('canvas').toDataURL('image/jpeg').split(',')[1]);
   const fetched = [];
@@ -179,7 +180,44 @@ test('teacher cards read the homepage thumbnail and retain initials on denial', 
   await expect.poll(() => fetched.includes(avatar('teacher-b'))).toBe(true);
   await expect(second).toHaveText('T');
   await expect(second.locator('img')).toHaveCount(0);
+  for (const face of [first, second]) {
+    const box = await face.boundingBox();
+    expect([box.width, box.height]).toEqual([44, 44]);
+  }
   expect(fetched.sort()).toEqual([avatar('teacher-a'), avatar('teacher-b')]);
+});
+
+test('offscreen teacher photos wait and at most four thumbnails load together', async ({ page }, info) => {
+  const ids = Array.from({ length: 40 }, (_, i) => `faculty-${i}`);
+  await academicFixture(page, { teacherIds: ids, avatars: Object.fromEntries(ids.map(id => [id, avatar(id)])) });
+  const requested = new Set();
+  let active = 0, peak = 0, release;
+  const paused = new Promise(resolve => { release = resolve; });
+  await page.route('**/teacher-homepage/photos/**', async route => {
+    requested.add(new URL(route.request().url()).pathname);
+    active++;
+    peak = Math.max(peak, active);
+    await paused;
+    active--;
+    await route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+  try {
+    await page.goto(`http://127.0.0.1:18787/teachers?lang=${info.project.metadata.locale}`);
+    const faces = page.locator('.teacher-card .face');
+    await expect(faces).toHaveCount(ids.length);
+    await faces.first().scrollIntoViewIfNeeded();
+    await expect.poll(() => requested.size).toBeGreaterThan(0);
+    expect(requested.has(avatar(ids.at(-1)))).toBe(false);
+    for (let i = 1; i <= 6; i++) await faces.nth(i).scrollIntoViewIfNeeded();
+    await expect.poll(() => active).toBe(4);
+    await faces.last().scrollIntoViewIfNeeded();
+    expect(requested.has(avatar(ids.at(-1)))).toBe(false);
+    release();
+    await expect.poll(() => requested.has(avatar(ids.at(-1)))).toBe(true);
+    expect(peak).toBe(4);
+  } finally {
+    release();
+  }
 });
 
 test('course and teacher directories keep filters independent across navigation', async ({ page }, info) => {
