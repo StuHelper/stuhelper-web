@@ -33,6 +33,12 @@ const parse = {
 export const photoLimit = 2 * 1024 * 1024
 /** Copied body images are at most 20 MiB; larger ones are offered as a link to the school page. */
 export const bodyImageLimit = 20 * 1024 * 1024
+/**
+ * Catalog puts this private-use character wherever the default view hides a contact
+ * (an address in prose, a contact line, an email/phone/office value). The page shows a
+ * “show contacts” button in its place; the reveal read returns the originals instead.
+ */
+export const contactMarker = '\uE000'
 /** Fixed text fields a request may change, in the order the page shows them. */
 export const textFields = ['name', 'position', 'education', 'degree', 'discipline', 'email', 'phone', 'office_location', 'hire_date', 'biography', 'research'] as const
 /** Every field a teacher may ask about; `page` only asks to hide the whole page. */

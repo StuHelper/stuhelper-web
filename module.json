@@ -341,6 +341,7 @@
     ],
     "CAT-TEACHER-04": [
       "tests/e2e/teacher-homepage.spec.mjs#the teacher page shows plain-text homepage details and a session-loaded photo",
+      "tests/e2e/teacher-homepage.spec.mjs#a failed inline reveal keeps the section open and retries from the same page",
       "tests/e2e/teacher-homepage.spec.mjs#a teacher page with no visible profile leaves out the homepage panel for a reader",
       "tests/e2e/teacher-homepage.spec.mjs#a reader can retry a homepage error and a failed photo leaves the profile readable"
     ],

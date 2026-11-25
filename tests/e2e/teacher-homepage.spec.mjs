@@ -39,8 +39,9 @@ const credential = (id, state, teacherIds) => ({
 async function installFixture(page, credentials = []) {
   await academicFixture(page);
   await page.route('**/api/v1/verification/teacher-credentials?**', route => route.fulfill({ json: credentials }));
-  const { email, phone, office_location, ...initial } = profile;
-  await page.route(`**${teacherPath('teacher-a')}`, route => route.fulfill({ json: { profile: initial, contacts_available: !!(email || phone || office_location) } }));
+  const marker = '\uE000';
+  const initial = { ...profile, email: marker, phone: marker, office_location: marker, biography: profile.biography.replace('First line.', `First line. ${marker}`) };
+  await page.route(`**${teacherPath('teacher-a')}`, route => route.fulfill({ json: { profile: initial, contacts_available: true } }));
   await page.route(`**${teacherPath('teacher-a')}?reveal_contacts=true`, route => route.fulfill({ json: { profile } }));
   await page.route(`**${photoPath}`, route => route.fulfill({ contentType: 'image/png', body: tinyPng }));
 }
@@ -61,7 +62,17 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
 
   await expect(homepage.getByText(profile.name, { exact: true })).toBeVisible();
   await expect(page.getByText(profile.email, { exact: true })).toHaveCount(0);
-  await homepage.getByRole('button', { name: h.showContacts }).click();
+  // Each hidden contact is a button in its own place: three facts and one in the biography.
+  const reveal = homepage.getByRole('button', { name: h.showContacts });
+  await expect(reveal).toHaveCount(4);
+  const emailFact = homepage.getByText(h.fields.email, { exact: true }).locator('..');
+  await expect(emailFact.getByRole('button', { name: h.showContacts })).toBeVisible();
+  const heading = homepage.getByRole('heading', { name: h.fields.biography, exact: true });
+  await heading.evaluate((node) => { node.dataset.kept = 'yes'; });
+  await reveal.last().click();
+  await expect(reveal).toHaveCount(0);
+  // Only the contacts appear; the rest of the page stays the same DOM.
+  await expect(heading).toHaveAttribute('data-kept', 'yes');
   for (const field of ['position', 'education', 'degree', 'discipline', 'email', 'phone', 'office_location', 'hire_date']) {
     const label = homepage.getByText(h.fields[field], { exact: true });
     await expect(label).toBeVisible();
@@ -98,6 +109,34 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
   await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await screenshot(homepage, info, 'homepage');
+});
+
+test('a failed inline reveal keeps the section open and retries from the same page', async ({ page }, info) => {
+  const { teacherHomepage: h, common } = catalogue(info);
+  await installFixture(page);
+  const route = teacherPath('teacher-a');
+  const address = 'lab@example.org';
+  const marker = '\uE000';
+  const content = (value) => ({ ...emptyProfile, sections: [{ title: `Lab ${value}`, text: `Contact: ${value}` }] });
+  await page.route(`**${route}`, r => r.fulfill({ json: { profile: content(marker), contacts_available: true } }));
+  let reads = 0;
+  await page.route(`**${route}?reveal_contacts=true`, r => ++reads === 1
+    ? r.fulfill({ status: 503, json: { code: 'unavailable' } })
+    : r.fulfill({ json: { profile: content(address) } }));
+  await page.goto(teacherURL(info));
+  const panel = page.getByRole('region', { name: h.title, exact: true });
+  const disclosure = panel.locator('details');
+  await expect(disclosure.locator('summary').getByRole('button', { name: h.showContacts })).toBeVisible();
+  await disclosure.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await disclosure.locator('p').getByRole('button', { name: h.showContacts }).click();
+  await expect(disclosure).toHaveJSProperty('open', true);
+  await expect(disclosure.getByRole('button', { name: h.showContacts })).toHaveCount(2);
+  await panel.getByRole('alert').getByRole('button', { name: common.retry }).click();
+  await expect(disclosure.locator('p')).toHaveText(`Contact: ${address}`);
+  await expect(disclosure).toHaveJSProperty('open', true);
+  await expect(panel.getByRole('button', { name: h.showContacts })).toHaveCount(0);
+  expect(reads).toBe(2);
 });
 
 test('a teacher page with no visible profile leaves out the homepage panel for a reader', async ({ page }, info) => {
