@@ -2523,8 +2523,7 @@
     "viewDetails": "View details",
     "groupDisplay": "School groups",
     "expandAllGroups": "Expand all",
-    "collapseAllGroups": "Collapse all",
-    "hottestDays": "Hottest (last {days} days)"
+    "collapseAllGroups": "Collapse all"
   },
   "tags": {
     "placeholder": "Type a tag and press Enter",
