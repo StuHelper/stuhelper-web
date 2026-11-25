@@ -128,8 +128,9 @@ async function start(page, info, v, method = outbound) {
 }
 
 async function fillStudent(page, v, id) {
-  await page.getByLabel(v.studentId, { exact: true }).fill(id);
-  await page.getByLabel(v.name, { exact: true }).fill(student.name);
+  const steps = page.locator('section[aria-labelledby="verification-step-title"]');
+  await steps.getByLabel(v.studentId, { exact: true }).fill(id);
+  await steps.getByLabel(v.name, { exact: true }).fill(student.name);
 }
 
 async function expectNotice(page, v, reference) {
