@@ -321,11 +321,10 @@ test('each department in the grouped view reads its own rows and shows all of th
   expect(errors).toEqual([]);
 });
 
-test('unassigned group uses its own filter and restarts expired pagination', async ({ page }, info) => {
-  const { browse } = catalogue(info);
+test('department groups omit missing identities and restart expired pagination', async ({ page }, info) => {
   const facets = [
-    { id: 'dept', name: 'Named college', count: 1, review_count: 0 },
-    { id: '@unassigned', name: '未归属院系', count: 101, review_count: 0 },
+    { id: 'dept', name: 'Named college', count: 100, review_count: 0 },
+    { id: '', name: '', count: 86, review_count: 0 },
   ];
   const requests = [];
   let restarted = false;
@@ -334,7 +333,7 @@ test('unassigned group uses its own filter and restarts expired pagination', asy
   await page.route('**/api/v1/catalog/directory**', async (route) => {
     const q = new URL(route.request().url()).searchParams;
     const id = q.get('department_id'), after = q.get('after'), limit = Number(q.get('limit'));
-    if (id !== '@unassigned') {
+    if (id !== 'dept') {
       return route.fulfill({ json: { ...directoryPage([directoryRow('named', 'Assigned', 'average')], '', 102), department_facets: facets } });
     }
     requests.push([after, limit]);
@@ -345,13 +344,14 @@ test('unassigned group uses its own filter and restarts expired pagination', asy
     const start = after === 'current' ? 100 : 0;
     const size = start ? 2 : limit;
     const rows = Array.from({ length: size }, (_, i) => ({
-      ...directoryRow(`unknown-${start+i}`, `Unassigned ${start+i}`, 'average'), departments: [],
+      ...directoryRow(`unknown-${start+i}`, `Department course ${start + i}`, 'average'), departments: [directoryObject('dept', 'department', 'Named college')],
     }));
-    return route.fulfill({ json: { ...directoryPage(rows, start ? '' : restarted ? 'current' : 'expired', restarted ? 102 : 101), department_facets: facets.slice(1) } });
+    return route.fulfill({ json: { ...directoryPage(rows, start ? '' : restarted ? 'current' : 'expired', restarted ? 102 : 101), department_facets: facets.slice(0, 1) } });
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
-  const group = page.locator('.masonry section').last();
-  await expect(group.getByRole('heading')).toHaveText(browse.unassignedDepartment || 'missing localized title');
+  const group = page.getByRole('region', { name: 'Named college' });
+  await expect(group).toBeVisible();
+  await expect(page.locator('.masonry section')).toHaveCount(1);
   await expect(group.locator('li.line')).toHaveCount(5);
   await group.locator('button.more').click();
   await expect(group.locator('li.line')).toHaveCount(102);
