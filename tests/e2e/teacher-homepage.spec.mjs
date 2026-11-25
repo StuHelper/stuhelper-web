@@ -39,8 +39,9 @@ const credential = (id, state, teacherIds) => ({
 async function installFixture(page, credentials = []) {
   await academicFixture(page);
   await page.route('**/api/v1/verification/teacher-credentials?**', route => route.fulfill({ json: credentials }));
-  const { email, phone, office_location, ...initial } = profile;
-  await page.route(`**${teacherPath('teacher-a')}`, route => route.fulfill({ json: { profile: initial, contacts_available: !!(email || phone || office_location) } }));
+  const marker = '\uE000';
+  const initial = { ...profile, email: marker, phone: marker, office_location: marker, biography: profile.biography.replace('First line.', `First line. ${marker}`) };
+  await page.route(`**${teacherPath('teacher-a')}`, route => route.fulfill({ json: { profile: initial, contacts_available: true } }));
   await page.route(`**${teacherPath('teacher-a')}?reveal_contacts=true`, route => route.fulfill({ json: { profile } }));
   await page.route(`**${photoPath}`, route => route.fulfill({ contentType: 'image/png', body: tinyPng }));
 }
@@ -61,7 +62,17 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
 
   await expect(homepage.getByText(profile.name, { exact: true })).toBeVisible();
   await expect(page.getByText(profile.email, { exact: true })).toHaveCount(0);
-  await homepage.getByRole('button', { name: h.showContacts }).click();
+  // Each hidden contact is a button in its own place: three facts and one in the biography.
+  const reveal = homepage.getByRole('button', { name: h.showContacts });
+  await expect(reveal).toHaveCount(4);
+  const emailFact = homepage.getByText(h.fields.email, { exact: true }).locator('..');
+  await expect(emailFact.getByRole('button', { name: h.showContacts })).toBeVisible();
+  const heading = homepage.getByRole('heading', { name: h.fields.biography, exact: true });
+  await heading.evaluate((node) => { node.dataset.kept = 'yes'; });
+  await reveal.last().click();
+  await expect(reveal).toHaveCount(0);
+  // Only the contacts appear; the rest of the page stays the same DOM.
+  await expect(heading).toHaveAttribute('data-kept', 'yes');
   for (const field of ['position', 'education', 'degree', 'discipline', 'email', 'phone', 'office_location', 'hire_date']) {
     const label = homepage.getByText(h.fields[field], { exact: true });
     await expect(label).toBeVisible();

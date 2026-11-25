@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Flag, Globe2, PenLine } from 'lucide-vue-next'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
+import { errorCode } from '../../shared/api/errors'
 import { useAsync } from '../../shared/composables/async'
 import { useSession } from '../../shared/session'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
@@ -11,7 +12,7 @@ import { useVerification, verificationPages } from '../verification/api'
 import HomepageMedia from './HomepageMedia.vue'
 import HomepageText from './HomepageText.vue'
 import TeacherComplaintForm from './TeacherComplaintForm.vue'
-import { supervisorKey, textFields, useTeacherHomepage, type HomepageMedium, type HomepageProfile } from './teacherHomepage'
+import { supervisorKey, textFields, useTeacherHomepage, type HomepageMedium, type HomepageProfile, type HomepageView } from './teacherHomepage'
 
 // The teacher's official homepage as the school allows it to be shown: facts, contact,
 // biography, research and the homepage's own sections. Everything is plain text. The
@@ -23,12 +24,40 @@ const api = useTeacherHomepage()
 const verification = useVerification()
 const session = useSession()
 
+// Contacts are hidden by default. Revealing them reads the page once more in the
+// background and swaps in the answer, so the page never returns to its loading state.
 const revealContacts = ref(false)
 const homepage = useAsync((signal) => api.homepage(props.teacherId, signal, revealContacts.value))
-function showContacts() {
-  revealContacts.value = true
-  void homepage.reload()
+const revealed = shallowRef<HomepageView>()
+const revealing = ref(false)
+const revealError = ref('')
+let revealRequest: AbortController | undefined
+function forgetReveal() {
+  revealRequest?.abort()
+  revealRequest = undefined
+  revealing.value = false
+  revealError.value = ''
+  revealed.value = undefined
 }
+async function showContacts() {
+  if (revealing.value) return
+  const controller = new AbortController()
+  revealRequest = controller
+  revealing.value = true
+  revealError.value = ''
+  try {
+    const view = await api.homepage(props.teacherId, controller.signal, true)
+    if (revealRequest !== controller) return
+    revealed.value = view
+    revealContacts.value = true
+  } catch (failure) {
+    if (revealRequest !== controller) return
+    revealError.value = errorCode(failure)
+  } finally {
+    if (revealRequest === controller) revealing.value = false
+  }
+}
+onBeforeUnmount(forgetReveal)
 // Wait for the reader's own credentials before offering either action.
 const owner = useAsync(async (signal) => {
   if (session.state.value !== 'member') return false
@@ -40,6 +69,7 @@ const media = useAsync((signal) => api.media(props.teacherId, signal))
 let refreshedAfterImageDenial = false
 watch(() => props.teacherId, () => {
   refreshedAfterImageDenial = false
+  forgetReveal()
   revealContacts.value = false
   void homepage.reload()
   void owner.reload()
@@ -49,10 +79,13 @@ watch(() => props.teacherId, () => {
 function mediaGone() {
   if (refreshedAfterImageDenial) return
   refreshedAfterImageDenial = true
+  // A full reload keeps contacts visible when the reader had revealed them.
+  forgetReveal()
   void homepage.reload()
   void media.reload()
 }
-const profile = computed<HomepageProfile | undefined>(() => homepage.data.value?.profile)
+const view = computed(() => revealed.value ?? homepage.data.value)
+const profile = computed<HomepageProfile | undefined>(() => view.value?.profile)
 const mediaOf = (field: 'biography' | 'research') => (media.data.value ?? []).filter((item) => item.field === field)
 const sections = computed(() => {
   const groups = new Map<string, HomepageMedium[]>()
@@ -83,7 +116,7 @@ const facts = computed(() => {
 })
 const hasContent = computed(() => {
   if (homepage.status.value !== 'ready') return false
-  if (media.data.value?.length || homepage.data.value?.contacts_available) return true
+  if (media.data.value?.length || view.value?.contacts_available) return true
   const value = profile.value
   return !!value && (textFields.some((key) => value[key]) || value.supervisors.length > 0 || value.fields.length > 0 || value.sections.length > 0 || !!value.photo)
 })
@@ -205,7 +238,11 @@ const complaining = ref(false)
             >
               <dt>{{ t(`teacherHomepage.fields.${fact.key}`) }}</dt>
               <dd class="prewrap">
-                {{ fact.text }}
+                <HomepageText
+                  :text="fact.text"
+                  :revealing="revealing"
+                  @reveal="showContacts"
+                />
               </dd>
             </div>
           </dl>
@@ -222,7 +259,11 @@ const complaining = ref(false)
           v-if="profile?.[part]"
           class="prewrap"
         >
-          <HomepageText :text="profile[part]" />
+          <HomepageText
+            :text="profile[part]"
+            :revealing="revealing"
+            @reveal="showContacts"
+          />
         </p>
         <HomepageMedia
           :items="mediaOf(part)"
@@ -239,7 +280,11 @@ const complaining = ref(false)
         >
           <dt>{{ item.label }}</dt>
           <dd class="prewrap">
-            <HomepageText :text="item.value || t('common.notProvided')" />
+            <HomepageText
+              :text="item.value || t('common.notProvided')"
+              :revealing="revealing"
+              @reveal="showContacts"
+            />
           </dd>
         </div>
       </dl>
@@ -253,21 +298,22 @@ const complaining = ref(false)
           v-if="item.text"
           class="prewrap"
         >
-          <HomepageText :text="item.text" />
+          <HomepageText
+            :text="item.text"
+            :revealing="revealing"
+            @reveal="showContacts"
+          />
         </p>
         <HomepageMedia
           :items="item.media"
           @gone="mediaGone"
         />
       </details>
-      <button
-        v-if="homepage.data.value?.contacts_available"
-        class="btn btn-sm"
-        type="button"
-        @click="showContacts"
-      >
-        {{ t('teacherHomepage.showContacts') }}
-      </button>
+      <ErrorNotice
+        v-if="revealError"
+        :code="revealError"
+        @retry="showContacts"
+      />
       <p class="subtle small">
         {{ t('teacherHomepage.source') }}
       </p>
