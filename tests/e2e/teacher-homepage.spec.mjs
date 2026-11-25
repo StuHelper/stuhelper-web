@@ -101,7 +101,6 @@ test('the teacher page shows plain-text homepage details and a session-loaded ph
   await homepage.getByText(section.title, { exact: true }).click();
   await expect(sectionText).toBeVisible();
   await expect(sectionText.locator('strong')).toHaveCount(0);
-  await expect(homepage.getByText(h.source, { exact: true })).toBeVisible();
 
   const photo = homepage.getByRole('img', { name: h.photo.replace('{name}', profile.name), exact: true });
   await expect(photo).toHaveAttribute('src', /^blob:/);

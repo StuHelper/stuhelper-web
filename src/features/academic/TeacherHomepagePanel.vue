@@ -333,9 +333,6 @@ const complaining = ref(false)
         :code="revealError"
         @retry="showContacts"
       />
-      <p class="subtle small">
-        {{ t('teacherHomepage.source') }}
-      </p>
     </article>
     <div
       v-if="mediaFailed"
