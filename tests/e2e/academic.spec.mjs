@@ -536,15 +536,15 @@ test('a new search keeps the previous rows until the result arrives and clears t
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
   const list = page.locator('main .sections');
-  await expect(page.locator('main a[href="/courses/a"]')).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Course A', exact: true })).toBeVisible();
   await page.getByRole('searchbox').fill('B');
   // While the request is open the old row stays, marked busy; no placeholder replaces the list.
   await expect(list).toHaveAttribute('aria-busy', 'true');
-  await expect(page.locator('main a[href="/courses/a"]')).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Course A', exact: true })).toBeVisible();
   await expect(page.locator('main .skeleton')).toHaveCount(0);
   await expect.poll(() => typeof release).toBe('function');
   release();
-  await expect(page.locator('main a[href="/courses/b"]')).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Course B', exact: true })).toBeVisible();
   await expect(page.locator('main a[href="/courses/a"]')).toHaveCount(0);
   await expect(page.locator('main .sections')).not.toHaveAttribute('aria-busy', 'true');
   // A failed search must not leave rows the server did not confirm.
