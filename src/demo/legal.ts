@@ -88,7 +88,7 @@ function reference(document: Publication, origin: string) {
 }
 
 export function demoUploadTerms(origin: string) {
-  return reference(uploadLicense, origin)
+  return { ...reference(uploadLicense, origin), document_id: 'upload-license' }
 }
 
 export function demoConsentStatus(origin: string): Session['schemas']['LegalConsentStatus'] {
