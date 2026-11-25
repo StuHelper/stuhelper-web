@@ -1,5 +1,5 @@
 /** Browser-only transport for authenticated Catalog image reads. */
-const imageRoute = /^\/api\/v1\/catalog\/(?:objects\/[^/?#]+\/teacher-homepage\/(?:photos|images)\/[0-9a-f]{64}|admin\/schools\/[^/?#]+\/teacher-sites\/requests\/[^/?#]+\/photo)$/
+const imageRoute = /^\/api\/v1\/catalog\/(?:objects\/[^/?#]+\/teacher-homepage\/(?:photos\/[0-9a-f]{64}(?:\/thumbnail)?|images\/[0-9a-f]{64})|admin\/schools\/[^/?#]+\/teacher-sites\/requests\/[^/?#]+\/photo)$/
 
 function configuredOrigin() {
   try {

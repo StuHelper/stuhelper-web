@@ -158,6 +158,29 @@ test('the teacher directory is open and lists teachers from the server', async (
   expect(kinds).toContain('teacher');
 });
 
+test('teacher cards read the homepage thumbnail and retain initials on denial', async ({ page }, info) => {
+  const avatar = (id) => `/api/v1/catalog/objects/${id}/teacher-homepage/photos/${'a'.repeat(64)}/thumbnail`;
+  await academicFixture(page, { avatars: { 'teacher-a': avatar('teacher-a'), 'teacher-b': avatar('teacher-b') } });
+  const jpeg = await page.evaluate(() => document.createElement('canvas').toDataURL('image/jpeg').split(',')[1]);
+  const fetched = [];
+  await page.route('**/teacher-homepage/photos/**', async route => {
+    const path = new URL(route.request().url()).pathname;
+    fetched.push(path);
+    if (path === avatar('teacher-a')) return route.fulfill({ contentType: 'image/jpeg', body: Buffer.from(jpeg, 'base64') });
+    return route.fulfill({ status: 403, json: { code: 'forbidden' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/teachers?lang=${info.project.metadata.locale}`);
+  const first = page.locator('.face').first(), second = page.locator('.face').nth(1);
+  await first.scrollIntoViewIfNeeded();
+  await expect(first.locator('img')).toBeVisible();
+  await expect(first.locator('img')).toHaveAttribute('alt', catalogue(info).teacherHomepage.photo.replace('{name}', 'Teacher A'));
+  await second.scrollIntoViewIfNeeded();
+  await expect.poll(() => fetched.includes(avatar('teacher-b'))).toBe(true);
+  await expect(second).toHaveText('T');
+  await expect(second.locator('img')).toHaveCount(0);
+  expect(fetched.sort()).toEqual([avatar('teacher-a'), avatar('teacher-b')]);
+});
+
 test('course and teacher directories keep filters independent across navigation', async ({ page }, info) => {
   await academicFixture(page);
   const b = catalogue(info).browse, calls = [];

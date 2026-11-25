@@ -12,7 +12,7 @@ const dimensions=Array.from({length:5},()=>({level:3,samples:2,courses:1}));
 const review={id:'review',root_id:'review',kind:'course',school_id:'school',target_id:'course',term_id:'fall',title:'A student review',body:'Useful course content.',ratings:[3,3,3,3,3],author:{anonymous:true,handle:'anonymous'},revision:1,published_at:'2026-10-27T00:00:00Z',upvotes:0,downvotes:0,my_vote:0,mine:false,state:'published',can_edit:false};
 const enrollments=terms.map((term,i)=>({id:`enrollment-${i}`,subject:'synthetic',school_id:'school',course_id:'course',term_id:term.id,teacher_ids:[i===0?'teacher-a':'teacher-b'],active:true}));
 const fulfill=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
-export async function fixture(page, { courseMissing = false, course: courseExtra = {} } = {}){
+export async function fixture(page, { courseMissing = false, course: courseExtra = {}, avatars = {} } = {}){
   const objects = structuredClone(directory);
   objects.course[0] = { ...objects.course[0], ...courseExtra };
   if (courseMissing) for (const kind of ['course', 'term_course', 'class', 'schedule', 'term', 'category', 'nature']) objects[kind] = [];
@@ -39,7 +39,7 @@ export async function fixture(page, { courseMissing = false, course: courseExtra
     }
     if(p==='/api/v1/catalog/directory'){
       const kind=u.searchParams.get('kind'),dep=u.searchParams.get('department_id'),q=(u.searchParams.get('q')??'').toLowerCase();
-      const rows=(objects[kind]??[]).filter(()=>!dep||dep==='dept').filter(item=>!q||item.name.toLowerCase().includes(q)).map(object=>({object,departments:[objects.department[0]],categories:kind==='course'?objects.category:[],review_count:kind==='course'?1:0,recommendation:kind==='course'?'recommended':'unrated',dimensions,heat:1}));
+      const rows=(objects[kind]??[]).filter(()=>!dep||dep==='dept').filter(item=>!q||item.name.toLowerCase().includes(q)).map(object=>({object,...(avatars[object.id]?{avatar_url:avatars[object.id]}:{}),departments:[objects.department[0]],categories:kind==='course'?objects.category:[],review_count:kind==='course'?1:0,recommendation:kind==='course'?'recommended':'unrated',dimensions,heat:1}));
       const facet=(o)=>({id:o.id,name:o.name,count:rows.length,review_count:kind==='course'?rows.length:0});
       return fulfill(route,{items:rows,next:'',total:rows.length,facet_total:rows.length,nature_facets: [], category_facets:kind==='course'?objects.category.map(facet):[],department_facets:objects.department.map(facet),generated_at:'2026-11-15T00:00:00Z'});
     }
