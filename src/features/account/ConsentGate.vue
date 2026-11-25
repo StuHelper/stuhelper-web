@@ -13,6 +13,7 @@ import { useErrorText } from '../../shared/ui/messages'
 import { toast } from '../../shared/ui/toast'
 import AccountClosure from './AccountClosure.vue'
 import EmailTransferWithdraw from '../verification/EmailTransferWithdraw.vue'
+import SchoolDataCard from '../verification/SchoolDataCard.vue'
 import { safeNext } from './access'
 
 // Before pages that need an account, the person accepts the current user agreement and privacy
@@ -41,6 +42,7 @@ const documents = computed(() => {
 const pending = computed(() => documents.value.filter((row) => row.document.required))
 const returning = computed(() => documents.value.some((row) => row.document.receipt))
 const ready = computed(() => pending.value.length > 0 && pending.value.every((row) => ticked[row.id] === identity(row.document)))
+const schoolDataExpanded = ref(false)
 const sending = ref(false)
 const changed = ref(false)
 const failure = ref('')
@@ -233,6 +235,17 @@ async function signOut() {
     </section>
     <AccountClosure v-if="session.state.value === 'consent'" />
     <!-- A separate consent stays withdrawable while the main documents wait for a choice. -->
+    <details
+      v-if="session.state.value === 'consent'"
+      @toggle="schoolDataExpanded = ($event.currentTarget as HTMLDetailsElement).open"
+    >
+      <summary>{{ t('verification.schoolData.title') }}</summary>
+      <SchoolDataCard
+        v-if="schoolDataExpanded"
+        :eligible="false"
+        withdraw-only
+      />
+    </details>
     <EmailTransferWithdraw v-if="session.state.value === 'consent'" />
   </div>
 </template>

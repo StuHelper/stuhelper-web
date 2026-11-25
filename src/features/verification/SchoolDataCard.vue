@@ -14,7 +14,7 @@ import { useVerification, type SchoolDataAuthorization } from './api'
 // School data authorization: the person lets the server keep their school account,
 // verify it periodically and read their own enrollment. Nothing personal is read
 // without it, and revoking deletes the stored account at once.
-const props = defineProps<{ eligible: boolean }>()
+const props = defineProps<{ eligible: boolean; withdrawOnly?: boolean }>()
 const { t } = useI18n()
 const format = useFormat()
 const api = useVerification()
@@ -129,19 +129,10 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
           </div>
         </dl>
       </div>
-      <div class="form-actions">
-        <button
-          class="btn btn-sm btn-ghost danger-text"
-          type="button"
-          @click="confirming = true"
-        >
-          {{ t('verification.schoolData.revoke') }}
-        </button>
-      </div>
     </template>
 
     <form
-      v-else-if="shown"
+      v-else-if="shown && !withdrawOnly"
       class="stack"
       autocomplete="off"
       @submit.prevent="open"
@@ -211,6 +202,18 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
       </div>
     </form>
 
+    <div
+      v-if="shown"
+      class="form-actions"
+    >
+      <button
+        class="btn btn-sm btn-ghost danger-text"
+        type="button"
+        @click="confirming = true"
+      >
+        {{ t('verification.schoolData.revoke') }}
+      </button>
+    </div>
     <ConfirmDialog
       :open="confirming"
       :title="t('verification.schoolData.revokeTitle')"
