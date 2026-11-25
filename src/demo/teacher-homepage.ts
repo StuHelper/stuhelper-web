@@ -4,7 +4,7 @@ import catalogContract from '../../contracts/catalog.openapi.json'
 import moderationContract from '../../contracts/moderation.openapi.json'
 import type { components as Catalog } from '../api/catalog.gen'
 import type { components as Moderation } from '../api/moderation.gen'
-import { photoLimit, textLimit } from '../features/academic/teacherHomepage'
+import { contactMarker, photoLimit, textLimit } from '../features/academic/teacherHomepage'
 import { schemaOf, type Validator } from '../shared/api/schema'
 import { SCHOOL, ago, teachers } from './data'
 import { teacherCredentials } from './teacher'
@@ -220,8 +220,10 @@ export async function teacherHomepageRoute(
       const profile = profiles.get(teacherId)
       if (!tail) {
         if (!profile || query.get('reveal_contacts') === 'true') return json({ profile })
-        const { email, phone, office_location, ...initial } = profile
-        return json({ profile: initial, contacts_available: !!(email || phone || office_location) } satisfies C['TeacherHomepagePublicView'])
+        // Like Catalog: each hidden contact becomes the marker in place.
+        const hide = (value?: string) => (value ? contactMarker : value)
+        const initial = { ...profile, email: hide(profile.email), phone: hide(profile.phone), office_location: hide(profile.office_location) }
+        return json({ profile: initial, contacts_available: !!(profile.email || profile.phone || profile.office_location) } satisfies C['TeacherHomepagePublicView'])
       }
       if (profile?.photo?.url !== '/api/v1' + path) return missing()
       return new Response(photoBytes, { headers: { 'Content-Type': photoType, 'Cache-Control': 'no-store' } })
