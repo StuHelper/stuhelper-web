@@ -70,7 +70,8 @@
     "scrollBack": "Défiler en arrière",
     "scrollForward": "Défiler en avant",
     "searchOptions": "Rechercher une option",
-    "noOptionMatch": "Aucune option correspondante"
+    "noOptionMatch": "Aucune option correspondante",
+    "back": "Retour"
   },
   "errors": {
     "disabled": "Le service des groupes est désactivé.",
@@ -399,7 +400,7 @@
       "reloadTeachers": "Recharger les enseignants"
     },
     "subject": {
-      "writeCourse": "Évaluer le cours",
+      "writeCourse": "Publier un avis de cours",
       "writeMentor": "Commenter l’encadrement",
       "resources": "Ressources du cours",
       "inactive": "Désactivé",
@@ -550,18 +551,17 @@
     },
     "editor": {
       "heading": {
-        "course": "Évaluer le cours",
+        "course": "Publier un avis de cours",
         "mentor": "Commenter l’encadrement",
         "reply": "Répondre"
       },
-      "identityHint": "Votre pseudonyme est privé par défaut. Les informations vérifiées choisies ci-dessous sont publiées séparément.",
       "eligibility": "Conditions de publication",
       "refreshEligibility": "Revérifier les conditions",
       "remaining": "Temps restant pour le brouillon retiré : {hours} h {minutes} min",
       "term": "Semestre évalué",
       "termsUnavailable": "La liste des semestres n’a pas pu se charger. Réessayez plus tard.",
       "teacher": "Équipe enseignante",
-      "teacherHint": "Avec l’autorisation, les enseignants proviennent de vos inscriptions du semestre ; sinon, tous les enseignants du cours pour ce semestre sont proposés. En cas de doute, ne précisez pas.",
+      "teacherHint": "Choisissez les enseignants que vous voulez évaluer. Si le cours a plusieurs enseignants et que votre avis ne vise personne en particulier, vous pouvez laisser ce champ vide.",
       "moreTerms": "Plus de semestres",
       "ratingsRequired": "Notez les cinq critères pour publier.",
       "title": "Titre",
@@ -588,7 +588,11 @@
       "ratingsDone": "notes ({done} sur {total} choisies)",
       "enrollmentActive": "L’autorisation est activée. À la publication, vos inscriptions sont vérifiées et le résultat est affiché sur l’avis.",
       "enrollmentInactive": "L’autorisation des données scolaires est désactivée : votre avis affichera cette étiquette.",
-      "enrollmentSetup": "L’activer"
+      "enrollmentSetup": "L’activer",
+      "titlePlaceholder": "Résumez votre avis en une phrase, par ex. « Je recommande vivement M. X » ou « Cours à éviter »",
+      "courseTemplate": "Ressenti des cours :\nDevoirs et charge de travail :\nÀ propos des examens :",
+      "courseTemplateHint": "Exprimez-vous librement. Le modèle par défaut peut être modifié.",
+      "courseWritingTip": "Un bon avis est factuel et complet. Si un cours est bien enseigné mais que l’examen est difficile, mentionner les deux aide vos camarades à faire un choix éclairé. Les plus jeunes (et les aînés qui galèrent) vous remercient."
     },
     "disclosure": {
       "title": "Informations vérifiées à afficher",

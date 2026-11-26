@@ -36,7 +36,11 @@ const textOnly = computed(() => !!props.draft && !props.schoolId)
 const original = props.draft?.input
 const withdrawn = props.draft?.withdrawn === true
 const title = ref(original?.title ?? '')
-const body = ref(original?.body ?? (props.kind === 'mentor' ? t('academic.editor.mentorTemplate') : ''))
+// New course and mentor reviews start from an editable template. Text that is only
+// the untouched template does not count as written content.
+const template = props.kind === 'mentor' ? t('academic.editor.mentorTemplate') : props.kind === 'course' ? t('academic.editor.courseTemplate') : ''
+const body = ref(original?.body ?? template)
+const bodyWritten = computed(() => !!body.value.trim() && body.value.trim() !== template.trim())
 const term = ref(original?.term_id ?? props.initialTermId ?? '')
 const teacher = ref(original?.teacher_id ?? '')
 const signed = ref(original?.signed ?? false)
@@ -100,7 +104,7 @@ const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.s
 // Enrollment is no longer a disclosure: every course review carries its status automatically.
 const disclosureOptions = computed(() => composer.value?.disclosures ?? [])
 const missingConsent = computed(() => disclosureOptions.value.some(option => option.required && !disclosures.value.includes(option.key)))
-const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && bodyWritten.value && (props.kind === 'reply' || !!title.value.trim()))
 // What the author still has to fill in before publishing, named next to the disabled button.
 // Eligibility is decided by the server and explained in its own section above.
 const missing = computed(() => {
@@ -108,7 +112,7 @@ const missing = computed(() => {
   if (props.kind === 'course' && !term.value) items.push(t('academic.editor.term'))
   if (ratingsMissing.value) items.push(t('academic.editor.ratingsDone', { done: format.value.number(ratings.value.filter((level) => level > 0).length), total: format.value.number(ratings.value.length) }))
   if (props.kind !== 'reply' && !title.value.trim()) items.push(t('academic.editor.title'))
-  if (!body.value.trim()) items.push(t('academic.editor.body'))
+  if (!bodyWritten.value) items.push(t('academic.editor.body'))
   return items
 })
 const titleLimit = 200
@@ -263,9 +267,6 @@ async function cancel() {
   >
     <header class="stack-sm">
       <h2>{{ t(`academic.editor.heading.${kind}`) }}</h2>
-      <p class="small muted">
-        {{ t('academic.editor.identityHint') }}
-      </p>
     </header>
 
     <section
@@ -431,6 +432,7 @@ async function cancel() {
             v-model="title"
             class="input"
             :maxlength="titleLimit"
+            :placeholder="kind === 'course' ? t('academic.editor.titlePlaceholder') : undefined"
             required
           >
         </div>
@@ -460,6 +462,13 @@ async function cancel() {
         >
           {{ t('academic.editor.templateHint') }}
         </p>
+        <div
+          v-else-if="kind === 'course'"
+          class="field-hint stack-xs"
+        >
+          <p>{{ t('academic.editor.courseTemplateHint') }}</p>
+          <p>{{ t('academic.editor.courseWritingTip') }}</p>
+        </div>
 
         <label
           v-if="identity === 'choice'"

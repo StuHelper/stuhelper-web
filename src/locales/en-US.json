@@ -70,7 +70,8 @@
     "scrollBack": "Scroll back",
     "scrollForward": "Scroll forward",
     "searchOptions": "Search options",
-    "noOptionMatch": "No matching options"
+    "noOptionMatch": "No matching options",
+    "back": "Back"
   },
   "errors": {
     "disabled": "Group services are disabled.",
@@ -399,7 +400,7 @@
       "reloadTeachers": "Reload teachers"
     },
     "subject": {
-      "writeCourse": "Write a course review",
+      "writeCourse": "Post a course review",
       "writeMentor": "Write a mentor comment",
       "resources": "Course resources",
       "inactive": "Inactive",
@@ -550,18 +551,17 @@
     },
     "editor": {
       "heading": {
-        "course": "Write a course review",
+        "course": "Post a course review",
         "mentor": "Write a mentor comment",
         "reply": "Reply"
       },
-      "identityHint": "Your platform nickname is private by default. Verified information selected below is disclosed separately.",
       "eligibility": "Publication requirements",
       "refreshEligibility": "Check requirements again",
       "remaining": "Editing time left for the withdrawn draft: {hours} h {minutes} min",
       "term": "Reviewed semester",
       "termsUnavailable": "The semester list could not load. Please try again later.",
       "teacher": "Teaching staff",
-      "teacherHint": "With school data authorization, teachers come from your own enrollment for the term; otherwise all teachers of this course in the term are listed. If unsure, leave it unspecified.",
+      "teacherHint": "Choose the teachers you want to review. If the course has several teachers and your review is not about a specific one, you can leave this empty.",
       "moreTerms": "More semesters",
       "ratingsRequired": "Rate all five items to publish.",
       "title": "Title",
@@ -588,7 +588,11 @@
       "ratingsDone": "ratings ({done} of {total} chosen)",
       "enrollmentActive": "School data authorization is on. When you publish, your own enrollment is checked and the result is shown on the review.",
       "enrollmentInactive": "School data authorization is off, so your review will show this label.",
-      "enrollmentSetup": "Turn it on"
+      "enrollmentSetup": "Turn it on",
+      "titlePlaceholder": "Sum up your view in one sentence, e.g. “Highly recommend Prof. X” or “Avoid this course”",
+      "courseTemplate": "How the lectures felt:\nHomework and workload:\nAbout the exams:",
+      "courseTemplateHint": "Say whatever you like. Edit the default template as needed.",
+      "courseWritingTip": "Ideally a review is factual and complete. If a course is taught well but the exam is hard, mentioning both helps classmates make a balanced choice. Younger students (and struggling seniors) thank you."
     },
     "disclosure": {
       "title": "Verified information to display",

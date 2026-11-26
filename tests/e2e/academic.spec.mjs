@@ -144,6 +144,19 @@ test('directory filters stay out of the address, survive reload and come back fr
   await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
   expect(listCalls).toEqual([]);
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
+  // The back link on the detail page returns to the same kept list, like the browser button.
+  await page.getByRole('link', { name: /Test Course/ }).first().evaluate((link) => link.click());
+  await expect(page).toHaveURL(/\/courses\/course/);
+  await page.locator('.page-back').click();
+  await expect(page).toHaveURL(/\/courses(\?|$)/);
+  await expect(page.locator('.list-page')).toHaveAttribute('data-kept', 'yes');
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
+  expect(listCalls).toEqual([]);
+  // Opened directly, the detail page has no previous page and its back link opens the list.
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.locator('.page-back').click();
+  await expect(page).toHaveURL(/\/courses(\?|$)/);
+  await expect.poll(() => listCalls.length).toBeGreaterThan(0);
 });
 
 test('the teacher directory is open and lists teachers from the server', async ({ page }, info) => {
@@ -621,6 +634,11 @@ test('the editor names what is still missing and keeps plain field names beside 
   const publish = editor.getByRole('button', { name: a.editor.publish, exact: true });
   await expect(editor.getByText(missing([a.editor.term, ratings(0), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();
   await expect(publish).toBeDisabled();
+  // A new course review starts from the editable template, which alone does not count as text.
+  await expect(editor.getByLabel(a.editor.body, { exact: true })).toHaveValue(a.editor.courseTemplate);
+  await expect(editor.getByLabel(a.editor.title, { exact: true })).toHaveAttribute('placeholder', a.editor.titlePlaceholder);
+  await expect(editor.getByText(a.editor.courseTemplateHint, { exact: true })).toBeVisible();
+  await expect(editor.getByText(a.editor.courseWritingTip, { exact: true })).toBeVisible();
   await pick(editor, 'spring');
   for (const name of ['recommendation', 'quality']) await editor.locator(`label:has(input[name="rating-${name}"][value="4"])`).click();
   await expect(editor.getByText(missing([ratings(2), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();

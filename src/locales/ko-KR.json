@@ -70,7 +70,8 @@
     "scrollBack": "이전으로 스크롤",
     "scrollForward": "다음으로 스크롤",
     "searchOptions": "옵션 검색",
-    "noOptionMatch": "일치하는 옵션이 없습니다"
+    "noOptionMatch": "일치하는 옵션이 없습니다",
+    "back": "뒤로"
   },
   "errors": {
     "disabled": "그룹 서비스가 비활성화되어 있습니다.",
@@ -399,7 +400,7 @@
       "reloadTeachers": "교수 다시 불러오기"
     },
     "subject": {
-      "writeCourse": "강의 평가 작성",
+      "writeCourse": "강의평 올리기",
       "writeMentor": "지도교수 후기 작성",
       "resources": "강의 자료",
       "inactive": "비활성",
@@ -550,18 +551,17 @@
     },
     "editor": {
       "heading": {
-        "course": "강의 평가 작성",
+        "course": "강의평 올리기",
         "mentor": "지도교수 후기 작성",
         "reply": "답글"
       },
-      "identityHint": "플랫폼 닉네임은 기본적으로 비공개입니다. 아래에서 선택한 인증 정보는 별도로 공개됩니다.",
       "eligibility": "게시 조건",
       "refreshEligibility": "조건 다시 확인",
       "remaining": "회수한 임시 저장의 남은 편집 시간: {hours}시간 {minutes}분",
       "term": "평가 대상 학기",
       "termsUnavailable": "학기 목록을 불러오지 못했습니다. 잠시 후 다시 시도하세요.",
       "teacher": "담당 교원",
-      "teacherHint": "학교 데이터를 연동하면 해당 학기 본인 수강 기록의 교수가 표시되고, 아니면 해당 학기 이 강의의 모든 담당 교수가 표시됩니다. 잘 모르겠으면 지정하지 않아도 됩니다.",
+      "teacherHint": "평가할 교수를 선택하세요. 담당 교수가 여러 명이고 특정 교수에 대한 평가가 아니라면 지정하지 않아도 됩니다.",
       "moreTerms": "다른 학기",
       "ratingsRequired": "다섯 항목을 모두 평가해야 게시할 수 있습니다.",
       "title": "제목",
@@ -588,7 +588,11 @@
       "ratingsDone": "평가({total}개 중 {done}개 선택)",
       "enrollmentActive": "학교 데이터가 연동되어 있습니다. 게시할 때 본인의 수강 기록을 자동으로 확인해 강의평에 표시합니다.",
       "enrollmentInactive": "학교 데이터를 연동하지 않아 강의평에 이 표시가 붙습니다.",
-      "enrollmentSetup": "연동하기"
+      "enrollmentSetup": "연동하기",
+      "titlePlaceholder": "의견을 한 문장으로 요약하세요. 예: “X 교수님 강력 추천” 또는 “이 강의는 피하세요”",
+      "courseTemplate": "강의 느낌:\n과제/작업량:\n시험 관련:",
+      "courseTemplateHint": "자유롭게 작성하세요. 기본 템플릿은 필요에 따라 수정할 수 있습니다.",
+      "courseWritingTip": "강의평은 사실에 근거하고 빠짐없이 쓰는 것이 좋습니다. 강의는 좋지만 시험이 어렵다면 둘 다 적어 주어야 학우들이 균형 있게 판단할 수 있습니다. 후배들(과 고군분투 중인 선배들)이 감사합니다."
     },
     "disclosure": {
       "title": "공개할 인증 정보",

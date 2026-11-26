@@ -70,7 +70,8 @@
     "scrollBack": "Desplazar atrás",
     "scrollForward": "Desplazar adelante",
     "searchOptions": "Buscar opciones",
-    "noOptionMatch": "No hay opciones que coincidan"
+    "noOptionMatch": "No hay opciones que coincidan",
+    "back": "Volver"
   },
   "errors": {
     "disabled": "El servicio de grupos está desactivado.",
@@ -399,7 +400,7 @@
       "reloadTeachers": "Recargar profesores"
     },
     "subject": {
-      "writeCourse": "Escribir una reseña",
+      "writeCourse": "Publicar reseña de curso",
       "writeMentor": "Comentar la supervisión",
       "resources": "Materiales del curso",
       "inactive": "Inactivo",
@@ -550,18 +551,17 @@
     },
     "editor": {
       "heading": {
-        "course": "Escribir una reseña",
+        "course": "Publicar reseña de curso",
         "mentor": "Comentar la supervisión",
         "reply": "Responder"
       },
-      "identityHint": "Tu alias es privado por defecto. Los datos verificados elegidos abajo se publican por separado.",
       "eligibility": "Requisitos para publicar",
       "refreshEligibility": "Volver a comprobar requisitos",
       "remaining": "Tiempo restante del borrador retirado: {hours} h {minutes} min",
       "term": "Semestre evaluado",
       "termsUnavailable": "No se pudo cargar la lista de semestres. Inténtalo más tarde.",
       "teacher": "Docentes del curso",
-      "teacherHint": "Con la autorización, los profesores salen de tu matrícula del periodo; si no, se muestran todos los profesores de la asignatura en ese periodo. Si dudas, déjalo sin especificar.",
+      "teacherHint": "Elige los profesores que quieres evaluar. Si el curso tiene varios profesores y tu reseña no se refiere a uno concreto, puedes dejarlo vacío.",
       "moreTerms": "Más semestres",
       "ratingsRequired": "Valora los cinco aspectos para publicar.",
       "title": "Título",
@@ -588,7 +588,11 @@
       "ratingsDone": "valoraciones ({done} de {total} elegidas)",
       "enrollmentActive": "La autorización está activada. Al publicar se comprueba tu matrícula y el resultado aparece en la reseña.",
       "enrollmentInactive": "La autorización de datos escolares está desactivada, así que tu reseña mostrará esta etiqueta.",
-      "enrollmentSetup": "Activarla"
+      "enrollmentSetup": "Activarla",
+      "titlePlaceholder": "Resume tu opinión en una frase, p. ej. «Recomiendo mucho al profesor X» o «Evita este curso»",
+      "courseTemplate": "Impresión de las clases:\nTareas y carga de trabajo:\nSobre los exámenes:",
+      "courseTemplateHint": "Escribe con libertad. Puedes modificar la plantilla predeterminada.",
+      "courseWritingTip": "Lo ideal es que la reseña sea objetiva y completa. Si un curso se imparte bien pero el examen es difícil, mencionar ambas cosas ayuda a tus compañeros a decidir con criterio. Los más jóvenes (y los veteranos que lo pasan mal) te lo agradecen."
     },
     "disclosure": {
       "title": "Información verificada que se mostrará",
