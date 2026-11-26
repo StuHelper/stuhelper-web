@@ -13,6 +13,7 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { subjectPath, useAcademic, type NamedObject, type Review, type ReviewAction, type Submission } from './api'
 import { reviewLink, safeAvatar, stateTone, useAuthorName } from './presentation'
+import EnrollmentBadge from './EnrollmentBadge.vue'
 import RatingBands from './RatingBands.vue'
 import ReplyPreview from './ReplyPreview.vue'
 
@@ -40,6 +41,8 @@ const term = computed(() => (props.review.term_id ? props.names.get(props.review
 const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(props.review.author.profile?.avatar)))
 const locked = computed(() => write.busy.value || write.uncertain.value)
 const isRoot = computed(() => props.review.id === props.review.root_id)
+// Enrollment is shown by the status badge above; an old disclosure of it would repeat it.
+const shownDisclosures = computed(() => props.review.author.disclosures ?? [])
 const published = computed(() => props.review.state === 'published')
 const editWindowMs = 5 * 60_000
 const remainingSeconds = ref(0)
@@ -212,6 +215,10 @@ async function retry() {
             >{{ format.dateTime(review.published_at) }}</time>
             <template v-if="term"> · {{ term.name }}</template>
           </span>
+          <EnrollmentBadge
+            v-if="review.kind === 'course' && isRoot && review.enrollment_status"
+            :status="review.enrollment_status"
+          />
         </div>
       </div>
       <StatusTag
@@ -321,18 +328,16 @@ async function retry() {
     />
 
     <ul
-      v-if="review.author.disclosures?.length"
+      v-if="shownDisclosures.length"
       class="row disclosures"
       :aria-label="t('academic.disclosure.shown')"
     >
       <li
-        v-for="option in review.author.disclosures"
+        v-for="option in shownDisclosures"
         :key="option.key"
         class="tag tag-info"
       >
-        {{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key === 'enrollment'">
-          · {{ t(`academic.disclosure.enrollment.${option.value}`) }}
-        </template><template v-else-if="option.key !== 'teacher' && option.key !== 'real_name'">
+        {{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key !== 'teacher' && option.key !== 'real_name'">
           · {{ option.value }}
         </template>
       </li>
@@ -545,6 +550,7 @@ async function retry() {
 .review-author img, .review-avatar { flex: 0 0 36px; width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
 .review-avatar { display: grid; place-items: center; background: var(--fill-strong); color: var(--label-2); font-weight: 600; }
 .review-byline { gap: 0; }
+.review-byline .enrollment { margin-block-start: .3125rem; }
 .review-name { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .375rem; font-size: .9375rem; font-weight: 600; }
 .review-title { font-size: 1.1875rem; font-weight: 650; letter-spacing: var(--tracking-title); }
 .review-title a { color: inherit; }

@@ -45,6 +45,7 @@ async function fixture(page, accepted = false) {
   await page.context().addCookies([{ url: test.info().project.use.baseURL, name: 'stuhelper_csrf', value: csrf }]);
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/verification/**', async route => {
+    if (route.request().method() === 'GET' && new URL(route.request().url()).pathname.endsWith('/me/school-data')) return route.fulfill({ json: { state: 'inactive' } });
     const request = route.request();
     const method = request.method();
     const endpoint = new URL(request.url()).pathname.split('/verification/')[1];
@@ -127,8 +128,9 @@ async function start(page, info, v, method = outbound) {
 }
 
 async function fillStudent(page, v, id) {
-  await page.getByLabel(v.studentId, { exact: true }).fill(id);
-  await page.getByLabel(v.name, { exact: true }).fill(student.name);
+  const steps = page.locator('section[aria-labelledby="verification-step-title"]');
+  await steps.getByLabel(v.studentId, { exact: true }).fill(id);
+  await steps.getByLabel(v.name, { exact: true }).fill(student.name);
 }
 
 async function expectNotice(page, v, reference) {

@@ -10,10 +10,19 @@ const application = { id: 'application', school_id: 'school', method: 'real_name
 const transferPublication = { document_id: 'email-transfer', version: 'v1', digest: 'a'.repeat(64) };
 const transferStatus = { document: { ...transferPublication, url: 'https://example.com/legal/email-transfer/v1' }, accepted: false };
 async function fixture(page, options = {}) {
-  const state = { writes: [], profile: { school_id: 'school', data_status: 'partial', schema: 'buaa.imported.v1', revision: 1, collected_at: '2020-01-01T00:00:00Z', source_revision: '1', fields: { student_id: '20260001', name: 'Synthetic Student', college_name: 'Test College', major_name: null, department: 'Test Department', contact_email: 'synthetic@example.edu' }, field_sources: { student_id: 'oracle_students', name: 'unknown', college_name: 'academic_profile', department: 'oracle_departments', contact_email: 'future_source' } } };
+  const state = { writes: [], schoolData: { state: 'inactive' }, schoolDataWrites: [], profile: { school_id: 'school', data_status: 'partial', schema: 'buaa.imported.v1', revision: 1, collected_at: '2020-01-01T00:00:00Z', source_revision: '1', fields: { student_id: '20260001', name: 'Synthetic Student', college_name: 'Test College', major_name: null, department: 'Test Department', contact_email: 'synthetic@example.edu' }, field_sources: { student_id: 'oracle_students', name: 'unknown', college_name: 'academic_profile', department: 'oracle_departments', contact_email: 'future_source' } } };
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/verification/**', route => {
     const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
+    if (endpoint === 'me/school-data') {
+      if (request.method() === 'PUT') {
+        const body = request.postDataJSON();
+        state.schoolDataWrites.push({ ...body, password: body.password ? '[set]' : '' });
+        if (body.password === 'wrong') return route.fulfill({ status: 422, json: { code: 'school_credentials_rejected' } });
+        state.schoolData = { state: 'active', verified_at: '2026-11-26T00:00:00Z' };
+      } else if (request.method() === 'DELETE') state.schoolData = { state: 'inactive' };
+      return route.fulfill({ json: state.schoolData });
+    }
     if (request.method() === 'POST') {
       state.writes.push(request.postDataJSON());
       if (endpoint === 'applications') return route.fulfill({ json: options.school ? { ...application, ...request.postDataJSON() } : application });
@@ -51,6 +60,7 @@ async function open(page, info, { steps = false } = {}) {
   }
   await page.evaluate(() => document.fonts.ready);
 }
+const verificationSteps = page => page.locator('section[aria-labelledby="verification-step-title"]');
 const experiences = (page, info) => page.getByRole('region', { name: messages(info).verification.experiences, exact: true });
 const profileCard = (page, info) => page.getByRole('region', { name: messages(info).verification.profileTitle, exact: true });
 async function shot(page, info, name, target = page) {
@@ -65,7 +75,7 @@ test('verification dropdowns have zero layout displacement when opened and close
   await page.addStyleTag({ content: 'html { overflow-y: scroll; scrollbar-width: auto; } ::-webkit-scrollbar { width: 16px; }' });
   if (!headless && !info.project.name.startsWith('mobile')) expect(await page.evaluate(() => innerWidth - document.documentElement.clientWidth)).toBeGreaterThan(0);
   // One school needs no picker and identities are radio buttons, so the study stage is the one dropdown left in step one.
-  const controls = page.locator('form').first().getByRole('combobox');
+  const controls = verificationSteps(page).getByRole('combobox');
   await expect(controls).toHaveCount(1);
   for (let index = 0; index < await controls.count(); index++) {
     const control = controls.nth(index);
@@ -113,18 +123,18 @@ test('verification dropdowns have zero layout displacement when opened and close
 test('verification failure stays beside submit with focus and retained input', async ({ page }, info) => {
   const state = await fixture(page); await open(page, info, { steps: true });
   const m = messages(info), v = m.verification;
-  await page.getByLabel(v.consent).check();
-  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
-  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await verificationSteps(page).getByLabel(v.consent).check();
+  await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
+  await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('20260001');
   await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
   await page.getByLabel(v.document, { exact: true }).fill('TEST0001');
   await page.getByRole('button', { name: v.submit, exact: true }).click();
-  const error = page.locator('form').first().getByRole('alert');
+  const error = verificationSteps(page).getByRole('alert');
   await expect(error).toContainText(m.errors.information_mismatch);
   await expect(error).toBeFocused();
   await expect(error).toHaveAttribute('aria-live', 'assertive');
   await expect(page.getByRole('alert')).toHaveCount(1);
-  await expect(page.getByLabel(v.studentId, { exact: true })).toHaveValue('20260001');
+  await expect(verificationSteps(page).getByLabel(v.studentId, { exact: true })).toHaveValue('20260001');
   await expect(page.getByLabel(v.name, { exact: true })).toHaveValue('Synthetic Student');
   await expect(page.getByLabel(v.document, { exact: true })).toHaveValue('TEST0001');
   const a = await error.boundingBox(), b = await page.getByRole('button', { name: v.submit, exact: true }).boundingBox();
@@ -143,9 +153,9 @@ test('a check shows its wait, and repeated failures show a countdown that keeps 
     await new Promise((resolve) => { release = resolve; });
     return route.fulfill({ status: 429, headers: { 'Retry-After': '65' }, json: { code: 'rate_limited', retry_after_seconds: 65 } });
   });
-  await page.getByLabel(v.consent).check();
-  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
-  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await verificationSteps(page).getByLabel(v.consent).check();
+  await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
+  await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('20260001');
   await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
   await page.getByLabel(v.document, { exact: true }).fill('TEST0001');
   const submit = page.getByRole('button', { name: v.submit, exact: true });
@@ -158,7 +168,7 @@ test('a check shows its wait, and repeated failures show a countdown that keeps 
   // The countdown replaces the generic message, and the form stays filled but closed.
   await expect(page.getByText(m.errors.rate_limited)).toHaveCount(0);
   await expect(submit).toBeDisabled();
-  await expect(page.getByLabel(v.studentId, { exact: true })).toHaveValue('20260001');
+  await expect(verificationSteps(page).getByLabel(v.studentId, { exact: true })).toHaveValue('20260001');
   expect(checks).toBe(1);
 });
 
@@ -195,7 +205,7 @@ test('verification page banner is reserved for loading failures', async ({ page 
   const options = { loadFailure: true };
   await fixture(page, options); await open(page, info);
   await expect(page.getByRole('alert')).toHaveCount(1);
-  await expect(page.locator('form').first().getByRole('alert')).toHaveCount(0);
+  await expect(page.locator('form').getByRole('alert')).toHaveCount(0);
   // Retrying after the service recovers replaces the banner with the status.
   options.loadFailure = false;
   await page.getByRole('alert').getByRole('button', { name: messages(info).common.retry, exact: true }).click();
@@ -236,7 +246,7 @@ test('method cards keep methods an identity cannot use visible with the reason',
   await page.keyboard.press('ArrowDown');
   await expect(sso).toBeChecked();
   await expect(sso).toBeFocused();
-  await page.getByLabel(v.consent).check();
+  await verificationSteps(page).getByLabel(v.consent).check();
   // An alumnus cannot use the school account: the card stays, says why, and the choice and the consent reset.
   await page.getByRole('radio', { name: v.kinds.student, exact: true }).focus();
   await page.keyboard.press('ArrowRight');
@@ -244,8 +254,8 @@ test('method cards keep methods an identity cannot use visible with the reason',
   await expect(sso).toBeDisabled();
   await expect(sso).toHaveAccessibleDescription(v.picker.unavailable);
   await expect(realName).toBeChecked();
-  await expect(page.getByLabel(v.consent)).not.toBeChecked();
-  await expect(page.locator('form').first().getByRole('button', { name: v.continue, exact: true })).toBeDisabled();
+  await expect(verificationSteps(page).getByLabel(v.consent)).not.toBeChecked();
+  await expect(verificationSteps(page).getByRole('button', { name: v.continue, exact: true })).toBeDisabled();
   await shot(page, info, 'method-cards');
 });
 
@@ -276,13 +286,13 @@ test('school method capability removes stage and explains identity rejection', a
   await open(page, info, { steps: true });
   const m = messages(info), v = m.verification;
   await expect(page.getByRole('combobox', { name: v.stage, exact: true })).toHaveCount(0);
-  await page.getByLabel(v.consent).check();
-  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  await verificationSteps(page).getByLabel(v.consent).check();
+  await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
   expect(state.writes[0].stage).toBe('unknown');
-  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
-  await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
+  await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await verificationSteps(page).getByLabel(v.password, { exact: true }).fill('synthetic-password');
   await page.getByRole('button', { name: v.submit, exact: true }).click();
-  await expect(page.locator('form').first().getByRole('alert')).toContainText(m.errors.method_identity_not_allowed);
+  await expect(verificationSteps(page).getByRole('alert')).toContainText(m.errors.method_identity_not_allowed);
   await shot(page, info, 'method-capability');
 });
 
@@ -294,8 +304,8 @@ test('manual method keeps identity selection and advertises configured graduate 
   await expect(page.getByRole('combobox', { name: v.stage, exact: true })).toHaveCount(0);
   await expect(page.getByRole('group', { name: v.kind, exact: true })).toBeVisible();
   await expect(page.getByRole('radio', { name: v.kinds.student, exact: true })).toBeChecked();
-  await page.getByLabel(v.consent).check();
-  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
+  await verificationSteps(page).getByLabel(v.consent).check();
+  await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
   const materials = page.getByRole('combobox', { name: v.materialType, exact: true });
   await materials.click();
   await expect(page.getByRole('option', { name: v.materialTypes.graduation_certificate, exact: true })).toBeVisible();
@@ -310,18 +320,18 @@ for (const [method, codes] of Object.entries({ real_name_identity_check: ['real_
     const m = messages(info), v = m.verification;
     await expect(page.getByLabel(v.stage, { exact: true })).toHaveCount(0);
     if (method === 'real_name_identity_check') await expect(page.getByText(v.methodDescriptions.real_name_identity_check, { exact: true })).toBeVisible();
-    await page.getByLabel(v.consent).check();
-    await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
-    await page.getByLabel(v.studentId, { exact: true }).fill('ZY2306123');
-    if (method === 'school_sso') await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
+    await verificationSteps(page).getByLabel(v.consent).check();
+    await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
+    await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('ZY2306123');
+    if (method === 'school_sso') await verificationSteps(page).getByLabel(v.password, { exact: true }).fill('synthetic-password');
     else await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
     if (method === 'real_name_identity_check') await page.getByLabel(v.document, { exact: true }).fill('TEST0001');
     const outbound = method === 'student_email_outbound_otp';
     await page.getByRole('button', { name: outbound ? v.createChallenge : v.submit, exact: true }).click();
     if (outbound) await transferAgreeButton(page, v).click();
-    const error = page.locator('form').first().getByRole('alert');
+    const error = verificationSteps(page).getByRole('alert');
     await expect(error).toHaveText(m.errors[code]);
-    await expect(page.getByLabel(v.studentId, { exact: true })).toHaveValue('ZY2306123');
+    await expect(verificationSteps(page).getByLabel(v.studentId, { exact: true })).toHaveValue('ZY2306123');
     if (outbound) await expect(page.getByLabel(v.document, { exact: true })).toHaveCount(0);
     await expect(page.locator('html')).toHaveAttribute('dir', info.project.metadata.locale === 'ar-EG' ? 'rtl' : 'ltr');
   });
@@ -334,6 +344,7 @@ test('school email step shows live sending state, verifies six digits and allows
   const writes = [];
   await page.route('**/api/v1/catalog/objects**', route => route.fulfill({ json: { items: [], next_cursor: '' } }));
   await page.route('**/api/v1/verification/**', route => {
+    if (route.request().method() === 'GET' && new URL(route.request().url()).pathname.endsWith('/me/school-data')) return route.fulfill({ json: { state: 'inactive' } });
     const request = route.request(), endpoint = new URL(request.url()).pathname.split('/verification/')[1];
     if (request.method() === 'POST') writes.push(endpoint);
     if (request.method() === 'POST' && endpoint === 'applications') return route.fulfill({ json: mailApplication });
@@ -348,7 +359,7 @@ test('school email step shows live sending state, verifies six digits and allows
     return route.fulfill({ json: endpoint === 'schools' ? [mailSchool] : [] });
   });
   await open(page, info, { steps: true });
-  await page.getByRole('checkbox').check();
+  await verificationSteps(page).getByRole('checkbox', { name: v.consent, exact: true }).check();
   await page.getByRole('button', { name: v.continue }).click();
 
   // Going back re-enables the method selection without reloading the page.
@@ -359,7 +370,7 @@ test('school email step shows live sending state, verifies six digits and allows
   const current = page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]');
   await expect(current).toHaveText(new RegExp(v.steps.fill));
 
-  await page.getByLabel(v.studentId).fill('20260001');
+  await verificationSteps(page).getByLabel(v.studentId).fill('20260001');
   await page.getByLabel(v.name).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge }).click();
   await transferAgreeButton(page, v).click();
@@ -390,9 +401,9 @@ test('queued email can be resent after the cooldown without a delivered status',
     return route.fulfill({ json: [] });
   });
   await open(page, info, { steps: true });
-  await page.getByRole('checkbox').check();
+  await verificationSteps(page).getByRole('checkbox', { name: v.consent, exact: true }).check();
   await page.getByRole('button', { name: v.continue }).click();
-  await page.getByLabel(v.studentId).fill('20260001');
+  await verificationSteps(page).getByLabel(v.studentId).fill('20260001');
   await page.getByLabel(v.name).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge }).click();
   await transferAgreeButton(page, v).click();
@@ -433,9 +444,9 @@ test('restored email resend collects identity again before submitting', async ({
   await page.getByRole('region', { name: v.applications, exact: true }).getByRole('button', { name: v.continue, exact: true }).click();
   await expect(page.locator('.email-step')).toBeVisible();
   await page.getByRole('button', { name: v.emailStep.resend, exact: true }).click();
-  await expect(page.getByLabel(v.studentId, { exact: true })).toBeVisible();
+  await expect(verificationSteps(page).getByLabel(v.studentId, { exact: true })).toBeVisible();
   expect(writes).toEqual([]);
-  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('20260001');
   await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
   const agree = transferAgreeButton(page, v);
@@ -474,9 +485,9 @@ test('an inbound email challenge moves to the last step and shows its one-time a
   const challenge = { id: 'mail', application_id: 'application', expires_at: '2030-01-01T00:05:00Z', state: 'waiting', masked_email: '20****01@example.edu', target_address: 'verify-7f3a@example.edu' };
   await page.route('**/api/v1/verification/applications/application/email', route => route.request().method() === 'POST' ? route.fulfill({ json: challenge }) : route.fulfill({ status: 404, json: { code: 'not_found' } }));
   await open(page, info, { steps: true });
-  await page.getByLabel(v.consent).check();
-  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
-  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await verificationSteps(page).getByLabel(v.consent).check();
+  await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
+  await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('20260001');
   await page.getByLabel(v.name, { exact: true }).fill('Synthetic Student');
   await page.getByRole('button', { name: v.createChallenge, exact: true }).click();
   await expect(page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]')).toHaveText(new RegExp(v.steps.finish));
@@ -496,17 +507,46 @@ test('a failed school login returns the open application to the form for another
     return route.fulfill({ json: { ...application, method: 'school_sso', stage: 'unknown', school_challenge: { id: 'challenge', state: 'failed', code: 'school_credentials_rejected', expires_at: '2030-01-01T00:00:00Z', masked_phone: '' } } });
   });
   await open(page, info, { steps: true });
-  await page.getByLabel(v.consent).check();
-  await page.locator('form').first().getByRole('button', { name: v.continue, exact: true }).click();
-  await page.getByLabel(v.studentId, { exact: true }).fill('20260001');
-  await page.getByLabel(v.password, { exact: true }).fill('synthetic-password');
+  await verificationSteps(page).getByLabel(v.consent).check();
+  await verificationSteps(page).getByRole('button', { name: v.continue, exact: true }).click();
+  await verificationSteps(page).getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await verificationSteps(page).getByLabel(v.password, { exact: true }).fill('synthetic-password');
   await page.getByRole('button', { name: v.submit, exact: true }).click();
   await expect(page.getByRole('status').filter({ hasText: v.schoolStates.failed })).toBeVisible();
   await expect(page.getByRole('list', { name: v.steps.label, exact: true }).locator('[aria-current="step"]')).toHaveText(new RegExp(v.steps.fill));
   // The password is cleared after each attempt and can be entered again for the same application.
-  await expect(page.getByLabel(v.password, { exact: true })).toHaveValue('');
-  await page.getByLabel(v.password, { exact: true }).fill('synthetic-password-2');
+  await expect(verificationSteps(page).getByLabel(v.password, { exact: true })).toHaveValue('');
+  await verificationSteps(page).getByLabel(v.password, { exact: true }).fill('synthetic-password-2');
   await page.getByRole('button', { name: v.submit, exact: true }).click();
   await expect.poll(() => verifies.length).toBe(2);
   expect(verifies[1]).toMatchObject({ student_id: '20260001', password: 'synthetic-password-2' });
+});
+
+test('school data authorization explains storage, opens with consent and can be revoked', async ({ page }, info) => {
+  const v = messages(info).verification, sd = v.schoolData;
+  const state = await fixture(page); await open(page, info);
+  const card = page.getByRole('region', { name: sd.title, exact: true });
+  await expect(card.getByText(sd.inactive, { exact: true })).toBeVisible();
+  for (const point of Object.values(sd.points)) await expect(card.getByText(point, { exact: true })).toBeVisible();
+  const submit = card.getByRole('button', { name: sd.submit, exact: true });
+  await card.getByLabel(v.studentId, { exact: true }).fill('20260001');
+  await card.getByLabel(sd.password, { exact: true }).fill('wrong');
+  await expect(submit).toBeDisabled();
+  await card.getByLabel(sd.consent, { exact: true }).check();
+  await submit.click();
+  await expect(card.getByRole('alert')).toBeVisible();
+  // A rejected password is cleared; the student ID stays for the next try.
+  await expect(card.getByLabel(sd.password, { exact: true })).toHaveValue('');
+  await expect(card.getByLabel(v.studentId, { exact: true })).toHaveValue('20260001');
+  await card.getByLabel(sd.password, { exact: true }).fill('secret');
+  await submit.click();
+  await expect(card.getByText(sd.active, { exact: true })).toBeVisible();
+  await expect(card.getByText(sd.verifiedAt, { exact: true })).toBeVisible();
+  await expect(card.locator('dt')).toHaveCount(1);
+  expect(state.schoolDataWrites.at(-1)).toEqual({ student_id: '20260001', password: '[set]', accepted: true });
+  await card.getByRole('button', { name: sd.revoke, exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: sd.revokeTitle, exact: true });
+  await dialog.getByRole('button', { name: sd.revoke, exact: true }).click();
+  await expect(card.getByText(sd.inactive, { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

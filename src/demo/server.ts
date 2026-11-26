@@ -9,7 +9,7 @@ import { notificationsRoute } from './notifications'
 import { teacherApplications, teacherCaptured, teacherMaterialDeleted, teacherRoute } from './teacher'
 import { teacherHomepageRoute } from './teacher-homepage'
 import { myCoursesEnabled } from '../app/features'
-import { studentCaptured, studentMaterialDeleted, verificationRoute } from './verification'
+import { schoolDataActive, studentCaptured, studentMaterialDeleted, verificationRoute } from './verification'
 
 
 export type Persona = 'guest' | 'unverified' | 'processing' | 'verified' | 'expired' | 'rejected'
@@ -264,7 +264,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/reviews') {
     const input = await body(init)
     const id = nid('r')
-    reviews.unshift({ ...input, id, root_id: id, school_id: d.SCHOOL, author: { anonymous: !input.signed, handle: input.signed ? '小航同学' : '匿名同学' }, revision: 1, published_at: new Date().toISOString(), upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published' })
+    reviews.unshift({ ...input, id, root_id: id, school_id: d.SCHOOL, author: { anonymous: !input.signed, handle: input.signed ? '小航同学' : '匿名同学' }, revision: 1, published_at: new Date().toISOString(), upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published', ...(input.kind === 'course' ? { enrollment_status: schoolDataActive() ? 'enrolled' : 'unknown' } : {}) })
     return result(id)
   }
   if (p === '/reviews/me/entries') return json({ items: reviews.filter((r) => r.mine), next: '' })
