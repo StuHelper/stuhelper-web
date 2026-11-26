@@ -594,7 +594,10 @@
       "courseWritingTip": "Un bon avis est factuel et complet. Si un cours est bien enseigné mais que l’examen est difficile, mentionner les deux aide vos camarades à faire un choix éclairé. Les plus jeunes (et les aînés qui galèrent) vous remercient.",
       "enrolledMark": "inscrit",
       "enrolledLegend": "Les semestres et enseignants marqués en vert proviennent de votre propre inscription.",
-      "noTerms": "Aucun semestre n’est encore disponible pour ce cours."
+      "noTerms": "Aucun semestre n’est encore disponible pour ce cours.",
+      "enrollmentActiveThrough": "L’autorisation des données scolaires couvre jusqu’au {term}. Pour ce semestre et les précédents, votre inscription est vérifiée à la publication ; les semestres suivants affichent « Inscription inconnue ».",
+      "enrollmentHistorical": "Les revérifications sont arrêtées. Les cours jusqu’au {term} sont encore vérifiés d’après vos inscriptions ; les semestres suivants affichent « Inscription inconnue ».",
+      "enrollmentReopen": "Réactiver"
     },
     "disclosure": {
       "title": "Informations vérifiées à afficher",
@@ -1379,24 +1382,45 @@
       "title": "Autorisation des données scolaires",
       "active": "Activée",
       "inactive": "Désactivée",
-      "intro": "Une fois activée, nous lisons vos inscriptions dans le système de scolarité uniquement lorsque vous en avez besoin, par exemple pour proposer vos propres enseignants lors d’un avis et indiquer le statut d’inscription de vos avis de cours. Vous pouvez publier des avis sans l’activer ; ils afficheront « Inscription inconnue ».",
+      "intro": "Une fois activée, StuHelper lit vos inscriptions dans le système de scolarité uniquement quand vous en avez besoin, par exemple pour signaler les semestres et enseignants que vous avez suivis lorsque vous évaluez un cours et pour indiquer le statut d’inscription de vos avis. Vous pouvez évaluer sans l’activer ; vos avis afficheront « Inscription inconnue ».",
       "points": {
         "storage": "Votre compte et votre mot de passe scolaires sont conservés chiffrés sur nos serveurs. Seul le service de vérification peut les déchiffrer, et ils n’apparaissent jamais en clair dans les journaux ni les sauvegardes.",
-        "validity": "Après une vérification réussie, votre autorisation reste valable. La plateforme peut vérifier à nouveau votre compte selon la fréquence configurée ou à la demande d’un administrateur. Si votre établissement refuse votre mot de passe ou désactive votre compte, la plateforme révoque immédiatement votre autorisation et supprime l’identifiant et le mot de passe enregistrés.",
-        "labels": "Tant qu’elle est activée, vos avis de cours affichent automatiquement « Inscrit » ou « Non inscrit ». Désactivée ou en échec, ils affichent « Inscription inconnue ». Les avis publiés conservent leur étiquette d’origine.",
-        "revoke": "Vous pouvez la désactiver ici à tout moment. Le compte et le mot de passe enregistrés sont supprimés aussitôt et nous cessons de lire vos inscriptions."
+        "terms": "L’autorisation porte sur des semestres : le semestre où une vérification réussit et tous les précédents peuvent être lus ; les suivants ne le sont qu’après une nouvelle vérification réussie.",
+        "validity": "Après une vérification réussie, l’autorisation reste valable. StuHelper revérifie selon la fréquence configurée ou à la demande d’un administrateur, et chaque réussite l’étend au semestre en cours. Si l’établissement refuse le mot de passe ou désactive le compte, le compte et le mot de passe enregistrés sont supprimés et l’autorisation cesse de s’étendre ; les semestres autorisés restent lisibles.",
+        "labels": "Pour les semestres couverts, vos avis affichent automatiquement « Inscrit » ou « Non inscrit » ; hors de cette période ou sans autorisation, ils affichent « Inscription inconnue ». Les avis publiés conservent leur étiquette.",
+        "revoke": "Vous pouvez arrêter les revérifications ici à tout moment. Le compte et le mot de passe enregistrés sont aussitôt supprimés ; les semestres autorisés restent lisibles et les suivants ne sont pas lus. La fermeture du compte efface toute l’autorisation."
       },
       "password": "Mot de passe d’authentification unique de l’école",
-      "consent": "J’ai lu ce qui précède et j’accepte que StuHelper conserve chiffrés mon compte et mon mot de passe scolaires pour lire mes propres inscriptions et afficher le statut d’inscription sur mes avis de cours.",
+      "consent": "J’ai lu ce qui précède et j’accepte que StuHelper conserve mon compte et mon mot de passe chiffrés, lise mes inscriptions semestre par semestre, affiche le statut d’inscription sur mes avis et continue d’utiliser les semestres autorisés après l’arrêt des revérifications.",
       "submit": "Activer l’autorisation",
       "needsCampus": "Terminez la vérification étudiante avant d’activer l’autorisation des données scolaires.",
       "verifiedAt": "Dernière vérification",
-      "revoke": "Désactiver",
-      "revokeTitle": "Désactiver l’autorisation des données scolaires ?",
-      "revokeMessage": "Le compte et le mot de passe enregistrés seront supprimés immédiatement et nous cesserons de lire vos inscriptions. Les avis publiés ensuite afficheront « Inscription inconnue » ; les avis déjà publiés gardent leur étiquette.",
       "opened": "L’autorisation des données scolaires est activée.",
-      "revoked": "L’autorisation des données scolaires est désactivée.",
-      "mismatch": "Ce numéro d’étudiant ne correspond pas à votre identité étudiante vérifiée. Utilisez votre propre compte scolaire."
+      "mismatch": "Ce numéro d’étudiant ne correspond pas à votre identité étudiante vérifiée. Utilisez votre propre compte scolaire.",
+      "historical": "Revérifications arrêtées",
+      "through": "Autorisé jusqu’à",
+      "throughUnknown": "Pas encore déterminé",
+      "term": "{season} {year}",
+      "seasons": {
+        "spring": "semestre de printemps",
+        "summer": "semestre d’été",
+        "autumn": "semestre d’automne"
+      },
+      "historicalNote": "Les revérifications sont arrêtées et le compte et le mot de passe enregistrés ont été supprimés. Les inscriptions jusqu’au {term} restent utilisables ; les semestres suivants ne sont pas lus. Une nouvelle activation étend l’autorisation au semestre en cours.",
+      "historicalNoTerm": "Les revérifications sont arrêtées et le compte et le mot de passe enregistrés ont été supprimés. Une nouvelle activation détermine à nouveau les semestres autorisés.",
+      "reopen": "Réactiver pour étendre",
+      "stop": "Arrêter les revérifications",
+      "stopTitle": "Arrêter les revérifications des données scolaires ?",
+      "stopMessage": "Le compte et le mot de passe enregistrés seront aussitôt supprimés et l’autorisation ne s’étendra plus. Les inscriptions jusqu’au {term} restent utilisables ; les semestres suivants ne sont pas lus et les avis correspondants affichent « Inscription inconnue ». Les avis publiés conservent leur étiquette.",
+      "stopMessageNoTerm": "Le compte et le mot de passe enregistrés seront aussitôt supprimés et l’autorisation ne s’étendra plus. Les avis publiés ensuite affichent « Inscription inconnue » ; les avis publiés conservent leur étiquette.",
+      "stopped": "Revérifications arrêtées ; le compte et le mot de passe enregistrés ont été supprimés.",
+      "historyConsent": {
+        "title": "Veuillez confirmer les nouvelles règles",
+        "text": "L’autorisation des données scolaires porte désormais sur des semestres : après l’arrêt des revérifications ou un échec, les inscriptions des semestres autorisés restent utilisées pour vos cours, votre emploi du temps et vos avis, et les semestres suivants ne sont pas lus. Les règles que vous aviez acceptées prévoyaient l’arrêt de toute lecture ; les semestres passés ne sont donc conservés qu’après votre confirmation.",
+        "check": "J’ai lu les nouvelles règles et j’accepte que les semestres autorisés restent utilisés après l’arrêt des revérifications.",
+        "submit": "Accepter et conserver les semestres autorisés",
+        "done": "Les semestres autorisés sont conservés selon les nouvelles règles."
+      }
     }
   },
   "contribution": {

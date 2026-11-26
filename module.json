@@ -238,7 +238,8 @@
       "tests/e2e/academic.spec.mjs#course review lists the semester teachers, highlights own enrollment, takes several teachers and a grade, and publishes once",
       "tests/e2e/academic.spec.mjs#withdrawn is a grade choice of its own and needs no value",
       "tests/e2e/academic.spec.mjs#course review cards show the enrollment status captured at publication",
-      "src/features/academic/GradeInput.test.ts#keeps the level of a restored draft on another scale"
+      "src/features/academic/GradeInput.test.ts#keeps the level of a restored draft on another scale",
+      "tests/e2e/academic.spec.mjs#the review editor names the authorized term, also after rechecks have stopped"
     ],
     "NT-01": [
       "tests/e2e/notifications.spec.mjs#notifications show localized reasons and open a comment’s root review",
