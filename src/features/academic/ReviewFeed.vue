@@ -20,7 +20,7 @@ const names = shallowRef(new Map<string, CatalogObject>())
 const feed = usePaged(async (after, signal) => {
   // The list carries each review's reply count and first replies, so cards need no request of their own.
   const page = await api.reviews({ kind: props.kind, target_id: props.targetId, teacher_id: props.teacherId || teacher.value, term_id: term.value, sort: sort.value, after, limit: listSize, include_reply_preview: 'true' }, signal)
-  const found = await api.lookup(page.items.flatMap((row) => [row.target_id, row.term_id, row.teacher_id]), signal)
+  const found = await api.lookup(page.items.flatMap((row) => [row.target_id, row.term_id, ...(row.teacher_ids ?? [])]), signal)
   names.value = new Map([...(after ? names.value : []), ...found])
   return page
 })

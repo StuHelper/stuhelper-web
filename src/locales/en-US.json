@@ -559,7 +559,6 @@
       "refreshEligibility": "Check requirements again",
       "remaining": "Editing time left for the withdrawn draft: {hours} h {minutes} min",
       "term": "Reviewed semester",
-      "termsUnavailable": "The semester list could not load. Please try again later.",
       "teacher": "Teaching staff",
       "teacherHint": "Choose the teachers you want to review. If the course has several teachers and your review is not about a specific one, you can leave this empty.",
       "moreTerms": "More semesters",
@@ -592,7 +591,10 @@
       "titlePlaceholder": "Sum up your view in one sentence, e.g. “Highly recommend Prof. X” or “Avoid this course”",
       "courseTemplate": "How the lectures felt:\nHomework and workload:\nAbout the exams:",
       "courseTemplateHint": "Say whatever you like. Edit the default template as needed.",
-      "courseWritingTip": "Ideally a review is factual and complete. If a course is taught well but the exam is hard, mentioning both helps classmates make a balanced choice. Younger students (and struggling seniors) thank you."
+      "courseWritingTip": "Ideally a review is factual and complete. If a course is taught well but the exam is hard, mentioning both helps classmates make a balanced choice. Younger students (and struggling seniors) thank you.",
+      "enrolledMark": "enrolled",
+      "enrolledLegend": "Terms and teachers marked in green come from your own enrollment record.",
+      "noTerms": "No terms are available for this course yet."
     },
     "disclosure": {
       "title": "Verified information to display",
@@ -664,6 +666,33 @@
         "not_enrolled": "The author had school data authorization when publishing, but their enrollment for this term does not include this course.",
         "unknown": "The author's enrollment could not be checked when publishing, for example because school data authorization was off."
       }
+    },
+    "grade": {
+      "label": "Your grade",
+      "hint": "Optional. Sharing your grade helps classmates judge more fully. It is shown publicly with the review, including anonymous reviews.",
+      "percentLabel": "Score (0–100)",
+      "percentInvalid": "Enter a whole number from 0 to 100.",
+      "levelLabel": "Grade",
+      "scales": {
+        "none": "Skip",
+        "percent": "Score",
+        "five_level": "Five-level",
+        "two_level": "Pass/fail",
+        "withdrawn": "Withdrew"
+      },
+      "five": {
+        "excellent": "Excellent",
+        "good": "Good",
+        "medium": "Fair",
+        "pass": "Pass",
+        "fail": "Fail"
+      },
+      "two": {
+        "pass": "Pass",
+        "fail": "Fail"
+      },
+      "display": "Grade: {value}",
+      "withdrawnDisplay": "Withdrew"
     }
   },
   "me": {

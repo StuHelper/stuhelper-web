@@ -16,7 +16,7 @@ const router = useRouter()
 const api = useAcademic()
 const entry = useAsync(async (signal) => {
   const review = await api.myEntry(props.id, signal)
-  return { review, names: await api.references([review.target_id, review.term_id, review.teacher_id], signal) }
+  return { review, names: await api.references([review.target_id, review.term_id, ...(review.teacher_ids ?? [])], signal) }
 })
 watch(() => props.id, () => void entry.reload(), { immediate: true })
 function updated(review: Review) {

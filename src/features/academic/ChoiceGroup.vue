@@ -1,18 +1,32 @@
 <script setup lang="ts">
+import { BadgeCheck } from 'lucide-vue-next'
 import { computed, ref, useId } from 'vue'
 
-// 选项较少时平铺单选胶囊。超过 limit 时先收起，当前选中项始终可见。
-const props = defineProps<{ label: string; options: { value: string; label: string }[]; disabled?: boolean; limit?: number; moreLabel?: string; compact?: boolean }>()
-const model = defineModel<string>({ required: true })
+// 选项较少时平铺胶囊。超过 limit 时先收起，选中项和标记项始终可见。
+// multiple 时为复选，model 是选中值的数组；否则为单选，model 是一个值。
+// marked 的选项（例如本人选课记录中的学期和教师）换色并带图标，markLabel 供读屏读出。
+type Option = { value: string; label: string; marked?: boolean }
+const props = defineProps<{ label: string; options: Option[]; disabled?: boolean; limit?: number; moreLabel?: string; compact?: boolean; multiple?: boolean; markLabel?: string }>()
+const model = defineModel<string | string[]>({ required: true })
 const name = useId()
 const expanded = ref(false)
+const selected = (value: string) => (Array.isArray(model.value) ? model.value.includes(value) : model.value === value)
 const collapsed = computed(() => !!props.limit && !expanded.value && props.options.length > props.limit)
 const visible = computed(() => {
   if (!collapsed.value) return props.options
   const head = props.options.slice(0, props.limit)
-  const chosen = props.options.find((item) => item.value === model.value)
-  return chosen && !head.includes(chosen) ? [...head, chosen] : head
+  return [...head, ...props.options.slice(props.limit).filter((item) => selected(item.value) || item.marked)]
 })
+function toggle(value: string, checked: boolean) {
+  if (!props.multiple) {
+    model.value = value
+    return
+  }
+  const current = Array.isArray(model.value) ? model.value : []
+  // Keep the option order so the saved selection does not depend on click order.
+  const next = new Set(checked ? [...current, value] : current.filter((item) => item !== value))
+  model.value = props.options.map((item) => item.value).filter((item) => next.has(item)).concat(current.filter((item) => next.has(item) && !props.options.some((o) => o.value === item)))
+}
 </script>
 
 <template>
@@ -27,16 +41,25 @@ const visible = computed(() => {
         v-for="item in visible"
         :key="item.value"
         class="choice"
-        :class="{ chosen: model === item.value }"
+        :class="{ chosen: selected(item.value), marked: item.marked }"
       >
         <input
-          type="radio"
+          :type="multiple ? 'checkbox' : 'radio'"
           :name="name"
           :value="item.value"
-          :checked="model === item.value"
-          @change="model = item.value"
+          :checked="selected(item.value)"
+          @change="toggle(item.value, ($event.target as HTMLInputElement).checked)"
         >
+        <BadgeCheck
+          v-if="item.marked"
+          class="mark-icon"
+          aria-hidden="true"
+        />
         <span>{{ item.label }}</span>
+        <span
+          v-if="item.marked && markLabel"
+          class="visually-hidden"
+        >{{ markLabel }}</span>
       </label>
       <button
         v-if="collapsed"
@@ -60,6 +83,11 @@ const visible = computed(() => {
 .choice input { position: absolute; opacity: 0; pointer-events: none; }
 .choice:focus-within, .more:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent-fill) 55%, transparent); outline-offset: 2px; }
 .choice.chosen { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
+/* 本人选课记录中的选项：绿色描边和图标，选中后仍保留图标。 */
+.choice.marked { gap: .3125rem; padding-inline-start: .625rem; box-shadow: inset 0 0 0 1.5px var(--success); background: var(--success-soft); color: var(--success); font-weight: 550; }
+.choice.marked.chosen { background: var(--accent-fill); color: var(--on-accent); }
+.mark-icon { flex: none; width: 1rem; height: 1rem; color: var(--success); }
+.choice.chosen .mark-icon { color: var(--on-accent); }
 .more { background: transparent; color: var(--accent); }
 /* 紧凑模式用于列表筛选：标题和选项同一行，选项过多时横滑。 */
 .compact { display: flex; align-items: center; gap: .625rem; min-width: 0; }

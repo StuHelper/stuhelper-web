@@ -111,7 +111,7 @@ test('an expired qualification keeps own records open and closes public content'
 test('switching the review tab asks before discarding an edited draft', async ({ page }, info) => {
   const all = catalogue(info), locale = info.project.metadata.locale;
   await academicFixture(page);
-  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_id: 'teacher-a', title: 'Saved title', body: 'Saved body', ratings: [3, 3, 3, 3, 3], signed: false }, expires_at: '2099-01-01T00:00:00Z', withdrawn: false, reference_ids: ['course'], reference_state: 'verified' };
+  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_ids: ['teacher-a'], title: 'Saved title', body: 'Saved body', ratings: [3, 3, 3, 3, 3], signed: false }, expires_at: '2099-01-01T00:00:00Z', withdrawn: false, reference_ids: ['course'], reference_state: 'verified' };
   await page.route('**/api/v1/reviews/me/drafts?**', (route) => route.fulfill({ json: [draft] }));
   await page.route('**/api/v1/reviews/me/drafts/draft', (route) => route.fulfill({ json: draft }));
   await page.route('**/api/v1/reviews/me/references?**', (route) => route.fulfill({ json: { items: [{ id: 'course', kind: 'course', name: 'Test Course' }], missing_ids: [] } }));
@@ -154,7 +154,7 @@ test('own vote receipts open their discussion and a withdrawal removes only the 
 test('an expired member edits draft text without resolving unverified catalog references', async ({ page }, info) => {
   const all = catalogue(info);
   await academicFixture(page);
-  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'hidden', term_id: 'term', teacher_id: '', title: 'Draft', body: 'Saved', ratings: [3, 3, 3, 3, 3], signed: false }, withdrawn: false, reference_ids: [], reference_state: 'unverified' };
+  const draft = { id: 'draft', revision: 1, input: { kind: 'course', target_id: 'hidden', term_id: 'term', teacher_ids: [], title: 'Draft', body: 'Saved', ratings: [3, 3, 3, 3, 3], signed: false }, withdrawn: false, reference_ids: [], reference_state: 'unverified' };
   const lookups = [], saves = [];
   await page.route('**/api/v1/verification/summary', route => route.fulfill({ json: { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-10-28T00:00:00Z', revision: 1, next_evaluation_at: null } }));
   await page.route('**/api/v1/reviews/me/references?**', route => {

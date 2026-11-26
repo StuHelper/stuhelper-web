@@ -36,7 +36,7 @@ test('my-reviews covers own entries, withdrawn countdown, uncertain draft delete
     {
       id: 'draft-withdrawn',
       revision: 2,
-      input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_id: 'teacher-a', title: 'Withdrawn draft', body: 'Rewriting within 24h', ratings: [4, 4, 3, 3, 4], signed: false },
+      input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_ids: ['teacher-a'], title: 'Withdrawn draft', body: 'Rewriting within 24h', ratings: [4, 4, 3, 3, 4], signed: false },
       expires_at: '2026-11-18T14:30:00Z',
       withdrawn: true,
       reference_ids: ['course'],
@@ -45,7 +45,7 @@ test('my-reviews covers own entries, withdrawn countdown, uncertain draft delete
     {
       id: 'draft-normal',
       revision: 1,
-      input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_id: 'teacher-a', title: 'Normal draft', body: 'Scratch notes', ratings: [3, 3, 3, 3, 3], signed: false },
+      input: { kind: 'course', target_id: 'course', term_id: 'fall', teacher_ids: ['teacher-a'], title: 'Normal draft', body: 'Scratch notes', ratings: [3, 3, 3, 3, 3], signed: false },
       withdrawn: false,
       reference_ids: ['course'],
       reference_state: 'verified',

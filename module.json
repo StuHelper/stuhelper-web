@@ -234,7 +234,10 @@
     ],
     "REVIEW-EDITOR-01": [
       "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters",
-      "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write"
+      "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write",
+      "tests/e2e/academic.spec.mjs#course review lists the semester teachers, highlights own enrollment, takes several teachers and a grade, and publishes once",
+      "tests/e2e/academic.spec.mjs#withdrawn is a grade choice of its own and needs no value",
+      "tests/e2e/academic.spec.mjs#course review cards show the enrollment status captured at publication"
     ],
     "NT-01": [
       "tests/e2e/notifications.spec.mjs#notifications show localized reasons and open a comment’s root review",

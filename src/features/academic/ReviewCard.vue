@@ -36,7 +36,17 @@ const appendBody = ref('')
 const success = ref('')
 
 const target = computed(() => props.names.get(props.review.target_id))
-const teacher = computed(() => (props.review.teacher_id ? props.names.get(props.review.teacher_id) : undefined))
+// Several teachers may be chosen. No teacher means the review is about the course as a whole.
+const teacherNames = computed(() => (props.review.teacher_ids ?? []).map((id) => props.names.get(id)?.name ?? t('common.unknown')))
+const teacherText = computed(() => (teacherNames.value.length ? format.value.list(teacherNames.value) : t('academic.review.noTeacher')))
+// The author's own grade or withdrawal, shown as entered.
+const gradeText = computed(() => {
+  const grade = props.review.grade
+  if (!grade) return ''
+  if (grade.scale === 'withdrawn') return t('academic.grade.withdrawnDisplay')
+  const value = grade.scale === 'percent' ? format.value.number(grade.value) : t(`academic.grade.${grade.scale === 'five_level' ? 'five' : 'two'}.${grade.value}`)
+  return t('academic.grade.display', { value })
+})
 const term = computed(() => (props.review.term_id ? props.names.get(props.review.term_id) : undefined))
 const avatar = computed(() => (props.review.author.anonymous ? '' : safeAvatar(props.review.author.profile?.avatar)))
 const locked = computed(() => write.busy.value || write.uncertain.value)
@@ -240,7 +250,7 @@ async function retry() {
         {{ target.name }}
       </RouterLink>
       <template v-if="review.kind === 'course'">
-        {{ hideTarget ? '' : '·' }} {{ teacher ? teacher.name : review.teacher_id ? t('common.unknown') : t('academic.review.noTeacher') }}
+        {{ hideTarget ? '' : '·' }} {{ teacherText }}
       </template>
     </p>
 
@@ -256,6 +266,12 @@ async function retry() {
         {{ review.title }}
       </RouterLink>
     </h3>
+    <p
+      v-if="gradeText"
+      class="review-grade small"
+    >
+      {{ gradeText }}
+    </p>
     <p
       ref="bodyElement"
       class="review-body prewrap"

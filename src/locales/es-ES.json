@@ -559,7 +559,6 @@
       "refreshEligibility": "Volver a comprobar requisitos",
       "remaining": "Tiempo restante del borrador retirado: {hours} h {minutes} min",
       "term": "Semestre evaluado",
-      "termsUnavailable": "No se pudo cargar la lista de semestres. Inténtalo más tarde.",
       "teacher": "Docentes del curso",
       "teacherHint": "Elige los profesores que quieres evaluar. Si el curso tiene varios profesores y tu reseña no se refiere a uno concreto, puedes dejarlo vacío.",
       "moreTerms": "Más semestres",
@@ -592,7 +591,10 @@
       "titlePlaceholder": "Resume tu opinión en una frase, p. ej. «Recomiendo mucho al profesor X» o «Evita este curso»",
       "courseTemplate": "Impresión de las clases:\nTareas y carga de trabajo:\nSobre los exámenes:",
       "courseTemplateHint": "Escribe con libertad. Puedes modificar la plantilla predeterminada.",
-      "courseWritingTip": "Lo ideal es que la reseña sea objetiva y completa. Si un curso se imparte bien pero el examen es difícil, mencionar ambas cosas ayuda a tus compañeros a decidir con criterio. Los más jóvenes (y los veteranos que lo pasan mal) te lo agradecen."
+      "courseWritingTip": "Lo ideal es que la reseña sea objetiva y completa. Si un curso se imparte bien pero el examen es difícil, mencionar ambas cosas ayuda a tus compañeros a decidir con criterio. Los más jóvenes (y los veteranos que lo pasan mal) te lo agradecen.",
+      "enrolledMark": "matriculado",
+      "enrolledLegend": "Los semestres y profesores marcados en verde proceden de tu propia matrícula.",
+      "noTerms": "Este curso aún no tiene semestres disponibles."
     },
     "disclosure": {
       "title": "Información verificada que se mostrará",
@@ -664,6 +666,33 @@
         "not_enrolled": "El autor tenía la autorización activa al publicar, pero su matrícula de este periodo no incluye esta asignatura.",
         "unknown": "No se pudo comprobar la matrícula del autor al publicar, por ejemplo porque no tenía la autorización activada."
       }
+    },
+    "grade": {
+      "label": "Tu nota",
+      "hint": "Opcional. Compartir tu nota ayuda a tus compañeros a valorar con más criterio. Se muestra públicamente con la reseña, también en las anónimas.",
+      "percentLabel": "Nota (0–100)",
+      "percentInvalid": "Introduce un número entero de 0 a 100.",
+      "levelLabel": "Calificación",
+      "scales": {
+        "none": "No indicar",
+        "percent": "Sobre 100",
+        "five_level": "Cinco niveles",
+        "two_level": "Apto/no apto",
+        "withdrawn": "Me di de baja"
+      },
+      "five": {
+        "excellent": "Sobresaliente",
+        "good": "Notable",
+        "medium": "Bien",
+        "pass": "Aprobado",
+        "fail": "Suspenso"
+      },
+      "two": {
+        "pass": "Apto",
+        "fail": "No apto"
+      },
+      "display": "Nota: {value}",
+      "withdrawnDisplay": "Se dio de baja"
     }
   },
   "me": {
