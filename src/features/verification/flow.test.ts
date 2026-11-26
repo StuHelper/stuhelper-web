@@ -150,7 +150,7 @@ it('uses only the selected credential time and clears profile context on refresh
 it('uses method capabilities to hide study stage while preserving manual identity selection', async () => {
   const flow = mountFlow()
   await flow.reload()
-  flow.schools.value.push({ ...school('configured'), enabled: true, opening_date: '', newcomer_days: 90, email_domain: '', revision: 1, methods: ['manual_material_review'], profile_schema: 'custom.v1', method_capabilities: { manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] } } })
+  flow.schools.value.push({ ...school('configured'), enabled: true, school_data_recheck_days: 0, opening_date: '', newcomer_days: 90, email_domain: '', revision: 1, methods: ['manual_material_review'], profile_schema: 'custom.v1', method_capabilities: { manual_material_review: { study_stage_required: false, allowed_kinds: ['student', 'alumni'] } } })
   flow.selectedSchool.value = 'configured'
   flow.selectedMethod.value = 'manual_material_review'
   await settle()
