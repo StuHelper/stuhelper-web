@@ -1349,7 +1349,7 @@
       "intro": "When this is on, we read your enrollment from the school's academic system only when you need it, such as listing your own teachers when you review a course and labeling the enrollment status of your course reviews. You can still review courses without it; your reviews will show “Enrollment unknown”.",
       "points": {
         "storage": "Your school account and password are kept encrypted on our servers. Only the verification service can decrypt them, and they never appear in logs or backups in plain text.",
-        "validity": "Each successful check is valid for 24 hours, and we recheck regularly through the same school service. If a check fails, we stop reading your enrollment at once.",
+        "validity": "Your authorization stays active after a successful check. Checks can run on the configured schedule or at an administrator’s request. If the school rejects your password or disables your account, the platform immediately revokes the authorization and deletes the stored account details and password.",
         "labels": "While this is on, your course reviews automatically show “Enrolled” or “Not enrolled”. When it is off or a check has failed, they show “Enrollment unknown”. Published reviews keep the label they had when published.",
         "revoke": "You can turn this off here at any time. Your stored account and password are deleted immediately and we stop reading your enrollment."
       },
@@ -1358,7 +1358,6 @@
       "submit": "Turn on school data authorization",
       "needsCampus": "Complete student verification before turning on school data authorization.",
       "verifiedAt": "Last checked",
-      "expiresAt": "Valid until",
       "revoke": "Turn off",
       "revokeTitle": "Turn off school data authorization?",
       "revokeMessage": "Your stored school account and password will be deleted immediately and we will stop reading your enrollment. Reviews you publish afterwards show “Enrollment unknown”; published reviews keep their labels.",

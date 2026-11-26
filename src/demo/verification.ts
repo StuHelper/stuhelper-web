@@ -168,7 +168,7 @@ export function studentMaterialDeleted(id: string) {
 }
 
 /** 学校数据认证：演示里只记录是否开通，不保存账号和密码。 */
-let schoolData: { state: 'active' | 'inactive'; verified_at?: string; expires_at?: string } = { state: 'inactive' }
+let schoolData: { state: 'active' | 'inactive'; verified_at?: string } = { state: 'inactive' }
 export const schoolDataActive = () => schoolData.state === 'active'
 function schoolDataRoute(method: string, init: RequestInit | undefined) {
   if (method === 'PUT') {
@@ -176,7 +176,7 @@ function schoolDataRoute(method: string, init: RequestInit | undefined) {
     if (!eligible) return nope('permission_denied', 403)
     if (accepted !== true || !student_id || !password) return nope('invalid_input', 400)
     if (password === 'wrong') return nope('school_credentials_rejected', 422)
-    schoolData = { state: 'active', verified_at: new Date().toISOString(), expires_at: new Date(Date.now() + 86_400_000).toISOString() }
+    schoolData = { state: 'active', verified_at: new Date().toISOString() }
   } else if (method === 'DELETE') schoolData = { state: 'inactive' }
   return json(schoolData)
 }

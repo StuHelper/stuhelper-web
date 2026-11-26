@@ -98,7 +98,7 @@ const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   Operation: (v) => text(v.id) && oneOf(v.state, ['processing', 'completed', 'failed']) && text(v.code) && instant(v.expires_at),
   TeacherForm: (v) => sized(v.name, 0, 100) && sized(v.organization, 0, 100) && (v.gender === undefined || sized(v.gender, 0, 32)) && sized(v.email, 0, 254) && sized(v.material_type, 0, 64) && strings(v.material_ids) && v.material_ids.length <= 5 && disclosures(v.disclosures) && count(v.revision),
   TeacherCredential: (v) => text(v.id) && text(v.school_id) && strings(v.teacher_ids) && oneOf(v.state, ['active', 'revoked', 'expired']) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at) && text(v.source) && text(v.note) && disclosures(v.disclosures),
-  SchoolDataAuthorization: (v) => oneOf(v.state, ['inactive', 'active']) && (v.verified_at === undefined || instant(v.verified_at)) && (v.expires_at === undefined || instant(v.expires_at)),
+  SchoolDataAuthorization: (v) => oneOf(v.state, ['inactive', 'active']) && (v.verified_at === undefined || instant(v.verified_at)),
   ManualInput: (v) => text(v.student_id) && text(v.name) && text(v.department) && text(v.email) && text(v.material_type) && strings(v.material_ids) && count(v.revision),
 }
 

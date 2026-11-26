@@ -19,7 +19,7 @@ async function fixture(page, options = {}) {
         const body = request.postDataJSON();
         state.schoolDataWrites.push({ ...body, password: body.password ? '[set]' : '' });
         if (body.password === 'wrong') return route.fulfill({ status: 422, json: { code: 'school_credentials_rejected' } });
-        state.schoolData = { state: 'active', verified_at: '2026-11-26T00:00:00Z', expires_at: '2026-11-27T00:00:00Z' };
+        state.schoolData = { state: 'active', verified_at: '2026-11-26T00:00:00Z' };
       } else if (request.method() === 'DELETE') state.schoolData = { state: 'inactive' };
       return route.fulfill({ json: state.schoolData });
     }
@@ -542,6 +542,7 @@ test('school data authorization explains storage, opens with consent and can be 
   await submit.click();
   await expect(card.getByText(sd.active, { exact: true })).toBeVisible();
   await expect(card.getByText(sd.verifiedAt, { exact: true })).toBeVisible();
+  await expect(card.locator('dt')).toHaveCount(1);
   expect(state.schoolDataWrites.at(-1)).toEqual({ student_id: '20260001', password: '[set]', accepted: true });
   await card.getByRole('button', { name: sd.revoke, exact: true }).click();
   const dialog = page.getByRole('dialog', { name: sd.revokeTitle, exact: true });

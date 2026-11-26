@@ -1349,7 +1349,7 @@
       "intro": "Cuando está activada, leemos tu matrícula en el sistema académico de la universidad solo cuando la necesitas, por ejemplo para mostrar tus propios profesores al reseñar una asignatura y para indicar el estado de matrícula de tus reseñas. Puedes reseñar sin activarla; tus reseñas mostrarán «Matrícula desconocida».",
       "points": {
         "storage": "Tu cuenta y contraseña de la universidad se guardan cifradas en nuestros servidores. Solo el servicio de verificación puede descifrarlas y nunca aparecen en texto claro en registros ni copias de seguridad.",
-        "validity": "Cada verificación correcta es válida durante 24 horas y volvemos a verificar periódicamente con el mismo servicio. Si falla, dejamos de leer tu matrícula de inmediato.",
+        "validity": "Tras una verificación correcta, tu autorización sigue vigente. La plataforma puede volver a verificar tu cuenta con la periodicidad configurada o a petición de un administrador. Si tu universidad rechaza la contraseña o desactiva tu cuenta, la plataforma revoca de inmediato la autorización y elimina el identificador y la contraseña guardados.",
         "labels": "Mientras está activada, tus reseñas muestran automáticamente «Matriculado» o «No matriculado». Si está desactivada o la verificación falla, muestran «Matrícula desconocida». Las reseñas publicadas conservan la etiqueta que tenían.",
         "revoke": "Puedes desactivarla aquí en cualquier momento. La cuenta y la contraseña guardadas se eliminan al instante y dejamos de leer tu matrícula."
       },
@@ -1358,7 +1358,6 @@
       "submit": "Activar la autorización",
       "needsCampus": "Completa la verificación de estudiante antes de activar la autorización de datos escolares.",
       "verifiedAt": "Última verificación",
-      "expiresAt": "Válida hasta",
       "revoke": "Desactivar",
       "revokeTitle": "¿Desactivar la autorización de datos escolares?",
       "revokeMessage": "La cuenta y la contraseña guardadas se eliminarán de inmediato y dejaremos de leer tu matrícula. Las reseñas que publiques después mostrarán «Matrícula desconocida»; las ya publicadas conservan su etiqueta.",

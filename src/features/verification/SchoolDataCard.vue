@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { DatabaseZap, ShieldCheck } from 'lucide-vue-next'
-import { computed, onMounted, onScopeDispose, ref, watch } from 'vue'
+import { computed, onMounted, onScopeDispose, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
 import { useAsync, useMutation } from '../../shared/composables/async'
@@ -12,7 +12,7 @@ import { toast } from '../../shared/ui/toast'
 import { useVerification, type SchoolDataAuthorization } from './api'
 
 // School data authorization: the person lets the server keep their school account,
-// verify it periodically and read their own enrollment. Nothing personal is read
+// recheck it and read their own enrollment. Nothing personal is read
 // without it, and revoking deletes the stored account at once.
 const props = defineProps<{ eligible: boolean; withdrawOnly?: boolean }>()
 const { t } = useI18n()
@@ -25,13 +25,6 @@ const shown = status.data
 const refresh = () => { void status.reload() }
 onMounted(() => window.addEventListener('focus', refresh))
 onScopeDispose(() => window.removeEventListener('focus', refresh))
-watch(() => shown.value?.expires_at, (expires, _, cleanup) => {
-  if (!expires) return
-  const remaining = Date.parse(expires) - Date.now()
-  if (remaining <= 0) return
-  const timer = window.setTimeout(refresh, remaining)
-  cleanup(() => window.clearTimeout(timer))
-})
 const active = computed(() => shown.value?.state === 'active')
 
 const studentId = ref('')
@@ -122,10 +115,6 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
           <div v-if="shown.verified_at">
             <dt>{{ t('verification.schoolData.verifiedAt') }}</dt>
             <dd>{{ format.dateTime(shown.verified_at) }}</dd>
-          </div>
-          <div v-if="shown.expires_at">
-            <dt>{{ t('verification.schoolData.expiresAt') }}</dt>
-            <dd>{{ format.dateTime(shown.expires_at) }}</dd>
           </div>
         </dl>
       </div>

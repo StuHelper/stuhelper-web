@@ -687,6 +687,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/verification/school-data/recheck": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Requires school configuration permission. Makes one person's (by campus credential) or every active school data authorization due now. The worker rechecks two at a time; a rejected password or disabled account ends the authorization and deletes the stored account. Audited. */
+        post: operations["scheduleSchoolDataRecheck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/verification/school-data/recheck/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Requires school configuration permission. Returns authorizations that are due but not yet rechecked to the regular schedule, or off it when automatic rechecks are off. Audited. */
+        post: operations["cancelSchoolDataRecheck"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/verification/schools/{id}": {
         parameters: {
             query?: never;
@@ -975,16 +1009,26 @@ export interface components {
             student_id: string;
             /** Format: password */
             password: string;
-            /** @description Explicit consent to encrypted retention and periodic verification for personal enrollment reads. */
+            /** @description Explicit consent to encrypted retention and to rechecks scheduled by the school setting or by an administrator, for personal enrollment reads. */
             accepted: boolean;
         };
+        /** @description Active from a successful check until the person revokes it or a recheck finds the school password rejected, the account disabled or the campus credential ended. An unavailable school service or a locked account keeps it active. */
         SchoolDataAuthorization: {
             /** @enum {string} */
             state: "inactive" | "active";
-            /** Format: date-time */
+            /**
+             * Format: date-time
+             * @description Last successful check.
+             */
             verified_at?: string;
-            /** Format: date-time */
-            expires_at?: string;
+        };
+        SchoolDataRecheckRequest: {
+            /** @description Campus credential whose owner is rechecked; omit to schedule every active authorization. */
+            credential_id?: string;
+        };
+        SchoolDataRecheckReceipt: {
+            /** @description Authorizations scheduled, or taken back by a cancellation. */
+            scheduled: number;
         };
         TeacherCreateInput: {
             school_id: string;
@@ -1073,6 +1117,11 @@ export interface components {
             opening_date: string;
             /** @default 90 */
             newcomer_days: number;
+            /**
+             * @description Automatic recheck period of school data authorizations in days; 0 or omitted turns automatic rechecks off.
+             * @default 0
+             */
+            school_data_recheck_days: number;
             email_domain: string;
             /** @description Allowed material types for student manual verification; may be empty when manual_material_review is not enabled. */
             material_types: string[];
@@ -2642,6 +2691,60 @@ export interface operations {
                     "application/json": components["schemas"]["Operation"];
                 };
             };
+            default: components["responses"]["Problem"];
+        };
+    };
+    scheduleSchoolDataRecheck: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolDataRecheckRequest"];
+            };
+        };
+        responses: {
+            /** @description Number of authorizations scheduled. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataRecheckReceipt"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    cancelSchoolDataRecheck: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Number of authorizations taken back. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataRecheckReceipt"];
+                };
+            };
+            202: components["responses"]["Processing"];
             default: components["responses"]["Problem"];
         };
     };
