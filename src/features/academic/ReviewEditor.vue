@@ -9,19 +9,22 @@ import { useSession } from '../../shared/session'
 import AsyncState from '../../shared/ui/AsyncState.vue'
 import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
-import { useAcademic, type DisclosureKey, type Draft, type Result, type ReviewAction, type ReviewInput, type ReviewKind } from './api'
+import { useAcademic, type DisclosureKey, type Draft, type Grade, type Result, type ReviewAction, type ReviewInput, type ReviewKind } from './api'
 import { askConfirm } from '../../shared/ui/confirm'
 import { ShieldCheck } from 'lucide-vue-next'
 import { useVerification } from '../verification/api'
 import ChoiceGroup from './ChoiceGroup.vue'
 import EnrollmentBadge from './EnrollmentBadge.vue'
+import GradeInput from './GradeInput.vue'
 import RatingInput from './RatingInput.vue'
 
 /**
  * Write a course review, a mentor review or a reply. The server's composer
- * reports the current eligibility, the teacher candidates and the discussion
- * identity; the page only presents them. Teacher candidates come from the
- * author's own enrollment only under an active school data authorization.
+ * reports the current eligibility, the terms in which the course ran, the public
+ * teachers of the chosen term and the discussion identity; the page only presents them.
+ * Under an active school data authorization the composer marks the terms and teachers
+ * from the author's own enrollment, which the page highlights. Several teachers may be
+ * chosen, or none.
  */
 const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; initialTermId?: string; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, initialTermId: undefined, leaveQuery: undefined })
 const emit = defineEmits<{ submitted: [result: Result]; cancel: [] }>()
@@ -36,9 +39,15 @@ const textOnly = computed(() => !!props.draft && !props.schoolId)
 const original = props.draft?.input
 const withdrawn = props.draft?.withdrawn === true
 const title = ref(original?.title ?? '')
-const body = ref(original?.body ?? (props.kind === 'mentor' ? t('academic.editor.mentorTemplate') : ''))
+// New course and mentor reviews start from an editable template. Text that is only
+// the untouched template does not count as written content.
+const template = props.kind === 'mentor' ? t('academic.editor.mentorTemplate') : props.kind === 'course' ? t('academic.editor.courseTemplate') : ''
+const body = ref(original?.body ?? template)
+const bodyWritten = computed(() => !!body.value.trim() && body.value.trim() !== template.trim())
 const term = ref(original?.term_id ?? props.initialTermId ?? '')
-const teacher = ref(original?.teacher_id ?? '')
+const teachers = ref<string[]>(original?.teacher_ids?.slice() ?? [])
+const grade = ref<Grade | undefined>(original?.grade)
+const gradeIncomplete = ref(false)
 const signed = ref(original?.signed ?? false)
 const ratings = ref<number[]>(original?.ratings.slice() ?? [0, 0, 0, 0, 0])
 const disclosures = ref<DisclosureKey[]>(original?.disclosures?.slice() ?? [])
@@ -55,24 +64,28 @@ let restoring = false
 const verification = useVerification()
 const schoolData = useAsync((signal) => (props.kind === 'course' && !textOnly.value && session.state.value === 'member' ? verification.schoolData(signal) : Promise.resolve(undefined)))
 void schoolData.reload()
-const terms = useAsync((signal) => (props.kind === 'course' ? api.options({ kind: 'term', school_id: props.schoolId }, signal) : Promise.resolve([])))
 const context = useAsync(async (signal) => {
   const composer = await api.composer({ kind: props.kind, target_id: props.targetId, term_id: props.kind === 'course' ? term.value : undefined, parent_id: props.kind === 'reply' ? props.parentId : undefined }, signal)
-  const names = await api.lookup([...composer.teacher_ids, teacher.value], signal)
+  const names = await api.lookup([...composer.teachers.map((item) => item.id), ...teachers.value], signal)
   return { composer, names }
 })
 const composer = computed(() => context.data.value?.composer)
 const identity = computed(() => (withdrawn ? (signed.value ? 'signed' : 'anonymous') : (composer.value?.identity ?? 'choice')))
-const teacherOptions = computed(() => {
-  const ids = composer.value?.teacher_ids ?? []
-  // A withdrawn review keeps its original teacher even if enrollment changed since.
-  return withdrawn && teacher.value && !ids.includes(teacher.value) ? [...ids, teacher.value] : ids
+// The term list is the same for every term of the course. Keep the last one while the
+// composer reloads for a newly chosen term, so the choices do not blink.
+const offeredTerms = shallowRef<NonNullable<typeof composer.value>['terms']>([])
+watch(composer, (value) => { if (value) offeredTerms.value = value.terms })
+const termChoices = computed(() => {
+  const rows = offeredTerms.value.map((item) => ({ value: item.id, label: item.name, marked: item.enrolled }))
+  // A withdrawn review keeps its saved term even if it is no longer listed.
+  return term.value && !rows.some((row) => row.value === term.value) ? [...rows, { value: term.value, label: context.data.value?.names.get(term.value)?.name ?? t('common.unknown'), marked: false }] : rows
 })
-const termChoices = computed(() => (terms.data.value ?? []).map((item) => ({ value: item.id, label: item.name })))
-const teacherChoices = computed(() => [
-  { value: '', label: t('academic.review.noTeacher') },
-  ...teacherOptions.value.map((id) => ({ value: id, label: context.data.value?.names.get(id)?.name ?? t('common.unknown') })),
-])
+const teacherChoices = computed(() => {
+  const rows = (composer.value?.teachers ?? []).map((item) => ({ value: item.id, label: context.data.value?.names.get(item.id)?.name ?? t('common.unknown'), marked: item.enrolled }))
+  const missing = withdrawn ? teachers.value.filter((id) => !rows.some((row) => row.value === id)) : []
+  return [...rows, ...missing.map((id) => ({ value: id, label: context.data.value?.names.get(id)?.name ?? t('common.unknown'), marked: false }))]
+})
+const marksShown = computed(() => termChoices.value.some((item) => item.marked) || teacherChoices.value.some((item) => item.marked))
 
 function input(): ReviewInput {
   return {
@@ -83,7 +96,7 @@ function input(): ReviewInput {
     ratings: props.kind === 'course' ? ratings.value.slice() : [0, 0, 0, 0, 0],
     signed: signed.value,
     ...(disclosures.value.length ? { disclosures: disclosures.value.slice() } : {}),
-    ...(props.kind === 'course' ? { term_id: term.value, teacher_id: teacher.value } : {}),
+    ...(props.kind === 'course' ? { term_id: term.value, teacher_ids: teachers.value.slice(), ...(grade.value ? { grade: grade.value } : {}) } : {}),
   }
 }
 const baseline = ref(JSON.stringify(input()))
@@ -100,15 +113,16 @@ const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.s
 // Enrollment is no longer a disclosure: every course review carries its status automatically.
 const disclosureOptions = computed(() => composer.value?.disclosures ?? [])
 const missingConsent = computed(() => disclosureOptions.value.some(option => option.required && !disclosures.value.includes(option.key)))
-const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && !gradeIncomplete.value && (props.kind !== 'course' || !!term.value) && bodyWritten.value && (props.kind === 'reply' || !!title.value.trim()))
 // What the author still has to fill in before publishing, named next to the disabled button.
 // Eligibility is decided by the server and explained in its own section above.
 const missing = computed(() => {
   const items: string[] = []
   if (props.kind === 'course' && !term.value) items.push(t('academic.editor.term'))
   if (ratingsMissing.value) items.push(t('academic.editor.ratingsDone', { done: format.value.number(ratings.value.filter((level) => level > 0).length), total: format.value.number(ratings.value.length) }))
+  if (gradeIncomplete.value) items.push(t('academic.grade.label'))
   if (props.kind !== 'reply' && !title.value.trim()) items.push(t('academic.editor.title'))
-  if (!body.value.trim()) items.push(t('academic.editor.body'))
+  if (!bodyWritten.value) items.push(t('academic.editor.body'))
   return items
 })
 const titleLimit = 200
@@ -131,7 +145,7 @@ function applyDefaults(update: () => void) {
 }
 
 watch(term, () => {
-  if (!withdrawn && !restoring) teacher.value = ''
+  if (!withdrawn && !restoring) teachers.value = []
   if (!textOnly.value && props.kind === 'course') void context.reload()
 })
 watch(() => props.parentId, () => {
@@ -162,13 +176,8 @@ onBeforeUnmount(() => document.removeEventListener('visibilitychange', recheck))
 
 useLeaveGuard(() => (write.uncertain.value ? t('common.leaveUncertain') : dirty.value || write.busy.value ? t('common.leaveUnsaved') : ''), { query: props.leaveQuery })
 watch(textOnly, only => {
-  if (only) {
-    terms.clear()
-    context.clear()
-  } else {
-    void terms.reload()
-    void context.reload()
-  }
+  if (only) context.clear()
+  else void context.reload()
 }, { immediate: true })
 
 async function submit(saveDraft: boolean) {
@@ -227,7 +236,8 @@ async function useLatest() {
   title.value = data.input.title
   body.value = data.input.body
   term.value = data.input.term_id ?? ''
-  teacher.value = data.input.teacher_id ?? ''
+  teachers.value = data.input.teacher_ids?.slice() ?? []
+  grade.value = data.input.grade
   signed.value = data.input.signed
   ratings.value = data.input.ratings.slice()
   disclosures.value = data.input.disclosures?.slice() ?? []
@@ -263,9 +273,6 @@ async function cancel() {
   >
     <header class="stack-sm">
       <h2>{{ t(`academic.editor.heading.${kind}`) }}</h2>
-      <p class="small muted">
-        {{ t('academic.editor.identityHint') }}
-      </p>
     </header>
 
     <section
@@ -358,25 +365,34 @@ async function cancel() {
           :disabled="withdrawn"
           :limit="6"
           :more-label="t('academic.editor.moreTerms')"
+          :mark-label="t('academic.editor.enrolledMark')"
         />
         <p
-          v-if="terms.status.value === 'error'"
-          class="field-error"
+          v-if="context.status.value === 'ready' && !termChoices.length"
+          class="small muted"
         >
-          {{ t('academic.editor.termsUnavailable') }}
+          {{ t('academic.editor.noTerms') }}
         </p>
         <div
-          v-if="term"
+          v-if="term && teacherChoices.length"
           class="field"
         >
           <ChoiceGroup
-            v-model="teacher"
+            v-model="teachers"
+            multiple
             :label="t('academic.editor.teacher')"
             :options="teacherChoices"
             :disabled="withdrawn"
+            :mark-label="t('academic.editor.enrolledMark')"
           />
           <span class="field-hint">{{ t('academic.editor.teacherHint') }}</span>
         </div>
+        <p
+          v-if="marksShown"
+          class="field-hint"
+        >
+          {{ t('academic.editor.enrolledLegend') }}
+        </p>
         <p
           v-if="schoolData.data.value"
           class="enrollment-note"
@@ -409,6 +425,11 @@ async function cancel() {
         >
           {{ t('academic.editor.ratingsRequired') }}
         </p>
+        <GradeInput
+          v-model="grade"
+          v-model:incomplete="gradeIncomplete"
+          :disabled="locked"
+        />
       </div>
 
       <div class="stack editor-main">
@@ -431,6 +452,7 @@ async function cancel() {
             v-model="title"
             class="input"
             :maxlength="titleLimit"
+            :placeholder="kind === 'course' ? t('academic.editor.titlePlaceholder') : undefined"
             required
           >
         </div>
@@ -460,6 +482,13 @@ async function cancel() {
         >
           {{ t('academic.editor.templateHint') }}
         </p>
+        <div
+          v-else-if="kind === 'course'"
+          class="field-hint stack-xs"
+        >
+          <p>{{ t('academic.editor.courseTemplateHint') }}</p>
+          <p>{{ t('academic.editor.courseWritingTip') }}</p>
+        </div>
 
         <label
           v-if="identity === 'choice'"

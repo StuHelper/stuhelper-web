@@ -31,11 +31,11 @@ const root = useAsync(async (signal) => {
     linkedReply.value = entry
     await router.replace({ path: `/reviews/${encodeURIComponent(entry.root_id)}`, query: route.query, hash: `#review-${entry.id}` })
   }
-  return { entry, names: await api.lookup([entry.target_id, entry.term_id, entry.teacher_id], signal) }
+  return { entry, names: await api.lookup([entry.target_id, entry.term_id, ...(entry.teacher_ids ?? [])], signal) }
 })
 const replies = usePaged(async (after, signal) => {
   const page = await api.reviews({ kind: 'reply', root_id: props.id, sort: 'oldest', after, limit: listSize }, signal)
-  const found = await api.lookup(page.items.flatMap((row) => [row.target_id, row.term_id, row.teacher_id]), signal)
+  const found = await api.lookup(page.items.flatMap((row) => [row.target_id, row.term_id, ...(row.teacher_ids ?? [])]), signal)
   names.value = new Map([...(after ? names.value : []), ...found])
   return page
 })

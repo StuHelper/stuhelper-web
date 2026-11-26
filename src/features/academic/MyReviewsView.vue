@@ -61,7 +61,7 @@ const rows = usePaged<Row>(async (after, signal) => {
     const page = await api.myEntries({ ...query, sort: 'newest' }, signal)
     items = page.items.map((review) => ({ kind: 'review', review }))
     next = page.next
-    ids = page.items.flatMap((row) => [row.target_id, row.term_id, row.teacher_id])
+    ids = page.items.flatMap((row) => [row.target_id, row.term_id, ...(row.teacher_ids ?? [])])
   } else if (tab.value === 'drafts') {
     const list = await api.myDrafts(query, signal)
     items = list.map((draft) => ({ kind: 'draft', draft }))

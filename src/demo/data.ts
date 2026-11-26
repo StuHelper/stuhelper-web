@@ -99,7 +99,7 @@ const rows: Row[] = [
 const stateFor = (id: string) => (id === 'r16' ? { mine: true, can_edit: true } : { mine: false, can_edit: false })
 const enrollmentDemo = ['enrolled', 'unknown', 'enrolled', 'not_enrolled'] as const
 export const reviews = rows.map(([id, target_id, term_id, teacher_id, title, body, ratings, upvotes, downvotes, days, who, featured], index) => ({
-  id, root_id: id, kind: target_id.startsWith('p') ? 'mentor' : 'course', school_id: SCHOOL, target_id, ...(term_id ? { term_id } : {}), ...(teacher_id ? { teacher_id } : {}), title, body, ratings, author: author(who), revision: 1, published_at: ago(days), upvotes, downvotes, my_vote: 0, state: 'published', ...(featured ? { featured } : {}), ...stateFor(id),
+  id, root_id: id, kind: target_id.startsWith('p') ? 'mentor' : 'course', school_id: SCHOOL, target_id, ...(term_id ? { term_id } : {}), ...(teacher_id ? { teacher_ids: [teacher_id] } : target_id.startsWith('p') ? {} : { teacher_ids: [] }), title, body, ratings, author: author(who), revision: 1, published_at: ago(days), upvotes, downvotes, my_vote: 0, state: 'published', ...(featured ? { featured } : {}), ...stateFor(id),
   // Course reviews show all three enrollment statuses across the demo.
   ...(target_id.startsWith('p') ? {} : { enrollment_status: enrollmentDemo[index % enrollmentDemo.length] }),
 }))
@@ -110,7 +110,7 @@ export const replies = [
   { root: 'r3', who: '', body: '习题课真的很有用，强烈推荐。', days: 10 },
 ].map((r, i) => ({ id: `reply-${i}`, root_id: r.root, parent_id: r.root, kind: 'reply', school_id: SCHOOL, target_id: r.root, title: '', body: r.body, ratings: [0, 0, 0, 0, 0], author: author(r.who), revision: 1, published_at: ago(r.days), upvotes: i, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false }))
 export const drafts = [
-  { id: 'dr1', revision: 2, input: { kind: 'course', target_id: 'c5', term_id: 't-26s', teacher_id: 'p5', title: '控制原理的学习建议', body: '还没写完：想说说根轨迹……', ratings: [4, 4, 0, 0, 0], signed: false }, withdrawn: false, reference_ids: ['c5', 't-26s', 'p5'], reference_state: 'verified' },
+  { id: 'dr1', revision: 2, input: { kind: 'course', target_id: 'c5', term_id: 't-26s', teacher_ids: ['p5'], title: '控制原理的学习建议', body: '还没写完：想说说根轨迹……', ratings: [4, 4, 0, 0, 0], signed: false }, withdrawn: false, reference_ids: ['c5', 't-26s', 'p5'], reference_state: 'verified' },
 ]
 export const tasks = [
   { id: 'tk1', school_id: SCHOOL, content_kind: 'review', submission: { object_id: 'r16', kind: 'review', reason: 'content_review', evidence: [] }, object_revision: 1, revision: 2, state: 'decided', created_at: ago(7), updated_at: ago(6), can_appeal: false },

@@ -70,7 +70,8 @@
     "scrollBack": "向前滚动",
     "scrollForward": "向后滚动",
     "searchOptions": "搜索选项",
-    "noOptionMatch": "没有匹配的选项"
+    "noOptionMatch": "没有匹配的选项",
+    "back": "返回"
   },
   "errors": {
     "disabled": "群服务未启用。",
@@ -399,7 +400,7 @@
       "reloadTeachers": "重新加载教师"
     },
     "subject": {
-      "writeCourse": "写课程评价",
+      "writeCourse": "发布评课",
       "writeMentor": "写导师评论",
       "resources": "课程资料",
       "inactive": "已停用",
@@ -550,18 +551,16 @@
     },
     "editor": {
       "heading": {
-        "course": "写课程评价",
+        "course": "发布评课",
         "mentor": "写导师评论",
         "reply": "回复"
       },
-      "identityHint": "平台昵称默认不公开。下方勾选的认证信息会单独公开。",
       "eligibility": "发布条件",
       "refreshEligibility": "重新检查条件",
       "remaining": "撤回草稿剩余编辑时间：{hours} 小时 {minutes} 分",
       "term": "评课学期",
-      "termsUnavailable": "学期列表暂时无法加载，请稍后重试。",
       "teacher": "任课教师",
-      "teacherHint": "开通学校数据认证时，教师选项来自你本人该学期的选课记录；否则列出该学期本课程的全部任课教师。不确定时可以不指定。",
+      "teacherHint": "请选择你想评价的教师，有多位任课老师且不针对具体教师时可以不指定。",
       "moreTerms": "更多学期",
       "ratingsRequired": "完成全部五项评分后方可发布。",
       "title": "标题",
@@ -588,7 +587,14 @@
       "ratingsDone": "评分（已选 {done}/{total}）",
       "enrollmentActive": "已开通学校数据认证。发布时会自动核对你本人的选课记录，并在评价上显示结果。",
       "enrollmentInactive": "你还没有开通学校数据认证，发布后评价会显示此标签。",
-      "enrollmentSetup": "去开通"
+      "enrollmentSetup": "去开通",
+      "titlePlaceholder": "请一句话总结你的观点，比如“墙裂推荐xx老师”或“避雷这门课”",
+      "courseTemplate": "课程听感：\n作业/任务量：\n关于考试：",
+      "courseTemplateHint": "请畅所欲言，默认模板可以按需修改。",
+      "courseWritingTip": "测评内容理想上应当富有事实且描述全面。比如一门课讲得好但考试很难，二者都说出来更有利于同学们做出全面的选择和判断。学弟学妹（和挣扎的学长学姐）感谢你们。",
+      "enrolledMark": "有选课记录",
+      "enrolledLegend": "绿色标记的学期和教师来自你本人的选课记录。",
+      "noTerms": "这门课暂时没有可选的开课学期。"
     },
     "disclosure": {
       "title": "公开的认证信息",
@@ -660,6 +666,33 @@
         "not_enrolled": "作者发布时已通过学校数据认证，但本人该学期的选课记录中没有这门课。",
         "unknown": "发布时无法核实作者的选课记录，例如作者未开通学校数据认证。"
       }
+    },
+    "grade": {
+      "label": "你的成绩",
+      "hint": "选填。分享你的成绩有助于同学们进行更全面的判断。成绩会随评价公开展示，匿名评价也会展示。",
+      "percentLabel": "分数（0–100）",
+      "percentInvalid": "请输入 0 到 100 的整数。",
+      "levelLabel": "等级",
+      "scales": {
+        "none": "不填",
+        "percent": "百分制",
+        "five_level": "五级制",
+        "two_level": "两级制",
+        "withdrawn": "退课"
+      },
+      "five": {
+        "excellent": "优秀",
+        "good": "良好",
+        "medium": "中等",
+        "pass": "及格",
+        "fail": "不及格"
+      },
+      "two": {
+        "pass": "通过",
+        "fail": "不通过"
+      },
+      "display": "成绩：{value}",
+      "withdrawnDisplay": "已退课"
     }
   },
   "me": {

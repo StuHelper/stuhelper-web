@@ -78,10 +78,12 @@ function summary(id: string) {
 function reviewList(u: URL) {
   const q = u.searchParams
   let items = q.get('kind') === 'reply' ? replies.filter((r) => r.root_id === q.get('root_id')) : reviews.filter((r) => !q.get('kind') || r.kind === q.get('kind'))
-  for (const [param, field] of [['target_id', 'target_id'], ['teacher_id', 'teacher_id'], ['term_id', 'term_id']] as const) {
+  for (const [param, field] of [['target_id', 'target_id'], ['term_id', 'term_id']] as const) {
     const value = q.get(param)
     if (value) items = items.filter((r) => r[field] === value)
   }
+  const teacherFilter = q.get('teacher_id')
+  if (teacherFilter) items = items.filter((r) => 'teacher_ids' in r && r.teacher_ids.includes(teacherFilter))
   items = [...items].sort((a, b) => (q.get('sort') === 'oldest' ? 1 : -1) * a.published_at.localeCompare(b.published_at))
   return json({ items, next: '' })
 }
@@ -104,7 +106,7 @@ function directory(u: URL) {
   const dept = q.get('department_id') ?? ''
   const cat = q.get('category_id') ?? ''
   const teacher = q.get('teacher_id') ?? ''
-  const reviewCount = (id: string) => [...d.reviews].filter((r) => r.target_id === id || r.teacher_id === id).length
+  const reviewCount = (id: string) => [...d.reviews].filter((r) => r.target_id === id || (r.teacher_ids ?? []).includes(id)).length
   const deptObj = (id: string) => d.allObjects.find((o) => o.id === id)
   type Row = { object: Record<string, any>; dept: string; cat: string; levels: number[]; heat: number }
   const rows: Row[] = kind === 'course'
@@ -258,7 +260,12 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
     const term = u.searchParams.get('term_id')
     const course = u.searchParams.get('target_id')
     const needs = kind === 'course' && !term
-    return json({ allowed: !needs, state: needs ? 'choose_term' : 'ready', requirements: [{ key: 'login', state: 'satisfied' }, { key: 'campus_eligibility', state: 'satisfied' }, { key: 'phone_bound', state: 'satisfied' }], teacher_ids: kind === 'course' && term ? d.teachesIn.filter(([c]) => c === course).map(([, t]) => t) : [], identity: 'choice', rule_version: 'demo' })
+    // Every demo course runs in every term. With school data authorization the author's own
+    // enrollment marks its term and teacher, as the server does.
+    const own = schoolDataActive() ? d.enrollments.filter((e) => e.course_id === course) : []
+    const terms = kind === 'course' ? [...d.terms].reverse().map((t, i) => ({ id: t.id, name: t.name, term_order_key: 100 - i, enrolled: own.some((e) => e.term_id === t.id) })) : []
+    const teachers = kind === 'course' && term ? d.teachesIn.filter(([c]) => c === course).map(([, t]) => ({ id: t, enrolled: own.some((e) => e.term_id === term && e.teacher_ids.includes(t)) })) : []
+    return json({ allowed: !needs, state: needs ? 'choose_term' : 'ready', requirements: [{ key: 'login', state: 'satisfied' }, { key: 'campus_eligibility', state: 'satisfied' }, { key: 'phone_bound', state: 'satisfied' }], terms, teachers, identity: 'choice', rule_version: 'demo' })
   }
   if (p === '/reviews' && method === 'GET') return reviewList(u)
   if (p === '/reviews') {
@@ -278,7 +285,7 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
       ({ id, root_id, school_id, kind, target_id, term_id: term_id ?? '', my_vote })))
   }
   if (p === '/reviews/me/drafts' && method === 'GET') return json(drafts)
-  if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false, reference_ids: [b.input.target_id, b.input.term_id, b.input.teacher_id].filter(Boolean), reference_state: 'verified' }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
+  if (p === '/reviews/me/drafts') { const b = await body(init); const id = b.id || nid('dr'); const at = drafts.findIndex((x) => x.id === id); const row = { id, revision: (b.revision ?? 0) + 1, input: b.input, withdrawn: false, reference_ids: [b.input.target_id, b.input.term_id, ...(b.input.teacher_ids ?? [])].filter(Boolean), reference_state: 'verified' }; if (at >= 0) drafts[at] = row; else drafts.unshift(row); return result(id, 'draft', row.revision) }
   if (p.startsWith('/reviews/me/drafts/')) {
     const id = p.split('/')[4]!
     const at = drafts.findIndex((x) => x.id === id)
@@ -413,7 +420,7 @@ function search(u: URL, popular: boolean) {
   const q = (u.searchParams.get('q') ?? '').trim().toLowerCase()
   const objects = d.allObjects.filter((o) => (o.kind === 'course' || o.kind === 'teacher') && (!kind || o.kind === kind))
   if (popular) {
-    const count = (id: string) => d.reviews.filter((r) => r.target_id === id || ('teacher_id' in r && r.teacher_id === id)).length
+    const count = (id: string) => d.reviews.filter((r) => r.target_id === id || (r.teacher_ids ?? []).includes(id)).length
     return objects.sort((a, b) => count(b.id) - count(a.id)).slice(0, 20).map((o) => ({ target: { source: 'catalog', id: o.id, kind: o.kind }, title: o.name, school_id: d.SCHOOL }))
   }
   const found = objects.filter((o) => o.name.toLowerCase().includes(q)).map((o) => ({ target: { source: 'catalog', id: o.id, kind: o.kind }, title: o.name, school_id: d.SCHOOL }))
