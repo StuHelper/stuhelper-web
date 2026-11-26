@@ -70,7 +70,8 @@
     "scrollBack": "前へスクロール",
     "scrollForward": "次へスクロール",
     "searchOptions": "選択肢を検索",
-    "noOptionMatch": "一致する選択肢がありません"
+    "noOptionMatch": "一致する選択肢がありません",
+    "back": "戻る"
   },
   "errors": {
     "disabled": "グループサービスは無効です。",
@@ -399,7 +400,7 @@
       "reloadTeachers": "教員を再読み込み"
     },
     "subject": {
-      "writeCourse": "授業をレビュー",
+      "writeCourse": "授業レビューを投稿",
       "writeMentor": "指導教員へコメント",
       "resources": "授業の資料",
       "inactive": "停止中",
@@ -550,18 +551,16 @@
     },
     "editor": {
       "heading": {
-        "course": "授業をレビュー",
+        "course": "授業レビューを投稿",
         "mentor": "指導教員へコメント",
         "reply": "返信"
       },
-      "identityHint": "プラットフォームのニックネームは既定で非公開です。下で選んだ認証情報は別途公開されます。",
       "eligibility": "投稿条件",
       "refreshEligibility": "条件を再確認",
       "remaining": "取り下げた下書きの残り編集時間：{hours} 時間 {minutes} 分",
       "term": "レビュー対象学期",
-      "termsUnavailable": "学期一覧を読み込めませんでした。しばらくして再試行してください。",
       "teacher": "担当教員",
-      "teacherHint": "学校データ連携中は、本人のこの学期の履修記録から教員を選べます。未連携の場合はこの学期の担当教員がすべて表示されます。わからない場合は指定しなくてもかまいません。",
+      "teacherHint": "評価したい教員を選んでください。担当教員が複数いて特定の教員についての評価でない場合は、指定しなくてもかまいません。",
       "moreTerms": "他の学期",
       "ratingsRequired": "5 項目すべてを評価すると公開できます。",
       "title": "タイトル",
@@ -588,7 +587,14 @@
       "ratingsDone": "評価（{total} 項目中 {done} 項目を選択）",
       "enrollmentActive": "学校データ連携中です。投稿時に本人の履修記録を自動で確認し、結果をレビューに表示します。",
       "enrollmentInactive": "学校データを連携していないため、投稿したレビューにはこの表示が付きます。",
-      "enrollmentSetup": "連携する"
+      "enrollmentSetup": "連携する",
+      "titlePlaceholder": "意見を一文でまとめてください。例：「X先生を強くおすすめ」「この授業は避けたほうがいい」",
+      "courseTemplate": "授業の印象：\n課題・作業量：\n試験について：",
+      "courseTemplateHint": "自由に書いてください。初期テンプレートは必要に応じて変更できます。",
+      "courseWritingTip": "レビューは事実に基づき、偏りなく書くのが理想です。たとえば授業はわかりやすいが試験が難しい場合、両方を書くと同級生がバランスよく判断できます。後輩たち（と奮闘中の先輩たち）が感謝しています。",
+      "enrolledMark": "履修記録あり",
+      "enrolledLegend": "緑色で示した学期と教員は、あなた自身の履修記録によるものです。",
+      "noTerms": "この授業には選べる開講学期がまだありません。"
     },
     "disclosure": {
       "title": "公開する認証情報",
@@ -660,6 +666,33 @@
         "not_enrolled": "投稿時に投稿者は学校データを連携していましたが、本人のこの学期の履修記録にこの授業はありませんでした。",
         "unknown": "投稿時に投稿者の履修記録を確認できませんでした（学校データ未連携など）。"
       }
+    },
+    "grade": {
+      "label": "あなたの成績",
+      "hint": "任意。成績を共有すると、同級生がより総合的に判断できます。成績は評価とともに公開され、匿名の評価でも表示されます。",
+      "percentLabel": "点数（0–100）",
+      "percentInvalid": "0〜100 の整数を入力してください。",
+      "levelLabel": "評価段階",
+      "scales": {
+        "none": "記入しない",
+        "percent": "100点満点",
+        "five_level": "5段階",
+        "two_level": "2段階",
+        "withdrawn": "履修取消"
+      },
+      "five": {
+        "excellent": "秀",
+        "good": "優",
+        "medium": "良",
+        "pass": "可",
+        "fail": "不可"
+      },
+      "two": {
+        "pass": "合格",
+        "fail": "不合格"
+      },
+      "display": "成績：{value}",
+      "withdrawnDisplay": "履修取消"
     }
   },
   "me": {

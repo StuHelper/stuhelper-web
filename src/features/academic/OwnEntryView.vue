@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { useAsync } from '../../shared/composables/async'
 import AsyncState from '../../shared/ui/AsyncState.vue'
+import BackLink from '../../shared/ui/BackLink.vue'
 import MeLayout from '../account/MeLayout.vue'
 import { useAcademic, type Review } from './api'
 import ReviewCard from './ReviewCard.vue'
@@ -15,7 +16,7 @@ const router = useRouter()
 const api = useAcademic()
 const entry = useAsync(async (signal) => {
   const review = await api.myEntry(props.id, signal)
-  return { review, names: await api.references([review.target_id, review.term_id, review.teacher_id], signal) }
+  return { review, names: await api.references([review.target_id, review.term_id, ...(review.teacher_ids ?? [])], signal) }
 })
 watch(() => props.id, () => void entry.reload(), { immediate: true })
 function updated(review: Review) {
@@ -27,9 +28,12 @@ function updated(review: Review) {
   <MeLayout :title="t('me.ownEntry')">
     <div class="stack">
       <p>
-        <RouterLink to="/me/reviews">
-          {{ t('me.backToReviews') }}
-        </RouterLink>
+        <BackLink
+          v-slot="{ parent }"
+          to="/me/reviews"
+        >
+          {{ parent ? t('me.backToReviews') : t('common.back') }}
+        </BackLink>
       </p>
       <AsyncState
         :status="entry.status.value"

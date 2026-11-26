@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { ChevronLeft } from 'lucide-vue-next'
-import { RouterLink } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import BackLink from './BackLink.vue'
 
-// Large title of a page, with an optional way back to the parent page.
+// Large title of a page, with an optional way back. It returns to the previous page;
+// the parent page `back` is used when there is no in-app previous page.
+const { t } = useI18n()
 defineProps<{ title: string; eyebrow?: string; description?: string; back?: string; backLabel?: string }>()
 </script>
 
 <template>
   <header class="page-header">
-    <RouterLink
+    <BackLink
       v-if="back"
+      v-slot="{ parent }"
       class="page-back"
       :to="back"
     >
@@ -17,8 +21,8 @@ defineProps<{ title: string; eyebrow?: string; description?: string; back?: stri
         class="flip-rtl"
         aria-hidden="true"
       />
-      <span>{{ backLabel }}</span>
-    </RouterLink>
+      <span>{{ parent ? backLabel : t('common.back') }}</span>
+    </BackLink>
     <div class="page-header-main">
       <div class="page-header-copy">
         <p

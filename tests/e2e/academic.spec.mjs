@@ -32,10 +32,8 @@ test('semester choices preserve the server order including summer', async ({ pag
     ['fall-2026', '2026 Autumn', 20263], ['summer-2026', '2026 Summer', 20262],
     ['spring-2026', '2026 Spring', 20261], ['fall-2025', '2025 Autumn', 20253],
   ];
-  await page.route('**/api/v1/catalog/objects?*', (route) => {
-    if (new URL(route.request().url()).searchParams.get('kind') !== 'term') return route.fallback();
-    return route.fulfill({ json: { items: terms.map(([id, name, term_order_key]) => ({ id, name, term_order_key, kind: 'term', school_id: 'school', credits: null, aliases: [], revision: 1, updated_at: '2026-11-15T00:00:00Z' })), next: '' } });
-  });
+  // Only the terms in which the course ran are offered, in the order the composer returns.
+  await page.route('**/api/v1/reviews/compose*', (route) => route.fulfill({ json: { allowed: false, state: 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], terms: terms.map(([id, name, term_order_key]) => ({ id, name, term_order_key, enrolled: false })), teachers: [], identity: 'choice', rule_version: 'fixture' } }));
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
   await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form');
@@ -43,9 +41,14 @@ test('semester choices preserve the server order including summer', async ({ pag
   await expect(choices.locator('label')).toHaveText(terms.map((term) => term[1]));
 });
 
-test('course review offers teachers from the chosen semester enrollment and publishes once', async ({ page }, info) => {
+test('course review lists the semester teachers, highlights own enrollment, takes several teachers and a grade, and publishes once', async ({ page }, info) => {
   const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, errors = watch(page), posts = [];
   await academicFixture(page);
+  // With school data authorization the composer marks the author's own term and teacher.
+  await page.route('**/api/v1/reviews/compose*', (route) => {
+    const term = new URL(route.request().url()).searchParams.get('term_id');
+    return route.fulfill({ json: { allowed: !!term, state: term ? 'ready' : 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], terms: [{ id: 'spring', name: 'Spring semester', term_order_key: 2, enrolled: true }, { id: 'fall', name: 'Fall semester', term_order_key: 1, enrolled: false }], teachers: term === 'spring' ? [{ id: 'teacher-a', enrolled: false }, { id: 'teacher-b', enrolled: true }] : [], identity: 'choice', rule_version: 'fixture' } });
+  });
   await page.route('**/api/v1/reviews', (route) => {
     if (route.request().method() !== 'POST') return route.fallback();
     posts.push({ body: route.request().postDataJSON(), key: route.request().headers()['idempotency-key'] });
@@ -55,10 +58,18 @@ test('course review offers teachers from the chosen semester enrollment and publ
   await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   await expect(page.getByText(a.composer.choose_term, { exact: true })).toBeVisible();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  const termGroup = editor.getByRole('group', { name: a.editor.term, exact: true });
+  await expect(termGroup.locator('label.marked')).toHaveCount(1);
+  await expect(termGroup.locator('label.marked')).toContainText('Spring semester');
   await pick(editor, 'spring');
-  await expect(editor.getByRole('group', { name: a.editor.teacher, exact: true }).getByRole('radio')).toHaveCount(2);
-  await expect(editor.getByRole('group', { name: a.editor.teacher, exact: true }).locator('label')).toHaveText([a.review.noTeacher, 'Teacher B']);
+  const teacherGroup = editor.getByRole('group', { name: a.editor.teacher, exact: true });
+  await expect(teacherGroup.getByRole('checkbox')).toHaveCount(2);
+  await expect(teacherGroup.locator('label.marked')).toContainText('Teacher B');
+  await expect(editor.getByText(a.editor.enrolledLegend, { exact: true })).toBeVisible();
+  await expect(editor.getByText(a.editor.teacherHint, { exact: true })).toBeVisible();
   await pick(editor, 'teacher-b');
+  await pick(editor, 'teacher-a');
+  await expect(teacherGroup.getByRole('checkbox', { checked: true })).toHaveCount(2);
   for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) {
     await expect(editor.getByText(a.editor.ratingsRequired, { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: a.editor.publish, exact: true })).toBeDisabled();
@@ -67,6 +78,13 @@ test('course review offers teachers from the chosen semester enrollment and publ
   await expect(editor.getByText(a.editor.ratingsRequired, { exact: true })).toHaveCount(0);
   await page.getByLabel(a.editor.title, { exact: true }).fill('Clear lectures');
   await page.getByLabel(a.editor.body, { exact: true }).fill('Weekly exercises helped.');
+  // A chosen grade scale without a valid score holds publishing and names the field.
+  const grades = editor.getByRole('group', { name: a.grade.label, exact: true });
+  await grades.getByText(a.grade.scales.percent, { exact: true }).click();
+  await expect(page.getByRole('button', { name: a.editor.publish, exact: true })).toBeDisabled();
+  await editor.getByLabel(a.grade.percentLabel, { exact: true }).fill('101');
+  await expect(editor.getByText(a.grade.percentInvalid, { exact: true })).toBeVisible();
+  await editor.getByLabel(a.grade.percentLabel, { exact: true }).fill('92');
   await page.getByRole('button', { name: a.editor.publish, exact: true }).click();
   await expect(page.getByText(all.common.uncertain, { exact: true })).toBeVisible();
   await expect(page.getByLabel(a.editor.body, { exact: true })).toBeDisabled();
@@ -74,8 +92,34 @@ test('course review offers teachers from the chosen semester enrollment and publ
   await expect(page.getByText(a.editor.published, { exact: true })).toBeVisible();
   expect(posts).toHaveLength(2);
   expect(posts[1]).toEqual(posts[0]);
-  expect(posts[0].body).toMatchObject({ kind: 'course', target_id: 'course', term_id: 'spring', teacher_id: 'teacher-b', signed: false, ratings: [4, 4, 4, 4, 4] });
+  // Teachers keep the listed order, whatever the click order.
+  expect(posts[0].body).toMatchObject({ kind: 'course', target_id: 'course', term_id: 'spring', teacher_ids: ['teacher-a', 'teacher-b'], grade: { scale: 'percent', value: 92 }, signed: false, ratings: [4, 4, 4, 4, 4] });
   expect(errors).toEqual([]);
+});
+
+test('withdrawn is a grade choice of its own and needs no value', async ({ page }, info) => {
+  const a = catalogue(info).academic, posts = [];
+  await academicFixture(page);
+  await page.route('**/api/v1/reviews', (route) => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push(route.request().postDataJSON());
+    return route.fulfill({ json: { id: 'new-review', state: 'published', revision: 1 } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await pick(editor, 'fall');
+  for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) await editor.locator(`label:has(input[name="rating-${name}"][value="3"])`).click();
+  await editor.getByLabel(a.editor.title, { exact: true }).fill('Dropped it');
+  await editor.getByLabel(a.editor.body, { exact: true }).fill('Too much for my schedule.');
+  const grades = editor.getByRole('group', { name: a.grade.label, exact: true });
+  await grades.getByText(a.grade.scales.five_level, { exact: true }).click();
+  await expect(editor.getByRole('button', { name: a.editor.publish, exact: true })).toBeDisabled();
+  await grades.getByText(a.grade.scales.withdrawn, { exact: true }).click();
+  await expect(editor.getByLabel(a.grade.percentLabel, { exact: true })).toHaveCount(0);
+  await editor.getByRole('button', { name: a.editor.publish, exact: true }).click();
+  await expect(page.getByText(a.editor.published, { exact: true })).toBeVisible();
+  expect(posts[0]).toMatchObject({ term_id: 'fall', teacher_ids: [], grade: { scale: 'withdrawn' } });
 });
 
 test('ratings use five-level wording without exact averages and the layout fits the viewport', async ({ page }, info) => {
@@ -104,7 +148,7 @@ test('publish conditions only appear when the author does not meet them', async 
   await pick(editor, 'spring');
   await expect(page.getByText(a.composer.choose_term, { exact: true })).toHaveCount(0);
   await expect(conditions).toHaveCount(0);
-  await page.route('**/api/v1/reviews/compose*', (route) => route.fulfill({ json: { allowed: false, state: 'forbidden', requirements: [{ key: 'login', state: 'satisfied' }, { key: 'phone_bound', state: 'missing' }], teacher_ids: [], identity: 'choice', rule_version: 'fixture' } }));
+  await page.route('**/api/v1/reviews/compose*', (route) => route.fulfill({ json: { allowed: false, state: 'forbidden', requirements: [{ key: 'login', state: 'satisfied' }, { key: 'phone_bound', state: 'missing' }], terms: [], teachers: [], identity: 'choice', rule_version: 'fixture' } }));
   await pick(editor, 'fall');
   await expect(conditions).toBeVisible();
   await expect(conditions).toContainText(a.composer.forbidden);
@@ -144,6 +188,19 @@ test('directory filters stay out of the address, survive reload and come back fr
   await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
   expect(listCalls).toEqual([]);
   expect(new URL(page.url()).searchParams.has('department')).toBe(false);
+  // The back link on the detail page returns to the same kept list, like the browser button.
+  await page.getByRole('link', { name: /Test Course/ }).first().evaluate((link) => link.click());
+  await expect(page).toHaveURL(/\/courses\/course/);
+  await page.locator('.page-back').click();
+  await expect(page).toHaveURL(/\/courses(\?|$)/);
+  await expect(page.locator('.list-page')).toHaveAttribute('data-kept', 'yes');
+  await expect.poll(() => page.evaluate(() => scrollY)).toBe(before);
+  expect(listCalls).toEqual([]);
+  // Opened directly, the detail page has no previous page and its back link opens the list.
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.locator('.page-back').click();
+  await expect(page).toHaveURL(/\/courses(\?|$)/);
+  await expect.poll(() => listCalls.length).toBeGreaterThan(0);
 });
 
 test('the teacher directory is open and lists teachers from the server', async ({ page }, info) => {
@@ -621,6 +678,11 @@ test('the editor names what is still missing and keeps plain field names beside 
   const publish = editor.getByRole('button', { name: a.editor.publish, exact: true });
   await expect(editor.getByText(missing([a.editor.term, ratings(0), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();
   await expect(publish).toBeDisabled();
+  // A new course review starts from the editable template, which alone does not count as text.
+  await expect(editor.getByLabel(a.editor.body, { exact: true })).toHaveValue(a.editor.courseTemplate);
+  await expect(editor.getByLabel(a.editor.title, { exact: true })).toHaveAttribute('placeholder', a.editor.titlePlaceholder);
+  await expect(editor.getByText(a.editor.courseTemplateHint, { exact: true })).toBeVisible();
+  await expect(editor.getByText(a.editor.courseWritingTip, { exact: true })).toBeVisible();
   await pick(editor, 'spring');
   for (const name of ['recommendation', 'quality']) await editor.locator(`label:has(input[name="rating-${name}"][value="4"])`).click();
   await expect(editor.getByText(missing([ratings(2), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();
@@ -642,14 +704,17 @@ test('without school data authorization a course review lists the public teacher
   await page.route('**/api/v1/verification/me/school-data', (route) => route.fulfill({ json: { state: 'inactive' } }));
   await page.route('**/api/v1/reviews/compose*', (route) => {
     const term = new URL(route.request().url()).searchParams.get('term_id');
-    return route.fulfill({ json: { allowed: !!term, state: term ? 'ready' : 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], teacher_ids: term ? ['teacher-a', 'teacher-b'] : [], identity: 'choice', rule_version: 'fixture' } });
+    return route.fulfill({ json: { allowed: !!term, state: term ? 'ready' : 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], terms: [{ id: 'spring', name: 'Spring semester', term_order_key: 2, enrolled: false }, { id: 'fall', name: 'Fall semester', term_order_key: 1, enrolled: false }], teachers: term ? [{ id: 'teacher-a', enrolled: false }, { id: 'teacher-b', enrolled: false }] : [], identity: 'choice', rule_version: 'fixture' } });
   });
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
   await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   await pick(editor, 'spring');
-  await expect(editor.getByText(a.review.noTeacher, { exact: true })).toBeVisible();
   await expect(editor.getByText('Teacher A', { exact: true })).toBeVisible();
+  await expect(editor.getByText('Teacher B', { exact: true })).toBeVisible();
+  // Without authorization nothing is marked as the author's own enrollment.
+  await expect(editor.locator('label.marked')).toHaveCount(0);
+  await expect(editor.getByText(a.editor.enrolledLegend, { exact: true })).toHaveCount(0);
   await expect(editor.getByText(a.editor.enrollmentInactive, { exact: true })).toBeVisible();
   await expect(editor.locator('.enrollment').filter({ hasText: a.enrollmentStatus.label.unknown })).toBeVisible();
   await expect(editor.getByRole('link', { name: a.editor.enrollmentSetup, exact: true })).toHaveAttribute('href', '/me/verification#school-data');
@@ -668,9 +733,21 @@ test('course review cards show the enrollment status captured at publication', a
     const url = new URL(route.request().url());
     if (url.searchParams.get('kind') !== 'course') return route.fallback();
     const review = (id, status) => ({ id, root_id: id, kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: `Review ${id}`, body: 'Useful course content.', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'anonymous' }, revision: 1, published_at: '2026-10-27T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: false, state: 'published', can_edit: false, enrollment_status: status });
-    return route.fulfill({ json: { items: [review('one', 'enrolled'), review('two', 'not_enrolled'), review('three', 'unknown')], next: '' } });
+    return route.fulfill({ json: { items: [
+      { ...review('one', 'enrolled'), teacher_ids: ['teacher-a', 'teacher-b'], grade: { scale: 'percent', value: 92 } },
+      { ...review('two', 'not_enrolled'), teacher_ids: [], grade: { scale: 'withdrawn' } },
+      { ...review('three', 'unknown'), teacher_ids: ['teacher-b'], grade: { scale: 'five_level', value: 'good' } },
+    ], next: '' } });
   });
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  // Each card names every chosen teacher and shows the grade as entered.
+  const card = (id) => page.locator('article').filter({ has: page.getByRole('link', { name: `Review ${id}`, exact: true }) });
+  const format = (value) => new Intl.NumberFormat(info.project.metadata.locale).format(value);
+  await expect(card('one')).toContainText(a.grade.display.replace('{value}', format(92)));
+  await expect(card('one')).toContainText(new Intl.ListFormat(info.project.metadata.locale, { style: 'long', type: 'conjunction' }).format(['Teacher A', 'Teacher B']));
+  await expect(card('two')).toContainText(a.grade.withdrawnDisplay);
+  await expect(card('two')).toContainText(a.review.noTeacher);
+  await expect(card('three')).toContainText(a.grade.display.replace('{value}', a.grade.five.good));
   const tones = { enrolled: 'tag-success', not_enrolled: 'tag-danger', unknown: 'tag-warning' };
   for (const [status, tone] of Object.entries(tones)) {
     // Labels can contain each other (for example Arabic "enrolled" inside "not enrolled"), so the hint identifies the badge.
