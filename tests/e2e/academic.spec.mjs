@@ -536,15 +536,15 @@ test('a new search keeps the previous rows until the result arrives and clears t
   });
   await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
   const list = page.locator('main .sections');
-  await expect(page.locator('main a[href="/courses/a"]')).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Course A', exact: true })).toBeVisible();
   await page.getByRole('searchbox').fill('B');
   // While the request is open the old row stays, marked busy; no placeholder replaces the list.
   await expect(list).toHaveAttribute('aria-busy', 'true');
-  await expect(page.locator('main a[href="/courses/a"]')).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Course A', exact: true })).toBeVisible();
   await expect(page.locator('main .skeleton')).toHaveCount(0);
   await expect.poll(() => typeof release).toBe('function');
   release();
-  await expect(page.locator('main a[href="/courses/b"]')).toBeVisible();
+  await expect(page.getByRole('main').getByRole('link', { name: 'Course B', exact: true })).toBeVisible();
   await expect(page.locator('main a[href="/courses/a"]')).toHaveCount(0);
   await expect(page.locator('main .sections')).not.toHaveAttribute('aria-busy', 'true');
   // A failed search must not leave rows the server did not confirm.
@@ -941,4 +941,42 @@ test('rating groups keep their dimension names when the school customises the le
     await expect(group.getByText('Fair', { exact: true })).toBeVisible();
   }
   await expect(editor.getByRole('group', { name: 'Not enough data', exact: true })).toHaveCount(0);
+});
+
+test('category labels use a nine-rem column, one line and the full name on hover', async ({ page }, info) => {
+  test.skip(info.project.name.startsWith('mobile'), 'Phones use the separate compact layout');
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await academicFixture(page);
+  const longName = '课程分类标签超长文字'.repeat(7);
+  const row = directoryRow('width', 'Width test', 'recommended');
+  row.categories[0].name = longName;
+  await page.route('**/api/v1/catalog/directory**', route => route.fulfill({ json: directoryPage([row], '', 1) }));
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${info.project.metadata.locale}`);
+  const label = page.locator('li.line .cell .tag').first();
+  await expect(label).toBeVisible();
+  for (const width of ['61rem', '45rem']) {
+    await page.locator('.flush').first().evaluate((el, size) => {
+      el.style.width = size;
+      el.style.maxWidth = 'none';
+    }, width);
+    const metrics = await label.evaluate(el => {
+      const css = getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return {
+        columnRem: el.parentElement.getBoundingClientRect().width / parseFloat(getComputedStyle(document.documentElement).fontSize),
+        wrap: css.whiteSpace,
+        overflow: css.overflowX,
+        ellipsis: css.textOverflow,
+        clipped: el.scrollWidth > el.clientWidth,
+        hoverTitle: hit?.closest('[title]')?.getAttribute('title'),
+        course: hit?.closest('a')?.getAttribute('href'),
+        departmentVisible: getComputedStyle(el.closest('.line').querySelector('.dept')).display !== 'none',
+      };
+    });
+    expect(metrics).toEqual({
+      columnRem: 9, wrap: 'nowrap', overflow: 'hidden', ellipsis: 'ellipsis', clipped: true,
+      hoverTitle: longName, course: '/courses/width', departmentVisible: width === '61rem',
+    });
+  }
 });

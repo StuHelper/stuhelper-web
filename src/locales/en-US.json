@@ -2551,8 +2551,7 @@
     "viewDetails": "View details",
     "groupDisplay": "School groups",
     "expandAllGroups": "Expand all",
-    "collapseAllGroups": "Collapse all",
-    "hottestDays": "Hottest (last {days} days)"
+    "collapseAllGroups": "Collapse all"
   },
   "tags": {
     "placeholder": "Type a tag and press Enter",
@@ -2736,7 +2735,6 @@
     "showContacts": "Show contact details",
     "title": "Teacher homepage",
     "empty": "The school website has no homepage details to show.",
-    "source": "These details come from the teacher’s homepage on the school website and are shown under the school’s rules.",
     "photo": "Photo of {name}",
     "manage": "Manage my teacher homepage",
     "manageFor": "Manage the homepage of “{name}”",

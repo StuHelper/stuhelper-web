@@ -2551,8 +2551,7 @@
     "viewDetails": "Ver detalles",
     "groupDisplay": "Vista por escuela",
     "expandAllGroups": "Expandir todo",
-    "collapseAllGroups": "Contraer todo",
-    "hottestDays": "Más populares (últimos {days} días)"
+    "collapseAllGroups": "Contraer todo"
   },
   "tags": {
     "placeholder": "Escribe una etiqueta y pulsa Intro",
@@ -2736,7 +2735,6 @@
     "showContacts": "Ver datos de contacto",
     "title": "Página del profesor",
     "empty": "El sitio web del centro no tiene información que mostrar en esta página.",
-    "source": "Estos datos proceden de la página del profesor en el sitio web del centro y se muestran según las normas del centro.",
     "photo": "Foto de {name}",
     "manage": "Gestionar mi página de profesor",
     "manageFor": "Gestionar la página de «{name}»",

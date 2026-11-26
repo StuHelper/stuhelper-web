@@ -2551,8 +2551,7 @@
     "viewDetails": "詳細を見る",
     "groupDisplay": "学院ごとの表示",
     "expandAllGroups": "すべて展開",
-    "collapseAllGroups": "すべて折りたたむ",
-    "hottestDays": "人気順（直近 {days} 日）"
+    "collapseAllGroups": "すべて折りたたむ"
   },
   "tags": {
     "placeholder": "タグを入力して Enter",
@@ -2736,7 +2735,6 @@
     "showContacts": "連絡先を表示",
     "title": "教員ページ",
     "empty": "学校の公式サイトには、表示できる教員情報がありません。",
-    "source": "この情報は学校の公式サイトに掲載された教員ページから取得し、学校の規定に従って表示しています。",
     "photo": "{name}の写真",
     "manage": "自分の教員ページを管理",
     "manageFor": "「{name}」の教員ページを管理",

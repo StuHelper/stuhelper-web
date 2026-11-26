@@ -2551,8 +2551,7 @@
     "viewDetails": "Voir les détails",
     "groupDisplay": "Affichage par école",
     "expandAllGroups": "Tout déplier",
-    "collapseAllGroups": "Tout replier",
-    "hottestDays": "Les plus populaires ({days} derniers jours)"
+    "collapseAllGroups": "Tout replier"
   },
   "tags": {
     "placeholder": "Saisissez un mot-clé puis Entrée",
@@ -2736,7 +2735,6 @@
     "showContacts": "Afficher les coordonnées",
     "title": "Page de l’enseignant",
     "empty": "Le site de l’établissement ne fournit aucune information à afficher pour cette page.",
-    "source": "Ces informations proviennent de la page de l’enseignant sur le site de l’établissement. Elles sont affichées selon les règles de l’établissement.",
     "photo": "Portrait de {name}",
     "manage": "Gérer ma page d’enseignant",
     "manageFor": "Gérer la page de « {name} »",

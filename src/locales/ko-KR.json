@@ -2551,8 +2551,7 @@
     "viewDetails": "자세히 보기",
     "groupDisplay": "단과대학별 보기",
     "expandAllGroups": "모두 펼치기",
-    "collapseAllGroups": "모두 접기",
-    "hottestDays": "인기순(최근 {days}일)"
+    "collapseAllGroups": "모두 접기"
   },
   "tags": {
     "placeholder": "태그를 입력하고 Enter",
@@ -2736,7 +2735,6 @@
     "showContacts": "연락처 보기",
     "title": "교수 페이지",
     "empty": "학교 공식 웹사이트에 표시할 교수 정보가 없습니다.",
-    "source": "학교 공식 웹사이트의 교수 페이지에서 가져온 정보이며, 학교 규정에 따라 표시됩니다.",
     "photo": "{name} 사진",
     "manage": "내 교수 페이지 관리",
     "manageFor": "‘{name}’ 교수 페이지 관리",

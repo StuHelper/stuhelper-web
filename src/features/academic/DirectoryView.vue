@@ -72,12 +72,9 @@ const query = (after: string, overrides: Record<string, string | number | undefi
 const arrival = ref(0)
 // While a search or filter change loads, the previous rows stay on screen dimmed instead of
 // flashing a skeleton. A failed reload clears them.
-// Days counted by "hottest": Beijing dates up to and including today, as reported by the server.
-const heatDays = ref<number>()
 const results = usePaged<DirectoryItem>(async (after, signal) => {
   const result = await api.directory(query(after), signal)
   if (!after) {
-    heatDays.value = result.window_days
     facets.value = { total: result.total, facetTotal: result.facet_total, categories: result.category_facets, departments: namedDepartments(result.department_facets) }
     arrival.value += 1
   }
@@ -255,7 +252,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
           @update:model-value="(value: string) => set({ sort: value === 'hot' ? undefined : value })"
         >
           <option value="hot">
-            {{ heatDays ? t('browse.hottestDays', { days: format.number(heatDays) }) : t('browse.hottest') }}
+            {{ t('browse.hottest') }}
           </option>
           <option
             v-if="kind === 'teacher'"
