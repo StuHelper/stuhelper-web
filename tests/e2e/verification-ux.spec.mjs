@@ -19,8 +19,13 @@ async function fixture(page, options = {}) {
         const body = request.postDataJSON();
         state.schoolDataWrites.push({ ...body, password: body.password ? '[set]' : '' });
         if (body.password === 'wrong') return route.fulfill({ status: 422, json: { code: 'school_credentials_rejected' } });
-        state.schoolData = { state: 'active', verified_at: '2026-11-26T00:00:00Z' };
-      } else if (request.method() === 'DELETE') state.schoolData = { state: 'inactive' };
+        state.schoolData = { state: 'active', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'autumn-2026', year: 2026, season: 'autumn' } };
+      } else if (request.method() === 'DELETE') state.schoolData = { ...state.schoolData, state: 'historical' };
+      return route.fulfill({ json: state.schoolData });
+    }
+    if (endpoint === 'me/school-data/history-consent') {
+      state.schoolDataWrites.push(request.postDataJSON());
+      state.schoolData = { ...state.schoolData, history_consent_required: false };
       return route.fulfill({ json: state.schoolData });
     }
     if (request.method() === 'POST') {
@@ -522,12 +527,15 @@ test('a failed school login returns the open application to the form for another
   expect(verifies[1]).toMatchObject({ student_id: '20260001', password: 'synthetic-password-2' });
 });
 
-test('school data authorization explains storage, opens with consent and can be revoked', async ({ page }, info) => {
-  const v = messages(info).verification, sd = v.schoolData;
+test('school data authorization is granted by term, and stopping rechecks keeps the authorized terms', async ({ page }, info) => {
+  const v = messages(info).verification, sd = v.schoolData, locale = info.project.metadata.locale;
+  const term = sd.term.replace('{year}', new Intl.NumberFormat(locale, { useGrouping: false }).format(2026)).replace('{season}', sd.seasons.autumn);
   const state = await fixture(page); await open(page, info);
   const card = page.getByRole('region', { name: sd.title, exact: true });
   await expect(card.getByText(sd.inactive, { exact: true })).toBeVisible();
   for (const point of Object.values(sd.points)) await expect(card.getByText(point, { exact: true })).toBeVisible();
+  // Without an authorization there is nothing to stop.
+  await expect(card.getByRole('button', { name: sd.stop, exact: true })).toHaveCount(0);
   const submit = card.getByRole('button', { name: sd.submit, exact: true });
   await card.getByLabel(v.studentId, { exact: true }).fill('20260001');
   await card.getByLabel(sd.password, { exact: true }).fill('wrong');
@@ -541,12 +549,33 @@ test('school data authorization explains storage, opens with consent and can be 
   await card.getByLabel(sd.password, { exact: true }).fill('secret');
   await submit.click();
   await expect(card.getByText(sd.active, { exact: true })).toBeVisible();
+  await expect(card.getByText(term, { exact: true })).toBeVisible();
   await expect(card.getByText(sd.verifiedAt, { exact: true })).toBeVisible();
-  await expect(card.locator('dt')).toHaveCount(1);
-  expect(state.schoolDataWrites.at(-1)).toEqual({ student_id: '20260001', password: '[set]', accepted: true });
-  await card.getByRole('button', { name: sd.revoke, exact: true }).click();
-  const dialog = page.getByRole('dialog', { name: sd.revokeTitle, exact: true });
-  await dialog.getByRole('button', { name: sd.revoke, exact: true }).click();
-  await expect(card.getByText(sd.inactive, { exact: true })).toBeVisible();
+  // The consent covers the term rules, so their version is sent with it.
+  expect(state.schoolDataWrites.at(-1)).toEqual({ student_id: '20260001', password: '[set]', accepted: true, history_notice_version: 'termscope-v1' });
+  await card.getByRole('button', { name: sd.stop, exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: sd.stopTitle, exact: true });
+  await expect(dialog).toContainText(sd.stopMessage.replace('{term}', term));
+  await dialog.getByRole('button', { name: sd.stop, exact: true }).click();
+  // The authorized terms stay; the card offers to turn it on again to extend them.
+  await expect(card.getByText(sd.historical, { exact: true })).toBeVisible();
+  await expect(card.getByText(sd.historicalNote.replace('{term}', term), { exact: true })).toBeVisible();
+  await expect(card.getByRole('button', { name: sd.reopen, exact: true })).toBeVisible();
+  await expect(card.getByRole('button', { name: sd.stop, exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('an earlier school data authorization keeps its past terms only after consenting to the term rules', async ({ page }, info) => {
+  const sd = messages(info).verification.schoolData;
+  const state = await fixture(page);
+  state.schoolData = { state: 'historical', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'autumn-2026', year: 2026, season: 'autumn' }, history_consent_required: true };
+  await open(page, info);
+  const card = page.getByRole('region', { name: sd.title, exact: true });
+  const keep = card.getByRole('button', { name: sd.historyConsent.submit, exact: true });
+  await expect(card.getByText(sd.historyConsent.text, { exact: true })).toBeVisible();
+  await expect(keep).toBeDisabled();
+  await card.getByLabel(sd.historyConsent.check, { exact: true }).check();
+  await keep.click();
+  await expect(keep).toHaveCount(0);
+  expect(state.schoolDataWrites.at(-1)).toEqual({ accepted: true, history_notice_version: 'termscope-v1' });
 });

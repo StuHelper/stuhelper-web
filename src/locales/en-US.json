@@ -594,7 +594,10 @@
       "courseWritingTip": "Ideally a review is factual and complete. If a course is taught well but the exam is hard, mentioning both helps classmates make a balanced choice. Younger students (and struggling seniors) thank you.",
       "enrolledMark": "enrolled",
       "enrolledLegend": "Terms and teachers marked in green come from your own enrollment record.",
-      "noTerms": "No terms are available for this course yet."
+      "noTerms": "No terms are available for this course yet.",
+      "enrollmentActiveThrough": "School data authorization is on through {term}. For that term and earlier, your enrollment is checked when you publish; later terms show “Enrollment unknown”.",
+      "enrollmentHistorical": "School data rechecks have stopped. Courses through {term} are still checked against your enrollment; later terms show “Enrollment unknown”.",
+      "enrollmentReopen": "Turn on again"
     },
     "disclosure": {
       "title": "Verified information to display",
@@ -1379,24 +1382,45 @@
       "title": "School data authorization",
       "active": "On",
       "inactive": "Off",
-      "intro": "When this is on, we read your enrollment from the school's academic system only when you need it, such as listing your own teachers when you review a course and labeling the enrollment status of your course reviews. You can still review courses without it; your reviews will show “Enrollment unknown”.",
+      "intro": "When this is on, we read your enrollment from the school’s academic system only when you need it, such as marking the terms and teachers you took when you review a course and labeling the enrollment status of your course reviews. You can still review courses without it; your reviews will show “Enrollment unknown”.",
       "points": {
         "storage": "Your school account and password are kept encrypted on our servers. Only the verification service can decrypt them, and they never appear in logs or backups in plain text.",
-        "validity": "Your authorization stays active after a successful check. Checks can run on the configured schedule or at an administrator’s request. If the school rejects your password or disables your account, the platform immediately revokes the authorization and deletes the stored account details and password.",
-        "labels": "While this is on, your course reviews automatically show “Enrolled” or “Not enrolled”. When it is off or a check has failed, they show “Enrollment unknown”. Published reviews keep the label they had when published.",
-        "revoke": "You can turn this off here at any time. Your stored account and password are deleted immediately and we stop reading your enrollment."
+        "terms": "Authorization covers terms: the term in which a check succeeds and every earlier term can be read; later terms are read only after a later check succeeds.",
+        "validity": "After a successful check the authorization stays valid. StuHelper rechecks on the configured schedule or when an administrator asks, and each success extends it to the current term. If the school rejects the password or disables the account, the stored account and password are deleted and the authorization stops extending; the authorized terms stay readable.",
+        "labels": "For terms inside the authorization, your course reviews automatically show “Enrolled” or “Not enrolled”; outside it, or without authorization, they show “Enrollment unknown”. Published reviews keep the label they had when published.",
+        "revoke": "You can stop rechecks here at any time. The stored account and password are deleted at once; the authorized terms stay readable and later terms are not read. Closing your account clears the whole authorization."
       },
       "password": "School single sign-on password",
-      "consent": "I have read the above and agree that StuHelper keeps my school account and password encrypted to read my own enrollment and to show the enrollment status on my course reviews.",
+      "consent": "I have read the above and agree that StuHelper keeps my school account and password encrypted, reads my own enrollment term by term, shows the enrollment status on my course reviews, and keeps using the authorized terms after rechecks stop.",
       "submit": "Turn on school data authorization",
       "needsCampus": "Complete student verification before turning on school data authorization.",
       "verifiedAt": "Last checked",
-      "revoke": "Turn off",
-      "revokeTitle": "Turn off school data authorization?",
-      "revokeMessage": "Your stored school account and password will be deleted immediately and we will stop reading your enrollment. Reviews you publish afterwards show “Enrollment unknown”; published reviews keep their labels.",
       "opened": "School data authorization is on.",
-      "revoked": "School data authorization is off.",
-      "mismatch": "This student ID does not match your verified student identity. Use your own school account."
+      "mismatch": "This student ID does not match your verified student identity. Use your own school account.",
+      "historical": "Rechecks stopped",
+      "through": "Authorized through",
+      "throughUnknown": "Not yet determined",
+      "term": "{season} {year}",
+      "seasons": {
+        "spring": "Spring",
+        "summer": "Summer",
+        "autumn": "Autumn"
+      },
+      "historicalNote": "Rechecks have stopped and the stored account and password were deleted. Enrollment through {term} can still be used; later terms are not read. Turning it on again extends the authorization to the current term.",
+      "historicalNoTerm": "Rechecks have stopped and the stored account and password were deleted. Turning it on again determines the authorized terms anew.",
+      "reopen": "Turn on again to extend",
+      "stop": "Stop rechecks",
+      "stopTitle": "Stop rechecking school data?",
+      "stopMessage": "The stored school account and password will be deleted at once and the authorization will no longer extend. Enrollment through {term} can still be used; later terms are not read and related reviews show “Enrollment unknown”. Published reviews keep their labels.",
+      "stopMessageNoTerm": "The stored school account and password will be deleted at once and the authorization will no longer extend. Reviews published afterwards show “Enrollment unknown”; published reviews keep their labels.",
+      "stopped": "Rechecks stopped; the stored account and password were deleted.",
+      "historyConsent": {
+        "title": "Please confirm the new authorization rules",
+        "text": "School data authorization now covers terms: after rechecks stop or a check fails, enrollment from the authorized terms is still used for your own courses, timetable and reviews, and later terms are not read. The rules you agreed to said nothing is read after stopping, so the past terms are kept under the new rules only after you confirm.",
+        "check": "I have read the new rules and agree that the authorized terms stay in use after rechecks stop.",
+        "submit": "Agree and keep authorized terms",
+        "done": "Authorized terms are kept under the new rules."
+      }
     }
   },
   "contribution": {

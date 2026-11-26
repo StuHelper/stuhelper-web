@@ -167,17 +167,27 @@ export function studentMaterialDeleted(id: string) {
   return undefined
 }
 
-/** 学校数据认证：演示里只记录是否开通，不保存账号和密码。 */
-let schoolData: { state: 'active' | 'inactive'; verified_at?: string } = { state: 'inactive' }
-export const schoolDataActive = () => schoolData.state === 'active'
+/** 学校数据认证：演示里只记录授权状态和截至学期，不保存账号和密码。 */
+type SchoolDataDemo = { state: 'active' | 'inactive' | 'historical'; verified_at?: string; authorized_through?: { id: string; year: number; season: 'spring' | 'summer' | 'autumn' }; history_consent_required?: boolean }
+let schoolData: SchoolDataDemo = { state: 'inactive' }
+/** Active or historical authorizations both let the author's past terms be read. */
+export const schoolDataActive = () => schoolData.state !== 'inactive'
 function schoolDataRoute(method: string, init: RequestInit | undefined) {
   if (method === 'PUT') {
     const { student_id, password, accepted } = read(init)
     if (!eligible) return nope('permission_denied', 403)
     if (accepted !== true || !student_id || !password) return nope('invalid_input', 400)
     if (password === 'wrong') return nope('school_credentials_rejected', 422)
-    schoolData = { state: 'active', verified_at: new Date().toISOString() }
-  } else if (method === 'DELETE') schoolData = { state: 'inactive' }
+    // The demo's current term is autumn 2026.
+    schoolData = { state: 'active', verified_at: new Date().toISOString(), authorized_through: { id: 't-26f', year: 2026, season: 'autumn' } }
+  } else if (method === 'DELETE' && schoolData.state === 'active') schoolData = { ...schoolData, state: 'historical' }
+  return json(schoolData)
+}
+function schoolDataHistoryRoute(method: string, init: RequestInit | undefined) {
+  if (method !== 'POST') return nope('method_not_allowed', 405)
+  const { accepted, history_notice_version } = read(init)
+  if (accepted !== true || history_notice_version !== 'termscope-v1' || !schoolData.authorized_through) return nope('invalid_input', 400)
+  schoolData = { ...schoolData, history_consent_required: false }
   return json(schoolData)
 }
 
@@ -189,6 +199,7 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (p === '/verification/email-transfer-consent') return transferConsent(method)
   if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: teacherCredentials(who === 'verified').some((item) => item.state === 'active'), identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
   if (p === '/verification/me/school-data') return schoolDataRoute(method, init)
+  if (p === '/verification/me/school-data/history-consent') return schoolDataHistoryRoute(method, init)
   if (p === '/verification/credentials') return json(credentials)
   if (p === '/verification/requests') return json(removalRequests)
   if (p === '/verification/suggestions' && method === 'POST') {

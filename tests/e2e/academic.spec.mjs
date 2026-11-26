@@ -726,6 +726,24 @@ test('without school data authorization a course review lists the public teacher
   expect(errors).toEqual([]);
 });
 
+test('the review editor names the authorized term, also after rechecks have stopped', async ({ page }, info) => {
+  const all = catalogue(info), a = all.academic, sd = all.verification.schoolData, locale = info.project.metadata.locale;
+  const term = sd.term.replace('{year}', new Intl.NumberFormat(locale, { useGrouping: false }).format(2026)).replace('{season}', sd.seasons.autumn);
+  await academicFixture(page);
+  let authorization = { state: 'active', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'fall', year: 2026, season: 'autumn' } };
+  await page.route('**/api/v1/verification/me/school-data', (route) => route.fulfill({ json: authorization }));
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await expect(editor.getByText(a.editor.enrollmentActiveThrough.replace('{term}', term), { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: a.editor.cancel ?? all.common.cancel, exact: true }).click().catch(() => undefined);
+  authorization = { ...authorization, state: 'historical' };
+  await page.reload();
+  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await expect(editor.getByText(a.editor.enrollmentHistorical.replace('{term}', term), { exact: true })).toBeVisible();
+  await expect(editor.getByRole('link', { name: a.editor.enrollmentReopen, exact: true })).toHaveAttribute('href', '/me/verification#school-data');
+});
+
 test('course review cards show the enrollment status captured at publication', async ({ page }, info) => {
   const a = catalogue(info).academic;
   await academicFixture(page);

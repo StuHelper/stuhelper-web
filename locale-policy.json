@@ -53,6 +53,10 @@
       },
       "languages": {
         "fr-FR": {
+          "verification.schoolData.term": {
+            "value": "{season} {year}",
+            "reason": "学期名称格式标记，季节在前、年份在后，与英语同形。"
+          },
           "academic.subject.sections": {
             "value": "Sections",
             "reason": "法语 Sections 表示内容分区，与英语同形。"

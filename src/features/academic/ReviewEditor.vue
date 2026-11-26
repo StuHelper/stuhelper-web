@@ -64,6 +64,14 @@ let restoring = false
 const verification = useVerification()
 const schoolData = useAsync((signal) => (props.kind === 'course' && !textOnly.value && session.state.value === 'member' ? verification.schoolData(signal) : Promise.resolve(undefined)))
 void schoolData.reload()
+// Enrollment is checked only for terms up to the authorized term; later terms are labeled unknown.
+const enrollmentNote = computed(() => {
+  const value = schoolData.data.value
+  if (!value || value.state === 'inactive') return t('academic.editor.enrollmentInactive')
+  const term = value.authorized_through ? t('verification.schoolData.term', { year: format.value.number(value.authorized_through.year, { useGrouping: false }), season: t(`verification.schoolData.seasons.${value.authorized_through.season}`) }) : ''
+  if (value.state === 'historical') return term ? t('academic.editor.enrollmentHistorical', { term }) : t('academic.editor.enrollmentInactive')
+  return term ? t('academic.editor.enrollmentActiveThrough', { term }) : t('academic.editor.enrollmentActive')
+})
 const context = useAsync(async (signal) => {
   const composer = await api.composer({ kind: props.kind, target_id: props.targetId, term_id: props.kind === 'course' ? term.value : undefined, parent_id: props.kind === 'reply' ? props.parentId : undefined }, signal)
   const names = await api.lookup([...composer.teachers.map((item) => item.id), ...teachers.value], signal)
@@ -396,10 +404,10 @@ async function cancel() {
         <p
           v-if="schoolData.data.value"
           class="enrollment-note"
-          :class="schoolData.data.value.state === 'active' ? 'is-active' : 'is-inactive'"
+          :class="schoolData.data.value.state === 'inactive' ? 'is-inactive' : 'is-active'"
         >
           <EnrollmentBadge
-            v-if="schoolData.data.value.state !== 'active'"
+            v-if="schoolData.data.value.state === 'inactive'"
             status="unknown"
           />
           <ShieldCheck
@@ -407,12 +415,12 @@ async function cancel() {
             class="enrollment-icon"
             aria-hidden="true"
           />
-          <span>{{ t(schoolData.data.value.state === 'active' ? 'academic.editor.enrollmentActive' : 'academic.editor.enrollmentInactive') }}</span>
+          <span>{{ enrollmentNote }}</span>
           <a
             v-if="schoolData.data.value.state !== 'active'"
             href="/me/verification#school-data"
             target="_blank"
-          >{{ t('academic.editor.enrollmentSetup') }}</a>
+          >{{ t(schoolData.data.value.state === 'historical' ? 'academic.editor.enrollmentReopen' : 'academic.editor.enrollmentSetup') }}</a>
         </p>
         <RatingInput
           v-model="ratings"

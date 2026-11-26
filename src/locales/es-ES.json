@@ -594,7 +594,10 @@
       "courseWritingTip": "Lo ideal es que la reseña sea objetiva y completa. Si un curso se imparte bien pero el examen es difícil, mencionar ambas cosas ayuda a tus compañeros a decidir con criterio. Los más jóvenes (y los veteranos que lo pasan mal) te lo agradecen.",
       "enrolledMark": "matriculado",
       "enrolledLegend": "Los semestres y profesores marcados en verde proceden de tu propia matrícula.",
-      "noTerms": "Este curso aún no tiene semestres disponibles."
+      "noTerms": "Este curso aún no tiene semestres disponibles.",
+      "enrollmentActiveThrough": "La autorización de datos académicos llega hasta el {term}. Para ese semestre y los anteriores se comprueba tu matrícula al publicar; los posteriores muestran «Matrícula desconocida».",
+      "enrollmentHistorical": "Las comprobaciones de datos académicos están detenidas. Los cursos hasta el {term} se siguen comprobando con tu matrícula; los posteriores muestran «Matrícula desconocida».",
+      "enrollmentReopen": "Activar de nuevo"
     },
     "disclosure": {
       "title": "Información verificada que se mostrará",
@@ -1379,24 +1382,45 @@
       "title": "Autorización de datos escolares",
       "active": "Activada",
       "inactive": "Desactivada",
-      "intro": "Cuando está activada, leemos tu matrícula en el sistema académico de la universidad solo cuando la necesitas, por ejemplo para mostrar tus propios profesores al reseñar una asignatura y para indicar el estado de matrícula de tus reseñas. Puedes reseñar sin activarla; tus reseñas mostrarán «Matrícula desconocida».",
+      "intro": "Al activarla, StuHelper lee tu matrícula del sistema académico solo cuando la necesitas, por ejemplo para marcar los semestres y profesores que cursaste al reseñar un curso y para indicar el estado de matrícula de tus reseñas. Puedes reseñar sin activarla; tus reseñas mostrarán «Matrícula desconocida».",
       "points": {
         "storage": "Tu cuenta y contraseña de la universidad se guardan cifradas en nuestros servidores. Solo el servicio de verificación puede descifrarlas y nunca aparecen en texto claro en registros ni copias de seguridad.",
-        "validity": "Tras una verificación correcta, tu autorización sigue vigente. La plataforma puede volver a verificar tu cuenta con la periodicidad configurada o a petición de un administrador. Si tu universidad rechaza la contraseña o desactiva tu cuenta, la plataforma revoca de inmediato la autorización y elimina el identificador y la contraseña guardados.",
-        "labels": "Mientras está activada, tus reseñas muestran automáticamente «Matriculado» o «No matriculado». Si está desactivada o la verificación falla, muestran «Matrícula desconocida». Las reseñas publicadas conservan la etiqueta que tenían.",
-        "revoke": "Puedes desactivarla aquí en cualquier momento. La cuenta y la contraseña guardadas se eliminan al instante y dejamos de leer tu matrícula."
+        "terms": "La autorización va por semestres: se puede leer el semestre en que una comprobación tiene éxito y todos los anteriores; los posteriores solo tras una nueva comprobación correcta.",
+        "validity": "Tras una comprobación correcta, la autorización sigue vigente. StuHelper vuelve a comprobar con la frecuencia configurada o cuando lo pide un administrador, y cada éxito la extiende al semestre actual. Si la universidad rechaza la contraseña o desactiva la cuenta, se eliminan la cuenta y la contraseña guardadas y la autorización deja de extenderse; los semestres autorizados siguen siendo legibles.",
+        "labels": "En los semestres autorizados, tus reseñas muestran automáticamente «Matriculado» o «No matriculado»; fuera de ese rango o sin autorización muestran «Matrícula desconocida». Las reseñas publicadas conservan su etiqueta.",
+        "revoke": "Puedes detener las comprobaciones aquí en cualquier momento. La cuenta y la contraseña guardadas se eliminan al instante; los semestres autorizados siguen siendo legibles y los posteriores no se leen. Al cerrar la cuenta se borra toda la autorización."
       },
       "password": "Contraseña de inicio de sesión único de la universidad",
-      "consent": "He leído lo anterior y acepto que StuHelper guarde cifradas mi cuenta y contraseña de la universidad para leer mi propia matrícula y mostrar el estado de matrícula en mis reseñas.",
+      "consent": "He leído lo anterior y acepto que StuHelper guarde cifrados mi cuenta y mi contraseña, lea mi matrícula por semestres, muestre el estado de matrícula en mis reseñas y siga usando los semestres autorizados tras detener las comprobaciones.",
       "submit": "Activar la autorización",
       "needsCampus": "Completa la verificación de estudiante antes de activar la autorización de datos escolares.",
       "verifiedAt": "Última verificación",
-      "revoke": "Desactivar",
-      "revokeTitle": "¿Desactivar la autorización de datos escolares?",
-      "revokeMessage": "La cuenta y la contraseña guardadas se eliminarán de inmediato y dejaremos de leer tu matrícula. Las reseñas que publiques después mostrarán «Matrícula desconocida»; las ya publicadas conservan su etiqueta.",
       "opened": "La autorización de datos escolares está activada.",
-      "revoked": "La autorización de datos escolares está desactivada.",
-      "mismatch": "Este número de estudiante no coincide con tu identidad de estudiante verificada. Usa tu propia cuenta de la universidad."
+      "mismatch": "Este número de estudiante no coincide con tu identidad de estudiante verificada. Usa tu propia cuenta de la universidad.",
+      "historical": "Comprobaciones detenidas",
+      "through": "Autorizado hasta",
+      "throughUnknown": "Aún sin determinar",
+      "term": "{season} de {year}",
+      "seasons": {
+        "spring": "semestre de primavera",
+        "summer": "semestre de verano",
+        "autumn": "semestre de otoño"
+      },
+      "historicalNote": "Las comprobaciones se detuvieron y se eliminaron la cuenta y la contraseña guardadas. La matrícula hasta el {term} sigue disponible; los semestres posteriores no se leen. Al activarla de nuevo, la autorización se extiende al semestre actual.",
+      "historicalNoTerm": "Las comprobaciones se detuvieron y se eliminaron la cuenta y la contraseña guardadas. Al activarla de nuevo se determinan otra vez los semestres autorizados.",
+      "reopen": "Activar de nuevo para extender",
+      "stop": "Detener comprobaciones",
+      "stopTitle": "¿Detener las comprobaciones de datos académicos?",
+      "stopMessage": "Se eliminarán al instante la cuenta y la contraseña guardadas y la autorización dejará de extenderse. La matrícula hasta el {term} sigue disponible; los semestres posteriores no se leen y sus reseñas muestran «Matrícula desconocida». Las reseñas publicadas conservan su etiqueta.",
+      "stopMessageNoTerm": "Se eliminarán al instante la cuenta y la contraseña guardadas y la autorización dejará de extenderse. Las reseñas que publiques después mostrarán «Matrícula desconocida»; las publicadas conservan su etiqueta.",
+      "stopped": "Comprobaciones detenidas; se eliminaron la cuenta y la contraseña guardadas.",
+      "historyConsent": {
+        "title": "Confirma las nuevas reglas de autorización",
+        "text": "La autorización de datos académicos ahora va por semestres: tras detener las comprobaciones o si una falla, la matrícula de los semestres autorizados se sigue usando para tus cursos, horario y reseñas, y los semestres posteriores no se leen. Las reglas que aceptaste indicaban que al detenerla no se leería nada, así que los semestres pasados solo se conservan si lo confirmas.",
+        "check": "He leído las nuevas reglas y acepto que los semestres autorizados se sigan usando tras detener las comprobaciones.",
+        "submit": "Aceptar y conservar los semestres autorizados",
+        "done": "Los semestres autorizados se conservan con las nuevas reglas."
+      }
     }
   },
   "contribution": {
