@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { myCoursesEnabled } from '../../app/features'
 import { computed, nextTick, onBeforeUnmount, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
@@ -12,13 +11,17 @@ import MutationNotice from '../../shared/ui/MutationNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { useAcademic, type DisclosureKey, type Draft, type Result, type ReviewAction, type ReviewInput, type ReviewKind } from './api'
 import { askConfirm } from '../../shared/ui/confirm'
+import { ShieldCheck } from 'lucide-vue-next'
+import { useVerification } from '../verification/api'
 import ChoiceGroup from './ChoiceGroup.vue'
+import EnrollmentBadge from './EnrollmentBadge.vue'
 import RatingInput from './RatingInput.vue'
 
 /**
  * Write a course review, a mentor review or a reply. The server's composer
- * reports the current eligibility, teacher candidates from the author's own
- * enrollment and the discussion identity; the page only presents them.
+ * reports the current eligibility, the teacher candidates and the discussion
+ * identity; the page only presents them. Teacher candidates come from the
+ * author's own enrollment only under an active school data authorization.
  */
 const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; initialTermId?: string; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, initialTermId: undefined, leaveQuery: undefined })
 const emit = defineEmits<{ submitted: [result: Result]; cancel: [] }>()
@@ -47,6 +50,11 @@ const latest = shallowRef<Draft>()
 const latestError = ref('')
 let restoring = false
 
+// Whether this author's course reviews will carry a checked enrollment status. Only a course
+// review needs it; a failed read just leaves the explanation out.
+const verification = useVerification()
+const schoolData = useAsync((signal) => (props.kind === 'course' && !textOnly.value && session.state.value === 'member' ? verification.schoolData(signal) : Promise.resolve(undefined)))
+void schoolData.reload()
 const terms = useAsync((signal) => (props.kind === 'course' ? api.options({ kind: 'term', school_id: props.schoolId }, signal) : Promise.resolve([])))
 const context = useAsync(async (signal) => {
   const composer = await api.composer({ kind: props.kind, target_id: props.targetId, term_id: props.kind === 'course' ? term.value : undefined, parent_id: props.kind === 'reply' ? props.parentId : undefined }, signal)
@@ -61,11 +69,8 @@ const teacherOptions = computed(() => {
   return withdrawn && teacher.value && !ids.includes(teacher.value) ? [...ids, teacher.value] : ids
 })
 const termChoices = computed(() => (terms.data.value ?? []).map((item) => ({ value: item.id, label: item.name })))
-// A sports project review names one of the author's own teachers for that term, so the
-// "unspecified" choice is left out and publishing waits for a teacher.
-const teacherRequired = computed(() => props.kind === 'course' && composer.value?.teacher_required === true)
 const teacherChoices = computed(() => [
-  ...(teacherRequired.value ? [] : [{ value: '', label: t('academic.review.noTeacher') }]),
+  { value: '', label: t('academic.review.noTeacher') },
   ...teacherOptions.value.map((id) => ({ value: id, label: context.data.value?.names.get(id)?.name ?? t('common.unknown') })),
 ])
 
@@ -92,14 +97,15 @@ const showEligibility = computed(() => {
 })
 // 课程评价发布时五个维度都要评分。草稿可以只填一部分。
 const ratingsMissing = computed(() => props.kind === 'course' && ratings.value.some((level) => !level))
-const missingConsent = computed(() => composer.value?.disclosures?.some(option => option.required && !disclosures.value.includes(option.key)))
-const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && (!teacherRequired.value || !!teacher.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
+// Enrollment is no longer a disclosure: every course review carries its status automatically.
+const disclosureOptions = computed(() => composer.value?.disclosures ?? [])
+const missingConsent = computed(() => disclosureOptions.value.some(option => option.required && !disclosures.value.includes(option.key)))
+const canPublish = computed(() => !missingConsent.value && !locked.value && composer.value?.allowed === true && !ratingsMissing.value && (props.kind !== 'course' || !!term.value) && !!body.value.trim() && (props.kind === 'reply' || !!title.value.trim()))
 // What the author still has to fill in before publishing, named next to the disabled button.
 // Eligibility is decided by the server and explained in its own section above.
 const missing = computed(() => {
   const items: string[] = []
   if (props.kind === 'course' && !term.value) items.push(t('academic.editor.term'))
-  if (teacherRequired.value && !teacher.value) items.push(t('academic.editor.teacher'))
   if (ratingsMissing.value) items.push(t('academic.editor.ratingsDone', { done: format.value.number(ratings.value.filter((level) => level > 0).length), total: format.value.number(ratings.value.length) }))
   if (props.kind !== 'reply' && !title.value.trim()) items.push(t('academic.editor.title'))
   if (!body.value.trim()) items.push(t('academic.editor.body'))
@@ -124,10 +130,6 @@ function applyDefaults(update: () => void) {
   if (pristine) baseline.value = JSON.stringify(input())
 }
 
-// With a single allowed teacher there is nothing to choose.
-watch(() => [teacherRequired.value, composer.value?.teacher_ids] as const, ([required, ids]) => {
-  if (required && !teacher.value && ids?.length === 1) applyDefaults(() => { teacher.value = ids[0]! })
-})
 watch(term, () => {
   if (!withdrawn && !restoring) teacher.value = ''
   if (!textOnly.value && props.kind === 'course') void context.reload()
@@ -139,8 +141,8 @@ watch(() => composer.value?.identity, (mode) => {
   if (!withdrawn && mode && mode !== 'choice') applyDefaults(() => { signed.value = mode === 'signed' })
 })
 // Required disclosures (for example a teacher replying on an own course) are always selected.
-watch(() => composer.value?.disclosures, (options) => {
-  if (!options) return
+watch(disclosureOptions, (options) => {
+  if (!composer.value) return
   const offered = new Set(options.map((option) => option.key))
   applyDefaults(() => {
     const defaults = composer.value?.teacher_reply ? [] : options.filter(option => option.required).map(option => option.key)
@@ -149,9 +151,11 @@ watch(() => composer.value?.disclosures, (options) => {
 })
 
 // Steps open in a new tab so the text being written stays here; returning rechecks.
-const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity', ...(myCoursesEnabled ? { course_enrollment: '/me/courses' } : {}) }
+const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity' }
 function recheck() {
-  if (!textOnly.value && document.visibilityState === 'visible' && context.status.value !== 'loading' && !locked.value) void context.reload()
+  if (textOnly.value || document.visibilityState !== 'visible') return
+  if (context.status.value !== 'loading' && !locked.value) void context.reload()
+  if (schoolData.status.value !== 'loading') void schoolData.reload()
 }
 document.addEventListener('visibilitychange', recheck)
 onBeforeUnmount(() => document.removeEventListener('visibilitychange', recheck))
@@ -371,8 +375,29 @@ async function cancel() {
             :options="teacherChoices"
             :disabled="withdrawn"
           />
-          <span class="field-hint">{{ t(teacherRequired ? 'academic.editor.teacherRequiredHint' : 'academic.editor.teacherHint') }}</span>
+          <span class="field-hint">{{ t('academic.editor.teacherHint') }}</span>
         </div>
+        <p
+          v-if="schoolData.data.value"
+          class="enrollment-note"
+          :class="schoolData.data.value.state === 'active' ? 'is-active' : 'is-inactive'"
+        >
+          <EnrollmentBadge
+            v-if="schoolData.data.value.state !== 'active'"
+            status="unknown"
+          />
+          <ShieldCheck
+            v-else
+            class="enrollment-icon"
+            aria-hidden="true"
+          />
+          <span>{{ t(schoolData.data.value.state === 'active' ? 'academic.editor.enrollmentActive' : 'academic.editor.enrollmentInactive') }}</span>
+          <a
+            v-if="schoolData.data.value.state !== 'active'"
+            href="/me/verification#school-data"
+            target="_blank"
+          >{{ t('academic.editor.enrollmentSetup') }}</a>
+        </p>
         <RatingInput
           v-model="ratings"
           :school-id="schoolId"
@@ -460,15 +485,15 @@ async function cancel() {
         </p>
 
         <fieldset
-          v-if="composer?.disclosures?.length"
+          v-if="disclosureOptions.length"
           class="stack-sm"
         >
           <legend>{{ t('academic.disclosure.title') }}</legend>
           <p class="field-hint">
-            {{ t(composer.teacher_reply ? 'academic.disclosure.teacherRequired' : 'academic.disclosure.hint') }}
+            {{ t(composer?.teacher_reply ? 'academic.disclosure.teacherRequired' : 'academic.disclosure.hint') }}
           </p>
           <label
-            v-for="option in composer.disclosures"
+            v-for="option in disclosureOptions"
             :key="option.key"
             class="check"
           >
@@ -476,9 +501,9 @@ async function cancel() {
               v-model="disclosures"
               type="checkbox"
               :value="option.key"
-              :disabled="option.required && !composer.teacher_reply"
+              :disabled="option.required && !composer?.teacher_reply"
             >
-            <span>{{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key === 'enrollment'"> · {{ t(`academic.disclosure.enrollment.${option.value}`) }}</template><template v-else-if="option.key !== 'teacher'"> · {{ option.value }}</template></span>
+            <span>{{ t(`academic.disclosure.labels.${option.key}`) }}<template v-if="option.key !== 'teacher'"> · {{ option.value }}</template></span>
           </label>
         </fieldset>
       </div>
@@ -577,6 +602,10 @@ async function cancel() {
 </template>
 
 <style scoped>
+.enrollment-note { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem .5rem; margin: 0; padding: .625rem .75rem; border-radius: var(--radius); background: var(--fill); color: var(--label-2); font-size: .875rem; }
+.enrollment-note.is-active { background: var(--success-soft); color: var(--label); }
+.enrollment-icon { flex: none; width: 18px; height: 18px; color: var(--success); }
+.enrollment-note a { font-weight: 550; }
 .editor { container-type: inline-size; box-shadow: var(--shadow-lift); animation: reveal .45s var(--ease-out); }
 .editor-grid { display: grid; gap: 1rem; }
 /* Without ratings beside it, the text column keeps a comfortable line length. */

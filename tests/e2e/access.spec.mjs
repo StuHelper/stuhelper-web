@@ -114,7 +114,7 @@ memberTest('identity page waits for the real state and only shows masked identit
   const all = catalogue(info), v = all.verification;
   let release;
   const held = new Promise((resolve) => { release = resolve; });
-  await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: new URL(route.request().url()).pathname.endsWith('/me/school-data') ? { state: 'inactive' } : [] }));
   await verification(page, true);
   await page.route('**/api/v1/verification/summary', async (route) => {
     await held;
@@ -145,7 +145,7 @@ memberTest('the account page shows the masked phone number and offers a retry wh
 
 memberTest('the account page only says the identity is verified; the masked details open with View', async ({ page }, info) => {
   const all = catalogue(info);
-  await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: [] }));
+  await page.route('**/api/v1/verification/**', (route) => route.fulfill({ json: new URL(route.request().url()).pathname.endsWith('/me/school-data') ? { state: 'inactive' } : [] }));
   await verification(page, true);
   await page.route('**/api/v1/verification/summary', (route) => route.fulfill({ json: { ...summary(true), identity_verified: true, identity_masked: { name: '*航', document_number: '1****************8', document_type: 'cn_resident_id_card' } } }));
   await page.goto(`${base}/me/account?lang=${info.project.metadata.locale}`);

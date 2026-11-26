@@ -93,7 +93,6 @@
     "rate_limited": "操作过于频繁或已达到数量上限，请稍后重试。",
     "retry_required": "上一次提交的结果尚未确认，请先重新提交。",
     "edit_window_closed": "已超过允许编辑的时间，无法执行此操作。",
-    "enrollment_required": "未找到该课程在该学期的本人选课记录，暂不能提交评价。",
     "disclosure_required": "缺少已获准公开的真实姓名或教师认证信息，暂时不能回复本人任课课程。",
     "identity_owned": "该学生身份已绑定其他账号，请找回原账号或联系管理员。",
     "expired": "申请、验证码或拍摄链接已到期，请重新发起。",
@@ -562,8 +561,7 @@
       "term": "评课学期",
       "termsUnavailable": "学期列表暂时无法加载，请稍后重试。",
       "teacher": "任课教师",
-      "teacherHint": "教师选项来自你所选学期的选课记录，不确定时可以不指定。",
-      "teacherRequiredHint": "体育项目评价需要选择任课教师，选项来自你所选学期该项目的选课记录。",
+      "teacherHint": "开通学校数据认证时，教师选项来自你本人该学期的选课记录；否则列出该学期本课程的全部任课教师。不确定时可以不指定。",
       "moreTerms": "更多学期",
       "ratingsRequired": "完成全部五项评分后方可发布。",
       "title": "标题",
@@ -587,7 +585,10 @@
       "pending": "已提交，等待审核。",
       "published": "已发布。",
       "missing": "发布前还需填写：{items}",
-      "ratingsDone": "评分（已选 {done}/{total}）"
+      "ratingsDone": "评分（已选 {done}/{total}）",
+      "enrollmentActive": "已开通学校数据认证。发布时会自动核对你本人的选课记录，并在评价上显示结果。",
+      "enrollmentInactive": "你还没有开通学校数据认证，发布后评价会显示此标签。",
+      "enrollmentSetup": "去开通"
     },
     "disclosure": {
       "title": "公开的认证信息",
@@ -597,20 +598,14 @@
       "labels": {
         "gender": "性别",
         "department": "所属学院",
-        "enrollment": "选课情况",
         "real_name": "真实姓名",
         "teacher": "已认证教师",
         "organization": "所属单位"
-      },
-      "enrollment": {
-        "enrolled": "已选本课程",
-        "not_enrolled": "未选本课程"
       }
     },
     "composer": {
       "ready": "当前满足发布条件。",
-      "choose_term": "选择评课学期后，将核对本人选课记录。",
-      "enrollment_required": "该学期的选课记录尚未同步。可以先保存草稿，课程同步后再发布。",
+      "choose_term": "选择评课学期后，列出该学期的任课教师。",
       "unauthenticated": "请登录后发布。",
       "forbidden": "当前尚未满足发布条件，请查看上方未满足的项目。",
       "unavailable": "暂时无法确认发布条件，请稍后重试。",
@@ -620,8 +615,7 @@
       "login": "登录账号",
       "campus_eligibility": "学生认证",
       "phone_bound": "已绑定手机号",
-      "identity_verified": "实名认证",
-      "course_enrollment": "本人选课记录"
+      "identity_verified": "实名认证"
     },
     "requirementState": {
       "satisfied": "已满足",
@@ -650,12 +644,23 @@
     },
     "requirementStep": {
       "campus_eligibility": "去认证",
-      "identity_verified": "去实名认证",
-      "course_enrollment": "查看我的课程"
+      "identity_verified": "去实名认证"
     },
     "followUp": "追评",
     "submitFollowUp": "提交追评",
-    "followUpOpensAt": "首次发布 5 分钟后才能追评，请在 {time} 之后再试。"
+    "followUpOpensAt": "首次发布 5 分钟后才能追评，请在 {time} 之后再试。",
+    "enrollmentStatus": {
+      "label": {
+        "enrolled": "有选课记录",
+        "not_enrolled": "无选课记录",
+        "unknown": "选课记录未知"
+      },
+      "hint": {
+        "enrolled": "作者发布时已通过学校数据认证，并查到本人该学期选过这门课。",
+        "not_enrolled": "作者发布时已通过学校数据认证，但本人该学期的选课记录中没有这门课。",
+        "unknown": "发布时无法核实作者的选课记录，例如作者未开通学校数据认证。"
+      }
+    }
   },
   "me": {
     "title": "个人中心",
@@ -1336,6 +1341,29 @@
       "withdrawConfirm": "撤回后，新的投递需要重新同意。撤回前已发起的投递可能继续处理，已发出的验证码沿用原有效期。",
       "withdrawn": "已撤回境外投递同意。",
       "notAccepted": "你还没有同意境外投递。发送学校邮箱验证码前会单独询问你。"
+    },
+    "schoolData": {
+      "title": "学校数据认证",
+      "active": "已开通",
+      "inactive": "未开通",
+      "intro": "开通后，平台只在你本人需要时读取你在学校教务系统中的选课记录，例如评课时列出你本人的任课教师，并为你发布的课程评价自动标注选课状态。不开通也可以正常评课，评价会显示“选课记录未知”。",
+      "points": {
+        "storage": "学校账号和密码在服务端加密长期保存，只有校验服务能解密，日志和备份中不含明文。",
+        "validity": "校验成功后，授权持续有效。平台会按设定的周期或由管理员发起重新校验。如果学校拒绝密码或停用账号，平台会立即撤销授权，并删除保存的账号和密码。",
+        "labels": "开通期间，你发布的课程评价会自动显示“有选课记录”或“无选课记录”；未开通或校验失效时显示“选课记录未知”。已发布评价保留发布时的标签。",
+        "revoke": "你可以随时在这里撤销。撤销后立即删除保存的账号和密码，并停止读取你的选课记录。"
+      },
+      "password": "学校统一身份认证密码",
+      "consent": "我已阅读以上说明，同意平台加密保存我的学校账号和密码，用于读取我本人的选课记录，并在我发布的课程评价上显示选课状态。",
+      "submit": "开通学校数据认证",
+      "needsCampus": "完成学生认证后才能开通学校数据认证。",
+      "verifiedAt": "最近校验",
+      "revoke": "撤销认证",
+      "revokeTitle": "撤销学校数据认证？",
+      "revokeMessage": "撤销后将立即删除保存的学校账号和密码，平台不再读取你的选课记录。之后发布的评价显示“选课记录未知”，已发布评价的标签不变。",
+      "opened": "学校数据认证已开通。",
+      "revoked": "已撤销学校数据认证。",
+      "mismatch": "学号与你已认证的学生身份不一致，请使用本人的学校账号。"
     }
   },
   "contribution": {

@@ -20,6 +20,7 @@ export async function demo(page, options = {}) {
   // The academic directory answers catalog requests for every page.
   await page.unroute('**/api/v1/catalog/**');
   await page.route('**/api/v1/verification/**', (route) => {
+    if (route.request().method() === 'GET' && new URL(route.request().url()).pathname.endsWith('/me/school-data')) return route.fulfill({ json: { state: 'inactive' } });
     const path = new URL(route.request().url()).pathname;
     if (path.endsWith('/summary')) return route.fulfill({ json: verification.summary });
     if (path.endsWith('/schools')) return route.fulfill({ json: verification.schools });

@@ -1,13 +1,51 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.5.0
+  version: 0.6.0
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
 security:
   - bearerAuth: []
 paths:
+  /api/v1/verification/me/school-data:
+    get:
+      operationId: getSchoolDataAuthorization
+      responses:
+        '200':
+          description: Current authorization for the authenticated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataAuthorization' }
+        default: { $ref: '#/components/responses/Problem' }
+    put:
+      operationId: submitSchoolDataAuthorization
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchoolDataSubmission' }
+      responses:
+        '200':
+          description: Current authorization for the authenticated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataAuthorization' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        default: { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: revokeSchoolDataAuthorization
+      parameters:
+        - { $ref: '#/components/parameters/IdempotencyKey' }
+      responses:
+        '200':
+          description: Current authorization for the authenticated account.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataAuthorization' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/admin/verification/teacher-credentials:
     get:
       operationId: searchAdminTeacherCredentials
@@ -715,6 +753,39 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Operation' }
         default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/school-data/recheck:
+    post:
+      operationId: scheduleSchoolDataRecheck
+      description: Requires school configuration permission. Makes one person's (by campus credential) or every active school data authorization due now. The worker rechecks two at a time; a rejected password or disabled account ends the authorization and deletes the stored account. Audited.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchoolDataRecheckRequest' }
+      responses:
+        '200':
+          description: Number of authorizations scheduled.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataRecheckReceipt' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/admin/verification/school-data/recheck/cancel:
+    post:
+      operationId: cancelSchoolDataRecheck
+      description: Requires school configuration permission. Returns authorizations that are due but not yet rechecked to the regular schedule, or off it when automatic rechecks are off. Audited.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Number of authorizations taken back.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SchoolDataRecheckReceipt' }
+        '202': { $ref: '#/components/responses/Processing' }
+        default: { $ref: '#/components/responses/Problem' }
   /api/v1/admin/verification/schools/{id}:
     parameters:
       - $ref: '#/components/parameters/ID'
@@ -1063,6 +1134,33 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/Problem' }
   schemas:
+    SchoolDataSubmission:
+      type: object
+      additionalProperties: false
+      required: [student_id, password, accepted]
+      properties:
+        student_id: { type: string, minLength: 1, maxLength: 64, writeOnly: true }
+        password: { type: string, format: password, minLength: 1, maxLength: 256, writeOnly: true }
+        accepted: { type: boolean, description: 'Explicit consent to encrypted retention and to rechecks scheduled by the school setting or by an administrator, for personal enrollment reads.' }
+    SchoolDataAuthorization:
+      type: object
+      additionalProperties: false
+      required: [state]
+      description: Active from a successful check until the person revokes it or a recheck finds the school password rejected, the account disabled or the campus credential ended. An unavailable school service or a locked account keeps it active.
+      properties:
+        state: { type: string, enum: [inactive, active] }
+        verified_at: { type: string, format: date-time, description: Last successful check. }
+    SchoolDataRecheckRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        credential_id: { type: string, maxLength: 128, description: 'Campus credential whose owner is rechecked; omit to schedule every active authorization.' }
+    SchoolDataRecheckReceipt:
+      type: object
+      additionalProperties: false
+      required: [scheduled]
+      properties:
+        scheduled: { type: integer, minimum: 0, description: 'Authorizations scheduled, or taken back by a cancellation.' }
     TeacherCreateInput:
       type: object
       additionalProperties: false
@@ -1178,6 +1276,7 @@ components:
         notice_version: { type: string, minLength: 1, maxLength: 64 }
         opening_date: { type: string, description: 'YYYY-MM-DD in Asia/Shanghai, or empty when newcomer applications are disabled.' }
         newcomer_days: { type: integer, minimum: 1, maximum: 366, default: 90 }
+        school_data_recheck_days: { type: integer, minimum: 0, maximum: 365, default: 0, description: 'Automatic recheck period of school data authorizations in days; 0 or omitted turns automatic rechecks off.' }
         email_domain: { type: string, maxLength: 253 }
         material_types:
           type: array
