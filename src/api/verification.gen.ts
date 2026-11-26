@@ -14,7 +14,25 @@ export interface paths {
         get: operations["getSchoolDataAuthorization"];
         put: operations["submitSchoolDataAuthorization"];
         post?: never;
+        /** @description Stops credential rechecks and deletes the saved school credentials. The previously granted term remains fixed. */
         delete: operations["revokeSchoolDataAuthorization"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/me/school-data/history-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Records explicit consent to using the authorized historical terms after rechecks stop. An authorization with a resolved term is required. The request never starts a school check or extends the authorized term. */
+        post: operations["confirmSchoolDataHistory"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -687,6 +705,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/verification/credentials/{id}/school-data": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        /** @description Requires school configuration permission for the credential's school. Returns the status for the credential owner within that school. The access is audited. */
+        get: operations["getCredentialSchoolDataAuthorization"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/verification/school-data/recheck": {
         parameters: {
             query?: never;
@@ -696,7 +733,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Requires school configuration permission. Makes one person's (by campus credential) or every active school data authorization due now. The worker rechecks two at a time; a rejected password or disabled account ends the authorization and deletes the stored account. Audited. */
+        /** @description Requires school configuration permission. Makes one person's (by campus credential) or every active school data authorization due now. A rejected password or disabled account deletes the stored credentials and freezes the authorized term. Audited. */
         post: operations["scheduleSchoolDataRecheck"];
         delete?: never;
         options?: never;
@@ -1011,16 +1048,37 @@ export interface components {
             password: string;
             /** @description Explicit consent to encrypted retention and to rechecks scheduled by the school setting or by an administrator, for personal enrollment reads. */
             accepted: boolean;
+            history_notice_version?: components["schemas"]["SchoolDataHistoryNoticeVersion"];
         };
-        /** @description Active from a successful check until the person revokes it or a recheck finds the school password rejected, the account disabled or the campus credential ended. An unavailable school service or a locked account keeps it active. */
+        /**
+         * @description Supply this version only after the user explicitly agrees to the corresponding notice about using authorized historical terms after rechecks stop.
+         * @enum {string}
+         */
+        SchoolDataHistoryNoticeVersion: "termscope-v1";
+        SchoolDataHistoryConsent: {
+            /** @enum {boolean} */
+            accepted: true;
+            history_notice_version: components["schemas"]["SchoolDataHistoryNoticeVersion"];
+        };
+        SchoolDataTerm: {
+            id: string;
+            year: number;
+            /** @enum {string} */
+            season: "spring" | "summer" | "autumn";
+        };
+        /** @description Active authorizations can advance through successful rechecks. Historical authorizations retain a fixed term after rechecks stop. Inactive means there is no authorization. */
         SchoolDataAuthorization: {
             /** @enum {string} */
-            state: "inactive" | "active";
+            state: "inactive" | "active" | "historical";
             /**
              * Format: date-time
              * @description Last successful check.
              */
             verified_at?: string;
+            /** @description Inclusive last authorized term. Omitted if there is no resolved authorized term. Personal enrollment reads require a resolved term. */
+            authorized_through?: components["schemas"]["SchoolDataTerm"];
+            /** @description When true, obtain explicit consent before allowing historical reads after rechecks stop. */
+            history_consent_required?: boolean;
         };
         SchoolDataRecheckRequest: {
             /** @description Campus credential whose owner is rechecked; omit to schedule every active authorization. */
@@ -1590,6 +1648,35 @@ export interface operations {
                     "application/json": components["schemas"]["SchoolDataAuthorization"];
                 };
             };
+            default: components["responses"]["Problem"];
+        };
+    };
+    confirmSchoolDataHistory: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SchoolDataHistoryConsent"];
+            };
+        };
+        responses: {
+            /** @description Current authorization for the authenticated account. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataAuthorization"];
+                };
+            };
+            202: components["responses"]["Processing"];
             default: components["responses"]["Problem"];
         };
     };
@@ -2689,6 +2776,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Operation"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getCredentialSchoolDataAuthorization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["parameters"]["ID"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current authorization for the credential owner within the school. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SchoolDataAuthorization"];
                 };
             };
             default: components["responses"]["Problem"];

@@ -31,6 +31,10 @@ export type Kind = Schemas['Kind']
 export type TeacherForm = Schemas['TeacherForm']
 export type TeacherCredential = Schemas['TeacherCredential']
 export type SchoolDataAuthorization = Schemas['SchoolDataAuthorization']
+export type SchoolDataTerm = Schemas['SchoolDataTerm']
+type SchoolDataHistoryNotice = Schemas['SchoolDataHistoryNoticeVersion']
+/** Version of the term rules shown on the card; it changes together with the card text. */
+export const schoolDataHistoryNotice: SchoolDataHistoryNotice = 'termscope-v1'
 export type TeacherDisclosure = Schemas['TeacherDisclosures'][number]
 export const teacherDisclosures: TeacherDisclosure[] = ['real_name', 'teacher', 'gender', 'organization']
 
@@ -69,6 +73,7 @@ const disclosures = (v: unknown) => Array.isArray(v) && v.length <= 4 && new Set
 const materialTypes = (v: unknown) => Array.isArray(v) && v.length <= 20 && v.every((item: unknown) => sized(item, 1, 64)) && new Set(v).size === v.length
 const challenge = (v: unknown) => object(v) && text(v.id) && oneOf(v.state, ['processing', 'waiting_sms', 'authenticated', 'failed', 'cancelled', 'expired']) && text(v.code) && text(v.masked_phone) && instant(v.expires_at)
 
+const schoolDataTerm = (v: unknown) => object(v) && sized(v.id, 1, 128) && Number.isInteger(v.year) && oneOf(v.season, ['spring', 'summer', 'autumn'])
 const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   StudentProfile: (v) => text(v.school_id) && oneOf(v.data_status, ['complete', 'partial', 'reference_only', 'unavailable']) && text(v.schema) && count(v.revision) && optionalInstant(v.collected_at) && text(v.source_revision) && object(v.fields) && Object.keys(v.fields).length <= 64 && object(v.field_sources) && Object.values(v.field_sources).every(text) && (v.raw_data === undefined || text(v.raw_data)),
   School: (v) => text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every((m) => oneOf(m, methods)) && text(v.notice_version) && text(v.opening_date) && count(v.newcomer_days) && text(v.email_domain) && materialTypes(v.material_types) && (v.teacher_enabled === undefined || typeof v.teacher_enabled === 'boolean') && (v.teacher_material_types === undefined || materialTypes(v.teacher_material_types)) && count(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)) && methodCapabilities(v.method_capabilities) && methodDescriptions(v.method_description_keys),
@@ -98,7 +103,9 @@ const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   Operation: (v) => text(v.id) && oneOf(v.state, ['processing', 'completed', 'failed']) && text(v.code) && instant(v.expires_at),
   TeacherForm: (v) => sized(v.name, 0, 100) && sized(v.organization, 0, 100) && (v.gender === undefined || sized(v.gender, 0, 32)) && sized(v.email, 0, 254) && sized(v.material_type, 0, 64) && strings(v.material_ids) && v.material_ids.length <= 5 && disclosures(v.disclosures) && count(v.revision),
   TeacherCredential: (v) => text(v.id) && text(v.school_id) && strings(v.teacher_ids) && oneOf(v.state, ['active', 'revoked', 'expired']) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at) && text(v.source) && text(v.note) && disclosures(v.disclosures),
-  SchoolDataAuthorization: (v) => oneOf(v.state, ['inactive', 'active']) && (v.verified_at === undefined || instant(v.verified_at)),
+  SchoolDataAuthorization: (v) => oneOf(v.state, ['inactive', 'active', 'historical']) && (v.verified_at === undefined || instant(v.verified_at))
+    && (v.authorized_through === undefined || schoolDataTerm(v.authorized_through))
+    && (v.history_consent_required === undefined || typeof v.history_consent_required === 'boolean'),
   ManualInput: (v) => text(v.student_id) && text(v.name) && text(v.department) && text(v.email) && text(v.material_type) && strings(v.material_ids) && count(v.revision),
 }
 
@@ -191,12 +198,19 @@ export class VerificationApi {
     return this.get('SchoolDataAuthorization', schoolDataPath, signal)
   }
 
-  submitSchoolData(input: { student_id: string; password: string; accepted: true }) {
+  /** Check the school account. The notice version is sent only with the person's explicit consent to the term rules. */
+  submitSchoolData(input: { student_id: string; password: string; accepted: true; history_notice_version: SchoolDataHistoryNotice }) {
     return this.write('SchoolDataAuthorization', schoolDataPath, input, 'PUT')
   }
 
-  revokeSchoolData() {
+  /** Stop rechecks: the stored account and password are deleted; authorized past terms stay readable. */
+  stopSchoolData() {
     return this.write('SchoolDataAuthorization', schoolDataPath, undefined, 'DELETE')
+  }
+
+  /** Consent of an earlier authorization to keep its past terms after rechecks stop. No school check runs. */
+  confirmSchoolDataHistory() {
+    return this.write('SchoolDataAuthorization', `${schoolDataPath}/history-consent`, { accepted: true, history_notice_version: schoolDataHistoryNotice }, 'POST')
   }
 
   /** Upload a captured image with a single-use capture token. */
