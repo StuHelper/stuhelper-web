@@ -40,9 +40,15 @@ function current(): Grade | undefined {
   }
 }
 
-watch(scale, (next, previous) => {
-  // The level names differ between scales, so a level chosen on one scale is not carried over.
-  if (previous && next !== previous) level.value = ''
+// The scale chosen by the author. Level names differ between scales, so a level chosen on one
+// scale is not carried over. A restored draft sets the scale and its level together and does
+// not pass through here, so its level stays.
+const chosenScale = computed({
+  get: () => scale.value,
+  set: (next: Scale) => {
+    if (next !== scale.value) level.value = ''
+    scale.value = next
+  },
 })
 watch([scale, percent, level], () => {
   // model.value reads the parent's prop, which updates only after this callback.
@@ -62,7 +68,7 @@ watch(model, (value) => {
 <template>
   <div class="field grade-input">
     <ChoiceGroup
-      v-model="scale"
+      v-model="chosenScale"
       :label="t('academic.grade.label')"
       :options="scales"
       :disabled="props.disabled"
