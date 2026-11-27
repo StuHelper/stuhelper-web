@@ -4,6 +4,7 @@ import { computed, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 import { myCoursesEnabled } from '../../app/features'
+import { useVerification } from '../verification/api'
 import { useAsync } from '../../shared/composables/async'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { useAcademic, type CatalogObject } from './api'
@@ -22,13 +23,17 @@ const open = ref(false)
 const query = ref('')
 const searchId = useId()
 
-interface OwnRow { courseId: string; termId: string; name: string; code: string; teachers: string; reviewId?: string }
+interface OwnRow { courseId: string; termId: string; teacherIds: string[]; name: string; code: string; teachers: string; reviewId?: string }
 interface TermGroup { termId: string; name: string; order: number; rows: OwnRow[] }
 
-// Own courses need the person's enrollment, which is shown only where "my courses" is
-// switched on; elsewhere the panel offers recently visited courses instead.
+// Own courses are listed only for a person with school data authorization, which is the
+// consent to read their own enrollment. It covers the terms authorized so far, so a
+// stopped authorization still lists them. Without it the panel offers recently visited
+// courses and the way to turn it on.
+const verification = useVerification()
 const own = useAsync(async (signal) => {
-  if (!myCoursesEnabled) return { state: 'off' as const, groups: [] as TermGroup[] }
+  const authorization = await verification.schoolData(signal)
+  if (authorization.state === 'inactive') return { state: 'off' as const, groups: [] as TermGroup[] }
   const enrollments = await api.myEnrollments(signal)
   const entries = await api.myEntries({ kind: 'course', limit: 100 }, signal)
   const reviewed = new Map(entries.items.map((row) => [`${row.target_id}:${row.term_id}`, row.id]))
@@ -41,6 +46,7 @@ const own = useAsync(async (signal) => {
     group.rows.push({
       courseId: row.course_id,
       termId: row.term_id,
+      teacherIds: row.teacher_ids.slice(),
       name: course?.name ?? row.course_id,
       code: typeof course?.code === 'string' ? course.code : '',
       teachers: row.teacher_ids.map((id) => names.get(id)?.name).filter(Boolean).join('、'),
@@ -102,15 +108,19 @@ function show() {
   setTimeout(() => input.value?.focus(), 60)
 }
 function close() { open.value = false }
-function write(courseId: string, termId?: string) {
+// An own course opens the editor with its term and every teacher of that enrollment chosen.
+function write(courseId: string, termId?: string, teacherIds: string[] = []) {
   close()
-  void router.push({ path: `/courses/${encodeURIComponent(courseId)}`, query: termId ? { write: '1', term: termId } : { write: '1' } })
+  const query: Record<string, string> = { write: '1' }
+  if (termId) query.term = termId
+  if (teacherIds.length) query.teachers = teacherIds.join(',')
+  void router.push({ path: `/courses/${encodeURIComponent(courseId)}`, query })
 }
 function pick(row: OwnRow) {
   if (row.reviewId) {
     close()
     void router.push(`/reviews/${encodeURIComponent(row.reviewId)}`)
-  } else write(row.courseId, row.termId)
+  } else write(row.courseId, row.termId, row.teacherIds)
 }
 const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? course.code : '')
 </script>

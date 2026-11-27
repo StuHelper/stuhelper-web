@@ -69,7 +69,7 @@ export const catalogByKind: Record<string, ReturnType<typeof obj>[]> = { school:
 export const allObjects = Object.values(catalogByKind).flat()
 
 const termOrder: Record<string, number> = { 't-25f': 20253, 't-26s': 20261, 't-26f': 20263 }
-const enrolled = (prefix: string, term: string, courses: string[]) => courses.map((c, i) => ({ id: `${prefix}-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: term, class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-${term}`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true, term_order_key: termOrder[term] }))
+const enrolled = (prefix: string, term: string, courses: string[]) => courses.map((c, i) => ({ id: `${prefix}-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: term, class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-${term}`, teacher_ids: links.filter((l) => l[0] === c).map((l) => l[1]), active: true, term_order_key: termOrder[term] }))
 export const enrollments = [
   // 接口按学期先后返回选课记录，课表和首页以最后一个学期作为当前学期。
   ...enrolled('e-older', 't-25f', ['c4', 'c6', 'c7']),
