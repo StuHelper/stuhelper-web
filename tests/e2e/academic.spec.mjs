@@ -388,6 +388,8 @@ test('course rows show the recommendation in words and the next page arrives wit
   await expect(page.getByRole('button', { name: all.common.loadMore, exact: true })).toHaveCount(0);
   release();
   await expect(rows).toHaveCount(3);
+  // On a phone the department leads the line under the name, before the category.
+  if (info.project.name.startsWith('mobile-')) await expect(rows.nth(0).locator('.phone')).toContainText(/Test College.*Test Seminar/);
   // A course without enough reviews shows no level.
   await expect(rows.nth(2).locator('.d-level:visible')).toHaveCount(0);
   await expect(page.getByRole('main').getByRole('status').filter({ hasText: all.common.loading })).toHaveCount(0);
