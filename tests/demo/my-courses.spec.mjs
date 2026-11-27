@@ -98,7 +98,7 @@ test('the home page shows the next class day and courses waiting for a review', 
   await expect(day.getByText(/今天/)).toBeVisible();
   await expect(day.getByRole('link', { name: /数据结构与算法/ })).toHaveAttribute('href', '/courses/c3');
   await expect(day.getByRole('link', { name: b.fullTimetable })).toHaveAttribute('href', '/me/courses');
-  await expect(page.getByText(fill(b.pendingReviews, { count: '3' }), { exact: true })).toBeVisible();
+  await expect(page.getByText(fill(b.pendingReviews, { count: '6' }), { exact: true })).toBeVisible();
 });
 
 test('my courses is listed in the personal center of the prototype', async ({ page }) => {

@@ -35,8 +35,15 @@ const own = useAsync(async (signal) => {
   const authorization = await verification.schoolData(signal)
   if (authorization.state === 'inactive') return { state: 'off' as const, groups: [] as TermGroup[] }
   const enrollments = await api.myEnrollments(signal)
-  const entries = await api.myEntries({ kind: 'course', limit: 100 }, signal)
-  const reviewed = new Map(entries.items.map((row) => [`${row.target_id}:${row.term_id}`, row.id]))
+  // Every own course review, so a course is marked reviewed however many reviews precede it.
+  const reviewed = new Map<string, string>()
+  let after = ''
+  for (let page = 0; page < 20; page++) {
+    const entries = await api.myEntries({ kind: 'course', limit: 100, after: after || undefined }, signal)
+    for (const row of entries.items) reviewed.set(`${row.target_id}:${row.term_id}`, row.id)
+    if (!entries.next || entries.next === after) break
+    after = entries.next
+  }
   const names = await api.lookup(enrollments.flatMap((row) => [row.course_id, row.term_id, ...row.teacher_ids]), signal)
   const groups = new Map<string, TermGroup>()
   for (const row of enrollments) {

@@ -8,7 +8,7 @@ const overflow = (page) => page.evaluate(() => document.documentElement.scrollWi
 test('switching language keeps an unsaved review', async ({ page }) => {
   const z = catalogue('zh-CN');
   await page.goto('/courses/c3?lang=zh-CN');
-  await page.getByRole('button', { name: z.academic.subject.writeCourse, exact: true }).first().click();
+  await page.getByRole('main').getByRole('button', { name: z.academic.subject.writeCourse, exact: true }).first().click();
   const body = page.getByLabel(z.academic.editor.body, { exact: true });
   await body.fill('Unsaved review text');
   await page.evaluate(async () => {
