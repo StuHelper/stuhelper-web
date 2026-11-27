@@ -13,6 +13,7 @@ import RatingLevel from './ratings/RatingLevel.vue'
 
 // Course rows of the directory. The flat list shows department and category columns; a
 // department group (`compact`) leaves them out because the group heading already names them.
+// On phones the columns fold into one line under the name: department, category, review count.
 defineProps<{ rows: readonly DirectoryItem[]; compact?: boolean }>()
 const emit = defineEmits<{ open: [row: DirectoryItem]; compare: [id: string] }>()
 const { t } = useI18n()
@@ -49,7 +50,7 @@ const dash = '\u2014'
           :to="`/courses/${encodeURIComponent(r.object.id)}`"
         >{{ r.object.name }}</RouterLink>
         <span class="subtle truncate">{{ sub(r) }}</span>
-        <span class="subtle phone"><span class="truncate">{{ [r.categories[0]?.name, reviewText(r.review_count)].filter(Boolean).join(' · ') }}</span><RatingLevel
+        <span class="subtle phone"><span class="truncate">{{ [!compact && r.departments[0]?.name, r.categories[0]?.name, reviewText(r.review_count)].filter(Boolean).join(' · ') }}</span><RatingLevel
           v-if="level(r)"
           :level="level(r)"
         /></span>
