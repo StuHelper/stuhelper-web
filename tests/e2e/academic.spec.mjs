@@ -1077,3 +1077,35 @@ test('category labels use a nine-rem column, one line and the full name on hover
     });
   }
 });
+
+test('the course page term filter lists only the terms the course was offered in, and long filters are searchable', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic, errors = watch(page), queries = [];
+  await academicFixture(page);
+  // The catalog answers a course's term query with its offered terms only; here the course ran in the fall.
+  await page.route('**/api/v1/catalog/objects?*', (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    if (q.get('kind') === 'teacher' && q.get('course_id') === 'course') return route.fulfill({ json: { items: Array.from({ length: 12 }, (_, i) => ({ id: `t${i}`, kind: 'teacher', school_id: 'school', name: `Teacher ${String.fromCharCode(65 + i)}`, credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z' })), next: '' } });
+    if (q.get('kind') !== 'term') return route.fallback();
+    queries.push(q.get('course_id'));
+    return route.fulfill({ json: { items: q.get('course_id') === 'course' ? [{ id: 'fall', kind: 'term', school_id: 'school', name: 'Fall semester', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z' }] : [], next: '' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  // Term and teacher filters are dropdowns, so a long list keeps the row short.
+  await page.getByRole('combobox', { name: a.feed.term, exact: true }).click();
+  await expect(page.getByRole('option', { name: 'Fall semester', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Spring semester', exact: true })).toHaveCount(0);
+  await page.getByRole('option', { name: 'Fall semester', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: a.feed.term, exact: true })).toContainText('Fall semester');
+  // Many teachers: the list opens with a search field and typing narrows it.
+  await page.getByRole('combobox', { name: a.feed.teacher, exact: true }).click();
+  const search = page.getByRole('textbox', { name: catalogue(info).common.searchOptions, exact: true });
+  await search.fill('Teacher L');
+  await expect(page.getByRole('option', { name: 'Teacher L', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: 'Teacher A', exact: true })).toHaveCount(0);
+  await page.getByRole('option', { name: 'Teacher L', exact: true }).click();
+  await expect(page.getByRole('combobox', { name: a.feed.teacher, exact: true })).toContainText('Teacher L');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(queries).toContain('course');
+  expect(queries).not.toContain(null);
+  expect(errors).toEqual([]);
+});
