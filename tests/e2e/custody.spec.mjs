@@ -51,6 +51,8 @@ async function fill(page, m) {
 test('custody requires consent, clears secrets and preserves the binding on renewal', async ({ page }, info) => {
   const { m, state, errors } = await setup(page, info);
   await expect(page.locator('form select')).toHaveCount(0);
+  // Before connecting, the panel names the folder that will appear on the drive, in its literal Chinese form.
+  await expect(page.getByText(m.folderNotice.replace('{name}', '【严禁自行删除！StuHelper贡献空间 严禁自行删除！】'), { exact: true }).first()).toBeVisible();
   await fill(page, m); await page.getByRole('button', { name: m.submit, exact: true }).click(); expect(state.posts).toHaveLength(0);
   await page.getByRole('checkbox').check(); await page.getByRole('button', { name: m.submit, exact: true }).focus(); await page.keyboard.press('Enter');
   await expect(page.locator('article')).toContainText(m.states.ready); await expect(page.getByLabel(m.password, { exact: true })).toHaveCount(0);

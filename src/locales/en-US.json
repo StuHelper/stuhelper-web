@@ -1399,13 +1399,8 @@
       "active": "On",
       "inactive": "Off",
       "intro": "With this on, StuHelper reads your own course enrollments to mark the terms and teachers you took when you review, and shows the enrollment status on your reviews. You can review without it.",
-      "points": {
-        "scope": "The term in which the check succeeds and all earlier terms. Each successful recheck extends it to the current term.",
-        "storage": "Your school account and password are stored encrypted, used only for checks, and kept out of logs and backups.",
-        "stop": "If you stop rechecks or the school rejects the password, the account and password are deleted at once. Authorized terms are kept. Closing your account clears everything."
-      },
       "password": "School single sign-on password",
-      "consent": "I agree that StuHelper stores my school account and password encrypted under the rules above, reads my own course enrollments, and shows the enrollment status on my reviews.",
+      "consent": "I have read the school data rules in the Privacy Policy and agree that StuHelper stores my school account and password encrypted, reads my own course enrollments, and shows the enrollment status on my reviews.",
       "submit": "Turn on school data authorization",
       "needsCampus": "Complete student verification before turning on school data authorization.",
       "verifiedAt": "Last checked",
@@ -1435,13 +1430,8 @@
         "submit": "Agree and keep authorized terms",
         "done": "Authorized terms are kept under the new rules."
       },
-      "pointTitles": {
-        "scope": "Scope",
-        "storage": "Credentials",
-        "stop": "Stopping"
-      },
       "statusTitle": "Authorization",
-      "rules": "Full rules in the Privacy Policy",
+      "rules": "Full rules (Privacy Policy)",
       "entry": "Lets reviews show your own enrollment"
     },
     "history": "History ({count})"
@@ -1603,7 +1593,8 @@
       "agree": "I agree to store the selected files for this school until the specified date.",
       "save": "Save consent",
       "withdraw": "Withdraw this consent"
-    }
+    },
+    "folderNotice": "After you connect, the platform creates a folder in the root of your drive named “{name}” followed by an 8-character identifier to hold contributed files. Do not delete, move or rename it, or the contribution stops."
   },
   "gate": {
     "guest": {

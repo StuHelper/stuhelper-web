@@ -542,9 +542,8 @@ test('school data authorization is granted by term, and stopping rechecks keeps 
   await expect(page.getByRole('heading', { level: 1, name: sd.title, exact: true })).toBeVisible();
   const card = page.getByRole('region', { name: sd.statusTitle, exact: true });
   await expect(card.getByText(sd.inactive, { exact: true })).toBeVisible();
-  for (const title of Object.values(sd.pointTitles)) await expect(card.getByText(title, { exact: true })).toBeVisible();
+  // The card no longer repeats the rules; it links to them in the privacy policy.
   await expect(card.getByRole('link', { name: sd.rules, exact: true })).toHaveAttribute('href', '/legal/privacy');
-  for (const point of Object.values(sd.points)) await expect(card.getByText(point, { exact: true })).toBeVisible();
   // Without an authorization there is nothing to stop.
   await expect(card.getByRole('button', { name: sd.stop, exact: true })).toHaveCount(0);
   const submit = card.getByRole('button', { name: sd.submit, exact: true });

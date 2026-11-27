@@ -21,3 +21,10 @@ export function conditions(limit: string, reserve: string, until: string, policy
   if (!configureUntil && (instant < now + policy.min_term_seconds * 1000 || instant > now + policy.max_term_seconds * 1000)) return null;
   return { limit_bytes, personal_reserve, until: new Date(instant).toISOString() };
 }
+
+/**
+ * The folder the platform creates in a contributed drive is named this, followed by an
+ * eight-character hex identifier. It is the literal name on disk, so every language
+ * shows it unchanged.
+ */
+export const contributionFolderName = '【严禁自行删除！StuHelper贡献空间 严禁自行删除！】'
