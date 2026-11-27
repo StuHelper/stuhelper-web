@@ -1577,7 +1577,8 @@
       "agree": "I agree to store the selected files for this school until the specified date.",
       "save": "Save consent",
       "withdraw": "Withdraw this consent"
-    }
+    },
+    "folderNotice": "After you connect, the platform creates a folder in the root of your drive named “{name}” followed by an 8-character identifier to hold contributed files. Do not delete, move or rename it, or the contribution stops."
   },
   "gate": {
     "guest": {
