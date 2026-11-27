@@ -696,6 +696,22 @@
       },
       "display": "Note : {value}",
       "withdrawnDisplay": "Cours abandonné"
+    },
+    "launcher": {
+      "title": "Choisir un cours à évaluer",
+      "search": "Rechercher par nom ou code de cours",
+      "results": "Résultats",
+      "searchFailed": "La recherche a échoué. Réessayez plus tard.",
+      "noResults": "Aucun cours correspondant.",
+      "write": "Évaluer",
+      "mine": "Mes cours",
+      "pendingCount": "À évaluer : {count}",
+      "termCount": "Cours : {count}",
+      "reviewed": "Évalué",
+      "needSchoolData": "Activez l’autorisation des données de l’établissement pour voir ici les cours suivis.",
+      "enable": "Activer",
+      "recent": "Consultés récemment",
+      "allCourses": "Voir tous mes cours"
     }
   },
   "me": {

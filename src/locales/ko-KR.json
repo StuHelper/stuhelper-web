@@ -696,6 +696,22 @@
       },
       "display": "성적: {value}",
       "withdrawnDisplay": "수강 철회"
+    },
+    "launcher": {
+      "title": "평가할 강의 선택",
+      "search": "강의명 또는 강의 코드로 검색",
+      "results": "검색 결과",
+      "searchFailed": "검색하지 못했습니다. 잠시 후 다시 시도하세요.",
+      "noResults": "일치하는 강의가 없습니다.",
+      "write": "평가하기",
+      "mine": "내 강의",
+      "pendingCount": "평가 대기 {count}",
+      "termCount": "{count}개",
+      "reviewed": "평가 완료",
+      "needSchoolData": "학교 데이터 인증을 켜면 수강한 강의가 여기에 표시됩니다.",
+      "enable": "켜기",
+      "recent": "최근 본 강의",
+      "allCourses": "내 강의 전체 보기"
     }
   },
   "me": {

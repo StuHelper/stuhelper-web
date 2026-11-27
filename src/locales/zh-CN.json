@@ -696,6 +696,22 @@
       },
       "display": "成绩：{value}",
       "withdrawnDisplay": "已退课"
+    },
+    "launcher": {
+      "title": "选择要评价的课程",
+      "search": "搜索课程名或课程号",
+      "results": "搜索结果",
+      "searchFailed": "搜索失败，请稍后重试。",
+      "noResults": "没有找到匹配的课程。",
+      "write": "写评价",
+      "mine": "我的课程",
+      "pendingCount": "待评价 {count}",
+      "termCount": "{count} 门",
+      "reviewed": "已评价",
+      "needSchoolData": "开通学校数据认证后，这里会列出你选过的课。",
+      "enable": "去开通",
+      "recent": "最近浏览",
+      "allCourses": "查看我的全部课程"
     }
   },
   "me": {

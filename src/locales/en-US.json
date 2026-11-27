@@ -696,6 +696,22 @@
       },
       "display": "Grade: {value}",
       "withdrawnDisplay": "Withdrew"
+    },
+    "launcher": {
+      "title": "Choose a course to review",
+      "search": "Search by course name or code",
+      "results": "Search results",
+      "searchFailed": "Search failed. Try again later.",
+      "noResults": "No matching courses.",
+      "write": "Review",
+      "mine": "My courses",
+      "pendingCount": "To review: {count}",
+      "termCount": "Courses: {count}",
+      "reviewed": "Reviewed",
+      "needSchoolData": "Turn on school data authorization to list the courses you took here.",
+      "enable": "Turn on",
+      "recent": "Recently viewed",
+      "allCourses": "See all my courses"
     }
   },
   "me": {

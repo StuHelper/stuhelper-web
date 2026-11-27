@@ -31,7 +31,7 @@ function pick(value: Persona) { setPersona(value); window.location.reload() }
 </template>
 <style scoped>
 .switcher { view-transition-name: demo-switcher; position: fixed; inset-block-end: 1.25rem; inset-inline-end: 1.25rem; z-index: 80; display: grid; justify-items: end; gap: .5rem; }
-@media (max-width: 760px) { .switcher { inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); inset-inline-end: .75rem; } }
+@media (max-width: 760px) { .switcher { inset-block-end: calc(var(--tab-height) + var(--safe-bottom) + .75rem); inset-inline-end: auto; inset-inline-start: .75rem; justify-items: start; } }
 .fab { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--glass); color: var(--label); box-shadow: var(--shadow-float), inset 0 0 0 .5px var(--separator); backdrop-filter: blur(20px); cursor: pointer; }
 .fab svg { width: 20px; height: 20px; }
 .panel { display: grid; gap: 2px; width: 15rem; padding: .625rem; border-radius: var(--radius); background: var(--surface-raised); box-shadow: var(--shadow-float); animation: menu-in .24s var(--ease-out); }
