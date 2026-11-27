@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath } from './paths'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
@@ -75,7 +76,7 @@ const timeOf = (lesson: Lesson) => {
         :key="lesson.key"
         class="lesson"
         :style="{ ...place(lesson), '--c': tints.get(lesson.courseId) }"
-        :to="`/courses/${encodeURIComponent(lesson.courseId)}`"
+        :to="coursePath(lesson.courseId)"
         :aria-label="t('courses.lessonLabel', { course: lesson.course, day: dayName(lesson.weekday), start: format.number(lesson.start), end: format.number(lesson.end), location: lesson.location || t('common.notProvided') })"
       >
         <b>{{ lesson.course }}</b>

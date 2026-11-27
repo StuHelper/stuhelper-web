@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath, teacherPath } from './paths'
 import { CalendarPlus, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-vue-next'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -31,7 +32,7 @@ const exportError = ref('')
 
 const enrollments = useAsync(async (signal) => {
   const rows = (await api.myEnrollments(signal)).filter((row) => row.active)
-  const names = await api.lookup(rows.flatMap((row) => [row.term_id, ...row.teacher_ids]), signal)
+  const names = await api.lookup(rows.flatMap((row) => [row.course_id, row.term_id, ...row.teacher_ids]), signal)
   return { rows, names }
 })
 const terms = computed(() => {
@@ -83,6 +84,8 @@ watch(schedule.data, () => {
 onMounted(enrollments.reload)
 
 const teacher = (id: string) => enrollments.data.value?.names.get(id)?.name
+// Links use the short address of the looked-up object, or the id until it is known.
+const addressed = (id: string) => enrollments.data.value?.names.get(id) ?? id
 async function exportCalendar() {
   if (exporting.value) return
   exporting.value = true
@@ -235,7 +238,7 @@ async function exportCalendar() {
                     :key="`${item.courseId}:${item.meeting.id}`"
                     class="card small"
                   >
-                    <RouterLink :to="`/courses/${encodeURIComponent(item.courseId)}`">
+                    <RouterLink :to="coursePath(addressed(item.courseId))">
                       {{ item.course }}
                     </RouterLink>
                     · {{ item.meeting.time_text || t('common.notProvided') }} · {{ item.meeting.location || t('common.notProvided') }}
@@ -254,7 +257,7 @@ async function exportCalendar() {
                   <div class="course-head">
                     <RouterLink
                       class="card-title"
-                      :to="`/courses/${encodeURIComponent(row.enrollment.course_id)}`"
+                      :to="coursePath(addressed(row.enrollment.course_id))"
                     >
                       {{ row.course_name }}
                     </RouterLink>
@@ -267,7 +270,7 @@ async function exportCalendar() {
                           <template v-if="index">
                             ·
                           </template>
-                          <RouterLink :to="`/teachers/${encodeURIComponent(id)}`">
+                          <RouterLink :to="teacherPath(addressed(id))">
                             {{ teacher(id) ?? t('common.unknown') }}
                           </RouterLink>
                         </template>

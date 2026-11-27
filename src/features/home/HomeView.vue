@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath } from '../academic/paths'
 import { ArrowRight, BookOpen, Bookmark, CalendarClock, FileText, Flame, FolderOpen, GraduationCap, MapPin, PenLine, Scale, ShieldCheck, Sparkles } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -232,7 +233,7 @@ function search() {
             :key="row.course_id + row.starts_at"
           >
             <RouterLink
-              :to="`/courses/${encodeURIComponent(row.course_id)}`"
+              :to="coursePath(row.course_id)"
               class="lesson"
               :style="{ '--c': tints[i % tints.length] }"
             >
@@ -279,7 +280,7 @@ function search() {
           >
             <RouterLink
               class="group-row"
-              :to="`/courses/${encodeURIComponent(row.object.id)}`"
+              :to="coursePath(row.object)"
             >
               <span
                 class="rank"

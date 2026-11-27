@@ -8,6 +8,7 @@ import { useVerification } from '../verification/api'
 import { useAsync } from '../../shared/composables/async'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
 import { useAcademic, type CatalogObject } from './api'
+import { coursePath, type Addressable } from './paths'
 
 /**
  * The standing "write a course review" entry of the campus pages. It opens a picker:
@@ -23,7 +24,7 @@ const open = ref(false)
 const query = ref('')
 const searchId = useId()
 
-interface OwnRow { courseId: string; termId: string; teacherIds: string[]; name: string; code: string; teachers: string; reviewId?: string }
+interface OwnRow { courseId: string; address: string; termId: string; teacherIds: string[]; name: string; code: string; teachers: string; reviewId?: string }
 interface TermGroup { termId: string; name: string; order: number; rows: OwnRow[] }
 
 // Own courses are listed only for a person with school data authorization, which is the
@@ -52,6 +53,7 @@ const own = useAsync(async (signal) => {
     const course = names.get(row.course_id)
     group.rows.push({
       courseId: row.course_id,
+      address: course?.address_id || row.course_id,
       termId: row.term_id,
       teacherIds: row.teacher_ids.slice(),
       name: course?.name ?? row.course_id,
@@ -116,18 +118,19 @@ function show() {
 }
 function close() { open.value = false }
 // An own course opens the editor with its term and every teacher of that enrollment chosen.
-function write(courseId: string, termId?: string, teacherIds: string[] = []) {
+// The page is addressed by the course's short address; term and teachers keep internal ids.
+function write(course: Addressable, termId?: string, teacherIds: string[] = []) {
   close()
   const query: Record<string, string> = { write: '1' }
   if (termId) query.term = termId
   if (teacherIds.length) query.teachers = teacherIds.join(',')
-  void router.push({ path: `/courses/${encodeURIComponent(courseId)}`, query })
+  void router.push({ path: coursePath(course), query })
 }
 function pick(row: OwnRow) {
   if (row.reviewId) {
     close()
     void router.push(`/reviews/${encodeURIComponent(row.reviewId)}`)
-  } else write(row.courseId, row.termId, row.teacherIds)
+  } else write({ id: row.courseId, address_id: row.address }, row.termId, row.teacherIds)
 }
 const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? course.code : '')
 </script>
@@ -203,7 +206,7 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
             <button
               class="launcher-row"
               type="button"
-              @click="write(course.id)"
+              @click="write(course)"
             >
               <span class="launcher-main">
                 <strong>{{ course.name }}</strong>
@@ -314,7 +317,7 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
                 <button
                   class="launcher-row"
                   type="button"
-                  @click="write(course.id)"
+                  @click="write(course)"
                 >
                   <span class="launcher-main">
                     <strong>{{ course.name }}</strong>

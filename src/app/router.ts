@@ -28,7 +28,7 @@ declare module 'vue-router' {
 
 const academic = {
   directory: () => import('../features/academic/DirectoryView.vue'),
-  subject: () => import('../features/academic/SubjectView.vue'),
+  subject: () => import('../features/academic/SubjectRoute.vue'),
   discussion: () => import('../features/academic/DiscussionView.vue'),
 }
 
@@ -53,8 +53,8 @@ const routes: RouteRecordRaw[] = [
   teacherDirectoryEnabled
     ? { path: '/teachers', component: academic.directory, props: { kind: 'teacher' }, meta: { capability: feature.catalog, remountOnPath: true, keepAlive: true, access: 'verified', title: 'nav.teachers', section: 'teachers' } }
     : { path: '/teachers', redirect: '/courses' },
-  { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', id: String(route.params.id) }), meta: { capability: feature.catalog, access: 'verified', title: 'academic.course', section: 'courses' } },
-  { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', id: String(route.params.id) }), meta: { capability: feature.catalog, access: 'verified', title: 'academic.teacher', section: 'teachers' } },
+  { path: '/courses/:id', component: academic.subject, props: (route) => ({ kind: 'course', address: String(route.params.id) }), meta: { capability: feature.catalog, access: 'verified', title: 'academic.course', section: 'courses' } },
+  { path: '/teachers/:id', component: academic.subject, props: (route) => ({ kind: 'teacher', address: String(route.params.id) }), meta: { capability: feature.catalog, access: 'verified', title: 'academic.teacher', section: 'teachers' } },
   // Offering and teaching-class pages are closed; old links land on the course directory.
   { path: '/offerings/:id', redirect: '/courses' },
   { path: '/classes/:id', redirect: '/courses' },

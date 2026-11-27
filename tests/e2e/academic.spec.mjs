@@ -816,8 +816,8 @@ test('course and teacher pages show no teaching classes and old class links lead
 test('a course shows its English name and former codes, and an old course id opens the current course', async ({ page }, info) => {
   const all = catalogue(info), s = all.academic.subject, errors = watch(page);
   await academicFixture(page, { course: { english_name: 'Synthetic Course', former_codes: ['OLD101'], former_names: ['Old Course'], hours: 32, aliases: ['Synthetic Course'] } });
-  await page.route('**/api/v1/catalog/objects/old-course/summary', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
-  await page.route('**/api/v1/catalog/objects/old-course/resolution', (route) => route.fulfill({ json: { object: { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', canonical_id: 'course' }, ids: ['course', 'old-course'] } }));
+  // The address service resolves an old course id to the current course, which the page then shows under its own address.
+  await page.route('**/api/v1/catalog/addresses/course/old-course', (route) => route.fulfill({ json: { object: { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', canonical_id: 'course' }, ids: ['course', 'old-course'] } }));
   await page.goto(`http://127.0.0.1:18787/courses/old-course?lang=${info.project.metadata.locale}`);
   await expect(page).toHaveURL(/\/courses\/course(\?|$)/);
   await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
@@ -1168,4 +1168,87 @@ test('the standing review entry lists own courses only with school data authoriz
   expect(enrollmentReads.length).toBeGreaterThan(0);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
+});
+
+test('course and teacher pages use short addresses and older addresses move to them', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, errors = watch(page), summaries = [];
+  await academicFixture(page, { course: { address_id: 'B240012012' } });
+  const teacher = { id: 'teacher-a', kind: 'teacher', school_id: 'school', name: 'Teacher A', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', address_id: '38271' };
+  await page.route('**/api/v1/catalog/addresses/teacher/**', (route) => {
+    const address = decodeURIComponent(new URL(route.request().url()).pathname.split('/').at(-1));
+    return ['38271', 'teacher-a'].includes(address) ? route.fulfill({ json: { object: teacher, ids: ['teacher-a'] } }) : route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+  page.on('request', (request) => { const path = new URL(request.url()).pathname; if (path.endsWith('/summary')) summaries.push(path); });
+
+  // An internal id in the path is replaced by the course code, keeping the query; the page still reads by internal id.
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}&tab=reviews`);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(/\/courses\/B240012012\?lang=[^&]+&tab=reviews$/);
+  expect(summaries).toContain('/api/v1/catalog/objects/course/summary');
+
+  // The current address opens the page directly.
+  await page.goto(`http://127.0.0.1:18787/courses/B240012012?lang=${locale}`);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(/\/courses\/B240012012\?/);
+
+  // A teacher is addressed by a five-digit number, never by a staff code.
+  await page.goto(`http://127.0.0.1:18787/teachers/teacher-a?lang=${locale}`);
+  await expect(page.getByRole('heading', { name: 'Teacher A', level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(/\/teachers\/38271\?/);
+
+  // An unknown address shows the not-found state.
+  await page.goto(`http://127.0.0.1:18787/courses/NOPE?lang=${locale}`);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toHaveCount(0);
+  expect(errors.filter((line) => !/404/.test(line))).toEqual([]);
+});
+
+test('returning to an old course address through site search resolves it again', async ({ page }, info) => {
+  const first = { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', address_id: 'NEW001' };
+  const second = { ...first, id: 'second', name: 'Second Course', address_id: 'SECOND002' };
+  await academicFixture(page, { course: first, additionalCourses: [second] });
+  const reads = [];
+  await page.route('**/api/v1/catalog/addresses/course/**', (route) => {
+    const address = new URL(route.request().url()).pathname.split('/').at(-1);
+    reads.push(address);
+    if (address === 'OLD001') return route.fulfill({ json: { object: first, ids: [first.id] } });
+    return route.fallback();
+  });
+  // These saved results carry an older address for the first course and the current one for the second.
+  await page.route('**/api/v1/search?**', (route) => {
+    const title = new URL(route.request().url()).searchParams.get('q');
+    const id = title === second.name ? second.address_id : 'OLD001';
+    return route.fulfill({ json: { items: [{ title, school_id: 'school', target: { source: 'catalog', kind: 'course', id } }], next_cursor: '' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/OLD001?lang=${info.project.metadata.locale}`);
+  const heading = (name) => page.getByRole('main').getByRole('heading', { level: 1, name, exact: true });
+  await expect(heading(first.name)).toBeVisible();
+  await expect(page).toHaveURL(/\/courses\/NEW001(?:\?|$)/);
+  for (const course of [second, first]) {
+    await page.keyboard.press('Control+k');
+    const input = page.getByRole('dialog').getByRole('combobox');
+    await input.fill(course.name);
+    await expect(page.getByRole('option').filter({ hasText: course.name })).toBeVisible();
+    await input.press('Enter');
+    await expect(heading(course.name)).toBeVisible();
+    await expect(page).toHaveURL(new RegExp('/courses/' + course.address_id + '(?:\\?|$)'));
+  }
+  expect(reads).toEqual(['OLD001', second.address_id, 'OLD001']);
+});
+
+test('a course and its teacher can share the same five-digit address', async ({ page }, info) => {
+  const address = '38271';
+  await academicFixture(page, { course: { address_id: address }, teacher: { address_id: address } });
+  const reads = [];
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path.includes('/catalog/addresses/')) reads.push(path);
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/${address}?lang=${info.project.metadata.locale}`);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1, name: 'Test Course' })).toBeVisible();
+  await main.getByRole('tab', { name: catalogue(info).academic.subject.teachers, exact: true }).click();
+  await main.getByRole('link', { name: 'Teacher A', exact: true }).click();
+  await expect(page).toHaveURL(/\/teachers\/38271(?:\?|$)/);
+  await expect(main.getByRole('heading', { level: 1, name: 'Teacher A' })).toBeVisible();
+  expect(reads).toEqual(['/api/v1/catalog/addresses/course/38271', '/api/v1/catalog/addresses/teacher/38271']);
 });

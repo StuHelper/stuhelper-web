@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath } from '../academic/paths'
 import { Eye, Maximize2 } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -411,7 +412,7 @@ function accessReason(code: string) {
           <RouterLink
             v-if="version.metadata.associations.course_id"
             class="btn btn-sm"
-            :to="`/courses/${encodeURIComponent(version.metadata.associations.course_id ?? '')}`"
+            :to="coursePath(version.metadata.associations.course_id ?? '')"
           >
             {{ t('resources.detail.course') }}
           </RouterLink>

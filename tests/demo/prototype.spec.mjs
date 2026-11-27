@@ -40,10 +40,11 @@ test('the course directory takes an old department link and keeps the address cl
 
 test('finding courses from a teacher shows only that teacher\'s courses', async ({ page }) => {
   await page.goto('/courses?teacher=p3&lang=zh-CN');
-  const links = page.locator('main a[href^="/courses/c"]');
+  const links = page.locator('main a[href^="/courses/B"]');
   await expect(links.first()).toBeVisible();
   const shown = [...new Set(await links.evaluateAll((rows) => rows.map((row) => new URL(row.href).pathname)))].sort();
-  expect(shown).toEqual(['/courses/c3', '/courses/c4']);
+  // Links use course codes as addresses.
+  expect(shown).toEqual(['/courses/B3I06201', '/courses/B3I06302']);
 });
 
 test('guests do not see personal notifications', async ({ page }) => {

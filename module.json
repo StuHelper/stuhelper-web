@@ -197,6 +197,9 @@
       "tests/e2e/verification-ux.spec.mjs#a failed school profile is reported once, under the credential that asked for it"
     ],
     "WEB-CATALOG-01": [
+      "tests/e2e/academic.spec.mjs#returning to an old course address through site search resolves it again",
+      "tests/e2e/academic.spec.mjs#a course and its teacher can share the same five-digit address",
+      "tests/e2e/academic.spec.mjs#course and teacher pages use short addresses and older addresses move to them",
       "tests/e2e/academic.spec.mjs#invisible course and discussion show the standard not-found state",
       "tests/e2e/search.spec.mjs#a course outside the visible catalog can be removed from comparison while the visible course remains"
     ],
