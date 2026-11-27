@@ -16,7 +16,7 @@ import StatusTag from '../../shared/ui/StatusTag.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { useErrorText } from '../../shared/ui/messages'
 import MeLayout from '../account/MeLayout.vue'
-import { conditions, gbInput, localDateInput, parseGB } from './conditions'
+import { conditions, contributionFolderName as folderName, gbInput, localDateInput, parseGB } from './conditions'
 import CustodyPanel from './CustodyPanel.vue'
 import { useContributions } from './useContributions'
 
@@ -565,6 +565,9 @@ watch(completed, (value) => {
               {{ t('contribution.create') }}
             </button>
           </div>
+          <p class="small muted">
+            {{ t('custody.folderNotice', { name: folderName }) }}
+          </p>
         </div>
         <p
           v-if="!data.items.length"
