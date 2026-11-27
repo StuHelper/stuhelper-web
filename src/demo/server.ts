@@ -46,7 +46,8 @@ function catalog(u: URL) {
   if (text) items = items.filter((o) => [o.name, o.code, ...o.aliases].some((v) => String(v ?? '').toLowerCase().includes(text)))
   for (const key of ['department_id', 'category_id', 'nature_id', 'course_id', 'term_id', 'term_course_id', 'class_id'] as const) {
     const value = q.get(key)
-    if (!value || q.get('kind') === 'teacher' || q.get('kind') === 'schedule' && key !== 'class_id') continue
+    // Every demo course runs in every term, so a course's offered terms are all of them.
+    if (!value || q.get('kind') === 'teacher' || q.get('kind') === 'term' && key === 'course_id' || q.get('kind') === 'schedule' && key !== 'class_id') continue
     items = items.filter((o) => o[key] === value)
   }
   if (q.get('kind') === 'schedule' && q.get('class_id')) items = items.filter((o) => o.class_id === q.get('class_id'))

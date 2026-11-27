@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description 读取当前学校的可展示目录投影，当前内容权限在每次请求时检查。课程须在服务端截止学期（默认 2023 秋）及以后有开课记录。kind=term 仅返回截止学期及以后且有可见课程的学期，按 term_order_key 降序、ID 升序分页；前端保持返回顺序。其他类型按 ID 升序。 体育项目作为 kind=course 条目返回 course_type=sports_project。按项目 course_id 查询教师，筛选计数按项目去重。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 kind=teacher&course_id=…、kind=course&teacher_id=… 和 kind=term 保持可用；授课事实只用于计算关联，不返回教学班。 */
+        /** @description 读取当前学校的可展示目录投影，当前内容权限在每次请求时检查。Catalog 持有平台起始学期（2023 年秋季）。课程须在目录截止学期及以后有开课记录，目录截止学期可进一步收窄。kind=term 仅返回范围内且有可见课程的学期，按 term_order_key 降序、ID 升序分页，前端保持返回顺序。其他类型按 ID 升序。 体育项目作为 kind=course 条目返回 course_type=sports_project。按项目 course_id 查询教师，筛选计数按项目去重。 普通目录仅提供学校、院系、分类、性质、学期、课程和教师；term_course、class、assignment、schedule 仅供管理端或受信服务使用。 kind=teacher&course_id=…、kind=course&teacher_id=… 和 kind=term 保持可用；授课事实只用于计算关联，不返回教学班。 */
         get: operations["listObjects"];
         put?: never;
         post?: never;
@@ -62,7 +62,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description 只返回当前用户的有效选课，按 term_order_key 倒序、选课 ID 升序。未知学期键为 0。after 绑定本人且须符合当前筛选，返回后续记录。 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 */
+        /** @description 只返回当前用户的有效选课，按 term_order_key 倒序、选课 ID 升序。未知学期不出现在个人查询中。after 绑定本人且须符合当前筛选，返回后续记录。 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 个人查询仅覆盖学校数据授权的截至学期及以前。超出范围的指定学期返回 403。 */
         get: operations["myEnrollments"];
         put?: never;
         post?: never;
@@ -210,7 +210,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Requires current catalog maintenance permission for the object school. Independent of content admission; no student enrollment identities are returned. */
+        /** @description Requires current catalog maintenance permission for the object school. Independent of content admission; no student enrollment identities are returned. Term lists start at the platform first term, including when include_inactive is true. */
         get: operations["adminListObjects"];
         put?: never;
         post?: never;
@@ -295,7 +295,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Login and ownership only. Returns names for IDs referenced by the caller own current or historical enrollment records; current content admission is not required. An unowned requested ID rejects the entire request with 404. At most 100 IDs. This response never includes biographies, scores, schedules or other public detail. 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 */
+        /** @description Requires current school data authorization and ownership. Returns names for IDs referenced by the caller own current or historical enrollment records; current content admission is not required. An unowned requested ID rejects the entire request with 404. At most 100 IDs. This response never includes biographies, scores, schedules or other public detail. 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 仅能引用授权截至学期及以前的本人选课。 */
         get: operations["myCatalogReferences"];
         put?: never;
         post?: never;
@@ -312,7 +312,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 */
+        /** @description 本人接口按认证账号归属读取，保留本人教学班引用与课表；不受普通目录教学班隐藏规则影响。 个人查询仅覆盖学校数据授权的截至学期及以前。超出范围的指定学期返回 403。 */
         get: operations["mySchedule"];
         put?: never;
         post?: never;
@@ -329,7 +329,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Complete term export, at most 100 enrollments and 10000 occurrences; unavailable if exceeded. 422 schedule_incomplete when any meeting time, required period or timetable is missing, or local time is ambiguous/nonexistent. UTC DTSTART/DTEND correctly derived from IANA timezone. Stable UID per subject/term/class/meeting/week. No partial calendar. */
+        /** @description Complete term export, at most 100 enrollments and 10000 occurrences; unavailable if exceeded. 422 schedule_incomplete when any meeting time, required period or timetable is missing, or local time is ambiguous/nonexistent. UTC DTSTART/DTEND correctly derived from IANA timezone. Stable UID per subject/term/class/meeting/week. No partial calendar. 个人查询仅覆盖学校数据授权的截至学期及以前。超出范围的指定学期返回 403。 */
         get: operations["myCalendar"];
         put?: never;
         post?: never;
@@ -416,7 +416,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Uses the current owner enrollment source and a separate server-side permission to display enrollment summaries. Missing display permission or source authorization returns unavailable without course data. */
+        /** @description Uses the current owner enrollment source and a separate server-side permission to display enrollment summaries. Missing display permission or source authorization returns unavailable without course data. 个人来源仅覆盖授权截至学期及以前。 */
         get: operations["getNextClassDay"];
         put?: never;
         post?: never;
@@ -1934,7 +1934,7 @@ export interface operations {
                 department_id?: string;
                 category_id?: string;
                 nature_id?: string;
-                /** @description 已授权学校范围内的课程 ID。kind=term 时，仅返回该课程有开课记录的学期，按目录截止规则过滤并从新到旧排列。 */
+                /** @description 已授权学校范围内的课程 ID。kind=term 时仅返回该课程在平台起始学期及之后有开课记录的可见学期，与课程评价编辑器使用同一开课范围。kind=teacher 时仅返回对应开课记录的任课教师。 */
                 course_id?: string;
                 term_id?: string;
                 teacher_id?: string;

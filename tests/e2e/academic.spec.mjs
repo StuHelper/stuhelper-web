@@ -1075,3 +1075,22 @@ test('category labels use a nine-rem column, one line and the full name on hover
     });
   }
 });
+
+test('the course page term filter lists only the terms the course was offered in', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, a = catalogue(info).academic, errors = watch(page), queries = [];
+  await academicFixture(page);
+  // The catalog answers a course's term query with its offered terms only; here the course ran in the fall.
+  await page.route('**/api/v1/catalog/objects?*', (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    if (q.get('kind') !== 'term') return route.fallback();
+    queries.push(q.get('course_id'));
+    return route.fulfill({ json: { items: q.get('course_id') === 'course' ? [{ id: 'fall', kind: 'term', school_id: 'school', name: 'Fall semester', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z' }] : [], next: '' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  const filter = page.getByRole('group', { name: a.feed.term, exact: true });
+  await expect(filter.getByText('Fall semester', { exact: true })).toBeVisible();
+  await expect(filter.getByText('Spring semester', { exact: true })).toHaveCount(0);
+  expect(queries).toContain('course');
+  expect(queries).not.toContain(null);
+  expect(errors).toEqual([]);
+});

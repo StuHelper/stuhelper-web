@@ -28,7 +28,8 @@ const feed = usePaged(async (after, signal) => {
 const filters = useAsync(async (signal) => {
   if (!props.filterable || props.kind !== 'course' || !props.schoolId) return { terms: [], teachers: [] }
   const [terms, teachers] = await Promise.all([
-    api.options({ kind: 'term', school_id: props.schoolId }, signal),
+    // Only the terms this course was offered in, the same range the review editor offers.
+    api.options({ kind: 'term', course_id: props.targetId, school_id: props.schoolId }, signal),
     props.teacherId || !props.targetId ? Promise.resolve([]) : api.options({ kind: 'teacher', course_id: props.targetId, school_id: props.schoolId }, signal),
   ])
   return { terms, teachers }
