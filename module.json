@@ -202,7 +202,7 @@
     ],
     "WEB-CATALOG-02": [
       "tests/e2e/academic.spec.mjs#semester choices preserve the server order including summer",
-      "tests/e2e/academic.spec.mjs#the course page term filter lists only the terms the course was offered in"
+      "tests/e2e/academic.spec.mjs#the course page term filter lists only the terms the course was offered in, and long filters are searchable"
     ],
     "BROWSE-DIRECTORY-01": [
       "tests/e2e/academic.spec.mjs#the course directory shows category tabs, grouping and a quick view with rating charts"

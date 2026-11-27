@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import ChoiceGroup from './ChoiceGroup.vue'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -64,20 +63,39 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
       v-if="(filterable && kind === 'course') || feed.items.value.length > 1"
       class="row feed-filters"
     >
-      <ChoiceGroup
+      <!-- Dropdowns keep the row short however many terms or teachers there are; a long list opens with a search field. -->
+      <label
         v-if="filterable && kind === 'course' && termChoices.length > 1"
-        v-model="term"
-        compact
-        :label="t('academic.feed.term')"
-        :options="termChoices"
-      />
-      <ChoiceGroup
+        class="feed-sort"
+      >
+        <span class="field-label">{{ t('academic.feed.term') }}</span>
+        <AppSelect
+          v-model="term"
+          class="select"
+        >
+          <option
+            v-for="item in termChoices"
+            :key="item.value"
+            :value="item.value"
+          >{{ item.label }}</option>
+        </AppSelect>
+      </label>
+      <label
         v-if="filterable && kind === 'course' && teacherChoices.length > 1"
-        v-model="teacher"
-        compact
-        :label="t('academic.feed.teacher')"
-        :options="teacherChoices"
-      />
+        class="feed-sort"
+      >
+        <span class="field-label">{{ t('academic.feed.teacher') }}</span>
+        <AppSelect
+          v-model="teacher"
+          class="select"
+        >
+          <option
+            v-for="item in teacherChoices"
+            :key="item.value"
+            :value="item.value"
+          >{{ item.label }}</option>
+        </AppSelect>
+      </label>
       <label class="feed-sort">
         <span class="field-label">{{ t('academic.feed.sort') }}</span>
         <AppSelect
@@ -125,8 +143,7 @@ const teacherChoices = computed(() => [{ value: '', label: t('common.all') }, ..
 @container feed (min-width: 56rem) {
   .list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
 }
-.feed-filters .field { min-width: 10rem; }
 .feed-sort { display: inline-flex; align-items: center; gap: .5rem; white-space: nowrap; }
-.feed-sort .select { min-height: 32px; font-size: .8125rem; }
+.feed-sort .select { min-height: 32px; max-width: 14rem; font-size: .8125rem; }
 .feed-filters { align-items: center; gap: .5rem 1rem; }
 </style>
