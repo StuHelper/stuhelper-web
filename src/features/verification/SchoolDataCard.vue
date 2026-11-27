@@ -46,7 +46,7 @@ const ready = computed(() => props.eligible && !!studentId.value.trim() && !!pas
 
 async function open() {
   if (!ready.value) return
-  // The consent box covers the term rules shown above, so their version goes with it.
+  // The consent box covers the term rules in the privacy policy, so their version goes with it.
   const input = { student_id: studentId.value.trim(), password: password.value, accepted: true as const, history_notice_version: schoolDataHistoryNotice }
   opened(await submit.run('school-data', input, (body) => api.submitSchoolData(body)))
 }
@@ -118,22 +118,6 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
     >
       {{ t('verification.schoolData.intro') }}
     </p>
-    <dl class="school-data-points">
-      <div
-        v-for="point in ['scope', 'storage', 'stop'] as const"
-        :key="point"
-      >
-        <dt>{{ t(`verification.schoolData.pointTitles.${point}`) }}</dt>
-        <dd>{{ t(`verification.schoolData.points.${point}`) }}</dd>
-      </div>
-    </dl>
-    <RouterLink
-      class="small school-data-rules"
-      to="/legal/privacy"
-    >
-      {{ t('verification.schoolData.rules') }}
-    </RouterLink>
-
     <ErrorNotice
       v-if="status.status.value === 'error' && !shown"
       :code="status.error.value"
@@ -294,18 +278,20 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
       @retry="withdraw(true)"
       @cancel="confirming = false"
     />
+    <!-- The full rules live in the privacy policy; the card keeps only the way there. -->
+    <RouterLink
+      class="small school-data-rules"
+      to="/legal/privacy"
+    >
+      {{ t('verification.schoolData.rules') }}
+    </RouterLink>
   </section>
 </template>
 
 <style scoped>
 .school-data-title { display: flex; align-items: center; gap: .5rem; font-size: 1.0625rem; font-weight: 620; }
 .school-data-title svg { width: 20px; height: 20px; color: var(--accent); }
-.school-data-points { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; margin: 0; padding: .875rem 1rem; border-radius: var(--radius); background: var(--fill); font-size: .875rem; }
-.school-data-points > div { display: contents; }
-.school-data-points dt { color: var(--label-2); font-weight: 550; }
-.school-data-points dd { margin: 0; }
 .school-data-rules { justify-self: start; }
-@media (max-width: 480px) { .school-data-points { grid-template-columns: 1fr; gap: .125rem; } .school-data-points div + div dt { margin-block-start: .5rem; } }
 .school-data-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .75rem; }
 .school-data-scope { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem 1rem; border-radius: var(--radius); background: var(--fill); }
 .school-data-scope > svg { flex: none; width: 22px; height: 22px; color: var(--label-2); }

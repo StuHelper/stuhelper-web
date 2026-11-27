@@ -1383,13 +1383,8 @@
       "active": "Activée",
       "inactive": "Désactivée",
       "intro": "Une fois activée, la plateforme lit vos propres inscriptions pour signaler les semestres et enseignants suivis lors d’un avis, et affiche le statut d’inscription sur vos avis. Vous pouvez publier des avis sans elle.",
-      "points": {
-        "scope": "Le semestre de la vérification réussie et tous les précédents. Chaque nouvelle vérification réussie l’étend au semestre en cours.",
-        "storage": "Votre compte et votre mot de passe sont chiffrés, servent uniquement aux vérifications et n’apparaissent ni dans les journaux ni dans les sauvegardes.",
-        "stop": "Si vous arrêtez les vérifications ou si l’école refuse le mot de passe, le compte et le mot de passe sont supprimés aussitôt. Les semestres autorisés sont conservés. La suppression du compte efface tout."
-      },
       "password": "Mot de passe d’authentification unique de l’école",
-      "consent": "J’accepte que la plateforme conserve, chiffrés et selon les règles ci-dessus, mon compte et mon mot de passe d’établissement, lise mes propres inscriptions et affiche le statut d’inscription sur mes avis.",
+      "consent": "J’ai lu les règles des données de l’établissement dans la politique de confidentialité et j’accepte que la plateforme conserve, chiffrés, mon compte et mon mot de passe d’établissement, lise mes propres inscriptions et affiche le statut d’inscription sur mes avis.",
       "submit": "Activer l’autorisation",
       "needsCampus": "Terminez la vérification étudiante avant d’activer l’autorisation des données scolaires.",
       "verifiedAt": "Dernière vérification",
@@ -1419,13 +1414,8 @@
         "submit": "Accepter et conserver les semestres autorisés",
         "done": "Les semestres autorisés sont conservés selon les nouvelles règles."
       },
-      "pointTitles": {
-        "scope": "Portée",
-        "storage": "Identifiants",
-        "stop": "Arrêt"
-      },
       "statusTitle": "Autorisation",
-      "rules": "Règles complètes dans la politique de confidentialité",
+      "rules": "Règles complètes (politique de confidentialité)",
       "entry": "Affiche votre inscription sur vos avis"
     },
     "history": "Historique ({count})"
