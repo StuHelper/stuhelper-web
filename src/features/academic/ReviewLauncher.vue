@@ -343,7 +343,7 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
 <style scoped>
 .launcher-bar { flex: none; }
 .launcher-bar svg { width: 15px; height: 15px; }
-.launcher-fab { position: fixed; inset-inline-end: 1rem; inset-block-end: calc(var(--tab-height, 64px) + var(--safe-bottom, 0px) + 1rem); z-index: 40; display: grid; place-items: center; width: 52px; height: 52px; border: 0; border-radius: 50%; background: var(--accent-fill); color: var(--on-accent); box-shadow: 0 8px 24px -6px rgb(0 0 0 / 35%); cursor: pointer; transition: transform .3s var(--spring); }
+.launcher-fab { position: fixed; inset-inline-end: 1rem; inset-block-end: calc(var(--tab-height, 64px) + var(--safe-bottom, 0px) + 1rem); z-index: 40; display: grid; place-items: center; width: var(--review-launcher-size, 52px); height: var(--review-launcher-size, 52px); border: 0; border-radius: 50%; background: var(--accent-fill); color: var(--on-accent); box-shadow: 0 8px 24px -6px rgb(0 0 0 / 35%); cursor: pointer; transition: transform .3s var(--spring); }
 .launcher-fab:active { transform: scale(.92); }
 .launcher-fab svg { width: 22px; height: 22px; }
 .launcher { display: grid; gap: 1rem; min-height: min(60vh, 28rem); align-content: start; }

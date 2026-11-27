@@ -126,7 +126,7 @@ watch(() => route.path, async (_path, previous) => {
   >{{ t('shell.skip') }}</a>
   <div
     class="shell"
-    :class="{ 'has-tabbar': !promotional }"
+    :class="{ 'has-tabbar': !promotional, 'has-review-launcher': product === 'campus' }"
     :data-product="product"
   >
     <header
@@ -374,6 +374,8 @@ watch(() => route.path, async (_path, previous) => {
   .shell-main { padding-block: 1.25rem 2.5rem; }
   .footer-note { margin-inline-start: 0; }
   .has-tabbar .shell-footer { padding-block-end: calc(var(--tab-height) + var(--safe-bottom) + 1.25rem); }
+  .has-review-launcher { --review-launcher-size: 52px; }
+  .has-review-launcher .shell-footer { padding-block-end: calc(var(--tab-height) + var(--safe-bottom) + var(--review-launcher-size) + 1.25rem); }
   /* The tab bar is a floating glass capsule; the current tab sits in a lozenge. */
   .tabbar {
     position: fixed;
