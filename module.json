@@ -179,7 +179,8 @@
       "src/features/verification/flow.test.ts#moves a created inbound email challenge to step three, where its one-time address is shown",
       "src/features/verification/flow.test.ts#holds step three only while the school login waits and returns to the form after it ends",
       "tests/e2e/verification-ux.spec.mjs#an inbound email challenge moves to the last step and shows its one-time address",
-      "tests/e2e/verification-ux.spec.mjs#a failed school login returns the open application to the form for another try"
+      "tests/e2e/verification-ux.spec.mjs#a failed school login returns the open application to the form for another try",
+      "tests/e2e/verification-ux.spec.mjs#finished applications and requests are folded into the history, open ones stay in view"
     ],
     "VERIFICATION-UX-02": [
       "tests/e2e/verification-ux.spec.mjs#verification failure stays beside submit with focus and retained input",

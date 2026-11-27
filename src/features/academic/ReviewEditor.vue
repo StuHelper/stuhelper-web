@@ -418,7 +418,7 @@ async function cancel() {
           <span>{{ enrollmentNote }}</span>
           <a
             v-if="schoolData.data.value.state !== 'active'"
-            href="/me/verification#school-data"
+            href="/me/verification/school-data"
             target="_blank"
           >{{ t(schoolData.data.value.state === 'historical' ? 'academic.editor.enrollmentReopen' : 'academic.editor.enrollmentSetup') }}</a>
         </p>

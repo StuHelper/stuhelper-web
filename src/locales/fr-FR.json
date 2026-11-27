@@ -1382,16 +1382,14 @@
       "title": "Autorisation des données scolaires",
       "active": "Activée",
       "inactive": "Désactivée",
-      "intro": "Une fois activée, StuHelper lit vos inscriptions dans le système de scolarité uniquement quand vous en avez besoin, par exemple pour signaler les semestres et enseignants que vous avez suivis lorsque vous évaluez un cours et pour indiquer le statut d’inscription de vos avis. Vous pouvez évaluer sans l’activer ; vos avis afficheront « Inscription inconnue ».",
+      "intro": "Une fois activée, la plateforme lit vos propres inscriptions pour signaler les semestres et enseignants suivis lors d’un avis, et affiche le statut d’inscription sur vos avis. Vous pouvez publier des avis sans elle.",
       "points": {
-        "storage": "Votre compte et votre mot de passe scolaires sont conservés chiffrés sur nos serveurs. Seul le service de vérification peut les déchiffrer, et ils n’apparaissent jamais en clair dans les journaux ni les sauvegardes.",
-        "terms": "L’autorisation porte sur des semestres : le semestre où une vérification réussit et tous les précédents peuvent être lus ; les suivants ne le sont qu’après une nouvelle vérification réussie.",
-        "validity": "Après une vérification réussie, l’autorisation reste valable. StuHelper revérifie selon la fréquence configurée ou à la demande d’un administrateur, et chaque réussite l’étend au semestre en cours. Si l’établissement refuse le mot de passe ou désactive le compte, le compte et le mot de passe enregistrés sont supprimés et l’autorisation cesse de s’étendre ; les semestres autorisés restent lisibles.",
-        "labels": "Pour les semestres couverts, vos avis affichent automatiquement « Inscrit » ou « Non inscrit » ; hors de cette période ou sans autorisation, ils affichent « Inscription inconnue ». Les avis publiés conservent leur étiquette.",
-        "revoke": "Vous pouvez arrêter les revérifications ici à tout moment. Le compte et le mot de passe enregistrés sont aussitôt supprimés ; les semestres autorisés restent lisibles et les suivants ne sont pas lus. La fermeture du compte efface toute l’autorisation."
+        "scope": "Le semestre de la vérification réussie et tous les précédents. Chaque nouvelle vérification réussie l’étend au semestre en cours.",
+        "storage": "Votre compte et votre mot de passe sont chiffrés, servent uniquement aux vérifications et n’apparaissent ni dans les journaux ni dans les sauvegardes.",
+        "stop": "Si vous arrêtez les vérifications ou si l’école refuse le mot de passe, le compte et le mot de passe sont supprimés aussitôt. Les semestres autorisés sont conservés. La suppression du compte efface tout."
       },
       "password": "Mot de passe d’authentification unique de l’école",
-      "consent": "J’ai lu ce qui précède et j’accepte que StuHelper conserve mon compte et mon mot de passe chiffrés, lise mes inscriptions semestre par semestre, affiche le statut d’inscription sur mes avis et continue d’utiliser les semestres autorisés après l’arrêt des revérifications.",
+      "consent": "J’accepte que la plateforme conserve, chiffrés et selon les règles ci-dessus, mon compte et mon mot de passe d’établissement, lise mes propres inscriptions et affiche le statut d’inscription sur mes avis.",
       "submit": "Activer l’autorisation",
       "needsCampus": "Terminez la vérification étudiante avant d’activer l’autorisation des données scolaires.",
       "verifiedAt": "Dernière vérification",
@@ -1420,8 +1418,17 @@
         "check": "J’ai lu les nouvelles règles et j’accepte que les semestres autorisés restent utilisés après l’arrêt des revérifications.",
         "submit": "Accepter et conserver les semestres autorisés",
         "done": "Les semestres autorisés sont conservés selon les nouvelles règles."
-      }
-    }
+      },
+      "pointTitles": {
+        "scope": "Portée",
+        "storage": "Identifiants",
+        "stop": "Arrêt"
+      },
+      "statusTitle": "Autorisation",
+      "rules": "Règles complètes dans la politique de confidentialité",
+      "entry": "Affiche votre inscription sur vos avis"
+    },
+    "history": "Historique ({count})"
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",
