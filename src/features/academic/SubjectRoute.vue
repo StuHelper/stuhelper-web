@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ApiError } from '../../shared/api/errors'
 import { useAsync } from '../../shared/composables/async'
@@ -18,18 +18,29 @@ const props = defineProps<{ kind: 'course' | 'teacher'; address: string }>()
 const api = useAcademic()
 const route = useRoute()
 const router = useRouter()
-// Addresses already resolved in this visit, so replacing the path does not resolve again.
-const known = ref(new Map<string, string>())
+// Reuse the resolution only for the navigation started by our own replace.
+let replacement: { kind: 'course' | 'teacher'; address: string; id: string } | undefined
 
 const target = useAsync(async (signal) => {
-  const cached = known.value.get(props.address)
-  if (cached) return cached
-  const resolved = await api.address(props.kind, props.address, signal)
-  if (resolved.object.kind !== props.kind) throw new ApiError('not_found')
+  const { kind, address } = props
+  const pending = replacement
+  replacement = undefined
+  if (pending?.kind === kind && pending.address === address) return pending.id
+
+  const resolved = await api.address(kind, address, signal)
+  signal.throwIfAborted()
+  if (resolved.object.kind !== kind) throw new ApiError('not_found')
   const id = resolved.object.canonical_id || resolved.object.id
-  const address = resolved.object.address_id || id
-  known.value.set(props.address, id).set(address, id)
-  if (address !== props.address) await router.replace({ path: subjectPath(props.kind, address), query: route.query, hash: route.hash })
+  const current = resolved.object.address_id || id
+  if (current !== address) {
+    const next = { kind, address: current, id }
+    replacement = next
+    try {
+      await router.replace({ path: subjectPath(kind, current), query: route.query, hash: route.hash })
+    } finally {
+      if (replacement === next) replacement = undefined
+    }
+  }
   return id
 })
 watch(() => [props.kind, props.address], () => { void target.reload() }, { immediate: true })
