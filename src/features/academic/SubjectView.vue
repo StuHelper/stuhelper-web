@@ -83,8 +83,26 @@ const related = usePaged(async (after, signal) => {
 })
 
 
+// The review launcher opens a course with `write=1` and, for an own course, its term and teachers.
+// The editor opens once; the parameters are then dropped so a reload or a return does
+// not open it again.
+const launchTerm = ref<string>()
+const launchTeachers = ref<string[]>()
+watch(composing, (open) => { if (!open) { launchTerm.value = undefined; launchTeachers.value = undefined } })
+watch(() => [props.kind, props.id, route.query.write] as const, ([kind, , write]) => {
+  if (kind !== 'course' || write !== '1') return
+  launchTerm.value = typeof route.query.term === 'string' ? route.query.term : undefined
+  launchTeachers.value = typeof route.query.teachers === 'string' && route.query.teachers ? route.query.teachers.split(',') : undefined
+  composing.value = true
+  const rest = { ...route.query }
+  delete rest.write
+  delete rest.term
+  delete rest.teachers
+  void router.replace({ query: rest, hash: route.hash })
+}, { immediate: true })
+
 watch(() => [props.kind, props.id], () => {
-  composing.value = false
+  if (route.query.write !== '1') composing.value = false
   published.value = ''
   tab.value = 'reviews'
   void entry.reload()
@@ -191,6 +209,8 @@ function submitted(result: Result) {
         :kind="kind === 'course' ? 'course' : 'mentor'"
         :target-id="id"
         :school-id="subject.school_id"
+        :initial-term-id="launchTerm"
+        :initial-teacher-ids="launchTeachers"
         @submitted="submitted"
         @cancel="composing = false"
       />

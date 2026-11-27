@@ -696,6 +696,22 @@
       },
       "display": "Nota: {value}",
       "withdrawnDisplay": "Se dio de baja"
+    },
+    "launcher": {
+      "title": "Elige un curso para opinar",
+      "search": "Buscar por nombre o código del curso",
+      "results": "Resultados",
+      "searchFailed": "La búsqueda falló. Inténtalo más tarde.",
+      "noResults": "No hay cursos que coincidan.",
+      "write": "Opinar",
+      "mine": "Mis cursos",
+      "pendingCount": "Pendientes: {count}",
+      "termCount": "Cursos: {count}",
+      "reviewed": "Opinado",
+      "needSchoolData": "Activa la autorización de datos del centro para ver aquí los cursos que hiciste.",
+      "enable": "Activar",
+      "recent": "Vistos recientemente",
+      "allCourses": "Ver todos mis cursos"
     }
   },
   "me": {

@@ -68,10 +68,14 @@ export const schedules = classes.map((k, i) => obj(`s-${k.id}`, 'schedule', '教
 export const catalogByKind: Record<string, ReturnType<typeof obj>[]> = { school: [school], department: departments, category: categories, nature: natures, term: terms, course: courses, teacher: teachers, term_course: offerings, class: classes, schedule: schedules }
 export const allObjects = Object.values(catalogByKind).flat()
 
+const termOrder: Record<string, number> = { 't-25f': 20253, 't-26s': 20261, 't-26f': 20263 }
+const enrolled = (prefix: string, term: string, courses: string[]) => courses.map((c, i) => ({ id: `${prefix}-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: term, class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-${term}`, teacher_ids: links.filter((l) => l[0] === c).map((l) => l[1]), active: true, term_order_key: termOrder[term] }))
 export const enrollments = [
   // 接口按学期先后返回选课记录，课表和首页以最后一个学期作为当前学期。
-  ...['c1', 'c2', 'c9'].map((c, i) => ({ id: `e-old-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26s', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26s`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
-  ...['c3', 'c5', 'c8', 'c10'].map((c, i) => ({ id: `e-now-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26f', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26f`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
+  ...enrolled('e-older', 't-25f', ['c4', 'c6', 'c7']),
+  ...enrolled('e-old', 't-26s', ['c1', 'c2', 'c9']),
+  ...enrolled('e-retake', 't-26s', ['c10']),
+  ...enrolled('e-now', 't-26f', ['c3', 'c5', 'c8', 'c10']),
 ]
 
 const aliases = ['小舟', '青禾', '南风', '远山', '白鹭', '落星', '听雨', '长庚']

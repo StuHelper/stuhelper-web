@@ -26,7 +26,7 @@ import RatingInput from './RatingInput.vue'
  * from the author's own enrollment, which the page highlights. Several teachers may be
  * chosen, or none.
  */
-const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; initialTermId?: string; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, initialTermId: undefined, leaveQuery: undefined })
+const props = withDefaults(defineProps<{ kind: ReviewKind; targetId: string; schoolId: string; parentId?: string; draft?: Draft; initialTermId?: string; initialTeacherIds?: readonly string[]; leaveQuery?: readonly string[] }>(), { parentId: undefined, draft: undefined, initialTermId: undefined, initialTeacherIds: undefined, leaveQuery: undefined })
 const emit = defineEmits<{ submitted: [result: Result]; cancel: [] }>()
 const { t } = useI18n()
 const format = useFormat()
@@ -45,7 +45,8 @@ const template = props.kind === 'mentor' ? t('academic.editor.mentorTemplate') :
 const body = ref(original?.body ?? template)
 const bodyWritten = computed(() => !!body.value.trim() && body.value.trim() !== template.trim())
 const term = ref(original?.term_id ?? props.initialTermId ?? '')
-const teachers = ref<string[]>(original?.teacher_ids?.slice() ?? [])
+// An own enrollment opened from the review launcher brings its term and all of its teachers.
+const teachers = ref<string[]>(original?.teacher_ids?.slice() ?? props.initialTeacherIds?.slice() ?? [])
 const grade = ref<Grade | undefined>(original?.grade)
 const gradeIncomplete = ref(false)
 const signed = ref(original?.signed ?? false)

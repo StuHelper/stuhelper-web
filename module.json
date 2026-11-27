@@ -235,6 +235,7 @@
       "tests/e2e/academic.spec.mjs#the quick view names the course at once, gives a verdict in words and retries a failed overview"
     ],
     "REVIEW-EDITOR-01": [
+      "tests/e2e/academic.spec.mjs#the standing review entry lists own courses only with school data authorization and opens the editor with term and teachers chosen",
       "tests/e2e/academic.spec.mjs#the editor names what is still missing and keeps plain field names beside the counters",
       "tests/e2e/page-state-regressions.spec.mjs#discarding a root reply clears its text and sends no write",
       "tests/e2e/academic.spec.mjs#course review lists the semester teachers, highlights own enrollment, takes several teachers and a grade, and publishes once",

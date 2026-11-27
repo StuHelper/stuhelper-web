@@ -696,6 +696,22 @@
       },
       "display": "成績：{value}",
       "withdrawnDisplay": "履修取消"
+    },
+    "launcher": {
+      "title": "評価する授業を選択",
+      "search": "授業名または授業コードで検索",
+      "results": "検索結果",
+      "searchFailed": "検索に失敗しました。しばらくしてから再試行してください。",
+      "noResults": "一致する授業はありません。",
+      "write": "評価する",
+      "mine": "履修した授業",
+      "pendingCount": "未評価 {count}",
+      "termCount": "{count} 件",
+      "reviewed": "評価済み",
+      "needSchoolData": "学校データ認証を有効にすると、履修した授業がここに表示されます。",
+      "enable": "有効にする",
+      "recent": "最近見た授業",
+      "allCourses": "履修した授業をすべて見る"
     }
   },
   "me": {
