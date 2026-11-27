@@ -425,7 +425,8 @@
       "englishName": "영문명",
       "formerCodes": "이전 과목 번호",
       "formerNames": "이전 이름",
-      "hours": "수업 시간"
+      "hours": "수업 시간",
+      "uploadResource": "자료 업로드"
     },
     "offerings": {
       "title": "개설 이력",
@@ -988,7 +989,15 @@
       "selectedDirectory": "선택된 폴더",
       "dropOrBrowse": "파일을 여기에 끌어다 놓거나 클릭하여 선택",
       "uploadProgress": "전송됨 {loaded} / {total} ({percent})",
-      "tagLimits": "태그는 최대 20개, 각 64자까지 입력할 수 있습니다."
+      "tagLimits": "태그는 최대 20개, 각 64자까지 입력할 수 있습니다.",
+      "changeCourse": "변경",
+      "boundNoTerm": "학기와 교수 미지정",
+      "ownCourses": "내 수강 과목 · {term}",
+      "ownMore": "이전 학기: {count}",
+      "ownFewer": "이전 학기 접기",
+      "ownHint": "학교 데이터 인증을 켜면 수강 과목에서 바로 선택할 수 있습니다.",
+      "ownEnable": "켜기",
+      "ownTeachers": "이번 학기 담당 교수"
     },
     "request": {
       "resourceId": "자료 ID",

@@ -70,7 +70,15 @@ watch(model, async (value, _, onCleanup) => {
   }
 }, { immediate: true })
 
+// The input text is controlled here: Reka sets the display name only when the value
+// changes, and the name of a value set from outside the picker arrives later.
+const text = ref('')
+watch([selectedName, model, open], () => {
+  if (!open.value) text.value = model.value ? selectedName.value : ''
+}, { immediate: true })
+
 function typed(value: string) {
+  text.value = value
   // The input also reports the display name when a choice is made; that is not a search.
   if (value === selectedName.value || value === search.value) return
   search.value = value
@@ -130,6 +138,7 @@ onBeforeUnmount(() => {
           class="input picker-input"
           autocomplete="off"
           :display-value="() => (model ? selectedName : '')"
+          :model-value="text"
           :placeholder="open ? t('resources.picker.searchHint') : none"
           @update:model-value="typed"
         />

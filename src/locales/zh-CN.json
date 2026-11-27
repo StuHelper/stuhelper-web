@@ -425,7 +425,8 @@
       "englishName": "英文名",
       "formerCodes": "曾用课程号",
       "formerNames": "曾用名",
-      "hours": "学时"
+      "hours": "学时",
+      "uploadResource": "上传资料"
     },
     "offerings": {
       "title": "历次开课",
@@ -988,7 +989,15 @@
       "selectedDirectory": "已选目录",
       "dropOrBrowse": "拖拽文件到此处，或点击选择文件",
       "uploadProgress": "已传输 {loaded} / {total}（{percent}）",
-      "tagLimits": "最多 20 个标签，每个最多 64 个字符。"
+      "tagLimits": "最多 20 个标签，每个最多 64 个字符。",
+      "changeCourse": "更换",
+      "boundNoTerm": "未标注学期和教师",
+      "ownCourses": "我的课程 · {term}",
+      "ownMore": "更早学期（{count}）",
+      "ownFewer": "收起更早学期",
+      "ownHint": "开通学校数据认证后，可以直接从已选课程中选择。",
+      "ownEnable": "去开通",
+      "ownTeachers": "本学期任课教师"
     },
     "request": {
       "resourceId": "资料编号",

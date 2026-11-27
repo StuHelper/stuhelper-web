@@ -425,7 +425,8 @@
       "englishName": "Nom anglais",
       "formerCodes": "Anciens codes de cours",
       "formerNames": "Anciens noms",
-      "hours": "Heures de cours"
+      "hours": "Heures de cours",
+      "uploadResource": "Déposer une ressource"
     },
     "offerings": {
       "title": "Sessions du cours",
@@ -988,7 +989,15 @@
       "selectedDirectory": "Dossier sélectionné",
       "dropOrBrowse": "Déposez un fichier ici ou cliquez pour parcourir",
       "uploadProgress": "Transféré : {loaded} / {total} ({percent})",
-      "tagLimits": "20 étiquettes maximum, de 64 caractères chacune."
+      "tagLimits": "20 étiquettes maximum, de 64 caractères chacune.",
+      "changeCourse": "Modifier",
+      "boundNoTerm": "Semestre et enseignant non indiqués",
+      "ownCourses": "Mes cours · {term}",
+      "ownMore": "Semestres précédents : {count}",
+      "ownFewer": "Masquer les semestres précédents",
+      "ownHint": "Activez l’autorisation des données scolaires pour choisir parmi vos cours.",
+      "ownEnable": "Activer",
+      "ownTeachers": "Enseignants ce semestre"
     },
     "request": {
       "resourceId": "Identifiant de la ressource",

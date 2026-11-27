@@ -19,6 +19,10 @@ import CatalogPicker from './CatalogPicker.vue'
 import DirectoryPicker from './DirectoryPicker.vue'
 import FieldInput from './FieldInput.vue'
 import TagInput from '../../shared/ui/TagInput.vue'
+import { BookOpen } from 'lucide-vue-next'
+import { useAcademic } from '../academic/api'
+import { latestEnrollment, loadOwnCourses, type OwnCourse } from '../academic/ownCourses'
+import { useVerification } from '../verification/api'
 
 /**
  * Create or correct a resource in three steps: save the description, transfer
@@ -53,6 +57,11 @@ const submitted = ref(false)
 let upload: Upload | undefined
 let uploadAttempt = 0
 
+function queryId(name: string) {
+  const raw = route.query[name]
+  return typeof raw === 'string' && raw.length <= 128 ? raw : ''
+}
+
 function initialDirectory() {
   if (props.id) return undefined
   const stateDir: unknown = typeof window !== 'undefined' && typeof window.history.state === 'object' && window.history.state !== null ? (window.history.state as Record<string, unknown>).directory_id : undefined
@@ -67,7 +76,7 @@ const metadata = ref<Metadata>({
   category_id: '',
   category_revision: 1,
   attributes: {},
-  associations: { school_id: campus.value, course_id: typeof route.query.course_id === 'string' ? route.query.course_id : '' },
+  associations: { school_id: campus.value, course_id: queryId('course_id'), term_id: queryId('term_id'), teacher_id: queryId('teacher_id') },
   directory_id: initialDirectory(),
   access: 'public',
   origin: { kind: 'unknown' },
@@ -134,6 +143,65 @@ watch(step, (value) => { viewStep.value = value })
 watch(() => metadata.value.associations.course_id, (next, previous) => {
   if (baseline.value !== '' && next !== previous) metadata.value.directory_id = undefined
 })
+// A new resource opened from a course page arrives bound to that course: the course part
+// shows as a summary until the person chooses to change it.
+const bound = ref(!props.id && !!metadata.value.associations.course_id)
+const academic = useAcademic()
+const verification = useVerification()
+// Own courses fill in term and teacher. They need school data authorization; when they
+// cannot be read the form works as before, with the person choosing by hand.
+const own = useAsync(async (signal) => (await loadOwnCourses(academic, verification, signal)).groups)
+const ownGroups = computed(() => own.data.value ?? [])
+const enrollment = computed(() => latestEnrollment(ownGroups.value, metadata.value.associations.course_id ?? ''))
+// A course taught by several teachers in that term offers them as quick choices, since a
+// resource names one teacher at most.
+const teacherChoices = computed(() => {
+  const row = enrollment.value
+  if (!row || row.teacherIds.length < 2 || row.termId !== metadata.value.associations.term_id) return []
+  return row.teacherIds.map((id, index) => ({ id, name: row.teacherNames[index] ?? id }))
+})
+const ownExpanded = ref(false)
+const ownShown = computed(() => (ownExpanded.value ? ownGroups.value : ownGroups.value.slice(0, 1)))
+
+// Fill term and teacher from the person's own enrollment of the chosen course. Values
+// the person already chose are kept, and a teacher of another course is cleared.
+function fillFromEnrollment(row: OwnCourse | undefined, replace: boolean) {
+  const associations = metadata.value.associations
+  if (!row) {
+    if (replace) associations.teacher_id = ''
+    return
+  }
+  if (replace || !associations.term_id) associations.term_id = row.termId
+  if (replace || !associations.teacher_id) associations.teacher_id = row.teacherIds.length === 1 ? row.teacherIds[0] : ''
+}
+function chooseOwn(row: OwnCourse) {
+  metadata.value.associations.course_id = row.courseId
+  fillFromEnrollment(row, true)
+}
+watch(() => metadata.value.associations.course_id, (next, previous) => {
+  // Loading a saved version replaces the whole description; only a person's change refills.
+  if (baseline.value !== '' && next !== previous) fillFromEnrollment(next ? latestEnrollment(ownGroups.value, next) : undefined, true)
+})
+// The bound course of a new resource is filled once its own enrollment is known.
+watch(ownGroups, () => {
+  if (!props.id && !entry.value) fillFromEnrollment(enrollment.value, false)
+})
+
+// Names for the bound summary.
+const boundNames = useAsync(async (signal) => {
+  const { course_id, term_id, teacher_id } = metadata.value.associations
+  const names = await academic.lookup([course_id, term_id, teacher_id], signal)
+  const course = names.get(course_id ?? '')
+  return {
+    course: course?.name ?? t('common.unknown'),
+    code: typeof course?.code === 'string' ? course.code : '',
+    detail: [term_id && names.get(term_id)?.name, teacher_id && names.get(teacher_id)?.name].filter(Boolean).join(' · '),
+  }
+})
+watch(() => [bound.value, metadata.value.associations.course_id, metadata.value.associations.term_id, metadata.value.associations.teacher_id], () => {
+  if (bound.value) void boundNames.reload()
+}, { immediate: true })
+
 // 课程必选：能浏览目录时，资料必须关联一门课程才能保存。
 const courseMissing = computed(() => !!setup.data.value?.canBrowse && !metadata.value.associations.course_id)
 const fileDisabled = computed(() => !entry.value || dirty.value || anyBusy.value || anyUncertain.value || (!!upload && !attaching.error.value && !!uploadState.value && uploadState.value !== 'attached'))
@@ -142,7 +210,10 @@ const anyBusy = computed(() => saving.busy.value || attaching.busy.value || subm
 const anyUncertain = computed(() => saving.uncertain.value || attaching.uncertain.value || submitting.uncertain.value)
 
 useLeaveGuard(() => (anyUncertain.value ? t('common.leaveUncertain') : dirty.value || anyBusy.value ? t('common.leaveUnsaved') : ''))
-onMounted(setup.reload)
+onMounted(() => {
+  void setup.reload()
+  void own.reload()
+})
 
 function changeCategory() {
   metadata.value.attributes = {}
@@ -381,6 +452,148 @@ function uploadMessage(state: string) {
             class="stack"
             :disabled="saving.busy.value || saving.uncertain.value"
           >
+            <fieldset
+              v-if="setup.data.value.canBrowse"
+              class="stack-sm"
+            >
+              <legend>{{ t('resources.editor.associations') }}</legend>
+              <div
+                v-if="bound && metadata.associations.course_id"
+                class="bound-course"
+              >
+                <BookOpen
+                  class="bound-icon"
+                  aria-hidden="true"
+                />
+                <div class="bound-main">
+                  <strong>{{ boundNames.data.value?.course ?? '…' }}<span
+                    v-if="boundNames.data.value?.code"
+                    class="subtle bound-code"
+                  >{{ boundNames.data.value.code }}</span></strong>
+                  <span class="subtle small">{{ boundNames.data.value?.detail || t('resources.editor.boundNoTerm') }}</span>
+                  <div
+                    v-if="teacherChoices.length"
+                    class="row teacher-choices"
+                    role="group"
+                    :aria-label="t('resources.editor.ownTeachers')"
+                  >
+                    <span class="subtle small">{{ t('resources.editor.ownTeachers') }}</span>
+                    <button
+                      v-for="choice in teacherChoices"
+                      :key="choice.id"
+                      class="chip"
+                      type="button"
+                      :aria-pressed="metadata.associations.teacher_id === choice.id"
+                      @click="metadata.associations.teacher_id = metadata.associations.teacher_id === choice.id ? '' : choice.id"
+                    >
+                      {{ choice.name }}
+                    </button>
+                  </div>
+                </div>
+                <button
+                  class="btn btn-sm btn-ghost"
+                  type="button"
+                  @click="bound = false"
+                >
+                  {{ t('resources.editor.changeCourse') }}
+                </button>
+              </div>
+              <template v-else>
+                <p class="field-hint">
+                  {{ t('resources.editor.associationsHint') }}
+                </p>
+                <div
+                  v-if="!metadata.associations.course_id && ownGroups.length"
+                  class="own-courses stack-sm"
+                >
+                  <div
+                    v-for="group in ownShown"
+                    :key="group.termId"
+                    class="stack-sm"
+                  >
+                    <span class="field-label">{{ t('resources.editor.ownCourses', { term: group.name }) }}</span>
+                    <div class="own-list">
+                      <button
+                        v-for="row in group.rows"
+                        :key="`${row.courseId}:${row.termId}`"
+                        class="own-course"
+                        type="button"
+                        @click="chooseOwn(row)"
+                      >
+                        <strong class="truncate">{{ row.name }}</strong>
+                        <span class="subtle small truncate">{{ row.teacherNames.join('、') || row.code }}</span>
+                      </button>
+                    </div>
+                  </div>
+                  <button
+                    v-if="ownGroups.length > 1"
+                    class="btn btn-sm btn-ghost own-more"
+                    type="button"
+                    :aria-expanded="ownExpanded"
+                    @click="ownExpanded = !ownExpanded"
+                  >
+                    {{ ownExpanded ? t('resources.editor.ownFewer') : t('resources.editor.ownMore', { count: ownGroups.length - 1 }) }}
+                  </button>
+                </div>
+                <p
+                  v-else-if="!metadata.associations.course_id && own.data.value !== undefined && !ownGroups.length"
+                  class="field-hint"
+                >
+                  {{ t('resources.editor.ownHint') }}
+                  <RouterLink to="/me/verification/school-data">
+                    {{ t('resources.editor.ownEnable') }}
+                  </RouterLink>
+                </p>
+                <div class="form-grid">
+                  <CatalogPicker
+                    v-model="metadata.associations.course_id"
+                    kind="course"
+                    :label="t('academic.course')"
+                    :empty-label="t('resources.editor.chooseCourse')"
+                    :school="metadata.associations.school_id || undefined"
+                  />
+                  <CatalogPicker
+                    v-model="metadata.associations.term_id"
+                    kind="term"
+                    :label="t('resources.editor.term')"
+                    :school="metadata.associations.school_id || undefined"
+                  />
+                  <div class="stack-sm">
+                    <CatalogPicker
+                      v-model="metadata.associations.teacher_id"
+                      kind="teacher"
+                      :label="t('academic.teacher')"
+                      :school="metadata.associations.school_id || undefined"
+                      :course="metadata.associations.course_id || undefined"
+                    />
+                    <div
+                      v-if="teacherChoices.length"
+                      class="row teacher-choices"
+                      role="group"
+                      :aria-label="t('resources.editor.ownTeachers')"
+                    >
+                      <span class="subtle small">{{ t('resources.editor.ownTeachers') }}</span>
+                      <button
+                        v-for="choice in teacherChoices"
+                        :key="choice.id"
+                        class="chip"
+                        type="button"
+                        :aria-pressed="metadata.associations.teacher_id === choice.id"
+                        @click="metadata.associations.teacher_id = metadata.associations.teacher_id === choice.id ? '' : choice.id"
+                      >
+                        {{ choice.name }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <DirectoryPicker
+                v-model="metadata.directory_id"
+                :school="metadata.associations.school_id || undefined"
+                :course="metadata.associations.course_id || undefined"
+                :disabled="saving.busy.value || saving.uncertain.value"
+              />
+            </fieldset>
             <label class="field">
               <span class="field-label">{{ t('resources.editor.title') }}</span>
               <input
@@ -441,45 +654,6 @@ function uploadMessage(state: string) {
                 </AppSelect>
               </label>
             </div>
-
-            <fieldset
-              v-if="setup.data.value.canBrowse"
-              class="stack-sm"
-            >
-              <legend>{{ t('resources.editor.associations') }}</legend>
-              <p class="field-hint">
-                {{ t('resources.editor.associationsHint') }}
-              </p>
-
-              <div class="form-grid">
-                <CatalogPicker
-                  v-model="metadata.associations.course_id"
-                  kind="course"
-                  :label="t('academic.course')"
-                  :empty-label="t('resources.editor.chooseCourse')"
-                  :school="metadata.associations.school_id || undefined"
-                />
-                <CatalogPicker
-                  v-model="metadata.associations.term_id"
-                  kind="term"
-                  :label="t('resources.editor.term')"
-                  :school="metadata.associations.school_id || undefined"
-                />
-                <CatalogPicker
-                  v-model="metadata.associations.teacher_id"
-                  kind="teacher"
-                  :label="t('academic.teacher')"
-                  :school="metadata.associations.school_id || undefined"
-                  :course="metadata.associations.course_id || undefined"
-                />
-                <DirectoryPicker
-                  v-model="metadata.directory_id"
-                  :school="metadata.associations.school_id || undefined"
-                  :course="metadata.associations.course_id || undefined"
-                  :disabled="saving.busy.value || saving.uncertain.value"
-                />
-              </div>
-            </fieldset>
 
             <fieldset class="stack-sm">
               <legend>{{ t('resources.origin.label') }}</legend>
@@ -750,6 +924,18 @@ function uploadMessage(state: string) {
 </template>
 
 <style scoped>
+.bound-course { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border-radius: var(--radius-lg); background: var(--fill); }
+.bound-icon { flex: none; width: 1.25rem; height: 1.25rem; color: var(--accent); }
+.bound-main { display: grid; flex: 1; min-width: 0; gap: .125rem; }
+.bound-code { margin-inline-start: .5rem; font-weight: 400; }
+.bound-main .teacher-choices { margin-top: .375rem; }
+.own-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); gap: .5rem; }
+.own-course { display: grid; gap: .125rem; min-width: 0; min-height: 44px; padding: .5rem .75rem; border: 1px solid var(--separator); border-radius: var(--radius-lg); background: var(--surface); color: var(--label); font: inherit; text-align: start; cursor: pointer; }
+.own-course:hover, .own-course:focus-visible { border-color: var(--accent); }
+.own-more { justify-self: start; }
+.teacher-choices { flex-wrap: wrap; gap: .375rem; }
+.chip { min-height: 32px; padding: .25rem .75rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label-2); font: inherit; font-size: .8125rem; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
 .stepper { display: flex; flex-wrap: wrap; gap: .375rem; }
 .stepper-item { min-height: 36px; padding: .25rem .875rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label-2); font: inherit; font-size: .875rem; cursor: pointer; }
 .stepper-item[aria-current="step"] { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
