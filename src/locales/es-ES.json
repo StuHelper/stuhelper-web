@@ -1587,7 +1587,8 @@
       "agree": "Acepto custodiar los archivos seleccionados de este centro hasta la fecha indicada.",
       "save": "Guardar consentimiento",
       "withdraw": "Retirar este consentimiento"
-    }
+    },
+    "folderNotice": "Al conectar, la plataforma crea en la raíz de tu espacio una carpeta llamada «{name}» seguida de un identificador de 8 caracteres para los archivos aportados. No la borres, muevas ni renombres, o la aportación se detendrá."
   },
   "gate": {
     "guest": {

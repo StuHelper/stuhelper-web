@@ -1587,7 +1587,8 @@
       "agree": "J’accepte de conserver les fichiers sélectionnés pour cet établissement jusqu’à la date indiquée.",
       "save": "Enregistrer mon accord",
       "withdraw": "Retirer cet accord"
-    }
+    },
+    "folderNotice": "Une fois connecté, la plateforme crée à la racine de votre espace un dossier nommé « {name} » suivi d’un identifiant de 8 caractères pour les fichiers partagés. Ne le supprimez, ne le déplacez et ne le renommez pas, sinon la contribution s’arrête."
   },
   "gate": {
     "guest": {
