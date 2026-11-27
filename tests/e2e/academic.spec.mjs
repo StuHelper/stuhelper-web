@@ -717,7 +717,7 @@ test('without school data authorization a course review lists the public teacher
   await expect(editor.getByText(a.editor.enrolledLegend, { exact: true })).toHaveCount(0);
   await expect(editor.getByText(a.editor.enrollmentInactive, { exact: true })).toBeVisible();
   await expect(editor.locator('.enrollment').filter({ hasText: a.enrollmentStatus.label.unknown })).toBeVisible();
-  await expect(editor.getByRole('link', { name: a.editor.enrollmentSetup, exact: true })).toHaveAttribute('href', '/me/verification#school-data');
+  await expect(editor.getByRole('link', { name: a.editor.enrollmentSetup, exact: true })).toHaveAttribute('href', '/me/verification/school-data');
   for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) await editor.locator(`label:has(input[name="rating-${name}"][value="4"])`).click();
   await editor.getByLabel(a.editor.title, { exact: true }).fill('Clear title');
   await editor.getByLabel(a.editor.body, { exact: true }).fill('Useful text.');
@@ -741,7 +741,7 @@ test('the review editor names the authorized term, also after rechecks have stop
   await page.reload();
   await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   await expect(editor.getByText(a.editor.enrollmentHistorical.replace('{term}', term), { exact: true })).toBeVisible();
-  await expect(editor.getByRole('link', { name: a.editor.enrollmentReopen, exact: true })).toHaveAttribute('href', '/me/verification#school-data');
+  await expect(editor.getByRole('link', { name: a.editor.enrollmentReopen, exact: true })).toHaveAttribute('href', '/me/verification/school-data');
 });
 
 test('course review cards show the enrollment status captured at publication', async ({ page }, info) => {

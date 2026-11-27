@@ -1382,16 +1382,14 @@
       "title": "School data authorization",
       "active": "On",
       "inactive": "Off",
-      "intro": "When this is on, we read your enrollment from the school’s academic system only when you need it, such as marking the terms and teachers you took when you review a course and labeling the enrollment status of your course reviews. You can still review courses without it; your reviews will show “Enrollment unknown”.",
+      "intro": "With this on, StuHelper reads your own course enrollments to mark the terms and teachers you took when you review, and shows the enrollment status on your reviews. You can review without it.",
       "points": {
-        "storage": "Your school account and password are kept encrypted on our servers. Only the verification service can decrypt them, and they never appear in logs or backups in plain text.",
-        "terms": "Authorization covers terms: the term in which a check succeeds and every earlier term can be read; later terms are read only after a later check succeeds.",
-        "validity": "After a successful check the authorization stays valid. StuHelper rechecks on the configured schedule or when an administrator asks, and each success extends it to the current term. If the school rejects the password or disables the account, the stored account and password are deleted and the authorization stops extending; the authorized terms stay readable.",
-        "labels": "For terms inside the authorization, your course reviews automatically show “Enrolled” or “Not enrolled”; outside it, or without authorization, they show “Enrollment unknown”. Published reviews keep the label they had when published.",
-        "revoke": "You can stop rechecks here at any time. The stored account and password are deleted at once; the authorized terms stay readable and later terms are not read. Closing your account clears the whole authorization."
+        "scope": "The term in which the check succeeds and all earlier terms. Each successful recheck extends it to the current term.",
+        "storage": "Your school account and password are stored encrypted, used only for checks, and kept out of logs and backups.",
+        "stop": "If you stop rechecks or the school rejects the password, the account and password are deleted at once. Authorized terms are kept. Closing your account clears everything."
       },
       "password": "School single sign-on password",
-      "consent": "I have read the above and agree that StuHelper keeps my school account and password encrypted, reads my own enrollment term by term, shows the enrollment status on my course reviews, and keeps using the authorized terms after rechecks stop.",
+      "consent": "I agree that StuHelper stores my school account and password encrypted under the rules above, reads my own course enrollments, and shows the enrollment status on my reviews.",
       "submit": "Turn on school data authorization",
       "needsCampus": "Complete student verification before turning on school data authorization.",
       "verifiedAt": "Last checked",
@@ -1420,8 +1418,17 @@
         "check": "I have read the new rules and agree that the authorized terms stay in use after rechecks stop.",
         "submit": "Agree and keep authorized terms",
         "done": "Authorized terms are kept under the new rules."
-      }
-    }
+      },
+      "pointTitles": {
+        "scope": "Scope",
+        "storage": "Credentials",
+        "stop": "Stopping"
+      },
+      "statusTitle": "Authorization",
+      "rules": "Full rules in the Privacy Policy",
+      "entry": "Lets reviews show your own enrollment"
+    },
+    "history": "History ({count})"
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",

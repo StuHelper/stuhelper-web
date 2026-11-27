@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DatabaseZap, ShieldCheck } from 'lucide-vue-next'
+import { RouterLink } from 'vue-router'
 import { computed, onMounted, onScopeDispose, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
@@ -15,7 +16,8 @@ import { schoolDataHistoryNotice, useVerification, type SchoolDataAuthorization,
 // own enrollment up to the term in which it succeeded, and each successful recheck extends it.
 // Stopping rechecks deletes the stored account and password; the terms already authorized stay
 // readable and later terms are never read. Nothing personal is read without an authorization.
-const props = defineProps<{ eligible: boolean; withdrawOnly?: boolean }>()
+// On its own page (`standalone`) the page header carries the title and introduction.
+const props = defineProps<{ eligible: boolean; withdrawOnly?: boolean; standalone?: boolean }>()
 const { t } = useI18n()
 const format = useFormat()
 const api = useVerification()
@@ -96,7 +98,7 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
         id="school-data-title"
         class="school-data-title"
       >
-        <DatabaseZap aria-hidden="true" />{{ t('verification.schoolData.title') }}
+        <DatabaseZap aria-hidden="true" />{{ t(standalone ? 'verification.schoolData.statusTitle' : 'verification.schoolData.title') }}
       </h2>
       <StatusTag
         v-if="shown"
@@ -110,16 +112,27 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
         aria-hidden="true"
       />
     </div>
-    <p class="muted">
+    <p
+      v-if="!standalone"
+      class="muted"
+    >
       {{ t('verification.schoolData.intro') }}
     </p>
-    <ul class="school-data-points">
-      <li>{{ t('verification.schoolData.points.storage') }}</li>
-      <li>{{ t('verification.schoolData.points.terms') }}</li>
-      <li>{{ t('verification.schoolData.points.validity') }}</li>
-      <li>{{ t('verification.schoolData.points.labels') }}</li>
-      <li>{{ t('verification.schoolData.points.revoke') }}</li>
-    </ul>
+    <dl class="school-data-points">
+      <div
+        v-for="point in ['scope', 'storage', 'stop'] as const"
+        :key="point"
+      >
+        <dt>{{ t(`verification.schoolData.pointTitles.${point}`) }}</dt>
+        <dd>{{ t(`verification.schoolData.points.${point}`) }}</dd>
+      </div>
+    </dl>
+    <RouterLink
+      class="small school-data-rules"
+      to="/legal/privacy"
+    >
+      {{ t('verification.schoolData.rules') }}
+    </RouterLink>
 
     <ErrorNotice
       v-if="status.status.value === 'error' && !shown"
@@ -287,7 +300,12 @@ const errorText = (code: string) => ((code === 'information_mismatch' || code ==
 <style scoped>
 .school-data-title { display: flex; align-items: center; gap: .5rem; font-size: 1.0625rem; font-weight: 620; }
 .school-data-title svg { width: 20px; height: 20px; color: var(--accent); }
-.school-data-points { display: grid; gap: .375rem; margin: 0; padding-inline-start: 1.25rem; color: var(--label-2); font-size: .875rem; }
+.school-data-points { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1rem; margin: 0; padding: .875rem 1rem; border-radius: var(--radius); background: var(--fill); font-size: .875rem; }
+.school-data-points > div { display: contents; }
+.school-data-points dt { color: var(--label-2); font-weight: 550; }
+.school-data-points dd { margin: 0; }
+.school-data-rules { justify-self: start; }
+@media (max-width: 480px) { .school-data-points { grid-template-columns: 1fr; gap: .125rem; } .school-data-points div + div dt { margin-block-start: .5rem; } }
 .school-data-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: .75rem; }
 .school-data-scope { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem 1rem; border-radius: var(--radius); background: var(--fill); }
 .school-data-scope > svg { flex: none; width: 22px; height: 22px; color: var(--label-2); }

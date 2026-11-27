@@ -37,6 +37,8 @@ async function fixture(page, options = {}) {
     if (endpoint === 'email-transfer-consent' && request.method() === 'GET') return route.fulfill({ json: transferStatus });
     if (options.loadFailure && endpoint === 'schools') return route.fulfill({ status: 503, json: { code: 'unavailable' } });
     if (endpoint.endsWith('/profile')) return options.profileFailure?.(endpoint) ? route.fulfill({ status: 503, json: { code: 'unavailable' } }) : route.fulfill({ json: state.profile });
+    if (endpoint === 'applications' && options.applications) return route.fulfill({ json: options.applications });
+    if (endpoint === 'requests' && options.requests) return route.fulfill({ json: options.requests });
     return route.fulfill({ json: endpoint === 'schools' ? [options.school ?? school] : endpoint === 'credentials' ? [credential, { ...credential, id: 'second', verified_at: '2025-05-01T00:00:00Z' }] : [] });
   });
   return state;
@@ -531,8 +533,17 @@ test('school data authorization is granted by term, and stopping rechecks keeps 
   const v = messages(info).verification, sd = v.schoolData, locale = info.project.metadata.locale;
   const term = sd.term.replace('{year}', new Intl.NumberFormat(locale, { useGrouping: false }).format(2026)).replace('{season}', sd.seasons.autumn);
   const state = await fixture(page); await open(page, info);
-  const card = page.getByRole('region', { name: sd.title, exact: true });
+  // The verification page keeps one row for school data; its rules and form have their own page.
+  const entry = page.getByRole('link', { name: new RegExp(sd.title) });
+  await expect(entry).toContainText(sd.inactive);
+  await expect(page.getByLabel(sd.consent, { exact: true })).toHaveCount(0);
+  await entry.click();
+  await expect(page).toHaveURL(/\/me\/verification\/school-data/);
+  await expect(page.getByRole('heading', { level: 1, name: sd.title, exact: true })).toBeVisible();
+  const card = page.getByRole('region', { name: sd.statusTitle, exact: true });
   await expect(card.getByText(sd.inactive, { exact: true })).toBeVisible();
+  for (const title of Object.values(sd.pointTitles)) await expect(card.getByText(title, { exact: true })).toBeVisible();
+  await expect(card.getByRole('link', { name: sd.rules, exact: true })).toHaveAttribute('href', '/legal/privacy');
   for (const point of Object.values(sd.points)) await expect(card.getByText(point, { exact: true })).toBeVisible();
   // Without an authorization there is nothing to stop.
   await expect(card.getByRole('button', { name: sd.stop, exact: true })).toHaveCount(0);
@@ -569,8 +580,8 @@ test('an earlier school data authorization keeps its past terms only after conse
   const sd = messages(info).verification.schoolData;
   const state = await fixture(page);
   state.schoolData = { state: 'historical', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'autumn-2026', year: 2026, season: 'autumn' }, history_consent_required: true };
-  await open(page, info);
-  const card = page.getByRole('region', { name: sd.title, exact: true });
+  await page.goto(`${base}/me/verification/school-data?lang=${info.project.metadata.locale}`);
+  const card = page.getByRole('region', { name: sd.statusTitle, exact: true });
   const keep = card.getByRole('button', { name: sd.historyConsent.submit, exact: true });
   await expect(card.getByText(sd.historyConsent.text, { exact: true })).toBeVisible();
   await expect(keep).toBeDisabled();
@@ -578,4 +589,26 @@ test('an earlier school data authorization keeps its past terms only after conse
   await keep.click();
   await expect(keep).toHaveCount(0);
   expect(state.schoolDataWrites.at(-1)).toEqual({ accepted: true, history_notice_version: 'termscope-v1' });
+});
+
+test('finished applications and requests are folded into the history, open ones stay in view', async ({ page }, info) => {
+  const v = messages(info).verification;
+  const done = (id, state, method) => ({ ...application, id, state, method, updated_at: '2026-11-15T00:00:00Z' });
+  await fixture(page, {
+    applications: [done('a1', 'approved', 'school_sso'), done('a2', 'expired', 'student_email_outbound_otp'), done('a3', 'pending_review', 'manual_material_review')],
+    requests: [{ id: 'r1', credential_id: 'credential', school_id: 'school', kind: 'revoke', state: 'rejected', reason: 'moved', note: '', revision: 1, created_at: '2026-11-15T00:00:00Z' }],
+  });
+  await open(page, info);
+  const current = page.getByRole('region', { name: v.applications, exact: true });
+  await expect(current.getByRole('listitem')).toHaveCount(1);
+  await expect(current).toContainText(v.states.pending_review);
+  await expect(page.getByRole('region', { name: v.requests, exact: true })).toHaveCount(0);
+  const toggle = page.getByRole('button', { name: v.history.replace('{count}', new Intl.NumberFormat(info.project.metadata.locale).format(3)), exact: true });
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByText(v.methods.student_email_outbound_otp, { exact: true })).toBeHidden();
+  await toggle.click();
+  await expect(page.getByText(v.methods.student_email_outbound_otp, { exact: true })).toBeVisible();
+  await expect(page.getByText(v.states.approved, { exact: true })).toBeVisible();
+  await expect(page.getByText(v.states.rejected, { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

@@ -13,6 +13,7 @@ import { useNow } from '../../shared/composables/clock'
 import { useLeaveGuard } from '../../shared/composables/leave'
 import { isolate } from '../../shared/format'
 import { useSession } from '../../shared/session'
+import CollapseSection from '../../shared/ui/CollapseSection.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
 import StatusTag from '../../shared/ui/StatusTag.vue'
 import { toast } from '../../shared/ui/toast'
@@ -22,7 +23,7 @@ import { maskedIdentity, stages } from './api'
 import CameraCapture from './CameraCapture.vue'
 import MaterialThumb from './MaterialThumb.vue'
 import MethodPicker from './MethodPicker.vue'
-import SchoolDataCard from './SchoolDataCard.vue'
+import SchoolDataEntry from './SchoolDataEntry.vue'
 import SchoolPicker from './SchoolPicker.vue'
 import VerificationRoles from './VerificationRoles.vue'
 import VerificationStatus from './VerificationStatus.vue'
@@ -64,6 +65,13 @@ const stepNames = ['choose', 'fill', 'finish'] as const
 // Someone already verified, or waiting for review, sees the outcome first and opens the steps on request.
 const adding = ref(false)
 const pickingSchool = ref(false)
+// Applications and requests still waiting on someone are shown; finished ones are folded into the history.
+const openApplicationStates = ['in_progress', 'pending_review', 'supplement_required']
+const openApplications = computed(() => flow.applications.value.filter((item) => openApplicationStates.includes(item.state)))
+const pastApplications = computed(() => flow.applications.value.filter((item) => !openApplicationStates.includes(item.state)))
+const openRequests = computed(() => flow.requests.value.filter((item) => item.state === 'pending'))
+const pastRequests = computed(() => flow.requests.value.filter((item) => item.state !== 'pending'))
+const applicationTone = (state: string) => (state === 'approved' ? 'success' : state === 'rejected' ? 'danger' : openApplicationStates.includes(state) ? 'warning' : 'neutral')
 const showSteps = computed(() => props.scope === 'student' && !!flow.summary.value && (adding.value || !!flow.active.value || !['verified', 'review'].includes(flow.standing.value)))
 const activeCredential = computed(() => flow.credentials.value.find((row) => row.state === 'active'))
 // While the person is working through the steps, the unfinished application is the one on screen; the status does not point at it again.
@@ -834,11 +842,8 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
           </div>
         </form>
       </section>
-      <!-- School data authorization is separate from campus verification and only for one's own records. -->
-      <SchoolDataCard
-        v-if="scope === 'student' && flow.summary.value"
-        :eligible="flow.summary.value.campus_eligibility"
-      />
+      <!-- School data authorization has its own page; this row shows whether it is on. -->
+      <SchoolDataEntry v-if="scope === 'student' && flow.summary.value" />
       <!-- 3. Records: what has been verified, and what was asked for. Empty lists are left out. -->
       <section
         v-if="scope === 'student' && flow.credentials.value.length"
@@ -996,7 +1001,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
       </section>
 
       <section
-        v-if="scope === 'student' && flow.applications.value.length"
+        v-if="scope === 'student' && openApplications.length"
         class="section"
         aria-labelledby="verification-applications"
       >
@@ -1008,12 +1013,12 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
         </h2>
         <ul class="list applications">
           <li
-            v-for="application in flow.applications.value"
+            v-for="application in openApplications"
             :key="application.id"
             class="card row-between"
           >
             <div class="stack-sm">
-              <span class="row"><strong>{{ flow.schoolName(application.school_id) || t('common.unknown') }}</strong><StatusTag :tone="application.state === 'approved' ? 'success' : application.state === 'rejected' ? 'danger' : ['pending_review', 'supplement_required'].includes(application.state) ? 'warning' : 'neutral'">{{ label('verification.states', application.state) }}</StatusTag></span>
+              <span class="row"><strong>{{ flow.schoolName(application.school_id) || t('common.unknown') }}</strong><StatusTag :tone="applicationTone(application.state)">{{ label('verification.states', application.state) }}</StatusTag></span>
               <span class="small">{{ t(`verification.methods.${application.method}`) }}</span>
               <span
                 v-if="application.review_note"
@@ -1032,20 +1037,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             </button>
           </li>
         </ul>
-        <ActionError :code="flow.errorTarget.value === 'applications' ? flow.error.value : ''" />
-        <button
-          v-if="flow.cursors.applications"
-          class="btn"
-          type="button"
-          :disabled="flow.busy.value"
-          @click="flow.loadMore('applications')"
-        >
-          {{ t('common.loadMore') }}
-        </button>
       </section>
 
       <section
-        v-if="scope === 'student' && flow.requests.value.length"
+        v-if="scope === 'student' && openRequests.length"
         class="section"
         aria-labelledby="verification-requests"
       >
@@ -1057,38 +1052,77 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
         </h2>
         <ul class="list">
           <li
-            v-for="request in flow.requests.value"
+            v-for="request in openRequests"
             :key="request.id"
             class="card stack-sm"
           >
             <div class="row-between">
               <strong>{{ flow.schoolName(request.school_id) || t('common.unknown') }} · {{ t(request.kind === 'revoke' ? 'verification.requestRevoke' : 'verification.requestDelete') }}</strong>
-              <StatusTag :tone="request.state === 'approved' ? 'success' : request.state === 'rejected' ? 'danger' : 'warning'">
+              <StatusTag tone="warning">
                 {{ label('verification.states', request.state) }}
               </StatusTag>
             </div>
             <p class="small">
               {{ request.reason }}
             </p>
-            <p
-              v-if="request.note"
-              class="small notice notice-info"
-            >
-              {{ request.note }}
-            </p>
           </li>
         </ul>
-        <ActionError :code="flow.errorTarget.value === 'requests' ? flow.error.value : ''" />
-        <button
-          v-if="flow.cursors.requests"
-          class="btn"
-          type="button"
-          :disabled="flow.busy.value"
-          @click="flow.loadMore('requests')"
-        >
-          {{ t('common.loadMore') }}
-        </button>
       </section>
+
+      <!-- Finished applications and requests stay available but folded, one line each. -->
+      <CollapseSection
+        v-if="scope === 'student' && (pastApplications.length || pastRequests.length || flow.cursors.applications || flow.cursors.requests)"
+        :label="t('verification.history', { count: format.number(pastApplications.length + pastRequests.length) })"
+      >
+        <ul class="card history">
+          <li
+            v-for="application in pastApplications"
+            :key="application.id"
+          >
+            <span class="history-main">
+              <strong>{{ t(`verification.methods.${application.method}`) }}</strong>
+              <span class="subtle">{{ flow.schoolName(application.school_id) || t('common.unknown') }} · {{ format.dateTime(application.updated_at) }}</span>
+              <span
+                v-if="application.review_note"
+                class="small muted"
+              >{{ application.review_note }}</span>
+            </span>
+            <StatusTag :tone="applicationTone(application.state)">
+              {{ label('verification.states', application.state) }}
+            </StatusTag>
+          </li>
+          <li
+            v-for="request in pastRequests"
+            :key="request.id"
+          >
+            <span class="history-main">
+              <strong>{{ t(request.kind === 'revoke' ? 'verification.requestRevoke' : 'verification.requestDelete') }}</strong>
+              <span class="subtle">{{ flow.schoolName(request.school_id) || t('common.unknown') }} · {{ request.reason }}</span>
+              <span
+                v-if="request.note"
+                class="small muted"
+              >{{ request.note }}</span>
+            </span>
+            <StatusTag :tone="request.state === 'approved' ? 'success' : request.state === 'rejected' ? 'danger' : 'neutral'">
+              {{ label('verification.states', request.state) }}
+            </StatusTag>
+          </li>
+        </ul>
+        <ActionError :code="['applications', 'requests'].includes(flow.errorTarget.value) ? flow.error.value : ''" />
+        <div
+          v-if="flow.cursors.applications || flow.cursors.requests"
+          class="row"
+        >
+          <button
+            class="btn btn-sm"
+            type="button"
+            :disabled="flow.busy.value"
+            @click="flow.cursors.applications ? flow.loadMore('applications') : flow.loadMore('requests')"
+          >
+            {{ t('common.loadMore') }}
+          </button>
+        </div>
+      </CollapseSection>
     </div>
   </MeLayout>
 </template>
@@ -1123,6 +1157,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
 .profile { display: grid; gap: .75rem; margin-block-start: .25rem; padding: 1rem; border-radius: var(--radius); background: var(--fill); animation: panel-in .2s var(--ease-out); }
 .profile .facts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 9rem), 1fr)); }
 .applications .card { padding-block: .875rem; }
+.history { display: grid; padding: 0; overflow: hidden; }
+.history li { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem 1rem; }
+.history li + li { border-block-start: 1px solid var(--separator); }
+.history-main { display: grid; gap: .125rem; min-width: 0; overflow-wrap: anywhere; }
 @media (max-width: 640px) {
   .step-name { display: none; }
   .steps .current .step-name { display: inline; }
