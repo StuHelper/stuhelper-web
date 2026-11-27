@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath } from './paths'
 import AppSelect from '../../shared/ui/AppSelect.vue'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -173,7 +174,7 @@ defineExpose({ refresh: refreshAll })
                 :key="row.course_id"
                 class="card stack-sm"
               >
-                <RouterLink :to="`/courses/${encodeURIComponent(row.course_id)}`">
+                <RouterLink :to="coursePath(row.course_id)">
                   {{ names.get(row.course_id)?.name ?? t('common.unknown') }}
                 </RouterLink>
                 <RatingBands

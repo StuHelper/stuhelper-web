@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath } from './paths'
 import { hue } from '../../shared/hue'
 import { Eye, Scale } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
@@ -47,7 +48,7 @@ const dash = '\u2014'
       <span class="main">
         <RouterLink
           class="name truncate"
-          :to="`/courses/${encodeURIComponent(r.object.id)}`"
+          :to="coursePath(r.object)"
         >{{ r.object.name }}</RouterLink>
         <span class="subtle truncate">{{ sub(r) }}</span>
         <span class="subtle phone"><span class="truncate">{{ [!compact && r.departments[0]?.name, r.categories[0]?.name, reviewText(r.review_count)].filter(Boolean).join(' · ') }}</span><RatingLevel
@@ -59,7 +60,7 @@ const dash = '\u2014'
         <span class="cell small truncate dept">{{ r.departments[0]?.name ?? '' }}</span>
         <span class="cell"><RouterLink
           v-if="r.categories[0]"
-          :to="`/courses/${encodeURIComponent(r.object.id)}`"
+          :to="coursePath(r.object)"
           :tabindex="-1"
           class="tag tag-hue"
           :style="{ '--hue': hue(r.categories[0].id) }"

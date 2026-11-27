@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { teacherPath } from './paths'
 import { ChevronsDownUp, ChevronsUpDown, Eye, Scale } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, onDeactivated, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -361,7 +362,7 @@ const inCompare = (id: string) => compareList[props.kind].includes(id)
             <span class="group-body">
               <RouterLink
                 class="card-title"
-                :to="`/teachers/${encodeURIComponent(row.object.id)}`"
+                :to="teacherPath(row.object)"
               >{{ row.object.name }}</RouterLink>
               <span class="subtle">{{ row.departments[0]?.name ?? '' }}</span>
             </span>

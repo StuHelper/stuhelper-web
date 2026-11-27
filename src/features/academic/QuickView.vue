@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { subjectPath } from './paths'
 import { MessageSquareDashed, Scale } from 'lucide-vue-next'
 import { computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -194,7 +195,7 @@ function compare() {
           v-for="p in people.data.value"
           :key="p.id"
         >
-          <RouterLink :to="`/${kind === 'course' ? 'teachers' : 'courses'}/${encodeURIComponent(p.id)}`">
+          <RouterLink :to="subjectPath(kind === 'course' ? 'teacher' : 'course', p)">
             {{ p.name }}
           </RouterLink>
         </li>
@@ -254,7 +255,7 @@ function compare() {
       <RouterLink
         v-if="id"
         class="btn btn-primary"
-        :to="`/${kind === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(id)}`"
+        :to="subjectPath(kind, summary.data.value?.object ?? id)"
       >
         {{ t('browse.viewDetails') }}
       </RouterLink>

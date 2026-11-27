@@ -142,6 +142,14 @@ export class AcademicApi {
     return this.http.json(`/api/v1/catalog/objects/${segment(id)}/summary`, parse.summary, { signal })
   }
 
+  /**
+   * The object behind a page address: the current short address, an older one, or an
+   * internal id. `object.address_id` is the address to show; references keep using the id.
+   */
+  address(kind: 'course' | 'teacher', address: string, signal?: AbortSignal) {
+    return this.http.json(`/api/v1/catalog/addresses/${kind}/${segment(address)}`, parse.resolution, { signal })
+  }
+
   /** The current object for an id, including an old course id kept after a code change. */
   resolution(id: string, signal?: AbortSignal) {
     return this.http.json(`/api/v1/catalog/objects/${segment(id)}/resolution`, parse.resolution, { signal })
