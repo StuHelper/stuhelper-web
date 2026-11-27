@@ -1383,13 +1383,8 @@
       "active": "Activada",
       "inactive": "Desactivada",
       "intro": "Al activarla, la plataforma lee tus propias matrículas para marcar los cuatrimestres y docentes que cursaste al opinar, y muestra el estado de matrícula en tus opiniones. Puedes opinar sin activarla.",
-      "points": {
-        "scope": "El cuatrimestre de la verificación correcta y todos los anteriores. Cada nueva verificación correcta lo amplía al cuatrimestre actual.",
-        "storage": "Tu cuenta y contraseña se guardan cifradas, solo se usan para verificar y no aparecen en registros ni copias de seguridad.",
-        "stop": "Si detienes las verificaciones o el centro rechaza la contraseña, la cuenta y la contraseña se eliminan al instante. Los cuatrimestres autorizados se conservan. Al cerrar la cuenta se borra todo."
-      },
       "password": "Contraseña de inicio de sesión único de la universidad",
-      "consent": "Acepto que la plataforma guarde cifradas mi cuenta y contraseña del centro según las reglas anteriores, lea mis propias matrículas y muestre el estado de matrícula en mis opiniones.",
+      "consent": "He leído las reglas de datos del centro en la política de privacidad y acepto que la plataforma guarde cifradas mi cuenta y contraseña del centro, lea mis propias matrículas y muestre el estado de matrícula en mis opiniones.",
       "submit": "Activar la autorización",
       "needsCampus": "Completa la verificación de estudiante antes de activar la autorización de datos escolares.",
       "verifiedAt": "Última verificación",
@@ -1419,13 +1414,8 @@
         "submit": "Aceptar y conservar los semestres autorizados",
         "done": "Los semestres autorizados se conservan con las nuevas reglas."
       },
-      "pointTitles": {
-        "scope": "Alcance",
-        "storage": "Credenciales",
-        "stop": "Interrupción"
-      },
       "statusTitle": "Autorización",
-      "rules": "Reglas completas en la política de privacidad",
+      "rules": "Reglas completas (política de privacidad)",
       "entry": "Muestra tu matrícula en tus opiniones"
     },
     "history": "Historial ({count})"
