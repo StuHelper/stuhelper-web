@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { contributionFolderName as folderName } from './conditions'
 import TrustConsentPanel from './TrustConsentPanel.vue'
 import AppDateTime from '../../shared/ui/AppDateTime.vue'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -201,6 +202,10 @@ watch(error, (value) => {
         </div>
         <p class="small muted">
           {{ t('custody.loginNotice') }}
+        </p>
+        <!-- The folder name on the drive warns the owner; this explains it before they connect. -->
+        <p class="notice notice-warning small">
+          {{ t('custody.folderNotice', { name: folderName }) }}
         </p>
         <a
           :href="policy.url"
