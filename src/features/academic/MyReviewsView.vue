@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { coursePath } from './paths'
 import { computed, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -289,7 +290,7 @@ function removeReview(id: string) {
                 <span class="group-body">
                   <RouterLink
                     class="group-title"
-                    :to="`/courses/${encodeURIComponent(item.course_id)}`"
+                    :to="coursePath(item.course_id)"
                   >
                     {{ item.course_name }}
                   </RouterLink>

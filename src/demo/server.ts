@@ -238,6 +238,12 @@ async function route(u: URL, method: string, init?: RequestInit): Promise<Respon
   if (p === '/catalog/me/next-class-day') return json(myCoursesEnabled ? nextClassDay() : { state: 'unavailable', reason: 'enrollment_display_not_granted', date: '', time_zone: 'Asia/Shanghai', items: [] })
   if (p === '/catalog/me/recent-courses' && method === 'DELETE') { recentCourses.length = 0; return json({ cleared: true }) }
   if (p === '/catalog/me/recent-courses') return json({ resources_state: 'available', items: recentCourses.map((id, i) => ({ course: d.allObjects.find((o) => o.id === id), visited_at: new Date(Date.now() - i * 36e5).toISOString(), resource_count: resources.filter((r) => r.current?.metadata.associations.course_id === id).length })) })
+  // Page addresses: the short address, or an internal id that the page then replaces.
+  if (p.startsWith('/catalog/addresses/')) {
+    const [kind, address] = p.split('/').slice(-2).map(decodeURIComponent)
+    const o = d.allObjects.find((x) => x.kind === kind && ((x as { address_id?: string }).address_id === address || x.id === address))
+    return o ? json({ object: o, ids: [o.id] }) : nope('not_found', 404)
+  }
   if (p === '/catalog/objects/lookup') {
     const ids = (u.searchParams.get('ids') ?? '').split(',')
     const items = d.allObjects.filter((o) => ids.includes(o.id))

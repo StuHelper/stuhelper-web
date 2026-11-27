@@ -19,7 +19,7 @@ test('invisible course and discussion show the standard not-found state', async 
     await expect(page.getByText(all.errors.not_found, { exact: true })).toBeVisible();
     await expect(page.getByRole('heading', { level: 1, name: 'Test Course' })).toHaveCount(0);
     await expect(page.getByText('Useful course content.', { exact: true })).toHaveCount(0);
-    await expect(page.getByRole('button', { name: all.academic.subject.writeCourse, exact: true })).toHaveCount(0);
+    await expect(page.getByRole('main').getByRole('button', { name: all.academic.subject.writeCourse, exact: true })).toHaveCount(0);
     await expect(page.locator('.discussion form')).toHaveCount(0);
   }
   expect(errors).toEqual([]);
@@ -35,7 +35,7 @@ test('semester choices preserve the server order including summer', async ({ pag
   // Only the terms in which the course ran are offered, in the order the composer returns.
   await page.route('**/api/v1/reviews/compose*', (route) => route.fulfill({ json: { allowed: false, state: 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], terms: terms.map(([id, name, term_order_key]) => ({ id, name, term_order_key, enrolled: false })), teachers: [], identity: 'choice', rule_version: 'fixture' } }));
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form');
   const choices = editor.getByRole('group', { name: a.editor.term, exact: true });
   await expect(choices.locator('label')).toHaveText(terms.map((term) => term[1]));
@@ -55,7 +55,7 @@ test('course review lists the semester teachers, highlights own enrollment, take
     return posts.length === 1 ? route.abort() : route.fulfill({ json: { id: 'new-review', state: 'published', revision: 1 } });
   });
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   await expect(page.getByText(a.composer.choose_term, { exact: true })).toBeVisible();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   const termGroup = editor.getByRole('group', { name: a.editor.term, exact: true });
@@ -106,7 +106,7 @@ test('withdrawn is a grade choice of its own and needs no value', async ({ page 
     return route.fulfill({ json: { id: 'new-review', state: 'published', revision: 1 } });
   });
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   await pick(editor, 'fall');
   for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) await editor.locator(`label:has(input[name="rating-${name}"][value="3"])`).click();
@@ -141,7 +141,7 @@ test('publish conditions only appear when the author does not meet them', async 
   await academicFixture(page);
   const conditions = page.getByRole('region', { name: a.editor.eligibility, exact: true });
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   await expect(page.getByText(a.composer.choose_term, { exact: true })).toBeVisible();
   await expect(conditions).toHaveCount(0);
@@ -675,7 +675,7 @@ test('the editor names what is still missing and keeps plain field names beside 
   const missing = (items) => a.editor.missing.replace('{items}', list(items));
   await academicFixture(page);
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   const publish = editor.getByRole('button', { name: a.editor.publish, exact: true });
   await expect(editor.getByText(missing([a.editor.term, ratings(0), a.editor.title, a.editor.body]), { exact: true })).toBeVisible();
@@ -709,7 +709,7 @@ test('without school data authorization a course review lists the public teacher
     return route.fulfill({ json: { allowed: !!term, state: term ? 'ready' : 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], terms: [{ id: 'spring', name: 'Spring semester', term_order_key: 2, enrolled: false }, { id: 'fall', name: 'Fall semester', term_order_key: 1, enrolled: false }], teachers: term ? [{ id: 'teacher-a', enrolled: false }, { id: 'teacher-b', enrolled: false }] : [], identity: 'choice', rule_version: 'fixture' } });
   });
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   await pick(editor, 'spring');
   await expect(editor.getByText('Teacher A', { exact: true })).toBeVisible();
@@ -735,13 +735,13 @@ test('the review editor names the authorized term, also after rechecks have stop
   let authorization = { state: 'active', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'fall', year: 2026, season: 'autumn' } };
   await page.route('**/api/v1/verification/me/school-data', (route) => route.fulfill({ json: authorization }));
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   await expect(editor.getByText(a.editor.enrollmentActiveThrough.replace('{term}', term), { exact: true })).toBeVisible();
   await page.getByRole('button', { name: a.editor.cancel ?? all.common.cancel, exact: true }).click().catch(() => undefined);
   authorization = { ...authorization, state: 'historical' };
   await page.reload();
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   await expect(editor.getByText(a.editor.enrollmentHistorical.replace('{term}', term), { exact: true })).toBeVisible();
   await expect(editor.getByRole('link', { name: a.editor.enrollmentReopen, exact: true })).toHaveAttribute('href', '/me/verification/school-data');
 });
@@ -816,8 +816,8 @@ test('course and teacher pages show no teaching classes and old class links lead
 test('a course shows its English name and former codes, and an old course id opens the current course', async ({ page }, info) => {
   const all = catalogue(info), s = all.academic.subject, errors = watch(page);
   await academicFixture(page, { course: { english_name: 'Synthetic Course', former_codes: ['OLD101'], former_names: ['Old Course'], hours: 32, aliases: ['Synthetic Course'] } });
-  await page.route('**/api/v1/catalog/objects/old-course/summary', (route) => route.fulfill({ status: 404, json: { code: 'not_found' } }));
-  await page.route('**/api/v1/catalog/objects/old-course/resolution', (route) => route.fulfill({ json: { object: { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', canonical_id: 'course' }, ids: ['course', 'old-course'] } }));
+  // The address service resolves an old course id to the current course, which the page then shows under its own address.
+  await page.route('**/api/v1/catalog/addresses/course/old-course', (route) => route.fulfill({ json: { object: { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', canonical_id: 'course' }, ids: ['course', 'old-course'] } }));
   await page.goto(`http://127.0.0.1:18787/courses/old-course?lang=${info.project.metadata.locale}`);
   await expect(page).toHaveURL(/\/courses\/course(\?|$)/);
   await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
@@ -1029,7 +1029,7 @@ test('rating groups keep their dimension names when the school customises the le
   const band = ['Not enough data', 'L1', 'L2', 'Fair', 'L4', 'L5'];
   await page.route('**/api/v1/reviews/presentation**', (route) => route.fulfill({ json: { effective: { school_id: 'school', revision: 1, rating_texts: { [locale]: Array.from({ length: 5 }, () => band) } }, configured: null, source: 'custom' } }));
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
-  await page.getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
   await pick(editor, 'spring');
   for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) {
@@ -1108,4 +1108,147 @@ test('the course page term filter lists only the terms the course was offered in
   expect(queries).toContain('course');
   expect(queries).not.toContain(null);
   expect(errors).toEqual([]);
+});
+
+test('the standing review entry lists own courses only with school data authorization and opens the editor with term and teachers chosen', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, all = catalogue(info), a = all.academic, l = a.launcher, errors = watch(page);
+  await academicFixture(page);
+  let authorization = { state: 'inactive' };
+  const enrollmentReads = [];
+  await page.route('**/api/v1/verification/me/school-data', (route) => route.fulfill({ json: authorization }));
+  await page.route('**/api/v1/catalog/me/recent-courses', (route) => route.fulfill({ json: { items: [] } }));
+  await page.route('**/api/v1/catalog/me/enrollments**', (route) => {
+    enrollmentReads.push(route.request().url());
+    return route.fulfill({ json: [
+      { id: 'e-fall', subject: 'synthetic', school_id: 'school', course_id: 'course', term_id: 'fall', teacher_ids: ['teacher-a'], active: true, term_order_key: 20253 },
+      { id: 'e-spring', subject: 'synthetic', school_id: 'school', course_id: 'course', term_id: 'spring', teacher_ids: ['teacher-a', 'teacher-b'], active: true, term_order_key: 20261 },
+    ] });
+  });
+  // The fall course is already reviewed; the spring course, taught by two teachers, is not.
+  await page.route('**/api/v1/reviews/me/entries**', (route) => route.fulfill({ json: { items: [{ id: 'own-fall', root_id: 'own-fall', kind: 'course', school_id: 'school', target_id: 'course', term_id: 'fall', title: 'Mine', body: 'Mine', ratings: [3, 3, 3, 3, 3], author: { anonymous: true, handle: 'me' }, revision: 1, published_at: '2026-10-27T00:00:00Z', upvotes: 0, downvotes: 0, my_vote: 0, mine: true, can_edit: true, state: 'published' }], next: '' } }));
+  await page.route('**/api/v1/reviews/compose**', async (route) => {
+    const q = new URL(route.request().url()).searchParams;
+    if (q.get('term_id') !== 'spring') return route.fallback();
+    return route.fulfill({ json: { allowed: true, state: 'ready', requirements: [{ key: 'login', state: 'satisfied' }], terms: [{ id: 'spring', name: 'Spring semester', term_order_key: 2, enrolled: true }, { id: 'fall', name: 'Fall semester', term_order_key: 1, enrolled: true }], teachers: [{ id: 'teacher-a', enrolled: true }, { id: 'teacher-b', enrolled: true }], identity: 'choice', rule_version: 'fixture' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses?lang=${locale}`);
+  // The entry sits in the sub-navigation on wide screens and floats above the tab bar on phones.
+  const entry = page.locator('header, .launcher-phone').getByRole('button', { name: a.subject.writeCourse, exact: true });
+
+  // Without school data authorization no enrollment is read, and the way to turn it on is offered.
+  await entry.click();
+  let dialog = page.getByRole('dialog', { name: l.title, exact: true });
+  await expect(dialog.getByText(l.needSchoolData, { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('link', { name: l.enable, exact: true })).toHaveAttribute('href', '/me/verification/school-data');
+  await expect(dialog.getByRole('heading', { name: l.mine, exact: true })).toHaveCount(0);
+  expect(enrollmentReads).toEqual([]);
+  // Typing goes straight into the search.
+  await expect(dialog.getByRole('searchbox', { name: l.search, exact: true })).toBeFocused();
+  await page.keyboard.type('Test');
+  await expect(dialog.getByRole('button', { name: /Test Course/ })).toBeVisible();
+  await page.keyboard.press('Escape');
+
+  authorization = { state: 'active', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'spring', year: 2026, season: 'spring' } };
+  await entry.click();
+  dialog = page.getByRole('dialog', { name: l.title, exact: true });
+  await expect(dialog.getByRole('heading', { name: l.mine, exact: true })).toBeVisible();
+  const rows = dialog.locator('.launcher-row');
+  // Newest term first; the reviewed course carries its mark and opens the review.
+  await expect(rows.nth(0)).toContainText('Teacher A');
+  await expect(rows.nth(0)).toContainText('Teacher B');
+  await expect(rows.nth(1)).toContainText(l.reviewed);
+  await rows.nth(0).click();
+  await expect(page).toHaveURL(/\/courses\/course(\?|$)/);
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await expect(editor.locator('input[value="spring"]')).toBeChecked();
+  await expect(editor.locator('input[value="teacher-a"]')).toBeChecked();
+  await expect(editor.locator('input[value="teacher-b"]')).toBeChecked();
+  // The launch parameters are dropped once the editor is open.
+  await expect(page).not.toHaveURL(/write=/);
+  expect(enrollmentReads.length).toBeGreaterThan(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('course and teacher pages use short addresses and older addresses move to them', async ({ page }, info) => {
+  const locale = info.project.metadata.locale, errors = watch(page), summaries = [];
+  await academicFixture(page, { course: { address_id: 'B240012012' } });
+  const teacher = { id: 'teacher-a', kind: 'teacher', school_id: 'school', name: 'Teacher A', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', address_id: '38271' };
+  await page.route('**/api/v1/catalog/addresses/teacher/**', (route) => {
+    const address = decodeURIComponent(new URL(route.request().url()).pathname.split('/').at(-1));
+    return ['38271', 'teacher-a'].includes(address) ? route.fulfill({ json: { object: teacher, ids: ['teacher-a'] } }) : route.fulfill({ status: 404, json: { code: 'not_found' } });
+  });
+  page.on('request', (request) => { const path = new URL(request.url()).pathname; if (path.endsWith('/summary')) summaries.push(path); });
+
+  // An internal id in the path is replaced by the course code, keeping the query; the page still reads by internal id.
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}&tab=reviews`);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(/\/courses\/B240012012\?lang=[^&]+&tab=reviews$/);
+  expect(summaries).toContain('/api/v1/catalog/objects/course/summary');
+
+  // The current address opens the page directly.
+  await page.goto(`http://127.0.0.1:18787/courses/B240012012?lang=${locale}`);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(/\/courses\/B240012012\?/);
+
+  // A teacher is addressed by a five-digit number, never by a staff code.
+  await page.goto(`http://127.0.0.1:18787/teachers/teacher-a?lang=${locale}`);
+  await expect(page.getByRole('heading', { name: 'Teacher A', level: 1 })).toBeVisible();
+  await expect(page).toHaveURL(/\/teachers\/38271\?/);
+
+  // An unknown address shows the not-found state.
+  await page.goto(`http://127.0.0.1:18787/courses/NOPE?lang=${locale}`);
+  await expect(page.getByRole('heading', { name: 'Test Course', level: 1 })).toHaveCount(0);
+  expect(errors.filter((line) => !/404/.test(line))).toEqual([]);
+});
+
+test('returning to an old course address through site search resolves it again', async ({ page }, info) => {
+  const first = { id: 'course', kind: 'course', school_id: 'school', name: 'Test Course', credits: null, aliases: [], revision: 1, updated_at: '2026-10-27T00:00:00Z', address_id: 'NEW001' };
+  const second = { ...first, id: 'second', name: 'Second Course', address_id: 'SECOND002' };
+  await academicFixture(page, { course: first, additionalCourses: [second] });
+  const reads = [];
+  await page.route('**/api/v1/catalog/addresses/course/**', (route) => {
+    const address = new URL(route.request().url()).pathname.split('/').at(-1);
+    reads.push(address);
+    if (address === 'OLD001') return route.fulfill({ json: { object: first, ids: [first.id] } });
+    return route.fallback();
+  });
+  // These saved results carry an older address for the first course and the current one for the second.
+  await page.route('**/api/v1/search?**', (route) => {
+    const title = new URL(route.request().url()).searchParams.get('q');
+    const id = title === second.name ? second.address_id : 'OLD001';
+    return route.fulfill({ json: { items: [{ title, school_id: 'school', target: { source: 'catalog', kind: 'course', id } }], next_cursor: '' } });
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/OLD001?lang=${info.project.metadata.locale}`);
+  const heading = (name) => page.getByRole('main').getByRole('heading', { level: 1, name, exact: true });
+  await expect(heading(first.name)).toBeVisible();
+  await expect(page).toHaveURL(/\/courses\/NEW001(?:\?|$)/);
+  for (const course of [second, first]) {
+    await page.keyboard.press('Control+k');
+    const input = page.getByRole('dialog').getByRole('combobox');
+    await input.fill(course.name);
+    await expect(page.getByRole('option').filter({ hasText: course.name })).toBeVisible();
+    await input.press('Enter');
+    await expect(heading(course.name)).toBeVisible();
+    await expect(page).toHaveURL(new RegExp('/courses/' + course.address_id + '(?:\\?|$)'));
+  }
+  expect(reads).toEqual(['OLD001', second.address_id, 'OLD001']);
+});
+
+test('a course and its teacher can share the same five-digit address', async ({ page }, info) => {
+  const address = '38271';
+  await academicFixture(page, { course: { address_id: address }, teacher: { address_id: address } });
+  const reads = [];
+  page.on('request', (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path.includes('/catalog/addresses/')) reads.push(path);
+  });
+  await page.goto(`http://127.0.0.1:18787/courses/${address}?lang=${info.project.metadata.locale}`);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('heading', { level: 1, name: 'Test Course' })).toBeVisible();
+  await main.getByRole('tab', { name: catalogue(info).academic.subject.teachers, exact: true }).click();
+  await main.getByRole('link', { name: 'Teacher A', exact: true }).click();
+  await expect(page).toHaveURL(/\/teachers\/38271(?:\?|$)/);
+  await expect(main.getByRole('heading', { level: 1, name: 'Teacher A' })).toBeVisible();
+  expect(reads).toEqual(['/api/v1/catalog/addresses/course/38271', '/api/v1/catalog/addresses/teacher/38271']);
 });

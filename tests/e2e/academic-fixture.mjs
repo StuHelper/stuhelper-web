@@ -12,10 +12,12 @@ const dimensions=Array.from({length:5},()=>({level:3,samples:2,courses:1}));
 const review={id:'review',root_id:'review',kind:'course',school_id:'school',target_id:'course',term_id:'fall',title:'A student review',body:'Useful course content.',ratings:[3,3,3,3,3],author:{anonymous:true,handle:'anonymous'},revision:1,published_at:'2026-10-27T00:00:00Z',upvotes:0,downvotes:0,my_vote:0,mine:false,state:'published',can_edit:false};
 const enrollments=terms.map((term,i)=>({id:`enrollment-${i}`,subject:'synthetic',school_id:'school',course_id:'course',term_id:term.id,teacher_ids:[i===0?'teacher-a':'teacher-b'],active:true}));
 const fulfill=(route,value,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(value)});
-export async function fixture(page, { courseMissing = false, course: courseExtra = {}, avatars = {}, teacherIds } = {}){
+export async function fixture(page, { courseMissing = false, course: courseExtra = {}, additionalCourses = [], teacher: teacherExtra = {}, avatars = {}, teacherIds } = {}){
   const objects = structuredClone(directory);
   if (teacherIds) objects.teacher = teacherIds.map(id => obj(id,'teacher',id));
   objects.course[0] = { ...objects.course[0], ...courseExtra };
+  objects.course.push(...additionalCourses);
+  if (objects.teacher.length) objects.teacher[0] = { ...objects.teacher[0], ...teacherExtra };
   if (courseMissing) for (const kind of ['course', 'term_course', 'class', 'schedule', 'term', 'category', 'nature']) objects[kind] = [];
   await page.route('**/api/v1/**',async route=>{
     const u=new URL(route.request().url()),p=u.pathname;
@@ -48,6 +50,7 @@ export async function fixture(page, { courseMissing = false, course: courseExtra
       const ids=(u.searchParams.get('ids')??'').split(',').filter(Boolean),kind=u.searchParams.get('kind');
       return fulfill(route,{items:ids.map(id=>({target_id:id,kind,review_count:1,dimensions,recommendation:'recommended',distribution:Array.from({length:5},()=>({samples:2,weights:[0,0,10,20,0]})),terms:[{term_id:'fall',term_name:'Fall semester',review_count:1,dimensions,recommendation:'recommended'}]})),policy:{status:'Accepted',minimum_samples:3,strongly_recommended_at:4.5,recommended_at:3.5,average_at:2.5},generated_at:'2026-11-15T00:00:00Z'});
     }
+    if(p.startsWith('/api/v1/catalog/addresses/')){const [kind,address]=p.split('/').slice(-2).map(decodeURIComponent);const entry=(objects[kind]??[]).find(item=>(item.address_id??item.id)===address||item.id===address);return entry?fulfill(route,{object:entry,ids:[entry.id]}):fulfill(route,{code:'not_found'},404);}
     if(p==='/api/v1/catalog/objects/lookup'){const ids=(u.searchParams.get('ids')??'').split(',');const items=Object.values(objects).flat().filter(item=>ids.includes(item.id));return fulfill(route,{items,missing_ids:ids.filter(id=>!items.some(item=>item.id===id))});}
     if(courseMissing && (p==='/api/v1/catalog/objects/course' || p==='/api/v1/catalog/objects/course/summary' || p.startsWith('/api/v1/reviews'))) return fulfill(route,{code:'not_found'},404);
     if(p.startsWith('/api/v1/catalog/objects/')&&p.endsWith('/summary')){const id=p.split('/').at(-2);const entry=Object.values(objects).flat().find(item=>item.id===id);if(!entry)return fulfill(route,{code:'not_found'},404);return fulfill(route,{object:entry,school,department:entry.kind==='course'?objects.department[0]:null,categories:entry.kind==='course'?objects.category:[],natures:entry.kind==='course'?objects.nature:[],courses: [], teachers: [], course_count:1,teacher_count:entry.kind==='course'?2:1});}

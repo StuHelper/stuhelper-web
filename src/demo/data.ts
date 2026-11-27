@@ -46,7 +46,7 @@ export const courseSeeds: Seed[] = [
   ['c28', '大学生职业发展', 'B1S00601', 'd-hum', 'c-sy', 'n-req', 1, 48, [3, 3, 1, 1, 5]],
   ['c29', '创新创业基础', 'B1S00602', 'd-cs', 'c-sy', 'n-opt', 2, 53, [4, 3, 2, 3, 4]],
 ]
-export const courses: any[] = courseSeeds.map(([id, name, code, department_id, category_id, nature_id, credits]) => obj(id, 'course', name, { code, department_id, category_id, nature_id, credits }))
+export const courses: any[] = courseSeeds.map(([id, name, code, department_id, category_id, nature_id, credits]) => obj(id, 'course', name, { code, address_id: code, department_id, category_id, nature_id, credits }))
 
 const teacherSeeds = [
   ['p1', '林知远', 'd-math', '主讲高等数学十余年，板书细致，讲义逐年更新。'], ['p2', '周清和', 'd-math', '研究方向为数值代数，课堂喜欢用几何直观解释概念。'],
@@ -56,7 +56,7 @@ const teacherSeeds = [
   ['p9', '方亦舟', 'd-cs', '机器学习方向，课程项目自由度高。'], ['p10', '苏以安', 'd-hum', '近现代史方向，讲课以史料为线索。'],
   ['p11', '韩一鸣', 'd-pe', '球类与传统体育方向，课堂以分组练习为主。'], ['p12', '程语微', 'd-lang', '学术英语方向，重视写作反馈。'], ['p13', '唐敬之', 'd-marx', '马克思主义理论方向，常用案例讨论。'], ['p14', '沈南乔', 'd-hum', '艺术与心理方向，课程以赏析和讨论为主。'],
 ]
-export const teachers = teacherSeeds.map(([id, name, department_id, biography]) => obj(id!, 'teacher', name!, { department_id, biography }))
+export const teachers = teacherSeeds.map(([id, name, department_id, biography]) => obj(id!, 'teacher', name!, { department_id, biography, address_id: String(10000 + ((Number(id!.slice(1)) * 7919) % 90000)) }))
 
 const links: [course: string, teacher: string][] = [['c1', 'p1'], ['c1', 'p2'], ['c2', 'p2'], ['c3', 'p3'], ['c4', 'p4'], ['c4', 'p3'], ['c5', 'p5'], ['c6', 'p6'], ['c7', 'p7'], ['c8', 'p8'], ['c9', 'p2'], ['c10', 'p9'], ['c11', 'p6'], ['c12', 'p10'], ['c13', 'p11'], ['c14', 'p11'], ['c15', 'p11'], ['c16', 'p11'], ['c17', 'p12'], ['c18', 'p12'], ['c19', 'p12'], ['c20', 'p13'], ['c21', 'p13'], ['c22', 'p13'], ['c23', 'p10'], ['c24', 'p10'], ['c25', 'p14'], ['c26', 'p14'], ['c27', 'p14'], ['c28', 'p14'], ['c29', 'p9']]
 export const teachesIn = links
@@ -68,10 +68,14 @@ export const schedules = classes.map((k, i) => obj(`s-${k.id}`, 'schedule', '教
 export const catalogByKind: Record<string, ReturnType<typeof obj>[]> = { school: [school], department: departments, category: categories, nature: natures, term: terms, course: courses, teacher: teachers, term_course: offerings, class: classes, schedule: schedules }
 export const allObjects = Object.values(catalogByKind).flat()
 
+const termOrder: Record<string, number> = { 't-25f': 20253, 't-26s': 20261, 't-26f': 20263 }
+const enrolled = (prefix: string, term: string, courses: string[]) => courses.map((c, i) => ({ id: `${prefix}-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: term, class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-${term}`, teacher_ids: links.filter((l) => l[0] === c).map((l) => l[1]), active: true, term_order_key: termOrder[term] }))
 export const enrollments = [
   // 接口按学期先后返回选课记录，课表和首页以最后一个学期作为当前学期。
-  ...['c1', 'c2', 'c9'].map((c, i) => ({ id: `e-old-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26s', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26s`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
-  ...['c3', 'c5', 'c8', 'c10'].map((c, i) => ({ id: `e-now-${i}`, subject: 'demo', school_id: SCHOOL, course_id: c, term_id: 't-26f', class_id: `k-${c}-${links.find((l) => l[0] === c)![1]}-t-26f`, teacher_ids: [links.find((l) => l[0] === c)![1]], active: true })),
+  ...enrolled('e-older', 't-25f', ['c4', 'c6', 'c7']),
+  ...enrolled('e-old', 't-26s', ['c1', 'c2', 'c9']),
+  ...enrolled('e-retake', 't-26s', ['c10']),
+  ...enrolled('e-now', 't-26f', ['c3', 'c5', 'c8', 'c10']),
 ]
 
 const aliases = ['小舟', '青禾', '南风', '远山', '白鹭', '落星', '听雨', '长庚']

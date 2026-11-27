@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { subjectPath as pathOf, teacherPath } from '../academic/paths'
 import { Plus, Scale, X } from 'lucide-vue-next'
 import { computed, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -170,7 +171,7 @@ function best(index: number) {
   const levels = items.map((item) => item.stats?.dimensions[index]?.level ?? 0).filter((level) => level > 0)
   return levels.length > 1 && Math.min(...levels) !== Math.max(...levels) ? Math.max(...levels) : 0
 }
-const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(id)}`
+const subjectPath = (id: string) => pathOf(kind.value, id)
 </script>
 
 <template>
@@ -397,7 +398,7 @@ const subjectPath = (id: string) => `/${kind.value === 'course' ? 'courses' : 't
                         <RouterLink
                           v-for="teacher in item.teachers"
                           :key="teacher.id"
-                          :to="`/teachers/${encodeURIComponent(teacher.id)}`"
+                          :to="teacherPath(teacher)"
                         >
                           {{ teacher.name }}
                         </RouterLink>

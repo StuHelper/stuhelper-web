@@ -74,7 +74,7 @@ test('a term with only original time text opens as a list and cannot be exported
   await expect(page.getByText(all.courses.textOnly, { exact: true })).toBeVisible();
   await expect(page.locator('.week')).toHaveCount(0);
   await expect(page.getByRole('tab', { name: all.courses.weekView, exact: true })).toHaveCount(0);
-  await expect(page.locator('main a[href="/courses/c1"]')).toBeVisible();
+  await expect(page.locator('main a[href="/courses/B1A09104"]')).toBeVisible();
   await expect(page.getByText('周三 下午').first()).toBeVisible();
   // The server refuses to export an incomplete timetable, and the page says why.
   await page.getByRole('button', { name: all.courses.exportCalendar, exact: true }).click();
@@ -98,7 +98,7 @@ test('the home page shows the next class day and courses waiting for a review', 
   await expect(day.getByText(/今天/)).toBeVisible();
   await expect(day.getByRole('link', { name: /数据结构与算法/ })).toHaveAttribute('href', '/courses/c3');
   await expect(day.getByRole('link', { name: b.fullTimetable })).toHaveAttribute('href', '/me/courses');
-  await expect(page.getByText(fill(b.pendingReviews, { count: '3' }), { exact: true })).toBeVisible();
+  await expect(page.getByText(fill(b.pendingReviews, { count: '6' }), { exact: true })).toBeVisible();
 });
 
 test('my courses is listed in the personal center of the prototype', async ({ page }) => {

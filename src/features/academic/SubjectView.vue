@@ -16,6 +16,7 @@ import AsyncState from '../../shared/ui/AsyncState.vue'
 import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import { knownCredits, listSize, useAcademic, type Result } from './api'
+import { subjectPath } from './paths'
 import ReviewEditor from './ReviewEditor.vue'
 import ReviewFeed from './ReviewFeed.vue'
 import StatisticsPanel from './StatisticsPanel.vue'
@@ -46,34 +47,12 @@ const statistics = ref<InstanceType<typeof StatisticsPanel>>()
 const courseFeed = ref<InstanceType<typeof ReviewFeed>>()
 const mentorFeed = ref<InstanceType<typeof ReviewFeed>>()
 
-// A course that changed its code keeps its old id as a reference. Opening an old id resolves it
-// and replaces the address with the current course, keeping the query; only the old id is replaced.
-async function current(id: string, signal: AbortSignal) {
-  if (props.kind !== 'course') return undefined
-  try {
-    const resolved = await api.resolution(id, signal)
-    const target = resolved.object.canonical_id || resolved.object.id
-    return target !== id && resolved.object.kind === 'course' ? target : undefined
-  } catch {
-    return undefined
-  }
-}
+// The route has already resolved the page address to this internal id (SubjectRoute).
 const entry = useAsync(async (signal) => {
-  try {
-    const data = await api.summary(props.id, signal)
-    // An id of another kind must not render as this page.
-    if (data.object.kind !== props.kind) throw new ApiError('not_found')
-    const target = data.object.canonical_id && data.object.canonical_id !== props.id ? data.object.canonical_id : undefined
-    if (target) void router.replace({ path: `/courses/${encodeURIComponent(target)}`, query: route.query, hash: route.hash })
-    return data
-  } catch (failure) {
-    const target = failure instanceof ApiError && failure.code === 'not_found' ? await current(props.id, signal) : undefined
-    if (target) {
-      void router.replace({ path: `/courses/${encodeURIComponent(target)}`, query: route.query, hash: route.hash })
-      return await api.summary(target, signal)
-    }
-    throw failure
-  }
+  const data = await api.summary(props.id, signal)
+  // An id of another kind must not render as this page.
+  if (data.object.kind !== props.kind) throw new ApiError('not_found')
+  return data
 })
 const subject = computed(() => entry.data.value?.object)
 const credits = computed(() => (subject.value ? knownCredits(subject.value) : undefined))
@@ -83,8 +62,26 @@ const related = usePaged(async (after, signal) => {
 })
 
 
+// The review launcher opens a course with `write=1` and, for an own course, its term and teachers.
+// The editor opens once; the parameters are then dropped so a reload or a return does
+// not open it again.
+const launchTerm = ref<string>()
+const launchTeachers = ref<string[]>()
+watch(composing, (open) => { if (!open) { launchTerm.value = undefined; launchTeachers.value = undefined } })
+watch(() => [props.kind, props.id, route.query.write] as const, ([kind, , write]) => {
+  if (kind !== 'course' || write !== '1') return
+  launchTerm.value = typeof route.query.term === 'string' ? route.query.term : undefined
+  launchTeachers.value = typeof route.query.teachers === 'string' && route.query.teachers ? route.query.teachers.split(',') : undefined
+  composing.value = true
+  const rest = { ...route.query }
+  delete rest.write
+  delete rest.term
+  delete rest.teachers
+  void router.replace({ query: rest, hash: route.hash })
+}, { immediate: true })
+
 watch(() => [props.kind, props.id], () => {
-  composing.value = false
+  if (route.query.write !== '1') composing.value = false
   published.value = ''
   tab.value = 'reviews'
   void entry.reload()
@@ -92,7 +89,7 @@ watch(() => [props.kind, props.id], () => {
 }, { immediate: true })
 
 watch(subject, (value) => {
-  if (value) rememberPage({ path: `/${props.kind === 'course' ? 'courses' : 'teachers'}/${encodeURIComponent(value.id)}`, title: value.name, kind: props.kind })
+  if (value) rememberPage({ path: subjectPath(props.kind, value), title: value.name, kind: props.kind })
 })
 
 function submitted(result: Result) {
@@ -191,6 +188,8 @@ function submitted(result: Result) {
         :kind="kind === 'course' ? 'course' : 'mentor'"
         :target-id="id"
         :school-id="subject.school_id"
+        :initial-term-id="launchTerm"
+        :initial-teacher-ids="launchTeachers"
         @submitted="submitted"
         @cancel="composing = false"
       />
@@ -261,7 +260,7 @@ function submitted(result: Result) {
                   >
                     <RouterLink
                       class="card card-link stack-sm"
-                      :to="`/${kind === 'course' ? 'teachers' : 'courses'}/${encodeURIComponent(item.id)}`"
+                      :to="subjectPath(kind === 'course' ? 'teacher' : 'course', item)"
                     >
                       <span class="card-title">{{ item.name }}</span>
                       <span

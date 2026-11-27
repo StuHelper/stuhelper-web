@@ -1,3 +1,4 @@
+import { coursePath, teacherPath } from '../academic/paths'
 import { teacherDirectoryEnabled } from '../../app/features'
 import contract from '../../../contracts/search.openapi.json'
 import type { components } from '../../api/search.gen'
@@ -25,9 +26,9 @@ export function targetRoute(target: Target) {
     case 'school':
       return '/courses'
     case 'course':
-      return `/courses/${id}`
+      return coursePath(target.id)
     case 'teacher':
-      return `/teachers/${id}`
+      return teacherPath(target.id)
     case 'review':
       return `/reviews/${id}`
     case 'resource':

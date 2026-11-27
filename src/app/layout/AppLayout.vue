@@ -11,6 +11,7 @@ import SearchPalette from '../../features/search/SearchPalette.vue'
 import NotificationBell from '../../features/notifications/NotificationBell.vue'
 import { feature, useCapabilities, useLinkAvailable } from '../../shared/capabilities'
 import { products } from '../products'
+import ReviewLauncher from '../../features/academic/ReviewLauncher.vue'
 import AccountMenu from './AccountMenu.vue'
 import LocaleSelect from './LocaleSelect.vue'
 import ThemeToggle from './ThemeToggle.vue'
@@ -125,7 +126,7 @@ watch(() => route.path, async (_path, previous) => {
   >{{ t('shell.skip') }}</a>
   <div
     class="shell"
-    :class="{ 'has-tabbar': !promotional }"
+    :class="{ 'has-tabbar': !promotional, 'has-review-launcher': product === 'campus' }"
     :data-product="product"
   >
     <header
@@ -186,7 +187,7 @@ watch(() => route.path, async (_path, previous) => {
         class="subnav"
         :aria-label="t('nav.campusSections')"
       >
-        <div class="container">
+        <div class="container subnav-container">
           <div
             ref="subnavRow"
             class="subnav-row"
@@ -209,6 +210,8 @@ watch(() => route.path, async (_path, previous) => {
               />{{ t(link.label) }}
             </RouterLink>
           </div>
+          <!-- Writing a course review is one click away on every campus page. -->
+          <ReviewLauncher variant="bar" />
         </div>
       </nav>
     </header>
@@ -257,6 +260,13 @@ watch(() => route.path, async (_path, previous) => {
         </div>
       </div>
     </footer>
+    <!-- Phones have no sub-navigation, so the review entry floats above the tab bar. -->
+    <div
+      v-if="product === 'campus'"
+      class="launcher-phone"
+    >
+      <ReviewLauncher variant="fab" />
+    </div>
     <nav
       v-if="!promotional"
       class="tabbar"
@@ -319,6 +329,9 @@ watch(() => route.path, async (_path, previous) => {
 .nav-tools { container: nav-tools / inline-size; display: flex; flex: 1; justify-content: flex-end; align-items: center; gap: .375rem; min-width: 0; }
 /* 空间不足时只收窄搜索框，头像和其他按钮保持原尺寸。 */
 .nav-tools > :deep(*) { flex-shrink: 0; }
+.subnav-container { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.subnav-container :deep(.launcher-bar) { pointer-events: auto; box-shadow: var(--glass-shadow); }
+.launcher-phone { display: none; }
 .subnav { margin-block-start: .5rem; animation: subnav-in .45s var(--ease-out) both; }
 @keyframes subnav-in { from { opacity: 0; transform: translateY(-8px) scale(.97); } }
 .subnav-row { position: relative; display: flex; align-items: center; gap: .125rem; width: fit-content; max-width: 100%; height: 40px; padding-inline: .25rem; overflow-x: auto; border-radius: var(--pill); scrollbar-width: none; }
@@ -357,9 +370,12 @@ watch(() => route.path, async (_path, previous) => {
   /* 尺寸容器的固有宽度为零，窄屏上取消它，工具区才能按内容占位。 */
   .nav-tools { container-type: normal; flex: none; gap: .125rem; }
   .subnav { display: none; }
+  .launcher-phone { display: block; }
   .shell-main { padding-block: 1.25rem 2.5rem; }
   .footer-note { margin-inline-start: 0; }
   .has-tabbar .shell-footer { padding-block-end: calc(var(--tab-height) + var(--safe-bottom) + 1.25rem); }
+  .has-review-launcher { --review-launcher-size: 52px; }
+  .has-review-launcher .shell-footer { padding-block-end: calc(var(--tab-height) + var(--safe-bottom) + var(--review-launcher-size) + 1.25rem); }
   /* The tab bar is a floating glass capsule; the current tab sits in a lozenge. */
   .tabbar {
     position: fixed;
