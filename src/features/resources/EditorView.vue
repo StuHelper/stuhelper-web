@@ -150,7 +150,7 @@ const academic = useAcademic()
 const verification = useVerification()
 // Own courses fill in term and teacher. They need school data authorization; when they
 // cannot be read the form works as before, with the person choosing by hand.
-const own = useAsync(async (signal) => (await loadOwnCourses(academic, verification, signal)).groups)
+const own = useAsync(async (signal) => (await loadOwnCourses(academic, verification, t('academic.launcher.missingCourse'), signal)).groups)
 const ownGroups = computed(() => own.data.value ?? [])
 const enrollment = computed(() => latestEnrollment(ownGroups.value, metadata.value.associations.course_id ?? ''))
 // A course taught by several teachers in that term offers them as quick choices, since a

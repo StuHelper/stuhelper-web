@@ -35,6 +35,9 @@ test('semester choices preserve the server order including summer', async ({ pag
   // Only the terms in which the course ran are offered, in the order the composer returns.
   await page.route('**/api/v1/reviews/compose*', (route) => route.fulfill({ json: { allowed: false, state: 'choose_term', requirements: [{ key: 'login', state: 'satisfied' }], terms: terms.map(([id, name, term_order_key]) => ({ id, name, term_order_key, enrolled: false })), teachers: [], identity: 'choice', rule_version: 'fixture' } }));
   await page.goto(`http://127.0.0.1:18787/courses/course?lang=${locale}`);
+  const main = page.getByRole('main');
+  await expect(main.getByRole('link', { name: a.subject.resources, exact: true })).toBeVisible();
+  await expect(main.getByRole('link', { name: catalogue(info).resources.upload, exact: true })).toHaveCount(0);
   await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
   const editor = page.locator('form');
   const choices = editor.getByRole('group', { name: a.editor.term, exact: true });

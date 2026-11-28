@@ -698,6 +698,7 @@
       "withdrawnDisplay": "Se dio de baja"
     },
     "launcher": {
+      "missingCourse": "Información del curso no disponible por el momento",
       "title": "Elige un curso para opinar",
       "search": "Buscar por nombre o código del curso",
       "results": "Resultados",

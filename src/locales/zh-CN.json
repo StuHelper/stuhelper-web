@@ -698,6 +698,7 @@
       "withdrawnDisplay": "已退课"
     },
     "launcher": {
+      "missingCourse": "课程信息暂缺",
       "title": "选择要评价的课程",
       "search": "搜索课程名或课程号",
       "results": "搜索结果",

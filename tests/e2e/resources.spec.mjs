@@ -97,7 +97,10 @@ test('new resource explains why uploads are unavailable when there are no enable
 });
 
 test('upload uses current terms and retries the original metadata request', async ({ page }, info) => {
-  const { all, m, s, errors, locale } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
+  const { all, m, s, errors, locale } = await setup(page, info);
+  await page.getByRole('link', { name: m.upload, exact: true }).click();
+  await expect(page.locator('.bound-course')).toContainText('Fixture course');
+  await expect(page.getByRole('combobox', { name: all.academic.course, exact: true })).toHaveCount(0);
   await describe(page, m, 'Uploaded lecture');
   s.lose = true;
   await page.getByRole('button', { name: m.editor.create, exact: true }).click();
@@ -107,6 +110,7 @@ test('upload uses current terms and retries the original metadata request', asyn
   await expect(page.getByText(m.editor.saved, { exact: true })).toBeVisible();
   const posts = s.calls.filter((x) => x.path === '' && x.method === 'POST');
   expect(posts).toHaveLength(2);
+  expect(posts[0].body.metadata.associations.course_id).toBe('course');
   expect(posts[0].key).toBe(posts[1].key);
   expect(posts[0].body).toEqual(posts[1].body);
   expect(posts[0].body.metadata.origin.consent).toEqual({ accepted: true, version: 'v1', digest: 'a'.repeat(64) });
@@ -443,7 +447,7 @@ test('course suggestions load on opening the picker and closing discards a pendi
   const searches = [];
   page.on('request', request => {
     const url = new URL(request.url());
-    if (url.pathname === '/api/v1/catalog/objects' && url.searchParams.get('kind') === 'course') searches.push(url.searchParams.get('q') ?? '');
+    if (url.pathname === '/api/v1/catalog/directory' && url.searchParams.get('kind') === 'course') searches.push(url.searchParams.get('q') ?? '');
   });
   await page.clock.install();
   const { all } = await setup(page, info, '/resources/new');
@@ -452,14 +456,14 @@ test('course suggestions load on opening the picker and closing discards a pendi
   await page.clock.fastForward(1000);
   expect(searches).toEqual([]);
   await picker.click();
-  await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: /Fixture course.*C101/ })).toBeVisible();
   await picker.fill('discarded');
   await picker.press('Escape');
   await expect(picker).toHaveAttribute('aria-expanded', 'false');
   await page.clock.fastForward(1000);
   expect(searches).toEqual(['']);
   await picker.click();
-  await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: /Fixture course.*C101/ })).toBeVisible();
   expect(searches).not.toContain('discarded');
 });
 

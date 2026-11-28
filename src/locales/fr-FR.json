@@ -698,6 +698,7 @@
       "withdrawnDisplay": "Cours abandonné"
     },
     "launcher": {
+      "missingCourse": "Informations sur le cours temporairement indisponibles",
       "title": "Choisir un cours à évaluer",
       "search": "Rechercher par nom ou code de cours",
       "results": "Résultats",

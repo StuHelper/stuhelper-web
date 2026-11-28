@@ -35,7 +35,7 @@ interface TermGroup extends Omit<OwnTerm, 'rows'> { rows: OwnRow[] }
 // turn it on.
 const verification = useVerification()
 const own = useAsync(async (signal) => {
-  const loaded = await loadOwnCourses(api, verification, signal)
+  const loaded = await loadOwnCourses(api, verification, t('academic.launcher.missingCourse'), signal)
   if (loaded.state === 'off') return { state: 'off' as const, groups: [] as TermGroup[] }
   // Every own course review, so a course is marked reviewed however many reviews precede it.
   const reviewed = new Map<string, string>()

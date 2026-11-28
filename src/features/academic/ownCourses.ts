@@ -20,11 +20,13 @@ export interface OwnCourses { state: 'off' | 'ready'; groups: OwnTerm[] }
  * data authorization, which is the consent to read the person's own enrollment. A stopped
  * authorization still covers the terms authorized so far, so only 'inactive' turns it off.
  */
-export async function loadOwnCourses(api: ReturnType<typeof useAcademic>, verification: ReturnType<typeof useVerification>, signal?: AbortSignal): Promise<OwnCourses> {
+export async function loadOwnCourses(api: ReturnType<typeof useAcademic>, verification: ReturnType<typeof useVerification>, missingCourseLabel: string, signal?: AbortSignal): Promise<OwnCourses> {
   const authorization = await verification.schoolData(signal)
   if (authorization.state === 'inactive') return { state: 'off', groups: [] }
   const enrollments = (await api.myEnrollments(signal)).filter((row) => row.active)
   const names = await api.lookup(enrollments.flatMap((row) => [row.course_id, row.term_id, ...row.teacher_ids]), signal)
+  const missing = enrollments.map(row => row.course_id).filter(id => !names.get(id)?.name)
+  const owned = await api.enrollmentReferences(missing, signal)
   const groups = new Map<string, OwnTerm>()
   for (const row of enrollments) {
     const termName = names.get(row.term_id)?.name ?? row.term_id
@@ -37,7 +39,7 @@ export async function loadOwnCourses(api: ReturnType<typeof useAcademic>, verifi
       termName,
       teacherIds: row.teacher_ids.slice(),
       teacherNames: row.teacher_ids.map((id) => names.get(id)?.name ?? '').filter(Boolean),
-      name: course?.name ?? row.course_id,
+      name: course?.name || owned.get(row.course_id)?.name || missingCourseLabel,
       code: typeof course?.code === 'string' ? course.code : '',
     })
     groups.set(row.term_id, group)

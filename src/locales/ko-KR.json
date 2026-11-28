@@ -698,6 +698,7 @@
       "withdrawnDisplay": "수강 철회"
     },
     "launcher": {
+      "missingCourse": "현재 강좌 정보를 확인할 수 없습니다",
       "title": "평가할 강의 선택",
       "search": "강의명 또는 강의 코드로 검색",
       "results": "검색 결과",

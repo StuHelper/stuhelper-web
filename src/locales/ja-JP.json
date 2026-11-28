@@ -698,6 +698,7 @@
       "withdrawnDisplay": "履修取消"
     },
     "launcher": {
+      "missingCourse": "授業情報は現在表示できません",
       "title": "評価する授業を選択",
       "search": "授業名または授業コードで検索",
       "results": "検索結果",

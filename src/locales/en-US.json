@@ -698,6 +698,7 @@
       "withdrawnDisplay": "Withdrew"
     },
     "launcher": {
+      "missingCourse": "Course information currently unavailable",
       "title": "Choose a course to review",
       "search": "Search by course name or code",
       "results": "Search results",
