@@ -14,7 +14,8 @@ describe('course cards', () => {
   it('names department and category of courses known only by id, without inventing ratings', async () => {
     const lookup = vi.fn(async (ids: (string | undefined)[]) => new Map([course, object('d-cs', 'department', '计算机学院'), object('c-core', 'category', '专业课')].filter((item) => ids.includes(item.id)).map((item) => [item.id, item])))
     const cards = await cardsByIds({ lookup } as never, ['c4'])
-    expect(cards.get('c4')).toMatchObject({ code: 'B3I06302', credits: 4, department: '计算机学院', category: { name: '专业课' }, level: 0, reviews: undefined })
+    expect(cards.get('c4')).toMatchObject({ code: 'B3I06302', credits: 4, department: '计算机学院', category: { name: '专业课' }, level: 0 })
+    expect(cards.get('c4')?.reviews).toBeUndefined()
     expect(lookup).toHaveBeenCalledTimes(2)
   })
 })
