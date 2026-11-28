@@ -1415,12 +1415,15 @@
       "other": "你也可以返回，选择学校已开放且你符合条件的其他认证方式。",
       "agree": "同意境外投递并发送验证码",
       "back": "返回选择其他方式",
-      "accepted": "你已同意学校邮箱验证码的境外投递。",
-      "acceptedAt": "你在 {time} 同意了学校邮箱验证码的境外投递。",
+      "accepted": "已开通",
+      "acceptedAt": "开通时间：{time}",
       "withdraw": "撤回同意",
       "withdrawConfirm": "撤回后，新的投递需要重新同意。撤回前已发起的投递可能继续处理，已发出的验证码沿用原有效期。",
       "withdrawn": "已撤回境外投递同意。",
-      "notAccepted": "你还没有同意境外投递。发送学校邮箱验证码前会单独询问你。"
+      "notAccepted": "未开通",
+      "enableInfo": "开通后，学校邮箱验证码将通过境外邮件服务商投递。",
+      "enable": "开通",
+      "agreeEnable": "同意并开通"
     },
     "schoolData": {
       "title": "学校数据认证",

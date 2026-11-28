@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.7.0
+  version: 0.8.0
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
@@ -481,7 +481,7 @@ paths:
         default: { $ref: '#/components/responses/Problem' }
     post:
       operationId: createEmailChallenge
-      description: Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. A resend for the same application may reuse a current, active receipt. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
+      description: Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. Any outbound send may reuse the account's active consent for that version and digest. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -511,13 +511,36 @@ paths:
   /api/v1/verification/email-transfer-consent:
     get:
       operationId: getEmailTransferConsent
-      description: Read the effective outbound school email transfer document and the signed-in account's current consent state. A new application still requires its own affirmative action before the first send.
+      description: Read the effective outbound school email transfer document and the signed-in account's current consent state.
       responses:
         '200':
           description: Effective document reference and account consent state.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/EmailTransferConsentStatus' }
+        default: { $ref: '#/components/responses/Problem' }
+    put:
+      operationId: acceptEmailTransferConsent
+      description: Enable outbound school email delivery for the signed-in account and the displayed version and digest.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailTransferConsentInput' }
+      responses:
+        '200':
+          description: Recorded consent. Replaying the same request returns its original result.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailTransferConsentStatus' }
+        '202': { $ref: '#/components/responses/Processing' }
+        '409':
+          description: The publication changed (email_transfer_consent_changed) or the key was reused for different input.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
         default: { $ref: '#/components/responses/Problem' }
     delete:
       operationId: withdrawEmailTransferConsent
@@ -1429,7 +1452,7 @@ components:
           enum: [zh-CN, en-US, fr-FR, ru-RU, ja-JP, ko-KR, es-ES, ar-EG]
           description: 'Preferred message locale; defaults to zh-CN when omitted.'
     EmailTransferConsentInput:
-      description: Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when resending under the same application's current, active receipt.
+      description: Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when the account has active consent for this publication.
       type: object
       additionalProperties: false
       required: [document_id, version, digest, accepted]

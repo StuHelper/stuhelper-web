@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Globe2 } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useFormat } from '../../app/i18n'
@@ -7,36 +6,55 @@ import { errorCode } from '../../shared/api/errors'
 import { useAsync } from '../../shared/composables/async'
 import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 import ErrorNotice from '../../shared/ui/ErrorNotice.vue'
-import { useErrorText } from '../../shared/ui/messages'
+import EmailTransferFacts from './EmailTransferFacts.vue'
 import { toast } from '../../shared/ui/toast'
 import { useVerification } from './api'
 
-// Withdrawing the separate consent to deliver school-email codes through the provider abroad.
-// Codes already sent stay valid until they expire; queued deliveries and retries stop, and
-// the next outbound code asks again.
-// `always` keeps the section on the privacy page even when nothing is in effect.
 const props = withDefaults(defineProps<{ always?: boolean }>(), { always: false })
 const { t } = useI18n()
 const format = useFormat()
-const errorText = useErrorText()
+const path = '/api/v1/verification/email-transfer-consent'
 const api = useVerification()
-const status = useAsync((signal) => api.get('EmailTransferConsentStatus', '/api/v1/verification/email-transfer-consent', signal))
+const status = useAsync((signal) => api.get('EmailTransferConsentStatus', path, signal))
 // A deployment without this endpoint returns 404. An unpublished document returns 503.
 const loadFailed = computed(() => status.status.value === 'error' && status.error.value !== 'not_found')
 void status.reload()
-const confirming = ref(false)
+const dialog = ref<'enable' | 'withdraw'>()
 const busy = ref(false)
+const writeError = ref('')
+const changed = ref(false)
 
-async function withdraw() {
-  if (busy.value) return
+function openDialog(action: 'enable' | 'withdraw') {
+  writeError.value = ''
+  dialog.value = action
+}
+
+async function confirm() {
+  const current = status.data.value
+  if (busy.value || !current || !dialog.value) return
   busy.value = true
+  writeError.value = ''
   try {
-    await api.write('EmailTransferWithdrawal', '/api/v1/verification/email-transfer-consent', undefined, 'DELETE')
-    confirming.value = false
-    toast(t('verification.transfer.withdrawn'))
+    if (dialog.value === 'enable') {
+      const { document_id, version, digest } = current.document
+      await api.write('EmailTransferConsentStatus', path, { document_id, version, digest, accepted: true }, 'PUT')
+      toast(t('verification.transfer.accepted'))
+    } else {
+      await api.write('EmailTransferWithdrawal', path, undefined, 'DELETE')
+      toast(t('verification.transfer.withdrawn'))
+    }
+    dialog.value = undefined
+    changed.value = false
     await status.reload()
   } catch (failure) {
-    toast(errorText(errorCode(failure)))
+    const code = errorCode(failure)
+    if (code === 'email_transfer_consent_changed') {
+      changed.value = true
+      dialog.value = undefined
+      await status.reload()
+    } else {
+      writeError.value = code
+    }
   } finally {
     busy.value = false
   }
@@ -45,56 +63,80 @@ async function withdraw() {
 
 <template>
   <section
-    v-if="status.data.value?.accepted || loadFailed || (props.always && status.data.value)"
+    v-if="status.data.value?.accepted || loadFailed || (props.always && (status.data.value || status.status.value === 'loading'))"
     class="section"
     aria-labelledby="email-transfer-consent"
   >
-    <h2
-      id="email-transfer-consent"
-      class="d-title"
+    <div class="row">
+      <h2
+        id="email-transfer-consent"
+        class="d-title"
+      >
+        {{ t('verification.transfer.title') }}
+      </h2>
+      <span
+        v-if="status.data.value"
+        class="badge"
+      >
+        {{ t(status.data.value.accepted ? 'verification.transfer.accepted' : 'verification.transfer.notAccepted') }}
+      </span>
+    </div>
+    <p
+      v-if="status.status.value === 'loading'"
+      role="status"
     >
-      {{ t('verification.transfer.title') }}
-    </h2>
+      {{ t('common.loading') }}
+    </p>
     <ErrorNotice
-      v-if="loadFailed"
+      v-else-if="loadFailed"
       :code="status.error.value"
       @retry="status.reload"
     />
-    <template v-else-if="status.data.value?.accepted">
+    <template v-else-if="status.data.value">
+      <p
+        v-if="changed"
+        class="notice notice-warning"
+        role="alert"
+      >
+        {{ t('verification.transfer.changed') }}
+      </p>
       <div class="card row-between">
-        <p class="muted small grow">
-          <Globe2 aria-hidden="true" />
-          {{ status.data.value.accepted_at ? t('verification.transfer.acceptedAt', { time: format.dateTime(status.data.value.accepted_at) }) : t('verification.transfer.accepted') }}
+        <p
+          v-if="status.data.value.accepted_at"
+          class="muted small"
+        >
+          {{ t('verification.transfer.acceptedAt', { time: format.dateTime(status.data.value.accepted_at) }) }}
+        </p>
+        <p
+          v-else-if="!status.data.value.accepted"
+          class="muted small"
+        >
+          {{ t('verification.transfer.enableInfo') }}
         </p>
         <button
           class="btn btn-sm"
           type="button"
           :disabled="busy"
-          @click="confirming = true"
+          @click="openDialog(status.data.value.accepted ? 'withdraw' : 'enable')"
         >
-          {{ t('verification.transfer.withdraw') }}
+          {{ t(status.data.value.accepted ? 'verification.transfer.withdraw' : 'verification.transfer.enable') }}
         </button>
       </div>
       <ConfirmDialog
-        :open="confirming"
-        :title="t('verification.transfer.withdraw')"
-        :message="t('verification.transfer.withdrawConfirm')"
-        :confirm-label="t('verification.transfer.withdraw')"
+        :open="!!dialog"
+        :title="t(dialog === 'withdraw' ? 'verification.transfer.withdraw' : 'verification.transfer.title')"
+        :message="t(dialog === 'withdraw' ? 'verification.transfer.withdrawConfirm' : 'verification.transfer.enableInfo')"
+        :confirm-label="t(dialog === 'withdraw' ? 'verification.transfer.withdraw' : 'verification.transfer.agreeEnable')"
+        :error="writeError"
         :busy="busy"
-        @confirm="withdraw"
-        @cancel="confirming = false"
-      />
+        @confirm="confirm"
+        @cancel="dialog = undefined"
+      >
+        <EmailTransferFacts
+          v-if="dialog === 'enable'"
+          :document="status.data.value.document"
+        />
+      </ConfirmDialog>
     </template>
-    <p
-      v-else
-      class="card muted small"
-    >
-      {{ t('verification.transfer.notAccepted') }}
-    </p>
   </section>
 </template>
-
-<style scoped>
-.grow { flex: 1 1 14rem; }
-.grow svg { width: 1em; height: 1em; vertical-align: -.125em; }
-</style>
