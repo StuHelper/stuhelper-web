@@ -2418,7 +2418,9 @@
       "addCourse": "Search and add a course to compare",
       "addTeacher": "Search and add a teacher to compare",
       "taughtCourses": "Courses taught",
-      "ratedCourses": "Courses in rating"
+      "ratedCourses": "Courses in rating",
+      "radar": "Five-rating radar",
+      "radarEmpty": "None of these items has enough reviews for a radar chart yet."
     }
   },
   "groups": {

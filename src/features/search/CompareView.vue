@@ -17,6 +17,7 @@ import { toast } from '../../shared/ui/toast'
 import { useCampusId } from '../account/access'
 import CourseCardLine from '../academic/CourseCardLine.vue'
 import { cardFromDirectory, type CourseCard } from '../academic/courseCard'
+import RatingRadar from '../academic/ratings/RatingRadar.vue'
 import { dimensions, knownCredits, useAcademic, type CatalogObject, type ObjectSummary, type Statistics } from '../academic/api'
 import { useRatingText } from '../academic/presentation'
 import RatingIcon from '../academic/RatingIcon.vue'
@@ -43,6 +44,11 @@ const api = useAcademic()
 const campus = useCampusId()
 // Rating wording follows the served school's configuration, like the subject pages.
 const text = useRatingText(computed(() => campus.value || undefined))
+// Items with at least one rated dimension; an item without enough reviews would only
+// draw a point at the centre, so it stays in the table alone.
+const radarSeries = computed(() => (data.data.value ?? [])
+  .map((item) => ({ name: item.name, values: [0, 1, 2, 3, 4].map((index) => item.stats?.dimensions[index]?.level ?? 0) }))
+  .filter((series) => series.values.some((level) => level > 0)))
 
 const kind = computed<CompareKind>({
   get: () => (route.query.kind === 'teacher' ? 'teacher' : 'course'),
@@ -302,6 +308,24 @@ const subjectPath = (id: string) => pathOf(kind.value, id)
         >
           {{ t('academic.stats.period', { from: format.date(periodSpan.from), until: format.date(periodSpan.until) }) }}
         </p>
+        <section
+          v-if="data.data.value?.length"
+          class="card radar-card"
+          :aria-label="t('search.compare.radar')"
+        >
+          <RatingRadar
+            v-if="radarSeries.length"
+            :series="radarSeries"
+            :school-id="campus || undefined"
+            :size="420"
+          />
+          <p
+            v-else
+            class="subtle small radar-empty"
+          >
+            {{ t('search.compare.radarEmpty') }}
+          </p>
+        </section>
         <div
           v-if="data.data.value"
           class="card flush"
@@ -519,6 +543,8 @@ const subjectPath = (id: string) => pathOf(kind.value, id)
 table { width: 100%; min-width: 34rem; border-collapse: collapse; }
 th, td { padding: .75rem 1rem; border-block-end: .5px solid var(--separator); text-align: start; font-weight: 400; vertical-align: middle; }
 tr:last-child > * { border-block-end: 0; }
+.radar-card { display: grid; place-items: center; }
+.radar-empty { padding-block: 1rem; text-align: center; }
 .dim { width: 7.5rem; color: var(--label-3); font-size: .8125rem; }
 .head { display: flex; align-items: flex-start; justify-content: space-between; gap: .5rem; }
 .level { display: inline-flex; align-items: center; gap: .375rem; }

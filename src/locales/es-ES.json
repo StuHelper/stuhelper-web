@@ -2418,7 +2418,9 @@
       "addCourse": "Buscar y añadir un curso para comparar",
       "addTeacher": "Buscar y añadir un docente para comparar",
       "taughtCourses": "Cursos impartidos",
-      "ratedCourses": "Cursos incluidos en el cálculo"
+      "ratedCourses": "Cursos incluidos en el cálculo",
+      "radar": "Radar de las cinco valoraciones",
+      "radarEmpty": "Ninguno de estos elementos tiene aún suficientes reseñas para un gráfico de radar."
     }
   },
   "groups": {

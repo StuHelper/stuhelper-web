@@ -2418,7 +2418,9 @@
       "addCourse": "搜索并添加对比课程",
       "addTeacher": "搜索并添加对比教师",
       "taughtCourses": "所授课程数",
-      "ratedCourses": "计入统计课程数"
+      "ratedCourses": "计入统计课程数",
+      "radar": "五项评分雷达图",
+      "radarEmpty": "所选项目暂无足够评价，无法绘制雷达图。"
     }
   },
   "groups": {
