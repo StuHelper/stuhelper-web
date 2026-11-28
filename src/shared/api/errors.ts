@@ -55,7 +55,18 @@ export function normalizeCode(code: string) {
 }
 
 // Sub-codes that carry their own user-facing message instead of the generic code.
-const specificSubcodes = new Set(['append_window_not_open'])
+const specificSubcodes = new Set([
+  'append_window_not_open',
+  'origin_mismatch',
+  'phone_binding_required',
+  'campus_verification_required',
+  'identity_verification_required',
+  'content_admission_required',
+  'disclosure_unauthorized',
+  'teacher_not_candidate',
+  'moderation_blocked',
+  'target_inactive',
+])
 
 /** Accept only short snake_case codes so server text never reaches the page. */
 export function serverCode(body: unknown, status: number) {

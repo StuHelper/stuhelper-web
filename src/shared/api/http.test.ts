@@ -33,6 +33,13 @@ describe('HTTP boundary', () => {
     await expect(respond(JSON.stringify({ code: 'Not A Code!' }), 409).json('/api/v1/x', anything)).rejects.toMatchObject({ code: 'conflict' })
   })
 
+  it('shows the specific review rejection returned for a write', async () => {
+    for (const subcode of ['origin_mismatch', 'phone_binding_required', 'disclosure_unauthorized']) {
+      const http = new Http(async () => json({ code: 'forbidden', subcode }, 403))
+      await expect(http.json('/api/v1/reviews', anything, { method: 'POST', body: {} })).rejects.toMatchObject({ code: subcode, uncertain: false })
+    }
+  })
+
   it('keeps a well-formed server reopening time on a 409 and drops malformed ones', async () => {
     const respond = (body: object) => new Http(async () => new Response(JSON.stringify(body), { status: 409 }))
     const window = { code: 'conflict', subcode: 'append_window_not_open' }

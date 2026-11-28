@@ -352,6 +352,10 @@
       "tests/e2e/account-security.spec.mjs#only the QQ Connect part opens when it alone is switched on, and QQ errors are explained",
       "tests/e2e/account-security.spec.mjs#an account with only the older QQ login can remove it here, unless QQ is its last way to sign in"
     ],
+    "ACAD-11": [
+      "src/shared/api/http.test.ts#shows the specific review rejection returned for a write",
+      "tests/e2e/academic.spec.mjs#a missing phone at publication preserves the review and links to account settings"
+    ],
     "ACAD-41": [
       "src/shared/api/http.test.ts#keeps a well-formed server reopening time on a 409 and drops malformed ones",
       "tests/e2e/academic.spec.mjs#a follow-up attempted inside the five-minute window explains when it opens",
