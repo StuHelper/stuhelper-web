@@ -4,7 +4,7 @@ import { computed, nextTick, onMounted, ref, shallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useFormat } from '../../app/i18n'
-import { ApiError, errorCode, isUncertain } from '../../shared/api/errors'
+import { ApiError, errorCode, isUncertain, normalizeCode } from '../../shared/api/errors'
 import { snapshot } from '../../shared/api/mutation'
 import { useAsync, useMutation } from '../../shared/composables/async'
 import { useLeaveGuard } from '../../shared/composables/leave'
@@ -276,8 +276,16 @@ async function sendFile() {
   const current = entry.value
   if (!chosen || !limits || !purpose || !current || dirty.value || uploadBusy.value || cancelling.value || !upload && (intakeLoading.value || intakeReason.value)) return
   uploadError.value = ''
-  if (!chosen.size || chosen.size > limits.max_file_size || !limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
-    uploadError.value = 'file_not_allowed'
+  if (!chosen.size) {
+    uploadError.value = 'empty_file'
+    return
+  }
+  if (chosen.size > limits.max_file_size) {
+    uploadError.value = 'upload_too_large'
+    return
+  }
+  if (!limits.allowed_types.includes(chosen.type || 'application/octet-stream')) {
+    uploadError.value = 'type_not_allowed'
     return
   }
   const attempt = ++uploadAttempt
@@ -302,7 +310,7 @@ async function sendFile() {
 }
 
 async function applyUpload(version: MediaVersion) {
-  uploadError.value = ''
+  uploadError.value = version.error_code ? normalizeCode(version.error_code) : ''
   uploadState.value = version.state
   reused.value = version.reused === true
   if (readyStates.includes(version.state)) await attach(version.id)
@@ -849,7 +857,7 @@ function uploadMessage(state: string) {
               class="notice notice-error small"
               role="alert"
             >
-              {{ uploadError === 'file_not_allowed' ? t('resources.editor.fileNotAllowed') : uploadError === 'reuse_pending' ? t('resources.editor.reusePending') : uploadError === 'cancel_pending' ? t('resources.editor.cancelPending') : errorText(uploadError) }}
+              {{ uploadError === 'reuse_pending' ? t('resources.editor.reusePending') : uploadError === 'cancel_pending' ? t('resources.editor.cancelPending') : errorText(uploadError) }}
             </p>
             <MutationNotice
               :busy="attaching.busy.value"
