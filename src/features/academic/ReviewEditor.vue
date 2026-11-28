@@ -174,7 +174,25 @@ watch(disclosureOptions, (options) => {
 })
 
 // Steps open in a new tab so the text being written stays here; returning rechecks.
-const steps: Record<string, string> = { campus_eligibility: '/me/verification', identity_verified: '/me/account/identity' }
+const steps: Record<string, string> = {
+  campus_eligibility: '/me/verification',
+  identity_verified: '/me/account/identity',
+  phone_bound: '/me/account',
+  content_access: '/me/verification',
+}
+const stepLabels: Record<string, string> = {
+  campus_eligibility: 'academic.requirementStep.campus_eligibility',
+  identity_verified: 'academic.requirementStep.identity_verified',
+  phone_bound: 'phone.bind',
+  content_access: 'academic.requirementStep.campus_eligibility',
+}
+const missingCondition: Record<string, string> = {
+  phone_binding_required: 'phone_bound',
+  campus_verification_required: 'campus_eligibility',
+  identity_verification_required: 'identity_verified',
+  content_admission_required: 'content_access',
+}
+const writeStep = computed(() => missingCondition[write.error.value])
 function recheck() {
   if (textOnly.value || document.visibilityState !== 'visible') return
   if (context.status.value !== 'loading' && !locked.value) void context.reload()
@@ -301,18 +319,14 @@ async function cancel() {
               :key="requirement.key"
             >
               <StatusTag :tone="requirement.state === 'satisfied' ? 'success' : requirement.state === 'missing' ? 'warning' : 'neutral'">
-                {{ t(`academic.requirement.${requirement.key}`) }} · {{ t(`academic.requirementState.${requirement.state}`) }}
+                {{ t(requirement.key === 'content_access' ? 'resources.access.content_access' : `academic.requirement.${requirement.key}`) }} · {{ t(`academic.requirementState.${requirement.state}`) }}
               </StatusTag>
               <a
                 v-if="requirement.state === 'missing' && steps[requirement.key]"
                 class="eligibility-step"
                 :href="steps[requirement.key]"
                 target="_blank"
-              >{{ t(`academic.requirementStep.${requirement.key}`) }}</a>
-              <span
-                v-else-if="requirement.state === 'missing' && requirement.key === 'phone_bound'"
-                class="subtle"
-              >{{ t('me.status.phoneHint') }}</span>
+              >{{ t(stepLabels[requirement.key]!) }}</a>
             </li>
           </ul>
           <p
@@ -554,6 +568,12 @@ async function cancel() {
       :success="success"
       @retry="retry"
     />
+
+    <a
+      v-if="writeStep"
+      :href="steps[writeStep]"
+      target="_blank"
+    >{{ t(stepLabels[writeStep]!) }}</a>
 
     <section
       v-if="write.error.value === 'conflict' && draftId"

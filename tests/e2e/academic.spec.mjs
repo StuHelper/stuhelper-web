@@ -100,6 +100,26 @@ test('course review lists the semester teachers, highlights own enrollment, take
   expect(errors).toEqual([]);
 });
 
+test('a missing phone at publication preserves the review and links to account settings', async ({ page }, info) => {
+  const messages = catalogue(info), a = messages.academic;
+  await academicFixture(page);
+  await page.route('**/api/v1/reviews', route => route.request().method() === 'POST'
+    ? route.fulfill({ status: 403, json: { code: 'forbidden', subcode: 'phone_binding_required' } })
+    : route.fallback());
+  await page.goto(`http://127.0.0.1:18787/courses/course?lang=${info.project.metadata.locale}`);
+  await page.getByRole('main').getByRole('button', { name: a.subject.writeCourse, exact: true }).click();
+  const editor = page.locator('form').filter({ has: page.getByRole('heading', { name: a.editor.heading.course, exact: true }) });
+  await pick(editor, 'fall');
+  for (const name of ['recommendation', 'quality', 'difficulty', 'workload', 'grading']) await editor.locator(`label:has(input[name="rating-${name}"][value="4"])`).click();
+  await editor.getByLabel(a.editor.title, { exact: true }).fill('Course review');
+  const body = editor.getByLabel(a.editor.body, { exact: true });
+  await body.fill('Keep this review.');
+  await editor.getByRole('button', { name: a.editor.publish, exact: true }).click();
+  await expect(editor.getByRole('alert')).toHaveText(messages.errors.phone_binding_required);
+  await expect(editor.getByRole('link', { name: messages.phone.bind })).toHaveAttribute('href', '/me/account');
+  await expect(body).toHaveValue('Keep this review.');
+});
+
 test('withdrawn is a grade choice of its own and needs no value', async ({ page }, info) => {
   const a = catalogue(info).academic, posts = [];
   await academicFixture(page);

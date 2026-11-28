@@ -74,6 +74,15 @@
     "back": "Retour"
   },
   "errors": {
+    "origin_mismatch": "Le site ne peut pas vérifier la page à l’origine de cette demande. Réessayez depuis la page des avis du site officiel.",
+    "phone_binding_required": "Associez un numéro de téléphone avant de publier un avis.",
+    "campus_verification_required": "Une vérification étudiante en cours de validité est nécessaire pour publier un avis.",
+    "identity_verification_required": "Faites vérifier votre identité pour continuer.",
+    "content_admission_required": "Ce contenu nécessite une vérification valide du statut d’étudiant ou d’enseignant.",
+    "disclosure_unauthorized": "Un champ sélectionné ne peut pas être publié. Modifiez votre sélection.",
+    "teacher_not_candidate": "L’enseignant sélectionné ne figure pas parmi ceux de ce cours pour ce semestre. Modifiez votre sélection.",
+    "moderation_blocked": "La modération a refusé le contenu. Vérifiez le texte de votre avis.",
+    "target_inactive": "Les avis sont fermés pour cet élément.",
     "disabled": "Le service des groupes est désactivé.",
     "cooldown": "Un délai ou une limite de demandes en attente s’applique. Réessayez plus tard.",
     "write_response_unrecognized": "Le serveur a accepté la demande, mais son reçu est illisible. Actualisez la page pour vérifier le résultat.",
