@@ -74,6 +74,15 @@
     "back": "Back"
   },
   "errors": {
+    "origin_mismatch": "The site could not verify the page that sent this request. Open the review page on the official site and try again.",
+    "phone_binding_required": "Link a phone number before publishing a review.",
+    "campus_verification_required": "You need current student verification to publish a review.",
+    "identity_verification_required": "Verify your identity before continuing.",
+    "content_admission_required": "This content requires current student or teacher verification.",
+    "disclosure_unauthorized": "A selected verification field cannot be shared. Review your selection.",
+    "teacher_not_candidate": "The selected teacher did not teach this course in that term. Select another teacher.",
+    "moderation_blocked": "The content did not pass moderation. Check the text before submitting again.",
+    "target_inactive": "This review target is inactive and no longer accepts reviews.",
     "disabled": "Group services are disabled.",
     "cooldown": "A cooldown or pending action limit applies. Try again later.",
     "write_response_unrecognized": "The server accepted the request, but its receipt could not be read. Refresh the page to check the result.",
