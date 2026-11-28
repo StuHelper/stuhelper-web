@@ -74,6 +74,9 @@
     "back": "返回"
   },
   "errors": {
+    "online_identity_unsupported": "暂不支持该证件的在线核验。",
+    "market_consent_required": "请阅读第三方实名核验告知，并单独勾选同意。",
+    "market_consent_changed": "告知或同意状态已更新，请重新阅读并选择。",
     "origin_mismatch": "网站未能确认请求来自当前页面。请从正式站点打开评价页后重试。",
     "phone_binding_required": "请先绑定手机号，再发布评价。",
     "campus_verification_required": "发布评价需要有效的学生认证。",
@@ -125,7 +128,7 @@
     "billing_already_accessible": "你已拥有该资料的访问权，无需再次付款。",
     "method_identity_not_allowed": "此认证方式仅适用于在读学生。校友请改用实名信息校验或人工材料审核。",
     "real_name_mismatch": "实名信息校验失败，请核对所填信息后重试或更换其他认证方式。",
-    "real_name_no_record": "无法认证，请更换其他认证方式。",
+    "real_name_no_record": "学籍数据库没有这条记录，可以改用独立实名认证中的第三方核验。",
     "email_identity_mismatch": "信息校验失败，请核对后重试或更换其他认证方式。",
     "email_identity_no_record": "无法认证，请更换其他认证方式。",
     "school_credentials_rejected": "学校账号或密码错误，请重试。",
@@ -166,7 +169,15 @@
     "storage_status_unknown": "暂时无法确认存储状态，请稍后重试。",
     "file_too_large": "文件超过此用途的大小上限。",
     "storage_restricted_encryption_unavailable": "受限文件的加密服务暂不可用，已暂停接收此类文件。",
-    "media_storage_restricted_encryption_unavailable": "受限文件的加密服务暂不可用，已暂停接收此类文件。"
+    "media_storage_restricted_encryption_unavailable": "受限文件的加密服务暂不可用，已暂停接收此类文件。",
+    "market_account_daily_limit": "本账号今天的第三方核验次数已用完。",
+    "market_account_lifetime_limit": "本账号累计 10 次第三方核验已用完。此限额不会自动恢复，目前没有可再次尝试的时间；如需协助，请联系平台。",
+    "market_platform_daily_limit": "平台今天的第三方核验额度已用完。",
+    "market_package_exhausted": "平台的第三方核验套餐已达到预留限额、用尽或到期，补充额度后才能恢复。",
+    "market_provider_paused": "第三方核验服务暂停或拒绝了本次服务请求，当前无法核验。",
+    "market_result_unknown": "第三方核验超时或未返回可确认的结果。相同资料不会再次发送，不会因此重复扣费。你可稍后返回查看实名状态。",
+    "market_identity_mismatch": "第三方核验显示姓名与身份证号不一致。请核对两项信息。",
+    "market_identity_no_record": "第三方认证库中没有查到该身份证的记录。请核对证件号码。"
   },
   "connection": {
     "label": "服务连接状态",
@@ -1076,6 +1087,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "我不是北航学生，或没有北航学籍记录",
+    "agreeMarket": "我单独同意将上述姓名和居民身份证号提供给告知中列明的服务商，用于本次核验。",
+    "withdrawMarket": "撤回第三方实名核验同意",
     "title": "学生认证",
     "description": "查看学校与学习经历，提交或管理学生认证。",
     "statusTitle": "当前状态",
@@ -1465,7 +1479,11 @@
       "rules": "查看完整规则（隐私政策）",
       "entry": "授权读取本人选课记录，用于评课标注"
     },
-    "history": "历史记录（{count}）"
+    "history": "历史记录（{count}）",
+    "marketAccepted": "已同意向第三方服务商提供实名信息用于核验。版本 {version}，同意时间 {time}。",
+    "marketWithdrawConfirm": "撤回后将停止后续提供姓名和身份证号。如需再次使用第三方核验，你可以重新同意。",
+    "marketWithdrawn": "已撤回第三方实名核验同意。",
+    "marketRetryAt": "可再次尝试的时间为 {time}。"
   },
   "contribution": {
     "eyebrow": "共享存储",

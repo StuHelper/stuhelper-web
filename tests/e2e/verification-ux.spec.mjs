@@ -611,3 +611,141 @@ test('finished applications and requests are folded into the history, open ones 
   await expect(page.getByText(v.states.rejected, { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('independent identity requires separate market consent and allows withdrawal after a match', async ({ page }, info) => {
+  await fixture(page);
+  const locale = info.project.metadata.locale;
+  const messagesForPage = messages(info);
+  const state = { active: false, revision: 0 };
+  const notice = { available: true, version: 'test-idv', locale, digest: 'a'.repeat(64), text: 'Synthetic seller · test notice', state };
+  const summary = { campus_eligibility: false, teacher_verified: false, identity_verified: false, evaluated_at: '2026-11-28T00:00:00Z', revision: 1, next_evaluation_at: null };
+  const submissions = [];
+  await page.route('**/api/v1/verification/identity/market-consent*', async route => {
+    if (route.request().method() === 'DELETE') {
+      state.active = false;
+      state.revision++;
+      return route.fulfill({ json: state });
+    }
+    return route.fulfill({ json: notice });
+  });
+  await page.route('**/api/v1/verification/summary*', route => route.fulfill({ json: summary }));
+  await page.route('**/api/v1/verification/identity', async route => {
+    submissions.push(route.request().postDataJSON());
+    state.active = true;
+    state.consented_at = "2026-11-28T12:05:00Z";
+    state.revision++;
+    summary.identity_verified = true;
+    summary.identity_masked = { name: '*试', document_type: 'cn_resident_id_card', document_number: '0****************1' };
+    return route.fulfill({ json: summary });
+  });
+  await page.goto(`${base}/me/account/identity?lang=${locale}`);
+  await page.getByLabel(messagesForPage.verification.outsideRoster).check();
+  await page.getByLabel(messagesForPage.verification.name, { exact: true }).fill('合成测试');
+  await page.getByLabel(messagesForPage.verification.document, { exact: true }).fill('000000000000000001');
+  const agree = page.getByLabel(messagesForPage.verification.agreeMarket);
+  const submit = page.getByRole('button', { name: messagesForPage.verification.submit, exact: true });
+  await expect(agree).not.toBeChecked();
+  await expect(submit).toBeDisabled();
+  expect(submissions).toHaveLength(0);
+  await agree.check();
+  await submit.click();
+  const withdraw = page.getByRole('button', { name: messagesForPage.verification.withdrawMarket });
+  await expect(withdraw).toBeVisible();
+  expect(submissions).toHaveLength(1);
+  expect(submissions[0].market_consent).toEqual({ accepted: true, version: notice.version, digest: notice.digest, locale, revision: 0 });
+  expect(submissions[0].student_id).toBeUndefined();
+  const acceptedAt = await page.evaluate(loc => new Intl.DateTimeFormat(loc, { calendar: 'gregory', dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Shanghai' }).format(new Date('2026-11-28T12:05:00Z')), locale);
+  await expect(page.getByText(messagesForPage.verification.marketAccepted.replace('{version}', notice.version).replace('{time}', acceptedAt))).toBeVisible();
+  await withdraw.click();
+  const confirmation = page.getByRole('dialog');
+  await expect(confirmation.getByText(messagesForPage.verification.marketWithdrawConfirm)).toBeVisible();
+  await confirmation.getByRole('button', { name: messagesForPage.common.cancel }).click();
+  expect(state.active).toBe(true);
+  await withdraw.click();
+  await confirmation.getByRole('button', { name: messagesForPage.verification.withdrawMarket }).click();
+  await expect(page.getByText(messagesForPage.verification.marketWithdrawn)).toBeVisible();
+  await expect(withdraw).toHaveCount(0);
+  expect(state.revision).toBe(2);
+});
+
+test('independent identity never offers a disabled market check', async ({ page }, info) => {
+  const state = await fixture(page);
+  const locale = info.project.metadata.locale;
+  const msg = messages(info);
+  await page.route('**/api/v1/verification/identity/market-consent*', route => route.fulfill({ json: {
+    available: false, version: 'test-idv', locale, digest: 'b'.repeat(64), text: 'Synthetic notice', state: { active: false, revision: 0 },
+  } }));
+  await page.goto(`${base}/me/account/identity?lang=${locale}`);
+  await page.getByLabel(msg.verification.outsideRoster).check();
+  await expect(page.getByText(msg.errors.online_identity_unsupported)).toBeVisible();
+  await expect(page.getByLabel(msg.verification.agreeMarket)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: msg.verification.submit, exact: true })).toBeDisabled();
+  expect(state.writes).toHaveLength(0);
+});
+
+test('a roster miss offers a fresh unchecked notice and recovers from a failed notice load', async ({ page }, info) => {
+  await fixture(page);
+  const locale = info.project.metadata.locale;
+  const msg = messages(info);
+  const input = [];
+  let noticeLoads = 0;
+  await page.route('**/api/v1/verification/identity/market-consent*', route => {
+    if (++noticeLoads <= 2) return route.fulfill({ status: 503, json: { code: 'dependency_unavailable' } });
+    return route.fulfill({ json: { available: true, version: 'test-idv', locale, digest: 'b'.repeat(64), text: 'Synthetic notice', state: { active: false, revision: 0 } } });
+  });
+  await page.route('**/api/v1/verification/identity', route => {
+    input.push(route.request().postDataJSON());
+    return route.fulfill({ status: 403, json: { code: 'market_consent_required' } });
+  });
+  await page.goto(`${base}/me/account/identity?lang=${locale}`);
+  await page.getByLabel(msg.verification.consent, { exact: true }).check();
+  await page.getByLabel(msg.verification.studentId, { exact: true }).fill('synthetic-student');
+  await page.getByLabel(msg.verification.name, { exact: true }).fill('合成测试');
+  await page.getByLabel(msg.verification.document, { exact: true }).fill('000000000000000001');
+  await page.getByRole('button', { name: msg.verification.submit, exact: true }).click();
+  await page.getByRole('button', { name: msg.common.retry, exact: true }).click();
+  await expect(page.getByLabel(msg.verification.agreeMarket)).not.toBeChecked();
+  await expect(page.getByLabel(msg.verification.document, { exact: true })).toHaveValue('000000000000000001');
+  await expect(page.getByText(msg.errors.real_name_no_record, { exact: true })).toBeVisible();
+  expect(input).toHaveLength(1);
+  expect(input[0].market_consent).toBeUndefined();
+});
+
+test('market identity shows the specific rejection and exact reopening time', async ({ page }, info) => {
+  await fixture(page);
+  const locale = info.project.metadata.locale;
+  const msg = messages(info);
+  const retryAt = '2026-12-01T00:00:00Z';
+  const notice = { available: true, version: 'test-idv', locale, digest: 'c'.repeat(64), text: 'Synthetic notice', state: { active: false, revision: 0 } };
+  let problem;
+  await page.route('**/api/v1/verification/identity/market-consent*', route => route.fulfill({ json: notice }));
+  await page.route('**/api/v1/verification/identity', route => route.fulfill(problem));
+  await page.goto(`${base}/me/account/identity?lang=${locale}`);
+  await page.getByLabel(msg.verification.outsideRoster).check();
+  await page.getByLabel(msg.verification.name, { exact: true }).fill('合成测试');
+  await page.getByLabel(msg.verification.document, { exact: true }).fill('000000000000000001');
+  const time = await page.evaluate(({ loc, value }) => new Intl.DateTimeFormat(loc, { calendar: 'gregory', dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Shanghai' }).format(new Date(value)), { loc: locale, value: retryAt });
+  for (const [code, status, timed] of [
+    ['market_account_daily_limit', 429, true], ['market_account_lifetime_limit', 403],
+    ['market_platform_daily_limit', 503, true], ['market_package_exhausted', 503], ['market_provider_paused', 503],
+    ['market_result_unknown', 503], ['market_identity_mismatch', 422], ['market_identity_no_record', 422],
+  ]) {
+    problem = { status, json: { code, operation_id: 'c'.repeat(64), ...(timed ? { retry_at: retryAt, retry_after_seconds: 120 } : {}) } };
+    await page.getByLabel(msg.verification.agreeMarket).check();
+    await page.getByRole('button', { name: msg.verification.submit, exact: true }).click();
+    const alert = page.getByRole('alert').filter({ hasText: msg.errors[code] });
+    await expect(alert).toBeVisible();
+    if (timed) await expect(alert).toContainText(msg.verification.marketRetryAt.replace('{time}', time));
+    else await expect(alert).not.toContainText(time);
+  }
+});
+
+test('independent identity keeps the empty school state and offers the outside roster path', async ({ page }, info) => {
+  await fixture(page);
+  const msg = messages(info);
+  await page.route('**/api/v1/verification/schools*', route => route.fulfill({json: []}));
+  await page.goto(`${base}/me/account/identity?lang=${info.project.metadata.locale}`);
+  await expect(page.getByText(msg.verification.noSchools, { exact: true })).toBeVisible();
+  await page.getByLabel(msg.verification.outsideRoster).check();
+  await expect(page.getByText(msg.verification.noSchools, { exact: true })).toHaveCount(0);
+});

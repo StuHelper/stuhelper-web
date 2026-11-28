@@ -630,9 +630,27 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Check campus roster identity independently of student qualification. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school. */
+        /** @description Check independent identity. A Beihang roster match finishes locally. Only a definitive missing record or a non-Beihang request may use the marketplace. Every disclosure requires a current explicit market_consent. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school. */
         post: operations["verifyIdentity"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/identity/market-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read the localized notice and the signed-in account's consent state before displaying the unchecked consent box. */
+        get: operations["getIdentityMarketConsent"];
+        put?: never;
+        post?: never;
+        /** @description Withdraw the signed-in account's consent. An old form cannot authorize another disclosure. */
+        delete: operations["withdrawIdentityMarketConsent"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1248,14 +1266,43 @@ export interface components {
             password?: string;
         });
         IdentityInput: {
-            student_id: string;
+            /** @description Required for roster matching. */
+            student_id?: string;
             name: string;
             document_number: string;
-            password: string;
-            school_id: string;
-            notice_version: string;
+            password?: string;
+            school_id?: string;
+            notice_version?: string;
             /** @enum {boolean} */
             consent: true;
+            market_consent?: components["schemas"]["MarketConsentInput"];
+        };
+        MarketConsentInput: {
+            /** @enum {boolean} */
+            accepted: true;
+            version: string;
+            locale: string;
+            digest: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        MarketConsentState: {
+            active: boolean;
+            /** Format: int64 */
+            revision: number;
+            /** Format: date-time */
+            consented_at?: string;
+            /** Format: date-time */
+            withdrawn_at?: string;
+        };
+        /** @description When unavailable, show the unsupported document message and omit the third-party form. The withdrawal action remains accessible. */
+        MarketConsentNotice: {
+            available: boolean;
+            text: string;
+            locale: string;
+            version: string;
+            digest: string;
+            state: components["schemas"]["MarketConsentState"];
         };
         EmailInput: {
             student_id: string;
@@ -1478,6 +1525,11 @@ export interface components {
         Problem: {
             code: string;
             operation_id?: string;
+            /**
+             * Format: date-time
+             * @description Absolute reopening time for a daily identity verification limit.
+             */
+            retry_at?: string;
             retry_after_seconds?: number;
             remaining_attempts?: number;
         };
@@ -1552,7 +1604,7 @@ export interface components {
                 "application/json": components["schemas"]["RateLimitedProblem"];
             };
         };
-        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
+        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required/market_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed/market_consent_changed, 410 expired, 422 online_identity_unsupported/information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
         Problem: {
             headers: {
                 /** @description Remaining cooldown seconds when rate-limited. */
@@ -2708,7 +2760,90 @@ export interface operations {
                 };
             };
             202: components["responses"]["Processing"];
-            429: components["responses"]["RateLimited"];
+            /** @description market_consent_required requires a separate choice. market_account_lifetime_limit has no automatic reset. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description market_identity_mismatch and market_identity_no_record describe distinct provider results. A roster miss may require market consent. An unsupported route returns online_identity_unsupported. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description market_account_daily_limit includes retry_at and retry_after_seconds. Other admission limits may include Retry-After. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description market_platform_daily_limit includes retry_at. market_package_exhausted and market_provider_paused have no known reopening time. market_result_unknown must never be automatically resubmitted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    getIdentityMarketConsent: {
+        parameters: {
+            query: {
+                locale: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notice and consent revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketConsentNotice"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    withdrawIdentityMarketConsent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Consent revision after withdrawal. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketConsentState"];
+                };
+            };
+            202: components["responses"]["Processing"];
             default: components["responses"]["Problem"];
         };
     };

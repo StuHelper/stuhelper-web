@@ -74,6 +74,9 @@
     "back": "戻る"
   },
   "errors": {
+    "online_identity_unsupported": "現在、この証明書はオンラインで確認できません。",
+    "market_consent_required": "第三者による本人確認の説明を読み、個別の同意欄にチェックを入れてください。",
+    "market_consent_changed": "説明または同意状況が更新されました。もう一度確認して選択してください。",
     "origin_mismatch": "送信元のページを確認できませんでした。公式サイトの評価ページから再試行してください。",
     "phone_binding_required": "評価を投稿するには電話番号を登録してください。",
     "campus_verification_required": "評価の投稿には有効な学生認証が必要です。",
@@ -125,7 +128,7 @@
     "billing_already_accessible": "この資料には既にアクセスできます。再度支払う必要はありません。",
     "method_identity_not_allowed": "この認証方法は在学生のみ利用できます。卒業生は実名情報の照合または書類の手動審査をご利用ください。",
     "real_name_mismatch": "本人情報の照合に失敗しました。入力内容を確認して再試行するか、別の認証方法を選んでください。",
-    "real_name_no_record": "認証できません。別の認証方法を選んでください。",
+    "real_name_no_record": "学籍データベースに該当する記録がありません。個別の本人確認画面で第三者による確認を選べます。",
     "email_identity_mismatch": "情報の照合に失敗しました。確認して再試行するか、別の認証方法を選んでください。",
     "email_identity_no_record": "認証できません。別の認証方法を選んでください。",
     "school_credentials_rejected": "学校アカウントまたはパスワードが正しくありません。再試行してください。",
@@ -166,7 +169,15 @@
     "storage_status_unknown": "ストレージの状態を確認できません。しばらくしてから再試行してください。",
     "file_too_large": "この用途で許可されたファイルサイズを超えています。",
     "storage_restricted_encryption_unavailable": "暗号化を利用できないため、制限付きファイルの受け付けを一時停止しています。",
-    "media_storage_restricted_encryption_unavailable": "暗号化を利用できないため、制限付きファイルの受け付けを一時停止しています。"
+    "media_storage_restricted_encryption_unavailable": "暗号化を利用できないため、制限付きファイルの受け付けを一時停止しています。",
+    "market_account_daily_limit": "本日の第三者による確認回数を使い切りました。",
+    "market_account_lifetime_limit": "このアカウントでの第三者による確認は累計10回に達しました。自動では回復せず、再開予定はありません。必要に応じてお問い合わせください。",
+    "market_platform_daily_limit": "サービス全体で本日の第三者確認の上限に達しました。",
+    "market_package_exhausted": "第三者確認の契約枠が予備分に達したか、使い切ったか、期限切れです。枠の追加後に再開できます。",
+    "market_provider_paused": "確認事業者がサービスを一時停止しているか、今回の要求を受け付けませんでした。",
+    "market_result_unknown": "タイムアウトなどにより結果を確定できません。同じ情報は再送されず、重複課金は発生しません。後ほど本人確認の状態をご覧ください。",
+    "market_identity_mismatch": "事業者の照合結果では氏名と身分証番号が一致しません。両方をご確認ください。",
+    "market_identity_no_record": "事業者のデータベースにこの身分証の記録がありません。番号をご確認ください。"
   },
   "connection": {
     "label": "サービス接続状況",
@@ -1076,6 +1087,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "北航の学生ではない、または北航に学籍記録がありません",
+    "agreeMarket": "今回の確認のため、上記の事業者に氏名と居民身分証番号を提供することに個別に同意します。",
+    "withdrawMarket": "第三者による本人確認への同意を撤回",
     "title": "学生認証",
     "description": "学校と学歴を確認し、学生認証の申請や管理を行えます。",
     "statusTitle": "現在の状態",
@@ -1465,7 +1479,11 @@
       "rules": "詳しいルール（プライバシーポリシー）",
       "entry": "本人の履修記録を評価の表示に使います"
     },
-    "history": "履歴（{count}）"
+    "history": "履歴（{count}）",
+    "marketAccepted": "本人確認のための第三者への情報提供に同意済みです。バージョン {version}、同意日時 {time}。",
+    "marketWithdrawConfirm": "撤回すると氏名と身分証番号の今後の提供を停止します。必要な場合は改めて同意できます。",
+    "marketWithdrawn": "第三者への本人確認情報の提供に関する同意を撤回しました。",
+    "marketRetryAt": "{time} 以降に再度お試しください。"
   },
   "contribution": {
     "eyebrow": "共有ストレージ",

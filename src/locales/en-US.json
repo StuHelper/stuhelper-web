@@ -74,6 +74,9 @@
     "back": "Back"
   },
   "errors": {
+    "online_identity_unsupported": "Online verification is currently unavailable for this document.",
+    "market_consent_required": "Read the third-party verification notice and select the separate consent box.",
+    "market_consent_changed": "The notice or consent status has changed. Read it again and choose whether to consent.",
     "origin_mismatch": "The site could not verify the page that sent this request. Open the review page on the official site and try again.",
     "phone_binding_required": "Link a phone number before publishing a review.",
     "campus_verification_required": "You need current student verification to publish a review.",
@@ -125,7 +128,7 @@
     "billing_already_accessible": "You already have access to this resource. No payment is needed.",
     "method_identity_not_allowed": "This method is available only to current students. Alumni should use real-name information verification or manual document review.",
     "real_name_mismatch": "Real-name verification failed. Check your information and try again, or choose another verification method.",
-    "real_name_no_record": "Verification is not possible. Choose another verification method.",
+    "real_name_no_record": "The student registry has no matching record. You can use third-party verification under independent identity verification.",
     "email_identity_mismatch": "The information could not be verified. Check it and try again, or choose another verification method.",
     "email_identity_no_record": "Verification is not possible. Choose another verification method.",
     "school_credentials_rejected": "The school account or password is incorrect. Try again.",
@@ -166,7 +169,15 @@
     "storage_status_unknown": "Storage status is unknown. Try again later.",
     "file_too_large": "The file exceeds the size limit for this use.",
     "storage_restricted_encryption_unavailable": "Restricted uploads are paused because file encryption is unavailable.",
-    "media_storage_restricted_encryption_unavailable": "Restricted uploads are paused because file encryption is unavailable."
+    "media_storage_restricted_encryption_unavailable": "Restricted uploads are paused because file encryption is unavailable.",
+    "market_account_daily_limit": "You have used all third-party checks available to this account today.",
+    "market_account_lifetime_limit": "This account has used its lifetime allowance of 10 third-party checks. It does not reset automatically, so there is no scheduled retry time. Contact support for help.",
+    "market_platform_daily_limit": "The platform has used its daily allowance for third-party checks.",
+    "market_package_exhausted": "The platform’s verification package has reached its reserve, is exhausted or has expired. Checks can resume when more quota is available.",
+    "market_provider_paused": "The provider has paused verification or declined this service request.",
+    "market_result_unknown": "The provider timed out or returned an inconclusive result. The same details will not be sent or charged again. Check your verification status later.",
+    "market_identity_mismatch": "The provider reports that the name and ID number do not match. Check both entries.",
+    "market_identity_no_record": "The provider found no record for this ID. Check the document number."
   },
   "connection": {
     "label": "Service connection status",
@@ -1076,6 +1087,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "I am not a Beihang student, or I have no Beihang student record",
+    "agreeMarket": "I separately consent to sending my name and resident ID number to the provider named above for this check.",
+    "withdrawMarket": "Withdraw consent to third-party identity verification",
     "title": "Student verification",
     "description": "View your school and study history, and submit or manage student verification.",
     "statusTitle": "Current status",
@@ -1465,7 +1479,11 @@
       "rules": "Full rules (Privacy Policy)",
       "entry": "Lets reviews show your own enrollment"
     },
-    "history": "History ({count})"
+    "history": "History ({count})",
+    "marketAccepted": "You consented to sharing identity details with the provider for verification. Version {version}, accepted at {time}.",
+    "marketWithdrawConfirm": "Withdrawal stops future disclosures of your name and ID number. You can consent again if you need another third-party check.",
+    "marketWithdrawn": "Consent to third-party identity verification withdrawn.",
+    "marketRetryAt": "You can try again at {time}."
   },
   "contribution": {
     "eyebrow": "SHARED STORAGE",

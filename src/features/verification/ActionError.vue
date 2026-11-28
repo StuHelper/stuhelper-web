@@ -22,6 +22,6 @@ watch(() => props.code, (code) => {
     aria-atomic="true"
     tabindex="-1"
   >
-    {{ errorText(code) }}
+    {{ errorText(code) }}<slot />
   </div>
 </template>

@@ -74,6 +74,9 @@
     "back": "Volver"
   },
   "errors": {
+    "online_identity_unsupported": "La verificación en línea de este documento no está disponible actualmente.",
+    "market_consent_required": "Lee el aviso de verificación externa y marca la casilla de consentimiento por separado.",
+    "market_consent_changed": "El aviso o el estado de tu consentimiento ha cambiado. Lee el aviso de nuevo antes de decidir.",
     "origin_mismatch": "No se pudo verificar la página de origen. Abre la página de reseñas en el sitio oficial e inténtalo de nuevo.",
     "phone_binding_required": "Vincula un número de teléfono antes de publicar una reseña.",
     "campus_verification_required": "Para publicar una reseña necesitas una verificación de estudiante vigente.",
@@ -125,7 +128,7 @@
     "billing_already_accessible": "Ya tienes acceso a este recurso; no hace falta pagar de nuevo.",
     "method_identity_not_allowed": "Este método solo está disponible para estudiantes actuales. Los antiguos alumnos deben usar la verificación de identidad o la revisión manual de documentos.",
     "real_name_mismatch": "La verificación de identidad ha fallado. Revisa los datos e inténtalo de nuevo o elige otro método.",
-    "real_name_no_record": "No es posible verificar. Elige otro método.",
+    "real_name_no_record": "No hay un registro correspondiente en el expediente académico. Puedes elegir la verificación externa en la página de verificación de identidad independiente.",
     "email_identity_mismatch": "No se han podido verificar los datos. Revísalos e inténtalo de nuevo o elige otro método.",
     "email_identity_no_record": "No es posible verificar. Elige otro método.",
     "school_credentials_rejected": "La cuenta universitaria o la contraseña es incorrecta. Inténtalo de nuevo.",
@@ -166,7 +169,15 @@
     "storage_status_unknown": "No se puede comprobar el estado del almacenamiento. Inténtalo más tarde.",
     "file_too_large": "El archivo supera el tamaño permitido para este uso.",
     "storage_restricted_encryption_unavailable": "La carga de archivos restringidos está en pausa porque el cifrado no está disponible.",
-    "media_storage_restricted_encryption_unavailable": "La carga de archivos restringidos está en pausa porque el cifrado no está disponible."
+    "media_storage_restricted_encryption_unavailable": "La carga de archivos restringidos está en pausa porque el cifrado no está disponible.",
+    "market_account_daily_limit": "Esta cuenta ha agotado las verificaciones externas disponibles hoy.",
+    "market_account_lifetime_limit": "Esta cuenta ha agotado su límite acumulado de 10 verificaciones externas. No se restablece automáticamente y no hay una fecha para volver a intentarlo. Contacta con soporte si lo necesitas.",
+    "market_platform_daily_limit": "La plataforma ha agotado su cuota diaria de verificaciones externas.",
+    "market_package_exhausted": "El paquete de verificación ha alcanzado su reserva, se ha agotado o ha caducado. Las comprobaciones se reanudarán cuando se reponga la cuota.",
+    "market_provider_paused": "El proveedor ha suspendido la verificación o ha rechazado esta solicitud de servicio.",
+    "market_result_unknown": "Se agotó el tiempo de espera o el resultado no es concluyente. Los mismos datos no se volverán a enviar ni a cobrar. Consulta más tarde tu estado de verificación.",
+    "market_identity_mismatch": "El proveedor indica que el nombre y el número de documento no coinciden. Comprueba ambos datos.",
+    "market_identity_no_record": "El proveedor no ha encontrado ningún registro de este documento. Comprueba el número."
   },
   "connection": {
     "label": "Estado de conexión del servicio",
@@ -1076,6 +1087,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "No soy estudiante de Beihang o no tengo allí un expediente de estudiante",
+    "agreeMarket": "Doy mi consentimiento específico para que se envíen mi nombre y número de documento al proveedor indicado para esta verificación.",
+    "withdrawMarket": "Retirar el consentimiento para la verificación externa",
     "title": "Verificación de estudiante",
     "description": "Consulta tu centro y tu historial de estudios, y envía o gestiona la verificación de estudiante.",
     "statusTitle": "Estado actual",
@@ -1465,7 +1479,11 @@
       "rules": "Reglas completas (política de privacidad)",
       "entry": "Muestra tu matrícula en tus opiniones"
     },
-    "history": "Historial ({count})"
+    "history": "Historial ({count})",
+    "marketAccepted": "Has consentido en compartir tus datos de identidad con el proveedor para su verificación. Versión {version}, consentimiento dado el {time}.",
+    "marketWithdrawConfirm": "Al retirarlo, se detendrán los próximos envíos de tu nombre y número de documento. Puedes volver a dar tu consentimiento si lo necesitas.",
+    "marketWithdrawn": "Se ha retirado tu consentimiento para la verificación externa.",
+    "marketRetryAt": "Podrás volver a intentarlo a partir de {time}."
   },
   "contribution": {
     "eyebrow": "ALMACENAMIENTO COMPARTIDO",

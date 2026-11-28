@@ -714,7 +714,7 @@ paths:
   /api/v1/verification/identity:
     post:
       operationId: verifyIdentity
-      description: Check campus roster identity independently of student qualification. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school.
+      description: Check independent identity. A Beihang roster match finishes locally. Only a definitive missing record or a non-Beihang request may use the marketplace. Every disclosure requires a current explicit market_consent. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -729,7 +729,47 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Summary' }
         '202': { $ref: '#/components/responses/Processing' }
-        '429': { $ref: '#/components/responses/RateLimited' }
+        '403':
+          description: market_consent_required requires a separate choice. market_account_lifetime_limit has no automatic reset.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '422':
+          description: market_identity_mismatch and market_identity_no_record describe distinct provider results. A roster miss may require market consent. An unsupported route returns online_identity_unsupported.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '429':
+          description: market_account_daily_limit includes retry_at and retry_after_seconds. Other admission limits may include Retry-After.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '503':
+          description: market_platform_daily_limit includes retry_at. market_package_exhausted and market_provider_paused have no known reopening time. market_result_unknown must never be automatically resubmitted.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/identity/market-consent:
+    get:
+      operationId: getIdentityMarketConsent
+      description: Read the localized notice and the signed-in account's consent state before displaying the unchecked consent box.
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Notice and consent revision.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketConsentNotice' }
+        default: { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: withdrawIdentityMarketConsent
+      description: Withdraw the signed-in account's consent. An old form cannot authorize another disclosure.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Consent revision after withdrawal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketConsentState' }
+        '202': { $ref: '#/components/responses/Processing' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/credentials/{id}/requests:
     parameters:
@@ -1181,7 +1221,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/RateLimitedProblem' }
     Problem:
-      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required/market_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed/market_consent_changed, 410 expired, 422 online_identity_unsupported/information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
       headers:
         Retry-After:
           description: Remaining cooldown seconds when rate-limited.
@@ -1429,15 +1469,47 @@ components:
     IdentityInput:
       type: object
       additionalProperties: false
-      required: [student_id, name, document_number, password, school_id, notice_version, consent]
+      required: [name, document_number, consent]
       properties:
-        student_id: { type: string, minLength: 1, maxLength: 64 }
+        student_id: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 64, description: Required for roster matching. }
         name: { type: string, minLength: 2, maxLength: 100 }
         document_number: { type: string, minLength: 3, maxLength: 32 }
-        password: { type: string, maxLength: 0 }
-        school_id: { type: string, maxLength: 64 }
-        notice_version: { type: string, maxLength: 64 }
+        password: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 0 }
+        school_id: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 64 }
+        notice_version: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 64 }
         consent: { type: boolean, enum: [true] }
+        market_consent: { $ref: '#/components/schemas/MarketConsentInput' }
+    MarketConsentInput:
+      type: object
+      additionalProperties: false
+      required: [accepted, version, locale, digest, revision]
+      properties:
+        accepted: { type: boolean, enum: [true] }
+        version: { type: string }
+        locale: { type: string }
+        digest: { type: string, pattern: '^[0-9a-f]{64}$' }
+        revision: { type: integer, format: int64, minimum: 0 }
+    MarketConsentState:
+      type: object
+      additionalProperties: false
+      required: [active, revision]
+      properties:
+        active: { type: boolean }
+        revision: { type: integer, format: int64 }
+        consented_at: { type: string, format: date-time }
+        withdrawn_at: { type: string, format: date-time }
+    MarketConsentNotice:
+      description: When unavailable, show the unsupported document message and omit the third-party form. The withdrawal action remains accessible.
+      type: object
+      additionalProperties: false
+      required: [available, text, locale, version, digest, state]
+      properties:
+        available: { type: boolean }
+        text: { type: string }
+        locale: { type: string }
+        version: { type: string }
+        digest: { type: string }
+        state: { $ref: '#/components/schemas/MarketConsentState' }
     EmailInput:
       type: object
       additionalProperties: false
@@ -1655,6 +1727,7 @@ components:
       properties:
         code: { type: string }
         operation_id: { type: string }
+        retry_at: { type: string, format: date-time, description: Absolute reopening time for a daily identity verification limit. }
         retry_after_seconds: { type: integer, minimum: 1 }
         remaining_attempts: { type: integer, minimum: 0 }
     RateLimitedProblem:

@@ -38,7 +38,7 @@ export const schoolDataHistoryNotice: SchoolDataHistoryNotice = 'termscope-v1'
 export type TeacherDisclosure = Schemas['TeacherDisclosures'][number]
 export const teacherDisclosures: TeacherDisclosure[] = ['real_name', 'teacher', 'gender', 'organization']
 
-type Entity = 'EmailInput' | 'EmailTransferConsentStatus' | 'EmailTransferWithdrawal' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential' | 'SchoolDataAuthorization'
+type Entity = 'MarketConsentNotice' | 'MarketConsentState' | 'EmailInput' | 'EmailTransferConsentStatus' | 'EmailTransferWithdrawal' | 'AdminOverview' | 'Problem' | 'StudentProfile' | 'Application' | 'School' | 'Credential' | 'Summary' | 'IdentityMasked' | 'IdentityInput' | 'VerifyInput' | 'RemovalRequest' | 'Suggestion' | 'EmailChallenge' | 'CaptureSession' | 'Material' | 'Operation' | 'ManualInput' | 'TeacherForm' | 'TeacherCredential' | 'SchoolDataAuthorization'
 
 export const methods = ['real_name_identity_check', 'school_sso', 'student_email_outbound_otp', 'student_email_inbound_challenge', 'manual_material_review'] as const
 export const stages = ['bachelor', 'master', 'doctor', 'other', 'unknown'] as const
@@ -74,14 +74,20 @@ const materialTypes = (v: unknown) => Array.isArray(v) && v.length <= 20 && v.ev
 const challenge = (v: unknown) => object(v) && text(v.id) && oneOf(v.state, ['processing', 'waiting_sms', 'authenticated', 'failed', 'cancelled', 'expired']) && text(v.code) && text(v.masked_phone) && instant(v.expires_at)
 
 const schoolDataTerm = (v: unknown) => object(v) && sized(v.id, 1, 128) && Number.isInteger(v.year) && oneOf(v.season, ['spring', 'summer', 'autumn'])
+const marketState = (v: unknown) => object(v) && typeof v.active === 'boolean' && count(v.revision)
+  && (v.active ? instant(v.consented_at) : v.consented_at === undefined || instant(v.consented_at)) && (v.withdrawn_at === undefined || instant(v.withdrawn_at))
 const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   StudentProfile: (v) => text(v.school_id) && oneOf(v.data_status, ['complete', 'partial', 'reference_only', 'unavailable']) && text(v.schema) && count(v.revision) && optionalInstant(v.collected_at) && text(v.source_revision) && object(v.fields) && Object.keys(v.fields).length <= 64 && object(v.field_sources) && Object.values(v.field_sources).every(text) && (v.raw_data === undefined || text(v.raw_data)),
   School: (v) => text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every((m) => oneOf(m, methods)) && text(v.notice_version) && text(v.opening_date) && count(v.newcomer_days) && text(v.email_domain) && materialTypes(v.material_types) && (v.teacher_enabled === undefined || typeof v.teacher_enabled === 'boolean') && (v.teacher_material_types === undefined || materialTypes(v.teacher_material_types)) && count(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)) && methodCapabilities(v.method_capabilities) && methodDescriptions(v.method_description_keys),
   Application: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['in_progress', 'pending_review', 'supplement_required', 'approved', 'rejected', 'cancelled', 'expired', 'deleted']) && count(v.revision) && instant(v.created_at) && instant(v.updated_at) && instant(v.expires_at) && text(v.credential_id) && text(v.result_code) && (v.review_note === undefined || text(v.review_note)) && (v.qualification_expires_at === undefined || optionalInstant(v.qualification_expires_at)) && (v.school_challenge === undefined || challenge(v.school_challenge)),
   Credential: (v) => text(v.id) && text(v.school_id) && oneOf(v.method, methods) && oneOf(v.stage, stages) && oneOf(v.kind, recordKinds) && oneOf(v.state, ['active', 'revoked', 'expired', 'deleted']) && text(v.student_display) && count(v.revision) && instant(v.verified_at) && optionalInstant(v.expires_at),
   Summary: (v) => typeof v.campus_eligibility === 'boolean' && typeof v.teacher_verified === 'boolean' && typeof v.identity_verified === 'boolean' && (v.identity_masked === undefined ? true : v.identity_verified === true && masked(v.identity_masked)) && instant(v.evaluated_at) && count(v.revision) && optionalInstant(v.next_evaluation_at),
+  MarketConsentState: marketState,
+  MarketConsentNotice: (v) => typeof v.available === 'boolean' && sized(v.text, 1, 10000) && sized(v.locale, 2, 16) && sized(v.version, 1, 64) && text(v.digest) && /^[0-9a-f]{64}$/.test(v.digest) && marketState(v.state),
   IdentityMasked: masked,
-  IdentityInput: (v) => sized(v.student_id, 1, 64) && sized(v.name, 2, 100) && sized(v.document_number, 3, 32) && v.password === '' && sized(v.school_id, 0, 64) && sized(v.notice_version, 0, 64) && v.consent === true,
+  IdentityInput: (v) => sized(v.name, 2, 100) && sized(v.document_number, 3, 32) && (v.password === undefined || v.password === '') && v.consent === true
+    && (v.school_id === undefined ? v.student_id === undefined && v.notice_version === undefined : sized(v.school_id, 1, 64) && sized(v.student_id, 1, 64) && sized(v.notice_version, 1, 64))
+    && (v.market_consent === undefined || (object(v.market_consent) && v.market_consent.accepted === true && count(v.market_consent.revision) && sized(v.market_consent.locale, 2, 16) && sized(v.market_consent.version, 1, 64) && text(v.market_consent.digest) && /^[0-9a-f]{64}$/.test(v.market_consent.digest))),
   // Real-name matching sends name and document number; school SSO sends only a password.
   VerifyInput: (v) => sized(v.student_id, 1, 64) && sized(v.name, 0, 100) && sized(v.document_number, 0, 32) && sized(v.password, 0, 256)
     && ((points(v.name as string) >= 2 && points(v.document_number as string) >= 3 && v.password === '') || (v.name === '' && v.document_number === '' && points(v.password as string) >= 1)),
@@ -180,7 +186,9 @@ export class VerificationApi {
         if (!object(value) || !text(value.operation_id) || !operationId.test(value.operation_id)) throw new ApiError('incompatible', true)
         await new Promise((resolve) => setTimeout(resolve, 500))
         const operation = await this.get('Operation', `/api/v1/verification/operations/${value.operation_id}`, signal)
-        if (operation.state === 'failed') throw new ApiError(normalizeCode(operation.code || 'unavailable'))
+        if (operation.state === 'failed' && !['market_account_daily_limit', 'market_platform_daily_limit'].includes(operation.code)) throw new ApiError(normalizeCode(operation.code || 'unavailable'))
+        // A completed daily refusal stores the exact reopening instant in the
+        // original receipt. Read it again with the same idempotency key.
         if (signal?.aborted) throw new ApiError('cancelled', true)
       }
       throw new ApiError('processing', true)

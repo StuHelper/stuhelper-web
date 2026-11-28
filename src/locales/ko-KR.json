@@ -74,6 +74,9 @@
     "back": "뒤로"
   },
   "errors": {
+    "online_identity_unsupported": "현재 이 신분증은 온라인으로 확인할 수 없습니다.",
+    "market_consent_required": "외부 본인 확인 안내를 읽고 별도의 동의란에 표시해 주세요.",
+    "market_consent_changed": "안내 또는 동의 상태가 변경되었습니다. 다시 읽고 선택해 주세요.",
     "origin_mismatch": "요청을 보낸 페이지를 확인할 수 없습니다. 공식 사이트의 평가 페이지에서 다시 시도하세요.",
     "phone_binding_required": "평가를 게시하려면 전화번호를 연결하세요.",
     "campus_verification_required": "평가를 게시하려면 유효한 학생 인증이 필요합니다.",
@@ -125,7 +128,7 @@
     "billing_already_accessible": "이미 이 자료에 접근할 수 있어 다시 결제할 필요가 없습니다.",
     "method_identity_not_allowed": "이 인증 방법은 재학생만 이용할 수 있습니다. 졸업생은 실명 정보 확인 또는 서류 수동 심사를 이용해 주세요.",
     "real_name_mismatch": "실명 정보 확인에 실패했습니다. 입력한 정보를 확인하고 다시 시도하거나 다른 인증 방법을 선택하세요.",
-    "real_name_no_record": "인증할 수 없습니다. 다른 인증 방법을 선택하세요.",
+    "real_name_no_record": "학적 자료에 해당 기록이 없습니다. 독립 본인 확인 화면에서 외부 확인을 선택할 수 있습니다.",
     "email_identity_mismatch": "정보를 확인할 수 없습니다. 확인 후 다시 시도하거나 다른 인증 방법을 선택하세요.",
     "email_identity_no_record": "인증할 수 없습니다. 다른 인증 방법을 선택하세요.",
     "school_credentials_rejected": "학교 계정 또는 비밀번호가 올바르지 않습니다. 다시 시도하세요.",
@@ -166,7 +169,15 @@
     "storage_status_unknown": "저장소 상태를 확인할 수 없습니다. 잠시 후 다시 시도해 주세요.",
     "file_too_large": "파일 크기가 이 용도의 제한을 초과합니다.",
     "storage_restricted_encryption_unavailable": "암호화를 사용할 수 없어 제한 파일 접수를 일시 중지했습니다.",
-    "media_storage_restricted_encryption_unavailable": "암호화를 사용할 수 없어 제한 파일 접수를 일시 중지했습니다."
+    "media_storage_restricted_encryption_unavailable": "암호화를 사용할 수 없어 제한 파일 접수를 일시 중지했습니다.",
+    "market_account_daily_limit": "이 계정의 오늘 외부 확인 횟수를 모두 사용했습니다.",
+    "market_account_lifetime_limit": "이 계정의 외부 확인 누적 한도 10회를 모두 사용했습니다. 자동으로 초기화되지 않아 재시도 가능한 시간이 정해져 있지 않습니다. 도움이 필요하면 문의해 주세요.",
+    "market_platform_daily_limit": "플랫폼의 오늘 외부 확인 한도가 소진되었습니다.",
+    "market_package_exhausted": "플랫폼의 외부 확인 이용권이 예비 한도에 도달했거나 소진 또는 만료되었습니다. 한도 충전 후 재개됩니다.",
+    "market_provider_paused": "외부 업체가 확인 서비스를 일시 중지했거나 이번 요청을 거절했습니다.",
+    "market_result_unknown": "시간 초과 등으로 외부 확인 결과를 확정할 수 없습니다. 같은 정보는 다시 보내지 않아 중복 과금되지 않습니다. 나중에 본인 확인 상태를 확인해 주세요.",
+    "market_identity_mismatch": "외부 확인 결과 성명과 신분증 번호가 일치하지 않습니다. 두 항목을 확인해 주세요.",
+    "market_identity_no_record": "외부 업체의 자료에 이 신분증 기록이 없습니다. 번호를 확인해 주세요."
   },
   "connection": {
     "label": "서비스 연결 상태",
@@ -1076,6 +1087,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "베이항대학교 학생이 아니거나 베이항대학교 학적 기록이 없습니다",
+    "agreeMarket": "이번 확인을 위해 위 업체에 성명과 주민신분증 번호를 제공하는 데 별도로 동의합니다.",
+    "withdrawMarket": "외부 본인 확인 동의 철회",
     "title": "학생 인증",
     "description": "학교와 학력을 확인하고 학생 인증을 신청하거나 관리합니다.",
     "statusTitle": "현재 상태",
@@ -1465,7 +1479,11 @@
       "rules": "전체 규칙 보기(개인정보 처리방침)",
       "entry": "본인 수강 기록을 평가 표시에 사용"
     },
-    "history": "기록 ({count})"
+    "history": "기록 ({count})",
+    "marketAccepted": "외부 본인 확인을 위한 정보 제공에 동의했습니다. 버전 {version}, 동의 시간 {time}.",
+    "marketWithdrawConfirm": "철회하면 성명과 신분증 번호를 더 이상 제공하지 않습니다. 외부 확인이 다시 필요할 때 새로 동의할 수 있습니다.",
+    "marketWithdrawn": "외부 본인 확인 동의를 철회했습니다.",
+    "marketRetryAt": "{time}부터 다시 시도할 수 있습니다."
   },
   "contribution": {
     "eyebrow": "공유 저장소",
