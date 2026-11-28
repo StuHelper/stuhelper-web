@@ -12,9 +12,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   changes:
-    uses: StuHelper/stuhelper-tooling/.github/workflows/frontend-changes.yml@v0.1.10
+    uses: StuHelper/stuhelper-tooling/.github/workflows/frontend-changes.yml@v0.1.13
   check:
-    uses: StuHelper/stuhelper-tooling/.github/workflows/node-checks.yml@v0.1.10
+    uses: StuHelper/stuhelper-tooling/.github/workflows/node-checks.yml@v0.1.13
     with:
       name: Web checks
   contribution-browser:
@@ -30,8 +30,8 @@ jobs:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
-      - uses: StuHelper/stuhelper-tooling/actions/setup@v0.1.10
-      - uses: StuHelper/stuhelper-tooling/actions/frontend-cache@v0.1.10
+      - uses: StuHelper/stuhelper-tooling/actions/setup@v0.1.13
+      - uses: StuHelper/stuhelper-tooling/actions/frontend-cache@v0.1.13
       - name: Test transfer limits with an isolated Nginx proxy
         run: |
           sudo apt-get update -qq
@@ -47,7 +47,7 @@ jobs:
             cat "$record" >> "$GITHUB_STEP_SUMMARY"
           done
       - run: make build
-      - uses: StuHelper/stuhelper-tooling/actions/chromium@v0.1.10
+      - uses: StuHelper/stuhelper-tooling/actions/chromium@v0.1.13
       - run: pnpm browser
       - name: Verification layout with classic scrollbars
         run: xvfb-run -a pnpm exec playwright test verification-ux --headed --project=desktop-zh-CN --project=desktop-ar-EG -g 'zero layout'
