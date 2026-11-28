@@ -32,14 +32,14 @@ async function fixture(page, accepted = false) {
   const csrf = randomUUID();
   const state = {
     document: first, accepted, reads: [], sends: [], deliveries: [], withdrawals: [],
-    readUnavailable: false, sendUnavailable: false,
+    readUnavailable: false, sendUnavailable: false, grants: [],
   };
   const applications = new Map();
   const challenges = new Map();
-  const receipts = new Map();
+  let grant = accepted ? first : undefined;
   state.revoke = () => {
     state.accepted = false;
-    receipts.clear();
+    grant = undefined;
   };
   await page.clock.install({ time: new Date(now) });
   await page.context().addCookies([{ url: test.info().project.use.baseURL, name: 'stuhelper_csrf', value: csrf }]);
@@ -75,6 +75,16 @@ async function fixture(page, accepted = false) {
         if (state.readUnavailable) return unavailable();
         return ok({ document: state.document, accepted: state.accepted, ...(state.accepted ? { accepted_at: now } : {}) });
       }
+      if (method === 'PUT') {
+        const body = request.postDataJSON();
+        state.grants.push({ body, key: request.headers()['idempotency-key'] });
+        if (state.sendUnavailable) return unavailable();
+        if (body.version !== state.document.version || body.digest !== state.document.digest) return reject(409, 'email_transfer_consent_changed');
+        expect(body).toEqual(acceptance(state.document));
+        grant = state.document;
+        state.accepted = true;
+        return ok({ document: grant, accepted: true, accepted_at: now });
+      }
       if (method === 'DELETE') {
         const headers = await request.allHeaders();
         state.withdrawals.push({ key: headers['idempotency-key'], csrf: headers['x-csrf-token'] === csrf, body: request.postData() });
@@ -94,14 +104,13 @@ async function fixture(page, accepted = false) {
       if (state.sendUnavailable) return unavailable();
       const expected = acceptance(state.document);
       const submitted = body.email_transfer_consent;
-      const receipt = receipts.get(id);
       if (submitted) {
         if (submitted.accepted !== true) return reject(403, 'email_transfer_consent_required');
         if (submitted.document_id !== expected.document_id) return reject(400, 'invalid_input');
         if (submitted.version !== expected.version || submitted.digest !== expected.digest) return reject(409, 'email_transfer_consent_changed');
-        receipts.set(id, { studentId: body.student_id, version: expected.version, digest: expected.digest });
+        grant = state.document;
         state.accepted = true;
-      } else if (receipt?.studentId !== body.student_id || receipt?.version !== expected.version || receipt?.digest !== expected.digest) {
+      } else if (grant?.version !== expected.version || grant?.digest !== expected.digest) {
         return reject(403, 'email_transfer_consent_required');
       }
       state.deliveries.push({ id, studentId: body.student_id, version: expected.version });
@@ -158,8 +167,7 @@ async function shot(locator, info, name) {
 
 test('outbound email waits for explicit consent and sends the versioned document reference', async ({ page }, info) => {
   const v = catalogue(info).verification;
-  // An account receipt from another application cannot authorize this application's first send.
-  const state = await fixture(page, true);
+  const state = await fixture(page);
   await start(page, info, v);
   await button(page, v.createChallenge).click();
   const card = await expectNotice(page, v, first);
@@ -199,7 +207,7 @@ test('outbound email waits for explicit consent and sends the versioned document
   expect(state.deliveries).toHaveLength(1);
 });
 
-test('resend reuses consent for the same recipient and asks again for a changed student ID', async ({ page }, info) => {
+test('resend reuses account consent for the same and a changed student ID', async ({ page }, info) => {
   const v = catalogue(info).verification, state = await fixture(page);
   await start(page, info, v);
   await button(page, v.createChallenge).click();
@@ -220,12 +228,10 @@ test('resend reuses consent for the same recipient and asks again for a changed 
   const changedId = '20260002';
   await fillStudent(page, v, changedId);
   await button(page, v.createChallenge).click();
-  const card = await expectNotice(page, v, first);
-  expect(state.sends).toHaveLength(2);
-  await button(card, v.transfer.agree).click();
-  await expect(page.getByLabel(v.emailCode, { exact: true })).toBeEnabled();
+  await expect.poll(() => state.deliveries.length).toBe(3);
   expect(state.sends[2].id).toBe(state.sends[0].id);
-  expect(state.sends[2].body).toMatchObject({ student_id: changedId, email_transfer_consent: acceptance(first) });
+  expect(state.sends[2].body.student_id).toBe(changedId);
+  expect(state.sends[2].body).not.toHaveProperty('email_transfer_consent');
 });
 
 test('a changed publication shows its update and waits for consent to the new version', async ({ page }, info) => {
@@ -374,4 +380,41 @@ test('the consent gate lets a member withdraw without accepting the main agreeme
   expect(methods).toEqual(['GET']);
   expect(state.reads).toEqual(['v1', 'v1']);
   expect(state.withdrawals).toEqual([{ key: expect.any(String), csrf: true, body: null }]);
+});
+
+test('the privacy page enables delivery after reviewing the current notice and retries errors', async ({ page }, info) => {
+  const { verification: v, common, errors } = catalogue(info);
+  const state = await fixture(page);
+  await page.goto(`/me/privacy?lang=${info.project.metadata.locale}`);
+  const section = notice(page, v);
+  const enable = button(section, v.transfer.enable);
+  const dialog = page.getByRole('dialog', { name: v.transfer.title, exact: true });
+  await enable.press('Enter');
+  for (const { label, text } of Object.values(v.transfer.facts)) {
+    await expect(dialog.getByText(label, { exact: true })).toBeVisible();
+    await expect(dialog.getByText(text, { exact: true })).toBeVisible();
+  }
+  await button(dialog, common.cancel).press('Enter');
+  await expect(enable).toBeFocused();
+  expect(state.grants).toEqual([]);
+  await enable.click();
+  state.document = updated;
+  await button(dialog, v.transfer.agreeEnable).click();
+  await expect(section.getByRole('alert')).toHaveText(v.transfer.changed);
+  await enable.click();
+  await expect(dialog.getByRole('link')).toHaveAttribute('href', updated.url);
+  state.sendUnavailable = true;
+  await button(dialog, v.transfer.agreeEnable).click();
+  await expect(dialog.getByRole('alert')).toHaveText(errors.unavailable);
+  state.sendUnavailable = false;
+  await button(dialog, v.transfer.agreeEnable).press('Enter');
+  await expect(button(section, v.transfer.withdraw)).toBeVisible();
+  await expect(section.getByText(v.transfer.accepted, { exact: true })).toBeVisible();
+  expect(state.grants.map(({ body }) => body)).toEqual([acceptance(first), acceptance(updated), acceptance(updated)]);
+  expect(state.grants.every(({ key }) => Boolean(key))).toBe(true);
+  expect(state.sends).toEqual([]);
+  await start(page, info, v);
+  await button(page, v.createChallenge).click();
+  await expect(page.getByLabel(v.emailCode, { exact: true })).toBeEnabled();
+  expect(state.sends[0].body).not.toHaveProperty('email_transfer_consent');
 });

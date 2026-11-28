@@ -1429,12 +1429,15 @@
       "other": "También puedes volver atrás y elegir otro método que ofrezca tu centro y cuyos requisitos cumplas.",
       "agree": "Aceptar el envío desde el extranjero y enviar el código",
       "back": "Volver y elegir otro método",
-      "accepted": "Has aceptado recibir en tu correo académico códigos de verificación enviados desde el extranjero.",
-      "acceptedAt": "El {time}, aceptaste recibir en tu correo académico códigos de verificación enviados desde el extranjero.",
+      "accepted": "Activado",
+      "acceptedAt": "Activado el {time}",
       "withdraw": "Retirar el consentimiento",
       "withdrawConfirm": "Tras retirar el consentimiento, tendrás que volver a darlo para los nuevos envíos. Los envíos ya iniciados pueden continuar y los códigos ya enviados conservan su plazo de validez original.",
       "withdrawn": "Se ha retirado el consentimiento para el envío desde el extranjero.",
-      "notAccepted": "No has dado tu consentimiento para el envío desde el extranjero. Te lo pediremos antes de enviar un código a tu correo universitario."
+      "notAccepted": "Sin activar",
+      "enableInfo": "Al activar esta opción, un proveedor de correo en el extranjero enviará los códigos de verificación a tu correo institucional.",
+      "enable": "Activar",
+      "agreeEnable": "Aceptar y activar"
     },
     "schoolData": {
       "title": "Autorización de datos escolares",
