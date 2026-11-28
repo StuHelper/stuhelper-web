@@ -1396,12 +1396,15 @@
       "other": "You can also go back and choose another method your school offers and you are eligible to use.",
       "agree": "Agree to delivery from abroad and send the code",
       "back": "Go back and choose another method",
-      "accepted": "You consented to having verification codes sent to your school email from abroad.",
-      "acceptedAt": "On {time}, you consented to having verification codes sent to your school email from abroad.",
+      "accepted": "Enabled",
+      "acceptedAt": "Enabled on {time}",
       "withdraw": "Withdraw consent",
       "withdrawConfirm": "After you withdraw consent, new deliveries require consent again. Any delivery that has already started may continue, and codes already sent keep their original expiry time.",
       "withdrawn": "Consent to delivery from abroad was withdrawn.",
-      "notAccepted": "You have not agreed to delivery from abroad. You will be asked before a school-email code is sent."
+      "notAccepted": "Not enabled",
+      "enableInfo": "Once enabled, verification codes for your school email will be delivered through an overseas email provider.",
+      "enable": "Enable",
+      "agreeEnable": "Agree and enable"
     },
     "schoolData": {
       "title": "School data authorization",

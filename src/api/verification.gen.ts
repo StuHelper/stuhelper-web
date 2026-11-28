@@ -437,7 +437,7 @@ export interface paths {
         };
         get: operations["getEmailChallenge"];
         put?: never;
-        /** @description Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. A resend for the same application may reuse a current, active receipt. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately. */
+        /** @description Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. Any outbound send may reuse the account's active consent for that version and digest. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately. */
         post: operations["createEmailChallenge"];
         delete?: never;
         options?: never;
@@ -452,9 +452,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Read the effective outbound school email transfer document and the signed-in account's current consent state. A new application still requires its own affirmative action before the first send. */
+        /** @description Read the effective outbound school email transfer document and the signed-in account's current consent state. */
         get: operations["getEmailTransferConsent"];
-        put?: never;
+        /** @description Enable outbound school email delivery for the signed-in account and the displayed version and digest. */
+        put: operations["acceptEmailTransferConsent"];
         post?: never;
         /** @description Withdraw the signed-in account's outbound school email transfer consent. Queued deliveries that have not started are stopped. Previously sent codes retain their original validity. */
         delete: operations["withdrawEmailTransferConsent"];
@@ -1266,7 +1267,7 @@ export interface components {
              */
             locale?: "zh-CN" | "en-US" | "fr-FR" | "ru-RU" | "ja-JP" | "ko-KR" | "es-ES" | "ar-EG";
         };
-        /** @description Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when resending under the same application's current, active receipt. */
+        /** @description Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when the account has active consent for this publication. */
         EmailTransferConsentInput: {
             /** @enum {string} */
             document_id: "email-transfer";
@@ -2365,6 +2366,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EmailTransferConsentStatus"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    acceptEmailTransferConsent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailTransferConsentInput"];
+            };
+        };
+        responses: {
+            /** @description Recorded consent. Replaying the same request returns its original result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailTransferConsentStatus"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            /** @description The publication changed (email_transfer_consent_changed) or the key was reused for different input. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
                 };
             };
             default: components["responses"]["Problem"];

@@ -37,7 +37,7 @@ const credentials: Row[] = []
 const removalRequests: Row[] = []
 const materials = new Map<string, Row[]>()
 const mails = new Map<string, DemoMail>()
-const transferReceipts = new Map<string, TransferReceipt>()
+let accountReceipt: TransferReceipt | undefined
 let sequence = 0
 let seeded = ''
 
@@ -50,7 +50,7 @@ function seed(who: VerificationPersona) {
   applications.length = 0
   credentials.length = 0
   mails.clear()
-  transferReceipts.clear()
+  accountReceipt = undefined
   if (who === 'verified') credentials.push(credential('active'))
   if (who === 'expired') credentials.push(credential('expired'))
   if (who === 'processing') applications.push(application({ id: 'app-review', method: 'manual_material_review', state: 'pending_review', revision: 2 }))
@@ -71,9 +71,14 @@ function mailState(entry: DemoMail) {
   return entry.challenge
 }
 
-function transferConsent(method: string) {
-  if (method === 'GET') {
-    const last = [...transferReceipts.values()].at(-1)
+function transferConsent(method: string, init?: RequestInit) {
+  if (method === 'PUT') {
+    const problem = checkTransferChoice(read(init))
+    if (problem) return problem
+    accountReceipt ??= { acceptedAt: now() }
+  }
+  if (method === 'GET' || method === 'PUT') {
+    const last = accountReceipt
     const status: Schemas['EmailTransferConsentStatus'] = {
       document: transferDocument,
       accepted: last !== undefined,
@@ -85,7 +90,7 @@ function transferConsent(method: string) {
     for (const entry of mails.values()) {
       if (entry.receipt && mailState(entry).state === 'queued') entry.challenge.state = 'failed'
     }
-    transferReceipts.clear()
+    accountReceipt = undefined
     const withdrawal: Schemas['EmailTransferWithdrawal'] = { withdrawn: true }
     return json(withdrawal)
   }
@@ -108,14 +113,12 @@ function beginEmail(applicationId: string, outbound: boolean, body: Row) {
   const choice: unknown = body.email_transfer_consent
   const studentId = typeof body.student_id === 'string' ? body.student_id.trim().toLowerCase() : ''
   if (outbound && (!studentId || /\s/.test(studentId) || [...studentId].length > 64)) return nope('invalid_input', 400)
-  const scope = JSON.stringify([applicationId, studentId])
-  let receipt = transferReceipts.get(scope)
+  let receipt = outbound ? accountReceipt : undefined
   if (outbound && choice != null) {
     const problem = checkTransferChoice(choice)
     if (problem) return problem
   } else if (outbound) {
-    // 只能沿用该申请上一次发码对应的凭证。
-    if (!receipt || mails.get(applicationId)?.receipt !== receipt) return nope('email_transfer_consent_required', 403)
+    if (!receipt) return nope('email_transfer_consent_required', 403)
   } else if (choice != null) {
     return nope('invalid_input', 400)
   }
@@ -123,7 +126,7 @@ function beginEmail(applicationId: string, outbound: boolean, body: Row) {
   if (String(body.name ?? '').trim() === '测试') return nope('email_identity_mismatch')
   if (outbound && !receipt) {
     receipt = { acceptedAt: now() }
-    transferReceipts.set(scope, receipt)
+    accountReceipt = receipt
   }
   const sent = Date.now()
   const challenge: Schemas['EmailChallenge'] = {
@@ -196,7 +199,7 @@ export function verificationRoute(p: string, method: string, init: RequestInit |
   if (!p.startsWith('/verification')) return undefined
   seed(who)
   if (p === '/verification/schools') return json([school])
-  if (p === '/verification/email-transfer-consent') return transferConsent(method)
+  if (p === '/verification/email-transfer-consent') return transferConsent(method, init)
   if (p === '/verification/summary') return json({ campus_eligibility: eligible, teacher_verified: teacherCredentials(who === 'verified').some((item) => item.state === 'active'), identity_verified: eligible, ...(eligible ? { identity_masked: { name: '**航', document_number: `1${'*'.repeat(16)}8`, document_type: 'cn_resident_id_card' } } : {}), evaluated_at: d.ago(0, 1), revision: 1, next_evaluation_at: null })
   if (p === '/verification/me/school-data') return schoolDataRoute(method, init)
   if (p === '/verification/me/school-data/history-consent') return schoolDataHistoryRoute(method, init)
