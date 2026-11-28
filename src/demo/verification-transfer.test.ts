@@ -45,7 +45,7 @@ beforeEach(() => {
 
 afterEach(() => vi.useRealTimers())
 
-it('requires the current outbound choice and reuses it only for the last recipient of the same application', async () => {
+it('requires the current outbound choice and reuses account consent for another recipient and application', async () => {
   const path = await createEmailApplication()
   const initial = await consentStatus()
   expect(initial).toMatchObject({ accepted: false, document: { document_id: 'email-transfer' } })
@@ -71,11 +71,8 @@ it('requires the current outbound choice and reuses it only for the last recipie
   expect(resend.status).toBe(201)
   expect(parseEntity('EmailChallenge', await resend.json()).id).not.toBe(challenge.id)
   expect((await consentStatus()).accepted_at).toBe(firstAccepted)
-  await expectProblem(sendCode(await createEmailApplication(), '21A234'), 403, 'email_transfer_consent_required')
-
-  await expectProblem(sendCode(path, '22B234'), 403, 'email_transfer_consent_required')
-  expect(sendCode(path, '22B234', choice).status).toBe(201)
-  await expectProblem(sendCode(path, '21A234'), 403, 'email_transfer_consent_required')
+  expect(sendCode(await createEmailApplication(), '21A234').status).toBe(201)
+  expect(sendCode(path, '22B234').status).toBe(201)
 })
 
 it('withdraws outbound receipts, blocks queued delivery and preserves an already sent code', async () => {

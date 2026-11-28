@@ -249,11 +249,7 @@ export function useVerificationFlow() {
   const transferAsking = ref(false)
   const transferChanged = ref(false)
   const transferRetry = ref(false)
-  // A successful send can be reused only for this application, recipient and publication.
-  let grant: { applicationId: string; studentId: string; version: string; digest: string } | undefined
-
   function clearTransfer() {
-    grant = undefined
     transfer.value = undefined
     transferAsking.value = false
     transferChanged.value = false
@@ -267,7 +263,7 @@ export function useVerificationFlow() {
     transferChanged.value = changed
     try {
       transfer.value = await api.get('EmailTransferConsentStatus', '/api/v1/verification/email-transfer-consent', lifetime.signal)
-      transferAsking.value = true
+      transferAsking.value = !transfer.value.accepted
     } catch (failure) {
       transferRetry.value = true
       throw failure
@@ -376,18 +372,16 @@ export function useVerificationFlow() {
     } else if (emailMethod.value) {
       const body: Schemas['EmailInput'] = { student_id: form.student_id, name: form.name }
       const outbound = selectedMethod.value === 'student_email_outbound_otp'
-      const applicationId = active.value.id
-      const studentId = form.student_id.trim()
-      const current = transfer.value?.document
-      const canResend = grant && current && grant.applicationId === applicationId && grant.studentId === studentId
-        && grant.version === current.version && grant.digest === current.digest
-      if (outbound && !canResend) {
-        if (!choice || choice !== current) {
+      if (outbound) {
+        if (!choice && !transfer.value?.accepted) {
           if (transferAsking.value) return
           await askTransfer()
-          return
+          if (transferAsking.value) return
         }
-        body.email_transfer_consent = { document_id: choice.document_id, version: choice.version, digest: choice.digest, accepted: true }
+        if (choice) {
+          if (choice !== transfer.value?.document || !transferAsking.value) return
+          body.email_transfer_consent = { document_id: choice.document_id, version: choice.version, digest: choice.digest, accepted: true }
+        }
       }
       try {
         await check(async () => { email.value = await api.write('EmailChallenge', `${path}/email`, body) })
@@ -403,7 +397,7 @@ export function useVerificationFlow() {
         throw failure
       }
       transferRetry.value = false
-      if (choice) grant = { applicationId, studentId, version: choice.version, digest: choice.digest }
+      if (choice) transfer.value = { document: choice, accepted: true }
       transferAsking.value = false
       transferChanged.value = false
       emailSentAt.value = Date.now()

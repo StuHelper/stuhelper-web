@@ -229,17 +229,14 @@ it('restored email resend reopens identity inputs without submitting hidden empt
   expect(flow.email.value).toEqual(sent)
 })
 
-it('requires this application to affirm the notice before first send and omits the choice on resend', async () => {
+it('uses active account consent for the first send and resend', async () => {
   const flow = await mountOutbound(undefined, { document: publication, accepted: true, accepted_at: '2026-11-21T00:00:00Z' })
   await flow.resume(outboundApplication)
   Object.assign(flow.form, applicant)
   await flow.submit()
   expect(api.get.mock.calls.map(([entity, path]) => [entity, path])).toContainEqual(['EmailTransferConsentStatus', transferPath])
   expect(flow.transfer.value?.document).toEqual(publication)
-  expect(flow.transferAsking.value).toBe(true)
-  expect(api.write).not.toHaveBeenCalled()
-  await flow.agreeTransfer()
-  expect(api.write).toHaveBeenNthCalledWith(1, 'EmailChallenge', outboundPath, { ...applicant, email_transfer_consent: transferChoice(publication) })
+  expect(api.write).toHaveBeenNthCalledWith(1, 'EmailChallenge', outboundPath, applicant)
   expect(flow.transferAsking.value).toBe(false)
   expect(flow.email.value).toEqual(delivered)
   const resent = { ...delivered, id: 'mail-resent' }
@@ -261,7 +258,7 @@ it('leaves the notice for other methods without sending a code', async () => {
   expect(api.write).not.toHaveBeenCalled()
 })
 
-it('requires a fresh affirmative choice for another student number or application', async () => {
+it('reuses confirmed account consent for another student number or application', async () => {
   const flow = await mountOutbound()
   await flow.resume(outboundApplication)
   Object.assign(flow.form, applicant)
@@ -269,20 +266,19 @@ it('requires a fresh affirmative choice for another student number or applicatio
   await flow.agreeTransfer()
 
   const otherApplicant = { ...applicant, student_id: '20260002' }
+  serveEmailReads({ document: publication, accepted: true })
   Object.assign(flow.form, otherApplicant)
   await flow.resendEmail()
-  expect(flow.transferAsking.value).toBe(true)
-  expect(api.write).toHaveBeenCalledTimes(1)
-  await flow.agreeTransfer()
-  expect(api.write).toHaveBeenNthCalledWith(2, 'EmailChallenge', outboundPath, { ...otherApplicant, email_transfer_consent: transferChoice(publication) })
+  expect(flow.transferAsking.value).toBe(false)
+  expect(api.write).toHaveBeenNthCalledWith(2, 'EmailChallenge', outboundPath, otherApplicant)
 
   flow.backToMethod()
   const anotherApplication = { ...outboundApplication, id: 'another' }
   await flow.resume(anotherApplication)
   Object.assign(flow.form, otherApplicant)
   await flow.submit()
-  expect(flow.transferAsking.value).toBe(true)
-  expect(api.write).toHaveBeenCalledTimes(2)
+  expect(flow.transferAsking.value).toBe(false)
+  expect(api.write).toHaveBeenCalledTimes(3)
 })
 
 it('asks again when resend requires consent and keeps the existing delivered code', async () => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Globe2 } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
-import { isolate } from '../../shared/format'
+import EmailTransferFacts from './EmailTransferFacts.vue'
 import type { EmailTransferStatus } from './api'
 
 // The separate notice shown before the first outbound school-email code. The full text is
@@ -10,7 +10,6 @@ import type { EmailTransferStatus } from './api'
 defineProps<{ status: EmailTransferStatus; changed: boolean; busy: boolean; canAgree: boolean }>()
 const emit = defineEmits<{ agree: []; back: [] }>()
 const { t } = useI18n()
-const facts = ['recipient', 'data', 'purpose', 'place', 'period', 'rights'] as const
 </script>
 
 <template>
@@ -32,22 +31,7 @@ const facts = ['recipient', 'data', 'purpose', 'place', 'period', 'rights'] as c
       {{ t('verification.transfer.changed') }}
     </p>
     <p>{{ t('verification.transfer.intro') }}</p>
-    <dl class="transfer-facts">
-      <div
-        v-for="fact in facts"
-        :key="fact"
-      >
-        <dt>{{ t(`verification.transfer.facts.${fact}.label`) }}</dt>
-        <dd>{{ t(`verification.transfer.facts.${fact}.text`) }}</dd>
-      </div>
-    </dl>
-    <p class="small">
-      <a
-        :href="status.document.url"
-        target="_blank"
-        rel="noopener"
-      >{{ t('verification.transfer.read', { version: isolate(status.document.version) }) }}</a>
-    </p>
+    <EmailTransferFacts :document="status.document" />
     <p class="subtle small">
       {{ t('verification.transfer.other') }}
     </p>
@@ -76,7 +60,4 @@ const facts = ['recipient', 'data', 'purpose', 'place', 'period', 'rights'] as c
 <style scoped>
 .transfer-title { display: flex; align-items: center; gap: .5rem; font-size: 1.0625rem; font-weight: 620; }
 .transfer-title svg { width: 20px; height: 20px; }
-.transfer-facts { display: grid; gap: .5rem; }
-.transfer-facts dt { font-weight: 600; }
-.transfer-facts dd { margin: 0; }
 </style>
