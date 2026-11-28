@@ -74,6 +74,15 @@
     "back": "Volver"
   },
   "errors": {
+    "origin_mismatch": "No se pudo verificar la página de origen. Abre la página de reseñas en el sitio oficial e inténtalo de nuevo.",
+    "phone_binding_required": "Vincula un número de teléfono antes de publicar una reseña.",
+    "campus_verification_required": "Para publicar una reseña necesitas una verificación de estudiante vigente.",
+    "identity_verification_required": "Verifica tu identidad para continuar.",
+    "content_admission_required": "Este contenido requiere una verificación vigente de estudiante o docente.",
+    "disclosure_unauthorized": "Uno de los campos seleccionados no se puede hacer público. Revisa la selección.",
+    "teacher_not_candidate": "El docente seleccionado no impartió este curso en ese semestre. Selecciona otro.",
+    "moderation_blocked": "La moderación ha rechazado el contenido. Revisa el texto.",
+    "target_inactive": "Ya no se admiten reseñas para este elemento.",
     "disabled": "El servicio de grupos está desactivado.",
     "cooldown": "Hay un período de espera o un límite de solicitudes pendientes. Inténtalo más tarde.",
     "write_response_unrecognized": "El servidor aceptó la solicitud, pero no se pudo leer el recibo. Actualiza la página para comprobar el resultado.",

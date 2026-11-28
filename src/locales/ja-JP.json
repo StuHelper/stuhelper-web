@@ -74,6 +74,15 @@
     "back": "戻る"
   },
   "errors": {
+    "origin_mismatch": "送信元のページを確認できませんでした。公式サイトの評価ページから再試行してください。",
+    "phone_binding_required": "評価を投稿するには電話番号を登録してください。",
+    "campus_verification_required": "評価の投稿には有効な学生認証が必要です。",
+    "identity_verification_required": "先に本人確認を完了してください。",
+    "content_admission_required": "このコンテンツには有効な学生認証または教員認証が必要です。",
+    "disclosure_unauthorized": "選択した認証項目は公開できません。公開する項目を選び直してください。",
+    "teacher_not_candidate": "選択した教員はこの学期の担当教員ではありません。選び直してください。",
+    "moderation_blocked": "内容が審査を通過しませんでした。本文を確認してください。",
+    "target_inactive": "この対象への評価の投稿は終了しました。",
     "disabled": "グループサービスは無効です。",
     "cooldown": "待機時間または保留中の操作数の制限に達しました。しばらくしてから再試行してください。",
     "write_response_unrecognized": "サーバーはリクエストを受け付けましたが、応答を読み取れませんでした。ページを更新して結果を確認してください。",
