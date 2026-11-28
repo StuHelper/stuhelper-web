@@ -18,6 +18,11 @@
     "README.md"
   ],
   "scenario_tests": {
+    "SV-IDV2-02": [
+      "tests/e2e/verification-ux.spec.mjs#independent identity requires separate market consent and allows withdrawal after a match",
+      "tests/e2e/verification-ux.spec.mjs#independent identity never offers a disabled market check",
+      "tests/e2e/verification-ux.spec.mjs#a roster miss offers a fresh unchecked notice and recovers from a failed notice load"
+    ],
     "I18N-04": [
       "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date",
       "tests/demo/legal.spec.mjs#the demo opens published legal text and fetches the next history page"

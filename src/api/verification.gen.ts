@@ -437,7 +437,7 @@ export interface paths {
         };
         get: operations["getEmailChallenge"];
         put?: never;
-        /** @description Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. A resend for the same application may reuse a current, active receipt. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately. */
+        /** @description Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. Any outbound send may reuse the account's active consent for that version and digest. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately. */
         post: operations["createEmailChallenge"];
         delete?: never;
         options?: never;
@@ -452,9 +452,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** @description Read the effective outbound school email transfer document and the signed-in account's current consent state. A new application still requires its own affirmative action before the first send. */
+        /** @description Read the effective outbound school email transfer document and the signed-in account's current consent state. */
         get: operations["getEmailTransferConsent"];
-        put?: never;
+        /** @description Enable outbound school email delivery for the signed-in account and the displayed version and digest. */
+        put: operations["acceptEmailTransferConsent"];
         post?: never;
         /** @description Withdraw the signed-in account's outbound school email transfer consent. Queued deliveries that have not started are stopped. Previously sent codes retain their original validity. */
         delete: operations["withdrawEmailTransferConsent"];
@@ -629,9 +630,27 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Check campus roster identity independently of student qualification. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school. */
+        /** @description Check independent identity. A Beihang roster match finishes locally. Only a definitive missing record or a non-Beihang request may use the marketplace. Every disclosure requires a current explicit market_consent. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school. */
         post: operations["verifyIdentity"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/verification/identity/market-consent": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read the localized notice and the signed-in account's consent state before displaying the unchecked consent box. */
+        get: operations["getIdentityMarketConsent"];
+        put?: never;
+        post?: never;
+        /** @description Withdraw the signed-in account's consent. An old form cannot authorize another disclosure. */
+        delete: operations["withdrawIdentityMarketConsent"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1247,14 +1266,43 @@ export interface components {
             password?: string;
         });
         IdentityInput: {
-            student_id: string;
+            /** @description Required for roster matching. */
+            student_id?: string;
             name: string;
             document_number: string;
-            password: string;
-            school_id: string;
-            notice_version: string;
+            password?: string;
+            school_id?: string;
+            notice_version?: string;
             /** @enum {boolean} */
             consent: true;
+            market_consent?: components["schemas"]["MarketConsentInput"];
+        };
+        MarketConsentInput: {
+            /** @enum {boolean} */
+            accepted: true;
+            version: string;
+            locale: string;
+            digest: string;
+            /** Format: int64 */
+            revision: number;
+        };
+        MarketConsentState: {
+            active: boolean;
+            /** Format: int64 */
+            revision: number;
+            /** Format: date-time */
+            consented_at?: string;
+            /** Format: date-time */
+            withdrawn_at?: string;
+        };
+        /** @description When unavailable, show the unsupported document message and omit the third-party form. The withdrawal action remains accessible. */
+        MarketConsentNotice: {
+            available: boolean;
+            text: string;
+            locale: string;
+            version: string;
+            digest: string;
+            state: components["schemas"]["MarketConsentState"];
         };
         EmailInput: {
             student_id: string;
@@ -1266,7 +1314,7 @@ export interface components {
              */
             locale?: "zh-CN" | "en-US" | "fr-FR" | "ru-RU" | "ja-JP" | "ko-KR" | "es-ES" | "ar-EG";
         };
-        /** @description Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when resending under the same application's current, active receipt. */
+        /** @description Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when the account has active consent for this publication. */
         EmailTransferConsentInput: {
             /** @enum {string} */
             document_id: "email-transfer";
@@ -1551,7 +1599,7 @@ export interface components {
                 "application/json": components["schemas"]["RateLimitedProblem"];
             };
         };
-        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
+        /** @description Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required/market_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed/market_consent_changed, 410 expired, 422 online_identity_unsupported/information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included. */
         Problem: {
             headers: {
                 /** @description Remaining cooldown seconds when rate-limited. */
@@ -2370,6 +2418,44 @@ export interface operations {
             default: components["responses"]["Problem"];
         };
     };
+    acceptEmailTransferConsent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailTransferConsentInput"];
+            };
+        };
+        responses: {
+            /** @description Recorded consent. Replaying the same request returns its original result. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailTransferConsentStatus"];
+                };
+            };
+            202: components["responses"]["Processing"];
+            /** @description The publication changed (email_transfer_consent_changed) or the key was reused for different input. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
     withdrawEmailTransferConsent: {
         parameters: {
             query?: never;
@@ -2670,6 +2756,54 @@ export interface operations {
             };
             202: components["responses"]["Processing"];
             429: components["responses"]["RateLimited"];
+            default: components["responses"]["Problem"];
+        };
+    };
+    getIdentityMarketConsent: {
+        parameters: {
+            query: {
+                locale: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Notice and consent revision. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketConsentNotice"];
+                };
+            };
+            default: components["responses"]["Problem"];
+        };
+    };
+    withdrawIdentityMarketConsent: {
+        parameters: {
+            query?: never;
+            header: {
+                /** @description Retry a rolled-back local write after dependency_unavailable with the same key and body. Operations with external attempts retain their outcome. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Consent revision after withdrawal. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketConsentState"];
+                };
+            };
+            202: components["responses"]["Processing"];
             default: components["responses"]["Problem"];
         };
     };

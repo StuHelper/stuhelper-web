@@ -74,6 +74,9 @@
     "back": "Back"
   },
   "errors": {
+    "online_identity_unsupported": "Online verification is currently unavailable for this document.",
+    "market_consent_required": "Read the third-party verification notice and select the separate consent box.",
+    "market_consent_changed": "The notice or consent status has changed. Read it again and choose whether to consent.",
     "disabled": "Group services are disabled.",
     "cooldown": "A cooldown or pending action limit applies. Try again later.",
     "write_response_unrecognized": "The server accepted the request, but its receipt could not be read. Refresh the page to check the result.",
@@ -1057,6 +1060,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "I have no Beihang student record",
+    "agreeMarket": "I separately consent to sending my name and resident ID number to the provider named above for this check.",
+    "withdrawMarket": "Withdraw consent to third-party identity verification",
     "title": "Student verification",
     "description": "View your school and study history, and submit or manage student verification.",
     "statusTitle": "Current status",

@@ -357,10 +357,13 @@ export function useVerificationFlow() {
     ? submitForm(transfer.value.document)
     : Promise.resolve()
 
-  const submitForm = (choice?: EmailTransferStatus['document']) => action(async () => {
+  const submitIdentity = (external: boolean, marketConsent?: Schemas['MarketConsentInput']) => submitForm(undefined, external, marketConsent)
+  const submitForm = (choice?: EmailTransferStatus['document'], external = false, marketConsent?: Schemas['MarketConsentInput']) => action(async () => {
     if (mode.value === 'identity') {
-      if (!school.value || !consent.value) throw new ApiError('invalid_input')
-      const body: Schemas['IdentityInput'] = { student_id: form.student_id, name: form.name, document_number: form.document_number, password: '', school_id: school.value.id, notice_version: school.value.notice_version, consent: true }
+      if (external ? !marketConsent : !school.value || !consent.value) throw new ApiError('invalid_input')
+      const body: Schemas['IdentityInput'] = { name: form.name, document_number: form.document_number, consent: true }
+      if (!external && school.value) Object.assign(body, { student_id: form.student_id, school_id: school.value.id, notice_version: school.value.notice_version, password: '' })
+      if (marketConsent) body.market_consent = marketConsent
       await check(async () => { summary.value = await api.write('Summary', '/api/v1/verification/identity', body) })
       form.document_number = ''
       await reload()
@@ -614,7 +617,7 @@ export function useVerificationFlow() {
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable, step, profileRequestId,
     asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,
     transfer, transferAsking, transferChanged, transferRetry, agreeTransfer,
-    reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, resendEmail, confirmEmail, refreshApplication,
+    reload, loadMore, selectSchool, selectMethod, selectMode, start, resume, submit, submitIdentity, resendEmail, confirmEmail, refreshApplication,
     captured, removeMaterial, requestRemoval, suggest, showProfile, schoolName, continueSchool,
   }
 }

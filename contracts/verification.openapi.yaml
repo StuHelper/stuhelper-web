@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: StuHelper Verification
-  version: 0.7.0
+  version: 0.8.0
   description: Private verification API. Authentication supplies issuer and subject. All dates are RFC3339 UTC. Writes require an actor-scoped Idempotency-Key. School administration is authorized on every request.
 servers:
   - url: /
@@ -481,7 +481,7 @@ paths:
         default: { $ref: '#/components/responses/Problem' }
     post:
       operationId: createEmailChallenge
-      description: Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. A resend for the same application may reuse a current, active receipt. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
+      description: Check roster evidence before requesting school email proof. An outbound OTP starts with explicit acceptance of the effective email-transfer document. Any outbound send may reuse the account's active consent for that version and digest. The inbound challenge has no outbound transfer. Admitted requests take at least the configured minimum (2.5 seconds by default). Roster mismatches count toward the account and school/student cooldown. Issuing or resending a challenge does not reset that cooldown. Admission may return 429 immediately.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -511,13 +511,36 @@ paths:
   /api/v1/verification/email-transfer-consent:
     get:
       operationId: getEmailTransferConsent
-      description: Read the effective outbound school email transfer document and the signed-in account's current consent state. A new application still requires its own affirmative action before the first send.
+      description: Read the effective outbound school email transfer document and the signed-in account's current consent state.
       responses:
         '200':
           description: Effective document reference and account consent state.
           content:
             application/json:
               schema: { $ref: '#/components/schemas/EmailTransferConsentStatus' }
+        default: { $ref: '#/components/responses/Problem' }
+    put:
+      operationId: acceptEmailTransferConsent
+      description: Enable outbound school email delivery for the signed-in account and the displayed version and digest.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/EmailTransferConsentInput' }
+      responses:
+        '200':
+          description: Recorded consent. Replaying the same request returns its original result.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EmailTransferConsentStatus' }
+        '202': { $ref: '#/components/responses/Processing' }
+        '409':
+          description: The publication changed (email_transfer_consent_changed) or the key was reused for different input.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Problem' }
         default: { $ref: '#/components/responses/Problem' }
     delete:
       operationId: withdrawEmailTransferConsent
@@ -691,7 +714,7 @@ paths:
   /api/v1/verification/identity:
     post:
       operationId: verifyIdentity
-      description: Check campus roster identity independently of student qualification. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school.
+      description: Check independent identity. A Beihang roster match finishes locally. Only a definitive missing record or a non-Beihang request may use the marketplace. Every disclosure requires a current explicit market_consent. Admitted requests take at least the configured minimum (2.5 seconds by default), including success and evidence rejection. Consecutive failures share the account and school/student cooldown with application verification. Admission may return 429 immediately without calling the school.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -707,6 +730,35 @@ paths:
               schema: { $ref: '#/components/schemas/Summary' }
         '202': { $ref: '#/components/responses/Processing' }
         '429': { $ref: '#/components/responses/RateLimited' }
+        default: { $ref: '#/components/responses/Problem' }
+  /api/v1/verification/identity/market-consent:
+    get:
+      operationId: getIdentityMarketConsent
+      description: Read the localized notice and the signed-in account's consent state before displaying the unchecked consent box.
+      parameters:
+        - name: locale
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Notice and consent revision.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketConsentNotice' }
+        default: { $ref: '#/components/responses/Problem' }
+    delete:
+      operationId: withdrawIdentityMarketConsent
+      description: Withdraw the signed-in account's consent. An old form cannot authorize another disclosure.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      responses:
+        '200':
+          description: Consent revision after withdrawal.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MarketConsentState' }
+        '202': { $ref: '#/components/responses/Processing' }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/credentials/{id}/requests:
     parameters:
@@ -1158,7 +1210,7 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/RateLimitedProblem' }
     Problem:
-      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed, 410 expired, 422 information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
+      description: Stable error. 400 invalid_input, 401 authentication_required, 403 permission_denied/email_transfer_consent_required/market_consent_required, 404 not_found, 409 conflict/identity_owned/email_transfer_consent_changed/market_consent_changed, 410 expired, 422 online_identity_unsupported/information_mismatch/real_name_mismatch/real_name_no_record/email_identity_mismatch/email_identity_no_record/school_credentials_rejected/school_account_locked/school_account_disabled/school_account_unavailable/method_identity_not_allowed, 429 rate_limited, 503 dependency_unavailable/method_unavailable. No provider error or identity data is included.
       headers:
         Retry-After:
           description: Remaining cooldown seconds when rate-limited.
@@ -1406,15 +1458,47 @@ components:
     IdentityInput:
       type: object
       additionalProperties: false
-      required: [student_id, name, document_number, password, school_id, notice_version, consent]
+      required: [name, document_number, consent]
       properties:
-        student_id: { type: string, minLength: 1, maxLength: 64 }
+        student_id: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 64, description: Required for roster matching. }
         name: { type: string, minLength: 2, maxLength: 100 }
         document_number: { type: string, minLength: 3, maxLength: 32 }
-        password: { type: string, maxLength: 0 }
-        school_id: { type: string, maxLength: 64 }
-        notice_version: { type: string, maxLength: 64 }
+        password: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 0 }
+        school_id: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 64 }
+        notice_version: { type: string, x-go-type-skip-optional-pointer: true, maxLength: 64 }
         consent: { type: boolean, enum: [true] }
+        market_consent: { $ref: '#/components/schemas/MarketConsentInput' }
+    MarketConsentInput:
+      type: object
+      additionalProperties: false
+      required: [accepted, version, locale, digest, revision]
+      properties:
+        accepted: { type: boolean, enum: [true] }
+        version: { type: string }
+        locale: { type: string }
+        digest: { type: string, pattern: '^[0-9a-f]{64}$' }
+        revision: { type: integer, format: int64, minimum: 0 }
+    MarketConsentState:
+      type: object
+      additionalProperties: false
+      required: [active, revision]
+      properties:
+        active: { type: boolean }
+        revision: { type: integer, format: int64 }
+        consented_at: { type: string, format: date-time }
+        withdrawn_at: { type: string, format: date-time }
+    MarketConsentNotice:
+      description: When unavailable, show the unsupported document message and omit the third-party form. The withdrawal action remains accessible.
+      type: object
+      additionalProperties: false
+      required: [available, text, locale, version, digest, state]
+      properties:
+        available: { type: boolean }
+        text: { type: string }
+        locale: { type: string }
+        version: { type: string }
+        digest: { type: string }
+        state: { $ref: '#/components/schemas/MarketConsentState' }
     EmailInput:
       type: object
       additionalProperties: false
@@ -1429,7 +1513,7 @@ components:
           enum: [zh-CN, en-US, fr-FR, ru-RU, ja-JP, ko-KR, es-ES, ar-EG]
           description: 'Preferred message locale; defaults to zh-CN when omitted.'
     EmailTransferConsentInput:
-      description: Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when resending under the same application's current, active receipt.
+      description: Affirmative choice for the document shown before requesting outbound school email delivery. Omit for inbound challenges and when the account has active consent for this publication.
       type: object
       additionalProperties: false
       required: [document_id, version, digest, accepted]

@@ -74,6 +74,9 @@
     "back": "Retour"
   },
   "errors": {
+    "online_identity_unsupported": "La vérification en ligne de ce document est actuellement indisponible.",
+    "market_consent_required": "Lisez l’avis de vérification externe et cochez la case de consentement distincte.",
+    "market_consent_changed": "L’avis ou votre consentement a changé. Relisez l’avis avant de choisir.",
     "disabled": "Le service des groupes est désactivé.",
     "cooldown": "Un délai ou une limite de demandes en attente s’applique. Réessayez plus tard.",
     "write_response_unrecognized": "Le serveur a accepté la demande, mais son reçu est illisible. Actualisez la page pour vérifier le résultat.",
@@ -1057,6 +1060,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "Je n’ai pas de dossier étudiant à Beihang",
+    "agreeMarket": "Je consens séparément à la transmission de mon nom et de mon numéro de carte d’identité au prestataire indiqué pour cette vérification.",
+    "withdrawMarket": "Retirer mon consentement à la vérification externe",
     "title": "Vérification étudiante",
     "description": "Consultez votre établissement et votre parcours, puis envoyez ou gérez la vérification étudiante.",
     "statusTitle": "État actuel",

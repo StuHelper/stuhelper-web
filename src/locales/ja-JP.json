@@ -74,6 +74,9 @@
     "back": "戻る"
   },
   "errors": {
+    "online_identity_unsupported": "現在、この証明書はオンラインで確認できません。",
+    "market_consent_required": "第三者による本人確認の説明を読み、個別の同意欄にチェックを入れてください。",
+    "market_consent_changed": "説明または同意状況が更新されました。もう一度確認して選択してください。",
     "disabled": "グループサービスは無効です。",
     "cooldown": "待機時間または保留中の操作数の制限に達しました。しばらくしてから再試行してください。",
     "write_response_unrecognized": "サーバーはリクエストを受け付けましたが、応答を読み取れませんでした。ページを更新して結果を確認してください。",
@@ -1057,6 +1060,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "北航に学籍記録がありません",
+    "agreeMarket": "今回の確認のため、上記の事業者に氏名と居民身分証番号を提供することに個別に同意します。",
+    "withdrawMarket": "第三者による本人確認への同意を撤回",
     "title": "学生認証",
     "description": "学校と学歴を確認し、学生認証の申請や管理を行えます。",
     "statusTitle": "現在の状態",

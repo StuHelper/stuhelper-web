@@ -74,6 +74,9 @@
     "back": "Volver"
   },
   "errors": {
+    "online_identity_unsupported": "La verificación en línea de este documento no está disponible actualmente.",
+    "market_consent_required": "Lee el aviso de verificación externa y marca la casilla de consentimiento por separado.",
+    "market_consent_changed": "El aviso o el estado de tu consentimiento ha cambiado. Lee el aviso de nuevo antes de decidir.",
     "disabled": "El servicio de grupos está desactivado.",
     "cooldown": "Hay un período de espera o un límite de solicitudes pendientes. Inténtalo más tarde.",
     "write_response_unrecognized": "El servidor aceptó la solicitud, pero no se pudo leer el recibo. Actualiza la página para comprobar el resultado.",
@@ -1057,6 +1060,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "No tengo un expediente de estudiante en Beihang",
+    "agreeMarket": "Doy mi consentimiento específico para que se envíen mi nombre y número de documento al proveedor indicado para esta verificación.",
+    "withdrawMarket": "Retirar el consentimiento para la verificación externa",
     "title": "Verificación de estudiante",
     "description": "Consulta tu centro y tu historial de estudios, y envía o gestiona la verificación de estudiante.",
     "statusTitle": "Estado actual",

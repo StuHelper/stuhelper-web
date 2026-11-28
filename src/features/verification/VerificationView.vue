@@ -31,8 +31,10 @@ import { useVerificationFlow } from './flow'
 
 // 学生认证和实名认证是两个页面，共用同一套流程。实名认证放在账号与安全下面。
 // 学生认证页从上到下回答三件事：现在是什么状态、可以选哪种方式、下一步做什么。
+import { useMarketConsent } from './market-consent'
+
 const props = withDefaults(defineProps<{ scope?: 'student' | 'identity' }>(), { scope: 'student' })
-const { t, te } = useI18n()
+const { t, te, locale } = useI18n()
 const format = useFormat()
 const flow = useVerificationFlow()
 // Seconds left of a cooldown the server set after repeated failed checks.
@@ -48,6 +50,26 @@ if (props.scope === 'identity') flow.selectMode('identity')
 // 实名认证通过后不再需要表单。实名提交只更新状态，不产生认证申请，所以申请和学习经历只在学生认证页显示。
 // 状态确认前不显示实名表单，否则已实名的用户会先看到待实名的页面。
 const showIdentityForm = computed(() => props.scope === 'identity' && flow.summary.value?.identity_verified === false)
+const outsideRoster = ref(false)
+const rosterMissing = ref(false)
+const market = useMarketConsent(locale, computed(() => props.scope === 'identity' && !!flow.summary.value && session.state.value === 'member'))
+const external = computed(() => outsideRoster.value || (!!flow.school.value && flow.school.value.id !== '4111010006' && !flow.availableMethods.value.includes('real_name_identity_check')))
+const needsMarket = computed(() => external.value || rosterMissing.value)
+watch([outsideRoster, flow.selectedSchool, () => form.student_id, () => form.name, () => form.document_number], () => {
+  market.accepted.value = false
+  rosterMissing.value = false
+}, { flush: 'sync' })
+async function submitIdentity() {
+  const choice = needsMarket.value ? market.choice() : undefined
+  if (needsMarket.value && !choice) return
+  await flow.submitIdentity(external.value, choice)
+  if (flow.error.value === 'market_consent_required' || flow.error.value === 'market_consent_changed') {
+    rosterMissing.value = !external.value
+    await market.refresh()
+  } else if (choice && (flow.notice.value === 'identityDone' || ['real_name_mismatch', 'real_name_no_record', 'dependency_unavailable'].includes(flow.error.value))) {
+    await market.refresh()
+  }
+}
 const methodDescription = computed(() => {
   const method = flow.mode.value === 'identity' ? 'real_name_identity_check' : flow.selectedMethod.value
   const configured = flow.school.value?.method_description_keys?.[method]
@@ -749,31 +771,33 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
         class="card stack"
       >
         <h2>{{ t('verification.start') }}</h2>
-        <p
-          v-if="!flow.schools.value.length && !flow.loading.value"
-          class="empty"
-        >
-          {{ t('verification.noSchools') }}
-        </p>
+        <label class="check">
+          <input
+            v-model="outsideRoster"
+            type="checkbox"
+            :disabled="flow.busy.value"
+          >
+          <span>{{ t('verification.outsideRoster') }}</span>
+        </label>
         <form
-          v-else
           class="stack verification-form"
-          @submit.prevent="flow.submit()"
+          @submit.prevent="submitIdentity"
         >
           <SchoolPicker
+            v-if="!outsideRoster"
             :model-value="flow.selectedSchool.value"
             :schools="flow.schools.value"
             :disabled="flow.busy.value"
             @select="flow.selectSchool"
           />
           <p
-            v-if="!flow.availableMethods.value.includes('real_name_identity_check')"
+            v-if="!external && !flow.availableMethods.value.includes('real_name_identity_check')"
             class="notice notice-warning small"
           >
             {{ t('errors.method_unavailable') }}
           </p>
           <p
-            v-if="methodDescription"
+            v-if="methodDescription && !external"
             class="small muted"
           >
             {{ t(methodDescription) }}
@@ -781,7 +805,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
           <p class="small muted">
             {{ t('verification.privacy') }}
           </p>
-          <label class="check">
+          <label
+            v-if="!external"
+            class="check"
+          >
             <input
               v-model="flow.consent.value"
               type="checkbox"
@@ -791,7 +818,10 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <span>{{ t('verification.consent') }}</span>
           </label>
           <div class="form-grid">
-            <label class="field">
+            <label
+              v-if="!external"
+              class="field"
+            >
               <span class="field-label">{{ t('verification.studentId') }}</span>
               <input
                 v-model.trim="form.student_id"
@@ -825,6 +855,45 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
               >
             </label>
           </div>
+          <div
+            v-if="needsMarket"
+            class="stack-sm"
+            aria-live="polite"
+          >
+            <p v-if="market.notice.status.value === 'loading'">
+              {{ t('common.loading') }}
+            </p>
+            <template v-else-if="market.notice.status.value === 'error'">
+              <ActionError :code="market.notice.error.value" />
+              <button
+                class="btn"
+                type="button"
+                @click="market.refresh"
+              >
+                {{ t('common.retry') }}
+              </button>
+            </template>
+            <template v-else-if="market.notice.data.value?.available">
+              <p
+                class="market-notice"
+                :lang="market.notice.data.value.locale"
+              >
+                {{ market.notice.data.value.text }}
+              </p>
+              <label class="check">
+                <input
+                  v-model="market.accepted.value"
+                  type="checkbox"
+                  required
+                  :disabled="flow.busy.value || market.withdrawing.value"
+                >
+                <span>{{ t('verification.agreeMarket') }}</span>
+              </label>
+            </template>
+            <p v-else-if="market.notice.status.value === 'ready'">
+              {{ t('errors.online_identity_unsupported') }}
+            </p>
+          </div>
           <CheckGate
             :checking="flow.checking.value"
             :remaining="cooldownSeconds"
@@ -834,7 +903,7 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             <button
               class="btn btn-primary"
               type="submit"
-              :disabled="flow.busy.value || cooldownSeconds > 0 || !flow.school.value || !flow.consent.value || !flow.availableMethods.value.includes('real_name_identity_check')"
+              :disabled="flow.busy.value || cooldownSeconds > 0 || (!external && (!flow.consent.value || !flow.availableMethods.value.includes('real_name_identity_check'))) || (needsMarket && !market.choice())"
               :aria-busy="flow.busy.value || undefined"
             >
               {{ t('verification.submit') }}
@@ -842,6 +911,33 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
           </div>
         </form>
       </section>
+      <section
+        v-if="scope === 'identity' && market.notice.data.value?.state.active"
+        class="card stack-sm"
+      >
+        <button
+          type="button"
+          class="btn"
+          :disabled="market.withdrawing.value || flow.busy.value"
+          @click="market.withdraw"
+        >
+          {{ t('verification.withdrawMarket') }}
+        </button>
+        <ActionError :code="market.withdrawalError.value" />
+      </section>
+      <div
+        v-if="scope === 'identity' && flow.summary.value?.identity_verified && market.notice.status.value === 'error'"
+        class="stack-sm"
+      >
+        <ActionError :code="market.notice.error.value" />
+        <button
+          type="button"
+          class="btn"
+          @click="market.refresh"
+        >
+          {{ t('common.retry') }}
+        </button>
+      </div>
       <!-- School data authorization has its own page; this row shows whether it is on. -->
       <SchoolDataEntry v-if="scope === 'student' && flow.summary.value" />
       <!-- 3. Records: what has been verified, and what was asked for. Empty lists are left out. -->
@@ -1166,4 +1262,8 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
   .steps .current .step-name { display: inline; }
   .form-actions .btn { flex: 1 1 auto; }
 }
+</style>
+
+<style scoped>
+.market-notice { white-space: pre-line; overflow-wrap: anywhere; }
 </style>

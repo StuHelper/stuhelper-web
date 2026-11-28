@@ -74,6 +74,9 @@
     "back": "返回"
   },
   "errors": {
+    "online_identity_unsupported": "暂不支持该证件的在线核验。",
+    "market_consent_required": "请阅读第三方实名核验告知，并单独勾选同意。",
+    "market_consent_changed": "告知或同意状态已更新，请重新阅读并选择。",
     "disabled": "群服务未启用。",
     "cooldown": "当前操作受冷却时间或待处理数量限制，请稍后重试。",
     "write_response_unrecognized": "服务端已受理请求，但回执无法读取。请刷新页面核对结果。",
@@ -1057,6 +1060,9 @@
     }
   },
   "verification": {
+    "outsideRoster": "我没有北航学籍记录",
+    "agreeMarket": "我单独同意将上述姓名和居民身份证号提供给告知中列明的服务商，用于本次核验。",
+    "withdrawMarket": "撤回第三方实名核验同意",
     "title": "学生认证",
     "description": "查看学校与学习经历，提交或管理学生认证。",
     "statusTitle": "当前状态",
