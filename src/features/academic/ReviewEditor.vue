@@ -319,7 +319,7 @@ async function cancel() {
               :key="requirement.key"
             >
               <StatusTag :tone="requirement.state === 'satisfied' ? 'success' : requirement.state === 'missing' ? 'warning' : 'neutral'">
-                {{ t(requirement.key === 'content_access' ? 'resources.access.content_access' : `academic.requirement.${requirement.key}`) }} · {{ t(`academic.requirementState.${requirement.state}`) }}
+                {{ t(`academic.requirement.${requirement.key}`) }} · {{ t(`academic.requirementState.${requirement.state}`) }}
               </StatusTag>
               <a
                 v-if="requirement.state === 'missing' && steps[requirement.key]"
