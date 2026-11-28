@@ -156,9 +156,10 @@ const enrollment = computed(() => latestEnrollment(ownGroups.value, metadata.val
 // A course taught by several teachers in that term offers them as quick choices, since a
 // resource names one teacher at most.
 const teacherChoices = computed(() => {
-  const row = enrollment.value
-  if (!row || row.teacherIds.length < 2 || row.termId !== metadata.value.associations.term_id) return []
-  return row.teacherIds.map((id, index) => ({ id, name: row.teacherNames[index] ?? id }))
+  const { course_id, term_id } = metadata.value.associations
+  const row = ownGroups.value.find(group => group.termId === term_id)?.rows.find(course => course.courseId === course_id)
+  if (!row || row.teacherIds.length < 2) return []
+  return row.teacherIds.map((id, index) => ({ id, name: row.teacherNames[index] || t('common.unknown') }))
 })
 const ownExpanded = ref(false)
 const ownShown = computed(() => (ownExpanded.value ? ownGroups.value : ownGroups.value.slice(0, 1)))
@@ -172,16 +173,16 @@ function fillFromEnrollment(row: OwnCourse | undefined, replace: boolean) {
     return
   }
   if (replace || !associations.term_id) associations.term_id = row.termId
-  if (replace || !associations.teacher_id) associations.teacher_id = row.teacherIds.length === 1 ? row.teacherIds[0] : ''
+  if (associations.term_id === row.termId && (replace || !associations.teacher_id)) associations.teacher_id = row.teacherIds.length === 1 ? row.teacherIds[0] : ''
 }
 function chooseOwn(row: OwnCourse) {
   metadata.value.associations.course_id = row.courseId
   fillFromEnrollment(row, true)
 }
-watch(() => metadata.value.associations.course_id, (next, previous) => {
-  // Loading a saved version replaces the whole description; only a person's change refills.
-  if (baseline.value !== '' && next !== previous) fillFromEnrollment(next ? latestEnrollment(ownGroups.value, next) : undefined, true)
-})
+function changeCourse(id: string | undefined) {
+  metadata.value.associations.course_id = id
+  fillFromEnrollment(id ? latestEnrollment(ownGroups.value, id) : undefined, true)
+}
 // The bound course of a new resource is filled once its own enrollment is known.
 watch(ownGroups, () => {
   if (!props.id && !entry.value) fillFromEnrollment(enrollment.value, false)
@@ -521,7 +522,7 @@ function uploadMessage(state: string) {
                         @click="chooseOwn(row)"
                       >
                         <strong class="truncate">{{ row.name }}</strong>
-                        <span class="subtle small truncate">{{ row.teacherNames.join('、') || row.code }}</span>
+                        <span class="subtle small truncate">{{ row.teacherNames.filter(Boolean).join('、') || row.code }}</span>
                       </button>
                     </div>
                   </div>
@@ -546,12 +547,13 @@ function uploadMessage(state: string) {
                 </p>
                 <div class="form-grid">
                   <CatalogPicker
-                    v-model="metadata.associations.course_id"
+                    :model-value="metadata.associations.course_id"
                     class="picker-wide"
                     kind="course"
                     :label="t('academic.course')"
                     :empty-label="t('resources.editor.chooseCourse')"
                     :school="metadata.associations.school_id || undefined"
+                    @update:model-value="changeCourse"
                   />
                   <CatalogPicker
                     v-model="metadata.associations.term_id"

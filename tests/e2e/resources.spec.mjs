@@ -131,6 +131,27 @@ test('upload uses current terms and retries the original metadata request', asyn
   await layout(page, errors, locale);
 });
 
+test('choosing an earlier enrollment keeps its term and submits the chosen teacher', async ({ page }, info) => {
+  await page.route('**/api/v1/verification/me/school-data', route => route.fulfill({ json: {
+    state: 'active', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'spring', year: 2026, season: 'spring' },
+  } }));
+  const { all, m, s } = await setup(page, info, '/resources');
+  await page.route('**/api/v1/catalog/me/enrollments**', route => route.fulfill({ json: [
+    { id: 'newer', term_id: 'spring', term_order_key: 20261, teacher_ids: ['new-teacher'] },
+    { id: 'older', term_id: 'fall', term_order_key: 20253, teacher_ids: ['first', 'second'] },
+  ].map(row => ({ ...row, school_id: 'school', subject: 'synthetic', course_id: 'course', active: true })) }));
+  await page.getByRole('link', { name: m.upload, exact: true }).click();
+  await page.getByRole('button', { expanded: false }).filter({ hasText: m.editor.ownMore.split('{count}')[0] }).click();
+  await page.getByRole('button', { name: /Fixture course.*Course second/ }).click();
+  await expect(page.getByRole('combobox', { name: all.academic.course, exact: true })).toHaveValue('Fixture course');
+  await expect(page.getByRole('combobox', { name: m.editor.term, exact: true })).toHaveValue('Course fall');
+  await page.getByRole('group', { name: m.editor.ownTeachers }).getByRole('button', { name: 'Course second' }).click();
+  await describe(page, m, 'Earlier term notes');
+  await page.getByRole('button', { name: m.editor.create, exact: true }).click();
+  await expect.poll(() => s.calls.find(call => call.method === 'POST' && call.path === '')?.body.metadata.associations)
+    .toMatchObject({ course_id: 'course', term_id: 'fall', teacher_id: 'second' });
+});
+
 test('tags are added one at a time with Enter, a comma or leaving the field, and can be removed', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
   const tg = all.tags;

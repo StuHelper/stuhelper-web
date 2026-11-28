@@ -48,7 +48,7 @@ const own = useAsync(async (signal) => {
   }
   const list: TermGroup[] = loaded.groups.map((group) => ({
     ...group,
-    rows: group.rows.map((row) => ({ ...row, teachers: row.teacherNames.join('、'), reviewId: reviewed.get(`${row.courseId}:${row.termId}`) })),
+    rows: group.rows.map((row) => ({ ...row, teachers: row.teacherNames.filter(Boolean).join('、'), reviewId: reviewed.get(`${row.courseId}:${row.termId}`) })),
   }))
   // Within a term the courses still to review come first.
   for (const group of list) group.rows.sort((a, b) => Number(!!a.reviewId) - Number(!!b.reviewId) || a.name.localeCompare(b.name))

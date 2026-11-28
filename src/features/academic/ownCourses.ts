@@ -38,7 +38,7 @@ export async function loadOwnCourses(api: ReturnType<typeof useAcademic>, verifi
       termId: row.term_id,
       termName,
       teacherIds: row.teacher_ids.slice(),
-      teacherNames: row.teacher_ids.map((id) => names.get(id)?.name ?? '').filter(Boolean),
+      teacherNames: row.teacher_ids.map((id) => names.get(id)?.name ?? ''),
       name: course?.name || owned.get(row.course_id)?.name || missingCourseLabel,
       code: typeof course?.code === 'string' ? course.code : '',
     })
