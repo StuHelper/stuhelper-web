@@ -87,6 +87,9 @@ memberTest('two teachers added from their pages are compared over one time range
   await expect(page).toHaveURL(/\/compare\?kind=teacher/);
   await expect(page.getByRole('columnheader', { name: /Teacher A/ })).toBeVisible();
   await expect(page.getByRole('columnheader', { name: /Teacher B/ })).toBeVisible();
+  const radar = page.getByRole('region', { name: c.radar });
+  await expect(radar.getByRole('img')).toHaveAccessibleName(/Teacher A.*Teacher B/);
+  await expect(radar.locator('figcaption')).toHaveText(/Teacher A.*Teacher B/);
   await expect.poll(() => stats.filter((query) => query.get('kind') === 'teacher').map((query) => query.get('target_id')).slice(-2).sort()).toEqual(['teacher-a', 'teacher-b']);
   await expect(page.getByRole('cell', { name: fill(all.academic.ratings.samplesOnly, { samples: number(info, 2) }) })).toHaveCount(2);
 
