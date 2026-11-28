@@ -220,6 +220,28 @@ test('folder packages list every part and allow individual retry', async ({ page
   await layout(page, errors, locale);
 });
 
+test('a storage write without a receipt checks the same upload before any retry', async ({ page }, info) => {
+  const { all, m, s } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
+  await describe(page, m, 'Upload check');
+  await page.getByRole('button', { name: m.editor.create, exact: true }).click();
+  await expect(page.getByText(m.editor.saved, { exact: true })).toBeVisible();
+  let puts = 0;
+  await page.route('**/api/v1/media/uploads/*/content', route => {
+    puts++;
+    s.media.state = 'verifying';
+    s.media.error_code = 'media_upload_result_unconfirmed';
+    return route.fulfill({ status: 503, json: { code: 'media_upload_result_unconfirmed' } });
+  });
+  await page.getByLabel(m.editor.chooseFile, { exact: true }).setInputFiles({ name: '课程 讲义.txt', mimeType: 'text/plain', buffer: Buffer.from('hello') });
+  await page.getByRole('button', { name: m.editor.send, exact: true }).click();
+  await expect(page.getByText(all.errors.upload_result_unconfirmed, { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: all.common.retry, exact: true }).click();
+  await expect(page.getByText(m.editor.uploadState.verifying, { exact: true })).toBeVisible();
+  await expect(page.getByText(all.errors.upload_result_unconfirmed, { exact: true })).toBeVisible();
+  expect(puts).toBe(1);
+  expect(s.calls.filter(call => call.path === '/api/v1/media/uploads' && call.method === 'POST')).toHaveLength(1);
+});
+
 test('owned file reuse avoids content transfer and keeps separate review', async ({ page }, info) => {
   const { all, m, s, errors, locale } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
   await describe(page, m, 'Reused lecture');

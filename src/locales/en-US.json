@@ -74,6 +74,16 @@
     "back": "Back"
   },
   "errors": {
+    "upload_result_unconfirmed": "Storage has not confirmed whether the file was saved. Retry here to check the original upload.",
+    "filename_invalid": "This filename is invalid. Rename the file and select it again.",
+    "type_not_allowed": "This file type is not accepted here.",
+    "content_type_rejected": "The contents do not match the declared file type. Check the file and select it again.",
+    "upload_too_large": "This file exceeds the upload size limit.",
+    "integrity_failed": "The file failed its integrity check. Select the complete file again.",
+    "transfer_busy": "All upload slots are busy. Try again shortly.",
+    "capacity_unavailable": "Uploads are paused because there is insufficient storage capacity.",
+    "empty_file": "This file is empty. Select a file with content.",
+    "upload_expired": "The upload has expired. Select the file again.",
     "disabled": "Group services are disabled.",
     "cooldown": "A cooldown or pending action limit applies. Try again later.",
     "write_response_unrecognized": "The server accepted the request, but its receipt could not be read. Refresh the page to check the result.",
