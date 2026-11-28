@@ -24,8 +24,10 @@ export function useRatingText(school?: MaybeRefOrGetter<string | undefined>, sty
       // Built-in wording remains available when the configuration cannot load.
     }
   }, { immediate: true })
+  // Level 0 asks for the dimension name. The school's texts use index 0 for "not enough
+  // data", so they apply to levels 1 to 5 only.
   return (dimension: number, level: number) => {
-    const custom = configured.value?.effective.rating_texts[locale.value]?.[dimension]?.[level]
+    const custom = level > 0 ? configured.value?.effective.rating_texts[locale.value]?.[dimension]?.[level] : undefined
     if (custom) return custom
     if (style === 'browse') {
       const name = dimensionNames[dimension] ?? 'recommendation'

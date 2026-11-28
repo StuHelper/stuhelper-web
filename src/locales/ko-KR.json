@@ -2418,7 +2418,9 @@
       "addCourse": "비교할 강의 검색 및 추가",
       "addTeacher": "비교할 교원 검색 및 추가",
       "taughtCourses": "담당 강의 수",
-      "ratedCourses": "집계 포함 강의 수"
+      "ratedCourses": "집계 포함 강의 수",
+      "radar": "5개 항목 평가 레이더 차트",
+      "radarEmpty": "선택한 항목에 레이더 차트를 그릴 만큼의 평가가 아직 없습니다."
     }
   },
   "groups": {

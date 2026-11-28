@@ -2418,7 +2418,9 @@
       "addCourse": "比較する授業を検索して追加",
       "addTeacher": "比較する教員を検索して追加",
       "taughtCourses": "担当授業数",
-      "ratedCourses": "集計対象授業数"
+      "ratedCourses": "集計対象授業数",
+      "radar": "5 項目評価のレーダーチャート",
+      "radarEmpty": "選択した項目には、レーダーチャートを描くのに十分な評価がまだありません。"
     }
   },
   "groups": {
