@@ -77,6 +77,17 @@ describe('academic boundary', () => {
     expect(first.searchParams.get('ids')?.split(',')).toHaveLength(100)
   })
 
+  it('reads missing enrollment names through the owner-scoped Catalog endpoint in batches', async () => {
+    const fetcher = vi.fn<typeof fetch>(async () => json({ items: [{ id: 'owned', kind: 'course', name: 'Owned course' }], missing_ids: [] }))
+    const ids = ['owned', ...Array.from({ length: 100 }, (_, i) => 'course-' + i), 'owned']
+    const names = await new AcademicApi(new Http(fetcher)).enrollmentReferences(ids)
+    expect(names.get('owned')?.name).toBe('Owned course')
+    const requests = fetcher.mock.calls.map(([url]) => new URL(String(url), 'https://example.test'))
+    expect(requests.map(url => url.pathname)).toEqual(Array(2).fill('/api/v1/catalog/me/references'))
+    expect(requests.flatMap(url => url.searchParams.get('ids')?.split(',') ?? [])).toEqual(ids.slice(0, -1))
+    expect(requests[0]?.searchParams.get('ids')?.split(',')).toHaveLength(100)
+  })
+
   it('treats missing credits as unknown and zero credits as a value', () => {
     expect(knownCredits({ credits: null as unknown as number })).toBeUndefined()
     expect(knownCredits({ credits: 0 })).toBe(0)

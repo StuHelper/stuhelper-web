@@ -7,8 +7,11 @@ import { myCoursesEnabled } from '../../app/features'
 import { useVerification } from '../verification/api'
 import { useAsync } from '../../shared/composables/async'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
-import { useAcademic, type CatalogObject } from './api'
+import { useAcademic } from './api'
 import { coursePath, type Addressable } from './paths'
+import { cardFromDirectory, cardsByIds, type CourseCard } from './courseCard'
+import CourseCardLine from './CourseCardLine.vue'
+import { loadOwnCourses, type OwnCourse, type OwnTerm } from './ownCourses'
 
 /**
  * The standing "write a course review" entry of the campus pages. It opens a picker:
@@ -24,18 +27,16 @@ const open = ref(false)
 const query = ref('')
 const searchId = useId()
 
-interface OwnRow { courseId: string; address: string; termId: string; teacherIds: string[]; name: string; code: string; teachers: string; reviewId?: string }
-interface TermGroup { termId: string; name: string; order: number; rows: OwnRow[] }
+interface OwnRow extends OwnCourse { teachers: string; reviewId?: string }
+interface TermGroup extends Omit<OwnTerm, 'rows'> { rows: OwnRow[] }
 
-// Own courses are listed only for a person with school data authorization, which is the
-// consent to read their own enrollment. It covers the terms authorized so far, so a
-// stopped authorization still lists them. Without it the panel offers recently visited
-// courses and the way to turn it on.
+// Own courses are listed only for a person with school data authorization (see
+// loadOwnCourses). Without it the panel offers recently visited courses and the way to
+// turn it on.
 const verification = useVerification()
 const own = useAsync(async (signal) => {
-  const authorization = await verification.schoolData(signal)
-  if (authorization.state === 'inactive') return { state: 'off' as const, groups: [] as TermGroup[] }
-  const enrollments = await api.myEnrollments(signal)
+  const loaded = await loadOwnCourses(api, verification, t('academic.launcher.missingCourse'), signal)
+  if (loaded.state === 'off') return { state: 'off' as const, groups: [] as TermGroup[] }
   // Every own course review, so a course is marked reviewed however many reviews precede it.
   const reviewed = new Map<string, string>()
   let after = ''
@@ -45,30 +46,19 @@ const own = useAsync(async (signal) => {
     if (!entries.next || entries.next === after) break
     after = entries.next
   }
-  const names = await api.lookup(enrollments.flatMap((row) => [row.course_id, row.term_id, ...row.teacher_ids]), signal)
-  const groups = new Map<string, TermGroup>()
-  for (const row of enrollments) {
-    if (!row.active) continue
-    const group = groups.get(row.term_id) ?? { termId: row.term_id, name: names.get(row.term_id)?.name ?? row.term_id, order: row.term_order_key ?? 0, rows: [] }
-    const course = names.get(row.course_id)
-    group.rows.push({
-      courseId: row.course_id,
-      address: course?.address_id || row.course_id,
-      termId: row.term_id,
-      teacherIds: row.teacher_ids.slice(),
-      name: course?.name ?? row.course_id,
-      code: typeof course?.code === 'string' ? course.code : '',
-      teachers: row.teacher_ids.map((id) => names.get(id)?.name).filter(Boolean).join('、'),
-      reviewId: reviewed.get(`${row.course_id}:${row.term_id}`),
-    })
-    groups.set(row.term_id, group)
-  }
-  // Newest term first; within a term the courses still to review come first.
-  const list = [...groups.values()].sort((a, b) => b.order - a.order)
+  const list: TermGroup[] = loaded.groups.map((group) => ({
+    ...group,
+    rows: group.rows.map((row) => ({ ...row, teachers: row.teacherNames.filter(Boolean).join('、'), reviewId: reviewed.get(`${row.courseId}:${row.termId}`) })),
+  }))
+  // Within a term the courses still to review come first.
   for (const group of list) group.rows.sort((a, b) => Number(!!a.reviewId) - Number(!!b.reviewId) || a.name.localeCompare(b.name))
   return { state: 'ready' as const, groups: list }
 })
-const recent = useAsync(async (signal) => (await api.recentCourses(signal)).items.slice(0, 6).map((row) => row.course))
+const recent = useAsync(async (signal) => {
+  const courses = (await api.recentCourses(signal)).items.slice(0, 6).map((row) => row.course)
+  const cards = await cardsByIds(api, courses.map((course) => course.id), signal)
+  return courses.map((course) => cards.get(course.id) ?? { object: course, code: typeof course.code === 'string' ? course.code : '', department: '', level: 0 })
+})
 const ownGroups = computed(() => own.data.value?.groups ?? [])
 const ownUnavailable = computed(() => own.status.value === 'error' || own.data.value?.state === 'off' || (own.data.value?.state === 'ready' && !ownGroups.value.length))
 const pendingCount = computed(() => ownGroups.value.reduce((sum, group) => sum + group.rows.filter((row) => !row.reviewId).length, 0))
@@ -83,7 +73,7 @@ function toggle(termId: string) {
 }
 
 // Search over all courses, a short moment after typing stops.
-const results = shallowRef<CatalogObject[]>([])
+const results = shallowRef<CourseCard[]>([])
 const searching = ref(false)
 const searchFailed = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -97,7 +87,7 @@ watch(query, (text) => {
   timer = setTimeout(async () => {
     controller = new AbortController()
     try {
-      results.value = (await api.objects({ kind: 'course', q: needle, limit: 8 }, controller.signal)).items
+      results.value = (await api.directory({ kind: 'course', q: needle, limit: 8 }, controller.signal)).items.map(cardFromDirectory)
       searchFailed.value = false
     } catch (error) {
       if ((error as Error).name === 'AbortError') return
@@ -132,7 +122,6 @@ function pick(row: OwnRow) {
     void router.push(`/reviews/${encodeURIComponent(row.reviewId)}`)
   } else write({ id: row.courseId, address_id: row.address }, row.termId, row.teacherIds)
 }
-const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? course.code : '')
 </script>
 
 <template>
@@ -200,18 +189,15 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
         </p>
         <ul class="launcher-list">
           <li
-            v-for="course in results"
-            :key="course.id"
+            v-for="card in results"
+            :key="card.object.id"
           >
             <button
               class="launcher-row"
               type="button"
-              @click="write(course)"
+              @click="write(card.object)"
             >
-              <span class="launcher-main">
-                <strong>{{ course.name }}</strong>
-                <span class="subtle">{{ codeOf(course) }}</span>
-              </span>
+              <CourseCardLine :card="card" />
               <span class="launcher-go">{{ t('academic.launcher.write') }}</span>
             </button>
           </li>
@@ -311,18 +297,15 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
             </h3>
             <ul class="launcher-list">
               <li
-                v-for="course in recent.data.value"
-                :key="course.id"
+                v-for="card in recent.data.value"
+                :key="card.object.id"
               >
                 <button
                   class="launcher-row"
                   type="button"
-                  @click="write(course)"
+                  @click="write(card.object)"
                 >
-                  <span class="launcher-main">
-                    <strong>{{ course.name }}</strong>
-                    <span class="subtle">{{ codeOf(course) }}</span>
-                  </span>
+                  <CourseCardLine :card="card" />
                   <span class="launcher-go">{{ t('academic.launcher.write') }}</span>
                 </button>
               </li>

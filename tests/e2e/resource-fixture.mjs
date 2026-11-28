@@ -160,6 +160,11 @@ export async function routes(page, s) {
         },
       });
     }
+    if (url.pathname === '/api/v1/catalog/directory') {
+      const object = { id: 'course', kind: 'course', school_id: 'school', name: 'Fixture course', code: 'C101', aliases: [], credits: 2, revision: 1, updated_at: '2029-01-01T00:00:00Z' };
+      const row = { object, departments: [], categories: [], review_count: 0, recommendation: 'unrated', heat: 0, dimensions: Array.from({ length: 5 }, () => ({ level: 0, samples: 0, courses: 0 })) };
+      return route.fulfill({ json: { items: [row], next: '', total: 1, facet_total: 1, nature_facets: [], category_facets: [], department_facets: [], generated_at: '2029-01-01T00:00:00Z' } });
+    }
     const kind = url.searchParams.get('kind');
     const id =
       kind === 'school'

@@ -10,6 +10,10 @@ import { recentPages } from '../../shared/recent'
 import { useErrorText } from '../../shared/ui/messages'
 import { useAccess } from '../account/access'
 import { targetRoute, useSearchApi, type SearchItem, type SearchKind } from './api'
+import { useAcademic } from '../academic/api'
+import { cardsByIds, type CourseCard } from '../academic/courseCard'
+import CourseCardLine from '../academic/CourseCardLine.vue'
+import { coursePath } from '../academic/paths'
 
 // Site search opened with Ctrl+K or the navigation button. With no query it
 // offers recently viewed pages; results come from the search service and only
@@ -23,6 +27,10 @@ const open = ref(false)
 const q = ref('')
 const active = ref(0)
 const results = shallowRef<SearchItem[]>([])
+// Course hits gain the facts of a course list row once they are looked up; until then,
+// or if the lookup fails, the hit shows its title alone.
+const academic = useAcademic()
+const cards = shallowRef(new Map<string, CourseCard>())
 const status = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
 const failure = ref('')
 const icons: Record<SearchKind, Component> = { school: Building2, course: BookOpen, teacher: GraduationCap, review: FileText, resource: FolderOpen }
@@ -30,10 +38,13 @@ const verified = computed(() => access.state.value === 'verified')
 // Key names are not translated; they match the keyboard.
 const hotkeyLabel = 'Ctrl K'
 
-interface Hit { to: string; title: string; kind: string; icon: Component }
+interface Hit { to: string; title: string; kind: string; icon: Component; card?: CourseCard }
 const hits = computed<Hit[]>(() => {
   if (!q.value.trim()) return recentPages().map((page) => ({ to: page.path, title: page.title, kind: t('search.recent'), icon: History }))
-  return results.value.map((item) => ({ to: targetRoute(item.target), title: item.title, kind: t(`search.kinds.${item.target.kind}`), icon: icons[item.target.kind] }))
+  return results.value.map((item) => {
+    const card = item.target.kind === 'course' ? cards.value.get(item.target.id) : undefined
+    return { to: card ? coursePath(card.object) : targetRoute(item.target), title: item.title, kind: t(`search.kinds.${item.target.kind}`), icon: icons[item.target.kind], card }
+  })
 })
 
 let controller: AbortController | undefined
@@ -57,8 +68,11 @@ watch([q, verified], ([value], previous) => {
   timer = setTimeout(async () => {
     controller = new AbortController()
     try {
-      results.value = (await api.search(text, '', '', controller.signal, 8)).items
+      const signal = controller.signal
+      results.value = (await api.search(text, '', '', signal, 8)).items
       status.value = 'ready'
+      const courses = results.value.filter((item) => item.target.kind === 'course').map((item) => item.target.id)
+      if (courses.length) void cardsByIds(academic, courses, signal).then((found) => { if (!signal.aborted) cards.value = found }).catch(() => undefined)
     } catch (error) {
       if (controller.signal.aborted) return
       failure.value = errorCode(error)
@@ -170,7 +184,14 @@ onBeforeUnmount(() => {
               :is="hit.icon"
               aria-hidden="true"
             />
-            <span class="group-body"><span class="truncate">{{ hit.title }}</span></span>
+            <CourseCardLine
+              v-if="hit.card"
+              :card="hit.card"
+            />
+            <span
+              v-else
+              class="group-body"
+            ><span class="truncate">{{ hit.title }}</span></span>
             <span class="subtle">{{ hit.kind }}</span>
           </li>
         </ul>
@@ -211,7 +232,7 @@ onBeforeUnmount(() => {
 
 <style>
 .palette-overlay { position: fixed; inset: 0; z-index: 100; background: rgb(0 0 0 / .22); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
-.palette { position: fixed; inset-block-start: 12vh; inset-inline: 0; z-index: 101; width: min(calc(100% - 1.5rem), 36rem); margin-inline: auto; overflow: hidden; border-radius: var(--radius-lg); background: var(--glass-strong); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
+.palette { position: fixed; inset-block-start: 12vh; inset-inline: 0; z-index: 101; width: min(calc(100% - 1.5rem), 44rem); margin-inline: auto; overflow: hidden; border-radius: var(--radius-lg); background: var(--glass-strong); box-shadow: var(--glass-edge), var(--shadow-float); backdrop-filter: var(--glass-filter); -webkit-backdrop-filter: var(--glass-filter); }
 .palette .field-row { display: flex; align-items: center; gap: .625rem; padding-inline: 1rem; border-block-end: .5px solid var(--separator); }
 .palette .field-row svg { flex: none; width: 1.125rem; height: 1.125rem; color: var(--label-3); }
 .palette input { flex: 1; min-width: 0; height: 48px; border: 0; outline: 0; background: transparent; color: var(--label); font: inherit; }

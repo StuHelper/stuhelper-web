@@ -58,6 +58,8 @@
       "tests/e2e/resources.spec.mjs#configured category field filters and grouping follow server configuration"
     ],
     "RES-CLIENT-04": [
+      "tests/e2e/resources.spec.mjs#choosing an earlier enrollment keeps its term and submits the chosen teacher",
+      "src/features/academic/ownCourses.test.ts#uses owner references for omitted courses and never labels an unknown course with its id",
       "tests/e2e/resources.spec.mjs#upload uses current terms and retries the original metadata request",
       "tests/e2e/resources.spec.mjs#starting another upload after saving creates two independent drafts",
       "tests/e2e/resources.spec.mjs#course suggestions load on opening the picker and closing discards a pending search"

@@ -698,6 +698,7 @@
       "withdrawnDisplay": "انسحب من المقرر"
     },
     "launcher": {
+      "missingCourse": "معلومات المقرر غير متاحة حاليًا",
       "title": "اختر مقررًا لتقييمه",
       "search": "ابحث باسم المقرر أو رمزه",
       "results": "نتائج البحث",
@@ -988,7 +989,15 @@
       "selectedDirectory": "المجلد المحدد",
       "dropOrBrowse": "اسحب ملفًا إلى هنا أو انقر للاختيار",
       "uploadProgress": "تم نقل {loaded} من {total} ({percent})",
-      "tagLimits": "الحد الأقصى ٢٠ وسمًا، و٦٤ حرفًا لكل وسم."
+      "tagLimits": "الحد الأقصى ٢٠ وسمًا، و٦٤ حرفًا لكل وسم.",
+      "changeCourse": "تغيير",
+      "boundNoTerm": "لم يُحدَّد الفصل ولا المدرّس",
+      "ownCourses": "مقرراتي · {term}",
+      "ownMore": "فصول سابقة: {count}",
+      "ownFewer": "إخفاء الفصول السابقة",
+      "ownHint": "فعّل تفويض بيانات الجامعة لتختار من مقرراتك مباشرة.",
+      "ownEnable": "تفعيل",
+      "ownTeachers": "مدرّسو هذا الفصل"
     },
     "request": {
       "resourceId": "معرّف المورد",

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { teacherDirectoryEnabled } from '../../app/features'
 import { Building2, BookOpen, FileText, FolderOpen, GraduationCap, Search, ThumbsDown, ThumbsUp } from 'lucide-vue-next'
-import { computed, ref, watch, type Component } from 'vue'
+import { computed, ref, shallowRef, watch, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 import { usePageFilters } from '../../shared/pageFilters'
@@ -10,6 +10,9 @@ import PageHeader from '../../shared/ui/PageHeader.vue'
 import PagedState from '../../shared/ui/PagedState.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { targetRoute, useSearchApi, type SearchItem, type SearchKind } from './api'
+import { useAcademic } from '../academic/api'
+import { cardsByIds, type CourseCard } from '../academic/courseCard'
+import CourseCardLine from '../academic/CourseCardLine.vue'
 
 // Full search results with a type filter. The query and filter live in page
 // state, so the address stays /search while reload and back keep the results.
@@ -38,6 +41,22 @@ watch([q, kind], () => {
   if (q.value) void list.reload()
   else if (readableVotes.status.value === 'idle') void readableVotes.reload()
 }, { immediate: true })
+
+// Course results gain the facts of a course list row; each loaded page is looked up once.
+const academic = useAcademic()
+const cards = shallowRef(new Map<string, CourseCard>())
+watch(() => list.items.value, async (items, _, onCleanup) => {
+  const missing = items.filter((item) => item.target.kind === 'course' && !cards.value.has(item.target.id)).map((item) => item.target.id)
+  if (!missing.length) return
+  const controller = new AbortController()
+  onCleanup(() => controller.abort())
+  try {
+    const found = await cardsByIds(academic, missing, controller.signal)
+    if (!controller.signal.aborted) cards.value = new Map([...cards.value, ...found])
+  } catch {
+    // Titles stay as they are when the lookup fails.
+  }
+})
 
 function submit() {
   const text = draft.value.trim()
@@ -162,7 +181,14 @@ function submit() {
                 :is="icons[item.target.kind]"
                 aria-hidden="true"
               /></span>
-              <span class="group-body">
+              <CourseCardLine
+                v-if="cards.get(item.target.id) && item.target.kind === 'course'"
+                :card="cards.get(item.target.id)!"
+              />
+              <span
+                v-else
+                class="group-body"
+              >
                 <span class="group-title">{{ item.title }}</span>
                 <span class="subtle">{{ t(`search.kinds.${item.target.kind}`) }}</span>
               </span>

@@ -698,6 +698,7 @@
       "withdrawnDisplay": "Se dio de baja"
     },
     "launcher": {
+      "missingCourse": "Información del curso no disponible por el momento",
       "title": "Elige un curso para opinar",
       "search": "Buscar por nombre o código del curso",
       "results": "Resultados",
@@ -988,7 +989,15 @@
       "selectedDirectory": "Carpeta seleccionada",
       "dropOrBrowse": "Arrastre un archivo aquí o haga clic para elegir",
       "uploadProgress": "Transferido {loaded} / {total} ({percent})",
-      "tagLimits": "Hasta 20 etiquetas de 64 caracteres cada una."
+      "tagLimits": "Hasta 20 etiquetas de 64 caracteres cada una.",
+      "changeCourse": "Cambiar",
+      "boundNoTerm": "Sin semestre ni profesor",
+      "ownCourses": "Mis asignaturas · {term}",
+      "ownMore": "Semestres anteriores: {count}",
+      "ownFewer": "Ocultar semestres anteriores",
+      "ownHint": "Activa la autorización de datos escolares para elegir entre tus asignaturas.",
+      "ownEnable": "Activar",
+      "ownTeachers": "Profesores de este semestre"
     },
     "request": {
       "resourceId": "ID del recurso",

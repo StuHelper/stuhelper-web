@@ -60,6 +60,7 @@ const parse = {
   filterOptions: schemaOf<Catalog['schemas']['FilterOptions']>(catalog, 'FilterOptions'),
   summary: schemaOf<ObjectSummary>(catalog, 'PublicSummary'),
   resolution: schemaOf<Catalog['schemas']['Resolution']>(catalog, 'Resolution'),
+  enrollmentReferences: schemaOf<Catalog['schemas']['References']>(catalog, 'References'),
   lookup: schemaOf<Catalog['schemas']['Lookup']>(catalog, 'Lookup'),
   enrollments: schemaOf<Enrollment[]>(catalog, 'Enrollment', true),
   schedule: schemaOf<Catalog['schemas']['OwnSchedulePage']>(catalog, 'OwnSchedulePage'),
@@ -162,6 +163,19 @@ export class AcademicApi {
     const names = new Map<string, CatalogObject>()
     for (let start = 0; start < unique.length; start += 100) {
       const result = await this.http.json('/api/v1/catalog/objects/lookup', parse.lookup, { query: { ids: unique.slice(start, start + 100).join(',') }, signal })
+      for (const item of result.items) names.set(item.id, item)
+    }
+    return names
+  }
+
+  /** Only enrollment IDs missing from the public directory need the caller-owned name lookup. */
+  async enrollmentReferences(ids: string[], signal?: AbortSignal) {
+    const unique = [...new Set(ids)]
+    const names = new Map<string, Catalog['schemas']['Reference']>()
+    for (let start = 0; start < unique.length; start += 100) {
+      const result = await this.http.json('/api/v1/catalog/me/references', parse.enrollmentReferences, {
+        query: { ids: unique.slice(start, start + 100).join(',') }, signal,
+      })
       for (const item of result.items) names.set(item.id, item)
     }
     return names

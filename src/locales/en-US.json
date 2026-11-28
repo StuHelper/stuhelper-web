@@ -698,6 +698,7 @@
       "withdrawnDisplay": "Withdrew"
     },
     "launcher": {
+      "missingCourse": "Course information currently unavailable",
       "title": "Choose a course to review",
       "search": "Search by course name or code",
       "results": "Search results",
@@ -988,7 +989,15 @@
       "selectedDirectory": "Selected folder",
       "dropOrBrowse": "Drop a file here or click to choose",
       "uploadProgress": "Transferred {loaded} / {total} ({percent})",
-      "tagLimits": "Use up to 20 tags of 64 characters each."
+      "tagLimits": "Use up to 20 tags of 64 characters each.",
+      "changeCourse": "Change",
+      "boundNoTerm": "No term or teacher set",
+      "ownCourses": "My courses · {term}",
+      "ownMore": "Earlier terms: {count}",
+      "ownFewer": "Hide earlier terms",
+      "ownHint": "Turn on school data authorization to choose from your own courses.",
+      "ownEnable": "Turn on",
+      "ownTeachers": "Teachers this term"
     },
     "request": {
       "resourceId": "Resource ID",
