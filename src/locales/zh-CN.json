@@ -698,6 +698,7 @@
       "withdrawnDisplay": "已退课"
     },
     "launcher": {
+      "missingCourse": "课程信息暂缺",
       "title": "选择要评价的课程",
       "search": "搜索课程名或课程号",
       "results": "搜索结果",
@@ -988,7 +989,15 @@
       "selectedDirectory": "已选目录",
       "dropOrBrowse": "拖拽文件到此处，或点击选择文件",
       "uploadProgress": "已传输 {loaded} / {total}（{percent}）",
-      "tagLimits": "最多 20 个标签，每个最多 64 个字符。"
+      "tagLimits": "最多 20 个标签，每个最多 64 个字符。",
+      "changeCourse": "更换",
+      "boundNoTerm": "未标注学期和教师",
+      "ownCourses": "我的课程 · {term}",
+      "ownMore": "更早学期（{count}）",
+      "ownFewer": "收起更早学期",
+      "ownHint": "开通学校数据认证后，可以直接从已选课程中选择。",
+      "ownEnable": "去开通",
+      "ownTeachers": "本学期任课教师"
     },
     "request": {
       "resourceId": "资料编号",
@@ -2409,7 +2418,9 @@
       "addCourse": "搜索并添加对比课程",
       "addTeacher": "搜索并添加对比教师",
       "taughtCourses": "所授课程数",
-      "ratedCourses": "计入统计课程数"
+      "ratedCourses": "计入统计课程数",
+      "radar": "五项评分雷达图",
+      "radarEmpty": "所选项目暂无足够评价，无法绘制雷达图。"
     }
   },
   "groups": {

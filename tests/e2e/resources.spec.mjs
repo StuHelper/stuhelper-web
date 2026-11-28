@@ -97,7 +97,10 @@ test('new resource explains why uploads are unavailable when there are no enable
 });
 
 test('upload uses current terms and retries the original metadata request', async ({ page }, info) => {
-  const { all, m, s, errors, locale } = await setup(page, info, '/resources/new?school_id=school&course_id=course');
+  const { all, m, s, errors, locale } = await setup(page, info);
+  await page.getByRole('link', { name: m.upload, exact: true }).click();
+  await expect(page.locator('.bound-course')).toContainText('Fixture course');
+  await expect(page.getByRole('combobox', { name: all.academic.course, exact: true })).toHaveCount(0);
   await describe(page, m, 'Uploaded lecture');
   s.lose = true;
   await page.getByRole('button', { name: m.editor.create, exact: true }).click();
@@ -107,6 +110,7 @@ test('upload uses current terms and retries the original metadata request', asyn
   await expect(page.getByText(m.editor.saved, { exact: true })).toBeVisible();
   const posts = s.calls.filter((x) => x.path === '' && x.method === 'POST');
   expect(posts).toHaveLength(2);
+  expect(posts[0].body.metadata.associations.course_id).toBe('course');
   expect(posts[0].key).toBe(posts[1].key);
   expect(posts[0].body).toEqual(posts[1].body);
   expect(posts[0].body.metadata.origin.consent).toEqual({ accepted: true, version: 'v1', digest: 'a'.repeat(64) });
@@ -125,6 +129,27 @@ test('upload uses current terms and retries the original metadata request', asyn
   await expect(page.getByText(m.versionState.pending, { exact: true })).toBeVisible();
   expect(s.calls.find((x) => x.path === '/api/v1/media/uploads')?.body.purpose).toBe('custom-profile');
   await layout(page, errors, locale);
+});
+
+test('choosing an earlier enrollment keeps its term and submits the chosen teacher', async ({ page }, info) => {
+  await page.route('**/api/v1/verification/me/school-data', route => route.fulfill({ json: {
+    state: 'active', verified_at: '2026-11-26T00:00:00Z', authorized_through: { id: 'spring', year: 2026, season: 'spring' },
+  } }));
+  const { all, m, s } = await setup(page, info, '/resources');
+  await page.route('**/api/v1/catalog/me/enrollments**', route => route.fulfill({ json: [
+    { id: 'newer', term_id: 'spring', term_order_key: 20261, teacher_ids: ['new-teacher'] },
+    { id: 'older', term_id: 'fall', term_order_key: 20253, teacher_ids: ['first', 'second'] },
+  ].map(row => ({ ...row, school_id: 'school', subject: 'synthetic', course_id: 'course', active: true })) }));
+  await page.getByRole('link', { name: m.upload, exact: true }).click();
+  await page.getByRole('button', { expanded: false }).filter({ hasText: m.editor.ownMore.split('{count}')[0] }).click();
+  await page.getByRole('button', { name: /Fixture course.*Course second/ }).click();
+  await expect(page.getByRole('combobox', { name: all.academic.course, exact: true })).toHaveValue('Fixture course');
+  await expect(page.getByRole('combobox', { name: m.editor.term, exact: true })).toHaveValue('Course fall');
+  await page.getByRole('group', { name: m.editor.ownTeachers }).getByRole('button', { name: 'Course second' }).click();
+  await describe(page, m, 'Earlier term notes');
+  await page.getByRole('button', { name: m.editor.create, exact: true }).click();
+  await expect.poll(() => s.calls.find(call => call.method === 'POST' && call.path === '')?.body.metadata.associations)
+    .toMatchObject({ course_id: 'course', term_id: 'fall', teacher_id: 'second' });
 });
 
 test('tags are added one at a time with Enter, a comma or leaving the field, and can be removed', async ({ page }, info) => {
@@ -443,7 +468,7 @@ test('course suggestions load on opening the picker and closing discards a pendi
   const searches = [];
   page.on('request', request => {
     const url = new URL(request.url());
-    if (url.pathname === '/api/v1/catalog/objects' && url.searchParams.get('kind') === 'course') searches.push(url.searchParams.get('q') ?? '');
+    if (url.pathname === '/api/v1/catalog/directory' && url.searchParams.get('kind') === 'course') searches.push(url.searchParams.get('q') ?? '');
   });
   await page.clock.install();
   const { all } = await setup(page, info, '/resources/new');
@@ -452,14 +477,14 @@ test('course suggestions load on opening the picker and closing discards a pendi
   await page.clock.fastForward(1000);
   expect(searches).toEqual([]);
   await picker.click();
-  await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: /Fixture course.*C101/ })).toBeVisible();
   await picker.fill('discarded');
   await picker.press('Escape');
   await expect(picker).toHaveAttribute('aria-expanded', 'false');
   await page.clock.fastForward(1000);
   expect(searches).toEqual(['']);
   await picker.click();
-  await expect(page.getByRole('option', { name: 'Fixture course', exact: true })).toBeVisible();
+  await expect(page.getByRole('option', { name: /Fixture course.*C101/ })).toBeVisible();
   expect(searches).not.toContain('discarded');
 });
 

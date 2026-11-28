@@ -698,6 +698,7 @@
       "withdrawnDisplay": "履修取消"
     },
     "launcher": {
+      "missingCourse": "授業情報は現在表示できません",
       "title": "評価する授業を選択",
       "search": "授業名または授業コードで検索",
       "results": "検索結果",
@@ -988,7 +989,15 @@
       "selectedDirectory": "選択中のフォルダ",
       "dropOrBrowse": "ここにファイルをドロップするか、クリックして選択",
       "uploadProgress": "転送済み {loaded} / {total}（{percent}）",
-      "tagLimits": "タグは最大20個、各タグは64文字までです。"
+      "tagLimits": "タグは最大20個、各タグは64文字までです。",
+      "changeCourse": "変更",
+      "boundNoTerm": "学期と教員は未指定",
+      "ownCourses": "履修科目 · {term}",
+      "ownMore": "以前の学期：{count}",
+      "ownFewer": "以前の学期を閉じる",
+      "ownHint": "学校データ認証を有効にすると、履修科目から選べます。",
+      "ownEnable": "有効にする",
+      "ownTeachers": "この学期の担当教員"
     },
     "request": {
       "resourceId": "資料 ID",
@@ -2409,7 +2418,9 @@
       "addCourse": "比較する授業を検索して追加",
       "addTeacher": "比較する教員を検索して追加",
       "taughtCourses": "担当授業数",
-      "ratedCourses": "集計対象授業数"
+      "ratedCourses": "集計対象授業数",
+      "radar": "5 項目評価のレーダーチャート",
+      "radarEmpty": "選択した項目には、レーダーチャートを描くのに十分な評価がまだありません。"
     }
   },
   "groups": {
