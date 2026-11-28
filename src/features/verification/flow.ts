@@ -23,6 +23,7 @@ export function useVerificationFlow() {
   const checking = ref(false)
   // After repeated failures the server refuses new checks for a while (HTTP 429 with a wait).
   const cooldownUntil = ref(0)
+  const marketRetryAt = ref<string>()
   const error = ref('')
   const loadError = ref('')
   const errorTarget = ref<ErrorTarget>('form')
@@ -109,7 +110,11 @@ export function useVerificationFlow() {
   function fail(failure: unknown, target: ErrorTarget = 'form') {
     errorTarget.value = target
     error.value = errorCode(failure)
-    if (failure instanceof ApiError && failure.status === 429 && failure.retryAfter) cooldownUntil.value = Date.now() + failure.retryAfter * 1000
+    if (failure instanceof ApiError && ['market_account_daily_limit', 'market_platform_daily_limit'].includes(failure.code)) {
+      marketRetryAt.value = failure.retryAt ?? (failure.retryAfter ? new Date(Date.now() + failure.retryAfter * 1000).toISOString() : undefined)
+    } else if (failure instanceof ApiError && failure.status === 429 && failure.retryAfter) {
+      cooldownUntil.value = Date.now() + failure.retryAfter * 1000
+    }
   }
   /** Runs an identity check: shows the checking state and stays closed while a cooldown runs. */
   async function check(work: () => Promise<void>) {
@@ -292,6 +297,7 @@ export function useVerificationFlow() {
   async function action(work: () => Promise<void>, target: ErrorTarget = 'form') {
     if (busy.value) return
     busy.value = true
+    marketRetryAt.value = undefined
     errorTarget.value = target
     error.value = ''
     notice.value = ''
@@ -612,7 +618,7 @@ export function useVerificationFlow() {
   })
 
   return {
-    loading, busy, checking, cooldownUntil, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
+    loading, busy, checking, cooldownUntil, marketRetryAt, error, loadError, errorTarget, profileCredential, notice, summary, schools, applications, credentials, requests, cursors, profile,
     isStudentApplication, backToMethod, emailSentAt, mode, selectedSchool, selectedMethod, stage, kind, consent, active, email, materials, smsCode, form, removal, suggestion,
     school, availableMethods, manual, emailMethod, schoolPending, chooseStudy, chooseStage, writable, step, profileRequestId,
     asksKind, kindChoices, methodAllowed, chooseKind, chooseMethod, standing, standingApplication,

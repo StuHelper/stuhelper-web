@@ -75,7 +75,7 @@ const challenge = (v: unknown) => object(v) && text(v.id) && oneOf(v.state, ['pr
 
 const schoolDataTerm = (v: unknown) => object(v) && sized(v.id, 1, 128) && Number.isInteger(v.year) && oneOf(v.season, ['spring', 'summer', 'autumn'])
 const marketState = (v: unknown) => object(v) && typeof v.active === 'boolean' && count(v.revision)
-  && (v.consented_at === undefined || instant(v.consented_at)) && (v.withdrawn_at === undefined || instant(v.withdrawn_at))
+  && (v.active ? instant(v.consented_at) : v.consented_at === undefined || instant(v.consented_at)) && (v.withdrawn_at === undefined || instant(v.withdrawn_at))
 const checks: Record<Entity, (v: Record<string, unknown>) => boolean> = {
   StudentProfile: (v) => text(v.school_id) && oneOf(v.data_status, ['complete', 'partial', 'reference_only', 'unavailable']) && text(v.schema) && count(v.revision) && optionalInstant(v.collected_at) && text(v.source_revision) && object(v.fields) && Object.keys(v.fields).length <= 64 && object(v.field_sources) && Object.values(v.field_sources).every(text) && (v.raw_data === undefined || text(v.raw_data)),
   School: (v) => text(v.id) && text(v.name) && typeof v.enabled === 'boolean' && Array.isArray(v.methods) && v.methods.every((m) => oneOf(m, methods)) && text(v.notice_version) && text(v.opening_date) && count(v.newcomer_days) && text(v.email_domain) && materialTypes(v.material_types) && (v.teacher_enabled === undefined || typeof v.teacher_enabled === 'boolean') && (v.teacher_material_types === undefined || materialTypes(v.teacher_material_types)) && count(v.revision) && (v.profile_schema === undefined || text(v.profile_schema)) && methodCapabilities(v.method_capabilities) && methodDescriptions(v.method_description_keys),
@@ -186,7 +186,9 @@ export class VerificationApi {
         if (!object(value) || !text(value.operation_id) || !operationId.test(value.operation_id)) throw new ApiError('incompatible', true)
         await new Promise((resolve) => setTimeout(resolve, 500))
         const operation = await this.get('Operation', `/api/v1/verification/operations/${value.operation_id}`, signal)
-        if (operation.state === 'failed') throw new ApiError(normalizeCode(operation.code || 'unavailable'))
+        if (operation.state === 'failed' && !['market_account_daily_limit', 'market_platform_daily_limit'].includes(operation.code)) throw new ApiError(normalizeCode(operation.code || 'unavailable'))
+        // A completed daily refusal stores the exact reopening instant in the
+        // original receipt. Read it again with the same idempotency key.
         if (signal?.aborted) throw new ApiError('cancelled', true)
       }
       throw new ApiError('processing', true)

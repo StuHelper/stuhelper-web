@@ -26,15 +26,17 @@ export function useMarketConsent(locale: Ref<string>, visible: Ref<boolean>) {
     await notice.reload()
   }
   async function withdraw() {
-    if (withdrawing.value) return
+    if (withdrawing.value) return false
     withdrawing.value = true
     withdrawalError.value = ''
     accepted.value = false
     try {
       await api.write('MarketConsentState', '/api/v1/verification/identity/market-consent', undefined, 'DELETE')
       await refresh()
+      return true
     } catch (error) {
       withdrawalError.value = errorCode(error)
+      return false
     } finally {
       withdrawing.value = false
     }

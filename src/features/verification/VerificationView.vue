@@ -28,10 +28,11 @@ import SchoolPicker from './SchoolPicker.vue'
 import VerificationRoles from './VerificationRoles.vue'
 import VerificationStatus from './VerificationStatus.vue'
 import { useVerificationFlow } from './flow'
+import { useMarketConsent } from './market-consent'
+import ConfirmDialog from '../../shared/ui/ConfirmDialog.vue'
 
 // 学生认证和实名认证是两个页面，共用同一套流程。实名认证放在账号与安全下面。
 // 学生认证页从上到下回答三件事：现在是什么状态、可以选哪种方式、下一步做什么。
-import { useMarketConsent } from './market-consent'
 
 const props = withDefaults(defineProps<{ scope?: 'student' | 'identity' }>(), { scope: 'student' })
 const { t, te, locale } = useI18n()
@@ -51,9 +52,10 @@ if (props.scope === 'identity') flow.selectMode('identity')
 // 状态确认前不显示实名表单，否则已实名的用户会先看到待实名的页面。
 const showIdentityForm = computed(() => props.scope === 'identity' && flow.summary.value?.identity_verified === false)
 const outsideRoster = ref(false)
+const confirmMarketWithdrawal = ref(false)
 const rosterMissing = ref(false)
 const market = useMarketConsent(locale, computed(() => props.scope === 'identity' && !!flow.summary.value && session.state.value === 'member'))
-const external = computed(() => outsideRoster.value || (!!flow.school.value && flow.school.value.id !== '4111010006' && !flow.availableMethods.value.includes('real_name_identity_check')))
+const external = computed(() => outsideRoster.value || (!!flow.school.value && !flow.availableMethods.value.includes('real_name_identity_check')))
 const needsMarket = computed(() => external.value || rosterMissing.value)
 watch([outsideRoster, flow.selectedSchool, () => form.student_id, () => form.name, () => form.document_number], () => {
   market.accepted.value = false
@@ -63,11 +65,17 @@ async function submitIdentity() {
   const choice = needsMarket.value ? market.choice() : undefined
   if (needsMarket.value && !choice) return
   await flow.submitIdentity(external.value, choice)
-  if (flow.error.value === 'market_consent_required' || flow.error.value === 'market_consent_changed') {
+  if (['real_name_no_record', 'market_consent_required', 'market_consent_changed'].includes(flow.error.value)) {
     rosterMissing.value = !external.value
     await market.refresh()
-  } else if (choice && (flow.notice.value === 'identityDone' || ['real_name_mismatch', 'real_name_no_record', 'dependency_unavailable'].includes(flow.error.value))) {
+  } else if (choice && (flow.notice.value === 'identityDone' || flow.error.value.startsWith('market_'))) {
     await market.refresh()
+  }
+}
+async function withdrawMarket() {
+  if (await market.withdraw()) {
+    confirmMarketWithdrawal.value = false
+    toast(t('verification.marketWithdrawn'))
   }
 }
 const methodDescription = computed(() => {
@@ -779,7 +787,14 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
           >
           <span>{{ t('verification.outsideRoster') }}</span>
         </label>
+        <p
+          v-if="!outsideRoster && !flow.loading.value && !flow.schools.value.length"
+          class="empty"
+        >
+          {{ t('verification.noSchools') }}
+        </p>
         <form
+          v-else
           class="stack verification-form"
           @submit.prevent="submitIdentity"
         >
@@ -898,7 +913,9 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
             :checking="flow.checking.value"
             :remaining="cooldownSeconds"
           />
-          <ActionError :code="flow.errorTarget.value === 'form' ? shownError : ''" />
+          <ActionError :code="flow.errorTarget.value === 'form' ? (rosterMissing && shownError === 'market_consent_required' ? 'real_name_no_record' : shownError) : ''">
+            <span v-if="flow.marketRetryAt.value"> {{ t('verification.marketRetryAt', { time: format.dateTime(flow.marketRetryAt.value) }) }}</span>
+          </ActionError>
           <div class="form-actions">
             <button
               class="btn btn-primary"
@@ -915,15 +932,31 @@ const credentialLine = (credential: { kind: string; stage: string; student_displ
         v-if="scope === 'identity' && market.notice.data.value?.state.active"
         class="card stack-sm"
       >
+        <p
+          v-if="market.notice.data.value.state.consented_at"
+          class="muted small"
+        >
+          {{ t('verification.marketAccepted', { version: market.notice.data.value.version, time: format.dateTime(market.notice.data.value.state.consented_at) }) }}
+        </p>
         <button
           type="button"
-          class="btn"
+          class="btn btn-sm"
           :disabled="market.withdrawing.value || flow.busy.value"
-          @click="market.withdraw"
+          @click="confirmMarketWithdrawal = true"
         >
           {{ t('verification.withdrawMarket') }}
         </button>
-        <ActionError :code="market.withdrawalError.value" />
+        <ConfirmDialog
+          :open="confirmMarketWithdrawal"
+          :title="t('verification.withdrawMarket')"
+          :message="t('verification.marketWithdrawConfirm')"
+          :confirm-label="t('verification.withdrawMarket')"
+          :busy="market.withdrawing.value"
+          :error="market.withdrawalError.value"
+          @confirm="withdrawMarket"
+          @retry="withdrawMarket"
+          @cancel="confirmMarketWithdrawal = false"
+        />
       </section>
       <div
         v-if="scope === 'identity' && flow.summary.value?.identity_verified && market.notice.status.value === 'error'"

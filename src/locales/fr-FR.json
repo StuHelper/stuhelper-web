@@ -128,7 +128,7 @@
     "billing_already_accessible": "Vous avez déjà accès à cette ressource, aucun paiement n’est nécessaire.",
     "method_identity_not_allowed": "Cette méthode est réservée aux étudiants actuels. Les anciens étudiants doivent utiliser la vérification d’identité ou l’examen manuel des documents.",
     "real_name_mismatch": "La vérification d’identité a échoué. Vérifiez les informations saisies puis réessayez, ou choisissez une autre méthode.",
-    "real_name_no_record": "Vérification impossible. Choisissez une autre méthode.",
+    "real_name_no_record": "Aucun dossier correspondant dans le registre étudiant. Vous pouvez choisir la vérification externe sur la page de vérification d’identité indépendante.",
     "email_identity_mismatch": "Les informations n’ont pas pu être vérifiées. Vérifiez-les puis réessayez, ou choisissez une autre méthode.",
     "email_identity_no_record": "Vérification impossible. Choisissez une autre méthode.",
     "school_credentials_rejected": "Le compte universitaire ou le mot de passe est incorrect. Réessayez.",
@@ -159,7 +159,15 @@
     "storage_status_unknown": "État du stockage inconnu. Réessayez plus tard.",
     "file_too_large": "Le fichier dépasse la taille autorisée pour cet usage.",
     "storage_restricted_encryption_unavailable": "Les dépôts de fichiers à accès restreint sont suspendus car le chiffrement est indisponible.",
-    "media_storage_restricted_encryption_unavailable": "Les dépôts de fichiers à accès restreint sont suspendus car le chiffrement est indisponible."
+    "media_storage_restricted_encryption_unavailable": "Les dépôts de fichiers à accès restreint sont suspendus car le chiffrement est indisponible.",
+    "market_account_daily_limit": "Vous avez utilisé toutes les vérifications externes autorisées aujourd’hui pour ce compte.",
+    "market_account_lifetime_limit": "Ce compte a atteint son plafond cumulé de 10 vérifications externes. Il ne se réinitialise pas automatiquement. Aucune date de reprise n’est prévue. Contactez l’assistance si nécessaire.",
+    "market_platform_daily_limit": "Le quota quotidien de vérifications externes de la plateforme est atteint.",
+    "market_package_exhausted": "Le forfait de vérification a atteint sa réserve, est épuisé ou a expiré. Les vérifications reprendront après son renouvellement.",
+    "market_provider_paused": "Le prestataire a suspendu la vérification ou refusé cette demande de service.",
+    "market_result_unknown": "Le délai a expiré ou le résultat est incertain. Les mêmes données ne seront ni renvoyées ni facturées une deuxième fois. Consultez votre statut de vérification ultérieurement.",
+    "market_identity_mismatch": "Selon le prestataire, le nom et le numéro de carte ne correspondent pas. Vérifiez les deux champs.",
+    "market_identity_no_record": "Le prestataire n’a trouvé aucun enregistrement pour cette carte. Vérifiez le numéro."
   },
   "connection": {
     "label": "État de la connexion au service",
@@ -1069,7 +1077,7 @@
     }
   },
   "verification": {
-    "outsideRoster": "Je n’ai pas de dossier étudiant à Beihang",
+    "outsideRoster": "Je ne suis pas étudiant à Beihang ou je n’y ai pas de dossier étudiant",
     "agreeMarket": "Je consens séparément à la transmission de mon nom et de mon numéro de carte d’identité au prestataire indiqué pour cette vérification.",
     "withdrawMarket": "Retirer mon consentement à la vérification externe",
     "title": "Vérification étudiante",
@@ -1458,7 +1466,11 @@
       "rules": "Règles complètes (politique de confidentialité)",
       "entry": "Affiche votre inscription sur vos avis"
     },
-    "history": "Historique ({count})"
+    "history": "Historique ({count})",
+    "marketAccepted": "Vous avez consenti à transmettre vos données d’identité au prestataire pour vérification. Version {version}, consentement donné le {time}.",
+    "marketWithdrawConfirm": "Le retrait arrête les transmissions futures de votre nom et de votre numéro de carte. Vous pourrez de nouveau donner votre consentement.",
+    "marketWithdrawn": "Votre consentement à la vérification externe a été retiré.",
+    "marketRetryAt": "Vous pourrez réessayer à partir de {time}."
   },
   "contribution": {
     "eyebrow": "STOCKAGE PARTAGÉ",

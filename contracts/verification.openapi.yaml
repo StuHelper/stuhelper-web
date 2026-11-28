@@ -729,7 +729,18 @@ paths:
             application/json:
               schema: { $ref: '#/components/schemas/Summary' }
         '202': { $ref: '#/components/responses/Processing' }
-        '429': { $ref: '#/components/responses/RateLimited' }
+        '403':
+          description: market_consent_required requires a separate choice. market_account_lifetime_limit has no automatic reset.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '422':
+          description: market_identity_mismatch and market_identity_no_record describe distinct provider results. A roster miss may require market consent. An unsupported route returns online_identity_unsupported.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '429':
+          description: market_account_daily_limit includes retry_at and retry_after_seconds. Other admission limits may include Retry-After.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
+        '503':
+          description: market_platform_daily_limit includes retry_at. market_package_exhausted and market_provider_paused have no known reopening time. market_result_unknown must never be automatically resubmitted.
+          content: { application/json: { schema: { $ref: '#/components/schemas/Problem' } } }
         default: { $ref: '#/components/responses/Problem' }
   /api/v1/verification/identity/market-consent:
     get:
@@ -1716,6 +1727,7 @@ components:
       properties:
         code: { type: string }
         operation_id: { type: string }
+        retry_at: { type: string, format: date-time, description: Absolute reopening time for a daily identity verification limit. }
         retry_after_seconds: { type: integer, minimum: 1 }
         remaining_attempts: { type: integer, minimum: 0 }
     RateLimitedProblem:

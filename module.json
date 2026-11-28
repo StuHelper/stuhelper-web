@@ -21,7 +21,9 @@
     "SV-IDV2-02": [
       "tests/e2e/verification-ux.spec.mjs#independent identity requires separate market consent and allows withdrawal after a match",
       "tests/e2e/verification-ux.spec.mjs#independent identity never offers a disabled market check",
-      "tests/e2e/verification-ux.spec.mjs#a roster miss offers a fresh unchecked notice and recovers from a failed notice load"
+      "tests/e2e/verification-ux.spec.mjs#a roster miss offers a fresh unchecked notice and recovers from a failed notice load",
+      "tests/e2e/verification-ux.spec.mjs#market identity shows the specific rejection and exact reopening time",
+      "tests/e2e/verification-ux.spec.mjs#independent identity keeps the empty school state and offers the outside roster path"
     ],
     "I18N-04": [
       "tests/e2e/legal.spec.mjs#footer links open the current public terms and privacy policy with their calendar date",

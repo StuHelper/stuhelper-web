@@ -1525,6 +1525,11 @@ export interface components {
         Problem: {
             code: string;
             operation_id?: string;
+            /**
+             * Format: date-time
+             * @description Absolute reopening time for a daily identity verification limit.
+             */
+            retry_at?: string;
             retry_after_seconds?: number;
             remaining_attempts?: number;
         };
@@ -2755,7 +2760,42 @@ export interface operations {
                 };
             };
             202: components["responses"]["Processing"];
-            429: components["responses"]["RateLimited"];
+            /** @description market_consent_required requires a separate choice. market_account_lifetime_limit has no automatic reset. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description market_identity_mismatch and market_identity_no_record describe distinct provider results. A roster miss may require market consent. An unsupported route returns online_identity_unsupported. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description market_account_daily_limit includes retry_at and retry_after_seconds. Other admission limits may include Retry-After. */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
+            /** @description market_platform_daily_limit includes retry_at. market_package_exhausted and market_provider_paused have no known reopening time. market_result_unknown must never be automatically resubmitted. */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Problem"];
+                };
+            };
             default: components["responses"]["Problem"];
         };
     };
