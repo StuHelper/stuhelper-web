@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   image:
-    uses: StuHelper/stuhelper-tooling/.github/workflows/image.yml@v0.1.10
+    uses: StuHelper/stuhelper-tooling/.github/workflows/image.yml@v0.1.13
     with:
       application: web
       version: ${{ inputs.version || github.ref_name }}
