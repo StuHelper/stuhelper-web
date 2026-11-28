@@ -547,6 +547,7 @@ function uploadMessage(state: string) {
                 <div class="form-grid">
                   <CatalogPicker
                     v-model="metadata.associations.course_id"
+                    class="picker-wide"
                     kind="course"
                     :label="t('academic.course')"
                     :empty-label="t('resources.editor.chooseCourse')"
@@ -934,6 +935,8 @@ function uploadMessage(state: string) {
 .own-course:hover, .own-course:focus-visible { border-color: var(--accent); }
 .own-more { justify-self: start; }
 .teacher-choices { flex-wrap: wrap; gap: .375rem; }
+/* The course field takes the whole row: course names are long and the choices show their facts. */
+.picker-wide { grid-column: 1 / -1; }
 .chip { min-height: 32px; padding: .25rem .75rem; border: 0; border-radius: var(--pill); background: var(--fill); color: var(--label-2); font: inherit; font-size: .8125rem; cursor: pointer; }
 .chip[aria-pressed="true"] { background: var(--accent-fill); color: var(--on-accent); font-weight: 550; }
 .stepper { display: flex; flex-wrap: wrap; gap: .375rem; }

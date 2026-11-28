@@ -425,8 +425,7 @@
       "englishName": "英語名",
       "formerCodes": "旧科目番号",
       "formerNames": "旧名称",
-      "hours": "時間数",
-      "uploadResource": "資料をアップロード"
+      "hours": "時間数"
     },
     "offerings": {
       "title": "開講履歴",

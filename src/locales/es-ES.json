@@ -425,8 +425,7 @@
       "englishName": "Nombre en inglés",
       "formerCodes": "Códigos anteriores",
       "formerNames": "Nombres anteriores",
-      "hours": "Horas lectivas",
-      "uploadResource": "Subir recurso"
+      "hours": "Horas lectivas"
     },
     "offerings": {
       "title": "Ediciones del curso",

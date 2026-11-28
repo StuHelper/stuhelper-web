@@ -5,6 +5,8 @@ import { computed, onBeforeUnmount, ref, shallowRef, useId, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { errorCode } from '../../shared/api/errors'
 import { useAcademic, type CatalogObject, type ObjectKind } from '../academic/api'
+import { cardFromDirectory, type CourseCard } from '../academic/courseCard'
+import CourseCardLine from '../academic/CourseCardLine.vue'
 
 // Choose a catalog object. Typing searches on the server, so long lists need no
 // separate search control. An unknown association stays empty instead of being guessed.
@@ -14,6 +16,7 @@ const { t } = useI18n()
 const api = useAcademic()
 const id = useId()
 const items = shallowRef<CatalogObject[]>([])
+const cards = shallowRef(new Map<string, CourseCard>())
 const next = ref('')
 const search = ref('')
 const open = ref(false)
@@ -38,10 +41,20 @@ async function load(more = false) {
   busy.value = true
   error.value = ''
   try {
-    const page = await api.objects({ kind: props.kind, school_id: props.school, course_id: props.course, term_id: props.term, q: search.value, after: more ? next.value : '', limit: 50 }, controller.signal)
+    // Courses come from the directory, so each choice shows the facts of a course list row.
+    const page = props.kind === 'course'
+      ? await api.directory({ kind: 'course', school_id: props.school, q: search.value || undefined, after: more ? next.value : undefined, limit: 30 }, controller.signal)
+      : undefined
+    const plain = page ? undefined : await api.objects({ kind: props.kind, school_id: props.school, course_id: props.course, term_id: props.term, q: search.value, after: more ? next.value : '', limit: 50 }, controller.signal)
     if (controller.signal.aborted) return
-    items.value = more ? [...items.value, ...page.items] : page.items
-    next.value = page.next
+    const found = page ? page.items.map((row) => row.object) : plain?.items ?? []
+    if (page) {
+      const known = more ? new Map(cards.value) : new Map<string, CourseCard>()
+      for (const row of page.items) known.set(row.object.id, cardFromDirectory(row))
+      cards.value = known
+    }
+    items.value = more ? [...items.value, ...found] : found
+    next.value = page?.next ?? plain?.next ?? ''
   } catch (failure) {
     if (!controller.signal.aborted) error.value = errorCode(failure)
   } finally {
@@ -152,6 +165,7 @@ onBeforeUnmount(() => {
       <ComboboxPortal>
         <ComboboxContent
           class="menu picker-menu"
+          :class="{ 'picker-menu-course': kind === 'course' }"
           position="popper"
           :side-offset="6"
         >
@@ -168,7 +182,14 @@ onBeforeUnmount(() => {
               :value="item.id"
               class="menu-item"
             >
-              <span class="truncate">{{ item.name }}</span>
+              <CourseCardLine
+                v-if="cards.get(item.id)"
+                :card="cards.get(item.id)!"
+              />
+              <span
+                v-else
+                class="truncate"
+              >{{ item.name }}</span>
               <Check
                 v-if="model === item.id"
                 aria-hidden="true"
@@ -225,4 +246,8 @@ onBeforeUnmount(() => {
 .picker-menu .menu-item { justify-content: space-between; }
 .picker-check { flex: none; }
 .picker-more { width: 100%; }
+/* Course choices carry two lines of facts, so their menu may grow wider than the field. */
+.picker-menu-course { width: max(var(--reka-combobox-trigger-width), min(36rem, calc(100vw - 2rem))); max-height: 24rem; }
+.picker-menu-course .picker-viewport { max-height: calc(24rem - .75rem); }
+.picker-menu-course .menu-item { min-height: 3.25rem; }
 </style>

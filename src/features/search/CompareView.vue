@@ -15,6 +15,8 @@ import SearchField from '../../shared/ui/SearchField.vue'
 import TabBar from '../../shared/ui/TabBar.vue'
 import { toast } from '../../shared/ui/toast'
 import { useCampusId } from '../account/access'
+import CourseCardLine from '../academic/CourseCardLine.vue'
+import { cardFromDirectory, type CourseCard } from '../academic/courseCard'
 import { dimensions, knownCredits, useAcademic, type CatalogObject, type ObjectSummary, type Statistics } from '../academic/api'
 import { useRatingText } from '../academic/presentation'
 import RatingIcon from '../academic/RatingIcon.vue'
@@ -55,6 +57,8 @@ const tabs = computed(() => [
 
 const pickerQuery = ref('')
 const pickerItems = shallowRef<CatalogObject[]>([])
+// Course choices show the facts of a course list row; teachers keep the name.
+const pickerCards = shallowRef(new Map<string, CourseCard>())
 const pickerBusy = ref(false)
 const pickerSearched = ref(false)
 let pickerTimer: ReturnType<typeof setTimeout> | undefined
@@ -92,6 +96,7 @@ watch(pickerQuery, (raw) => {
       .then((page) => {
         if (pickerAbort !== controller) return
         pickerItems.value = page.items.map((row) => row.object)
+        pickerCards.value = new Map(kind.value === 'course' ? page.items.map((row) => [row.object.id, cardFromDirectory(row)] as const) : [])
         pickerSearched.value = true
       })
       .catch(() => {
@@ -234,7 +239,14 @@ const subjectPath = (id: string) => pathOf(kind.value, id)
           :key="option.id"
           class="group-row"
         >
-          <span class="group-body">
+          <CourseCardLine
+            v-if="pickerCards.get(option.id)"
+            :card="pickerCards.get(option.id)!"
+          />
+          <span
+            v-else
+            class="group-body"
+          >
             <span class="group-title">{{ option.name }}</span>
             <span
               v-if="option.code"

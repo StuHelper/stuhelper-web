@@ -3,7 +3,7 @@ import { hue } from '../../shared/hue'
 import { teacherDirectoryEnabled } from '../../app/features'
 import FavoriteButton from '../favorites/FavoriteButton.vue'
 import CompareButton from '../search/CompareButton.vue'
-import { PenLine, Upload } from 'lucide-vue-next'
+import { PenLine } from 'lucide-vue-next'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
@@ -161,13 +161,6 @@ function submitted(result: Result) {
             :to="withFilters('/resources', { course_id: subject.id })"
           >
             {{ t('academic.subject.resources') }}
-          </RouterLink>
-          <RouterLink
-            v-if="kind === 'course' && !subject.inactive"
-            class="btn"
-            :to="{ path: '/resources/new', query: { course_id: subject.id } }"
-          >
-            <Upload aria-hidden="true" />{{ t('academic.subject.uploadResource') }}
           </RouterLink>
           <!-- The main action closes the row on wide screens and leads it on phones, where the row scrolls. -->
           <button

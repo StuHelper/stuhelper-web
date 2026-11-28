@@ -305,12 +305,6 @@ async function exportCalendar() {
                     >
                       {{ t('academic.subject.resources') }}
                     </RouterLink>
-                    <RouterLink
-                      class="btn btn-sm btn-ghost"
-                      :to="{ path: '/resources/new', query: { course_id: row.enrollment.course_id, term_id: row.enrollment.term_id, teacher_id: row.enrollment.teacher_ids.length === 1 ? row.enrollment.teacher_ids[0] : undefined } }"
-                    >
-                      {{ t('academic.subject.uploadResource') }}
-                    </RouterLink>
                   </div>
                 </li>
               </ul>

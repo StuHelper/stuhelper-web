@@ -425,8 +425,7 @@
       "englishName": "Nom anglais",
       "formerCodes": "Anciens codes de cours",
       "formerNames": "Anciens noms",
-      "hours": "Heures de cours",
-      "uploadResource": "Déposer une ressource"
+      "hours": "Heures de cours"
     },
     "offerings": {
       "title": "Sessions du cours",

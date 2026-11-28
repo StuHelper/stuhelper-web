@@ -7,8 +7,10 @@ import { myCoursesEnabled } from '../../app/features'
 import { useVerification } from '../verification/api'
 import { useAsync } from '../../shared/composables/async'
 import SheetDialog from '../../shared/ui/SheetDialog.vue'
-import { useAcademic, type CatalogObject } from './api'
+import { useAcademic } from './api'
 import { coursePath, type Addressable } from './paths'
+import { cardFromDirectory, cardsByIds, type CourseCard } from './courseCard'
+import CourseCardLine from './CourseCardLine.vue'
 import { loadOwnCourses, type OwnCourse, type OwnTerm } from './ownCourses'
 
 /**
@@ -52,7 +54,11 @@ const own = useAsync(async (signal) => {
   for (const group of list) group.rows.sort((a, b) => Number(!!a.reviewId) - Number(!!b.reviewId) || a.name.localeCompare(b.name))
   return { state: 'ready' as const, groups: list }
 })
-const recent = useAsync(async (signal) => (await api.recentCourses(signal)).items.slice(0, 6).map((row) => row.course))
+const recent = useAsync(async (signal) => {
+  const courses = (await api.recentCourses(signal)).items.slice(0, 6).map((row) => row.course)
+  const cards = await cardsByIds(api, courses.map((course) => course.id), signal)
+  return courses.map((course) => cards.get(course.id) ?? { object: course, code: typeof course.code === 'string' ? course.code : '', department: '', level: 0 })
+})
 const ownGroups = computed(() => own.data.value?.groups ?? [])
 const ownUnavailable = computed(() => own.status.value === 'error' || own.data.value?.state === 'off' || (own.data.value?.state === 'ready' && !ownGroups.value.length))
 const pendingCount = computed(() => ownGroups.value.reduce((sum, group) => sum + group.rows.filter((row) => !row.reviewId).length, 0))
@@ -67,7 +73,7 @@ function toggle(termId: string) {
 }
 
 // Search over all courses, a short moment after typing stops.
-const results = shallowRef<CatalogObject[]>([])
+const results = shallowRef<CourseCard[]>([])
 const searching = ref(false)
 const searchFailed = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
@@ -81,7 +87,7 @@ watch(query, (text) => {
   timer = setTimeout(async () => {
     controller = new AbortController()
     try {
-      results.value = (await api.objects({ kind: 'course', q: needle, limit: 8 }, controller.signal)).items
+      results.value = (await api.directory({ kind: 'course', q: needle, limit: 8 }, controller.signal)).items.map(cardFromDirectory)
       searchFailed.value = false
     } catch (error) {
       if ((error as Error).name === 'AbortError') return
@@ -116,7 +122,6 @@ function pick(row: OwnRow) {
     void router.push(`/reviews/${encodeURIComponent(row.reviewId)}`)
   } else write({ id: row.courseId, address_id: row.address }, row.termId, row.teacherIds)
 }
-const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? course.code : '')
 </script>
 
 <template>
@@ -184,18 +189,15 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
         </p>
         <ul class="launcher-list">
           <li
-            v-for="course in results"
-            :key="course.id"
+            v-for="card in results"
+            :key="card.object.id"
           >
             <button
               class="launcher-row"
               type="button"
-              @click="write(course)"
+              @click="write(card.object)"
             >
-              <span class="launcher-main">
-                <strong>{{ course.name }}</strong>
-                <span class="subtle">{{ codeOf(course) }}</span>
-              </span>
+              <CourseCardLine :card="card" />
               <span class="launcher-go">{{ t('academic.launcher.write') }}</span>
             </button>
           </li>
@@ -295,18 +297,15 @@ const codeOf = (course: CatalogObject) => (typeof course.code === 'string' ? cou
             </h3>
             <ul class="launcher-list">
               <li
-                v-for="course in recent.data.value"
-                :key="course.id"
+                v-for="card in recent.data.value"
+                :key="card.object.id"
               >
                 <button
                   class="launcher-row"
                   type="button"
-                  @click="write(course)"
+                  @click="write(card.object)"
                 >
-                  <span class="launcher-main">
-                    <strong>{{ course.name }}</strong>
-                    <span class="subtle">{{ codeOf(course) }}</span>
-                  </span>
+                  <CourseCardLine :card="card" />
                   <span class="launcher-go">{{ t('academic.launcher.write') }}</span>
                 </button>
               </li>

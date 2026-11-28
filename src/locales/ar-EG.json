@@ -425,8 +425,7 @@
       "englishName": "الاسم بالإنجليزية",
       "formerCodes": "رموز المقرر السابقة",
       "formerNames": "الأسماء السابقة",
-      "hours": "الساعات الدراسية",
-      "uploadResource": "رفع مادة"
+      "hours": "الساعات الدراسية"
     },
     "offerings": {
       "title": "مرات طرح المقرر",

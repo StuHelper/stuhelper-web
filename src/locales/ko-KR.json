@@ -425,8 +425,7 @@
       "englishName": "영문명",
       "formerCodes": "이전 과목 번호",
       "formerNames": "이전 이름",
-      "hours": "수업 시간",
-      "uploadResource": "자료 업로드"
+      "hours": "수업 시간"
     },
     "offerings": {
       "title": "개설 이력",
